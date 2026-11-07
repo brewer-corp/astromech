@@ -1,83 +1,25 @@
 /**
- * Powerplay from the journal (the shell replays it): the commander's standing and the current
- * system's Powerplay state; and the pledged power's nearby targets (Spansh, through the shell).
+ * Powerplay from the journal (the core replays it): the commander's standing and the current
+ * system's Powerplay state; and the pledged power's nearby targets (Spansh, asked by the core).
  */
 import type { Filters, Origin } from "./search";
+import type { Overview } from "./api/types/Overview";
+import type { PowerplayTarget } from "./api/types/PowerplayTarget";
+import type { TargetHit } from "./api/types/TargetHit";
+import type { Targets } from "./api/types/Targets";
+import type { Work } from "./api/types/Work";
 import { call } from "./transport";
 
-export interface NextRank {
-  rank: number;
-  merits: number;
-  to_go: number;
-  reward: string;
-  note: string | null;
-}
-
-export interface Standing {
-  power: string | null;
-  rank: number | null;
-  merits: number | null;
-  time_pledged_secs: number | null;
-  session_merits: number;
-  week_merits: number;
-  /** When this weekly cycle ends (RFC 3339). */
-  week_ends: string;
-  next: NextRank | null;
-}
-
+export type { NextRank } from "./api/types/NextRank";
+export type { StandingView as Standing } from "./api/types/StandingView";
 /** What a system offers the pledged power. */
-export type Work = "reinforce" | "undermine" | "acquire";
-
-/** Something that earns the pledged power merits here (astromech_powerplay::Suggestion). */
-export interface Suggestion {
-  /** Stable id from the rules table, e.g. "bounty-hunting". */
-  activity: string;
-  name: string;
-  how: string;
-  /** On foot (Odyssey). */
-  odyssey: boolean;
-  /** The pledged power's ethos favours it: bonus merits. */
-  favoured: boolean;
-  /** The controlling power is weak to it (undermining). */
-  weak_spot: boolean;
-  /** Why the rule isn't verified in game, if it isn't. */
-  uncertain: string | null;
-}
-
-/** The activity rules table the suggestions come from. */
-export interface RulesVersion {
-  version: number;
-  /** YYYY-MM-DD. */
-  fetched: string;
-}
-
-export interface SystemPower {
-  system: string;
-  controlling_power: string | null;
-  /** As the journal writes it: Exploited, Fortified, Stronghold, Unoccupied. */
-  state: string | null;
-  /** Progress through the state's band, a fraction (may be below 0 or above 1). */
-  control_progress: number | null;
-  reinforcement: number | null;
-  undermining: number | null;
-  /** Powers other than the controller active here. */
-  contesting: string[];
-  /** Unoccupied systems: acquisition progress, highest first. */
-  acquisition: { power: string; progress: number }[];
-  work: Work | null;
-  summary: string;
-  /** What earns the pledged power merits here; empty when not pledged or nothing does. */
-  suggestions: Suggestion[];
-  activity_rules: RulesVersion;
-}
-
-export interface Overview {
-  standing: Standing;
-  /** The current system (last jump or location). */
-  here: string | null;
-  /** Its Powerplay state; null when it has none. */
-  system: SystemPower | null;
-}
+export type { Work } from "./api/types/Work";
+export type { Suggestion } from "./api/types/Suggestion";
+export type { RulesVersion } from "./api/types/RulesVersion";
+export type { PowerplaySystemView as SystemPower } from "./api/types/PowerplaySystemView";
+export type { Overview } from "./api/types/Overview";
+export type { TargetHit } from "./api/types/TargetHit";
+export type { Targets } from "./api/types/Targets";
 
 export const WORK_LABEL: Record<Work, string> = {
   reinforce: "Your power's system: reinforce",
@@ -91,7 +33,7 @@ export function pct(f: number | null | undefined): string {
 }
 
 export async function loadOverview(): Promise<Overview> {
-  return await call<Overview>("powerplay_overview");
+  return await call("powerplay_overview");
 }
 
 /** "12,345". */
@@ -115,7 +57,7 @@ export function until(iso: string, now = Date.now()): string {
 }
 
 /** Kinds of nearby target (astromech_galaxy::Target). */
-export type Target = "acquire" | "reinforce" | "undermine";
+export type Target = PowerplayTarget;
 
 export const TARGETS: { id: Target; title: string; busy: string }[] = [
   { id: "acquire", title: "Acquire", busy: "Looking for unoccupied systems your power can take…" },
@@ -123,37 +65,9 @@ export const TARGETS: { id: Target; title: string; busy: string }[] = [
   { id: "undermine", title: "Undermine", busy: "Looking for other powers' systems…" },
 ];
 
-export interface TargetHit {
-  name: string;
-  id64: number;
-  ly: number;
-  jumps: number;
-  exact: boolean;
-  controlling_power: string | null;
-  state: string | null;
-  control_progress: number | null;
-  reinforcement: number | null;
-  undermining: number | null;
-  /** Unoccupied systems: the pledged power's acquisition progress. */
-  acquisition: number | null;
-  others: string[];
-  updated_at: string | null;
-}
-
-export interface Targets {
-  target: Target;
-  power: string;
-  here: { system: string; pos: [number, number, number] };
-  range: number;
-  within_ly: number;
-  fetched: string;
-  hits: TargetHit[];
-  warning?: string;
-}
-
 /** The pledged power's `target` systems within `withinLy` of `origin` (or the commander). */
 export async function loadTargets(target: Target, origin: Origin, filters: Filters | null, withinLy: number): Promise<Targets> {
-  return await call<Targets>("powerplay_targets", { target, origin, filters, within_ly: withinLy });
+  return await call("powerplay_targets", { target, origin, filters, within_ly: withinLy });
 }
 
 /** The row detail: state and progress, and which other powers are there besides `power`. */

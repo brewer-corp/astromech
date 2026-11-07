@@ -1,97 +1,32 @@
 /**
  * Colonisation (astromech-colonisation, astromech-market::list): construction projects from the
  * journals with what is left to buy for each, and where to buy that list, stations stocking
- * most of it first (Ardent Insight through the shell). The browser preview answers from a
+ * most of it first (Ardent Insight, asked by the core). The browser preview answers from a
  * synthetic project and a recorded search (app/src/preview/fixtures/colonisation.json, trade.json).
  */
-import type { Filters, Origin, Pad, Results } from "./search";
+import type { MarketNeed as Need } from "./api/types/MarketNeed";
+import type { ProjectView as Project } from "./api/types/ProjectView";
+import type { ShoppingPlan as BuySearch } from "./api/types/ShoppingPlan";
+import type { Filters, Origin, Results } from "./search";
 import { credits } from "./trade";
 import { call } from "./transport";
+
+export type { ColonisationLine as ShoppingLine } from "./api/types/ColonisationLine";
+/** A construction project and its shopping list (astromech_colonisation::ProjectView). */
+export type { ProjectView as Project } from "./api/types/ProjectView";
+/** One commodity still to buy (astromech_market::list::Need). */
+export type { MarketNeed as Need } from "./api/types/MarketNeed";
+export type { StockLine } from "./api/types/StockLine";
+export type { Stockist } from "./api/types/Stockist";
+export type { ListPlan } from "./api/types/ListPlan";
+export type { ShoppingPlan as BuySearch } from "./api/types/ShoppingPlan";
 
 /** The id the search kit remembers this lookup's filters under (astromech_market::list::LOOKUP). */
 export const LOOKUP = "colonisation.buy";
 
-/** One commodity on a project's shopping list (astromech_colonisation::shopping::Line). */
-export interface ShoppingLine {
-  /** Market symbol: "steel". */
-  symbol: string;
-  /** Journal name: "$steel_name;". */
-  name: string;
-  name_localised: string | null;
-  remaining: number;
-  in_cargo: number;
-  to_buy: number;
-}
-
-/** A construction project and its shopping list (astromech_colonisation::ProjectView). */
-export interface Project {
-  market_id: number;
-  station_name: string | null;
-  system_name: string | null;
-  /** 0 to 1. */
-  progress: number;
-  complete: boolean;
-  failed: boolean;
-  depot_updated: string;
-  shopping: {
-    lines: ShoppingLine[];
-    to_buy_total: number;
-    capacity: number | null;
-    loads: number | null;
-  };
-}
-
-/** One commodity still to buy (astromech_market::list::Need). */
-export interface Need {
-  symbol: string;
-  name: string;
-  tonnes: number;
-}
-
-/** One listed commodity a station sells. */
-export interface StockLine {
-  commodity: string;
-  name: string;
-  needed: number;
-  stock: number;
-  price: number;
-}
-
-/** A station selling some of the list (astromech_market::list::Stockist). */
-export interface Stockist {
-  market_id: number;
-  station: string;
-  system: string;
-  ly: number;
-  jumps: number;
-  exact: boolean;
-  pad: Pad | null;
-  arrival_ls: number | null;
-  fleet_carrier: boolean;
-  odyssey: boolean;
-  updated_at: string;
-  stocked: number;
-  lines: StockLine[];
-  missing: string[];
-}
-
-export interface ListPlan {
-  stations: Stockist[];
-  unavailable: string[];
-  truncated: string[];
-  /** Unix seconds. */
-  fetched_at: number;
-}
-
-export interface BuySearch {
-  here: { system: string; pos: [number, number, number] };
-  range: number;
-  plan: ListPlan;
-}
-
 /** Construction projects from the journals, those being built first. */
 export async function loadProjects(): Promise<Project[]> {
-  return await call<Project[]>("colonisation_projects");
+  return await call("colonisation_projects");
 }
 
 /** A project's display name: the station, else its market id. */
@@ -106,7 +41,7 @@ export function needsOf(p: Project): Need[] {
 
 /** Where to buy `needs` near `origin` (or the commander), stations stocking most of them first. */
 export async function buyList(needs: Need[], origin: Origin = null, filters: Filters | null = null): Promise<BuySearch> {
-  return await call<BuySearch>("colonisation_buy", { needs, origin, filters });
+  return await call("colonisation_buy", { needs, origin, filters });
 }
 
 /** The stations as the search kit's rows: how much of the list each sells, and each stock. */

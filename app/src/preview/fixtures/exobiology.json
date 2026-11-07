@@ -4,6 +4,7 @@
       "body_id": 5,
       "genera": [
         {
+          "analysed": false,
           "colony_range_m": 500,
           "genus": "Stratum",
           "known": true,
@@ -21,6 +22,7 @@
           ]
         },
         {
+          "analysed": false,
           "colony_range_m": 500,
           "genus": "Bacterium",
           "known": true,
@@ -50,6 +52,7 @@
       "body_id": 7,
       "genera": [
         {
+          "analysed": false,
           "colony_range_m": 1000,
           "genus": "Electricae",
           "known": false,
@@ -67,6 +70,7 @@
           ]
         },
         {
+          "analysed": false,
           "colony_range_m": 500,
           "genus": "Bacterium",
           "known": false,
@@ -84,6 +88,7 @@
           ]
         },
         {
+          "analysed": false,
           "colony_range_m": 500,
           "genus": "Fonticulua",
           "known": false,

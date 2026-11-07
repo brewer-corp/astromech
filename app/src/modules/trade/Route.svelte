@@ -28,7 +28,7 @@
   let cash = $state<number | null>(null);
   let hop = $state<number | null>(null);
   let filters = $state<Filters | null>(null);
-  /** The current ship's pad as of the last search (the shell resolves it on every search). */
+  /** The current ship's pad as of the last search (the core resolves it on every search). */
   let shipPad = $state<Pad | null | undefined>(undefined);
   let filterErr = $state<string | null>(null);
   /** The ship's cargo, credits and range could not be read: the fields start empty and the hop at the default. */

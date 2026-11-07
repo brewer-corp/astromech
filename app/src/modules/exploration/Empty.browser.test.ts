@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/svelte";
 import { answer } from "../../test/transport";
 import View from "./View.svelte";
 
-// No history yet (first run, before the core's import): the shell answers null, not an error.
+// No history yet (first run, before the core's import): the core answers null, not an error.
 answer("exploration_unsold", () => null);
 
 describe("Exploration unsold data without a history", () => {

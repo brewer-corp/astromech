@@ -113,7 +113,10 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   `cargo test -p astromech-api` while the command layer's own part does. A `serde_json::Value`
   (ts-rs's `JsonValue`) in a command's args or reply needs an entry with a reason in
   `JSON_VALUES` (crates/astromech-core/src/app.rs). Two types with one name need a
-  `#[ts(rename = "…")]`; the test names them.
+  `#[ts(rename = "…")]`; the test names them. The window's `call` and the browser preview's
+  handlers are typed by the map, and each preview fixture is read through `recorded<ReplyType>()`
+  (`app/src/preview/recorded.ts`), so `pnpm check` fails on a fixture missing a field the core
+  sends. Take the field from the fixture's recorded input (or the example that dumps it).
 - To show a UI change to someone off this machine, work on the real page on its branch against the
   browser preview (add a fixture under `app/src/preview/fixtures/` when the change needs data the
   preview lacks), then `scripts/preview-publish --page route --query route=exact`. It builds the

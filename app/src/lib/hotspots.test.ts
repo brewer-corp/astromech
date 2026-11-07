@@ -50,7 +50,7 @@ describe("Mining hotspots rows", () => {
     expect(ORES.map((o) => o.symbol)).toContain("lowtemperaturediamond");
   });
 
-  it("answers the browser preview with the recorded rings, the ring type and reserve applied as the shell does", async () => {
+  it("answers the browser preview with the recorded rings, the ring type and reserve applied as the core does", async () => {
     const all = await hotspots({ ore: "painite", ring_type: null, reserve: null }, null, DEFAULT_FILTERS);
     expect(all.rings).toHaveLength(10);
     expect(all.here.system).toBe("Sol");

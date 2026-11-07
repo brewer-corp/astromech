@@ -3,51 +3,30 @@
  * a dry run: the core matches the phrase and plans the keys but presses nothing. Only
  * `voiceLive` presses, through the core's policy. The browser preview answers from sample results.
  */
+import type { Answer } from "./api/types/Answer";
+import type { DryRun } from "./api/types/DryRun";
+import type { Phrase } from "./api/types/Phrase";
+import type { Phrases } from "./api/types/Phrases";
+import type { Poll } from "./api/types/Poll";
 import { coreCall } from "./core";
 
-export type Would =
-  | "press"
-  | "confirm"
-  | "already"
-  | "refused"
-  | "speak"
-  | "no_binding"
-  | "unavailable"
-  | "did_you_mean"
-  | "not_understood"
-  | "ignored";
-
-export interface DryRun {
-  source: "typed" | "voice";
-  transcript: string;
-  intent: { command: string; phrase: string; score: number; decision: "execute" | "ask" | "no_match" } | null;
-  would: Would;
-  /** What astromech would say. */
-  message: string;
-  action: string | null;
-  keys: { key: string; modifiers: string[]; slot: string } | null;
-  /** The command a live run would execute, or null. */
-  live: string | null;
-  /** The system that live run searches from, when the phrase named one ("... near Sol"). */
-  live_from?: string | null;
-}
-
-export interface Poll {
-  /** True while Elite runs and push-to-talk is live (so it can be tested). */
-  listening: boolean;
-  last: { seq: number; result: DryRun } | null;
-}
+export type { DryRun } from "./api/types/DryRun";
+export type { Poll } from "./api/types/Poll";
+export type { Would } from "./api/types/Would";
+/** A phrase astromech learned from a "Did you mean ...?" answered yes: the words as they were
+ * heard, the command it now runs and that command's usual phrase. */
+export type LearnedPhrase = Phrase;
 
 export async function voiceTest(text: string): Promise<DryRun> {
   const r = await coreCall("voice_test", text);
   if (!r.ok) throw new Error(String(r.error));
-  return r.result as DryRun;
+  return r.result;
 }
 
 /** Keeps push-to-talk in test mode for a few seconds; call it every second while the page is open. */
 export async function voicePoll(): Promise<Poll | null> {
   const r = await coreCall("voice_test_poll");
-  return r.ok ? (r as unknown as Poll) : null;
+  return r.ok ? r : null;
 }
 
 /** Hand push-to-talk back to the assistant now (the page closed). */
@@ -55,20 +34,11 @@ export async function voiceStop(): Promise<void> {
   await coreCall("voice_test_stop");
 }
 
-/** A phrase astromech learned from a "Did you mean ...?" answered yes. */
-export interface LearnedPhrase {
-  /** The words as they were heard. */
-  heard: string;
-  /** The command it now runs. */
-  command: string;
-  /** That command's usual phrase. */
-  does: string;
-}
-
-async function learned(r: Promise<Record<string, unknown>>): Promise<LearnedPhrase[]> {
+async function learned(r: Promise<Answer<Phrases>>): Promise<LearnedPhrase[]> {
   const v = await r;
-  if (!v.ok || !Array.isArray(v.phrases)) throw new Error(String(v.error ?? "the core did not answer"));
-  return v.phrases as LearnedPhrase[];
+  if (!v.ok) throw new Error(v.error ?? "the core did not answer");
+  if (!Array.isArray(v.phrases)) throw new Error("the core did not answer");
+  return v.phrases;
 }
 
 /** The phrases learned so far, most used first. */
@@ -91,5 +61,5 @@ export const SWITCH_SECONDS = 5;
 export async function voiceLive(command: string, from?: string | null): Promise<string> {
   const r = await coreCall("voice_test_live", from ? { command, from } : command);
   if (!r.ok) throw new Error(String(r.error));
-  return String(r.message);
+  return r.message;
 }

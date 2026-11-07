@@ -1,42 +1,18 @@
 /**
  * Raw-material sites near a system (crystalline shards, brain trees, crashed ships, geological
- * sites, the known grade 4 farms) with jump counts from the local star map. The shell asks
+ * sites, the known grade 4 farms) with jump counts from the local star map. The core asks
  * Spansh's bodies search and does the maths (astromech_galaxy::sites).
  */
+import type { SiteKind } from "./api/types/SiteKind";
+import type { Sites } from "./api/types/Sites";
 import type { Filters, Origin, Results } from "./search";
 import { call } from "./transport";
 
-export interface SiteKind {
-  id: string;
-  label: string;
-  noun: string;
-  yields: string;
-}
+export type { SiteKind } from "./api/types/SiteKind";
+export type { SiteHit } from "./api/types/SiteHit";
+export type { Sites } from "./api/types/Sites";
 
-export interface SiteHit {
-  system: string;
-  id64: number;
-  /** Full body name, e.g. "HIP 36601 C 1 a". */
-  body: string;
-  ly: number;
-  jumps: number;
-  exact: boolean;
-  arrival_ls: number | null;
-  updated_at: string | null;
-  detail: string;
-}
-
-export interface Sites {
-  kind: SiteKind;
-  here: { system: string; pos: [number, number, number] };
-  range: number;
-  source: string;
-  fetched: string;
-  hits: SiteHit[];
-  warning?: string;
-}
-
-/** The kinds the shell offers, in its order (astromech_galaxy::SITE_KINDS). */
+/** The kinds the core offers, in its order (astromech_galaxy::SITE_KINDS). */
 export const SITE_KINDS: SiteKind[] = [
   {
     id: "crystalline_shards",
@@ -57,7 +33,7 @@ export function siteKind(id: string): SiteKind {
 
 /** Sites of `kind` matching `filters` near `origin` (a typed system name), or near the commander. */
 export async function sites(kind: string, origin: Origin = null, filters: Filters | null = null): Promise<Sites> {
-  return await call<Sites>("galaxy_sites", { kind, origin, filters });
+  return await call("galaxy_sites", { kind, origin, filters });
 }
 
 /** "B 6 a" for a body named after its system, else the whole name ("Mercury"). */

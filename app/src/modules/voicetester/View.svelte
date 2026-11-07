@@ -128,7 +128,7 @@
     not_understood: "Say",
     ignored: "Ignore it as noise",
   };
-  const DECISION = { execute: "acts on it", ask: "asks first", no_match: "too low to act" } as const;
+  const DECISION: Record<string, string> = { execute: "acts on it", ask: "asks first", no_match: "too low to act" };
   const keys = (k: NonNullable<DryRun["keys"]>) => [...k.modifiers, k.key].map(keyName).join(" + ");
 </script>
 
@@ -160,7 +160,7 @@
         {/if}
       </dd>
       <dt>Confidence</dt>
-      <dd>{#if result.intent}{Math.round(result.intent.score * 100)}%<span class="lo">&nbsp;· {DECISION[result.intent.decision]}</span>{:else}—{/if}</dd>
+      <dd>{#if result.intent}{Math.round(result.intent.score * 100)}%<span class="lo">&nbsp;· {DECISION[result.intent.decision] ?? result.intent.decision}</span>{:else}—{/if}</dd>
       <dt>Would</dt>
       <dd>{WOULD[result.would]}{#if result.message}&nbsp;“{result.message}”{/if}</dd>
       <dt>Keys</dt>

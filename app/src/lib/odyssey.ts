@@ -1,152 +1,33 @@
 /**
  * Odyssey on-foot micro-resources: the ShipLocker/Backpack inventory, on-foot engineers, and
- * what picked suit/weapon upgrades and modifications need (astromech-odyssey, via the shell).
+ * what picked suit/weapon upgrades and modifications need (astromech-odyssey, in the core).
  * Picks are kept in localStorage. Outside the app only the sample picks have a shopping list.
  */
+import type { ModRef } from "./api/types/ModRef";
+import type { OdysseyView } from "./api/types/OdysseyView";
+import type { OwnedGear } from "./api/types/OwnedGear";
+import type { Pick } from "./api/types/Pick";
+import type { Shopping } from "./api/types/Shopping";
 import { call, previewOption } from "./transport";
 
 export type Category = "goods" | "assets" | "data" | "consumables";
 
-export interface ItemLine {
-  id: string;
-  name: string;
-  category: Category;
-  locker: number;
-  backpack: number;
-  mission: number;
-  barter: number | null;
-  value: number | null;
-}
-
-export interface ModRef {
-  id: string;
-  name: string;
-  kind: "suit" | "weapon" | string;
-  unconfirmed?: boolean;
-  makers?: string[];
-  /** Everything owned of its kind already has it (hidden from the picker). */
-  fitted?: boolean;
-  /** Weapon makers whose owned weapons all have it. */
-  fitted_makers?: string[];
-}
-
-export interface EngineerLine {
-  id: number;
-  name: string;
-  system: string;
-  colonia: boolean;
-  progress: string;
-  mods: ModRef[];
-  referred_by: string[];
-  refers: string[];
-  invite: string;
-  referral_task: string | null;
-  next: string;
-}
-
-export interface GearRef {
-  id: string;
-  name: string;
-  kind: "suit" | "weapon";
-  maker: string | null;
-}
-
-/** A suit or weapon the commander owns, from the journal. */
-export interface OwnedGear {
-  gear: string;
-  name: string;
-  kind: "suit" | "weapon";
-  maker: string | null;
-  grade: number;
-  /** Modification ids fitted. */
-  mods: string[];
-}
-
-export interface OdysseyView {
-  source: string;
-  locker_ts: string | null;
-  backpack_ts: string | null;
-  items: ItemLine[];
-  engineers: EngineerLine[];
-  gear: GearRef[];
-  owned: OwnedGear[];
-  mods: ModRef[];
-  data_source: string;
-  data_date: string;
-  data_uncertain: string[];
-}
-
-export type Pick =
-  | { kind: "upgrade"; gear: string; from: number; to: number }
-  | { kind: "mod"; id: string; maker?: string | null };
-
-export interface Need {
-  id: string;
-  name: string;
-  category: Category;
-  need: number;
-  have: number;
-  short: number;
-  barter: number | null;
-}
-
-export interface FitBy {
-  name: string;
-  system: string;
-  unlocked: boolean;
-  unconfirmed: boolean;
-}
-
-export interface PickResult {
-  pick: Pick;
-  title: string;
-  lines: Need[];
-  credits: number;
-  credits_partial: boolean;
-  fitted_by: FitBy[];
-  ready: boolean;
-  /** Why this pick can't be costed; it adds nothing to the list. */
-  error: string | null;
-}
-
-export interface Give {
-  id: string;
-  name: string;
-  count: number;
-  barter: number;
-}
-
+export type { BarterPlan } from "./api/types/BarterPlan";
+export type { EngineerLine } from "./api/types/EngineerLine";
+export type { FitBy } from "./api/types/FitBy";
+export type { GearRef } from "./api/types/GearRef";
+export type { Give } from "./api/types/Give";
+export type { ItemLine } from "./api/types/ItemLine";
+export type { Left } from "./api/types/Left";
+export type { ModRef } from "./api/types/ModRef";
+export type { OdysseyNeed as Need } from "./api/types/OdysseyNeed";
+export type { OdysseyView } from "./api/types/OdysseyView";
+export type { OwnedGear } from "./api/types/OwnedGear";
+export type { Pick } from "./api/types/Pick";
+export type { PickResult } from "./api/types/PickResult";
+export type { Shopping } from "./api/types/Shopping";
 /** A short asset covered from surplus at a bartender. */
-export interface Swap {
-  get_id: string;
-  get_name: string;
-  get: number;
-  barter_wanted: number;
-  gives: Give[];
-  barter_given: number;
-}
-
-export interface Left {
-  id: string;
-  name: string;
-  category: Category;
-  short: number;
-}
-
-export interface BarterPlan {
-  swaps: Swap[];
-  left: Left[];
-  barter_given: number;
-}
-
-export interface Shopping {
-  picks: PickResult[];
-  total: Need[];
-  credits: number;
-  credits_partial: boolean;
-  barter_short: number;
-  trade: BarterPlan;
-}
+export type { Swap } from "./api/types/Swap";
 
 export const MAKERS: Record<string, string> = { kinematic: "Kinematic Armaments", manticore: "Manticore", takada: "Takada" };
 
@@ -168,7 +49,7 @@ export function fromGrades(owned: OwnedGear[], gear: string): number[] {
 }
 
 export async function loadOdyssey(): Promise<OdysseyView> {
-  return await call<OdysseyView>("odyssey_view");
+  return await call("odyssey_view");
 }
 
 export const pickKey = (p: Pick) => (p.kind === "upgrade" ? `u:${p.gear}:${p.from}:${p.to}` : `m:${p.id}:${p.maker ?? ""}`);
@@ -179,7 +60,7 @@ export function samePicks(a: Pick[], b: Pick[]): boolean {
 
 /** The list for `picks`; outside the app only for the sample picks (else null). */
 export async function loadShopping(picks: Pick[]): Promise<Shopping | null> {
-  return await call<Shopping>("odyssey_shopping", { picks });
+  return await call("odyssey_shopping", { picks });
 }
 
 const KEY = "astromech.odyssey.picks";

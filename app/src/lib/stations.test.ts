@@ -24,7 +24,7 @@ describe("station lookups (browser preview)", () => {
     expect(ships.rows[0]?.facts?.price).toBe("45,814,205");
   });
 
-  it("applies the filters the way the shell does", async () => {
+  it("applies the filters the way the core does", async () => {
     const want = { kind: "service", service: "black_market" } as const;
     const all = await stations(want, "Alpha Centauri", DEFAULT_FILTERS);
     const some = await stations(want, "Alpha Centauri", { ...DEFAULT_FILTERS, exclude_carriers: true, exclude_odyssey: true, max_arrival_ls: 1000 });

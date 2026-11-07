@@ -1,9 +1,12 @@
 /**
  * Station lookups (astromech_galaxy::stations): the nearest stations offering a service, near
- * the commander or a typed system, through the shell (Spansh). Adapted into the search kit's
+ * the commander or a typed system, asked by the core (Spansh). Adapted into the search kit's
  * rows by {@link toResults}.
  */
-import { figure, stateLabel, type Column, type Filters, type Origin, type Pad, type Results } from "./search";
+import { figure, stateLabel, type Column, type Filters, type Origin, type Results } from "./search";
+import type { StationNearby as StationHit } from "./api/types/StationNearby";
+import type { StationsNearby } from "./api/types/StationsNearby";
+import type { StationWant } from "./api/types/StationWant";
 import { call } from "./transport";
 
 /** Service ids (astromech_galaxy::stations::Service) with the names shown for them. */
@@ -31,51 +34,16 @@ export const SERVICES = [
 
 export type ServiceId = (typeof SERVICES)[number]["id"];
 
-export type Mount = "Fixed" | "Gimballed" | "Turreted";
-
-/** A module to buy (astromech_galaxy::outfitting::ModuleWant); null: any. */
-export interface ModuleWant {
-  name: string;
-  class: number | null;
-  rating: string | null;
-  mount: Mount | null;
-}
-
+export type { Mount } from "./api/types/Mount";
+export type { ModuleWant } from "./api/types/ModuleWant";
+export type { StationNearby as StationHit } from "./api/types/StationNearby";
+export type { StationsNearby } from "./api/types/StationsNearby";
 /** What a station lookup looks for (astromech_galaxy::stations::Want). */
-export type Want = { kind: "service"; service: ServiceId } | ({ kind: "module" } & ModuleWant) | { kind: "ship"; ship: string };
-
-export interface StationHit {
-  name: string;
-  station_type: string | null;
-  market_id: number | null;
-  system: string;
-  system_id64: number;
-  ly: number;
-  jumps: number;
-  exact: boolean;
-  arrival_ls: number | null;
-  pad: Pad | null;
-  updated_at: string | null;
-  price: number | null;
-  detail: string | null;
-  allegiance: string | null;
-  faction: string | null;
-  state: string | null;
-}
-
-export interface StationsNearby {
-  want: string;
-  here: { system: string };
-  range: number;
-  filters: Filters;
-  fetched: string;
-  hits: StationHit[];
-  warning?: string;
-}
+export type Want = StationWant;
 
 /** The nearest stations offering `want` near `origin` (or the commander) that pass `filters`. */
 export async function stations(want: Want, origin: Origin, filters: Filters): Promise<StationsNearby> {
-  return await call<StationsNearby>("stations_nearby", { want, origin, filters });
+  return await call("stations_nearby", { want, origin, filters });
 }
 
 /** "Federation · Mother Gaia · Boom": who runs the station and its state, when the source says. */

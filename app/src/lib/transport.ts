@@ -12,12 +12,23 @@ import { listen } from "@tauri-apps/api/event";
 import { previewTransport } from "../preview/transport";
 import type { Commands } from "./api/commands";
 
-/** A command's arguments; a string is the request's text (the voice tester's phrase), which the
- * shell's proxy sends as such. */
-export type Args = Record<string, unknown> | string | null;
+/** The commands the window may send (exposure `window`); a `local` one (`quit`) doesn't typecheck. */
+export type WindowCommand = { [K in keyof Commands]: Commands[K]["exposure"] extends "window" ? K : never }[keyof Commands];
+/** Command `K`'s arguments (`null`: none). A string is the request's text (the voice tester's
+ * phrase), which the shell's proxy sends as such. */
+export type Args<K extends keyof Commands> = Commands[K]["args"];
+/** Command `K`'s reply (the envelope's `value`). */
+export type Reply<K extends keyof Commands> = Commands[K]["reply"];
+/** `call`'s arguments after the command: none needed for a command that takes none. */
+export type ArgList<K extends keyof Commands> = null extends Args<K> ? [args?: Args<K>] : [args: Args<K>];
 
+/** A reply as the window shows it: the browser preview labels its samples ("Sample journal
+ * history"), which the page shows beside them; the core never sends `source` for these. */
+export type Sampled<T> = T & { source?: string };
+
+/** The wire as each transport carries it; `call` below gives it the command map's types. */
 export interface Transport {
-  call(cmd: string, args?: Args): Promise<unknown>;
+  call(cmd: string, args?: unknown): Promise<unknown>;
   /** Returns the unsubscribe. */
   subscribe(topic: string, handler: (payload: unknown) => void): () => void;
   /** A browser preview's page option (`?q=`, `?device=`) or default for a remembered choice;
@@ -66,8 +77,9 @@ export function setTransport(t: Transport): void {
   current = t;
 }
 
-export function call<T>(cmd: string, args?: Args): Promise<T> {
-  return transport().call(cmd, args) as Promise<T>;
+/** Send `cmd` with its arguments; the reply is the core's, typed by the generated command map. */
+export function call<K extends WindowCommand>(cmd: K, ...[args]: ArgList<K>): Promise<Reply<K>> {
+  return transport().call(cmd, args) as Promise<Reply<K>>;
 }
 
 export function subscribe<T>(topic: string, handler: (payload: T) => void): () => void {

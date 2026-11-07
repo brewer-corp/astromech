@@ -7,37 +7,51 @@
  * Commands mutate the in-memory state the way the core would. Synthetic data only.
  *
  * Any scenario (or none) can also be made slow or broken, to see a page's loading and error states:
- * - `?fail=<name>,<name>` (or `?fail=all`): those calls are rejected, as the shell rejects a command;
+ * - `?fail=<name>,<name>` (or `?fail=all`): those calls are rejected, as a failed call is;
  * - `?slow=<ms>` or `?slow=never`: every call waits that long, or never answers;
  *   `?slow=never:<name>,<name>` limits it to the named calls.
  * A name is the command the window sends: `logbook`, `session_summary`, `engineering_fleet`,
  * `materials_inventory`, `eddn_log`, `status`, and so on (the `call` name in lib/*.ts).
  * `?core=empty` makes the sample-backed pages answer as a commander with no history (previewData,
  * used by shell.ts), and the network lookups fail for want of a position unless a system is typed
- * (previewLookup). Without `?core=` the core is not running: core commands answer so, except the
- * few with a sample (NO_CORE below).
+ * (previewLookup). Without `?core=` the core is not running: core commands fail as the window's
+ * calls do then, except the few with a sample (NO_CORE below).
  *
  * `?core=ready&route=exact` starts on a route, for the route strip: fixtures/plot.json's exact
  * route, with the commander in its third waypoint. Without it the preview has no route.
  */
-import type { CoreCmd, CoreStatus, Reply } from "../lib/core";
+import type { Biology } from "../lib/api/types/Biology";
+import type { CalibrationStep } from "../lib/api/types/CalibrationStep";
+import type { Colour } from "../lib/api/types/Colour";
+import type { Done } from "../lib/api/types/Done";
+import type { EddnHead } from "../lib/api/types/EddnHead";
+import type { Mining } from "../lib/api/types/Mining";
+import type { Ores } from "../lib/api/types/Ores";
+import type { Outbox } from "../lib/api/types/Outbox";
+import type { RouteReply } from "../lib/api/types/RouteReply";
+import type { CoreCmd, CoreStatus, Level } from "../lib/core";
 import type { EdsmStatus } from "../lib/edsm";
-import type { MiningRun } from "../lib/mining";
 import type { Route, RouteView, Waypoint } from "../lib/route";
+import type { ArgList, Args, Reply } from "../lib/transport";
 import type { DryRun, LearnedPhrase } from "../lib/voice";
-import eddnSample from "./fixtures/eddn-log.json";
-import biologySample from "./fixtures/exobiology.json";
-import miningSample from "./fixtures/mining.json";
+import eddnFixture from "./fixtures/eddn-log.json";
+import biologyFixture from "./fixtures/exobiology.json";
+import miningFixture from "./fixtures/mining.json";
 import plotSample from "./fixtures/plot.json";
-import voiceSample from "./fixtures/voice.json";
+import voiceFixture from "./fixtures/voice.json";
 import { previewQuery } from "./query";
+import { labelled, recorded, type Handler, type Handlers } from "./recorded";
+
+const eddnSample = recorded<Outbox<EddnHead>>(eddnFixture);
+const biologySample = recorded<Done<Biology>>(biologyFixture);
+const miningSample = recorded<Mining>(miningFixture);
 
 export type Scenario = "empty" | "new" | "ready";
 
 const BINDINGS = "C:\\Users\\you\\AppData\\Local\\Frontier Developments\\Elite Dangerous\\Options\\Bindings";
 const JOURNALS = "C:\\Users\\you\\Saved Games\\Frontier Developments\\Elite Dangerous";
 const MICS = ["Microphone (Example USB Mic)", "Headset Microphone (Example VR Headset)"];
-const PHRASES = ["gear down", "deploy hardpoints", "request docking"];
+const PHRASES: [string, string, string] = ["gear down", "deploy hardpoints", "request docking"];
 
 interface State {
   scenario: Scenario;
@@ -52,7 +66,7 @@ interface State {
   onboarded: boolean;
   gates: Record<string, number>;
   run: number | null;
-  voice: { speaker: string; speed: number; colour: string };
+  voice: { speaker: string; speed: number; colour: Colour };
   previews: string[];
   /** Prospector thresholds by ore (null: off), as the core's `prospector_thresholds` lists. */
   prospector: Record<string, number | null>;
@@ -85,7 +99,7 @@ const CALLOUTS = [
   { id: "hge", title: "High Grade Emissions", default_enabled: true, default_cooldown_s: 30 },
 ];
 
-function calloutsReply(st: State): Reply {
+function calloutsReply(st: State): Reply<"callouts"> {
   return {
     ok: true,
     callouts: CALLOUTS.map((c) => ({
@@ -96,12 +110,12 @@ function calloutsReply(st: State): Reply {
   };
 }
 
-function prospectorReply(st: State): Reply {
+function prospectorReply(st: State): Done<Ores> {
   const ores = Object.keys(PROSPECTOR_DEFAULTS).map((ore) => ({
     ore,
-    name: PROSPECTOR_NAMES[ore],
-    default: PROSPECTOR_DEFAULTS[ore],
-    threshold: st.prospector[ore],
+    name: PROSPECTOR_NAMES[ore] ?? ore,
+    default: PROSPECTOR_DEFAULTS[ore] ?? null,
+    threshold: st.prospector[ore] ?? null,
   }));
   return { ok: true, ores };
 }
@@ -141,10 +155,10 @@ export async function previewData<T>(cmd: string, sample: () => T, empty: () => 
 
 /**
  * What a network lookup (Spansh, Ardent) answers in the browser: the sample. Under `?core=empty`
- * with no typed system it fails the way the shell does without a position in the journal
+ * with no typed system it fails the way the core does without a position in the journal
  * (`search_origin`); a typed system still searches, as it does on a PC with no journal.
  */
-export async function previewLookup<T>(cmd: string, origin: string | null, sample: () => T): Promise<T> {
+export async function previewLookup<T>(cmd: string, origin: string | null | undefined, sample: () => T): Promise<T> {
   await previewGate(cmd);
   if (fakeScenario() === "empty" && !origin?.trim()) throw "no position in the journal yet";
   return sample();
@@ -205,8 +219,8 @@ function cleanStops(list: Waypoint[]): Waypoint[] {
     const last = out.at(-1);
     if (last && sameSystem(last.system, system)) {
       if (w.label && w.label !== last.label) last.label = last.label ? `${last.label}, ${w.label}` : w.label;
-      if (last.jumps !== undefined) last.jumps += w.jumps ?? 0;
-    } else out.push({ system, ...(w.label ? { label: w.label } : {}), ...(w.jumps !== undefined ? { jumps: w.jumps } : {}) });
+      if (last.jumps != null) last.jumps += w.jumps ?? 0;
+    } else out.push({ system, ...(w.label ? { label: w.label } : {}), ...(w.jumps != null ? { jumps: w.jumps } : {}) });
   }
   return out;
 }
@@ -223,7 +237,7 @@ function parseList(text: string): Waypoint[] {
 /** As the core's `Route::jumps_left`: null when a waypoint still to reach doesn't know its jumps. */
 function jumpsLeft(r: Route): number | null {
   const ahead = r.waypoints.slice(r.next);
-  return ahead.every((w) => w.jumps !== undefined) ? ahead.reduce((n, w) => n + (w.jumps ?? 0), 0) : null;
+  return ahead.every((w) => w.jumps != null) ? ahead.reduce((n, w) => n + (w.jumps ?? 0), 0) : null;
 }
 
 /** The preview's clipboard takes the text unless a test made it fail (`fakeClipboard`). */
@@ -286,7 +300,7 @@ function follow(st: State, name: string, source: string, waypoints: Waypoint[]):
  * the next one or the one just passed when it is in the same system; already in its system, it
  * counts as reached. */
 function addNext(st: State, r: Route, stop: Waypoint): void {
-  const merge = (a?: string, b?: string) => (a && b && a !== b ? `${a}, ${b}` : (a ?? b));
+  const merge = (a?: string | null, b?: string | null) => (a && b && a !== b ? `${a}, ${b}` : (a ?? b));
   const at = r.waypoints[r.next];
   const prev = r.waypoints[r.next - 1];
   if (at && sameSystem(at.system, stop.system)) at.label = merge(stop.label, at.label);
@@ -315,45 +329,61 @@ export function fakeJump(system: string): void {
   skipReached(st);
 }
 
-function routeCall(st: State, cmd: CoreCmd, args: Record<string, unknown>): Reply {
-  const r = st.route;
-  // Everything but reading the route (and clearing it) writes the next waypoint to the clipboard.
-  if (cmd === "route_clear") st.clipError = null;
-  else if (cmd !== "route") st.clipError = st.clipFails;
-  switch (cmd) {
-    case "route_set": {
-      const waypoints = cleanStops(typeof args.text === "string" ? parseList(args.text) : ((args.waypoints as Waypoint[] | undefined) ?? []));
-      if (!waypoints.length) return { ok: false, error: "the route has no systems" };
-      follow(st, String(args.name || "Route"), String(args.source ?? ""), waypoints);
-      break;
-    }
-    case "route_add": {
-      const system = String(args.system ?? "").trim();
-      if (!system) return { ok: false, error: "the stop has no system" };
-      const stop: Waypoint = { system, ...(typeof args.label === "string" && args.label.trim() ? { label: args.label } : {}) };
-      if (ours(r)) addNext(st, r, stop);
-      else follow(st, system, String(args.source ?? ""), [stop]);
-      break;
-    }
-    case "route_skip":
-      if (r) r.next = Math.min(r.next + 1, r.waypoints.length);
-      break;
-    case "route_back":
-      if (r) r.next = Math.max(r.next - 1, 0);
-      break;
-    case "route_clear":
-      st.route = null;
-      st.parked = null;
-      break;
-    case "route_resume":
-      if (!st.parked) return { ok: false, error: "there is no route to resume" };
-      st.route = st.parked;
-      st.parked = null;
-      skipReached(st);
-      break;
-  }
-  return { ok: true, view: routeView(st) };
+/** The route commands' reply: the route's view. */
+const viewed = (st: State): Done<RouteReply> => ({ ok: true, view: routeView(st) });
+
+/** Every route command but reading the route (and clearing it) writes the next waypoint to the
+ * clipboard, failing as the test's clipboard says. */
+function copies(st: State): State {
+  st.clipError = st.clipFails;
+  return st;
 }
+
+const routeHandlers: Pick<CoreHandlers, "route" | "route_set" | "route_add" | "route_skip" | "route_back" | "route_clear" | "route_copy" | "route_resume"> = {
+  route: viewed,
+  route_set: (st, args) => {
+    copies(st);
+    const waypoints = cleanStops(typeof args.text === "string" ? parseList(args.text) : (args.waypoints ?? []));
+    if (!waypoints.length) return { ok: false, error: "the route has no systems" };
+    follow(st, args.name || "Route", args.source ?? "", waypoints);
+    return viewed(st);
+  },
+  route_add: (st, args) => {
+    copies(st);
+    const system = (args.system ?? "").trim();
+    if (!system) return { ok: false, error: "the stop has no system" };
+    const stop: Waypoint = { system, ...(args.label?.trim() ? { label: args.label } : {}) };
+    const r = st.route;
+    if (ours(r)) addNext(st, r, stop);
+    else follow(st, system, args.source ?? "", [stop]);
+    return viewed(st);
+  },
+  route_skip: (st) => {
+    const r = copies(st).route;
+    if (r) r.next = Math.min(r.next + 1, r.waypoints.length);
+    return viewed(st);
+  },
+  route_back: (st) => {
+    const r = copies(st).route;
+    if (r) r.next = Math.max(r.next - 1, 0);
+    return viewed(st);
+  },
+  route_clear: (st) => {
+    st.clipError = null;
+    st.route = null;
+    st.parked = null;
+    return viewed(st);
+  },
+  route_copy: (st) => viewed(copies(st)),
+  route_resume: (st) => {
+    copies(st);
+    if (!st.parked) return { ok: false, error: "there is no route to resume" };
+    st.route = st.parked;
+    st.parked = null;
+    skipReached(st);
+    return viewed(st);
+  },
+};
 
 function s(): State {
   const sc = fakeScenario() ?? "empty";
@@ -372,12 +402,14 @@ function chosen(st: State): string | null {
   return st.mics.find((m) => m.toLowerCase() === want) ?? st.mics.find((m) => m.toLowerCase().includes(want)) ?? null;
 }
 
-export function fakeStatus(): CoreStatus {
-  const st = s();
+const VERSION = "1.0.0-alpha.1";
+const APP_DIR = "C:\\Users\\you\\AppData\\Local\\astromech\\data";
+
+function status(st: State): Done<CoreStatus> {
   const setup = [...(st.ptt ? [] : ["push-to-talk not set"]), ...(st.models ? [] : ["speech models not downloaded"])];
   return {
     ok: true,
-    version: "1.0.0-alpha.1",
+    version: VERSION,
     pid: 4242,
     game: "not_running",
     active: false,
@@ -388,9 +420,9 @@ export function fakeStatus(): CoreStatus {
     autostart: true,
     crash_pending: false,
     status_line: "Waiting for Elite",
-    app_dir: "C:\\Users\\you\\AppData\\Local\\astromech\\data",
-    log_dir: "C:\\Users\\you\\AppData\\Local\\astromech\\data\\logs",
-    config: "C:\\Users\\you\\AppData\\Local\\astromech\\data\\astromech.toml",
+    app_dir: APP_DIR,
+    log_dir: `${APP_DIR}\\logs`,
+    config: `${APP_DIR}\\astromech.toml`,
     config_note: null,
     setup_needed: setup,
     ptt: st.ptt,
@@ -399,21 +431,26 @@ export function fakeStatus(): CoreStatus {
     onboarded: st.onboarded,
     models_missing: !st.models,
     models_progress: st.modelsProgress,
-    models_dir: "C:\\Users\\you\\AppData\\Local\\astromech\\data\\models",
+    models_dir: `${APP_DIR}\\models`,
+    // A core that hasn't checked for updates yet, raised no callouts and follows no journal yet.
+    update: { status: "idle", installed: VERSION, latest: null, notes: "", error: null, last_check: null, ready: false, apply_error: null },
+    toasts: [],
+    history: null,
+    mining: st.scenario === "empty" ? null : miningSample,
   };
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-function level(device: string, speech: boolean) {
+function level(device: string, speech: boolean): Level {
   return speech
     ? { device, peak_dbfs: -24.3, noise_dbfs: -63.8, verdict: "ok" }
     : { device, peak_dbfs: -61.2, noise_dbfs: -64.0, verdict: "silent" };
 }
 
-function step(n: number) {
+function step(n: number): CalibrationStep {
   if (n === 0) return { step: 0, steps: 4, phrase: "", ms: 2000 };
-  if (n <= PHRASES.length) return { step: n, steps: 4, phrase: PHRASES[n - 1], ms: 2500 };
+  if (n <= PHRASES.length) return { step: n, steps: 4, phrase: PHRASES[n - 1] ?? null, ms: 2500 };
   return { step: n, steps: 4, phrase: null, ms: 0 };
 }
 
@@ -436,14 +473,16 @@ export function fakePreviews(): string[] {
 
 const NO_MIC = "no recording device found (plug in a microphone or headset)";
 
-type Args = Record<string, string | null>;
-type Handler = (st: State, args: unknown, a: Args, cmd: CoreCmd) => Reply | Promise<Reply>;
-const ok: Handler = () => ({ ok: true });
-const route: Handler = (st, args, _a, cmd) => routeCall(st, cmd, (args ?? {}) as Record<string, unknown>);
+/** How the fake core answers core command `K`, given its state. */
+type CoreHandler<K extends CoreCmd> = (st: State, args: Args<K>) => Reply<K> | Promise<Reply<K>>;
+type CoreHandlers = { [K in CoreCmd]: CoreHandler<K> };
+const ok = () => ({ ok: true }) as const;
+const applies = () => ({ ok: true, applies_next_session: false }) as const;
 
 /** Every core command the window sends, as the core answers it (or near enough). */
-export const coreHandlers: Record<CoreCmd, Handler> = {
-  save_diagnostics: ok,
+export const coreHandlers: CoreHandlers = {
+  status,
+  save_diagnostics: () => ({ ok: true, path: `${APP_DIR}\\diagnostics\\astromech-diagnostics-20261016-200000.zip` }),
   ack_crash: ok,
   check_update: ok,
   install_update: ok,
@@ -453,15 +492,12 @@ export const coreHandlers: Record<CoreCmd, Handler> = {
   resume_voice: ok,
   kill_switch: ok,
   open_config: ok,
-  shopping_set: ok,
-  route,
-  route_set: route,
-  route_add: route,
-  route_skip: route,
-  route_back: route,
-  route_clear: route,
-  route_copy: route,
-  route_resume: route,
+  // The core answers with how many materials the merged list has; the preview keeps one ship's.
+  shopping_set: (_st, args) => {
+    const change = JSON.parse(args) as { materials: unknown[] };
+    return { ok: true, materials: change.materials.length };
+  },
+  ...routeHandlers,
   find_elite: (st) => ({
     ok: true,
     found: {
@@ -474,25 +510,25 @@ export const coreHandlers: Record<CoreCmd, Handler> = {
       ok: st.elite,
     },
   }),
-  set_folders: (st, _args, a) => {
-    if (a.bindings_dir) {
-      st.bindingsDir = a.bindings_dir;
+  set_folders: (st, args) => {
+    if (args.bindings_dir) {
+      st.bindingsDir = args.bindings_dir;
       // The preview pretends the folder the user typed exists.
       st.elite = true;
     }
-    return { ok: true, applies_next_session: false };
+    return applies();
   },
-  set_ptt: (st, args, a) => {
-    st.ptt = args ? `${a.device} ${a.key}` : null;
-    return { ok: true, applies_next_session: false };
+  set_ptt: (st, args) => {
+    st.ptt = args ? `${args.device} ${args.key}` : null;
+    return applies();
   },
-  set_kill_switch: (st, args, a) => {
-    st.kill = args ? `${a.device} ${a.key}` : null;
-    return { ok: true, applies_next_session: false };
+  set_kill_switch: (st, args) => {
+    st.kill = args ? `${args.device} ${args.key}` : null;
+    return applies();
   },
-  set_mic: (st, _args, a) => {
-    st.mic = a.mic ?? "";
-    return { ok: true, applies_next_session: false };
+  set_mic: (st, args) => {
+    st.mic = args.mic ?? "";
+    return applies();
   },
   mic_list: (st) => {
     const c = chosen(st);
@@ -545,11 +581,10 @@ export const coreHandlers: Record<CoreCmd, Handler> = {
     return { ok: true };
   },
   voice_settings: (st) => ({ ok: true, ...st.voice, voices: VOICES, speeds: [0.7, 1.3] }),
-  set_voice: (st, args, a) => {
-    if (a.speaker && !VOICES.some((v) => v.name === a.speaker)) return { ok: false, error: `unknown voice "${a.speaker}"` };
-    const b = (args ?? {}) as Partial<State["voice"]>;
-    st.voice = { ...st.voice, ...Object.fromEntries(Object.entries(b).filter(([, v]) => v != null)) };
-    return { ok: true, applies_next_session: false };
+  set_voice: (st, args) => {
+    if (args.speaker && !VOICES.some((v) => v.name === args.speaker)) return { ok: false, error: `unknown voice "${args.speaker}"` };
+    st.voice = { speaker: args.speaker ?? st.voice.speaker, speed: args.speed ?? st.voice.speed, colour: args.colour ?? st.voice.colour };
+    return applies();
   },
   voice_preview: (st) => {
     if (!st.models) return { ok: false, error: "download the speech models first (Speech models, above)" };
@@ -557,21 +592,20 @@ export const coreHandlers: Record<CoreCmd, Handler> = {
     return { ok: true, line: "Landing gear deployed." };
   },
   callouts: (st) => calloutsReply(st),
-  set_callout: (st, args) => {
-    const c = (args ?? {}) as { id?: string; enabled?: boolean; cooldown_s?: number | null };
+  set_callout: (st, c) => {
     if (!CALLOUTS.some((x) => x.id === c.id)) return { ok: false, error: `unknown callout "${c.id}"` };
     if (typeof c.cooldown_s === "number" && !(c.cooldown_s >= 0 && c.cooldown_s <= 86400)) {
       return { ok: false, error: "cooldown_s must be between 0 and 86400 seconds" };
     }
-    const cur = (st.callouts[c.id as string] ??= {});
+    const cur = (st.callouts[c.id] ??= {});
     if (typeof c.enabled === "boolean") cur.enabled = c.enabled;
     if (c.cooldown_s === null) delete cur.cooldown_s;
     else if (typeof c.cooldown_s === "number") cur.cooldown_s = c.cooldown_s;
-    return { ok: true, applies_next_session: false };
+    return applies();
   },
   prospector_thresholds: (st) => prospectorReply(st),
   prospector_set: (st, args) => {
-    const c = JSON.parse(typeof args === "string" ? args : "{}") as { ore: string; threshold?: number | null; reset?: boolean };
+    const c = JSON.parse(args) as { ore: string; threshold?: number | null; reset?: boolean };
     if (!(c.ore in PROSPECTOR_DEFAULTS)) return { ok: false, error: `unknown ore "${c.ore}"` };
     st.prospector[c.ore] = c.reset ? (PROSPECTOR_DEFAULTS[c.ore] ?? null) : (c.threshold ?? null);
     return prospectorReply(st);
@@ -582,8 +616,8 @@ export const coreHandlers: Record<CoreCmd, Handler> = {
     return { ok: true, ...eddnSample, enabled: st.eddn, pending: st.eddn ? eddnSample.pending : 0 };
   },
   set_eddn: (st, args) => {
-    st.eddn = (args as { enabled?: boolean } | null)?.enabled === true;
-    return { ok: true, applies_next_session: false };
+    st.eddn = args.enabled === true;
+    return applies();
   },
   edsm_status: (st) => {
     const e = st.edsm;
@@ -591,12 +625,11 @@ export const coreHandlers: Record<CoreCmd, Handler> = {
     return { ok: true, enabled: e.enabled, commander: e.commander, has_key: e.key, key_error: null, uploading,
       pending: 0, last_sent: null, last_error: null, log: [], skipped: [] };
   },
-  set_edsm: (st, args) => {
-    const ch = (args ?? {}) as { enabled?: boolean; commander?: string; api_key?: string };
+  set_edsm: (st, ch) => {
     if (ch.enabled != null) st.edsm.enabled = ch.enabled;
     if (ch.commander != null) st.edsm.commander = ch.commander.trim();
     if (ch.api_key != null) st.edsm.key = ch.api_key.trim() !== "";
-    return { ok: true, applies_next_session: false };
+    return applies();
   },
   edsm_flight_log: (st) => {
     if (!st.edsm.key || !st.edsm.commander) return { ok: false, error: "set your EDSM commander name and API key first" };
@@ -612,10 +645,11 @@ export const coreHandlers: Record<CoreCmd, Handler> = {
   // Only a session (Elite running) has a system; `ready` is in one.
   exobiology: (st) => (st.scenario === "ready" ? { ...biologySample } : { ok: false, error: "Elite isn't running." }),
   // The voice tester answers from sample results in every scenario (see NO_CORE).
-  voice_test: (_st, args) => ({ ok: true, result: sampleRun(typeof args === "string" ? args : "") }),
+  voice_test: (_st, args) => ({ ok: true, result: sampleRun(args) }),
   voice_test_poll: () => ({ ok: true, listening: false, last: null }),
   voice_test_stop: ok,
-  voice_test_live: ok,
+  // Elite isn't running here (the status says so), so there's nothing to press.
+  voice_test_live: () => ({ ok: false, error: "Elite isn't running, so there's nothing to send keys to." }),
   learned_phrases: () => ({ ok: true, phrases: learned }),
   learned_forget: (_st, args) => {
     learned = learned.filter((p) => p.heard !== args);
@@ -623,16 +657,20 @@ export const coreHandlers: Record<CoreCmd, Handler> = {
   },
 };
 
-/** A core command, answered by the fake core in the URL's scenario (any scenario: tests). */
-export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
+async function answer<K extends CoreCmd>(cmd: K, args: Args<K>): Promise<Reply<K>> {
   await previewGate(cmd);
-  const handler = coreHandlers[cmd];
-  if (!handler) throw new Error(`preview: no fake for core command ${cmd}`);
-  return handler(s(), args, (args ?? {}) as Args, cmd);
+  const handler: CoreHandler<K> = coreHandlers[cmd];
+  return handler(s(), args);
 }
 
-/** What the preview answers with no core (no `?core=`): samples for some pages, else not running. */
-const NO_CORE: Partial<Record<CoreCmd, (args: unknown) => Reply | Promise<Reply>>> = {
+/** A core command, answered by the fake core in the URL's scenario (any scenario: tests). */
+export function fakeCall<K extends CoreCmd>(cmd: K, ...[args]: ArgList<K>): Promise<Reply<K>> {
+  return answer(cmd, args as Args<K>);
+}
+
+/** What the preview answers with no core (no `?core=`): samples for some pages; the rest fail as
+ * the window's calls do with no core. */
+const NO_CORE: Partial<Pick<Handlers, CoreCmd>> = {
   eddn_log: async () => {
     await previewGate("eddn_log");
     return { ok: true, ...eddnSample };
@@ -640,7 +678,7 @@ const NO_CORE: Partial<Record<CoreCmd, (args: unknown) => Reply | Promise<Reply>
   edsm_status: () => ({ ok: true, ...EDSM_SAMPLE }),
   exobiology: async () => {
     await previewGate("exobiology");
-    return { ...biologySample, source: "Sample system (synthetic)" };
+    return labelled(biologySample, "Sample system (synthetic)");
   },
   voice_test: (args) => fakeCall("voice_test", args),
   voice_test_poll: () => fakeCall("voice_test_poll"),
@@ -651,21 +689,21 @@ const NO_CORE: Partial<Record<CoreCmd, (args: unknown) => Reply | Promise<Reply>
 
 /** A core command as the browser preview answers it: the fake core in the URL's scenario, or with
  * no scenario the samples above. */
-export function coreReply(cmd: CoreCmd, args: unknown): Promise<Reply> {
-  if (fakeScenario()) return fakeCall(cmd, args);
-  const f = NO_CORE[cmd];
-  return Promise.resolve(f ? f(args) : { ok: false, error: "not running inside the app" });
+export function coreReply<K extends CoreCmd>(cmd: K, args: Args<K>): Promise<Reply<K>> {
+  if (fakeScenario()) return answer(cmd, args);
+  const f: Handler<K> | undefined = NO_CORE[cmd];
+  return f ? Promise.resolve(f(args)) : Promise.reject("not running inside the app");
 }
 
-/** The status the core reports: none without a scenario; the sample mining run unless `empty`. */
-export async function fakeCoreStatus(): Promise<CoreStatus | null> {
-  if (!fakeScenario()) return null;
-  await previewGate("status");
-  return { ...fakeStatus(), mining: fakeScenario() === "empty" ? null : (miningSample as MiningRun) };
+/** The core's commands as the preview's transport answers them (transport.ts). */
+export function coreCommands(): Pick<Handlers, CoreCmd> {
+  const viaCore = <K extends CoreCmd>(cmd: K): Handler<K> => (args) => coreReply(cmd, args);
+  // Object.fromEntries loses each key's own type; every entry is viaCore's, typed above.
+  return Object.fromEntries((Object.keys(coreHandlers) as CoreCmd[]).map((cmd) => [cmd, viaCore(cmd)])) as unknown as Pick<Handlers, CoreCmd>;
 }
 
 // ---- The voice tester's samples.
-const voiceSamples = voiceSample as unknown as Record<string, DryRun>;
+const voiceSamples = recorded<Record<string, DryRun>>(voiceFixture);
 const norm = (t: string) => t.toLowerCase().replace(/[^a-z ]/g, "").trim();
 
 /** The sample phrases match, anything else is "Say again". */

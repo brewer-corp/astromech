@@ -17,8 +17,9 @@ vi.mock("../../lib/colonisation", async (orig) => ({
 const projects = projectsSample as unknown as Project[];
 // The recorded search around Sol for the sample site's list (astromech-market dump-trade).
 const recorded = (tradeSample as unknown as { list: ListPlan }).list;
+const sol = (tradeSample as unknown as { buy: BuySearch }).buy.here;
 const answer = (origin: string | null, plan: ListPlan = recorded): BuySearch => ({
-  here: { system: origin ?? "Sol", pos: [0, 0, 0] },
+  here: { ...sol, system: origin ?? "Sol" },
   range: 20,
   plan,
 });
@@ -33,7 +34,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-/** A fresh copy each poll, as the shell sends: same content, new objects. */
+/** A fresh copy each poll, as the core sends: same content, new objects. */
 const fresh = (): Project[] => structuredClone(projects);
 /** Pick a construction site in the page's dropdown. */
 async function pickSite(name: RegExp) {

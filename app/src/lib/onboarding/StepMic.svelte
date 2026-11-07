@@ -36,11 +36,12 @@
     else error = String(r.error);
   }
 
-  const VERDICT = {
+  /** The core's verdicts (astromech-audio's level check): ok, quiet or silent. */
+  const VERDICT: Record<string, string> = {
     ok: "Good level.",
     quiet: "Quiet. Level correction will boost it; moving the mic closer helps more.",
     silent: "Nothing heard. Wrong mic, muted, or nobody spoke?",
-  } as const;
+  };
 </script>
 
 <div class="setup-step">
@@ -67,7 +68,7 @@
         {#if checking}
           Speak now…
         {:else if level}
-          {level.peak_dbfs.toFixed(0)} dBFS · {VERDICT[level.verdict]}
+          {level.peak_dbfs.toFixed(0)} dBFS · {VERDICT[level.verdict] ?? level.verdict}
         {:else}
           Check level, then say something for two seconds.
         {/if}

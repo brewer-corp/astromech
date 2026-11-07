@@ -19,7 +19,7 @@ describe("help links", () => {
     expect(SETUP_HELP).toMatch(SHAPE);
   });
 
-  it("uses only the project's GitHub pages, which the shell allows to open", () => {
+  it("uses only the project's GitHub pages, which the core allows to open", () => {
     expect(GUIDE_URL.startsWith("https://github.com/brewer-corp/astromech/")).toBe(true);
     expect(helpUrl("trade.md")).toBe("https://github.com/brewer-corp/astromech/blob/main/docs/guide/trade.md");
   });

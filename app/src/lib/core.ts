@@ -4,148 +4,28 @@
  * reports "not connected", unless `?core=new` or `?core=ready` picks a recorded core
  * (app/src/preview/fakecore.ts).
  */
-import type { MiningRun } from "./mining";
-import { call, subscribe } from "./transport";
+import type { CoreStatus } from "./api/types/CoreStatus";
+import type { Failed } from "./api/types/Failed";
+import type { Toast } from "./api/types/Toast";
+import { call, subscribe, type ArgList, type Reply, type WindowCommand } from "./transport";
+
+export type { Colour } from "./api/types/Colour";
+export type { CoreStatus } from "./api/types/CoreStatus";
+export type { Found } from "./api/types/Found";
+export type { LevelCheck as Level } from "./api/types/LevelCheck";
+export type { MicList } from "./api/types/MicList";
+export type { Progress as HistoryProgress } from "./api/types/Progress";
+export type { Snapshot as UpdateStatus } from "./api/types/Snapshot";
+export type { Toast } from "./api/types/Toast";
+export type { VoiceChoice } from "./api/types/VoiceChoice";
+export type { VoiceSettings } from "./api/types/VoiceSettings";
 
 /**
- * The core's own commands the window sends (astromech-core's `Core::commands`), whose replies
- * carry `ok` and report most failures inside (`{ ok: false, error }`, astromech_api::reply::Answer);
- * `coreCall` gives a failed call as the same reply. The browser preview answers them from its
- * fake core (app/src/preview/fakecore.ts).
+ * The core's own commands (astromech-core's `Core::commands`): those whose replies carry `ok` and
+ * report most failures inside (`{ ok: false, error }`, astromech_api::reply::Answer). `coreCall`
+ * gives a failed call as the same reply.
  */
-export const CORE_COMMANDS = [
-  "save_diagnostics",
-  "ack_crash",
-  "check_update",
-  "install_update",
-  "autostart_on",
-  "autostart_off",
-  "pause_voice",
-  "resume_voice",
-  "kill_switch",
-  "download_models",
-  "open_config",
-  "eddn_log",
-  "set_eddn",
-  "edsm_status",
-  "set_edsm",
-  "edsm_flight_log",
-  "voice_test",
-  "voice_test_poll",
-  "voice_test_stop",
-  "voice_test_live",
-  "learned_phrases",
-  "learned_forget",
-  // Onboarding and Settings → Microphone (core: setup.rs, calibration.rs).
-  "find_elite",
-  "set_ptt",
-  "set_kill_switch",
-  "set_mic",
-  "set_folders",
-  "mic_list",
-  "mic_check",
-  "calibrate_start",
-  "calibrate_record",
-  "calibrate_finish",
-  "calibrate_cancel",
-  "onboarding_done",
-  // Settings → Voice responses.
-  "set_voice",
-  "voice_settings",
-  "voice_preview",
-  // Settings → Callouts: each callout's switch and cooldown (core: callouts.rs, setup.rs).
-  "callouts",
-  "set_callout",
-  // Settings → Prospector callouts (core: callouts.rs).
-  "prospector_thresholds",
-  "prospector_set",
-  // Engineering → the arrival briefing's shopping list (core: callouts.rs).
-  "shopping_set",
-  // Exploration → Biology: the system's biology and the sampling in progress (core: biology.rs).
-  "exobiology",
-  // Galaxy → Route: the route the core follows (core: route.rs, docs/PLOTTING.md).
-  "route",
-  "route_set",
-  "route_add",
-  "route_skip",
-  "route_back",
-  "route_clear",
-  "route_copy",
-  "route_resume",
-] as const;
-export type CoreCmd = (typeof CORE_COMMANDS)[number];
-
-export interface UpdateStatus {
-  status: "idle" | "checking" | "available" | "downloading" | "ready" | "applying" | "error";
-  installed: string;
-  latest: string | null;
-  notes: string;
-  error: string | null;
-  last_check: string | null;
-  ready: boolean;
-  /** Why the previous install failed, if it did. */
-  apply_error?: string | null;
-}
-
-export interface CoreStatus {
-  ok: boolean;
-  version: string;
-  pid: number;
-  game: "not_running" | "launcher" | "running";
-  active: boolean;
-  starting: boolean;
-  voice: string;
-  voice_paused: boolean;
-  killed: boolean;
-  autostart: boolean;
-  crash_pending: boolean;
-  status_line: string;
-  app_dir: string;
-  log_dir: string;
-  config: string;
-  config_note: string | null;
-  /** What still has to be set up before voice works, e.g. "push-to-talk not set". */
-  setup_needed?: string[];
-  /** Push-to-talk as "<device> <key>", or null. */
-  ptt?: string | null;
-  /** Kill switch as "<device> <key>", or null. */
-  kill_switch?: string | null;
-  /** The `[voice] mic` setting: a device name or part of one; empty is the Windows default. */
-  mic?: string;
-  /** Onboarding finished or skipped (absent from cores older than onboarding). */
-  onboarded?: boolean;
-  models_missing?: boolean;
-  /** Download progress while speech models download. */
-  models_progress?: string | null;
-  models_dir?: string;
-  update?: UpdateStatus;
-  /** The last few callout toasts, oldest first. */
-  toasts?: Toast[];
-  /** The journal history the core keeps (backfill, then new lines). */
-  history?: HistoryProgress | null;
-  /** The current mining run; null while no session is running. */
-  mining?: MiningRun | null;
-}
-
-export interface HistoryProgress {
-  running: boolean;
-  /** The first import since the core started has finished. */
-  ready: boolean;
-  files: number;
-  lines: number;
-  bytes: number;
-  bytes_total: number;
-  events: number;
-  error: string | null;
-}
-
-/** One callout shown as a toast. `id` increases by one per toast within a core session. */
-export interface Toast {
-  id: number;
-  rule: string;
-  text: string;
-  time: string;
-}
+export type CoreCmd = { [K in WindowCommand]: Reply<K> extends { ok: boolean } ? K : never }[WindowCommand];
 
 /**
  * Toasts newer than `lastSeen`, and the new `lastSeen`. The first poll (`lastSeen` null) shows
@@ -160,25 +40,22 @@ export function freshToasts(list: Toast[], lastSeen: number | null): { show: Toa
 }
 
 /** The core's status, or null when the call fails: the core isn't running (or didn't answer). */
-export async function coreStatus(): Promise<CoreStatus | null> {
+export async function coreStatus(): Promise<Reply<"status"> | null> {
   try {
-    return await call<CoreStatus | null>("status");
+    return await call("status");
   } catch {
     return null;
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Reply = { ok: boolean; error?: string; [k: string]: any };
-
 /**
- * A string is the voice tester's phrase ("voice_test"), command id ("voice_test_live") or a
- * prospector threshold change as JSON ("prospector_set"); an object is a setup command's
- * arguments (e.g. `set_ptt` with `{device, key}`).
+ * Send a core command; a failed call gives `{ ok: false, error }` like the core's own failures.
+ * A string argument is the voice tester's phrase ("voice_test"), command id ("voice_test_live")
+ * or a prospector threshold change as JSON ("prospector_set").
  */
-export async function coreCall(cmd: CoreCmd, arg?: string | Record<string, unknown> | null): Promise<Reply> {
+export async function coreCall<K extends CoreCmd>(cmd: K, ...args: ArgList<K>): Promise<Reply<K> | Failed> {
   try {
-    return await call<Reply>(cmd, arg ?? null);
+    return await call(cmd, ...args);
   } catch (e) {
     return { ok: false, error: String(e) };
   }
@@ -188,31 +65,6 @@ export async function coreCall(cmd: CoreCmd, arg?: string | Record<string, unkno
 export function parseButton(s: string | null | undefined): { device: string; key: string } | null {
   const [device, key] = (s ?? "").split(" ");
   return device && key ? { device, key } : null;
-}
-
-/** Where Elite keeps what astromech reads (core setup.rs `Found`). */
-export interface Found {
-  bindings_dir: string | null;
-  bindings_found: boolean;
-  journal_dir: string | null;
-  journal_found: boolean;
-  install: string | null;
-  install_source: string | null;
-  ok: boolean;
-}
-
-export interface Level { device: string; peak_dbfs: number; noise_dbfs: number; verdict: "ok" | "quiet" | "silent" }
-
-export type Colour = "natural" | "cockpit" | "harsh";
-export interface VoiceChoice { name: string; label: string; accent: "British" | "American"; gender: "female" | "male" }
-export interface VoiceSettings { speaker: string; speed: number; colour: Colour; voices: VoiceChoice[]; speeds: [number, number] }
-
-export interface MicList {
-  names: string[];
-  default: string | null;
-  setting: string;
-  chosen: string | null;
-  calibration: { device: string; min_level_dbfs: number | null };
 }
 
 /** This window's own version, built into the bundle (vite.config.ts, from app/package.json, which

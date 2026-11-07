@@ -48,7 +48,7 @@
   });
 
   $effect(() => {
-    // A download started before this page was opened is still running in the shell.
+    // A download started before this page was opened is still running in the core.
     const w = watchDownload((p) => (progress = p));
     if (w) void follow(w);
     return () => stopWatching?.();

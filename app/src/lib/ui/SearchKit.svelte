@@ -94,7 +94,7 @@
   let origin = $derived<Origin>(start);
   /** Filters loaded for `lookup` (null until they arrive). */
   let saved = $state<{ lookup: string; filters: Filters } | null>(null);
-  /** The current ship's pad as of the last search (the shell resolves it on every search). */
+  /** The current ship's pad as of the last search (the core resolves it on every search). */
   let ship = $state<{ lookup: string; pad: Pad | null } | null>(null);
   let res = $state<Results | null>(null);
   let err = $state<string | null>(null);

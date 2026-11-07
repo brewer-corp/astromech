@@ -1,7 +1,7 @@
 <script lang="ts">
   // The Mining hotspots finder (decision astromech-bi94): rings with a hotspot of a mineral,
   // most hotspots first, within the radius of here, the route's next stop or a typed system. The
-  // main input is the mineral; the ring type and the least reserve are choices. The shell asks
+  // main input is the mineral; the ring type and the least reserve are choices. The core asks
   // Spansh for the highest hotspot counts first and picks the ring type itself; the summary says
   // when its requests ran out before the whole radius was ranked.
   // #/places/mining-hotspots/<ore>[?ring=&reserve=] keeps all three on back and reload.

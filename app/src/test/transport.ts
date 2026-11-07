@@ -11,8 +11,7 @@
  */
 import { tick } from "svelte";
 import { beforeEach, vi, type Mock } from "vitest";
-import type { Reply } from "../lib/core";
-import { setTransport, type Args } from "../lib/transport";
+import { setTransport } from "../lib/transport";
 import { resetFakeCore } from "../preview/fakecore";
 import { resetPreviewNeutron } from "../preview/shell";
 import { previewTransport } from "../preview/transport";
@@ -28,7 +27,7 @@ const watches = new Map<string, Watch>();
 const inflight = new Set<Promise<unknown>>();
 
 /** A mock called with every command the window sends and its args. */
-export const sent = vi.fn<(cmd: string, args: Args | undefined) => void>();
+export const sent = vi.fn<(cmd: string, args: unknown) => void>();
 
 /** Answer `cmd` with `f`, given the call's args (`{}` for none), instead of the preview's fake. */
 export function answer(cmd: string, f: Answer): void {
@@ -43,7 +42,8 @@ export function watch(cmd: string): Watch {
 }
 
 /** The browser preview's own answer: what the fake core holds now, or a reply to adjust. */
-export function previewAnswer<T = Reply>(cmd: string, args: Args = null): Promise<T> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- a test reads the reply it expects
+export function previewAnswer<T = any>(cmd: string, args: unknown = null): Promise<T> {
   return previewTransport.call(cmd, args) as Promise<T>;
 }
 

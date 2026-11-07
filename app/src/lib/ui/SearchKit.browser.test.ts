@@ -83,7 +83,7 @@ describe("SearchKit", () => {
   });
 
   it("labels the ship's pad with the current ship's, not the one the filters loaded with", async () => {
-    // Filters as the shell resolves them: not chosen, so the pad is the current ship's.
+    // Filters as the core resolves them: not chosen, so the pad is the current ship's.
     let pad: Filters["pad"] = "M";
     loadFilters.mockImplementation(async () => ({ ...DEFAULT_FILTERS, pad }));
     const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(results);

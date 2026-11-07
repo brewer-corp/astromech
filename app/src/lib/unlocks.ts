@@ -3,32 +3,17 @@
  * tech tree, the engineers who introduce or refer each one, the commander's progress from the
  * journal's EngineerProgress, and what is left to unlock each.
  */
+import type { EngineerStatus as Status } from "./api/types/EngineerStatus";
+import type { Node as UnlockNode } from "./api/types/Node";
+import type { Tree as UnlockTree } from "./api/types/Tree";
 import { call } from "./transport";
 
-export type Status = "unlocked" | "invited" | "known" | "locked" | "barred";
-
-export interface UnlockNode {
-  name: string;
-  kind: "ship" | "suit";
-  system: string;
-  permit: boolean;
-  /** Column: 0 for common knowledge, else one more than the deepest introducer. */
-  depth: number;
-  introduced_by: string[];
-  status: Status;
-  rank: number | null;
-  /** What is left; null once unlocked. */
-  left: string | null;
-  /** Can be worked on now. */
-  next: boolean;
-}
-
-export interface UnlockTree {
-  nodes: UnlockNode[];
-}
+export type { EngineerStatus as Status } from "./api/types/EngineerStatus";
+export type { Node as UnlockNode } from "./api/types/Node";
+export type { Tree as UnlockTree } from "./api/types/Tree";
 
 export async function loadUnlocks(): Promise<UnlockTree> {
-  return await call<UnlockTree>("engineering_unlocks");
+  return await call("engineering_unlocks");
 }
 
 /** The tree's columns for one kind: nodes by depth, next ones first, then by name. */

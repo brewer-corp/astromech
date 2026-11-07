@@ -5,22 +5,12 @@
  * published on the "neutron_download" topic). The browser preview pretends: no file until Download, then a short
  * fake download (app/src/preview/shell.ts).
  */
+import type { NeutronCheck } from "./api/types/NeutronCheck";
+import type { NeutronFile } from "./api/types/NeutronFile";
 import { call, subscribe, type Progress } from "./transport";
 
-/** The file's header. */
-export interface NeutronHeader {
-  cell_ly: number;
-  stars: number;
-  cells: number;
-  /** Build time, Unix seconds UTC. */
-  built: number;
-}
-
-export interface NeutronFile {
-  /** Null when there is no file (or it can't be read: see `error`). */
-  file: NeutronHeader | null;
-  error: string | null;
-}
+export type { Header as NeutronHeader } from "./api/types/Header";
+export type { NeutronFile } from "./api/types/NeutronFile";
 
 /** `done` bytes of `total` (null when the server didn't say). */
 export type NeutronProgress = Progress<"neutron_download">;
@@ -30,12 +20,12 @@ export const DOWNLOAD_MB = 71;
 export const DISK_MB = 184;
 
 export async function neutronFile(): Promise<NeutronFile> {
-  return await call<NeutronFile>("neutron_file");
+  return await call("neutron_file");
 }
 
 /** Whether a different file has been published since this one was downloaded. */
-export async function checkNeutron(): Promise<{ newer: boolean }> {
-  return await call<{ newer: boolean }>("neutron_check");
+export async function checkNeutron(): Promise<NeutronCheck> {
+  return await call("neutron_check");
 }
 
 /** The download in flight, shared by every view of it so leaving the page doesn't lose it. */
@@ -55,7 +45,7 @@ function report(p: NeutronProgress) {
 async function fetchFile(): Promise<NeutronFile> {
   const stop = subscribe<NeutronProgress>("neutron_download", report);
   try {
-    return await call<NeutronFile>("neutron_download");
+    return await call("neutron_download");
   } finally {
     stop();
   }

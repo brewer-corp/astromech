@@ -4,48 +4,29 @@
  * queue and send log, and the commander's EDSM flight log. The browser preview shows a
  * synthetic sample, or the fake core's with `?core=<scenario>`.
  */
-import { coreCall, type Reply } from "./core";
-import type { EddnLogEntry } from "./eddn";
+import type { EdsmHead } from "./api/types/EdsmHead";
+import type { EdsmVisit } from "./api/types/EdsmVisit";
+import type { Outbox } from "./api/types/Outbox";
+import type { SetEdsmArgs } from "./api/types/SetEdsmArgs";
+import { coreCall } from "./core";
 
-export interface EdsmStatus {
-  /** `[edsm] enabled`. */
-  enabled: boolean;
-  /** As registered on EDSM. */
-  commander: string;
-  /** An API key is saved in the OS keyring. */
-  has_key: boolean;
-  /** The keyring couldn't be read. */
-  key_error: string | null;
-  /** On, with a commander name and a key: live journal events go to EDSM. */
-  uploading: boolean;
-  pending: number;
-  last_sent: EddnLogEntry | null;
-  last_error: EddnLogEntry | null;
-  log: EddnLogEntry[];
-  skipped: EddnLogEntry[];
-}
-
-export interface Visit {
-  system: string;
-  /** UTC, "YYYY-MM-DD HH:MM:SS". */
-  date: string;
-  first_discover: boolean;
-  ship_id: number | null;
-}
+export type { EdsmVisit as Visit } from "./api/types/EdsmVisit";
+/** The switch, the commander name, whether a key is in the keyring, and the outbox. */
+export type EdsmStatus = Outbox<EdsmHead>;
 
 /** The EDSM status; rejects (with the core's reason) when the core did not answer. */
 export async function edsmStatus(): Promise<EdsmStatus> {
   const r = await coreCall("edsm_status");
   if (!r.ok) throw new Error(r.error ?? "the core did not answer");
-  return r as unknown as EdsmStatus;
+  return r;
 }
 
 /** Any of: the switch, the commander name, the API key ("" forgets it). */
-export async function setEdsm(change: { enabled?: boolean; commander?: string; api_key?: string }): Promise<Reply> {
+export async function setEdsm(change: SetEdsmArgs) {
   return coreCall("set_edsm", change);
 }
 
-export async function flightLog(): Promise<{ visits: Visit[] } | { error: string }> {
+export async function flightLog(): Promise<{ visits: EdsmVisit[] } | { error: string }> {
   const r = await coreCall("edsm_flight_log");
-  return r.ok ? { visits: (r.visits as Visit[] | undefined) ?? [] } : { error: String(r.error) };
+  return r.ok ? { visits: r.visits } : { error: r.error };
 }
