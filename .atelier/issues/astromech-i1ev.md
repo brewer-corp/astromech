@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "World steps: game folder, game process and clock, settled by file generation and clock quiescence"
-updated_at: "2026-11-07T11:57:01.793960301+00:00"
+updated_at: "2026-11-07T15:21:22.604471470+00:00"
 ---
 
 ## Goal
@@ -59,3 +59,7 @@ Script loading, the step runner, the pipeline's generation hook, `world_step` an
 ## Context
 
 The pipeline loop is pipeline.rs:927-990. Status is read with `read_status_retry` (pipeline.rs:804-806), whose 1 ms retry stays real (clock child). Freshness is pipeline.rs:131. The watcher loop is app.rs:1440-1488. The route desk copies through the world's clip writer.
+
+## Notes
+
+- 2026-11-07 [note] From finding astromech-8t2s (teardown review): world mode's quit stops the history follower while the control API still accepts calls, so a set_folders arriving before the temp folder is removed would restart a follower and bring back 'Directory not empty'. Stop serving (or make following a no-op after stop) before stopping the follower, here where world steps first change folders.
