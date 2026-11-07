@@ -4,6 +4,9 @@ id: "astromech-7rcn"
 issue_type: "feature"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-7rcn
 priority: "P1"
 relationships:
   blocks: []
@@ -21,7 +24,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "The window reaches its backend through one transport"
-updated_at: "2026-11-07T04:51:22.542630080+00:00"
+updated_at: "2026-11-07T04:58:27.886544682+00:00"
 ---
 
 ## Goal

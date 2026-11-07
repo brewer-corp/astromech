@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Transport seam: one call(), the fake moved to app/src/preview"
-updated_at: "2026-11-07T04:51:22.367368678+00:00"
+updated_at: "2026-11-07T04:58:27.886546987+00:00"
 ---
 
 ## Goal
