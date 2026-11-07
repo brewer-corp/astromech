@@ -36,7 +36,7 @@ The one-command-list test runs against the headless core started with a world, a
 - [x] `NOT_RUN_FOR_REAL` is `["install_update"]`, with its reason (it replaces the running app). `install_update` is called with no update staged and refuses before its effect.
 - [x] Finding astromech-nq3c is closed by a round-trip check. Each example args value is parsed into its command's arg type and serialised back, and every field in the example must survive with its value. Defaults the type adds don't matter. A misspelt field drops out and fails the check. Mutation: rename a field in `set_folders`' example and the test fails naming it. Production parsing doesn't change. Adding a `Serialize` derive where an arg type lacks one is allowed.
 - [x] No-spawn proof: every opener, Start with Windows, speaker and key effect appears in `world_observed`, and world mode's `Boundaries` reach no real one (world-mode and devices children). No request is unrecorded.
-- [ ] Runs in `cargo test --workspace` on Linux and Windows CI with no sleeps, no wall-clock reads and no retries. The lib-test module and ro7a's `unavailable_server` and `offline()` client are removed, and CONTRIBUTING.md's line about the table names the world.
+- [x] Runs in `cargo test --workspace` on Linux and Windows CI with no sleeps, no wall-clock reads and no retries. The lib-test module and ro7a's `unavailable_server` and `offline()` client are removed, and CONTRIBUTING.md's line about the table names the world.
 
 ## Scope
 

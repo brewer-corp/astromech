@@ -42,7 +42,7 @@ Lint keeps the core on its clock: a new direct time read or sleep in production 
   - the pacing waits the clock child listed.
 - [x] Test code is exempt for now, by `#![allow(clippy::disallowed_methods)]` at the top of each crates/*/tests/*.rs file and `#[allow(clippy::disallowed_methods)]` on each `#[cfg(test)] mod tests`. astromech-mockgame, examples and spikes are exempt the same way. A follow-up issue (`--discovered-from` this one) holds removing the test exemptions file by file, under decision astromech-1zhg.
 - [x] Mutation: an `Instant::now()` added to pipeline.rs's production code fails clippy, and the same line inside its test module doesn't.
-- [ ] `cargo test --workspace` passes on Linux and Windows CI, and Windows clippy (`cfg(windows)` paths) is clean.
+- [x] `cargo test --workspace` passes on Linux and Windows CI, and Windows clippy (`cfg(windows)` paths) is clean.
 
 ## Scope
 

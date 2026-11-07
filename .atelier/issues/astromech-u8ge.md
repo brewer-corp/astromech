@@ -88,7 +88,7 @@ The core's behaviour timers read and wait through one clock. In world mode that 
   - a verify wait returns at once when the flag is set, and times out only after `advance` passes `verify_timeout`;
   - a Spansh poll's next request goes out only after `advance` passes `Polling::every`;
   - a callout cooldown runs on the clock.
-- [ ] `cargo test --workspace` passes on Linux and Windows CI. Review reads every changed in-game site (policy, hub, callouts, pipeline, health) against "behaves the same under `SystemClock`".
+- [x] `cargo test --workspace` passes on Linux and Windows CI. Review reads every changed in-game site (policy, hub, callouts, pipeline, health) against "behaves the same under `SystemClock`".
 
 ## Scope
 

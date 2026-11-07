@@ -37,7 +37,7 @@ Today the whole push-to-talk loop is `cfg(windows)` (crates/astromech-core/src/s
   - the speaker maker for the session and Settings' voice preview (session.rs:231-264, app.rs:683-697);
   - the device inventory for the binds check (session.rs:149; `State::with_devices`).
   `Boundaries::real` passes today's.
-- [ ] The push-to-talk loop (`start_voice`) compiles and runs on every OS. In world mode it is registered with the clock, inherited from the session's starter, and its speech-to-text thread is not registered.
+- [x] The push-to-talk loop (`start_voice`) compiles and runs on every OS. In world mode it is registered with the clock, inherited from the session's starter, and its speech-to-text thread is not registered.
   - Control source: it takes a small interface with one method, receive with a timeout. In the installed app that is today's bus `std::sync::mpsc::Receiver<Control>` with `recv_timeout(1s)` (session.rs:529), unchanged. In world mode it is the clock channel. The bus is not changed to make the types match; the interface adapts to it.
   - Its time reads go through the clock:
     - `down_at` (session.rs:508, :551) and `up_at` (:568), from which `held` is measured against `min_hold_ms` (default 300 ms; gate at :585, :616);
@@ -60,7 +60,7 @@ Today the whole push-to-talk loop is `cfg(windows)` (crates/astromech-core/src/s
   - `worlds/kill-switch`: the kill switch is pressed, "Kill switch on" is said, and a following voice command is denied and sends no key. A hold of at least `rearm_hold_ms` (1000 ms by default, by `advance`) re-arms it; a shorter hold says "Still killed". The voice command in this world uses the same advances as gear-down.
   - `worlds/paste`: in the galaxy map (GuiFocus) the paste button sends Ctrl+V and then Enter, and `world_wait` sees both under the manual clock with no `advance`. The modifier gap and paste settle are real pacing waits, and the paste runs on an unregistered thread (session.rs:627-632), so its keys are awaited, not assumed. Outside the map it sends nothing.
   - `worlds/jump` now also observes the next stop said.
-- [ ] Windows stand-in for the in-game path: a Windows-only test in crates/astromech-core starts a session's `start_voice` with the real `bus::attach`, which starts the real Raw Input and XInput listener and the bus, with fake mic, speech-to-text and speaker. It feeds crates/astromech-input/tests/fixtures/replay-vkb.json through `controls::Mapper` into the bus's test forwarder. Push-to-talk gives one transcribed command, and the kill switch kills the policy. It runs in Windows CI's `cargo test --workspace` (not the `continue-on-error` mock-game step, ci.yml:112-120).
+- [x] Windows stand-in for the in-game path: a Windows-only test in crates/astromech-core starts a session's `start_voice` with the real `bus::attach`, which starts the real Raw Input and XInput listener and the bus, with fake mic, speech-to-text and speaker. It feeds crates/astromech-input/tests/fixtures/replay-vkb.json through `controls::Mapper` into the bus's test forwarder. Push-to-talk gives one transcribed command, and the kill switch kills the policy. It runs in Windows CI's `cargo test --workspace` (not the `continue-on-error` mock-game step, ci.yml:112-120).
 - [ ] After merge (PC, needs-human): push-to-talk, the kill switch and the paste button work in the game as before. Stand-in: the Windows test above.
 
 ## Scope

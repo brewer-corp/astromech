@@ -38,7 +38,7 @@ updated_at: "2026-11-07T15:17:31.945727681+00:00"
 - [x] Once the control API is up, the binary prints one JSON line on stdout: `{"control":{"port":…,"token":…},"app_dir":…}`. This is the only endpoint source the tests and the bridge use. It runs until `quit`.
 - [x] The fakes record what reaches them, in order, as observations. `world_observed {since}` and `world_wait {match}` are registered only in world mode, as `local` commands (decision astromech-unh9: refused with the window's origin). `world_wait` is woken by the observation itself, not by polling, and has a hang guard that fails the call.
 - [x] A test helper in crates/astromech-core/tests/support/ spawns `CARGO_BIN_EXE_astromech-core --world <dir>`, reads the stdout line, and calls commands with `astromech_api::control`.
-- [ ] A test over `worlds/minimal` runs with HOME, XDG_DATA_HOME, LOCALAPPDATA, APPDATA and USERPROFILE all pointing at one empty folder. It checks that:
+- [x] A test over `worlds/minimal` runs with HOME, XDG_DATA_HOME, LOCALAPPDATA, APPDATA and USERPROFILE all pointing at one empty folder. It checks that:
   - `status` answers;
   - `open_config` appears in `world_observed` with the world's config path;
   - `autostart_on` appears as Start with Windows set;
