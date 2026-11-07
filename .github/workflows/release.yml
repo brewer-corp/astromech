@@ -244,7 +244,8 @@ jobs:
           if-no-files-found: warn
       # Spike astromech-wgtr's probe against the installed app: windowless with the tray, a second
       # start opening the window, five closes freeing WebView2, the window's renderer and browser
-      # process killed, and quit. Raw Input (check 2) is the onboarding smoke's kill-switch runs.
+      # process killed (the window must recover in place: a reload, a rebuild), and quit. Raw Input
+      # (check 2) is the onboarding smoke's kill-switch runs.
       - name: one-process probe (installed app)
         shell: pwsh
         run: |
@@ -256,7 +257,7 @@ jobs:
           $data = "$env:LOCALAPPDATA\astromech\data"
           python scripts/one_process_probe.py --app "$inst\astromech-core.exe" --endpoint "$data\core.json" `
             --log "$data\logs\astromech-core.log" --user-data "$env:LOCALAPPDATA\io.github.spadaval.astromech\EBWebView" `
-            --title astromech --no-sink --no-churn --start-args= --before-build-args= --baseline-args= `
+            --title astromech --no-sink --no-churn --expect-recovery --start-args= --before-build-args= --baseline-args= `
             --out one-process-report
           $code = $LASTEXITCODE
           Start-Process "$inst\uninstall.exe" -ArgumentList "/S" -Wait

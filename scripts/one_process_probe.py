@@ -16,8 +16,10 @@ that takes one JSON line `{token, cmd, args?}` and answers `{"ok": true, "value"
 (the spike prefixes its lines `[<pid> ...`).
 
 The installed app has no test hooks: `--no-sink` skips check 2 (its Raw Input is checked by the
-onboarding smoke's kill-switch runs) and `--no-churn` skips check 3; Release's installer job runs
-it so, with `--log`, `--user-data` and `--title` naming the app's own.
+onboarding smoke's kill-switch runs) and `--no-churn` skips check 3; `--expect-recovery` makes check 6 require
+the window to recover in place (a reload after a renderer exit, a rebuild after a browser exit)
+before it is closed. Release's installer job runs it so, with `--log`, `--user-data` and
+`--title` naming the app's own.
 
 A WebView2 process belongs to the app when it descends from the app, or its command line has
 `--webview-exe-name=<the app's exe name>`, or it names the app's EBWebView user-data folder, so a
@@ -463,7 +465,8 @@ class Probe:
             crashes.append(self.window_crash(target))
         self.notes["window crash"] = crashes
         self.check("6", "window crash", all(c["pass"] for c in crashes),
-                   [{k: c[k] for k in ("target", "pass", "app_alive", "tray", "control", "reopened")} for c in crashes])
+                   [{k: c.get(k) for k in ("target", "pass", "app_alive", "tray", "control", "recovered", "reopened")}
+                    for c in crashes])
 
         # 7. Quit from a worker thread, with the window open.
         if (app.state() or {}).get("window") == "closed":
@@ -496,6 +499,11 @@ class Probe:
                       "app_alive": app.alive(), "tray": None, "control": None, "reopened": None})
             return r
         failed_before = len(app.lines("process failed"))
+        # What the app's ProcessFailed handler logs (app/src-tauri/src/host.rs): a reload after the
+        # renderer exits, a rebuilt window (and its own page load) after the browser process exits.
+        reloads_before = len(app.lines("window: reloading the page"))
+        rebuilds_before = len(app.lines("window: rebuilt"))
+        loads_before = app.page_loads()
         for w in victims:
             try:
                 app.ps.Process(w["pid"]).kill()
@@ -515,6 +523,20 @@ class Probe:
                                           and v1["last_beat_ms_ago"] < 2000)
         r["webview_after_kill"] = app.webviews()
         r["process_failed_log"] = app.lines("process failed")[failed_before:]
+        if self.a.expect_recovery:
+            # Recovered in place, before anything closes the window: the handler's line, for a
+            # browser exit a new page load too, and the window open.
+            def recovered():
+                v = app.state()
+                if not v or v.get("window") != "open":
+                    return False
+                if target == "renderer":
+                    return len(app.lines("window: reloading the page")) > reloads_before
+                return len(app.lines("window: rebuilt")) > rebuilds_before and app.page_loads() > loads_before
+
+            r["recovered"] = bool(wait(recovered, 15.0, 0.5))
+            r["recovery_log"] = (app.lines("window: reloading the page")[reloads_before:]
+                                 + app.lines("window: rebuilt")[rebuilds_before:])
         hwnd = find_window(app.proc.pid, app.title) if app.alive() else None
         if hwnd:
             r["screenshot"] = screenshot(hwnd, self.a.out / f"dead-window-{target}.png")
@@ -527,7 +549,8 @@ class Probe:
         r["reopen"] = o
         r["reopened"] = o["page_loaded"]
         r["page_beats_after_reopen"] = v2.get("page_beats")
-        r["pass"] = r["app_alive"] and ok_tray and r["control"] and r["reopened"]
+        r["pass"] = (r["app_alive"] and ok_tray and r["control"] and r["reopened"]
+                     and (r.get("recovered", False) or not self.a.expect_recovery))
         return r
 
     def before_build(self) -> None:
@@ -789,7 +812,8 @@ def probe_markdown(p: Probe) -> str:
                      f"`{c.get('window_after_kill')}`, page beating 6 s later: {c.get('page_alive_after_kill')} "
                      f"(beats {c.get('page_beats_before')} → {c.get('page_beats_6s_after')}), WebView2 left: "
                      f"{[w['type'] for w in c.get('webview_after_kill', [])]}, ProcessFailed: "
-                     f"{c.get('process_failed_log')}, screenshot: {c.get('screenshot')}; reopened: {c.get('reopened')} "
+                     f"{c.get('process_failed_log')}, recovered in place: {c.get('recovered', 'not checked')} "
+                     f"{c.get('recovery_log', '')}, screenshot: {c.get('screenshot')}; reopened: {c.get('reopened')} "
                      f"(beats after reopen {c.get('page_beats_after_reopen')}).")
     lines += ["", "The spike only logs WebView2's ProcessFailed event; the app reloads the page after a renderer "
               "exit and rebuilds the window after a browser-process exit. A dead page that stays dead until the "
@@ -842,6 +866,10 @@ def main(argv=None) -> int:
     p.add_argument("--no-sink", action="store_true",
                    help="skip check 2: the app has no sink_keys (the installed app; the onboarding smoke checks its input)")
     p.add_argument("--no-churn", action="store_true", help="skip check 3: the app has no tray_churn command")
+    p.add_argument("--expect-recovery", action="store_true",
+                   help="check 6 also requires the window to recover in place before it is closed: the log's "
+                        "'window: reloading the page' after a renderer kill, 'window: rebuilt' and a new page load "
+                        "after a browser kill, and ui_state window open (the installed app; the spike has no handler)")
     p.add_argument("--idle-seconds", type=float, default=30.0)
     p.add_argument("--restart", action="store_true", help="report restart registration instead")
     p.add_argument("--config", default="runner", help="--restart: this WER configuration's name in the report")
