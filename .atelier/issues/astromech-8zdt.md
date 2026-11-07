@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "UI tests in real Chromium, and the testing rules written down"
-updated_at: "2026-11-07T04:51:22.542097838+00:00"
+updated_at: "2026-11-07T05:31:30.781538806+00:00"
 ---
 
 ## Goal
