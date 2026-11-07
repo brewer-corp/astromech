@@ -5,10 +5,11 @@
  * `ASTROMECH_CORE`, default target/debug/astromech-core) when the dev server starts, and serves
  * `POST /__astromech/call` with `{cmd, args}`: the window's call, sent to the core as the shell's
  * proxy sends it (`origin: "app_window"`), answered with the core's reply lines as they come, as
- * NDJSON: each progress line, then the envelope. The page's side is src/lib/bridge.ts, which
- * lib/transport.ts picks when the plugin defines `import.meta.env.VITE_ASTROMECH_BRIDGE` (the
- * call's path). Only the dev server applies the plugin, never `pnpm build`, a preview server or
- * the tests, and it lives outside src/, so no bundle carries it.
+ * NDJSON: each progress line, then the envelope. Only the page it serves may call it (`refusal`).
+ * The page's side is src/lib/bridge.ts, which lib/transport.ts picks when the plugin defines
+ * `import.meta.env.VITE_ASTROMECH_BRIDGE` (the call's path). Only the dev server applies the
+ * plugin, never `pnpm build`, a preview server or the tests, and it lives outside src/, so no
+ * bundle carries it.
  *
  * The core's only endpoint source is the line it prints on stdout. Its stdin is a pipe held for
  * the dev server's life: the core quits when the server closes, or when the server's process
@@ -28,10 +29,43 @@ async function body(req: IncomingMessage): Promise<string> {
   return s;
 }
 
-/** Answer one call: the core's lines, each as it arrives, or a 4xx/5xx with the reason. */
-async function answer(core: Promise<WorldCore>, req: IncomingMessage, res: ServerResponse): Promise<void> {
+/** The names the dev server answers to on this machine. */
+const LOOPBACK = ["localhost", "127.0.0.1", "[::1]"];
+
+/**
+ * Why the dev server must refuse `req`, or null: the bridge sends what it gets to the core as the
+ * window, with the core's token, so only the page this dev server serves may call it (finding
+ * astromech-igbw). Any web page the browser has open can POST here, and DNS rebinding can make
+ * another name resolve to 127.0.0.1, so:
+ * - the Host is this server's own, a loopback name with its `port`;
+ * - the body is `application/json`, which a page elsewhere can't send without a CORS preflight
+ *   this server never grants (a no-cors POST can only be text/plain or a form);
+ * - the browser says the request is same-origin (`Sec-Fetch-Site`), or its Origin is this
+ *   server's. A non-browser client sends the Origin itself.
+ */
+export function refusal(req: IncomingMessage, port: number): string | null {
+  const host = req.headers.host ?? "";
+  if (!LOOPBACK.some((name) => host === `${name}:${port}`)) return `not this dev server's host: ${JSON.stringify(host)}`;
+  const type = (req.headers["content-type"] ?? "").split(";")[0]!.trim().toLowerCase();
+  if (type !== "application/json") return `the call must be application/json, not ${JSON.stringify(type)}`;
+  const site = req.headers["sec-fetch-site"];
+  const origin = req.headers.origin;
+  if (site !== undefined && site !== "same-origin") return `not from this dev server's page (Sec-Fetch-Site: ${site})`;
+  if (site !== "same-origin" && origin !== `http://${host}`) return `not from this dev server's page (Origin: ${origin ?? "none"})`;
+  return null;
+}
+
+/** Answer one call: the core's lines, each as it arrives, or a 4xx/5xx with the reason. `port`:
+ * the dev server's own. */
+export async function answer(core: Promise<WorldCore>, req: IncomingMessage, res: ServerResponse, port: number): Promise<void> {
   if (req.method !== "POST") {
     res.writeHead(405, { allow: "POST" }).end("POST {cmd, args}");
+    return;
+  }
+  const refused = refusal(req, port);
+  if (refused) {
+    req.resume();
+    res.writeHead(403, { "content-type": "text/plain" }).end(`the dev bridge refused the call: ${refused}`);
     return;
   }
   let cmd: unknown, args: unknown;
@@ -77,7 +111,10 @@ export function astromechBridge(): Plugin {
       // Unhandled otherwise: each call reports a core that didn't start.
       core.catch(() => {});
       server.httpServer?.once("close", () => void core.then((c) => c.quit()).catch(() => {}));
-      server.middlewares.use(CALL_PATH, (req, res) => void answer(core, req, res));
+      server.middlewares.use(CALL_PATH, (req, res) => {
+        const address = server.httpServer?.address();
+        void answer(core, req, res, address && typeof address === "object" ? address.port : -1);
+      });
     },
   };
 }
