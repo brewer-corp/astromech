@@ -89,14 +89,14 @@ describe("Find or plot in the window", () => {
     await fireEvent.keyDown(input, { key: "Enter" });
 
     expect(location.hash).toBe("#/places/outfitting/Frame%20Shift%20Drive");
-    expect(await screen.findByText(/Abraham Lincoln/)).toBeTruthy();
+    expect(await screen.findByText(/Titan City/)).toBeTruthy();
     expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ want: { kind: "module", name: "Frame Shift Drive", class: null, rating: null, mount: null }, origin: null }));
   });
 
   it("opens a fitted module's search at its size, and a ship's shipyard search", async () => {
     location.hash = "#/places/outfitting";
     render(App);
-    await screen.findByText(/Abraham Lincoln/);
+    await screen.findByText(/Titan City/);
 
     await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
     let input = await screen.findByRole("combobox", { name: "Find or plot" });
@@ -118,7 +118,7 @@ describe("Find or plot in the window", () => {
   it("keeps the Outfitting pick in the address for back and reload", async () => {
     location.hash = "#/places/outfitting/Frame%20Shift%20Drive?class=5&rating=A";
     render(App);
-    await screen.findByText(/Abraham Lincoln/);
+    await screen.findByText(/Titan City/);
 
     await fireEvent.click(screen.getByRole("button", { name: "Class 6" }));
     await waitFor(() => expect(location.hash).toBe("#/places/outfitting/Frame%20Shift%20Drive?class=6&rating=A"));
@@ -137,7 +137,7 @@ describe("Find or plot in the window", () => {
   it("keeps a partial Outfitting pick when one part goes back to Any", async () => {
     location.hash = "#/places/outfitting/Frame%20Shift%20Drive?class=5&rating=A";
     render(App);
-    await screen.findByText(/Abraham Lincoln/);
+    await screen.findByText(/Titan City/);
 
     await fireEvent.click(screen.getByRole("button", { name: "Rating Any" }));
     await waitFor(() => expect(location.hash).toBe("#/places/outfitting/Frame%20Shift%20Drive?class=5"));

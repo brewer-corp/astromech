@@ -11,24 +11,6 @@
    "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-famine.json"
   },
   {
-   "url": "https://spansh.co.uk/api/stations/search",
-   "method": "POST",
-   "sent": "Black Market",
-   "from": "spansh-black-market.json"
-  },
-  {
-   "url": "https://spansh.co.uk/api/stations/search",
-   "method": "POST",
-   "sent": "Frame Shift Drive",
-   "from": "spansh-module-5a-fsd.json"
-  },
-  {
-   "url": "https://spansh.co.uk/api/stations/search",
-   "method": "POST",
-   "sent": "Krait MkII",
-   "from": "spansh-ship-krait-mkii.json"
-  },
-  {
    "url": "https://spansh.co.uk/api/bodies/search",
    "method": "POST",
    "sent": "Brain Tree",
@@ -51,30 +33,6 @@
    "method": "POST",
    "sent": "Geological",
    "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-sites-geological.json"
-  },
-  {
-   "url": "https://spansh.co.uk/api/bodies/search",
-   "method": "POST",
-   "sent": "Painite",
-   "from": "spansh-hotspots-painite-1-up.json"
-  },
-  {
-   "url": "https://spansh.co.uk/api/bodies/search",
-   "method": "POST",
-   "sent": "\"count\":[5,999]",
-   "from": "spansh-hotspots-painite-5-up.json"
-  },
-  {
-   "url": "https://spansh.co.uk/api/bodies/search",
-   "method": "POST",
-   "sent": "\"count\":[6,999]",
-   "from": "spansh-hotspots-painite-6-up.json"
-  },
-  {
-   "url": "https://spansh.co.uk/api/bodies/search",
-   "method": "POST",
-   "sent": "\"count\":[5,5]",
-   "from": "spansh-hotspots-painite-5.json"
   },
   {
    "url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/painite/nearby/imports",

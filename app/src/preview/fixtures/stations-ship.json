@@ -1,5 +1,5 @@
 {
-  "fetched": "2026-10-16T22:00:00Z",
+  "fetched": "2026-11-07T21:00:00Z",
   "filters": {
     "exclude_carriers": false,
     "exclude_odyssey": false,
@@ -21,11 +21,11 @@
   },
   "hits": [
     {
-      "allegiance": null,
-      "arrival_ls": 227.915269,
+      "allegiance": "Federation",
+      "arrival_ls": 171.963481,
       "detail": null,
-      "exact": true,
-      "faction": null,
+      "exact": false,
+      "faction": "Sol Workers' Party",
       "jumps": 0,
       "ly": 0.0,
       "market_id": 3534390016,
@@ -37,64 +37,18 @@
         0.0
       ],
       "price": 45814205,
-      "state": null,
+      "state": "UnderRepairs",
       "station_type": "Planetary Port",
       "system": "Sol",
       "system_id64": 10477373803,
-      "updated_at": "2026-10-14T17:53:45Z"
+      "updated_at": "2026-11-07T14:06:45Z"
     },
     {
-      "allegiance": null,
-      "arrival_ls": 226.708874,
+      "allegiance": "Federation",
+      "arrival_ls": 825.961829,
       "detail": null,
-      "exact": true,
-      "faction": null,
-      "jumps": 0,
-      "ly": 0.0,
-      "market_id": 3534391808,
-      "name": "Furukawa Enterprise",
-      "pad": "L",
-      "pos": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "price": 45814205,
-      "state": null,
-      "station_type": "Planetary Outpost",
-      "system": "Sol",
-      "system_id64": 10477373803,
-      "updated_at": "2026-10-15T17:27:23Z"
-    },
-    {
-      "allegiance": null,
-      "arrival_ls": 503.978843,
-      "detail": null,
-      "exact": true,
-      "faction": null,
-      "jumps": 0,
-      "ly": 0.0,
-      "market_id": 128016640,
-      "name": "Galileo",
-      "pad": "L",
-      "pos": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "price": 45814205,
-      "state": null,
-      "station_type": "Ocellus Starport",
-      "system": "Sol",
-      "system_id64": 10477373803,
-      "updated_at": "2026-10-16T19:19:19Z"
-    },
-    {
-      "allegiance": null,
-      "arrival_ls": 819.859831,
-      "detail": null,
-      "exact": true,
-      "faction": null,
+      "exact": false,
+      "faction": "Sol Workers' Party",
       "jumps": 0,
       "ly": 0.0,
       "market_id": 128017664,
@@ -106,18 +60,64 @@
         0.0
       ],
       "price": 45814205,
-      "state": null,
+      "state": "UnderRepairs",
       "station_type": "Orbis Starport",
       "system": "Sol",
       "system_id64": 10477373803,
-      "updated_at": "2026-10-16T19:13:22Z"
+      "updated_at": "2026-11-07T17:49:43Z"
     },
     {
-      "allegiance": null,
-      "arrival_ls": 2621.136959,
+      "allegiance": "Federation",
+      "arrival_ls": 173.165721,
       "detail": null,
-      "exact": true,
-      "faction": null,
+      "exact": false,
+      "faction": "Sol Workers' Party",
+      "jumps": 0,
+      "ly": 0.0,
+      "market_id": 3534391808,
+      "name": "Furukawa Enterprise",
+      "pad": "L",
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "price": 45814205,
+      "state": "UnderRepairs",
+      "station_type": "Planetary Outpost",
+      "system": "Sol",
+      "system_id64": 10477373803,
+      "updated_at": "2026-11-07T03:28:57Z"
+    },
+    {
+      "allegiance": "Federation",
+      "arrival_ls": 506.004796,
+      "detail": null,
+      "exact": false,
+      "faction": "Mother Gaia",
+      "jumps": 0,
+      "ly": 0.0,
+      "market_id": 128016640,
+      "name": "Galileo",
+      "pad": "L",
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "price": 45814205,
+      "state": "UnderRepairs",
+      "station_type": "Ocellus Starport",
+      "system": "Sol",
+      "system_id64": 10477373803,
+      "updated_at": "2026-11-07T19:45:50Z"
+    },
+    {
+      "allegiance": "Federation",
+      "arrival_ls": 2608.294385,
+      "detail": null,
+      "exact": false,
+      "faction": "Sol Nationalists",
       "jumps": 0,
       "ly": 0.0,
       "market_id": 3534391296,
@@ -129,80 +129,11 @@
         0.0
       ],
       "price": 45814205,
-      "state": null,
+      "state": "UnderRepairs",
       "station_type": "Planetary Outpost",
       "system": "Sol",
       "system_id64": 10477373803,
-      "updated_at": "2026-10-05T17:57:54Z"
-    },
-    {
-      "allegiance": null,
-      "arrival_ls": 225.213593,
-      "detail": null,
-      "exact": true,
-      "faction": null,
-      "jumps": 0,
-      "ly": 0.0,
-      "market_id": 128016384,
-      "name": "Daedalus",
-      "pad": "L",
-      "pos": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "price": 45814205,
-      "state": null,
-      "station_type": "Orbis Starport",
-      "system": "Sol",
-      "system_id64": 10477373803,
-      "updated_at": "2026-10-16T19:17:34Z"
-    },
-    {
-      "allegiance": null,
-      "arrival_ls": 2613.507086,
-      "detail": null,
-      "exact": true,
-      "faction": null,
-      "jumps": 0,
-      "ly": 0.0,
-      "market_id": 3534390272,
-      "name": "Haberlandt Survey",
-      "pad": "L",
-      "pos": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "price": 45814205,
-      "state": null,
-      "station_type": "Planetary Outpost",
-      "system": "Sol",
-      "system_id64": 10477373803,
-      "updated_at": "2021-05-29T01:16:41Z"
-    },
-    {
-      "allegiance": null,
-      "arrival_ls": 504.8213,
-      "detail": null,
-      "exact": true,
-      "faction": null,
-      "jumps": 0,
-      "ly": 0.0,
-      "market_id": 128017152,
-      "name": "M.Gorbachev",
-      "pad": "L",
-      "pos": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "price": 45814205,
-      "state": null,
-      "station_type": "Orbis Starport",
-      "system": "Sol",
-      "system_id64": 10477373803,
-      "updated_at": "2026-10-16T18:39:11Z"
+      "updated_at": "2026-11-03T03:32:27Z"
     }
   ],
   "range": 31.5,

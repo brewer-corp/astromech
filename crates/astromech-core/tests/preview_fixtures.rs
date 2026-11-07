@@ -238,19 +238,15 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
         ],
     );
     // Lookups around Sol (the sol world: Jameson docked at Abraham Lincoln in an Asp), answered
-    // from Spansh's recorded pages.
+    // from the crates' recorded Spansh pages.
     t.insert("nearby.json", whole(core("sol", None, "galaxy_nearby", json!({"query": "famine"}))));
-    t.insert(
-        "nearby-hge.json",
-        whole(From::Not(
-            "no recorded Spansh answer to the Federation-faction (HGE) search is committed: the sample is the famine \
-             page relabelled",
-        )),
-    );
+    // Lookups around Sol answered from Spansh's pages recorded for the preview on 7 Nov 2026 (the
+    // sol-nov world: the same commander, on that day's clock; its config says how each was made).
+    t.insert("nearby-hge.json", whole(core("sol-nov", None, "galaxy_nearby", json!({"query": "fed_composites"}))));
     t.insert(
         "hotspots.json",
         whole(core(
-            "sol",
+            "sol-nov",
             None,
             "mining_hotspots",
             json!({"want": {"ore": "painite", "ring_type": null, "reserve": null}}),
@@ -258,12 +254,17 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
     );
     t.insert(
         "stations.json",
-        whole(core("sol", None, "stations_nearby", json!({"want": {"kind": "service", "service": "black_market"}}))),
+        whole(core(
+            "sol-nov",
+            None,
+            "stations_nearby",
+            json!({"want": {"kind": "service", "service": "black_market"}}),
+        )),
     );
     t.insert(
         "stations-module.json",
         whole(core(
-            "sol",
+            "sol-nov",
             None,
             "stations_nearby",
             json!({"want": {"kind": "module", "name": "Frame Shift Drive", "class": 5, "rating": "A", "mount": null}}),
@@ -271,7 +272,7 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
     );
     t.insert(
         "stations-ship.json",
-        whole(core("sol", None, "stations_nearby", json!({"want": {"kind": "ship", "ship": "Krait MkII"}}))),
+        whole(core("sol-nov", None, "stations_nearby", json!({"want": {"kind": "ship", "ship": "Krait MkII"}}))),
     );
     t.insert(
         "sites.json",

@@ -1,6 +1,6 @@
 {
   "bodies": 1101,
-  "fetched_at": 1792188000,
+  "fetched_at": 1794085200,
   "here": {
     "id64": 10477373803,
     "pos": [
@@ -62,10 +62,10 @@
           "name": "Serendibite"
         }
       ],
-      "arrival_ls": 722.154248,
+      "arrival_ls": 722.159654,
       "body": "LB 3303 B 2",
       "count": 9,
-      "exact": true,
+      "exact": false,
       "jumps": 2,
       "ly": 33.095682781142315,
       "reserve": "Common",
@@ -155,7 +155,7 @@
           "name": "Platinum"
         }
       ],
-      "arrival_ls": 2159.65318,
+      "arrival_ls": 2054.937093,
       "body": "Ross 130 AB 3",
       "count": 7,
       "exact": false,
@@ -186,7 +186,7 @@
           "name": "Rhodplumsite"
         }
       ],
-      "arrival_ls": 1942.649872,
+      "arrival_ls": 1940.623759,
       "body": "Xihe 1",
       "count": 7,
       "exact": false,
@@ -227,7 +227,7 @@
       "ring": "q1 Eridani 1 A Ring",
       "ring_type": "Metal Rich",
       "system": "q1 Eridani",
-      "updated_at": "2026-11-01T23:23:25Z"
+      "updated_at": "2026-11-06T00:24:26Z"
     },
     {
       "also": [
@@ -248,7 +248,7 @@
           "name": "Monazite"
         }
       ],
-      "arrival_ls": 1289.836101,
+      "arrival_ls": 1289.760705,
       "body": "LTT 7421 A 6",
       "count": 7,
       "exact": false,
@@ -271,7 +271,7 @@
           "name": "Monazite"
         }
       ],
-      "arrival_ls": 494.165079,
+      "arrival_ls": 494.171848,
       "body": "Belarsuk 2",
       "count": 7,
       "exact": false,
@@ -281,7 +281,7 @@
       "ring": "Belarsuk 2 A Ring",
       "ring_type": "Metal Rich",
       "system": "Belarsuk",
-      "updated_at": "2026-10-31T20:39:44Z"
+      "updated_at": "2026-11-07T18:49:16Z"
     },
     {
       "also": [

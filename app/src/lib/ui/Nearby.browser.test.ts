@@ -18,11 +18,11 @@ const heads = () => screen.getAllByRole("columnheader").map((h) => h.textContent
 describe("Nearby", () => {
   it("leads an HGE lookup with the score it is ranked by, then the population it weighs", async () => {
     render(Nearby, { query: "fed_composites" });
-    expect(await screen.findByText("Tau Ceti")).toBeTruthy();
+    expect(await screen.findByText("Duamta")).toBeTruthy();
     expect(heads()).toEqual(["Score", "System", "Population", "Faction", "Distance", "Jumps", "Updated", ""]);
-    expect(cells()[0]?.slice(0, 3)).toEqual(["109", "Tau Ceti", "5.0B"]);
-    expect(cells()[1]?.[0]).toBe("0");
-    expect(cells()[1]?.[2]).toBe("2M");
+    expect(cells()[0]?.slice(0, 3)).toEqual(["150", "Sol", "18.3B"]);
+    // Under the score's population floor: ranked last, with no score.
+    expect(cells().at(-1)?.slice(0, 3)).toEqual(["0", "Barnard's Star", "1M"]);
     expect(screen.getByText(/ranked by population and distance/)).toBeTruthy();
   });
 
