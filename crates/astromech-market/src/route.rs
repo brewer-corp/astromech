@@ -53,7 +53,7 @@ pub enum Kind {
 
 /// What the commander asks for. The app fills the numbers from the current ship and the
 /// journal ([`Defaults`]); all can be changed.
-#[derive(Debug, Clone, PartialEq, Deserialize, ts_rs::TS)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 #[ts(rename = "TradeRouteAsk")]
 pub struct Ask {
     pub kind: Kind,

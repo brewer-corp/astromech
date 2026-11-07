@@ -4,7 +4,7 @@
 use astromech_data::ardent::{MarketFilter, StationService, Trade};
 use astromech_data::replay::{Exchange, Recording, Replay, Seen};
 use astromech_data::spansh::{
-    ExactRoute, JobStatus, NeutronRoute, Polling, Reference, RouteStatus, Search, TradeRoute,
+    ExactRoute, JobStatus, NeutronRoute, Polling, Reference, RouteStatus, Search, TradeRoute, NO_WAIT_POLLS,
 };
 use astromech_data::{
     ttl, Cache, Client, Clock, Error, HttpTransport, Limiter, Method, Request, Response, Service, Transport,
@@ -697,6 +697,22 @@ fn spansh_polls_on_the_clock() {
     assert_eq!(rec.requests(), 3, "the next poll once it has");
     poller.join().unwrap();
     assert_eq!(out.recv().unwrap().unwrap(), 1);
+}
+
+/// A job polled with no wait under a clock that never moves (a world's manual clock, which
+/// only its script advances) still gives up: after [`NO_WAIT_POLLS`] polls, not at a timeout
+/// the clock would never reach (finding astromech-ur4v).
+#[test]
+fn a_job_polled_with_no_wait_gives_up_without_the_clock_moving() {
+    let rec = Arc::new(Recorded::new());
+    let clock: Arc<dyn Clock> = Arc::new(astromech_proto::ManualClock::at_unix(T0));
+    let c = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none()).clock(clock);
+    rec.on("/api/trade/route", 202, fixture!("spansh-trade-submit.json"));
+    rec.on("/api/results/", 202, fixture!("spansh-trade-queued.json"));
+    let polling = Polling { every: std::time::Duration::ZERO, timeout: std::time::Duration::from_secs(180) };
+    let e = c.spansh_trade_route_wait(&trade_request(), polling).unwrap_err();
+    assert!(matches!(e, Error::Timeout { service: Service::Spansh }), "{e:?}");
+    assert_eq!(rec.requests(), 1 + NO_WAIT_POLLS as usize, "the submit, then the polls");
 }
 
 #[test]

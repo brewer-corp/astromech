@@ -119,11 +119,13 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   (`app/src/preview/recorded.ts`), so `pnpm check` fails on a fixture missing a field the core
   sends. Take the field from the fixture's recorded input (or the example that dumps it).
 - A new `window` command needs an entry in the table in
-  `crates/astromech-core/src/app/every_window_command.rs`: example args and what the call gives
-  (ok, or the handler's own error). The test calls each one through a core's control API, as the
-  shell sends it, and fails for a `window` command with no entry. It has no network and starts no
-  program: a command whose effect has no seam yet is called with state that stops it first, or not
-  called, and is named in `NOT_RUN_FOR_REAL` with the missing seam.
+  `crates/astromech-core/tests/every_window_command.rs`: example args, what the call gives (ok, or
+  the handler's own error) and the effect to check, in the reply or in what the world observed.
+  The test starts the headless core in the world `worlds/every-command` and calls each one through
+  its control API, as the shell sends it. It fails for a `window` command with no entry, and for an
+  example field the command's args type drops (a misspelt field). A request the command makes
+  needs an answer in that world's `net.json`: a recorded body (an existing fixture will do) or a
+  fault. Only `install_update` is in `NOT_RUN_FOR_REAL`, called with no update staged.
 - To show a UI change to someone off this machine, work on the real page on its branch against the
   browser preview (add a fixture under `app/src/preview/fixtures/` when the change needs data the
   preview lacks), then `scripts/preview-publish --page route --query route=exact`. It builds the
@@ -255,7 +257,10 @@ world's `net.json` answers every HTTP request the core makes (recorded bodies, s
 faults); a request it doesn't hold is refused and shows as unrecorded in `world_observed`.
 Push-to-talk, the kill switch and the paste button are raw-input samples in `press` and
 `release` steps, the microphone gets `audio` clips (mono 16 kHz WAVs rendered by the real
-speech path, `examples/render-voices.rs`, never a personal recording), speech-to-text hears
+speech path, never a personal recording: `cargo run -p astromech-core --example render-voices --
+--worker <worker> --models <models> --out <dir> --line 'Gear down.' --voices bm_george` writes
+`<dir>/bm_george.wav` at 24 kHz in the default cockpit colour, and `ffmpeg -i <dir>/bm_george.wav
+-ac 1 -ar 16000 <clip>.wav` converts it), speech-to-text hears
 `say` steps, and keys sent and lines said show in `world_observed`. `--record-net <file>` records real answers into that form with keys and commander names
 redacted. A recording committed here comes from public endpoints, with no credentials, and is
 checked for redaction; never commit one holding a key, a commander name or personal data. The

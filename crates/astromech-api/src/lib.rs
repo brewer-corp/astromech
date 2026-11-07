@@ -125,6 +125,11 @@ impl Call<'_> {
         self.after.borrow_mut().0.push(Box::new(f));
     }
 
+    /// The registry the command runs in.
+    pub fn registry(&self) -> &Registry {
+        self.registry
+    }
+
     /// Run `cmd` through the registry with the caller's origin, as if the caller had asked for
     /// it (its progress, if any, is not passed on).
     pub fn run(&self, cmd: &str, args: Option<Value>) -> Result<Value, String> {
@@ -155,6 +160,8 @@ pub struct Types {
     pub args: Ty,
     pub reply: Ty,
     pub progress: Option<Ty>,
+    /// `args` parsed as the args type and written back as JSON ([`Registry::round_trip_args`]).
+    round_trip: fn(Value) -> Result<Value, String>,
 }
 
 struct Entry {
@@ -212,7 +219,7 @@ impl Registry {
     /// Register `name` with typed arguments and reply: the request's `args` (null when absent,
     /// so `()` takes none) parsed as `A`, or a "bad args" error naming the command; the reply
     /// is `R` as JSON.
-    pub fn add_typed<A: DeserializeOwned + TS + 'static, R: Serialize + TS + 'static>(
+    pub fn add_typed<A: DeserializeOwned + Serialize + TS + 'static, R: Serialize + TS + 'static>(
         &mut self,
         name: &str,
         exposure: Exposure,
@@ -227,14 +234,19 @@ impl Registry {
 
     /// Register `name` with a typed reply and a handler that reads the request itself: `A` is
     /// what the window sends as `args` for it, `String` when the handler reads the request's
-    /// `text` (the window's `call(cmd, "…")`), `()` when it reads neither.
-    pub fn add_request<A: TS + ?Sized + 'static, R: Serialize + TS + 'static>(
+    /// `text` (the window's `call(cmd, "…")`), `()` when it reads neither. `A` is also what
+    /// [`Registry::round_trip_args`] parses an example with.
+    pub fn add_request<A: DeserializeOwned + Serialize + TS + 'static, R: Serialize + TS + 'static>(
         &mut self,
         name: &str,
         exposure: Exposure,
         handler: impl Fn(&Request, &Call) -> Result<R, String> + Send + Sync + 'static,
     ) -> Added<'_> {
-        let types = Types { args: Ty::of::<A>(), reply: Ty::of::<R>(), progress: None };
+        let round_trip = |v: Value| {
+            let a: A = serde_json::from_value(v).map_err(|e| e.to_string())?;
+            serde_json::to_value(a).map_err(|e| e.to_string())
+        };
+        let types = Types { args: Ty::of::<A>(), reply: Ty::of::<R>(), progress: None, round_trip };
         let handler: Handler = Box::new(move |r, call| {
             let reply = handler(r, call)?;
             serde_json::to_value(reply).map_err(|e| format!("{}: the reply can't be written as JSON: {e}", r.cmd))
@@ -246,6 +258,16 @@ impl Registry {
     /// [`Registry::add`]).
     pub fn commands(&self) -> impl Iterator<Item = (&str, Exposure, Option<&Types>)> {
         self.entries.iter().map(|(n, e)| (n.as_str(), e.exposure, e.types.as_ref()))
+    }
+
+    /// `args` parsed as `cmd`'s args type, as the window's TypeScript type names it, and written
+    /// back as JSON: a field the type doesn't have drops out, and the type's defaults appear. A
+    /// check of hand-written example args (the core's every-window-command test); dispatch
+    /// doesn't use it, and a handler that reads the request itself parses as it always has.
+    pub fn round_trip_args(&self, cmd: &str, args: Value) -> Result<Value, String> {
+        let Some(e) = self.entries.get(cmd) else { return Err(format!("unknown command {cmd:?}")) };
+        let Some(t) = &e.types else { return Err(format!("{cmd} is registered without types")) };
+        (t.round_trip)(args)
     }
 
     /// Run the request's command: its value, or why it didn't run or failed. `progress` gets
@@ -329,7 +351,7 @@ pub(crate) mod tests {
         Request { cmd: cmd.into(), args, origin, ..Default::default() }
     }
 
-    #[derive(Deserialize, ts_rs::TS)]
+    #[derive(Deserialize, Serialize, ts_rs::TS)]
     struct Add {
         a: i64,
         b: i64,
@@ -352,6 +374,27 @@ pub(crate) mod tests {
         let e = reg.dispatch(&req("add", None, None), &|_| {}).unwrap_err();
         assert!(e.starts_with("bad args for add:"), "{e}");
         assert_eq!(reg.dispatch(&req("add", Some(json!({"a": 1, "b": 2})), None), &|_| {}), Ok(json!(3)));
+    }
+
+    /// An example's args come back as its args type writes them: a field the type doesn't have
+    /// drops out, and a default it adds appears.
+    #[test]
+    fn args_round_trip_through_their_type() {
+        #[derive(Deserialize, Serialize, ts_rs::TS)]
+        struct Opt {
+            #[serde(default)]
+            name: Option<String>,
+            #[serde(default)]
+            n: u32,
+        }
+        let mut reg = registry();
+        reg.add_typed("opt", Exposure::Window, |_: Opt, _| Ok(()));
+        let back = reg.round_trip_args("opt", json!({"name": "Sol", "nmae": "typo"}));
+        assert_eq!(back, Ok(json!({"name": "Sol", "n": 0})));
+        assert_eq!(reg.round_trip_args("add", json!({"a": 1, "b": 2})), Ok(json!({"a": 1, "b": 2})));
+        assert!(reg.round_trip_args("add", json!({"a": 1})).unwrap_err().contains("missing field `b`"));
+        assert_eq!(reg.round_trip_args("quit", json!(null)), Err("quit is registered without types".into()));
+        assert_eq!(reg.round_trip_args("nope", json!(null)), Err("unknown command \"nope\"".into()));
     }
 
     #[test]

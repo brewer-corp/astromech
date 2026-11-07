@@ -15,7 +15,7 @@ use serde_json::Value;
 use std::sync::Arc;
 
 /// The common arguments of a search near somewhere.
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct Near<W> {
     #[serde(flatten)]
@@ -24,57 +24,57 @@ struct Near<W> {
     filters: Option<Filters>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct QueryArg {
     query: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct WantArg<W> {
     want: W,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct KindArg {
     kind: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct InterestArg {
     interest: astromech_galaxy::Interest,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct TradeArgs {
     side: astromech_market::Side,
     commodities: Vec<String>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct AnywhereArgs {
     side: astromech_market::Side,
     commodity: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct AskArg<A> {
     ask: A,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct NeedsArg {
     needs: Vec<astromech_market::list::Need>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct TargetsArgs {
     target: astromech_galaxy::Target,
@@ -83,26 +83,26 @@ struct TargetsArgs {
     within_ly: f64,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct LookupArg {
     lookup: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct SetFiltersArgs {
     lookup: String,
     filters: Filters,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct PrefixArg {
     prefix: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct TargetArg {
     target: String,

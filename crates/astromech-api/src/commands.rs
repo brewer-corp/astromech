@@ -6,43 +6,43 @@
 use crate::state::{Engineers, State};
 use crate::{Exposure::Window, Registry};
 use astromech_keybinds::api::SlotEdit;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct PathArg {
     path: PathBuf,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct EditArg {
     edit: SlotEdit,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct CopyArgs {
     src: PathBuf,
     name: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct ActiveArgs {
     name: String,
     contexts: Vec<usize>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct BackupArg {
     backup: PathBuf,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct OverrideArgs {
     device: String,
@@ -50,19 +50,19 @@ struct OverrideArgs {
     joy: Option<String>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 pub(crate) struct PlanArg {
     pub(crate) plan: astromech_engineering::Plan,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct PicksArg {
     picks: Vec<astromech_odyssey::Pick>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct LogbookArgs {
     query: String,

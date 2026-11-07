@@ -34,7 +34,7 @@ pub struct State {
 /// "That's not where I pressed": per device, sheet control → the Joy name it really sends.
 pub type Overrides = BTreeMap<String, BTreeMap<String, String>>;
 
-#[derive(Debug, Clone, Deserialize, ts_rs::TS)]
+#[derive(Debug, Clone, Deserialize, Serialize, ts_rs::TS)]
 pub struct SlotEdit {
     pub path: PathBuf,
     pub action: String,

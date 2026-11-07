@@ -35,12 +35,15 @@ fn the_minimal_world_runs_headless_and_leaves_the_users_folders_alone() {
     let window = core.call("world_wait", Some(json!({"match": {"kind": "window"}}))).unwrap();
     assert_eq!(window["route"], Value::Null, "{window}");
 
+    // Besides the tray's refreshes (autostart_on asks for one).
     let seen = core.call("world_observed", None).unwrap();
-    let kinds: Vec<&Value> = seen["observed"].as_array().unwrap().iter().map(|o| &o["kind"]).collect();
+    let all = seen["observed"].as_array().unwrap();
+    assert_eq!(seen["next"], all.len());
+    let kinds: Vec<&Value> = all.iter().map(|o| &o["kind"]).filter(|k| *k != "tray").collect();
     assert_eq!(kinds, [&json!("edit"), &json!("autostart"), &json!("window")], "{seen}");
-    assert_eq!(seen["next"], 3);
     let later = core.call("world_observed", Some(json!({"since": 1}))).unwrap();
-    assert_eq!(later["observed"], json!([on, window]));
+    let later: Vec<&Value> = later["observed"].as_array().unwrap().iter().filter(|o| o["kind"] != "tray").collect();
+    assert_eq!(later, [&on, &window]);
 
     // The world's commands are local: the window's origin is refused.
     for cmd in ["world_observed", "world_wait"] {

@@ -956,6 +956,11 @@ pub struct Polling {
     pub timeout: Duration,
 }
 
+/// How many times a job is polled with no wait between polls ([`Polling::every`] zero) before it
+/// gives up as timed out: a bound that doesn't need the clock to move. A recorded job answers
+/// done within a few polls.
+pub const NO_WAIT_POLLS: u32 = 100;
+
 impl Default for Polling {
     /// Trade jobs took 25–70 s on 16 Oct 2026; exact routes are capped at 60 s of search
     /// (`max_time`) after they leave the queue.
@@ -1047,15 +1052,20 @@ impl Client {
     }
 
     /// Submit a job with `submit`, then poll `/api/results/{job}` every `polling.every` until it
-    /// is done or `polling.timeout` has passed ([`Error::Timeout`]).
+    /// is done or `polling.timeout` has passed ([`Error::Timeout`]). With no wait between polls
+    /// the clock may never move (a world's manual clock, which only its script advances), so
+    /// then the polls stop at [`NO_WAIT_POLLS`] instead (finding astromech-ur4v).
     fn spansh_wait<T: DeserializeOwned>(&self, submit: impl FnOnce() -> Result<Job>, polling: Polling) -> Result<T> {
         let start = self.clock.now();
         let job = submit()?;
+        let mut polls = 0;
         loop {
             if let JobStatus::Done(v) = self.spansh_job(&job.job)? {
                 return Ok(v);
             }
-            if self.clock.now().saturating_duration_since(start) + polling.every > polling.timeout {
+            polls += 1;
+            let out_of_polls = polling.every.is_zero() && polls >= NO_WAIT_POLLS;
+            if out_of_polls || self.clock.now().saturating_duration_since(start) + polling.every > polling.timeout {
                 return Err(Error::Timeout { service: Service::Spansh });
             }
             self.clock.sleep(polling.every);

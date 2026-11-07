@@ -943,7 +943,7 @@ impl Core {
 
         // Each handler gets the core and the request; `A` is what the window sends as args
         // (`String`: the request's text).
-        fn add<A: TS + ?Sized + 'static, R: Serialize + TS + 'static>(
+        fn add<A: serde::de::DeserializeOwned + Serialize + TS + 'static, R: Serialize + TS + 'static>(
             reg: &mut Registry,
             core: &Arc<Core>,
             names: &[&str],
@@ -1404,7 +1404,7 @@ mod replies {
 
     /// `route_set`: a name and a source, and the waypoints or, for an import, the text (a
     /// Spansh CSV or one system per line).
-    #[derive(Debug, Deserialize, ts_rs::TS)]
+    #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
     #[ts(optional_fields = nullable)]
     pub struct RouteSetArgs {
         pub name: Option<String>,
@@ -1414,7 +1414,7 @@ mod replies {
     }
 
     /// `route_add`: a lookup result's Add stop.
-    #[derive(Debug, Deserialize, ts_rs::TS)]
+    #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
     #[ts(optional_fields = nullable)]
     pub struct RouteAddArgs {
         pub system: Option<String>,
@@ -1478,14 +1478,14 @@ mod replies {
     }
 
     /// `voice_test_live`: the command id as the request's text, or a lookup from a named system.
-    #[derive(Debug, Serialize, ts_rs::TS)]
+    #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
     #[serde(untagged)]
     pub enum LiveRequest {
         Command(String),
         From(LiveFrom),
     }
 
-    #[derive(Debug, Serialize, ts_rs::TS)]
+    #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
     pub struct LiveFrom {
         pub command: String,
         pub from: String,
@@ -1966,9 +1966,6 @@ pub(crate) fn headless(rx: &Receiver<Ui>) -> i32 {
 }
 
 #[cfg(test)]
-mod every_window_command;
-
-#[cfg(test)]
 mod tests {
     use super::*;
     use astromech_voice::{catalog, download, models};
@@ -1976,33 +1973,15 @@ mod tests {
     /// Held by tests that edit the config through a core: every edit sets the process-wide
     /// EDDN switch. Also held by tests that set the process-wide voice pause or voice tester,
     /// which `status` reports.
-    pub(super) static CONFIG_EDITS: Mutex<()> = Mutex::new(());
+    static CONFIG_EDITS: Mutex<()> = Mutex::new(());
 
     /// A core as `run` builds it, on the config file `text` in `dir`, without its threads.
     fn core(dir: &Path, text: &str) -> Arc<Core> {
-        core_with(dir, text, offline())
-    }
-
-    /// A client whose every request fails, for tests that look nothing up.
-    pub(super) fn offline() -> Arc<astromech_data::Client> {
-        struct Offline;
-        impl astromech_data::Transport for Offline {
-            fn send(
-                &self,
-                url: &str,
-                _: &astromech_data::Request,
-            ) -> Result<astromech_data::Response, astromech_data::TransportError> {
-                Err(astromech_data::TransportError::Offline(format!("no network in this test: {url}")))
-            }
-        }
-        // With no spacing between requests: a refused one is sent at once, not after a wait.
-        let client =
-            astromech_data::Client::with_transport(astromech_data::Cache::in_memory().unwrap(), Arc::new(Offline));
-        Arc::new(client.limiter(astromech_data::Limiter::none()))
+        assembled(dir, text, boundaries(dir), |s| s)
     }
 
     /// Opens nothing; a test that checks what is opened passes its own.
-    pub(super) struct NoOpener;
+    struct NoOpener;
     impl Opener for NoOpener {
         fn open(&self, _: &str) -> Result<(), String> {
             Ok(())
@@ -2023,9 +2002,16 @@ mod tests {
     }
 
     /// A test's boundaries in `dir`: the app folder under it, no running processes, no
-    /// clipboard, notifications to the log, secrets in memory, and lookups through `remote`.
-    pub(super) fn boundaries(dir: &Path, remote: Arc<astromech_data::Client>) -> Boundaries {
+    /// clipboard, notifications to the log, secrets in memory, and lookups refused: the
+    /// remote-data client replays an empty recording, as a world with no `net.json` does.
+    fn boundaries(dir: &Path) -> Boundaries {
         let local = dir.join("local");
+        let replay = astromech_data::replay::Replay::new(Default::default());
+        // With no spacing between requests: a refused one is sent at once, not after a wait.
+        let remote = Arc::new(
+            astromech_data::Client::with_transport(astromech_data::Cache::in_memory().unwrap(), Arc::new(replay))
+                .limiter(astromech_data::Limiter::none()),
+        );
         Boundaries {
             paths: Paths::new(dir.join("exe"), move |k| (k == "LOCALAPPDATA").then(|| local.clone().into())),
             processes: Arc::new(Vec::new),
@@ -2049,12 +2035,13 @@ mod tests {
 
     /// [`core`] with its lookups going through `remote`.
     fn core_with(dir: &Path, text: &str, remote: Arc<astromech_data::Client>) -> Arc<Core> {
-        assembled(dir, text, boundaries(dir, remote), |s| s)
+        let b = Boundaries { remote: Arc::new(move |_: &Path| remote.clone()), ..boundaries(dir) };
+        assembled(dir, text, b, |s| s)
     }
 
     /// The core [`assemble`] builds on `b`, on the config file `text` in `dir`, with the
     /// command layer's state passed through `state` (a test's devices or servers).
-    pub(super) fn assembled(
+    fn assembled(
         dir: &Path,
         text: &str,
         b: Boundaries,
@@ -2332,7 +2319,7 @@ mod tests {
         }
         let mut cfg = Config::default();
         cfg.voice.models_dir = m.display().to_string();
-        assert!(remove_retired_models(&cfg, &boundaries(d.path(), offline()).paths).is_empty());
+        assert!(remove_retired_models(&cfg, &boundaries(d.path()).paths).is_empty());
         assert!(models::has_retired(m), "another tool's v0.19 is left alone");
         assert!(models::find_tts(m).is_ok());
     }

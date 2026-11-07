@@ -130,14 +130,14 @@
 //!   so nothing falls back to the user's own folders.
 //!
 //! The fakes: the process list is the world's (empty until a step starts the game); the opener,
-//! clipboard, notifier, Start with Windows and the app window record what reaches them and touch
-//! nothing; so do the session's devices (world/io.rs: the platform, the buttons, the
+//! clipboard, notifier, Start with Windows, the app window and the tray record what reaches them
+//! and touch nothing; so do the session's devices (world/io.rs: the platform, the buttons, the
 //! microphone, speech-to-text and the speaker), and no real device, window, voice worker or
 //! audio player is opened; the secrets are in memory, seeded from `secrets.json`; the clock is a manual one
 //! ([`World::clock`]), started at the header's time and moved only by the steps. Then it calls
 //! [`app::assemble`] and [`app::start`], as the installed app does, but none of what only
-//! [`app::run`] adds: no instance lock, no Start with Windows default, no update thread, no
-//! window and no tray.
+//! [`app::run`] adds: no instance lock, no Start with Windows default, no update thread, and no
+//! real window or tray.
 //!
 //! The network is `net.json` (world/net.rs has the detail): the remote-data client, EDDN's upload and
 //! EDSM's API are answered from it in process, and the downloads (the update feed and zip, the
@@ -177,7 +177,12 @@
 //! - `key {key, scan, extended, up}`: a key sent to the game (`key`: its Elite name, such as
 //!   `Key_L`);
 //! - `said {text}`: a line the speaker said (the world's speaker speaks aloud, so the voice
-//!   preview and the callouts use it).
+//!   preview and the callouts use it);
+//! - `tray {line, check}`: what the tray shows after a refresh the core asked for: its status
+//!   line (`Core::status_line`) and its update item ("Check for updates", or "Checking for
+//!   updates…" while a check runs). A command's background work (the update check, the speech
+//!   models download) ends with a refresh, so its end is awaited by the first `tray` after its
+//!   request that shows it done.
 //!
 //! Two `local` commands read them, registered only in world mode, like every `world_*` command (decision astromech-unh9: the
 //! window's origin is refused):
@@ -187,6 +192,12 @@
 //! - `world_wait {match, since?}`: the first observation from `since` whose fields include every
 //!   field of `match` (`{"kind": "edit"}`), waiting for it if there is none yet. The observation
 //!   itself wakes the wait; if none arrives within [`WAIT_GUARD`], the call fails.
+//!
+//! And two that read the registry, for the every-window-command test
+//! (crates/astromech-core/tests/every_window_command.rs): `world_commands`, `{window, local}`, the
+//! command names by who may call them; and `world_args {cmd, args}`, `args` parsed as `cmd`'s args
+//! type and written back ([`astromech_api::Registry::round_trip_args`]), so a field the type
+//! doesn't have drops out.
 
 mod io;
 mod net;
@@ -203,7 +214,7 @@ use astromech_api::{Exposure, Recover, Registry};
 use astromech_proto::ManualClock;
 use astromech_store::secrets::{MemorySecrets, Secrets};
 use astromech_store::Paths;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -228,7 +239,26 @@ pub struct Observed {
 impl Observed {
     /// Record one observation: `fields` (an object) with its `seq` and `kind`.
     pub fn record(&self, kind: &str, fields: Value) {
+        self.push(&mut self.log.lock().recover(), kind, fields);
+    }
+
+    /// [`Observed::record`], only if it gets `seq` `at`: nothing else was recorded since the
+    /// caller read [`Observed::next`] and then read what `fields` holds. False if something was.
+    pub fn record_at(&self, at: usize, kind: &str, fields: Value) -> bool {
         let mut log = self.log.lock().recover();
+        if log.len() != at {
+            return false;
+        }
+        self.push(&mut log, kind, fields);
+        true
+    }
+
+    /// The `seq` the next observation will have.
+    pub fn next(&self) -> usize {
+        self.log.lock().recover().len()
+    }
+
+    fn push(&self, log: &mut Vec<Value>, kind: &str, fields: Value) {
         let mut o = match fields {
             Value::Object(m) => m,
             _ => Map::new(),
@@ -509,13 +539,13 @@ fn copy_dir(from: &Path, to: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
-#[derive(Deserialize, TS)]
+#[derive(Deserialize, Serialize, TS)]
 struct Since {
     #[serde(default)]
     since: usize,
 }
 
-#[derive(Deserialize, TS)]
+#[derive(Deserialize, Serialize, TS)]
 struct WaitFor {
     #[serde(rename = "match")]
     pattern: Map<String, Value>,
@@ -523,15 +553,28 @@ struct WaitFor {
     since: usize,
 }
 
-#[derive(Deserialize, TS)]
+#[derive(Deserialize, Serialize, TS)]
 struct StepTo {
     #[serde(default)]
     to: Option<String>,
 }
 
-#[derive(Deserialize, TS)]
+#[derive(Deserialize, Serialize, TS)]
 struct Hold {
     hold: bool,
+}
+
+#[derive(Deserialize, Serialize, TS)]
+struct ArgsOf {
+    cmd: String,
+    args: Value,
+}
+
+/// The registry's commands by who may call them (`world_commands`).
+#[derive(Serialize, TS)]
+struct Commands {
+    window: Vec<String>,
+    local: Vec<String>,
 }
 
 /// The world's commands, all `local`.
@@ -567,9 +610,46 @@ fn register(
     });
     let o = observed.clone();
     reg.add_typed("world_wait", Exposure::Local, move |a: WaitFor, _| o.wait(&a.pattern, a.since, WAIT_GUARD));
+    reg.add_typed("world_commands", Exposure::Local, |_: (), call| {
+        let (mut window, mut local) = (vec![], vec![]);
+        for (name, exposure, _) in call.registry().commands() {
+            match exposure {
+                Exposure::Window => window.push(name.to_string()),
+                Exposure::Local => local.push(name.to_string()),
+            }
+        }
+        Ok(Commands { window, local })
+    });
+    reg.add_typed("world_args", Exposure::Local, |a: ArgsOf, call| call.registry().round_trip_args(&a.cmd, a.args));
 }
 
-/// Spansh's jobs polled with no wait between polls: a lookup never waits for the world's clock.
+/// The tray in world mode: what the installed app's tray shows after each refresh the core asks
+/// for, observed as `tray {line, check}` (its status line and its update item). Refreshes that
+/// queue up while one is read are taken together, as the tray's loop takes them. What it shows
+/// is read after every earlier observation was recorded (read again if one came meanwhile), so
+/// a `tray` after an observation shows the core as it was after it. Runs until `quit`.
+fn tray(core: &Core, ui: &std::sync::mpsc::Receiver<app::Ui>, observed: &Observed) {
+    while let Ok(m) = ui.recv() {
+        let mut quit = m == app::Ui::Quit;
+        while let Ok(m) = ui.try_recv() {
+            quit |= m == app::Ui::Quit;
+        }
+        if quit {
+            return;
+        }
+        loop {
+            let at = observed.next();
+            let (check, _) = core.update.lock().recover().snap.status.tray_check_item();
+            if observed.record_at(at, "tray", json!({ "line": core.status_line(), "check": check })) {
+                break;
+            }
+        }
+    }
+}
+
+/// Spansh's jobs polled with no wait between polls: a lookup never waits for the world's clock,
+/// and a recording that leaves a job queued fails the lookup after
+/// [`astromech_data::spansh::NO_WAIT_POLLS`] polls, since this clock never reaches the timeout.
 const NO_WAIT: astromech_data::spansh::Polling =
     astromech_data::spansh::Polling { every: Duration::ZERO, timeout: Duration::from_secs(180) };
 
@@ -612,7 +692,7 @@ fn serve(src: &Path, session: crate::session::Opts, record: Option<&Path>) -> Re
         log("world mode: stdin closed");
         let _ = ui_tx.send(app::Ui::Quit);
     })?;
-    app::headless(&ui);
+    tray(&core, &ui, &world.observed);
     log("world mode: quitting");
     // Stop what writes into the temp folder before removing it: the session (and its threads)
     // and the history follower, whose first open of its database may still be running. The
