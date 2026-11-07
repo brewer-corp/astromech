@@ -44,7 +44,8 @@ def windows_run():
                    "pages_received": 15, "window_alive": True},
         "closes": [close(i) for i in range(1, 6)],
         "crashes": [crash("renderer"), crash("browser")],
-        "quit": {"reply": None, "exit_code": 0, "webview_left": []},
+        "quit": {"window_before": "open", "webview_before": [{"pid": 11}], "reply": None, "exit_code": 0,
+                 "webview_left": []},
     }
 
 
@@ -136,8 +137,11 @@ class Judge(unittest.TestCase):
         self.assertEqual(verdicts(r)["window_crash"], w.FAIL)
 
     def test_the_tray_fallback_is_degraded_not_a_pass(self):
+        # No notification area all along: every reading is the fallback.
         r = windows_run()
-        r["closes"][3]["tray"] = "fallback"
+        r["windowless"]["tray"] = "fallback"
+        for e in r["closes"] + r["crashes"]:
+            e["tray"] = "fallback"
         rows = w.judge(r)
         self.assertEqual(verdicts(r)["tray"], w.DEGRADED)
         self.assertFalse(w.failed(rows))
@@ -145,6 +149,39 @@ class Judge(unittest.TestCase):
         r["closes"][4]["tray"] = "none"
         self.assertEqual(verdicts(r)["tray"], w.FAIL)
         self.assertEqual(w.tray_verdict([]), w.FAIL)
+
+    def test_a_tray_that_loses_its_rectangle_fails(self):
+        # Finding astromech-m6f9: rect at first, then fallback, is a lost icon, not a degradation.
+        r = windows_run()
+        r["closes"][3]["tray"] = "fallback"
+        r["closes"][4]["tray"] = "fallback"
+        self.assertEqual(verdicts(r)["tray"], w.FAIL)
+        self.assertEqual(w.tray_verdict(["fallback", "fallback"]), w.DEGRADED)
+
+    def test_a_reopen_that_doesnt_load_fails_the_close(self):
+        # Finding astromech-zocz: a reopen that timed out or loaded nothing isn't a passing cycle.
+        for bad in ({"exit_code": "timeout", "page_load_s": None}, {"exit_code": 0, "page_load_s": None},
+                    {"exit_code": 1, "page_load_s": 0.6}, None):
+            r = windows_run()
+            r["closes"][2]["reopen"] = bad
+            self.assertEqual(verdicts(r)["close"], w.FAIL, bad)
+        # The reviewer's case: --checks-only with closes[2]'s reopen timed out fails the run.
+        r = windows_run()
+        r["checks_only"] = True
+        r["skipped"] = {"page_changes": "--checks-only", "cold_start": "--checks-only", "cpu": "--checks-only"}
+        r["closes"][2]["reopen"] = {"exit_code": "timeout", "page_load_s": None}
+        self.assertTrue(w.failed(w.judge(r)))
+
+    def test_quit_needs_the_window_open_before_it(self):
+        for key, bad in (("window_before", "closed"), ("window_before", None), ("webview_before", [])):
+            r = windows_run()
+            r["quit"][key] = bad
+            self.assertEqual(verdicts(r)["quit"], w.FAIL, key)
+
+    def test_windows_needs_five_cold_start_samples(self):
+        r = windows_run()
+        r["cold_start"]["windowless_s"] = [0.6, 0.6, 0.6, 0.6]
+        self.assertEqual(verdicts(r)["cold_start"], w.FAIL)
 
     def test_quit(self):
         for key, bad in (("exit_code", 1), ("exit_code", None), ("webview_left", [{"pid": 3}])):

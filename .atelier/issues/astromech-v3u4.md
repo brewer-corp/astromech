@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "The one app: astromech-core.exe runs the core, the tray and the window in one Tauri process"
-updated_at: "2026-11-07T20:40:50.105119529+00:00"
+updated_at: "2026-11-07T22:12:15.565189035+00:00"
 ---
 
 ## Goal
@@ -124,6 +124,7 @@ Spike results on astromech-wgtr (its Close Reason and evidence receipt). The Tau
 - 2026-11-07 [decision] The window's open_window answers once the open is asked for: TauriUi hands every open (build or focus) to a window-open thread and returns; a failed build is logged there as before. Callers that need the window wait for ui_state or the page-load line (the onboarding smoke, upgrade_smoke and webview_cost already do; the probe bounds a second start's page load with --page-load-s, 30 s in Release)
   Reason: Building the window waits for WebView2, whose first start on a runner took 13 s, past the second start's 10 s control-API read timeout (spike run 42410580229). On main the core only spawned the shell process, so its reply never waited for the window either; for the user nothing changes but the 'already running, but it didn't answer' log line on a slow first start
   Rejected: Raise the second start's read timeout: still a guess at WebView2's worst start, and every caller waits for nothing it uses
+- 2026-11-07 [note] Release's one-process probe step (the ticked line on scripts/one_process_probe.py in the Release installer job) was replaced in astromech-xz7i by scripts/webview_cost.py --checks-only on the installed app, which runs the same checks (windowless, open, five closes, the renderer and browser kills with recovery, quit); the probe keeps only --restart
 
 ## Report
 

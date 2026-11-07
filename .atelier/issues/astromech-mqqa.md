@@ -28,5 +28,5 @@ Consider dropping `/T` for `astromech-core.exe` only. Mind what the tree covers 
 ## Done when
 
 - [ ] A core that outlives `wait_pid` is ended without ending the helper, which then copies and relaunches; shown on Windows (a test core that ignores quit, or a unit test of the arguments plus a Windows CI step).
-- [ ] No `msedgewebview2.exe` of the app is left after that kill (matched by command line, as scripts/one_process_probe.py does).
+- [ ] No `msedgewebview2.exe` of the app is left after that kill (matched by command line, as scripts/webview_cost.py does).
 - [ ] The `LOCKED_EXES` comment in update.rs says what the kill does.

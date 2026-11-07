@@ -36,11 +36,13 @@ with no other astromech-core on the machine. Linux has descent only and no WM_CL
 and 5 are Windows only, and the report says they didn't run.
 
 Gates (exit status 1 if one fails): the app windowless with no WebView2; the window opened by a
-second start; no WebView2 within 15 s of each close; the app alive after each close and crash;
-the crashed window recovered and closed; quit; the page changes reached the window; cold start
-under 2 s; idle CPU at most 1% of the machine, windowless and open. The tray is read after each
-step: its icon in the notification area passes, and an icon built with no rectangle there (a
-session with no notification area) is DEGRADED, which is shown but doesn't fail the run. Memory
+second start; each reopen exiting 0 and loading, and no WebView2 within 15 s of each close; the
+app alive after each close and crash; the crashed window recovered and closed; quit, from the
+window open; the page changes reached the window; cold start under 2 s (five samples on
+Windows); idle CPU at most 1% of the machine, windowless and open. The tray is read after each
+step: its icon in the notification area passes; an icon built with no rectangle there at every
+reading (a session with no notification area) is DEGRADED, which is shown but doesn't fail the
+run; a rectangle that later goes fails. Memory
 is reported, with no pass mark (decision astromech-01ft).
 
 `--checks-only` (Release's installer job, on the installed app) skips the page changes, the
@@ -92,13 +94,24 @@ def close_ok(c: dict | None) -> bool:
         and c["webview_gone_s"] <= CLOSE_MAX_S
 
 
+def reopen_ok(c: dict) -> bool:
+    """A cycle's reopen (every cycle but the first) exited 0 and loaded a page."""
+    o = c.get("reopen")
+    if c.get("cycle") == 1 and o is None:
+        return True
+    return bool(o) and o.get("exit_code") == 0 and o.get("page_load_s") is not None
+
+
 def tray_verdict(readings: list[str]) -> str:
-    """`rect` (the icon has a rectangle in the notification area) passes; `fallback` (the icon was
-    built, but there's no rectangle) is a degradation, not a pass (finding astromech-k6f1);
-    anything else, or no reading at all, fails."""
+    """`rect` (the icon has a rectangle in the notification area) passes; `fallback` throughout
+    (the icon was built, but the session has no notification area) is a degradation, not a pass
+    (finding astromech-k6f1). A rectangle that later becomes a fallback lost the icon, which fails,
+    as does anything else, or no reading at all."""
     if not readings or any(t not in ("rect", "fallback") for t in readings):
         return FAIL
-    return PASS if all(t == "rect" for t in readings) else DEGRADED
+    if all(t == "rect" for t in readings):
+        return PASS
+    return DEGRADED if all(t == "fallback" for t in readings) else FAIL
 
 
 def judge(r: dict) -> list[dict]:
@@ -135,11 +148,15 @@ def judge(r: dict) -> list[dict]:
          and use.get("switch_exit_codes") == [0], "page_changes")
 
     closes = r.get("closes") or []
-    gate("close", f"no WebView2 process left {CLOSE_MAX_S:g} s after each close ({CYCLES} cycles)",
-         "; ".join(f"{c.get('cycle')}: gone after {c.get('webview_gone_s')} s"
+    gate("close", f"each reopen loads, and no WebView2 process is left {CLOSE_MAX_S:g} s after each close "
+                  f"({CYCLES} cycles)",
+         "; ".join(f"{c.get('cycle')}: "
+                   + (f"reopen exit {c['reopen'].get('exit_code')}, page load {c['reopen'].get('page_load_s')} s; "
+                      if c.get("reopen") else "")
+                   + f"gone after {c.get('webview_gone_s')} s"
                    + (f", left {[w.get('pid') for w in c.get('webview_left')]}" if c.get("webview_left") else "")
                    + (f", {c['error']}" if c.get("error") else "") for c in closes) or "no closes",
-         len(closes) == CYCLES and all(close_ok(c) for c in closes), "closes")
+         len(closes) == CYCLES and all(reopen_ok(c) and close_ok(c) for c in closes), "closes")
 
     crashes = r.get("crashes") or []
     events = [(f"close {c.get('cycle')}", c) for c in closes] + [(f"{c.get('target')} crash", c) for c in crashes]
@@ -159,17 +176,22 @@ def judge(r: dict) -> list[dict]:
 
     q = r.get("quit") or {}
     gate("quit", "quit with the window open: exit code 0, no WebView2 left",
+         f"window {q.get('window_before')} with {len(q.get('webview_before') or [])} WebView processes before; "
          f"exit code {q.get('exit_code')}, WebView2 left {q.get('webview_left')}",
-         q.get("exit_code") == 0 and q.get("webview_left") == [])
+         q.get("window_before") == "open" and bool(q.get("webview_before"))
+         and q.get("exit_code") == 0 and q.get("webview_left") == [])
 
     cs = r.get("cold_start") or {}
     opens = cs.get("windowless_s") or []
     med = statistics.median(opens) if opens else None
     nr = cs.get("not_running_s")
+    # Where the closes run (Windows), each of the CYCLES window opens is a sample.
+    samples_ok = len(opens) == CYCLES if "closes" not in skipped else bool(opens)
     gate("cold_start", f"cold start under {COLD_START_MAX_S:g} s",
          f"median {None if med is None else round(med, 2)} s over {len(opens)} window opens in the app running "
          f"windowless; {nr} s with the app not running (first start, new profile: {cs.get('first_s')} s)",
-         med is not None and med < COLD_START_MAX_S and nr is not None and nr < COLD_START_MAX_S, "cold_start")
+         samples_ok and med is not None and med < COLD_START_MAX_S and nr is not None and nr < COLD_START_MAX_S,
+         "cold_start")
 
     wcost, ocost = wl.get("cost") or {}, op.get("cost") or {}
     gate("idle_cpu_windowless", f"idle CPU windowless at most {IDLE_CPU_MAX:g}% of the machine",
@@ -678,16 +700,19 @@ def measure(a, psutil) -> dict:
             r["crashes"] = [window_crash(app, t, a.timeout) for t in ("renderer", "browser")]
 
         # 6. Quit with the window open.
+        q: dict = {}
         if (app.state() or {}).get("window") != "open":
-            second_start(app, LIST_PAGE, a.timeout)
+            q["open"] = second_start(app, LIST_PAGE, a.timeout)
             time.sleep(2)
+        q["window_before"] = (app.state() or {}).get("window")
+        q["webview_before"] = app.webviews()
         ok, val = app.call("quit")
         try:
             code = app.proc.wait(timeout=10)
         except subprocess.TimeoutExpired:
             code = None
         wait(lambda: not app.webviews(), 5.0, 0.2)
-        r["quit"] = {"reply": val if ok else f"error: {val}", "exit_code": code, "webview_left": app.webviews()}
+        r["quit"] = {**q, "reply": val if ok else f"error: {val}", "exit_code": code, "webview_left": app.webviews()}
         app.kill_all()
 
         # 7. Cold start with the app not running, on the profile it made.

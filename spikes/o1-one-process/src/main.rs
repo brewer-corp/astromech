@@ -1,7 +1,8 @@
 //! Spike O1 (Atelier astromech-wgtr): can one Tauri process hold astromech's tray with no
 //! window, survive the window crashing, free WebView2 when the window closes, and leave
 //! astromech's own Raw Input listener receiving keys? Throwaway code: scripts/one_process_probe.py
-//! drives it on Windows CI (.github/workflows/one-process.yml).
+//! drove it on Windows CI, in a workflow deleted once its checks moved to scripts/webview_cost.py
+//! (astromech-xz7i); the probe's `--restart` mode still drives it (astromech-fmub).
 //!
 //! astromech-spike [--background] [--route X] [--plain-tray]
 //!                 [--sink-before-build | --sink-after-build] [--crash-hook] [--restarted]
