@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Dev bridge from pnpm dev to the headless core, and preview fixtures dumped from it"
-updated_at: "2026-11-07T19:49:51.836106565+00:00"
+updated_at: "2026-11-07T20:46:26.217983037+00:00"
 ---
 
 ## Goal
@@ -23,12 +23,12 @@ The browser can show the real core's output. `pnpm dev` with a world passes the 
 
 ## Done when
 
-- [ ] A Vite plugin in app/dev/ (outside src/, so no bundle carries it) works with `ASTROMECH_WORLD=<dir> pnpm dev`. It starts the headless core binary (`ASTROMECH_CORE`, default target/debug/astromech-core) on that world. Its only endpoint source is the JSON line the child prints on stdout (port and token); it doesn't read `core.json`. It serves `POST /__astromech/call`, which sends the call with `origin: "app_window"` and streams the progress lines and then the reply.
-- [ ] transport.ts picks a bridge transport when the plugin is on. Its progress is published on the command's name, as the Tauri transport does. `pnpm build` drops it, and `scripts/check-dist.py` fails if a bridge string is in app/dist.
-- [ ] The control client the plugin uses is a small Node module that astromech-yis2's driver can import to spawn a world core, read its stdout line, and call `world_step` and `world_wait`.
-- [ ] A check in CI's Linux job fails if the bridge doesn't return the real core's reply: start the plugin on `worlds/minimal`, call `status`, and compare its `status_line` with the core's own. The author also runs `scripts/ui --url http://127.0.0.1:5173/ --wait <the world's commander> --text` against a world with a commander, and records the receipt.
-- [ ] Each JSON file in app/src/preview/fixtures/ is in a table in a Rust test (crates/astromech-core/tests/). The table gives either the command and args the headless core answers it with over `worlds/preview` (synthetic journals and recorded network), or why the core can't produce it, for example static catalogue data a generator script writes. The test compares the core's reply, with volatile fields masked, against the file. `ASTROMECH_UPDATE_FIXTURES=1` rewrites them. A hand edit to a dumped fixture fails it. The hand-written ones the core can produce are replaced by dumps, and `pnpm check` and `pnpm test` still pass.
-- [ ] CONTRIBUTING.md documents both loops: `ASTROMECH_WORLD=... pnpm dev` for the real core in the browser, and `tauri dev` at the PC for the real window.
+- [x] A Vite plugin in app/dev/ (outside src/, so no bundle carries it) works with `ASTROMECH_WORLD=<dir> pnpm dev`. It starts the headless core binary (`ASTROMECH_CORE`, default target/debug/astromech-core) on that world. Its only endpoint source is the JSON line the child prints on stdout (port and token); it doesn't read `core.json`. It serves `POST /__astromech/call`, which sends the call with `origin: "app_window"` and streams the progress lines and then the reply.
+- [x] transport.ts picks a bridge transport when the plugin is on. Its progress is published on the command's name, as the Tauri transport does. `pnpm build` drops it, and `scripts/check-dist.py` fails if a bridge string is in app/dist.
+- [x] The control client the plugin uses is a small Node module that astromech-yis2's driver can import to spawn a world core, read its stdout line, and call `world_step` and `world_wait`.
+- [x] A check in CI's Linux job fails if the bridge doesn't return the real core's reply: start the plugin on `worlds/minimal`, call `status`, and compare its `status_line` with the core's own. The author also runs `scripts/ui --url http://127.0.0.1:5173/ --wait <the world's commander> --text` against a world with a commander, and records the receipt.
+- [x] Each JSON file in app/src/preview/fixtures/ is in a table in a Rust test (crates/astromech-core/tests/). The table gives either the command and args the headless core answers it with over `worlds/preview` (synthetic journals and recorded network), or why the core can't produce it, for example static catalogue data a generator script writes. The test compares the core's reply, with volatile fields masked, against the file. `ASTROMECH_UPDATE_FIXTURES=1` rewrites them. A hand edit to a dumped fixture fails it. The hand-written ones the core can produce are replaced by dumps, and `pnpm check` and `pnpm test` still pass.
+- [x] CONTRIBUTING.md documents both loops: `ASTROMECH_WORLD=... pnpm dev` for the real core in the browser, and `tauri dev` at the PC for the real window.
 
 ## Scope
 
@@ -42,3 +42,51 @@ The existing dumpers (crates/astromech-galaxy/examples/dump-local-route.rs, dump
 
 - 2026-11-07 [note] From finding astromech-1uyn (d2nq review): world mode quits when its stdin closes, so the Vite plugin must pipe the world core's stdin and hold it open for the dev server's life; state it in this child's Done when. Optional: give world_mode.rs's kill test a hang guard.
 - 2026-11-07 [note] From finding astromech-lwic (1hh9 review): the world 'focus' step and gui/vehicle reactions are only covered by a script-load test; add a voice world case where a key is refused after Elite loses focus, and one gui reaction.
+- 2026-11-07 [decision] The bridge is chosen by a value the plugin defines (import.meta.env.VITE_ASTROMECH_BRIDGE, the call's path), behind import.meta.env.DEV; transport.ts loads lib/bridge.ts with a dynamic import inside that branch, and main.ts skips loading the preview when bridged()
+  Reason: A define exists only when the dev server applies the plugin, so tests, preview builds and pnpm build see no bridge, and Rollup drops the dead branch and its chunk (check-dist proves it, and fails with the guard removed). lib/bridge.ts imports nothing from the app, so transport.ts may import it without the cycle the preview has
+  Rejected: main.ts registering the bridge as it registers the preview (usePreview): the spec asks transport.ts to pick it, and the bridge has no import cycle to avoid
+  Rejected: A runtime probe of /__astromech/call: every page load would make a request, and a release build would carry the probe
+- 2026-11-07 [decision] The Node control client and the plugin are TypeScript with erasable syntax only (app/dev/*.ts, imports with .ts), run by node's type stripping; @types/node is a new dev dependency, referenced only from app/dev files
+  Reason: yis2's driver and scripts import it with plain node (Node 22.18+ strips types by default; CI's setup-node 22 resolves to that), Vite's config bundles it, and svelte-check typechecks it with the app; the app's own sources keep only vite/client types
+  Rejected: Plain .mjs with JSDoc: no typecheck without allowJs and checkJs across the app
+- 2026-11-07 [decision] CI's bridge check is a pnpm script (pnpm bridge-check, app/dev/bridge-check.ts) run in the Linux job after cargo test built the core, not a Vitest test; it compares status_line with a second world core's and checks the config path is a world core's temp copy
+  Reason: It needs the built binary, which pnpm test must not need on a frontend-only checkout; and status_line alone ('Waiting for Elite') is what the preview's fake says too, so the path check is what tells a real core's reply
+- 2026-11-07 [decision] The client gives each world core an empty home (every HOME/XDG/LOCALAPPDATA/APPDATA/USERPROFILE variable) and clears the proxy variables, as the Rust tests' helper does; the homes are removed on exit, Ctrl+C or a kill
+  Reason: Defence in depth for the dev bridge and yis2's driver: world mode already keeps to its temp folder, and quit() checks the home is still empty
+- 2026-11-07 [decision] worlds/preview is a folder of small worlds (history, odyssey, materials, engineering, krait, station, binds, voice, sol, colonies, powerplay, colonisation, explorer, market, mining, unlocks), one per sample's synthetic commander, not one game folder
+  Reason: The samples come from different synthetic commanders and places (CMDR Fixture's history, the engineering fleet, Test Cmdr docked at Test Orbital, a commander at Sol, Lembava, Greae Phoea, LHS 2435). Probed as one game folder, they merged into a different commander: the logbook, fleet, docked station and plot ship all changed. Small worlds reproduce each sample from its own inputs, and yis2 can reuse them
+  Rejected: One worlds/preview game folder with marks: history and fleet accumulate across marks, so no order reproduces every sample
+- 2026-11-07 [decision] Lookup times read the remote-data client's clock: lookups.rs now(&State) at its 6 sites, Galaxy::now_s() in ensure_covered, nearby, sites, stations, colonies.rs:221 and powerplay.rs:120
+  Reason: Age filters and offer ages read the wall clock, so a dump of recorded October data would drift day by day. The client's clock is SystemClock in the installed app, which is unchanged, and the world's manual clock in world mode. zgoo still owns the clippy rule and the other reads
+
+## Report
+
+All six Done when lines hold on astromech-vucf (commits d3cf4d9b..ce1e1b6d plus the record commit). Each line and its proof:
+- Line 1, the plugin: `ASTROMECH_WORLD=../worlds/<w> pnpm dev` starts the core from app/dev/bridge.ts and serves `POST /__astromech/call` as NDJSON. Live runs on worlds/minimal, every-command and preview/history. The endpoint comes only from the stdout line (app/dev/core.ts `startWorld`). Finding 1uyn: stdin is a pipe held for the server's life. After `kill -9` of vite's node process, the world core exited and its temp world was gone.
+- Line 2, the bridge transport: transport.ts picks lib/bridge.ts under `import.meta.env.DEV && VITE_ASTROMECH_BRIDGE`. `src/lib/bridge.test.ts` (3 tests) shows progress published on the command's name, the core's error as the rejection, and a truncated stream failing. Mutation: progress published on another topic fails it. `pnpm build` plus check-dist prints "no browser preview or dev bridge". Mutation: with the DEV guard removed and the env set at build, check-dist fails on '/__astromech/call' and 'the dev bridge closed before'.
+- Line 3, the Node client: app/dev/core.ts. It runs under plain `node` and has `startWorld`, `callWindow`, `step`, `wait`, `observed` and `quit`. A smoke script imported it and called status (ok), `world_observed` from the window (refused) and quit (exit 0).
+- Line 4, the CI check: `pnpm bridge-check`, a step in ci.yml's Linux job, passes. It compares status_line with a second world core's and checks the config path is a world temp copy. Mutations: a fake reply fails with "not a world core's", and a wrong command fails. Receipt: `scripts/ui --url http://127.0.0.1:5173/#/logbook --wait Fixture --text` on worlds/preview/history gave ok:true and "CMDR Fixture · 4 systems · 3 stations · 6 arrivals · 4 dockings", with the real core's places and timeline. This ran after `--click-text "SKIP SETUP"` at /: the root opens onboarding for a fresh world, and the home page is the controller page.
+- Line 5, the fixtures table: crates/astromech-core/tests/preview_fixtures.rs covers all 28 files. 23 are dumped whole, and colonies, powerplay-targets and the rest as listed. Three are dumped except one part: trade /route/loop (no recorded Spansh loop), plot /local (needs the neutron file) and exobiology's reported part (see the table). Two are hand-written with their reason: nearby-hge (no recorded HGE answer) and eddn-log (the outbox stamps and retries on the wall clock). Proof: a hand edit to logbook.json ("Fixtur") fails with `/commander/name: "Fixtur" ≠ "Fixture"`, and passes again once reverted. The test passed 5 runs in a row (about 0.93 s each). `ASTROMECH_UPDATE_FIXTURES=1` rewrote the drifted files. `pnpm check` gives 0 errors, `pnpm test` 538 passed.
+- Line 6, the docs: CONTRIBUTING.md "Running the app" covers both loops and the client. "Before a PR" covers the fixture refresh. ARCHITECTURE §18.2 gains a dev bridge bullet.
+- Finding lwic: `world_voice::a_key_is_refused_once_elite_loses_focus_and_a_gui_reaction_opens_the_map` passes. With Notepad in front, "lights on" is refused with "Elite is not the active window. Nothing pressed." and no key is sent. "galaxy map" sends Key_M, and a gui reaction sets GuiFocus 6. Mutations: focus left on Elite fails the refusal wait, and the gui reaction removed fails at gui_focus.
+- Workspace (Linux, after the last change): `cargo test --workspace --locked` 1372 passed, 0 failed. Clippy `-D warnings` and fmt are clean. check-deps and check-guide pass.
+
+### Deviations
+- worlds/preview is a folder of small worlds, one per sample (decision note).
+- Lookup times now read the remote-data client's clock (decision note). This overlaps zgoo's "galaxy dates".
+- The kill test got its optional hang guard (finding 1uyn).
+- The world client's empty homes are removed on Ctrl+C and kill.
+
+### Decisions
+Six decision notes on this record: the bridge's selection, TypeScript under node type stripping with @types/node, bridge-check as a pnpm script, the client's isolated home, worlds/preview as many worlds, and the lookup clock.
+
+### Surprises
+- Several fixtures had already drifted from the core: links, material hints, the session shown, the keybinds problems, the fuel line, plot range and route.
+- The UI tests that read those values were updated to the dumped data.
+- About 165 KB of public Spansh pages were copied into worlds/preview/sol.
+
+### Open items
+- The old dumper examples (dump-odyssey-fixture, dump-ships-fixture, dump-trade, dump-sites, dump-local-route, astromech-engineering and astromech-materials dump-fixture, dump-unlocks, keybinds' fixture) now duplicate the drift test. Their docs still say they write app/src/preview/fixtures. Remove or re-point them in a follow-up.
+- `scripts/ui --url http://127.0.0.1:5173/` on a fresh world shows onboarding, not the commander. The receipt used #/logbook after skipping setup.
+- Windows CI hasn't run any of this.
+- Review is outstanding.
