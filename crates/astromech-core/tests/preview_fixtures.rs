@@ -544,14 +544,31 @@ const PC_FOLDERS: [(&str, &str); 2] = [
     ("world/game", r"C:\Users\you\Saved Games\Frontier Developments\Elite Dangerous"),
 ];
 
+/// The world's temp root from its config path, `<root>/world/astromech.toml`, with the core's
+/// own separator (`\\` on Windows).
+fn world_root(config: &str) -> &str {
+    let up = |p: &str| p.rfind(['/', '\\']).map_or(String::new(), |i| p[..i].to_string());
+    let len = up(&up(config)).len();
+    &config[..len]
+}
+
+/// The separator the core uses under `root`.
+fn separator(root: &str) -> char {
+    if root.contains('\\') {
+        '\\'
+    } else {
+        '/'
+    }
+}
+
 /// `v` with each path under the world's temp folder `root` named as [`PC_FOLDERS`] does.
 fn on_a_pc(v: &mut Value, root: &str) {
     match v {
         Value::String(s) => {
             for (folder, pc) in PC_FOLDERS {
-                let under = format!("{root}/{folder}");
-                if let Some(rest) = s.strip_prefix(&under).filter(|r| r.is_empty() || r.starts_with('/')) {
-                    *s = format!("{pc}{}", rest.replace('/', "\\"));
+                let under = format!("{root}/{folder}").replace('/', &separator(root).to_string());
+                if let Some(rest) = s.strip_prefix(&under).filter(|r| r.is_empty() || r.starts_with(separator(root))) {
+                    *s = format!("{pc}{}", rest.replace(separator(root), "\\"));
                 }
             }
         }
@@ -567,7 +584,7 @@ fn in_the_world(v: &mut Value, root: &str) {
         Value::String(s) => {
             for (folder, pc) in PC_FOLDERS {
                 if let Some(rest) = s.strip_prefix(pc).filter(|r| r.is_empty() || r.starts_with('\\')) {
-                    *s = format!("{root}/{folder}{}", rest.replace('\\', "/"));
+                    *s = format!("{root}/{folder}{rest}").replace(['/', '\\'], &separator(root).to_string());
                 }
             }
         }
@@ -671,6 +688,30 @@ fn uncovered(file: &Value, keys: &[&str]) -> Vec<String> {
     out
 }
 
+/// The world's temp paths map to the sample's PC paths and back with either separator: on Windows
+/// the core names them with `\`, and the config's root must still be found (Windows CI failed
+/// `binds_view` when it wasn't).
+#[test]
+fn temp_paths_map_to_the_samples_and_back_on_windows_too() {
+    for (config, root, sep) in [
+        ("/tmp/astromech-world-x/world/astromech.toml", "/tmp/astromech-world-x", '/'),
+        (
+            r"C:\Users\RUNNER~1\AppData\Local\Temp\astromech-world-x\world\astromech.toml",
+            r"C:\Users\RUNNER~1\AppData\Local\Temp\astromech-world-x",
+            '\\',
+        ),
+    ] {
+        assert_eq!(world_root(config), root);
+        let core_path = format!("{root}{sep}world{sep}bindings{sep}Example DualVKB.4.2.binds");
+        let pc = r"C:\Users\you\AppData\Local\Frontier Developments\Elite Dangerous\Options\Bindings\Example DualVKB.4.2.binds";
+        let mut v = json!({ "path": core_path, "other": "elsewhere" });
+        on_a_pc(&mut v, root);
+        assert_eq!(v, json!({ "path": pc, "other": "elsewhere" }));
+        in_the_world(&mut v, root);
+        assert_eq!(v, json!({ "path": core_path, "other": "elsewhere" }));
+    }
+}
+
 /// The coverage check sees a hand-added entry at any depth a part descends into, and a part
 /// naming something the file lacks.
 #[test]
@@ -740,62 +781,74 @@ fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
         }
     }
 
-    // One world core per world, its steps run in the table's order.
-    let mut cores: BTreeMap<&str, (WorldCore, Option<&str>, String)> = BTreeMap::new();
-    let mut changed: BTreeSet<&str> = BTreeSet::new();
-    for (name, parts) in &table {
+    // One world at a time: its core runs its parts' steps in the table's order, then quits, so
+    // a run holds one core (with its file watchers) at once; holding every world's core to the
+    // end, parallel runs exhausted Linux's per-user inotify instances and a session failed to
+    // watch its journal folder.
+    let mut worlds: Vec<&str> = vec![];
+    for parts in table.values() {
         for part in parts {
-            let From::Core { world: w, at, cmd, args, pick, keep } = &part.from else { continue };
-            let (core, reached, root) = cores.entry(w).or_insert_with(|| {
-                let core = WorldCore::start(&world(&format!("preview/{w}")));
-                // The temp root: the config is `<root>/world/astromech.toml`.
-                let config = core.call_window("status", None).expect("status")["config"]
-                    .as_str()
-                    .expect("a config path")
-                    .to_string();
-                let root = config.trim_end_matches("/world/astromech.toml").to_string();
-                (core, None, root)
-            });
-            if at != reached {
-                let to =
-                    at.unwrap_or_else(|| panic!("{name}{}: a part before any step after one at {reached:?}", part.key));
-                core.step(to).unwrap_or_else(|e| panic!("{w}: world_step to {to}: {e}"));
-                *reached = Some(to);
-            }
-            let file = &files[name];
-            let mut args = fill(args, file);
-            in_the_world(&mut args, root);
-            let args = if args.is_null() { None } else { Some(args) };
-            let reply = core.call_window(cmd, args).unwrap_or_else(|e| panic!("{name}{}: {cmd}: {e}", part.key));
-            let mut got = reply
-                .pointer(pick)
-                .unwrap_or_else(|| panic!("{name}{}: {cmd}'s reply has no {pick}", part.key))
-                .clone();
-            on_a_pc(&mut got, root);
-            let had = file.pointer(part.key).cloned();
-            if let Some(had) = &had {
-                for k in keep.iter() {
-                    keep_from(had, &mut got, &k.split('/').skip(1).collect::<Vec<_>>());
+            if let From::Core { world: w, .. } = &part.from {
+                if !worlds.contains(w) {
+                    worlds.push(w);
                 }
-            }
-            if had.as_ref() == Some(&got) {
-                continue;
-            }
-            if update {
-                put(files.get_mut(name).expect("read above"), part.key, got);
-                changed.insert(name);
-            } else {
-                let mut d = vec![];
-                differences(had.as_ref().unwrap_or(&Value::Null), &got, String::new(), &mut d);
-                problems.push(format!(
-                    "{name}{} is not {w}'s {cmd} reply (fixture ≠ core):\n    {}",
-                    part.key,
-                    d.join("\n    ")
-                ));
             }
         }
     }
-    for (w, (core, _, _)) in cores {
+    let mut changed: BTreeSet<&str> = BTreeSet::new();
+    for w in worlds {
+        let core = WorldCore::start(&world(&format!("preview/{w}")));
+        // The temp root: the config is `<root>/world/astromech.toml`.
+        let config =
+            core.call_window("status", None).expect("status")["config"].as_str().expect("a config path").to_string();
+        let root = world_root(&config).to_string();
+        let mut reached: Option<&str> = None;
+        for (name, parts) in &table {
+            for part in parts {
+                let From::Core { world: pw, at, cmd, args, pick, keep } = &part.from else { continue };
+                if pw != &w {
+                    continue;
+                }
+                if *at != reached {
+                    let to = at.unwrap_or_else(|| {
+                        panic!("{name}{}: a part before any step after one at {reached:?}", part.key)
+                    });
+                    core.step(to).unwrap_or_else(|e| panic!("{w}: world_step to {to}: {e}"));
+                    reached = Some(to);
+                }
+                let file = &files[name];
+                let mut args = fill(args, file);
+                in_the_world(&mut args, &root);
+                let args = if args.is_null() { None } else { Some(args) };
+                let reply = core.call_window(cmd, args).unwrap_or_else(|e| panic!("{name}{}: {cmd}: {e}", part.key));
+                let mut got = reply
+                    .pointer(pick)
+                    .unwrap_or_else(|| panic!("{name}{}: {cmd}'s reply has no {pick}", part.key))
+                    .clone();
+                on_a_pc(&mut got, &root);
+                let had = file.pointer(part.key).cloned();
+                if let Some(had) = &had {
+                    for k in keep.iter() {
+                        keep_from(had, &mut got, &k.split('/').skip(1).collect::<Vec<_>>());
+                    }
+                }
+                if had.as_ref() == Some(&got) {
+                    continue;
+                }
+                if update {
+                    put(files.get_mut(name).expect("read above"), part.key, got);
+                    changed.insert(name);
+                } else {
+                    let mut d = vec![];
+                    differences(had.as_ref().unwrap_or(&Value::Null), &got, String::new(), &mut d);
+                    problems.push(format!(
+                        "{name}{} is not {w}'s {cmd} reply (fixture ≠ core):\n    {}",
+                        part.key,
+                        d.join("\n    ")
+                    ));
+                }
+            }
+        }
         assert!(core.quit().success(), "the {w} world core didn't quit cleanly");
     }
     for name in changed {
