@@ -251,9 +251,9 @@ fn judge(mut r: DryRun, m: &astromech_intent::Match, game: &GameState, binds: &B
 
 /// A typed phrase while Elite isn't running (no session): the binds check is run on demand
 /// and there is no game state, so ship actions read as "not available" but still show their keys.
-pub fn dry_run_idle(cfg: &Config, transcript: &str) -> DryRun {
+pub fn dry_run_idle(cfg: &Config, data: &std::path::Path, transcript: &str) -> DryRun {
     let mut grammar = crate::assistant::grammar();
-    if let Ok(st) = astromech_store::Store::open(&cfg.data_dir().join("astromech.sqlite")) {
+    if let Ok(st) = astromech_store::Store::open(&data.join("astromech.sqlite")) {
         crate::assistant::add_aliases(&mut grammar, &st);
     }
     let binds = match cfg.bindings_dir() {

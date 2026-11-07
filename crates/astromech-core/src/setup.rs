@@ -39,9 +39,9 @@ pub fn found_in(bindings: Option<PathBuf>, journal: Option<PathBuf>, installs: &
     }
 }
 
-pub fn find_elite(cfg: &Config) -> Found {
+pub fn find_elite(cfg: &Config, paths: &astromech_store::Paths) -> Found {
     let installs = game::locate_installs(cfg.game_dir().as_deref(), &mut vec![]);
-    found_in(cfg.bindings_dir(), cfg.journal_dir(), &installs)
+    found_in(cfg.bindings_dir(), cfg.journal_dir(paths), &installs)
 }
 
 /// One change to `astromech.toml` from the window.

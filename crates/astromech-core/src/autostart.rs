@@ -34,30 +34,48 @@ impl CoreState {
     }
 }
 
+/// Start with Windows' setting: the Run value. The core reads and writes it through this, so
+/// the installed app uses the registry ([`RunKey`]) and a test or world uses its own.
+pub trait Autostart: Send + Sync {
+    /// The command line set to run at login, if any.
+    fn get(&self) -> Option<String>;
+    /// Run `exe` at login, or not.
+    fn set(&self, on: bool, exe: &Path) -> Result<(), String>;
+}
+
+/// The real one: HKCU's Run key (off Windows: never set, and setting it fails).
+pub struct RunKey;
+
+impl Autostart for RunKey {
+    fn get(&self) -> Option<String> {
+        get()
+    }
+    fn set(&self, on: bool, exe: &Path) -> Result<(), String> {
+        set(on, exe)
+    }
+}
+
 /// Apply the on-by-default rule once. Returns what it did, for the log.
-pub fn apply_default(app_dir: &Path, exe: &Path) -> Option<String> {
+pub fn apply_default(app_dir: &Path, exe: &Path, autostart: &dyn Autostart) -> Option<String> {
     let mut st = CoreState::load(app_dir);
     if st.autostart_default_applied {
         // Keep the path current if the user moved or reinstalled the program.
-        if is_enabled() && get().as_deref() != Some(command_line(exe).as_str()) {
-            return Some(match set(true, exe) {
+        let now = autostart.get();
+        if now.is_some() && now.as_deref() != Some(command_line(exe).as_str()) {
+            return Some(match autostart.set(true, exe) {
                 Ok(()) => "autostart: updated the program path".into(),
                 Err(e) => format!("autostart: couldn't update the program path: {e}"),
             });
         }
         return None;
     }
-    let r = set(true, exe);
+    let r = autostart.set(true, exe);
     st.autostart_default_applied = true;
     st.save(app_dir);
     Some(match r {
         Ok(()) => "autostart: on (default); turn it off with \"Start with Windows\" in Settings".into(),
         Err(e) => format!("autostart: couldn't turn it on: {e}"),
     })
-}
-
-pub fn is_enabled() -> bool {
-    get().is_some()
 }
 
 #[cfg(windows)]
@@ -67,7 +85,7 @@ fn wide(s: &str) -> Vec<u16> {
 
 /// The current Run value, if any.
 #[cfg(windows)]
-pub fn get() -> Option<String> {
+fn get() -> Option<String> {
     use windows_sys::Win32::System::Registry::{RegGetValueW, HKEY_CURRENT_USER, RRF_RT_REG_SZ};
     let (key, name) = (wide(RUN_KEY), wide(VALUE_NAME));
     let mut buf = vec![0u16; 2048];
@@ -91,7 +109,7 @@ pub fn get() -> Option<String> {
 }
 
 #[cfg(windows)]
-pub fn set(on: bool, exe: &Path) -> Result<(), String> {
+fn set(on: bool, exe: &Path) -> Result<(), String> {
     use windows_sys::Win32::System::Registry::{RegDeleteKeyValueW, RegSetKeyValueW, HKEY_CURRENT_USER, REG_SZ};
     let (key, name) = (wide(RUN_KEY), wide(VALUE_NAME));
     let r = unsafe {
@@ -122,12 +140,12 @@ pub fn set(on: bool, exe: &Path) -> Result<(), String> {
 }
 
 #[cfg(not(windows))]
-pub fn get() -> Option<String> {
+fn get() -> Option<String> {
     None
 }
 
 #[cfg(not(windows))]
-pub fn set(_on: bool, _exe: &Path) -> Result<(), String> {
+fn set(_on: bool, _exe: &Path) -> Result<(), String> {
     Err("start with Windows is only available on Windows".into())
 }
 
