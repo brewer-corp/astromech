@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Command registry in astromech-api, served by the control API"
-updated_at: "2026-11-07T06:33:38.680185002+00:00"
+updated_at: "2026-11-07T06:35:26.634640276+00:00"
 ---
 
 ## Goal

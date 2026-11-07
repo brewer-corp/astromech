@@ -4,6 +4,9 @@ id: "astromech-bp23"
 issue_type: "feature"
 labels:
 - "size-l"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-bp23
 priority: "P1"
 relationships:
   blocks: []
@@ -33,7 +36,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "One command layer that every way in calls"
-updated_at: "2026-11-07T06:33:38.862168745+00:00"
+updated_at: "2026-11-07T06:35:26.634442458+00:00"
 ---
 
 ## Goal
