@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Type the window's call() and the fake's handlers against the generated commands"
-updated_at: "2026-11-07T09:48:19.629288112+00:00"
+updated_at: "2026-11-07T09:51:43.232503490+00:00"
 ---
 
 ## Goal
