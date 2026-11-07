@@ -21,10 +21,10 @@ updated_at: "2026-11-07T11:28:47.568980904+00:00"
 
 ## Goal
 
-astromech's Atelier CI job pins `ATELIER_REV` 523a6502, older than the binary every agent on this host now runs. That binary writes `## Report` sections, which the pinned one rejects, so the Atelier job fails on astromech-bp23's PR (run 42367751665) and on any branch with new records. Move the pin to atelier 55cf6072 (master of spadaval/atelier, part of mission atelier-mmpv there), which reads every record the installed binary writes.
+astromech's Atelier CI job pins `ATELIER_REV` 523a6502, older than the binary every agent on this host now runs. That binary writes `## Report` sections, which the pinned one rejects, so the Atelier job fails on astromech-bp23's PR (run 42367751665) and on any branch with new records. Move the pin to atelier 12efdfd9 (master of spadaval/atelier, the merge of its light-path item atelier-4nsl in mission atelier-mmpv), which reads every record form the installed binary writes, including the light path's version-3 review records.
 
 ## Done when
 
-- [ ] `.github/workflows/atelier.yml` pins `ATELIER_REV` to 55cf6072b9234df735138177370456fa828ce404, and nothing else changes.
-- [ ] The Atelier workflow passes on this branch's pull request with the new pin, its log showing 55cf6072 being built.
-- [x] `atelier check` and `atelier doctor` pass locally with a binary built from that commit.
+- [ ] `.github/workflows/atelier.yml` pins `ATELIER_REV` to 12efdfd9ce899e5a768a82163e0758e227b686f6, and nothing else changes.
+- [ ] The Atelier workflow passes on this branch's pull request with the new pin, its log showing 12efdfd9 being built.
+- [ ] `atelier check` and `atelier doctor` pass locally with a binary built from that commit.
