@@ -61,22 +61,54 @@ pub struct Runner {
     /// The process's one remote-data client (Spansh, Ardent, EDSM): every lookup goes through
     /// it, and the star map holds the same one, so they share its rate limit and cache.
     pub remote: Arc<astromech_data::Client>,
-    /// Star map and remote lookups for "nearest crystalline shards" and friends, opened on the
-    /// first lookup (the window's lookups share it). Lookups take it on their own thread: opening
-    /// it can seed it from the preload, and waits while a window lookup opens it.
+    /// Star map and remote lookups for "nearest crystalline shards" and friends (the window's
+    /// lookups share it). The session opens it off the speech thread when it starts, since
+    /// opening it can seed it from the preload; the speech thread only peeks ([`Runner::stars_now`]).
     pub stars: Arc<astromech_api::GalaxyHolder>,
 }
 
+/// The star map as a voice lookup finds it on the speech thread ([`Runner::stars_now`]).
+pub enum Stars {
+    Open(Arc<astromech_galaxy::Galaxy>),
+    /// Not open yet: the session's first open is still running.
+    Opening,
+}
+
 impl Runner {
+    /// The star map for a voice lookup, without opening it on this thread (the speech thread):
+    /// open, or still opening, or `None` when its last open failed (the holder logged why). Then
+    /// lookups are off for this one, and the star map is opened again on another thread for the
+    /// next.
+    pub fn stars_now(&self) -> Option<Stars> {
+        match self.stars.peek() {
+            astromech_api::Peek::Open(g) => Some(Stars::Open(g)),
+            astromech_api::Peek::NotTried => Some(Stars::Opening),
+            astromech_api::Peek::Failed => {
+                let stars = self.stars.clone();
+                std::thread::spawn(move || {
+                    let _ = stars.get();
+                });
+                None
+            }
+        }
+    }
+
     /// Start a lookup off the caller's thread: "Looking that up." is said now, then `answer`
-    /// runs on its own thread with the star map (opened then if it isn't yet) and its answer is
-    /// said. Without a star map (the holder logged why) the answer is that lookups are off, and
-    /// the next lookup tries again.
-    pub fn look_up(&self, answer: impl FnOnce(&astromech_galaxy::Galaxy) -> String + Send + 'static) -> Outcome {
+    /// runs on its own thread with the star map and its answer is said. A star map still opening
+    /// is waited for there; if that open fails, the answer is that lookups are off.
+    pub fn look_up(
+        &self,
+        stars: Stars,
+        answer: impl FnOnce(&astromech_galaxy::Galaxy) -> String + Send + 'static,
+    ) -> Outcome {
         self.speaker.say("Looking that up.");
-        let (stars, speaker) = (self.stars.clone(), self.speaker.clone());
+        let (holder, speaker) = (self.stars.clone(), self.speaker.clone());
         Outcome::LookingUp(std::thread::spawn(move || {
-            let m = match stars.get() {
+            let galaxy = match stars {
+                Stars::Open(g) => Ok(g),
+                Stars::Opening => holder.get(),
+            };
+            let m = match galaxy {
                 Ok(g) => answer(&g),
                 Err(_) => astromech_tools::lookup::NO_STAR_MAP.to_string(),
             };
@@ -97,7 +129,12 @@ impl Runner {
             self.speaker.say(&m);
             return Outcome::Spoken(m);
         }
-        self.look_up(move |galaxy| crate::lookups::sites_answer(galaxy, kind, &g, from.as_deref()))
+        let Some(stars) = self.stars_now() else {
+            let m = astromech_tools::lookup::NO_STAR_MAP.to_string();
+            self.speaker.say(&m);
+            return Outcome::Spoken(m);
+        };
+        self.look_up(stars, move |galaxy| crate::lookups::sites_answer(galaxy, kind, &g, from.as_deref()))
     }
 
     /// Paste the clipboard into the galaxy map's search box: Ctrl+V, then Enter to search.

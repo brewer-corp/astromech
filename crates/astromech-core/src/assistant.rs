@@ -259,9 +259,11 @@ impl Assistant {
             self.say(m);
             Outcome::Spoken(m.into())
         };
-        if game.powerplay.power.is_none() {
-            return said(targets::NOT_PLEDGED);
-        }
+        let stars = match (&game.powerplay.power, self.runner.stars_now()) {
+            (None, _) => return said(targets::NOT_PLEDGED),
+            (_, None) => return said(lookup::NO_STAR_MAP),
+            (Some(_), Some(s)) => s,
+        };
         if from.is_none() && (game.system.is_none() || game.star_pos.is_none()) {
             return said(lookup::NO_POSITION);
         }
@@ -270,8 +272,9 @@ impl Assistant {
             crate::lookups::filters_for(st.as_deref(), targets::lookup(target), &game)
         };
         let from = from.map(str::to_string);
-        self.runner
-            .look_up(move |galaxy| crate::lookups::targets_answer(galaxy, &filters, target, &game, from.as_deref()))
+        self.runner.look_up(stars, move |galaxy| {
+            crate::lookups::targets_answer(galaxy, &filters, target, &game, from.as_deref())
+        })
     }
 
     /// Look up the faction-state systems for `q` near the commander (or the system named in
@@ -284,6 +287,10 @@ impl Assistant {
         from: Option<&str>,
     ) -> Outcome {
         let game = self.runner.hub.snapshot();
+        let Some(stars) = self.runner.stars_now() else {
+            self.say(lookup::NO_STAR_MAP);
+            return Outcome::Spoken(lookup::NO_STAR_MAP.into());
+        };
         if from.is_none() && (game.system.is_none() || game.star_pos.is_none()) {
             self.say(lookup::NO_POSITION);
             return Outcome::Spoken(lookup::NO_POSITION.into());
@@ -294,7 +301,7 @@ impl Assistant {
         };
         let (now, from) = (self.clock.now_s(), from.map(str::to_string));
         let journals = self.projects.dir().map(std::path::Path::to_path_buf);
-        self.runner.look_up(move |galaxy| {
+        self.runner.look_up(stars, move |galaxy| {
             crate::lookups::faction_answer(galaxy, &filters, q, &game, from.as_deref(), journals.as_deref(), now)
         })
     }
@@ -303,12 +310,16 @@ impl Assistant {
     /// named in `from`), and say the answer when it arrives (off this thread).
     fn hotspot_lookup(&self, want: astromech_market::mining::Want, from: Option<&str>) -> Outcome {
         let game = self.runner.hub.snapshot();
+        let Some(stars) = self.runner.stars_now() else {
+            self.say(lookup::NO_STAR_MAP);
+            return Outcome::Spoken(lookup::NO_STAR_MAP.into());
+        };
         if from.is_none() && (game.system.is_none() || game.star_pos.is_none()) {
             self.say(lookup::NO_POSITION);
             return Outcome::Spoken(lookup::NO_POSITION.into());
         }
         let from = from.map(str::to_string);
-        self.runner.look_up(move |galaxy| crate::lookups::hotspots_answer(galaxy, &want, &game, from.as_deref()))
+        self.runner.look_up(stars, move |galaxy| crate::lookups::hotspots_answer(galaxy, &want, &game, from.as_deref()))
     }
 
     /// Route following and paste (docs/PLOTTING.md). None: not one of these.

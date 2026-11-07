@@ -33,7 +33,7 @@ pub mod lookups;
 pub mod state;
 
 pub use control::Request;
-pub use state::{preload_beside, Folders, GalaxyHolder, State};
+pub use state::{preload_beside, Folders, GalaxyHolder, Peek, State};
 
 use astromech_proto::Origin;
 use serde::de::DeserializeOwned;

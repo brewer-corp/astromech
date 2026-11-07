@@ -135,6 +135,15 @@ impl Session {
         let args = opts;
         let data = cfg.data_dir();
         std::fs::create_dir_all(&data).with_context(|| format!("creating {}", data.display()))?;
+        // Open the star map now, off the speech thread (it can seed from the preload), so the
+        // voice lookups find it open (`Runner::stars_now`).
+        let stars = api.galaxy_holder().clone();
+        std::thread::Builder::new()
+            .name("star-map".into())
+            .spawn(move || {
+                let _ = stars.get();
+            })
+            .context("starting the star map's thread")?;
         // 1. Binds health check.
         let bindings = cfg.bindings_dir().context("can't find the Bindings folder; set game.bindings_dir")?;
         let live = cfg!(windows);

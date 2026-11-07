@@ -45,19 +45,38 @@ pub fn preload_beside(exe: &Path) -> Option<PathBuf> {
     p.is_file().then_some(p)
 }
 
-/// The local star map, opened on first use and then kept. A failed open is not remembered: the
-/// next call tries again. The window's lookups and the session's voice lookups share one. Its
-/// in-memory map is dropped when unused ([`GalaxyHolder::release_idle`]); the database stays open.
+/// The local star map, opened on first use and then kept. A failed open is remembered for
+/// [`GalaxyHolder::peek`], but the next [`GalaxyHolder::get`] tries again. The window's lookups
+/// and the session's voice lookups share one. Its in-memory map is dropped when unused
+/// ([`GalaxyHolder::release_idle`]); the database stays open, so the holder stays open.
 pub struct GalaxyHolder {
     open: Box<dyn Fn() -> anyhow::Result<astromech_galaxy::Galaxy> + Send + Sync>,
-    /// The star map and when [`GalaxyHolder::get`] last handed it out.
-    slot: Mutex<Option<(Arc<astromech_galaxy::Galaxy>, Instant)>>,
+    slot: Mutex<Slot>,
+    /// Held while the star map opens (it can seed from the preload), so the slot's lock is not
+    /// and [`GalaxyHolder::peek`] never waits.
+    opening: Mutex<()>,
+}
+
+enum Slot {
+    NotTried,
+    Failed,
+    /// The star map and when it was last handed out.
+    Open(Arc<astromech_galaxy::Galaxy>, Instant),
+}
+
+/// What [`GalaxyHolder::peek`] finds.
+pub enum Peek {
+    Open(Arc<astromech_galaxy::Galaxy>),
+    /// The last open failed (the next [`GalaxyHolder::get`] tries again).
+    Failed,
+    /// Not opened yet, or the first open is still running.
+    NotTried,
 }
 
 impl GalaxyHolder {
     /// A star map that `open` opens when it is first asked for.
     pub fn new(open: impl Fn() -> anyhow::Result<astromech_galaxy::Galaxy> + Send + Sync + 'static) -> Self {
-        Self { open: Box::new(open), slot: Mutex::new(None) }
+        Self { open: Box::new(open), slot: Mutex::new(Slot::NotTried), opening: Mutex::new(()) }
     }
 
     /// The star map in `db` (seeded once from `preload`, if there is one), answering remote
@@ -82,26 +101,51 @@ impl GalaxyHolder {
     pub fn opened(galaxy: astromech_galaxy::Galaxy) -> Self {
         Self {
             open: Box::new(|| anyhow::bail!("opened already")),
-            slot: Mutex::new(Some((Arc::new(galaxy), Instant::now()))),
+            slot: Mutex::new(Slot::Open(Arc::new(galaxy), Instant::now())),
+            opening: Mutex::new(()),
         }
     }
 
-    /// The star map, opening it if it isn't open yet.
+    /// The star map if it is open (counting as a use), else whether its last open failed. Opens
+    /// nothing and never waits for an open.
+    pub fn peek(&self) -> Peek {
+        match &mut *lock(&self.slot) {
+            Slot::Open(g, used) => {
+                *used = Instant::now();
+                Peek::Open(g.clone())
+            }
+            Slot::Failed => Peek::Failed,
+            Slot::NotTried => Peek::NotTried,
+        }
+    }
+
+    /// The star map, opening it if it isn't open yet (waiting for an open already running).
     pub fn get(&self) -> Result<Arc<astromech_galaxy::Galaxy>, String> {
-        let mut g = lock(&self.slot);
-        let galaxy = match g.take() {
-            Some((x, _)) => x,
-            None => Arc::new((self.open)().map_err(|e| format!("{e:#}"))?),
-        };
-        *g = Some((galaxy.clone(), Instant::now()));
-        Ok(galaxy)
+        if let Peek::Open(g) = self.peek() {
+            return Ok(g);
+        }
+        let _opening = lock(&self.opening);
+        if let Peek::Open(g) = self.peek() {
+            return Ok(g);
+        }
+        match (self.open)() {
+            Ok(g) => {
+                let g = Arc::new(g);
+                *lock(&self.slot) = Slot::Open(g.clone(), Instant::now());
+                Ok(g)
+            }
+            Err(e) => {
+                *lock(&self.slot) = Slot::Failed;
+                Err(format!("{e:#}"))
+            }
+        }
     }
 
     /// Drop the star map's in-memory map if the star map was last handed out `idle` or longer
     /// before `now`; true if one was dropped.
     pub fn release_idle(&self, now: Instant, idle: Duration) -> bool {
         match &*lock(&self.slot) {
-            Some((g, used)) if idle_since(*used, now, idle) => g.unload_map(),
+            Slot::Open(g, used) if idle_since(*used, now, idle) => g.unload_map(),
             _ => false,
         }
     }
@@ -779,6 +823,7 @@ pub(crate) mod tests {
         w.state.release_idle(now, IDLE);
         assert!(Arc::ptr_eq(&m, &g.map().unwrap()), "used just now: kept");
         w.state.release_idle(now + IDLE, IDLE);
+        assert!(matches!(w.state.galaxy_holder().peek(), Peek::Open(_)), "the star map stays open");
         assert!(!Arc::ptr_eq(&m, &w.state.galaxy().unwrap().map().unwrap()), "read again");
     }
 
@@ -832,8 +877,12 @@ pub(crate) mod tests {
             anyhow::ensure!(*n > 1, "the disk is busy");
             Ok(astromech_galaxy::Galaxy::with_remote(astromech_galaxy::Store::in_memory()?, offline()))
         });
+        assert!(matches!(holder.peek(), Peek::NotTried));
         assert_eq!(holder.get().err().as_deref(), Some("the disk is busy"));
+        assert!(matches!(holder.peek(), Peek::Failed), "the failure is remembered");
+        assert_eq!(*lock(&tries), 1, "peeking opens nothing");
         let g = holder.get().unwrap();
+        assert!(matches!(holder.peek(), Peek::Open(p) if Arc::ptr_eq(&p, &g)));
         assert!(Arc::ptr_eq(&g, &holder.get().unwrap()));
         assert_eq!(*lock(&tries), 2);
     }
