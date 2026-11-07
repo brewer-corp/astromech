@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Drop the neutron star file and scan caches when idle"
-updated_at: "2026-11-07T07:43:29.729958363+00:00"
+updated_at: "2026-11-07T07:43:59.827793607+00:00"
 ---
 
 ## Goal
