@@ -18,9 +18,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "The one app: astromech-core.exe runs the core, the tray and the window in one Tauri process"
-updated_at: "2026-11-07T17:14:12.227963786+00:00"
+updated_at: "2026-11-07T17:15:28.821902882+00:00"
 ---
 
 ## Goal
