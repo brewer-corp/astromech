@@ -26,6 +26,8 @@ relationships:
   - kind: "issue"
     id: "astromech-ndzx"
   - kind: "issue"
+    id: "astromech-ravn"
+  - kind: "issue"
     id: "astromech-ro7a"
   - kind: "issue"
     id: "astromech-se44"
@@ -38,7 +40,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "One command layer that every way in calls"
-updated_at: "2026-11-07T06:53:57.602487173+00:00"
+updated_at: "2026-11-07T07:43:20.111448146+00:00"
 ---
 
 ## Goal

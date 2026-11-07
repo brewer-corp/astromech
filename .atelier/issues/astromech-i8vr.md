@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "One shell proxy for every window call; forwarders, core_call and core_status gone"
-updated_at: "2026-11-07T06:33:38.679868984+00:00"
+updated_at: "2026-11-07T07:43:29.499142502+00:00"
 ---
 
 ## Goal
@@ -39,3 +39,7 @@ The window reaches every command through one shell proxy, and the shell's per-co
 ## Scope
 
 window.rs, app/src/lib/transport.ts and the few lib modules that named shell-only commands, scripts/onboarding_smoke.py, ARCHITECTURE §18.2. The fake transport keeps its handlers, typed in the next child.
+
+## Notes
+
+- 2026-11-07 [note] From finding astromech-tabr (ndzx review), must be fixed here before bp23 merges: shell_info is now answered by the core, so Diagnostics (app/src/modules/diagnostics/View.svelte:29,49-51) can no longer show 'window X, background Y' after a half-applied update, and with the core down it shows '…'. Give the window its own version (built into the bundle, e.g. a Vite define from the workspace version, since it ships inside the shell exe), or drop the comparison only if y6d6 makes it moot — keep it until then.
