@@ -72,7 +72,7 @@ app/src-tauri (hooks, conf), the forwarder crate, crates/astromech-core (update.
 
 ## Context
 
-- The executable decision (linked).
+- Decision astromech-nade.
 - The NSIS upgrade runs the old uninstaller with `/UPDATE` (installer-hooks.nsh:22-25).
 - `copy_payload` overlays and never deletes (update.rs:336-354). So an updater upgrade leaves the old `astromech-shell.exe` behind until the forwarder replaces it.
 - Both the old shell and the one app use Tauri's identifier `io.github.spadaval.astromech`, so the WebView2 profile, and with it the window's saved state, carries over.

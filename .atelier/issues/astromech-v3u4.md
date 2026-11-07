@@ -31,7 +31,7 @@ updated_at: "2026-11-07T11:57:35.951474903+00:00"
 
 ## Goal
 
-`astromech-core.exe` is the Tauri app. One process holds the tray, the pipeline, voice, input and, when asked, the window (decision astromech-6i8s; executable and endpoint decision in this bundle). The shell process, its watchdog and the start-the-core plumbing are gone.
+`astromech-core.exe` is the Tauri app. One process holds the tray, the pipeline, voice, input and, when asked, the window (decision astromech-6i8s; decision astromech-nade). The shell process, its watchdog and the start-the-core plumbing are gone.
 
 **In-game behaviour (tray, kill switch, voice pause, quit):** all of these move to Tauri's event loop and must behave exactly as they do now.
 

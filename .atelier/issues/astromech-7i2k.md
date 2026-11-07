@@ -36,7 +36,7 @@ This child lands the shared source while there are still two processes, so astro
   - It starts Raw Input and XInput once, with one hidden window and one registration, when it is first subscribed.
   - Its lifetime is as today: once started it runs for the life of the process, as session.rs's `bus` keeps the controls listener now (a `OnceLock`; sessions attach and detach).
   - A subscriber that falls behind or is dropped never blocks the others.
-  - It has a `restart()` that registers again. The one-app child calls it once after Tauri's `build`. On Windows it is called from tests only.
+  - It has a `restart()` that registers again. astromech-v3u4 calls it once after Tauri's `build`. On Windows it is called from tests only.
 - [ ] `controls::start` (called by session.rs's `bus`), `--listen` (main.rs:423-461) and the shell's `start_input` subscribe instead of calling `rawinput::start` and `xinput::start` themselves. session.rs's `bus` keeps its attach and detach behaviour. The device list given to a new subscriber matches today's: `list_devices()` first, then the Device messages.
 - [ ] Platform-neutral unit tests drive the fan-out through a fake source:
   - two subscribers each see the same samples in order;
@@ -48,7 +48,7 @@ This child lands the shared source while there are still two processes, so astro
   - it holds F8 for 1.2 s, longer than `controls.rearm_hold_ms` (1000 ms by default; session.rs:641-648, config.rs:150), and `status` must show it re-armed;
   - then it quits the app with `--quit`, keeping the config, starts the mock game first, and starts the app again. The session's listener now starts at app start, before any window, as after a crash restart or an update relaunch while Elite runs. It opens the window by a second start with `--route settings` and repeats the tap and the hold.
 
-  With two processes this proves the shared source carries the presses. The one-app child reruns it in one process.
+  With two processes this proves the shared source carries the presses. astromech-v3u4 reruns it in one process.
 - [ ] Checks: CONTRIBUTING's checks locally, and Windows CI's clippy, tests and shell build. The Release workflow's onboarding smoke passes on the PR, including the push-to-talk and kill-switch binding step, which is the window's listener seeing SendInput presses.
 
 ## Scope
