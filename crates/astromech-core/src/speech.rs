@@ -441,7 +441,7 @@ impl TtsSpeaker {
                         if let Some(j) = g.warm.pop_front() {
                             break Some((None, j));
                         }
-                        g = cv.wait(g).unwrap();
+                        g = cv.wait(g).recover();
                     }
                 };
                 let Some((line, (t, v))) = job else { break };

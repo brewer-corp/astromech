@@ -465,7 +465,7 @@ impl SpeechOut {
                         }
                     }
                     let wait = if q.is_empty() { Duration::from_millis(250) } else { Duration::from_millis(50) };
-                    q = p.cv.wait_timeout(q, wait).unwrap().0;
+                    q = p.cv.wait_timeout(q, wait).recover().0;
                 }
             };
             speaker.say(&next.text);

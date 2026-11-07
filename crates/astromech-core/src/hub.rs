@@ -95,7 +95,7 @@ impl StateHub {
             if now >= end {
                 return false;
             }
-            g = self.cv.wait_timeout(g, (end - now).min(Duration::from_millis(25))).unwrap().0;
+            g = self.cv.wait_timeout(g, (end - now).min(Duration::from_millis(25))).recover().0;
         }
     }
 
@@ -114,7 +114,42 @@ impl StateHub {
             if now >= end {
                 return false;
             }
-            g = self.cv.wait_timeout(g, (end - now).min(Duration::from_millis(25))).unwrap().0;
+            g = self.cv.wait_timeout(g, (end - now).min(Duration::from_millis(25))).recover().0;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Arc;
+
+    /// A panic while the state was locked (a handler's, say) doesn't make the next press's
+    /// verification panic: the wait recovers the lock and still sees the flag the pipeline sets.
+    #[test]
+    fn waiting_for_a_flag_works_after_a_panic_poisoned_the_state() {
+        const FLAG: u64 = astromech_status::FLAG_IN_MAIN_SHIP;
+        let hub = Arc::new(StateHub::new());
+        let h = hub.clone();
+        let poisoned = std::thread::spawn(move || h.update(|_| panic!("a bug while the state is locked"))).join();
+        assert!(poisoned.is_err() && hub.state.is_poisoned());
+        // Set the flag from another thread once the wait holds the lock (`cancelled` runs under
+        // it), so the update lands while the wait waits.
+        let setter = Mutex::new(None);
+        let cancelled = || {
+            let mut s = setter.lock().recover();
+            if s.is_none() {
+                let h = hub.clone();
+                *s = Some(std::thread::spawn(move || {
+                    h.update(|g| {
+                        g.status_seen = true;
+                        g.status_flags = FLAG;
+                    })
+                }));
+            }
+            false
+        };
+        assert!(hub.wait_flag(FLAG, true, Duration::from_secs(60), &cancelled));
+        setter.lock().recover().take().unwrap().join().unwrap();
     }
 }
