@@ -33,7 +33,8 @@
 //! The fakes: the process list is the world's (empty until a step starts the game); the opener,
 //! clipboard, notifier, Start with Windows and the app window record what reaches them and touch
 //! nothing; the secrets are in memory, seeded from `secrets.json`; every remote-data lookup is
-//! refused and recorded as unrecorded. Then it calls [`app::assemble`] and [`app::start`], as the installed
+//! refused and recorded as unrecorded; the clock is a manual one ([`World::clock`]), started at
+//! the real time and moved only by the script, which the remote-data client shares. Then it calls [`app::assemble`] and [`app::start`], as the installed
 //! app does, but none of what only [`app::run`] adds: no instance lock, no Start with Windows
 //! default, no update thread, no window and no tray.
 //!
