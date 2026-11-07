@@ -11,12 +11,12 @@ event:
   event: finding
   recommendation: defer
   disposition:
-    decision: defer
+    decision: fix_now
     identity: claude-orchestrator-kjfs
-    commit: 088ac532fca53a9df21325a9860f262324d2e0f3
-    recorded_at: 2026-11-07T17:15:28.379401571Z
-    follow_up: astromech-y6d6
-    reason: 'Resolve at y6d6''s merge: keep the branch copy'
+    commit: 111df4dc7b4e71eac25078f2e8d5f08a41cd5b02
+    recorded_at: 2026-11-07T17:59:28.068765886Z
+    resolution_commit: 111df4dc7b4e71eac25078f2e8d5f08a41cd5b02
+    reason: Merged main keeping the branch copy
 ---
 
 low: .atelier/issues/astromech-fmub.md. The main copy (424b8a18) and the branch copy (2cb0a07f) differ in two places: the branch keeps the discovered_from link to evidence astromech-fqw9 and words Context differently. Both sides added the file, so 'git merge-tree main HEAD' reports an add/add CONFLICT on this file and nothing else. The next main merge or atelier merge will stop on it. Resolve to the branch copy, which is correct once fqw9 is on main, or make the two copies identical before merging.
