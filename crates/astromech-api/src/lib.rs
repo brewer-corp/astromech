@@ -12,9 +12,10 @@
 //! (decision astromech-unh9). The token in `core.json` is the gate, not the origin.
 //!
 //! Every handler runs behind `catch_unwind`: a panic becomes an error reply naming the command
-//! and is logged, and the process carries on. While a handler runs, [`dispatching`] is true on
-//! its thread, so the core's panic hook logs such a panic without leaving a crash report for the
-//! next start. What recovers after the panic:
+//! and is logged, and the process carries on. The core's panic hook asks [`panic_is_caught`],
+//! so it logs such a panic without leaving a crash report for the next start (but leaves one for
+//! a second panic while the first unwinds, which aborts the process). What recovers after the
+//! panic:
 //!
 //! - A lock the handler held: locked with [`lock`] (or [`Recover`] on any `Mutex` or `RwLock`)
 //!   the next caller gets it instead of a poisoned error. This crate's [`State`] and the core's
@@ -44,15 +45,34 @@ use std::collections::BTreeMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::{LockResult, Mutex, MutexGuard, PoisonError};
 
-thread_local! {
-    /// How many handlers this thread is running (a handler may run another, [`Call::run`]).
-    static DISPATCHING: Cell<u32> = const { Cell::new(0) };
+/// What this thread is doing, for [`panic_is_caught`].
+#[derive(Clone, Copy, PartialEq)]
+enum Running {
+    /// No handler.
+    Idle,
+    /// A handler (the innermost, if one ran another through [`Call::run`]).
+    Handler,
+    /// A handler's panic is unwinding to [`Registry::dispatch`].
+    Unwinding,
 }
 
-/// Whether this thread is running a command's handler, so a panic now is caught by
-/// [`Registry::dispatch`] and answered with an error (the process carries on).
-pub fn dispatching() -> bool {
-    DISPATCHING.with(|d| d.get() > 0)
+thread_local! {
+    static RUNNING: Cell<Running> = const { Cell::new(Running::Idle) };
+}
+
+/// For a panic hook: whether the panic starting now will be caught by [`Registry::dispatch`]
+/// and answered with an error, so the process carries on. True when this thread runs a handler
+/// and no panic is unwinding in it yet; the thread is then marked as unwinding until dispatch
+/// catches it. False for a second panic while the first unwinds (Rust aborts the process then),
+/// and for a panic outside any handler.
+pub fn panic_is_caught() -> bool {
+    RUNNING.with(|r| {
+        let caught = r.get() == Running::Handler;
+        if caught {
+            r.set(Running::Unwinding);
+        }
+        caught
+    })
 }
 
 /// Who may call a command.
@@ -140,9 +160,9 @@ impl Registry {
             return Err(format!("not allowed: {} is for local control clients only", r.cmd));
         }
         let call = Call { registry: self, origin: r.origin, progress };
-        DISPATCHING.with(|d| d.set(d.get() + 1));
+        let outer = RUNNING.with(|r| r.replace(Running::Handler));
         let ran = catch_unwind(AssertUnwindSafe(|| handler(r, &call)));
-        DISPATCHING.with(|d| d.set(d.get() - 1));
+        RUNNING.with(|r| r.set(outer));
         ran.unwrap_or_else(|panic| {
             let why = panic
                 .downcast_ref::<&str>()
@@ -262,26 +282,22 @@ pub(crate) mod tests {
         assert!(log.contains("command count panicked: count exploded"), "{log}");
     }
 
-    /// [`dispatching`] is true on a handler's thread while it runs (and in a command it runs),
-    /// and false once it has answered, however it ended.
+    /// [`panic_is_caught`] (as a panic hook calls it) is true for the first panic in a handler,
+    /// in a command it runs too, and false for a second one while the first unwinds, outside a
+    /// handler, and after the handler has answered.
     #[test]
-    fn dispatching_is_true_only_while_a_handler_runs() {
-        test_log();
+    fn a_panic_is_caught_only_once_inside_a_handler() {
         let mut reg = Registry::new();
-        reg.add("inner", Exposure::Window, |_, _| Ok(json!(dispatching())));
-        reg.add("outer", Exposure::Window, |r, call| {
-            if r.text.is_some() {
-                panic!("a handler's bug");
-            }
-            Ok(json!([dispatching(), call.run("inner", None)?, dispatching()]))
+        reg.add("inner", Exposure::Window, |_, _| Ok(json!(panic_is_caught())));
+        reg.add("outer", Exposure::Window, |_, call| {
+            let inner = call.run("inner", None)?;
+            Ok(json!([inner, panic_is_caught(), panic_is_caught()]))
         });
-        assert!(!dispatching());
-        assert_eq!(reg.dispatch(&req("outer", None, None), &|_| {}), Ok(json!([true, true, true])));
-        assert!(!dispatching());
-        let mut boom = req("outer", None, None);
-        boom.text = Some("panic".into());
-        assert!(reg.dispatch(&boom, &|_| {}).is_err());
-        assert!(!dispatching(), "cleared after a panic too");
+        assert!(!panic_is_caught());
+        let once = Ok(json!([true, true, false]));
+        assert_eq!(reg.dispatch(&req("outer", None, None), &|_| {}), once);
+        assert!(!panic_is_caught());
+        assert_eq!(reg.dispatch(&req("outer", None, None), &|_| {}), once, "each call starts afresh");
     }
 
     /// A handler runs another command through the registry for the same caller: the window
