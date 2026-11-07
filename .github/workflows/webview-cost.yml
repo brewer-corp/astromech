@@ -75,11 +75,12 @@ jobs:
           node-version: 22
           cache: pnpm
           cache-dependency-path: app/pnpm-lock.yaml
-      - name: voice worker placeholder (externalBin; no speech here) and an empty star map
+      - name: voice worker and shell forwarder placeholders (externalBin; neither runs here) and an empty star map
         shell: bash
         run: |
           mkdir -p app/src-tauri/binaries
           : > app/src-tauri/binaries/astromech-voice-worker-${{ matrix.triple }}${{ matrix.exe }}
+          : > app/src-tauri/binaries/astromech-shell-${{ matrix.triple }}${{ matrix.exe }}
           python3 scripts/gen-starmap.py --empty --out app/src-tauri/resources/starmap.db || python scripts/gen-starmap.py --empty --out app/src-tauri/resources/starmap.db
       - name: the app (release, no installer)
         working-directory: app
