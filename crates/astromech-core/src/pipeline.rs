@@ -2,7 +2,9 @@
 //! whenever 250 ms have passed since the last read (`Tailer::on_wake`), because on Windows they can be late or lost.
 //!
 //! - Status.json: every change notification re-reads the file (with retries for half-written
-//!   files) and applies the flags.
+//!   files) and applies the flags. An idle pass also reads it when its modified time or length
+//!   differs from the last good read, so a lost notification or a failed read is caught up
+//!   within 250 ms.
 //! - Journal: the current `Journal.*.log` is tailed from a byte offset; only complete lines are
 //!   parsed. When the game starts a new journal file, the old one is drained and the new one
 //!   becomes current. On startup the current file is replayed from the start (to rebuild
@@ -265,6 +267,9 @@ struct Tailer {
     last_scan: Instant,
     /// When the journal tail was last read, for any reason.
     last_read: Instant,
+    /// Status.json's modified time and length when it was last read whole: an idle pass reads it
+    /// again when they differ, in case its notification was lost or that read failed.
+    status_seen: Option<(std::time::SystemTime, u64)>,
     /// Name stamp of the session the game is writing now (see `classify`); a later part of it
     /// (same stamp) is the game's too.
     game_session: Option<i64>,
@@ -750,6 +755,13 @@ impl Tailer {
         if self.read_tail() {
             self.save();
         }
+        // The same for Status.json: a write whose notification was lost, or whose read failed
+        // (half-written, or held by another process), would otherwise wait for the next write,
+        // and a press verified by it would never be confirmed.
+        let stamp = file_stamp(&self.dir.join("Status.json"));
+        if stamp.is_some() && stamp != self.status_seen {
+            self.on_status();
+        }
         if self.last_scan.elapsed() >= SCAN_EVERY {
             self.last_scan = Instant::now();
             self.follow_newest();
@@ -803,7 +815,10 @@ impl Tailer {
 
     fn on_status(&mut self) {
         let p = self.dir.join("Status.json");
+        // Taken before the read: a write in between is read again on the next idle pass.
+        let stamp = file_stamp(&p);
         if let Some(s) = astromech_status::read_status_retry(&p, 5) {
+            self.status_seen = stamp;
             self.stats.lock().recover().status_reads += 1;
             if let Some(f) = &mut self.eddn {
                 f.status(&serde_json::json!({ "BodyName": s.body_name }));
@@ -923,7 +938,14 @@ impl Tailer {
     }
 }
 
-/// The pipeline thread: react to file notifications, and read the journal when none arrive.
+/// A file's modified time and length, if it is there.
+fn file_stamp(p: &Path) -> Option<(std::time::SystemTime, u64)> {
+    let m = std::fs::metadata(p).ok()?;
+    Some((m.modified().ok()?, m.len()))
+}
+
+/// The pipeline thread: react to file notifications, and read the journal (and Status.json, when
+/// it changed) when none arrive.
 fn spawn_loop(
     mut t: Tailer,
     rx: std::sync::mpsc::Receiver<notify::Result<notify::Event>>,
@@ -1110,6 +1132,7 @@ pub fn start_with_eddn(
         opened: Default::default(),
         last_scan: Instant::now(),
         last_read: Instant::now(),
+        status_seen: None,
         game_session: None,
         writing: None,
         retired: Default::default(),
@@ -1151,6 +1174,7 @@ mod tests {
             opened: Default::default(),
             last_scan: Instant::now(),
             last_read: Instant::now(),
+            status_seen: None,
             game_session: None,
             writing: None,
             retired: Default::default(),
@@ -1318,6 +1342,78 @@ mod tests {
         // Nothing appended: idle reads change nothing.
         t.on_idle();
         assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"));
+    }
+
+    /// A Status.json write whose notification never came, or whose read failed (the file
+    /// half-written or held by another process), is read when idle: the file changed since the
+    /// last good read. Before, a press verified by that write was "not confirmed" (the MVP
+    /// criteria run on PR #218, `open_screen.left`: GuiFocus 2 written, never read).
+    #[test]
+    fn a_status_write_without_a_notification_is_read_when_idle() {
+        let d = tempfile::tempdir().unwrap();
+        let status = d.path().join("Status.json");
+        let write = |gui: u64, at: u64| {
+            std::fs::write(
+                &status,
+                format!(r#"{{"timestamp":"t","event":"Status","Flags":16777216,"GuiFocus":{gui}}}"#),
+            )
+            .unwrap();
+            // A distinct modified time, as a later write has, whatever the filesystem's resolution.
+            let f = std::fs::File::options().write(true).open(&status).unwrap();
+            f.set_modified(std::time::UNIX_EPOCH + Duration::from_secs(at)).unwrap();
+        };
+        write(0, 1_000);
+        let (mut t, hub, _) = tailer(d.path());
+        t.on_status();
+        assert_eq!(hub.snapshot().gui_focus, Some(0));
+        let reads = t.stats.lock().recover().status_reads;
+        // Unchanged: an idle pass doesn't read it again.
+        t.on_idle();
+        assert_eq!(t.stats.lock().recover().status_reads, reads);
+        write(2, 1_001);
+        t.on_idle();
+        assert_eq!(hub.snapshot().gui_focus, Some(2), "the write with no notification was never read");
+        // A failed read leaves it to the next idle pass.
+        std::fs::write(&status, "{\"timestamp\":").unwrap();
+        std::fs::File::options()
+            .write(true)
+            .open(&status)
+            .unwrap()
+            .set_modified(std::time::UNIX_EPOCH + Duration::from_secs(1_002))
+            .unwrap();
+        t.on_idle();
+        assert_eq!(hub.snapshot().gui_focus, Some(2));
+        // The same modified time as the broken write: only a good read records the file.
+        write(6, 1_002);
+        t.on_idle();
+        assert_eq!(hub.snapshot().gui_focus, Some(6), "a read that failed was not tried again");
+    }
+
+    /// The same through the real loop, with a watcher that never reports anything.
+    #[test]
+    fn the_pipeline_loop_reads_status_json_without_any_notification() {
+        let d = tempfile::tempdir().unwrap();
+        let status = d.path().join("Status.json");
+        std::fs::write(&status, r#"{"timestamp":"t","event":"Status","Flags":16777216,"GuiFocus":0}"#).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        t.catch_up();
+        let (_silent_watcher, rx) = std::sync::mpsc::channel();
+        let stop = Arc::new(AtomicBool::new(false));
+        let thread = spawn_loop(t, rx, stop.clone()).unwrap();
+        std::fs::write(&status, r#"{"timestamp":"t","event":"Status","Flags":16777216,"GuiFocus":2}"#).unwrap();
+        std::fs::File::options()
+            .write(true)
+            .open(&status)
+            .unwrap()
+            .set_modified(std::time::SystemTime::now() + Duration::from_secs(5))
+            .unwrap();
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while hub.snapshot().gui_focus != Some(2) && Instant::now() < deadline {
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        stop.store(true, Ordering::SeqCst);
+        thread.join().unwrap();
+        assert_eq!(hub.snapshot().gui_focus, Some(2), "the loop never read the Status.json write");
     }
 
     /// astromech-mh3m: through the real loop, with a watcher that never reports anything, a line

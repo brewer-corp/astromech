@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "The one app: astromech-core.exe runs the core, the tray and the window in one Tauri process"
-updated_at: "2026-11-07T17:45:35.736127104+00:00"
+updated_at: "2026-11-07T18:54:50.934536383+00:00"
 ---
 
 ## Goal
@@ -120,6 +120,7 @@ Spike results on astromech-wgtr (its Close Reason and evidence receipt). The Tau
   Reason: The spike note on this child asks for it; astromech-dl53 keeps its tests of the catch_unwind recoveries and the WER restart
 - 2026-11-07 [decision] one_process_probe.py: --no-sink skips check 2 and --no-churn skips check 3 (the expected set follows), and log lines without the spike's [pid prefix count for the app; webview_cost.py's later cold starts open the window in the app started --background, by a --route second start, plus one start with the app not running
   Reason: The app has no test hooks (Done when); its log has no pid prefix since one process writes it; the windowless app is how a player opens the window
+- 2026-11-07 [result] MVP criteria failure on PR #218 at 0891652b (open_screen.left not_confirmed, 1 of 15): not a v3u4 regression. The mock wrote GuiFocus 2 to Status.json 727 ms after the key (keys.log), 1.27 s before the core's 2 s deadline, and the core never applied it; the next write came 1.9 s later. Status.json was read only on a file notification, with five 1 ms retries, so a lost notification or a failed read (half-written, or held: the mock's own logging thread stalled about 760 ms in the same second, splitting a keys.log line) lost the update until the next write. The console-mode pipeline v3u4 runs is unchanged code; b418f604's run had the same verify spread (max 949 ms vs 948 ms, the mock's 0-1000 ms delay), with keydown p50 7.0 vs 11.2 ms (a slower runner). Fix: an idle pass re-reads Status.json when its modified time or length differs from the last good read (pipeline.rs, tests a_status_write_without_a_notification_is_read_when_idle and the_pipeline_loop_reads_status_json_without_any_notification, both failing before); the mock writes each keys.log line in one write
 
 ## Report
 
