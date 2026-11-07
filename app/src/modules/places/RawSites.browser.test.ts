@@ -35,7 +35,7 @@ describe("Raw sites finder", () => {
     expect(location.hash).toBe("#/places/raw-sites/crystalline_shards");
     expect(heads()).toEqual(["Jumps", "Body", "Site", "Distance", "Arrival", "Updated", ""]);
     const [first] = cells();
-    expect(first?.slice(0, 2)).toEqual(["~44", "B 6 a Oochorrs SB-J d10-5"]);
+    expect(first?.slice(0, 2)).toEqual(["~48", "B 6 a Oochorrs SB-J d10-5"]);
     expect(first?.[2]).toMatch(/^Crystalline Shards · first at -4\.0, -141\.0/);
     expect(first?.slice(3, 5)).toEqual(["1,426.2ly", "26,249ls"]);
     expect(asked).toHaveBeenLastCalledWith({ kind: "crystalline_shards", origin: null, filters: DEFAULT_FILTERS });

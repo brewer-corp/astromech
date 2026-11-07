@@ -186,9 +186,10 @@ fn range_of(ship: Option<&astromech_engineering::Ship>) -> f64 {
     ship.and_then(|s| s.max_jump_range).filter(|r| *r > 1.0).unwrap_or(20.0)
 }
 
-fn now() -> i64 {
-    use astromech_data::Clock;
-    astromech_data::SystemClock.now_s()
+/// Now, in Unix seconds, on the remote-data client's clock (the world's in world mode), for the
+/// lookups' ages and age filters.
+fn now(s: &State) -> i64 {
+    s.remote().clock_in_use().now_s()
 }
 
 fn text(e: impl std::fmt::Display) -> String {
@@ -340,7 +341,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     reg.add_typed("trade_search", Window, move |x: Near<TradeArgs>, _| {
         let (g, here, range, filters) = near(&s, &x)?;
         let list: Vec<&str> = x.what.commodities.iter().map(String::as_str).collect();
-        astromech_market::search(&g, &here, range, x.what.side, &list, &filters, 8, now()).map_err(text)
+        astromech_market::search(&g, &here, range, x.what.side, &list, &filters, 8, now(&s)).map_err(text)
     });
 
     // Where to sell or buy `commodity` anywhere in the galaxy, best price first (Ardent
@@ -348,7 +349,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     let s = state.clone();
     reg.add_typed("trade_anywhere", Window, move |x: Near<AnywhereArgs>, _| {
         let (g, here, range, filters) = near(&s, &x)?;
-        astromech_market::anywhere(g.remote(), &here, range, x.what.side, &x.what.commodity, &filters, now())
+        astromech_market::anywhere(g.remote(), &here, range, x.what.side, &x.what.commodity, &filters, now(&s))
             .map_err(text)
     });
 
@@ -358,7 +359,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     reg.add_typed("trade_cargo", Window, move |x: Near<crate::Nothing>, _| {
         let (g, here, range, filters) = near(&s, &x)?;
         let hold = astromech_market::cargo::from_journal_dir(&s.journal_dir());
-        let plan = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters, 8, now()).map_err(text)?;
+        let plan = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters, 8, now(&s)).map_err(text)?;
         Ok(CargoSale { here, range, plan, hold })
     });
 
@@ -389,7 +390,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
             .map_err(text)?;
         let (here, range, filters) = search_origin(&s, &g, None, Some(saved))?;
         let hold = astromech_market::cargo::from_journal_dir(&dir);
-        astromech_market::here::compare_search(&g, &here, range, &market, &hold, &filters, now())
+        astromech_market::here::compare_search(&g, &here, range, &market, &hold, &filters, now(&s))
             .map(Some)
             .map_err(text)
     });
@@ -404,7 +405,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
         let (g, here, range, filters) = near(&s, &x)?;
         let polling = s.plot_polling;
         let route =
-            astromech_market::route::plan(g.remote(), &here.system, range, &x.what.ask, &filters, polling, now())
+            astromech_market::route::plan(g.remote(), &here.system, range, &x.what.ask, &filters, polling, now(&s))
                 .map_err(text)?;
         Ok(TradeRoute { here, route })
     });
@@ -415,7 +416,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     reg.add_typed("colonisation_buy", Window, move |x: Near<NeedsArg>, _| {
         let (g, here, range, filters) = near(&s, &x)?;
         let plan =
-            astromech_market::list::plan_search(&g, &here, range, &x.what.needs, &filters, 12, now()).map_err(text)?;
+            astromech_market::list::plan_search(&g, &here, range, &x.what.needs, &filters, 12, now(&s)).map_err(text)?;
         Ok(ShoppingPlan { here, range, plan })
     });
 

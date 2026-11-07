@@ -30,8 +30,8 @@
           "buttons": 128,
           "elite_id": "231D3201",
           "hats": 1,
-          "kind": "joystick",
-          "manufacturer": "VKB-Sim © Alex Oz 2021",
+          "kind": "Joystick",
+          "manufacturer": "",
           "other_values": [],
           "pid": "3201",
           "product": "VKBsim Gladiator EVO OT  L SEM",
@@ -50,8 +50,8 @@
           "buttons": 128,
           "elite_id": "231D0200",
           "hats": 1,
-          "kind": "joystick",
-          "manufacturer": "VKB-Sim © Alex Oz 2021",
+          "kind": "Joystick",
+          "manufacturer": "",
           "other_values": [],
           "pid": "0200",
           "product": "VKBsim Gladiator EVO  R",
@@ -62,7 +62,7 @@
       "keyboards": [],
       "mice": [],
       "notes": [],
-      "source": "fixture",
+      "source": "world",
       "xinput_slots": []
     },
     "notes": [
@@ -7045,7 +7045,13 @@
             "group": "SRV driving",
             "id": "ToggleDriveAssist",
             "in_file": true,
-            "issues": [],
+            "issues": [
+              {
+                "code": "no_keyboard",
+                "level": "error",
+                "text": "No keyboard key: voice commands can't press this. Put a key in the empty slot."
+              }
+            ],
             "name": "Drive assist",
             "slots": [
               {
@@ -9577,10 +9583,9 @@
         ]
       }
     ],
-    "issue_count": 2,
+    "issue_count": 3,
     "name": "Example DualVKB",
     "path": "C:\\Users\\you\\AppData\\Local\\Frontier Developments\\Elite Dangerous\\Options\\Bindings\\Example DualVKB.4.2.binds",
     "problems": []
   }
 }
-

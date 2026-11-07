@@ -1,0 +1,130 @@
+{
+ "count": 10000,
+ "from": 0,
+ "reference": {
+  "id64": 10477373803,
+  "name": "Sol",
+  "x": 0.0,
+  "y": 0.0,
+  "z": 0.0
+ },
+ "results": [
+  {
+   "name": "Rescue Ship - Li Qing Jao",
+   "market_id": 128977009,
+   "type": "Mega ship",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 496.966721,
+   "has_large_pad": false,
+   "is_planetary": false,
+   "updated_at": "2021-03-18T16:19:26Z",
+   "outfitting_updated_at": "2021-03-25T06:51:41Z",
+   "services": [
+    {
+     "name": "Black Market"
+    }
+   ]
+  },
+  {
+   "name": "Markus Extraction Exchange",
+   "market_id": 3868051200,
+   "type": "Settlement",
+   "system_name": "Alpha Centauri",
+   "system_id64": 1178708478315,
+   "system_x": 3.03125,
+   "system_y": -0.09375,
+   "system_z": 3.15625,
+   "distance": 4.37712002205788,
+   "distance_to_arrival": 4298.270538,
+   "has_large_pad": false,
+   "large_pads": 0,
+   "medium_pads": 1,
+   "small_pads": 0,
+   "is_planetary": true,
+   "updated_at": "2026-10-01T22:45:54Z",
+   "services": [
+    {
+     "name": "Black Market"
+    }
+   ]
+  },
+  {
+   "name": "T8J-N7L",
+   "market_id": 3705877504,
+   "type": "Drake-Class Carrier",
+   "system_name": "Alpha Centauri",
+   "system_id64": 1178708478315,
+   "system_x": 3.03125,
+   "system_y": -0.09375,
+   "system_z": 3.15625,
+   "distance": 4.37712002205788,
+   "distance_to_arrival": 1845.128763,
+   "has_large_pad": true,
+   "large_pads": 8,
+   "medium_pads": 4,
+   "small_pads": 4,
+   "is_planetary": false,
+   "updated_at": "2026-09-01T07:15:12Z",
+   "outfitting_updated_at": "2026-08-28T21:49:48Z",
+   "shipyard_updated_at": "2026-08-31T09:36:35Z",
+   "services": [
+    {
+     "name": "Black Market"
+    }
+   ]
+  },
+  {
+   "name": "V7T-33H",
+   "market_id": 3712964608,
+   "type": "Drake-Class Carrier",
+   "system_name": "Alpha Centauri",
+   "system_id64": 1178708478315,
+   "system_x": 3.03125,
+   "system_y": -0.09375,
+   "system_z": 3.15625,
+   "distance": 4.37712002205788,
+   "distance_to_arrival": 0.0,
+   "has_large_pad": true,
+   "large_pads": 8,
+   "medium_pads": 4,
+   "small_pads": 4,
+   "is_planetary": false,
+   "updated_at": "2026-10-16T04:58:14Z",
+   "outfitting_updated_at": "2026-07-01T04:59:37Z",
+   "shipyard_updated_at": "2026-06-28T04:36:04Z",
+   "services": [
+    {
+     "name": "Black Market"
+    }
+   ]
+  },
+  {
+   "name": "Kawle Genetics Complex",
+   "market_id": 3868050944,
+   "type": "Settlement",
+   "system_name": "Alpha Centauri",
+   "system_id64": 1178708478315,
+   "system_x": 3.03125,
+   "system_y": -0.09375,
+   "system_z": 3.15625,
+   "distance": 4.37712002205788,
+   "distance_to_arrival": 4325.980656,
+   "has_large_pad": true,
+   "large_pads": 1,
+   "medium_pads": 0,
+   "small_pads": 1,
+   "is_planetary": true,
+   "updated_at": "2026-10-15T00:51:42Z",
+   "services": [
+    {
+     "name": "Black Market"
+    }
+   ]
+  }
+ ]
+}

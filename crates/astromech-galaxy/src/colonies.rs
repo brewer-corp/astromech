@@ -218,7 +218,7 @@ impl Galaxy {
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
         let radius = filters.max_distance_ly.unwrap_or(DEFAULT_RADIUS_LY) as f64;
-        let now = crate::now_s();
+        let now = self.now_s();
         let page = self.remote.spansh_systems(&candidate_search(here.pos, radius, filters, now))?;
         let fetched = page.fetched_at;
         // Every system claimed is an answer; no unpopulated system at all means the filter was ignored.

@@ -4,23 +4,29 @@ import { stations, toResults } from "./stations";
 
 describe("station lookups (browser preview)", () => {
   it("adapts the answer into the kit's rows, nearest first", async () => {
-    const r = toResults(await stations({ kind: "service", service: "black_market" }, null, DEFAULT_FILTERS));
+    const answer = await stations({ kind: "service", service: "black_market" }, null, DEFAULT_FILTERS);
+    const r = toResults(answer);
     expect(r.origin).toBe("Sol");
-    // Ranked by jumps (no main value), with who runs the station as the lookup's one column.
+    // Ranked by jumps (no main value). The recorded page names no station's faction, so the
+    // lookup has no column.
     expect(r.main).toBeUndefined();
-    expect(r.columns?.map((c) => c.head)).toEqual(["Faction"]);
-    expect(r.rows[0]).toMatchObject({ station: "Ehrlich City", system: "Sol", pad: "L", jumps: 0, facts: { faction: "Federation · Mother Gaia · Boom" } });
-    expect(r.rows[0]?.station_type).toBe("Planetary Port");
+    expect(r.columns ?? []).toEqual([]);
+    expect(r.rows[0]).toMatchObject({ station: "Rescue Ship - Li Qing Jao", system: "Sol", jumps: 0 });
+    expect(r.rows[0]?.station_type).toBe("Mega ship");
     expect(r.rows.every((row, i) => i === 0 || (r.rows[i - 1]?.ly ?? 0) <= row.ly)).toBe(true);
+    // Who runs the station is the lookup's one column once the answer names it.
+    const run = toResults({ ...answer, hits: answer.hits.map((h) => ({ ...h, allegiance: "Federation", faction: "Mother Gaia", state: "Boom" })) });
+    expect(run.columns?.map((c) => c.head)).toEqual(["Faction"]);
+    expect(run.rows[0]?.facts).toMatchObject({ faction: "Federation · Mother Gaia · Boom" });
   });
 
   it("adds the matched module and the price as columns for Outfitting, and the price for Shipyard", async () => {
     const want = { kind: "module", name: "Frame Shift Drive", class: 5, rating: "A", mount: null } as const;
     const modules = toResults(await stations(want, null, DEFAULT_FILTERS));
-    expect(modules.columns?.map((c) => [c.head, c.unit ?? null, !!c.text])).toEqual([["Module", null, true], ["Price", "cr", false], ["Faction", null, true]]);
+    expect(modules.columns?.map((c) => [c.head, c.unit ?? null, !!c.text])).toEqual([["Module", null, true], ["Price", "cr", false]]);
     expect(modules.rows[0]?.facts).toMatchObject({ detail: "5A Frame Shift Drive", price: "5,103,950" });
-    const ships = toResults(await stations({ kind: "ship", ship: "krait_mkii" }, null, DEFAULT_FILTERS));
-    expect(ships.columns?.map((c) => c.head)).toEqual(["Price", "Faction"]);
+    const ships = toResults(await stations({ kind: "ship", ship: "Krait MkII" }, null, DEFAULT_FILTERS));
+    expect(ships.columns?.map((c) => c.head)).toEqual(["Price"]);
     expect(ships.rows[0]?.facts?.price).toBe("45,814,205");
   });
 

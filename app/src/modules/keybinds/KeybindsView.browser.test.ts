@@ -38,19 +38,24 @@ describe("All keybinds group panels", () => {
     expect(isOpen("General")).toBe(false);
   });
 
-  it.each(["SRV", "On foot"])("keeps panels independent when the %s filter leaves three groups", async (filter) => {
+  // A group with a problem starts open: the sample's SRV driving has a voice action with no
+  // keyboard key (Drive assist).
+  it.each([
+    ["SRV", ["SRV driving"]],
+    ["On foot", []],
+  ])("keeps panels independent when the %s filter leaves three groups", async (filter, open) => {
     const { container } = render(KeybindsView);
     await screen.findByText("Flight", { selector: ".gname" });
     await fireEvent.click(screen.getByText(filter, { selector: ".filters button" }));
     const names = () => [...container.querySelectorAll(".grp .gname")].map((e) => e.textContent!);
-    const first = names()[0]!;
     expect(names()).toHaveLength(3);
-    // Nothing is open until you open it.
-    expect(names().filter(isOpen)).toEqual([]);
+    // Nothing else is open until you open it.
+    expect(names().filter(isOpen)).toEqual(open);
+    const shut = names().find((n) => !open.includes(n))!;
 
-    await fireEvent.click(header(first));
+    await fireEvent.click(header(shut));
 
-    expect(names().filter(isOpen)).toEqual([first]);
+    expect(names().filter(isOpen).sort()).toEqual([...open, shut].sort());
   });
 
   it("ignores a mouse click that arrives as a Mouse_1 press (Raw Input forwards the window's own clicks)", async () => {
@@ -62,7 +67,7 @@ describe("All keybinds group panels", () => {
     await idle();
 
     const names = [...container.querySelectorAll(".grp .gname")].map((e) => e.textContent!);
-    expect(names.filter(isOpen)).toEqual(["General", "Interface", "Flight"]);
+    expect(names.filter(isOpen)).toEqual(["General", "Interface", "Flight", "SRV driving"]);
   });
 
   it("still finds a side mouse button (Mouse_4) bound in the game", async () => {

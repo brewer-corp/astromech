@@ -1,0 +1,80 @@
+{
+ "exchanges": [
+  {
+   "url": "https://www.edsm.net/api-v1/sphere-systems",
+   "from": "../../../crates/astromech-data/tests/fixtures/edsm-sphere.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/systems/search",
+   "method": "POST",
+   "sent": "Famine",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-famine.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/stations/search",
+   "method": "POST",
+   "sent": "Black Market",
+   "from": "spansh-black-market.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/stations/search",
+   "method": "POST",
+   "sent": "Frame Shift Drive",
+   "from": "spansh-module-5a-fsd.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/stations/search",
+   "method": "POST",
+   "sent": "Krait MkII",
+   "from": "spansh-ship-krait-mkii.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/bodies/search",
+   "method": "POST",
+   "sent": "Brain Tree",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-sites-brain_trees.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/bodies/search",
+   "method": "POST",
+   "sent": "Crystalline Shards",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-sites-crystalline_shards.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/bodies/search",
+   "method": "POST",
+   "sent": "Crashed Ship",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-sites-crashed_ships.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/bodies/search",
+   "method": "POST",
+   "sent": "Geological",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-sites-geological.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/bodies/search",
+   "method": "POST",
+   "sent": "Painite",
+   "from": "spansh-hotspots-painite-1-up.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/bodies/search",
+   "method": "POST",
+   "sent": "\"count\":[5,999]",
+   "from": "spansh-hotspots-painite-5-up.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/bodies/search",
+   "method": "POST",
+   "sent": "\"count\":[6,999]",
+   "from": "spansh-hotspots-painite-6-up.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/bodies/search",
+   "method": "POST",
+   "sent": "\"count\":[5,5]",
+   "from": "spansh-hotspots-painite-5.json"
+  }
+ ]
+}

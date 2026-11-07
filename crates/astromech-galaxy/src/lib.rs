@@ -142,6 +142,7 @@ pub fn hge_score(population: i64, ly: f64) -> f64 {
 /// After an EDSM failure, wait this long before trying again.
 pub const FILL_RETRY_S: i64 = 600;
 
+#[cfg(test)]
 fn now_s() -> i64 {
     chrono::Utc::now().timestamp()
 }
@@ -151,6 +152,12 @@ pub(crate) fn iso(t: i64) -> String {
 }
 
 impl Galaxy {
+    /// Now, in Unix seconds, on the remote-data client's clock (the world's in world mode), for
+    /// the lookups' ages and age filters.
+    pub(crate) fn now_s(&self) -> i64 {
+        self.remote.clock_in_use().now_s()
+    }
+
     /// Open (or create) the store at `path`, seeding it from `preload` once, answering remote
     /// requests through the process's one `remote` client.
     pub fn open(path: &Path, preload: Option<&Path>, remote: Arc<astromech_data::Client>) -> Result<Self> {
@@ -230,7 +237,7 @@ impl Galaxy {
         if self.map()?.covered(p) {
             return Ok(false);
         }
-        let now = now_s();
+        let now = self.now_s();
         if self.fill_failed.lock().unwrap_or_else(|e| e.into_inner()).is_some_and(|t| now - t < FILL_RETRY_S) {
             return Ok(false);
         }
@@ -299,7 +306,7 @@ impl Galaxy {
         let q = query(query_id).ok_or_else(|| anyhow::anyhow!("unknown lookup {query_id}"))?;
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
-        let now = now_s();
+        let now = self.now_s();
         let (fetched, body) = self.search_page(q, here, None, filters, now)?;
         let mut hits = remote::parse_search(&body)?;
         if q.by_population {
@@ -357,7 +364,7 @@ impl Galaxy {
         let kind = site_kind(kind_id).ok_or_else(|| anyhow::anyhow!("unknown site kind {kind_id}"))?;
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
-        let now = now_s();
+        let now = self.now_s();
         let (source, fetched, found, warning) = match kind.search(here.pos, 30, filters, now) {
             Some(search) => {
                 let page = self.remote.spansh_bodies(&search)?;
@@ -411,7 +418,7 @@ impl Galaxy {
     ) -> Result<StationsNearby> {
         let _ = self.ensure_covered(here.pos);
         let reference = astromech_data::spansh::Reference::Coords(here.pos);
-        let found = stations::find(&self.remote, want, reference, filters, limit, now_s())?;
+        let found = stations::find(&self.remote, want, reference, filters, limit, self.now_s())?;
         {
             let mut s = self.store();
             let _ = s.insert_systems(found.hits.iter().map(|h| (h.system_id64, h.system.as_str(), h.pos)));

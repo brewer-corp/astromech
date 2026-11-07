@@ -48,6 +48,35 @@ fn whole(from: From) -> Vec<Part> {
     vec![Part { key: "", from }]
 }
 
+/// ships.json's build plans and their stats.
+const CASES: [(&str, &str); 6] = [
+    ("/cases/0/plan", "/cases/0/stats"),
+    ("/cases/1/plan", "/cases/1/stats"),
+    ("/cases/2/plan", "/cases/2/stats"),
+    ("/cases/3/plan", "/cases/3/stats"),
+    ("/cases/4/plan", "/cases/4/stats"),
+    ("/cases/5/plan", "/cases/5/stats"),
+];
+
+/// voice.json's phrases, by key, and what is said.
+const VOICE: [(&str, &str); 6] = [
+    ("/banana bread", "banana bread"),
+    ("/engage supercruise", "engage supercruise"),
+    ("/gear down", "gear down"),
+    ("/how much fuel", "how much fuel"),
+    ("/lights on", "lights on"),
+    ("/youre down", "you're down"),
+];
+
+/// sites.json's kinds, by key.
+const SITES: [(&str, &str); 5] = [
+    ("/brain_trees", "brain_trees"),
+    ("/crashed_ships", "crashed_ships"),
+    ("/crystalline_shards", "crystalline_shards"),
+    ("/geological", "geological"),
+    ("/raw_farms", "raw_farms"),
+];
+
 /// Every fixture file, by name, and where each part of it comes from.
 fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
     let mut t = BTreeMap::new();
@@ -77,6 +106,95 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
             Part { key: "/engineers", from: core("engineering", None, "engineering_engineers", Value::Null) },
             Part { key: "/trip", from: core("engineering", None, "engineering_trip", json!({"plan": "$/plan_input"})) },
         ],
+    );
+    // The Ships page: the synthetic combat Krait (its own world) and its stats for each sample
+    // plan; the card stats for it and for the engineering world's ships.
+    let mut ships = vec![
+        Part {
+            key: "/fleet",
+            from: From::Core { world: "krait", at: None, cmd: "engineering_fleet", args: Value::Null, pick: "", keep: &["/source"] },
+        },
+        Part { key: "/headlines/1", from: From::Core { world: "krait", at: None, cmd: "engineering_headlines", args: Value::Null, pick: "/1", keep: &[] } },
+        Part { key: "/headlines/3", from: From::Core { world: "engineering", at: None, cmd: "engineering_headlines", args: Value::Null, pick: "/3", keep: &[] } },
+        Part { key: "/headlines/7", from: From::Core { world: "engineering", at: None, cmd: "engineering_headlines", args: Value::Null, pick: "/7", keep: &[] } },
+    ];
+    for (plan, stats) in CASES {
+        ships.push(Part { key: plan, from: From::Input("a build plan the Ships page's sample has stats for") });
+        ships.push(Part { key: stats, from: core("krait", None, "engineering_stats", json!({ "plan": format!("${plan}") })) });
+    }
+    t.insert("ships.json", ships);
+    // The voice tester's dry runs, by phrase: Elite running, the gear up (flags: in the ship),
+    // 24.5 t of a 32 t tank, Key_L on the gear's secondary and Shift+K on the lights.
+    t.insert(
+        "voice.json",
+        VOICE
+            .iter()
+            .map(|(key, said)| Part {
+                key,
+                from: From::Core { world: "voice", at: Some("running"), cmd: "voice_test", args: json!(said), pick: "/result", keep: &[] },
+            })
+            .collect(),
+    );
+    // The keybinds pages: the example preset, a copy and a keyboard-only variant, a VKB pair
+    // connected, and one edit already made (OrbitLinesToggle's secondary cleared by the core's
+    // binds_set_slot, with its backup). The backup's and the presets' times are their files' (the
+    // world's copies, made at its start).
+    t.insert(
+        "sample.json",
+        vec![
+            Part {
+                key: "/state",
+                from: From::Core { world: "binds", at: None, cmd: "binds_state", args: Value::Null, pick: "", keep: &["/backups/*/created", "/presets/*/files/*/modified"] },
+            },
+            Part {
+                key: "/view",
+                from: core("binds", None, "binds_view", json!({"path": "$/view/path"})),
+            },
+        ],
+    );
+    t.insert(
+        "station.json",
+        vec![
+            Part { key: "/here", from: core("station", Some("seen"), "docked_here", Value::Null) },
+            // A query every module of the two stations seen matches: the preview searches this
+            // book itself.
+            Part { key: "/book", from: core("station", Some("seen"), "outfitting_search", json!({"query": "a"})) },
+        ],
+    );
+    // Lookups around Sol (the sol world: Jameson docked at Abraham Lincoln in an Asp), answered
+    // from Spansh's recorded pages.
+    t.insert("nearby.json", whole(core("sol", None, "galaxy_nearby", json!({"query": "famine"}))));
+    t.insert(
+        "nearby-hge.json",
+        whole(From::Not(
+            "no recorded Spansh answer to the Federation-faction (HGE) search is committed: the sample is the famine \
+             page relabelled",
+        )),
+    );
+    t.insert(
+        "hotspots.json",
+        whole(core("sol", None, "mining_hotspots", json!({"want": {"ore": "painite", "ring_type": null, "reserve": null}}))),
+    );
+    t.insert(
+        "stations.json",
+        whole(core("sol", None, "stations_nearby", json!({"want": {"kind": "service", "service": "black_market"}}))),
+    );
+    t.insert(
+        "stations-module.json",
+        whole(core(
+            "sol",
+            None,
+            "stations_nearby",
+            json!({"want": {"kind": "module", "name": "Frame Shift Drive", "class": 5, "rating": "A", "mount": null}}),
+        )),
+    );
+    t.insert(
+        "stations-ship.json",
+        whole(core("sol", None, "stations_nearby", json!({"want": {"kind": "ship", "ship": "Krait MkII"}}))),
+    );
+    t.insert(
+        "sites.json",
+        SITES.iter().map(|(key, kind)| Part { key, from: core("sol", None, "galaxy_sites", json!({ "kind": kind })) }).collect(),
     );
     t.insert(
         "odyssey.json",
@@ -146,6 +264,89 @@ fn short(v: &Value) -> String {
     }
 }
 
+/// The world's folders as a Windows PC names them, so a reply's paths read as the installed
+/// app's do and don't change with the world's temp folder: `(folder under the temp root, path)`.
+const PC_FOLDERS: [(&str, &str); 2] = [
+    ("world/bindings", r"C:\Users\you\AppData\Local\Frontier Developments\Elite Dangerous\Options\Bindings"),
+    ("world/game", r"C:\Users\you\Saved Games\Frontier Developments\Elite Dangerous"),
+];
+
+/// `v` with each path under the world's temp folder `root` named as [`PC_FOLDERS`] does.
+fn on_a_pc(v: &mut Value, root: &str) {
+    match v {
+        Value::String(s) => {
+            for (folder, pc) in PC_FOLDERS {
+                let under = format!("{root}/{folder}");
+                if let Some(rest) = s.strip_prefix(&under).filter(|r| r.is_empty() || r.starts_with('/')) {
+                    *s = format!("{pc}{}", rest.replace('/', "\\"));
+                }
+            }
+        }
+        Value::Array(a) => a.iter_mut().for_each(|v| on_a_pc(v, root)),
+        Value::Object(o) => o.values_mut().for_each(|v| on_a_pc(v, root)),
+        _ => {}
+    }
+}
+
+/// [`on_a_pc`] backwards: the sample's own input (a preset's path) as the world core names it.
+fn in_the_world(v: &mut Value, root: &str) {
+    match v {
+        Value::String(s) => {
+            for (folder, pc) in PC_FOLDERS {
+                if let Some(rest) = s.strip_prefix(pc).filter(|r| r.is_empty() || r.starts_with('\\')) {
+                    *s = format!("{root}/{folder}{}", rest.replace('\\', "/"));
+                }
+            }
+        }
+        Value::Array(a) => a.iter_mut().for_each(|v| in_the_world(v, root)),
+        Value::Object(o) => o.values_mut().for_each(|v| in_the_world(v, root)),
+        _ => {}
+    }
+}
+
+/// Copy `had`'s value at `path` (pointer segments; `*` is every element or key) over `got`'s,
+/// where both have one.
+fn keep_from(had: &Value, got: &mut Value, path: &[&str]) {
+    let Some((first, rest)) = path.split_first() else {
+        *got = had.clone();
+        return;
+    };
+    match (had, got) {
+        (Value::Array(h), Value::Array(g)) if *first == "*" => {
+            for (h, g) in h.iter().zip(g.iter_mut()) {
+                keep_from(h, g, rest);
+            }
+        }
+        (Value::Object(h), Value::Object(g)) if *first == "*" => {
+            for (k, g) in g.iter_mut() {
+                if let Some(h) = h.get(k) {
+                    keep_from(h, g, rest);
+                }
+            }
+        }
+        (h, g) => {
+            let (Some(h), Some(g)) = (child(h, first), child_mut(g, first)) else { return };
+            keep_from(h, g, rest);
+        }
+    }
+}
+
+fn child<'a>(v: &'a Value, k: &str) -> Option<&'a Value> {
+    match v {
+        Value::Array(a) => a.get(k.parse::<usize>().ok()?),
+        Value::Object(o) => o.get(k),
+        _ => None,
+    }
+}
+
+fn child_mut<'a>(v: &'a mut Value, k: &str) -> Option<&'a mut Value> {
+    match v {
+        Value::Array(a) => a.get_mut(k.parse::<usize>().ok()?),
+        Value::Object(o) => o.get_mut(k),
+        _ => None,
+    }
+}
+
 /// Set `ptr` in `v` to `new` ("" replaces `v`).
 fn put(v: &mut Value, ptr: &str, new: Value) {
     *v.pointer_mut(ptr).unwrap_or_else(|| panic!("no {ptr} to write")) = new;
@@ -191,26 +392,34 @@ fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
     }
 
     // One world core per world, its steps run in the table's order.
-    let mut cores: BTreeMap<&str, (WorldCore, Option<&str>)> = BTreeMap::new();
+    let mut cores: BTreeMap<&str, (WorldCore, Option<&str>, String)> = BTreeMap::new();
     let mut changed: BTreeSet<&str> = BTreeSet::new();
     for (name, parts) in &table {
         for part in parts {
             let From::Core { world: w, at, cmd, args, pick, keep } = &part.from else { continue };
-            let (core, reached) = cores.entry(w).or_insert_with(|| (WorldCore::start(&world(&format!("preview/{w}"))), None));
+            let (core, reached, root) = cores.entry(w).or_insert_with(|| {
+                let core = WorldCore::start(&world(&format!("preview/{w}")));
+                // The temp root: the config is `<root>/world/astromech.toml`.
+                let config = core.call_window("status", None).expect("status")["config"].as_str().expect("a config path").to_string();
+                let root = config.trim_end_matches("/world/astromech.toml").to_string();
+                (core, None, root)
+            });
             if at != reached {
                 let to = at.unwrap_or_else(|| panic!("{name}{}: a part before any step after one at {reached:?}", part.key));
                 core.step(to).unwrap_or_else(|e| panic!("{w}: world_step to {to}: {e}"));
                 *reached = Some(to);
             }
             let file = &files[name];
-            let args = fill(args, file);
+            let mut args = fill(args, file);
+            in_the_world(&mut args, root);
             let args = if args.is_null() { None } else { Some(args) };
             let reply = core.call_window(cmd, args).unwrap_or_else(|e| panic!("{name}{}: {cmd}: {e}", part.key));
             let mut got = reply.pointer(pick).unwrap_or_else(|| panic!("{name}{}: {cmd}'s reply has no {pick}", part.key)).clone();
+            on_a_pc(&mut got, root);
             let had = file.pointer(part.key).cloned();
-            for k in keep.iter() {
-                if let (Some(kept), Some(slot)) = (had.as_ref().and_then(|h| h.pointer(k)), got.pointer_mut(k)) {
-                    *slot = kept.clone();
+            if let Some(had) = &had {
+                for k in keep.iter() {
+                    keep_from(had, &mut got, &k.split('/').skip(1).collect::<Vec<_>>());
                 }
             }
             if had.as_ref() == Some(&got) {
@@ -226,7 +435,7 @@ fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
             }
         }
     }
-    for (w, (core, _)) in cores {
+    for (w, (core, _, _)) in cores {
         assert!(core.quit().success(), "the {w} world core didn't quit cleanly");
     }
     for name in changed {
