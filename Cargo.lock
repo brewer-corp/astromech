@@ -192,6 +192,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-api"
+version = "0.0.0-dev"
+dependencies = [
+ "anyhow",
+ "astromech-log",
+ "astromech-proto",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "astromech-colonisation"
 version = "0.0.0-dev"
 dependencies = [
@@ -208,6 +220,7 @@ version = "0.0.0-dev"
 dependencies = [
  "anyhow",
  "astromech-announce",
+ "astromech-api",
  "astromech-colonisation",
  "astromech-data",
  "astromech-eddn",
@@ -494,6 +507,7 @@ name = "astromech-shell"
 version = "0.0.0-dev"
 dependencies = [
  "anyhow",
+ "astromech-api",
  "astromech-colonisation",
  "astromech-data",
  "astromech-engineering",
@@ -508,6 +522,7 @@ dependencies = [
  "astromech-materials",
  "astromech-odyssey",
  "astromech-powerplay",
+ "astromech-proto",
  "astromech-ship",
  "astromech-station",
  "astromech-store",

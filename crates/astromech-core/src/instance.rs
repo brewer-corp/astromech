@@ -38,8 +38,8 @@ pub fn acquire(_app_dir: &std::path::Path) -> Option<Guard> {
 /// Elsewhere (development only): a live control endpoint means another core runs.
 #[cfg(not(windows))]
 pub fn acquire(app_dir: &std::path::Path) -> Option<Guard> {
-    match crate::control::call(app_dir, "status", None) {
-        Ok(v) if v["ok"] == true => None,
-        _ => Some(Guard {}),
+    match astromech_api::control::call_short(app_dir, "status", None) {
+        Ok(_) => None,
+        Err(_) => Some(Guard {}),
     }
 }

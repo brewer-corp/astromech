@@ -2,7 +2,8 @@
 """Dependency-rule check (docs/ARCHITECTURE.md §4).
 
 Fails if a workspace crate has a forbidden *direct* dependency on another workspace crate.
-Only astromech-policy may drive the input executor; voice and tools go through policy.
+Only astromech-policy may drive the input executor; voice and tools go through policy. The
+command layer (astromech-api) sits below the core, so it never reaches the core, input or policy.
 """
 import json
 import subprocess
@@ -15,6 +16,7 @@ FORBIDDEN = {
     "astromech-overlay": {"astromech-input"},
     "astromech-intent": {"astromech-input", "astromech-policy"},
     "astromech-data": {"astromech-input", "astromech-policy"},
+    "astromech-api": {"astromech-input", "astromech-policy", "astromech-core"},
 }
 # crates that must not depend on any workspace crate
 LEAVES = {"astromech-proto", "astromech-intent", "astromech-log"}
@@ -28,7 +30,7 @@ def main() -> int:
     for name, pkg in sorted(members.items()):
         deps = {d["name"] for d in pkg["dependencies"] if d["name"] in members}
         for bad in sorted(deps & FORBIDDEN.get(name, set())):
-            errors.append(f"{name} must not depend on {bad} directly (go through astromech-policy)")
+            errors.append(f"{name} must not depend on {bad} directly (docs/ARCHITECTURE.md §4)")
         if name in LEAVES and deps:
             errors.append(f"{name} must not depend on workspace crates, found: {', '.join(sorted(deps))}")
     for e in errors:

@@ -209,7 +209,7 @@ flowchart TB
 
 ## 4. Cargo workspace layout
 
-v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, capi, api, web, gamedata, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
+v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, capi, web, gamedata, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
 
 ```
 astromech/
@@ -217,6 +217,11 @@ astromech/
   LICENSE  NOTICE.md  THIRD_PARTY.md  deny.toml  rustfmt.toml  clippy.toml  .editorconfig
   crates/
     astromech-proto/     API types: queries, commands, events, errors (depends on nothing internal)
+    astromech-api/       the command layer: one registry of named commands (each `window` or `local`,
+                         decision astromech-unh9), every handler behind catch_unwind, and the core's
+                         local control API that serves it (JSON lines over TCP, the port and token in
+                         core.json; progress lines, then `{ok, value}` or `{ok: false, error}`), server
+                         and client in one module for the core, the shell and tests
     astromech-journal/   journal line parsing + tailing (seed of the ingest pipeline)
     astromech-status/    Status.json parse + flags (seeded from S5)
     astromech-gamestate/ reducer: journal + status -> GameState snapshot
@@ -335,7 +340,7 @@ astromech/
                          events, so only the event EDSM chokes on is lost: alone, it is retried with
                          backoff and given up after 8 refusals (a transport error, 408, 429 and
                          wrong keys are outages and don't count), so it can't block later events: a refused event is retried after every other due event, so however many refused events fail in a row (three stop the pass as a likely outage), the rest have gone first. The flight log (get-logs,
-                         last week) is read on demand from the same page (it gives up after 10 s, before the app window's 15 s wait on the core, so the page shows EDSM's message or "EDSM didn't answer within 10 s")
+                         last week) is read on demand from the same page (it gives up after 10 s, so the page shows EDSM's message or "EDSM didn't answer within 10 s"; the app window's calls to the core have no time limit of their own)
     astromech-exploration/ exploration from the journal: body values (the community's formulae, checked
                          against EDSM's published estimates), the live system view (the current system's
                          bodies as scanned: class, value now and mapped, worth mapping; also DSS genus
@@ -364,6 +369,7 @@ astromech/
 - `astromech-proto` depends on nothing internal.
 - `astromech-voice` and `astromech-tools` never depend on `astromech-input` directly. Every action passes through `astromech-policy`.
 - `astromech-intent` depends on nothing internal (it only maps text to command ids).
+- `astromech-api` never depends on `astromech-core`, `astromech-input` or `astromech-policy`. The core registers its own handlers into the registry; game key presses go through `astromech-policy` inside the handler that presses.
 - `astromech-log` depends on nothing internal (the core and the app window log through it; library crates take an injected log callback, as `astromech-data` and `astromech-odyssey` do).
 - `astromech-core`, as composition root, does depend on `astromech-input`: it constructs the platform (`WinPlatform`) that it hands to the policy, and runs `input::listen` for the PTT/kill buttons. It never calls `send_key` itself; presses happen only through `astromech_policy::Ticket::press`.
 - Only `astromech-input` (and later `astromech-vision`) may use `windows` crate features that touch input or capture.

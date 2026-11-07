@@ -18,6 +18,7 @@ path = "src/main.rs"
 [dependencies]
 astromech-log.workspace = true
 astromech-proto.workspace = true
+astromech-api.workspace = true
 astromech-journal.workspace = true
 astromech-status.workspace = true
 astromech-gamestate.workspace = true

@@ -46,3 +46,5 @@ astromech-store.workspace = true
 astromech-powerplay.workspace = true
 astromech-exploration.workspace = true
 astromech-log.workspace = true
+astromech-api.workspace = true
+astromech-proto.workspace = true

@@ -177,10 +177,19 @@ class Page:
 
 
 def core_call(cmd: str, **extra) -> dict:
+    """One control-API request: the command's value. Skips progress lines; raises ValueError
+    with the core's error if the reply isn't ok."""
     ep = json.loads((Path(os.environ["LOCALAPPDATA"]) / "astromech" / "data" / "core.json").read_text())
     with socket.create_connection(("127.0.0.1", ep["port"]), timeout=5) as s:
         s.sendall((json.dumps({"token": ep["token"], "cmd": cmd, **extra}) + "\n").encode())
-        return json.loads(s.makefile().readline())
+        for line in s.makefile():
+            reply = json.loads(line)
+            if "progress" in reply:
+                continue
+            if reply.get("ok") is not True:
+                raise ValueError(f"{cmd}: {reply.get('error')}")
+            return reply["value"]
+        raise ValueError(f"{cmd}: the core closed the connection without answering")
 
 
 def wait_core(pred, what: str, timeout: float) -> dict:

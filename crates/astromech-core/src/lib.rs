@@ -24,7 +24,7 @@
 //! - [`setup`]: onboarding's checks and the config edits the window makes;
 //! - [`config`]: the `astromech.toml` file (PTT and kill-switch buttons, folders, timings);
 //! - [`app::eddn_log`]: the EDDN send log for the Diagnostics page (`astromech-eddn`);
-//! - [`logging`], [`crash`], [`diagnostics`], [`control`], [`instance`], [`autostart`],
+//! - [`logging`], [`crash`], [`diagnostics`], [`instance`], [`autostart`],
 //!   [`gamewatch`], [`update`]: the M0 infrastructure pieces.
 
 pub mod actions;
@@ -38,7 +38,6 @@ pub mod callouts;
 pub mod clipboard;
 pub mod colonisation;
 pub mod config;
-pub mod control;
 pub mod controls;
 pub mod crash;
 pub mod diagnostics;

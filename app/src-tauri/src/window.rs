@@ -10,49 +10,45 @@
 //!
 //! Closing the window exits this process and frees WebView2; the core keeps running.
 
+use astromech_api::control;
 use astromech_store::Paths;
-use serde::Deserialize;
 use serde_json::Value;
-use std::io::{BufRead, BufReader, Write};
-use std::net::TcpStream;
 use std::path::PathBuf;
 use std::time::Duration;
 use tauri::{Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
 
 const CORE_EXE: &str = if cfg!(windows) { "astromech-core.exe" } else { "astromech-core" };
 
-#[derive(Deserialize)]
-struct Endpoint {
-    port: u16,
-    token: String,
+/// The core's app dir (`astromech_store::Paths`, the core's own rule), where its `core.json` is.
+fn app_dir() -> PathBuf {
+    Paths::current().app_dir().to_path_buf()
 }
 
-/// The core's endpoint file, in its app dir (`astromech_store::Paths`, the core's own rule).
 fn endpoint_file() -> PathBuf {
-    Paths::current().app_dir().join("core.json")
+    app_dir().join(control::FILE)
 }
 
-fn call(cmd: &str) -> Result<Value, String> {
-    call_with(cmd, None, None)
+/// A status check: bounded, so the watchdog notices a core that stopped answering.
+fn status() -> Result<Value, String> {
+    control::call(&app_dir(), control::Request::new("status"), Some(control::SHORT), &mut |_| {})
 }
 
-/// One request to the core; `text` is the voice tester's phrase or command id, `args` a setup
-/// command's arguments (e.g. `set_ptt` with `{device, key}`).
+/// One of the page's requests to the core, stamped `origin: "app_window"`, so the core refuses
+/// its `local` commands. `text` is the voice tester's phrase or command id, `args` a command's
+/// arguments (e.g. `set_ptt` with `{device, key}`). No read timeout: a plot polls Spansh for
+/// minutes; a dropped connection means the core died.
 fn call_with(cmd: &str, text: Option<&str>, args: Option<Value>) -> Result<Value, String> {
-    let t = std::fs::read_to_string(endpoint_file()).map_err(|_| "the core is not running".to_string())?;
-    let ep: Endpoint = serde_json::from_str(&t).map_err(|e| e.to_string())?;
-    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
-    let mut s = TcpStream::connect_timeout(&addr, Duration::from_secs(2)).map_err(|e| e.to_string())?;
-    s.set_read_timeout(Some(Duration::from_secs(15))).map_err(|e| e.to_string())?;
-    let req = serde_json::json!({ "token": ep.token, "cmd": cmd, "text": text, "args": args });
-    writeln!(s, "{req}").map_err(|e| e.to_string())?;
-    let mut line = String::new();
-    BufReader::new(s).read_line(&mut line).map_err(|e| e.to_string())?;
-    serde_json::from_str(&line).map_err(|e| e.to_string())
+    let req = control::Request {
+        text: text.map(String::from),
+        args,
+        origin: Some(astromech_proto::Origin::AppWindow),
+        ..control::Request::new(cmd)
+    };
+    control::call(&app_dir(), req, None, &mut |_| {})
 }
 
 fn core_alive() -> bool {
-    call("status").map(|v| v["ok"] == true).unwrap_or(false)
+    status().is_ok()
 }
 
 /// Start `astromech-core --background` from next to this exe, without a console window.
@@ -1196,72 +1192,13 @@ fn start_input(app: tauri::AppHandle) {
 
 #[tauri::command]
 async fn core_status() -> Option<Value> {
-    blocking(|| Ok(call("status").ok())).await.ok().flatten()
+    blocking(|| Ok(status().ok())).await.ok().flatten()
 }
 
 /// Blocking: a voice tester live run waits for Elite to come to the front; calibration and the
 /// mic check record for a few seconds.
 #[tauri::command]
 async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Value {
-    // The window may only ask for these ("quit" and "open_window" stay with the tray).
-    const ALLOWED: &[&str] = &[
-        "status",
-        "save_diagnostics",
-        "ack_crash",
-        "check_update",
-        "install_update",
-        "autostart_on",
-        "autostart_off",
-        "pause_voice",
-        "resume_voice",
-        "kill_switch",
-        "download_models",
-        "open_config",
-        "eddn_log",
-        "set_eddn",
-        "edsm_status",
-        "set_edsm",
-        "edsm_flight_log",
-        "voice_test",
-        "voice_test_poll",
-        "voice_test_stop",
-        "voice_test_live",
-        "callouts",
-        "set_callout",
-        "learned_phrases",
-        "learned_forget",
-        "prospector_thresholds",
-        "prospector_set",
-        "shopping_set",
-        "exobiology",
-        "find_elite",
-        "set_ptt",
-        "set_kill_switch",
-        "set_mic",
-        "set_folders",
-        "mic_list",
-        "mic_check",
-        "calibrate_start",
-        "calibrate_record",
-        "calibrate_finish",
-        "calibrate_cancel",
-        "onboarding_done",
-        "set_voice",
-        "voice_settings",
-        "voice_preview",
-        // The route the core follows (docs/PLOTTING.md).
-        "route",
-        "route_set",
-        "route_add",
-        "route_skip",
-        "route_back",
-        "route_clear",
-        "route_copy",
-        "route_resume",
-    ];
-    if !ALLOWED.contains(&cmd.as_str()) {
-        return serde_json::json!({ "ok": false, "error": "not allowed" });
-    }
     blocking(move || {
         Ok(call_with(&cmd, text.as_deref(), args).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e })))
     })

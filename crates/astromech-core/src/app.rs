@@ -4,13 +4,13 @@
 //! console option (and with `--background` from the Run key).
 
 use crate::config::Config;
-use crate::control::{self, Request};
 use crate::gamewatch::{self, Change, Game};
 use crate::logging::log;
 use crate::session::{self, Session, VOICE_PAUSED};
 use crate::tester::{self, Source, TESTER};
 use crate::update::{self, ApplyWhen, Status as UpStatus};
 use anyhow::Result;
+use astromech_api::{control, Exposure, Registry, Request};
 use astromech_store::Paths;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -711,240 +711,272 @@ impl Core {
         json!({"ok": true, "view": v})
     }
 
-    pub fn handle(self: &Arc<Self>, r: &Request) -> Value {
-        match r.cmd.as_str() {
-            "route" | "route_set" | "route_add" | "route_skip" | "route_back" | "route_clear" | "route_copy"
-            | "route_resume" => self.route_cmd(r),
-            "status" => self.status_json(),
-            "open_window" => match self.open_window(r.route.as_deref()) {
-                Ok(()) => json!({"ok": true}),
+    /// The core's commands. Each one's value is its reply as the window reads it; an error the
+    /// window shows is `{"ok": false, "error": …}` inside the value. `quit` and `open_window`
+    /// stay with the tray and a second start (decision astromech-unh9).
+    pub fn commands(self: &Arc<Self>) -> Registry {
+        let mut reg = Registry::new();
+        let mut add = |names: &[&str], exposure: Exposure, f: fn(&Arc<Core>, &Request) -> Value| {
+            for name in names {
+                let c = self.clone();
+                reg.add(name, exposure, move |r, _| Ok(f(&c, r)));
+            }
+        };
+        add(
+            &[
+                "route",
+                "route_set",
+                "route_add",
+                "route_skip",
+                "route_back",
+                "route_clear",
+                "route_copy",
+                "route_resume",
+            ],
+            Exposure::Window,
+            |c, r| c.route_cmd(r),
+        );
+        add(&["status"], Exposure::Window, |c, _| c.status_json());
+        add(&["open_window"], Exposure::Local, |c, r| match c.open_window(r.route.as_deref()) {
+            Ok(()) => json!({"ok": true}),
+            Err(e) => json!({"ok": false, "error": e}),
+        });
+        add(&["save_diagnostics"], Exposure::Window, |c, _| match c.save_diagnostics() {
+            Ok(p) => {
+                reveal(&p);
+                json!({"ok": true, "path": p.display().to_string()})
+            }
+            Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
+        });
+        add(&["ack_crash"], Exposure::Window, |c, _| {
+            c.crash.lock().unwrap().take();
+            crate::crash::acknowledge(&c.app_dir);
+            c.notify();
+            json!({"ok": true})
+        });
+        add(&["quit"], Exposure::Local, |c, _| {
+            let _ = c.ui.lock().unwrap().send(Ui::Quit);
+            json!({"ok": true})
+        });
+        add(&["check_update"], Exposure::Window, |c, _| {
+            c.check_update_in_background();
+            json!({"ok": true})
+        });
+        add(&["install_update"], Exposure::Window, |c, _| c.install_update());
+        add(&["autostart_on", "autostart_off"], Exposure::Window, |c, r| {
+            let on = r.cmd == "autostart_on";
+            let res =
+                std::env::current_exe().map_err(|e| e.to_string()).and_then(|exe| crate::autostart::set(on, &exe));
+            c.notify();
+            match res {
+                Ok(()) => {
+                    log(if on { "start with Windows: on" } else { "start with Windows: off" });
+                    json!({"ok": true})
+                }
                 Err(e) => json!({"ok": false, "error": e}),
-            },
-            "save_diagnostics" => match self.save_diagnostics() {
-                Ok(p) => {
-                    reveal(&p);
-                    json!({"ok": true, "path": p.display().to_string()})
-                }
-                Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
-            },
-            "ack_crash" => {
-                self.crash.lock().unwrap().take();
-                crate::crash::acknowledge(&self.app_dir);
-                self.notify();
-                json!({"ok": true})
             }
-            "quit" => {
-                let _ = self.ui.lock().unwrap().send(Ui::Quit);
-                json!({"ok": true})
-            }
-            "check_update" => {
-                self.check_update_in_background();
-                json!({"ok": true})
-            }
-            "install_update" => self.install_update(),
-            "autostart_on" | "autostart_off" => {
-                let on = r.cmd == "autostart_on";
-                let res =
-                    std::env::current_exe().map_err(|e| e.to_string()).and_then(|exe| crate::autostart::set(on, &exe));
-                self.notify();
-                match res {
-                    Ok(()) => {
-                        log(if on { "start with Windows: on" } else { "start with Windows: off" });
-                        json!({"ok": true})
-                    }
-                    Err(e) => json!({"ok": false, "error": e}),
-                }
-            }
-            "pause_voice" | "resume_voice" => {
-                VOICE_PAUSED.store(r.cmd == "pause_voice", Ordering::SeqCst);
-                log(if r.cmd == "pause_voice" { "voice paused" } else { "voice resumed" });
-                self.notify();
-                json!({"ok": true})
-            }
-            "kill_switch" => {
-                self.kill_switch();
-                json!({"ok": true})
-            }
-            "download_models" => {
-                download_models(self);
-                json!({"ok": true})
-            }
-            "open_config" => {
-                open_config(&self.config_path);
-                json!({"ok": true})
-            }
-            "prospector_thresholds" => crate::callouts::thresholds_view(&self.cfg().data_dir()),
-            "prospector_set" => {
-                let text = r.text.clone().unwrap_or_default();
-                let res = std::fs::create_dir_all(self.cfg().data_dir())
-                    .map_err(|e| e.to_string())
-                    .and_then(|_| {
-                        astromech_store::Store::open(&self.cfg().data_dir().join("astromech.sqlite"))
-                            .map_err(|e| format!("opening the database: {e}"))
-                    })
-                    .and_then(|st| crate::callouts::change_thresholds(&st, &text));
-                match res {
-                    Ok(t) => {
-                        if let Some(s) = self.session.lock().unwrap().as_ref() {
-                            *s.shared.prospector.write().unwrap() = t.clone();
-                        }
-                        log(&format!("prospector thresholds changed: {text}"));
-                        crate::callouts::thresholds_json(&t)
-                    }
-                    Err(e) => json!({"ok": false, "error": e}),
-                }
-            }
-            "shopping_set" => {
-                let text = r.text.clone().unwrap_or_default();
-                let res = std::fs::create_dir_all(self.cfg().data_dir())
-                    .map_err(|e| e.to_string())
-                    .and_then(|_| {
-                        astromech_store::Store::open(&self.cfg().data_dir().join("astromech.sqlite"))
-                            .map_err(|e| format!("opening the database: {e}"))
-                    })
-                    .and_then(|st| crate::callouts::change_shopping(&st, &text));
-                match res {
-                    Ok(list) => {
-                        let n = list.0.len();
-                        if let Some(s) = self.session.lock().unwrap().as_ref() {
-                            *s.shared.shopping.write().unwrap() = list;
-                        }
-                        json!({"ok": true, "materials": n})
-                    }
-                    Err(e) => json!({"ok": false, "error": e}),
-                }
-            }
-            "exobiology" => match self.session.lock().unwrap().as_ref() {
-                Some(s) => {
-                    let known = s.shared.known_bio.get();
-                    crate::biology::view(&s.hub.snapshot(), known.as_deref())
-                }
-                None => json!({"ok": false, "error": "Elite isn't running."}),
-            },
-            "eddn_log" => {
-                let cfg = self.cfg();
-                eddn_log(&cfg.data_dir(), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
-            }
-            "find_elite" => json!({"ok": true, "found": crate::setup::find_elite(&self.cfg())}),
-            "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" | "set_voice" | "set_eddn" | "set_callout" => {
-                self.edit_config(r)
-            }
-            "callouts" => crate::callouts::callouts_json(&self.cfg().callouts),
-            "edsm_status" => {
-                let cfg = self.cfg();
-                edsm_status(&cfg, self.secrets.as_ref())
-            }
-            "set_edsm" => self.set_edsm(r),
-            "edsm_flight_log" => {
-                let creds = edsm_credentials(&self.cfg().edsm, self.secrets.as_ref());
-                match creds {
-                    Ok(Some(c)) => {
-                        let api = astromech_eddn::edsm::api::HttpApi::with_timeout(
-                            &format!("astromech/{}", env!("CARGO_PKG_VERSION")),
-                            astromech_eddn::edsm::api::FLIGHT_LOG_TIMEOUT,
-                        );
-                        match astromech_eddn::edsm::api::flight_log(&api, &c) {
-                            Ok(visits) => json!({"ok": true, "visits": visits}),
-                            Err(e) => json!({"ok": false, "error": e}),
-                        }
-                    }
-                    Ok(None) => json!({"ok": false, "error": "set your EDSM commander name and API key first"}),
-                    Err(e) => json!({"ok": false, "error": e}),
-                }
-            }
-            "voice_settings" => {
-                let v = self.cfg().voice;
-                json!({
-                    "ok": true,
-                    "speaker": v.speaker,
-                    "speed": v.speed,
-                    "colour": v.colour,
-                    "voices": crate::speech::voice_choices(),
-                    "speeds": [crate::setup::SPEEDS.start(), crate::setup::SPEEDS.end()],
+        });
+        add(&["pause_voice", "resume_voice"], Exposure::Window, |c, r| {
+            VOICE_PAUSED.store(r.cmd == "pause_voice", Ordering::SeqCst);
+            log(if r.cmd == "pause_voice" { "voice paused" } else { "voice resumed" });
+            c.notify();
+            json!({"ok": true})
+        });
+        add(&["kill_switch"], Exposure::Window, |c, _| {
+            c.kill_switch();
+            json!({"ok": true})
+        });
+        add(&["download_models"], Exposure::Window, |c, _| {
+            download_models(c);
+            json!({"ok": true})
+        });
+        add(&["open_config"], Exposure::Window, |c, _| {
+            open_config(&c.config_path);
+            json!({"ok": true})
+        });
+        add(&["prospector_thresholds"], Exposure::Window, |c, _| crate::callouts::thresholds_view(&c.cfg().data_dir()));
+        add(&["prospector_set"], Exposure::Window, |c, r| {
+            let text = r.text.clone().unwrap_or_default();
+            let res = std::fs::create_dir_all(c.cfg().data_dir())
+                .map_err(|e| e.to_string())
+                .and_then(|_| {
+                    astromech_store::Store::open(&c.cfg().data_dir().join("astromech.sqlite"))
+                        .map_err(|e| format!("opening the database: {e}"))
                 })
+                .and_then(|st| crate::callouts::change_thresholds(&st, &text));
+            match res {
+                Ok(t) => {
+                    if let Some(s) = c.session.lock().unwrap().as_ref() {
+                        *s.shared.prospector.write().unwrap() = t.clone();
+                    }
+                    log(&format!("prospector thresholds changed: {text}"));
+                    crate::callouts::thresholds_json(&t)
+                }
+                Err(e) => json!({"ok": false, "error": e}),
             }
-            "voice_preview" => self.preview_voice(),
-            "mic_list" => {
-                let cfg = self.cfg();
-                let mut v = crate::calibration::mic_list(&cfg.voice.mic);
-                let device = crate::calibration::configured_device(&cfg.voice.mic);
-                let gate = crate::calibration::open_store(&cfg.data_dir())
-                    .ok()
-                    .and_then(|s| crate::calibration::stored_gate(&s, &device));
-                v["calibration"] = json!({"device": device, "min_level_dbfs": gate});
-                v
+        });
+        add(&["shopping_set"], Exposure::Window, |c, r| {
+            let text = r.text.clone().unwrap_or_default();
+            let res = std::fs::create_dir_all(c.cfg().data_dir())
+                .map_err(|e| e.to_string())
+                .and_then(|_| {
+                    astromech_store::Store::open(&c.cfg().data_dir().join("astromech.sqlite"))
+                        .map_err(|e| format!("opening the database: {e}"))
+                })
+                .and_then(|st| crate::callouts::change_shopping(&st, &text));
+            match res {
+                Ok(list) => {
+                    let n = list.0.len();
+                    if let Some(s) = c.session.lock().unwrap().as_ref() {
+                        *s.shared.shopping.write().unwrap() = list;
+                    }
+                    json!({"ok": true, "materials": n})
+                }
+                Err(e) => json!({"ok": false, "error": e}),
             }
-            "calibrate_start" | "calibrate_record" | "calibrate_finish" | "calibrate_cancel" | "mic_check" => {
-                let cfg = self.cfg();
+        });
+        add(&["exobiology"], Exposure::Window, |c, _| match c.session.lock().unwrap().as_ref() {
+            Some(s) => {
+                let known = s.shared.known_bio.get();
+                crate::biology::view(&s.hub.snapshot(), known.as_deref())
+            }
+            None => json!({"ok": false, "error": "Elite isn't running."}),
+        });
+        add(&["eddn_log"], Exposure::Window, |c, _| {
+            let cfg = c.cfg();
+            eddn_log(&cfg.data_dir(), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
+        });
+        add(&["find_elite"], Exposure::Window, |c, _| json!({"ok": true, "found": crate::setup::find_elite(&c.cfg())}));
+        add(
+            &["set_ptt", "set_kill_switch", "set_mic", "set_folders", "set_voice", "set_eddn", "set_callout"],
+            Exposure::Window,
+            |c, r| c.edit_config(r),
+        );
+        add(&["callouts"], Exposure::Window, |c, _| crate::callouts::callouts_json(&c.cfg().callouts));
+        add(&["edsm_status"], Exposure::Window, |c, _| {
+            let cfg = c.cfg();
+            edsm_status(&cfg, c.secrets.as_ref())
+        });
+        add(&["set_edsm"], Exposure::Window, |c, r| c.set_edsm(r));
+        add(&["edsm_flight_log"], Exposure::Window, |c, _| {
+            let creds = edsm_credentials(&c.cfg().edsm, c.secrets.as_ref());
+            match creds {
+                Ok(Some(c)) => {
+                    let api = astromech_eddn::edsm::api::HttpApi::with_timeout(
+                        &format!("astromech/{}", env!("CARGO_PKG_VERSION")),
+                        astromech_eddn::edsm::api::FLIGHT_LOG_TIMEOUT,
+                    );
+                    match astromech_eddn::edsm::api::flight_log(&api, &c) {
+                        Ok(visits) => json!({"ok": true, "visits": visits}),
+                        Err(e) => json!({"ok": false, "error": e}),
+                    }
+                }
+                Ok(None) => json!({"ok": false, "error": "set your EDSM commander name and API key first"}),
+                Err(e) => json!({"ok": false, "error": e}),
+            }
+        });
+        add(&["voice_settings"], Exposure::Window, |c, _| {
+            let v = c.cfg().voice;
+            json!({
+                "ok": true,
+                "speaker": v.speaker,
+                "speed": v.speed,
+                "colour": v.colour,
+                "voices": crate::speech::voice_choices(),
+                "speeds": [crate::setup::SPEEDS.start(), crate::setup::SPEEDS.end()],
+            })
+        });
+        add(&["voice_preview"], Exposure::Window, |c, _| c.preview_voice());
+        add(&["mic_list"], Exposure::Window, |c, _| {
+            let cfg = c.cfg();
+            let mut v = crate::calibration::mic_list(&cfg.voice.mic);
+            let device = crate::calibration::configured_device(&cfg.voice.mic);
+            let gate = crate::calibration::open_store(&cfg.data_dir())
+                .ok()
+                .and_then(|s| crate::calibration::stored_gate(&s, &device));
+            v["calibration"] = json!({"device": device, "min_level_dbfs": gate});
+            v
+        });
+        add(
+            &["calibrate_start", "calibrate_record", "calibrate_finish", "calibrate_cancel", "mic_check"],
+            Exposure::Window,
+            |c, r| {
+                let cfg = c.cfg();
                 let record = |ms| crate::calibration::record_mic(&cfg.voice.mic, ms);
                 let store = || crate::calibration::open_store(&cfg.data_dir());
-                let v = crate::calibration::handle(&r.cmd, &self.calibration, &record, &store);
+                let v = crate::calibration::handle(&r.cmd, &c.calibration, &record, &store);
                 if r.cmd == "calibrate_finish" && v["ok"] == true {
                     log(&format!("microphone: calibrated {} (min_level_dbfs {})", v["device"], v["min_level_dbfs"]));
                 }
                 v
+            },
+        );
+        add(&["onboarding_done"], Exposure::Window, |c, _| {
+            let res =
+                crate::calibration::open_store(&c.cfg().data_dir()).and_then(|s| crate::setup::mark_onboarded(&s));
+            match res {
+                Ok(()) => {
+                    c.onboarded.store(true, Ordering::SeqCst);
+                    c.notify();
+                    json!({"ok": true})
+                }
+                Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
             }
-            "onboarding_done" => {
-                let res = crate::calibration::open_store(&self.cfg().data_dir())
-                    .and_then(|s| crate::setup::mark_onboarded(&s));
-                match res {
-                    Ok(()) => {
-                        self.onboarded.store(true, Ordering::SeqCst);
-                        self.notify();
-                        json!({"ok": true})
+        });
+        add(&["voice_test"], Exposure::Window, |c, r| {
+            let text = r.text.clone().unwrap_or_default();
+            let res = {
+                let s = c.session.lock().unwrap();
+                s.as_ref().map(|s| s.assistant.dry_run(&text, Source::Typed))
+            };
+            let res = res.unwrap_or_else(|| tester::dry_run_idle(&c.cfg(), &text));
+            json!({"ok": true, "result": res})
+        });
+        add(&["voice_test_poll"], Exposure::Window, |c, _| {
+            if TESTER.arm(Instant::now()) {
+                log("voice tester open: push-to-talk is tested there, nothing is pressed");
+            }
+            let last = TESTER.last().map(|(seq, r)| json!({"seq": seq, "result": r}));
+            json!({"ok": true, "listening": c.active(), "last": last})
+        });
+        add(&["learned_phrases"], Exposure::Window, |c, _| crate::learned::list(&c.cfg().data_dir()));
+        add(&["learned_forget"], Exposure::Window, |c, r| {
+            let assistant = c.session.lock().unwrap().as_ref().map(|s| s.assistant.clone());
+            let heard = r.text.clone().unwrap_or_default();
+            log(&format!("learned phrase forgotten: {heard:?}"));
+            crate::learned::forget(&c.cfg().data_dir(), assistant.as_deref(), &heard)
+        });
+        add(&["voice_test_stop"], Exposure::Window, |_, _| {
+            if TESTER.armed(Instant::now()) {
+                log("voice tester closed: push-to-talk acts again");
+            }
+            TESTER.disarm();
+            json!({"ok": true})
+        });
+        add(&["voice_test_live"], Exposure::Window, |c, r| {
+            // The command id as text, or `{command, from}` for a lookup from a named system.
+            let arg = |k: &str| r.args.as_ref().and_then(|a| a.get(k)).and_then(Value::as_str).map(str::to_string);
+            let cmd = r.text.clone().or_else(|| arg("command")).unwrap_or_default();
+            let from = arg("from");
+            let runner = c.session.lock().unwrap().as_ref().map(|s| s.runner.clone());
+            match runner {
+                None => json!({"ok": false, "error": "Elite isn't running, so there's nothing to send keys to."}),
+                Some(runner) => {
+                    log(&format!("voice tester: live run of {cmd} (from {from:?})"));
+                    match tester::live(&runner, &cmd, from.as_deref(), tester::SWITCH_WAIT) {
+                        Ok(m) => json!({"ok": true, "message": m}),
+                        Err(e) => json!({"ok": false, "error": e}),
                     }
-                    Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
                 }
             }
-            "voice_test" => {
-                let text = r.text.clone().unwrap_or_default();
-                let res = {
-                    let s = self.session.lock().unwrap();
-                    s.as_ref().map(|s| s.assistant.dry_run(&text, Source::Typed))
-                };
-                let res = res.unwrap_or_else(|| tester::dry_run_idle(&self.cfg(), &text));
-                json!({"ok": true, "result": res})
-            }
-            "voice_test_poll" => {
-                if TESTER.arm(Instant::now()) {
-                    log("voice tester open: push-to-talk is tested there, nothing is pressed");
-                }
-                let last = TESTER.last().map(|(seq, r)| json!({"seq": seq, "result": r}));
-                json!({"ok": true, "listening": self.active(), "last": last})
-            }
-            "learned_phrases" => crate::learned::list(&self.cfg().data_dir()),
-            "learned_forget" => {
-                let assistant = self.session.lock().unwrap().as_ref().map(|s| s.assistant.clone());
-                let heard = r.text.clone().unwrap_or_default();
-                log(&format!("learned phrase forgotten: {heard:?}"));
-                crate::learned::forget(&self.cfg().data_dir(), assistant.as_deref(), &heard)
-            }
-            "voice_test_stop" => {
-                if TESTER.armed(Instant::now()) {
-                    log("voice tester closed: push-to-talk acts again");
-                }
-                TESTER.disarm();
-                json!({"ok": true})
-            }
-            "voice_test_live" => {
-                // The command id as text, or `{command, from}` for a lookup from a named system.
-                let arg = |k: &str| r.args.as_ref().and_then(|a| a.get(k)).and_then(Value::as_str).map(str::to_string);
-                let cmd = r.text.clone().or_else(|| arg("command")).unwrap_or_default();
-                let from = arg("from");
-                let runner = self.session.lock().unwrap().as_ref().map(|s| s.runner.clone());
-                match runner {
-                    None => json!({"ok": false, "error": "Elite isn't running, so there's nothing to send keys to."}),
-                    Some(runner) => {
-                        log(&format!("voice tester: live run of {cmd} (from {from:?})"));
-                        match tester::live(&runner, &cmd, from.as_deref(), tester::SWITCH_WAIT) {
-                            Ok(m) => json!({"ok": true, "message": m}),
-                            Err(e) => json!({"ok": false, "error": e}),
-                        }
-                    }
-                }
-            }
-            c => json!({"ok": false, "error": format!("unknown command {c:?}")}),
-        }
+        });
+        reg
+    }
+
+    /// One command through [`Core::commands`], as the control API runs it.
+    #[cfg(test)]
+    pub fn handle(self: &Arc<Self>, r: &Request) -> Value {
+        self.commands().dispatch(r, &|_| {}).unwrap_or_else(|e| json!({"ok": false, "error": e}))
     }
 }
 
@@ -1223,7 +1255,7 @@ pub fn run(opts: Opts) -> i32 {
     // Single instance: a second start opens the window of the first, then exits.
     let Some(_guard) = crate::instance::acquire(&app_dir) else {
         if !opts.background {
-            match control::call(&app_dir, "open_window", opts.route.as_deref()) {
+            match control::call_short(&app_dir, "open_window", opts.route.as_deref()) {
                 Ok(_) => log("already running: asked it to open the window"),
                 Err(e) => log(&format!("already running, but it didn't answer: {e:#}")),
             }
@@ -1315,8 +1347,7 @@ pub fn run(opts: Opts) -> i32 {
         route,
     });
 
-    let c = core.clone();
-    let _server = match control::serve(&app_dir, Arc::new(move |r: &Request| c.handle(r))) {
+    let _server = match control::serve(&app_dir, Arc::new(core.commands())) {
         Ok(s) => {
             log(&format!("control API on 127.0.0.1:{}", s.endpoint.port));
             Some(s)
@@ -1477,7 +1508,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let core = core(d.path(), "");
         let call = |cmd: &str, args: Option<Value>| {
-            core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args })
+            core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args, origin: None })
         };
         assert_eq!(call("route", None)["view"]["route"], Value::Null);
         let v = call(
@@ -1512,7 +1543,14 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let core = core(d.path(), "");
         let call = |cmd: &str, args: Value| {
-            core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args: Some(args) })
+            core.handle(&Request {
+                token: String::new(),
+                cmd: cmd.into(),
+                route: None,
+                text: None,
+                args: Some(args),
+                origin: None,
+            })
         };
         let trip =
             json!({"name": "Trip", "source": "engineer trip", "waypoints": [{"system": "Deciat"}, {"system": "Kuk"}]});
@@ -1608,6 +1646,7 @@ mod tests {
                 route: None,
                 text: None,
                 args: Some(args),
+                origin: None,
             })
         };
         core.route.set_here("Sol");
@@ -1684,6 +1723,7 @@ mod tests {
             route: None,
             text: None,
             args: Some(json!({"journal_dir": j.path().display().to_string()})),
+            origin: None,
         });
         assert_eq!(r["ok"], json!(true), "{r}");
         wait_for("the journals set in onboarding", || core.history.status().is_some_and(|p| p.ready && p.events == 52));
@@ -1761,6 +1801,7 @@ mod tests {
             route: None,
             text: None,
             args: Some(args),
+            origin: None,
         })
     }
 
@@ -1782,6 +1823,7 @@ mod tests {
                 route: None,
                 text: None,
                 args: None,
+                origin: None,
             })
         };
         let v = status(&core);
@@ -1831,6 +1873,7 @@ mod tests {
             route: None,
             text: None,
             args: Some(json!({ "enabled": enabled })),
+            origin: None,
         })
     }
 
@@ -1963,7 +2006,14 @@ mod tests {
             &format!("data_dir = '{}'\n[game]\njournal_dir = '{}'\n", d.path().display(), journals.display()),
         );
         let ask = |cmd: &str| {
-            core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args: None })
+            core.handle(&Request {
+                token: String::new(),
+                cmd: cmd.into(),
+                route: None,
+                text: None,
+                args: None,
+                origin: None,
+            })
         };
 
         let tone = |ms: usize, amp: f32| -> Vec<f32> { (0..16 * ms).map(|i| amp * (i as f32 * 0.2).sin()).collect() };
@@ -2115,7 +2165,7 @@ mod tests {
     }
 
     fn call(core: &Arc<Core>, cmd: &str, args: Option<Value>) -> Value {
-        core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args })
+        core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args, origin: None })
     }
 
     fn callout(v: &Value, id: &str) -> Value {

@@ -127,8 +127,8 @@ fn attach_console() -> bool {
 /// `--quit` (used by the installer): 0 if no core runs any more.
 fn quit_running() -> i32 {
     let dir = Paths::current().app_dir().to_path_buf();
-    let file = dir.join(astromech_core::control::FILE);
-    if astromech_core::control::call(&dir, "quit", None).is_err() {
+    let file = dir.join(astromech_api::control::FILE);
+    if astromech_api::control::call_short(&dir, "quit", None).is_err() {
         return 0;
     }
     for _ in 0..50 {
