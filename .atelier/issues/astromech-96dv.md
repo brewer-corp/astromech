@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Type the window's call() and the fake's handlers against the generated commands"
-updated_at: "2026-11-07T06:33:38.680831587+00:00"
+updated_at: "2026-11-07T09:08:04.796667048+00:00"
 ---
 
 ## Goal
@@ -34,3 +34,7 @@ The window's `call()` and the fake's handlers are typed against the generated co
 ## Scope
 
 app/src only. No Rust change unless a generated type is wrong. If so, fix it in the Rust type and regenerate.
+
+## Notes
+
+- 2026-11-07 [note] From astromech-se44's implementer: type-checking the preview fixtures against the generated types shows fields the real core always sends that the fixtures lack: nearby.json query.by_population; plot.json ship.fsd and waypoint jumps; stations*.json filters.max_distance_ly and min_volume; engineering.json and ships.json market_id on ships; exobiology.json genera.analysed; trade.json partial in the cargo plan; voice.json live_from. Typing the fakes here should surface and fix these.
