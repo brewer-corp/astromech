@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Move the star-map, lookup, plotting and neutron commands into the command layer"
-updated_at: "2026-11-07T07:11:12.010109863+00:00"
+updated_at: "2026-11-07T07:14:47.745584455+00:00"
 ---
 
 ## Goal
