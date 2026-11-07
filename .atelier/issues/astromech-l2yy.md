@@ -23,7 +23,7 @@ Tidy three small leftovers of the learned-phrases list.
 
 ## Done when
 
-(1) Assistant::forget returns the store error so the Voice tester shows it instead of an unchanged list. (2) The list refreshes when a phrase is learned while the page is open (for example on the page's poll). (3) The Request doc comment in crates/astromech-core/src/control.rs lists learned_phrases and learned_forget.
+(1) Assistant::forget returns the store error so the Voice tester shows it instead of an unchanged list. (2) The list refreshes when a phrase is learned while the page is open (for example on the page's poll). (3) The Request doc comment in crates/astromech-api/src/control.rs (moved from astromech-core by astromech-8s6k) lists learned_phrases and learned_forget.
 
 ## Context
 
