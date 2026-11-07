@@ -78,6 +78,8 @@ jobs:
       - name: frontend build
         working-directory: app
         run: pnpm build
+      - name: release build carries no browser preview
+        run: python3 scripts/check-dist.py app/dist
       - name: frontend tests
         working-directory: app
         run: pnpm test

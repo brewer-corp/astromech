@@ -69,7 +69,7 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 
 - Run `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`,
   `cargo test --workspace`, `python3 scripts/check-deps.py`, `python3 scripts/check-guide.py` (guide links), `cargo deny check`, and in `app/`:
-  `pnpm lint && pnpm check && pnpm build && pnpm test`.
+  `pnpm lint && pnpm check && pnpm build && pnpm test`, then `python3 scripts/check-dist.py` (the build carries no browser preview).
 - Tracker records: the **Atelier** workflow (`.github/workflows/atelier.yml`) runs
   `atelier doctor` on every PR and every push to `main`, record-only commits included. It
   checks every done claim and the whole review history as they will stand on `main`, with
@@ -96,12 +96,17 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   Needs Google Chrome (or `CHROME` pointing at Chromium). `scripts/app-shots.sh` and
   `scripts/mockup-shots.sh` use the same binary; `scripts/mockup-shots.sh ds-sell ds-places`
   re-renders only the named mockups (the DESIGN.md ones are `ds-*`).
+- Outside Tauri (`pnpm dev`, the tests, a preview build) the window's one transport,
+  `app/src/lib/transport.ts`, is answered by the browser preview's fake in `app/src/preview/`
+  (`?core=ready`, `?route=exact`, `?fail=`, `?slow=`). App code reaches the backend only through
+  `call`, `subscribe` and `previewOption` (lint enforces it); a new command or topic needs a fake
+  handler (`app/src/preview/coverage.test.ts`), and a release build must carry none of the fake
+  (`scripts/check-dist.py app/dist` after `pnpm build`, run in CI).
 - To show a UI change to someone off this machine, work on the real page on its branch against the
-  browser preview's fakecore (`?core=ready`, `?route=exact`, `?fail=`, `?slow=`; add a fixture when
-  the change needs data the preview lacks), then `scripts/preview-publish --page route --query
-  route=exact`. It builds the preview into `app/dist-preview/` with the scenario and start page baked
-  in, since an artifact link carries neither, and lists the files to publish as one claude.ai
-  artifact beside `index.html`. Republish the same `index.html` to update the link.
+  browser preview (add a fixture under `app/src/preview/fixtures/` when the change needs data the
+  preview lacks), then `scripts/preview-publish --page route --query route=exact`. It builds the
+  preview into `app/dist-preview/` with the scenario and start page baked in, since an artifact link
+  carries neither, and lists the files to publish as one claude.ai artifact beside `index.html`. Republish the same `index.html` to update the link.
 - Respect the dependency rules: actions go through `astromech-policy`; voice and tools never use
   the input executor directly.
 - Player-visible game data (anything on the Elite Dangerous wiki) is fine in `data/`; credit its
