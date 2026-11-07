@@ -4,6 +4,7 @@
 //! name the session's recorder reports, so the session finds it again ([`stored_gate`]).
 
 use anyhow::{bail, ensure, Result};
+use astromech_api::Recover;
 use astromech_store::Store;
 use astromech_voice::gain::{self, Calibration};
 use serde::Serialize;
@@ -198,7 +199,7 @@ fn err(e: impl std::fmt::Display) -> Value {
 /// - `calibrate_cancel`;
 /// - `mic_check`: record a short clip and say whether speech is loud enough.
 pub fn handle(cmd: &str, run: &Mutex<Option<Run>>, record: RecordFn, store: &dyn Fn() -> Result<Store>) -> Value {
-    let mut g = run.lock().unwrap();
+    let mut g = run.lock().recover();
     match cmd {
         "calibrate_start" => {
             let r = Run::default();
@@ -383,7 +384,7 @@ mod tests {
         let v = handle("calibrate_record", &run, &flaky, &open);
         assert!(v["error"].as_str().unwrap().contains("changed"), "{v}");
         assert_eq!(handle("calibrate_cancel", &run, &flaky, &open)["ok"], true);
-        assert!(run.lock().unwrap().is_none());
+        assert!(run.lock().recover().is_none());
     }
 
     #[test]

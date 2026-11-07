@@ -1,6 +1,7 @@
 //! Published game-state snapshots. Writers: the pipeline. Readers: tools (planning),
 //! verification (waiting for a flag), subscribers (the future API).
 
+use astromech_api::Recover;
 use astromech_gamestate::mining::MiningRun;
 use astromech_gamestate::GameState;
 use astromech_journal::JournalLine;
@@ -23,29 +24,29 @@ impl StateHub {
     }
 
     pub fn snapshot(&self) -> GameState {
-        self.state.lock().unwrap().0.clone()
+        self.state.lock().recover().0.clone()
     }
 
     /// Look at the current state without copying it. Keep `f` short: writers wait for it.
     pub fn read<R>(&self, f: impl FnOnce(&GameState) -> R) -> R {
-        f(&self.state.lock().unwrap().0)
+        f(&self.state.lock().recover().0)
     }
 
     /// Version counter: increases on every change.
     pub fn version(&self) -> u64 {
-        self.state.lock().unwrap().1
+        self.state.lock().recover().1
     }
 
     pub fn subscribe(&self) -> Receiver<GameState> {
         let (tx, rx) = channel();
         let _ = tx.send(self.snapshot());
-        self.subs.lock().unwrap().push(tx);
+        self.subs.lock().recover().push(tx);
         rx
     }
 
     pub fn update(&self, f: impl FnOnce(&mut GameState)) {
         let snap = {
-            let mut g = self.state.lock().unwrap();
+            let mut g = self.state.lock().recover();
             let before = g.0.clone();
             f(&mut g.0);
             if g.0 == before {
@@ -55,7 +56,7 @@ impl StateHub {
             g.0.clone()
         };
         self.cv.notify_all();
-        self.subs.lock().unwrap().retain(|s| s.send(snap.clone()).is_ok());
+        self.subs.lock().recover().retain(|s| s.send(snap.clone()).is_ok());
     }
 
     pub fn apply_status(&self, s: &StatusSnap) {
@@ -63,13 +64,13 @@ impl StateHub {
     }
 
     pub fn apply_journal(&self, l: &JournalLine) {
-        self.mining.lock().unwrap().apply(l);
+        self.mining.lock().recover().apply(l);
         self.update(|g| g.apply_line(l));
     }
 
     /// The current mining run, as the status reply shows it.
     pub fn mining_json(&self) -> serde_json::Value {
-        let m = self.mining.lock().unwrap();
+        let m = self.mining.lock().recover();
         serde_json::json!({
             "started": m.started.map(|t| t.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)),
             "refined": m.refined,
@@ -82,7 +83,7 @@ impl StateHub {
     /// when `cancelled()` turns true.
     pub fn wait_flag(&self, flag: u64, expect: bool, timeout: Duration, cancelled: &dyn Fn() -> bool) -> bool {
         let end = Instant::now() + timeout;
-        let mut g = self.state.lock().unwrap();
+        let mut g = self.state.lock().recover();
         loop {
             if g.0.status_seen && (g.0.status_flags & flag != 0) == expect {
                 return true;
@@ -101,7 +102,7 @@ impl StateHub {
     /// Wait until `GuiFocus` equals `want`.
     pub fn wait_gui(&self, want: u64, timeout: Duration, cancelled: &dyn Fn() -> bool) -> bool {
         let end = Instant::now() + timeout;
-        let mut g = self.state.lock().unwrap();
+        let mut g = self.state.lock().recover();
         loop {
             if g.0.status_seen && g.0.gui_focus.unwrap_or(0) == want {
                 return true;

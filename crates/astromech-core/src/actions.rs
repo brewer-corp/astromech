@@ -4,6 +4,7 @@
 use crate::health::Shared;
 use crate::hub::StateHub;
 use crate::speech::Speaker;
+use astromech_api::Recover;
 use astromech_policy::{Denial, Policy, PressError};
 use astromech_proto::{Origin, Tier};
 use astromech_tools::{authorize_plan, plan_with, tool_name, Plan, ToolCall, Verify};
@@ -174,7 +175,7 @@ impl Runner {
         };
         let noun = astromech_tools::action_noun(call);
         let combo = {
-            let b = self.binds.read().unwrap();
+            let b = self.binds.read().recover();
             match b.keyboard(action) {
                 Some(k) => k,
                 None => {

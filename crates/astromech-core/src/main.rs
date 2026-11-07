@@ -4,6 +4,7 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 use anyhow::{bail, Context, Result};
+use astromech_api::Recover;
 use astromech_core::config::{Config, SAMPLE};
 use astromech_core::logging::log;
 use astromech_core::session::{self, Session};
@@ -372,7 +373,7 @@ fn run_console(args: Args) -> Result<()> {
                 let g = hub.snapshot();
                 println!("  {g:?}");
             }
-            "!health" => print!("{}", runner.binds.read().unwrap().summary()),
+            "!health" => print!("{}", runner.binds.read().recover().summary()),
             _ => {
                 let h = assistant.handle(t, Origin::AppWindow);
                 log(&format!("typed {t:?} -> {}", session::short(&h)));

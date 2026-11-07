@@ -22,6 +22,7 @@
 //!
 //! (Not to be confused with the window's `--route`, which is a page in the app.)
 
+use astromech_api::Recover;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Mutex;
@@ -423,11 +424,11 @@ impl Desk {
     }
 
     pub fn view(&self) -> View {
-        Self::view_of(&self.state.lock().unwrap())
+        Self::view_of(&self.state.lock().recover())
     }
 
     pub fn has_route(&self) -> bool {
-        self.state.lock().unwrap().0.route.is_some()
+        self.state.lock().recover().0.route.is_some()
     }
 
     /// Start following `route`. An unfinished route of our own that it replaces is parked (in
@@ -438,7 +439,7 @@ impl Desk {
         if route.waypoints.is_empty() {
             return Err("the route has no systems".into());
         }
-        let mut st = self.state.lock().unwrap();
+        let mut st = self.state.lock().recover();
         Ok(self.follow(&mut st, route))
     }
 
@@ -479,7 +480,7 @@ impl Desk {
         if stop.system.is_empty() {
             return Err("the stop has no system".into());
         }
-        let mut st = self.state.lock().unwrap();
+        let mut st = self.state.lock().recover();
         let Some(r) = st.0.route.as_mut().filter(|r| !r.from_game() && !r.finished()) else {
             let route = Route::new(&stop.system.clone(), source, vec![stop]);
             return Ok(self.follow(&mut st, route));
@@ -498,7 +499,7 @@ impl Desk {
 
     /// Stop following the route, and forget a parked one.
     pub fn clear(&self) -> View {
-        let mut st = self.state.lock().unwrap();
+        let mut st = self.state.lock().recover();
         if st.0.route.take().is_some() | st.0.parked.take().is_some() {
             crate::logging::log("route: cleared");
         }
@@ -509,7 +510,7 @@ impl Desk {
 
     /// Skip (`forward`) or go back one waypoint, and copy the new next one.
     pub fn step(&self, forward: bool) -> View {
-        let mut st = self.state.lock().unwrap();
+        let mut st = self.state.lock().recover();
         let moved = st.0.route.as_mut().map(|r| if forward { r.skip() } else { r.back() }).unwrap_or(false);
         if moved {
             self.copy(&mut st);
@@ -520,7 +521,7 @@ impl Desk {
 
     /// Copy the next waypoint again (something else took the clipboard).
     pub fn copy_next(&self) -> View {
-        let mut st = self.state.lock().unwrap();
+        let mut st = self.state.lock().recover();
         self.copy(&mut st);
         Self::view_of(&st)
     }
@@ -528,7 +529,7 @@ impl Desk {
     /// Follow the parked route again and copy its next waypoint. Already in a waypoint ahead (flown
     /// there while it was parked), it resumes after that one.
     pub fn resume(&self) -> Result<View, String> {
-        let mut st = self.state.lock().unwrap();
+        let mut st = self.state.lock().recover();
         let mut r = st.0.parked.take().ok_or("there is no route to resume")?;
         if let Some(h) = st.0.here.clone() {
             r.arrive(&h);
@@ -546,7 +547,7 @@ impl Desk {
     /// from the game, and an unfinished route of our own that it replaces is parked.
     pub fn plotted(&self, systems: &[String]) {
         let Some(dest) = systems.last().filter(|_| systems.len() > 1) else { return };
-        let mut st = self.state.lock().unwrap();
+        let mut st = self.state.lock().recover();
         if st.0.route.as_ref().is_some_and(|r| !r.from_game() && r.ahead(dest)) {
             return;
         }
@@ -583,7 +584,7 @@ impl Desk {
     /// The galaxy map's route was cleared: stop following it, if that is the route followed. A
     /// route of our own stays (its leg was cleared, or the commander arrived).
     pub fn cleared_in_game(&self) {
-        let mut st = self.state.lock().unwrap();
+        let mut st = self.state.lock().recover();
         if st.0.route.as_ref().is_some_and(Route::from_game) {
             st.0.route = None;
             st.1 = None;
@@ -595,7 +596,7 @@ impl Desk {
     /// A replayed journal put us in `system`: remember where we are, but don't move the route
     /// or write the clipboard (only live arrivals do, [`Desk::on_system`]).
     pub fn set_here(&self, system: &str) {
-        let mut st = self.state.lock().unwrap();
+        let mut st = self.state.lock().recover();
         if st.0.here.as_deref() != Some(system) {
             st.0.here = Some(system.to_string());
             self.save(&st.0);
@@ -605,7 +606,7 @@ impl Desk {
     /// A live arrival in `system`: moves the route on if it is a waypoint (copying the next). A
     /// route from the game moves on without a copy or a line.
     pub fn on_system(&self, system: &str) -> Option<Moved> {
-        let mut st = self.state.lock().unwrap();
+        let mut st = self.state.lock().recover();
         let changed = st.0.here.as_deref() != Some(system);
         st.0.here = Some(system.to_string());
         let arrived =
@@ -663,7 +664,7 @@ mod tests {
         let d = Desk::open(
             None,
             Box::new(move |s| {
-                g.lock().unwrap().push(s.to_string());
+                g.lock().recover().push(s.to_string());
                 Ok(())
             }),
         );
@@ -681,7 +682,7 @@ mod tests {
         let v = d.set(route(&["Sol", "Alpha Centauri", "Barnard's Star"])).unwrap();
         // Already in the first stop: it starts at the second.
         assert_eq!(v.next.unwrap().system, "Alpha Centauri");
-        assert_eq!(got.lock().unwrap().as_slice(), ["Alpha Centauri"]);
+        assert_eq!(got.lock().recover().as_slice(), ["Alpha Centauri"]);
         assert_eq!(d.on_system("Wolf 359"), None);
         let m = d.on_system("alpha centauri").unwrap();
         assert!(matches!(&m, Moved::Arrived { next, left: 1, copied: true, .. } if next.system == "Barnard's Star"));
@@ -690,7 +691,7 @@ mod tests {
         assert!(matches!(m, Moved::Finished { .. }));
         assert_eq!(m.spoken(), FINISHED);
         assert_eq!(d.view().remaining, 0);
-        assert_eq!(got.lock().unwrap().len(), 2);
+        assert_eq!(got.lock().recover().len(), 2);
     }
 
     #[test]
@@ -712,7 +713,7 @@ mod tests {
         assert_eq!(d.step(true).next, None);
         assert_eq!(d.step(true).next, None);
         assert_eq!(d.step(false).next.unwrap().system, "B");
-        assert_eq!(got.lock().unwrap().as_slice(), ["A", "B", "B"]);
+        assert_eq!(got.lock().recover().as_slice(), ["A", "B", "B"]);
         assert!(d.clear().route.is_none());
         assert!(d.set(route(&[" ", ""])).is_err());
     }
@@ -743,7 +744,7 @@ mod tests {
         assert_eq!(v.route.as_ref().unwrap().name, "test");
         assert_eq!(v.next.unwrap().system, "N1");
         assert!(v.parked.is_none());
-        assert_eq!(got.lock().unwrap().as_slice(), ["N1"], "a leg doesn't touch the clipboard");
+        assert_eq!(got.lock().recover().as_slice(), ["N1"], "a leg doesn't touch the clipboard");
     }
 
     /// Anything else is a route of its own: followed silently, without the clipboard, and the
@@ -762,7 +763,7 @@ mod tests {
         assert_eq!(v.parked.as_ref().unwrap().name, "test");
         assert_eq!(d.on_system("Wolf 359"), None, "silent");
         assert_eq!(d.view().next.unwrap().system, "Station Star", "but it moves on");
-        assert_eq!(got.lock().unwrap().as_slice(), ["N1"], "and never copies");
+        assert_eq!(got.lock().recover().as_slice(), ["N1"], "and never copies");
 
         // A second detour replaces the game's route; the parked route stays ours.
         plot_in_game(&d, &["Wolf 359", "Ross 128"]);
@@ -774,7 +775,7 @@ mod tests {
         let v = d.view();
         assert_eq!(v.route.unwrap().name, "test");
         assert!(v.parked.is_none());
-        assert_eq!(got.lock().unwrap().len(), 1);
+        assert_eq!(got.lock().recover().len(), 1);
 
         // Flown to a waypoint on a detour, then plotting onward: it resumes after that waypoint.
         plot_in_game(&d, &["Wolf 359", "Ross 128"]);
@@ -791,7 +792,7 @@ mod tests {
         let v = d.resume().unwrap();
         assert_eq!(v.route.unwrap().name, "test");
         assert!(v.parked.is_none());
-        assert_eq!(got.lock().unwrap().as_slice(), ["A", "A"]);
+        assert_eq!(got.lock().recover().as_slice(), ["A", "A"]);
         assert!(d.resume().is_err());
         // Flown to a waypoint while it was parked: Resume carries on after it.
         d.set(route(&["A", "B", "C"])).unwrap();
@@ -832,7 +833,7 @@ mod tests {
         let v = d.resume().unwrap();
         assert_eq!(v.route.unwrap().name, "Deciat");
         assert!(v.parked.is_none(), "one route stays parked");
-        assert_eq!(got.lock().unwrap().as_slice(), ["A", "Deciat", "Kuk", "Deciat"]);
+        assert_eq!(got.lock().recover().as_slice(), ["A", "Deciat", "Kuk", "Deciat"]);
     }
 
     #[test]
@@ -857,7 +858,7 @@ mod tests {
         assert_eq!(v.remaining, 3);
         assert_eq!(v.route.as_ref().unwrap().name, "trip");
         assert!(v.parked.is_none(), "adding replaces nothing");
-        assert_eq!(got.lock().unwrap().as_slice(), ["B", "X"]);
+        assert_eq!(got.lock().recover().as_slice(), ["B", "X"]);
         // Arriving there moves on to the route's own next stop.
         assert!(matches!(d.on_system("X"), Some(Moved::Arrived { ref next, .. }) if next.system == "B"));
     }
@@ -881,7 +882,7 @@ mod tests {
         assert_eq!(systems(&v), ["A", "B", "C"]);
         assert_eq!(v.next, Some(stop("A", "Farseer, Interstellar Factors")), "back to the stop just passed");
         assert_eq!(v.remaining, 3);
-        assert_eq!(got.lock().unwrap().as_slice(), ["A", "B", "B", "A"]);
+        assert_eq!(got.lock().recover().as_slice(), ["A", "B", "B", "A"]);
     }
 
     /// A stop in the system the commander is in counts as reached, as a new route's first stop
@@ -899,7 +900,7 @@ mod tests {
         let v = d.add(Waypoint::new("Wolf 359"), "").unwrap();
         assert_eq!(systems(&v), ["A", "Wolf 359", "B"]);
         assert_eq!(v.next.unwrap().system, "B");
-        assert_eq!(got.lock().unwrap().as_slice(), ["B", "B", "B"]);
+        assert_eq!(got.lock().recover().as_slice(), ["B", "B", "B"]);
     }
 
     /// With no route of our own to add to, Add stop follows the place on its own; a finished or
@@ -925,7 +926,7 @@ mod tests {
         let v = d.add(Waypoint::new("Shinrarta Dezhra"), "search").unwrap();
         assert_eq!(systems(&v), ["Shinrarta Dezhra"]);
         assert_eq!(v.parked.unwrap().name, "Kuk");
-        assert_eq!(got.lock().unwrap().as_slice(), ["Deciat", "Kuk", "Shinrarta Dezhra"]);
+        assert_eq!(got.lock().recover().as_slice(), ["Deciat", "Kuk", "Shinrarta Dezhra"]);
 
         assert!(d.add(Waypoint::new("  "), "search").is_err());
     }
@@ -1063,7 +1064,7 @@ mod tests {
         let v = d.view();
         assert_eq!(v.here.as_deref(), Some("A"));
         assert_eq!(v.next.unwrap().system, "A", "the route did not move");
-        assert_eq!(got.lock().unwrap().len(), 1, "only the copy when the route was set");
+        assert_eq!(got.lock().recover().len(), 1, "only the copy when the route was set");
         let v = d.set(route(&["A", "C"])).unwrap();
         assert_eq!(v.next.unwrap().system, "C", "a route set now starts after where you are");
     }

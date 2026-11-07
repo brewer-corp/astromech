@@ -59,6 +59,7 @@
 use crate::callouts::Callouts;
 use crate::hub::StateHub;
 use anyhow::{Context, Result};
+use astromech_api::Recover;
 use astromech_eddn::worker::wall_now;
 use astromech_journal::companion::{load, triggers, CompanionFile, CompanionKind, Trigger};
 use astromech_journal::JournalTail;
@@ -293,7 +294,7 @@ impl Tailer {
         let mut parsed = Vec::with_capacity(lines.len());
         let mut fired = vec![];
         {
-            let mut st = self.stats.lock().unwrap();
+            let mut st = self.stats.lock().recover();
             for l in lines {
                 match astromech_journal::parse_line(&l) {
                     Ok(j) => {
@@ -359,7 +360,7 @@ impl Tailer {
     fn load_companions(&mut self, found: Vec<Trigger>, report: bool, live: bool) {
         let (files, reports) = load(&self.dir, &found);
         {
-            let mut st = self.stats.lock().unwrap();
+            let mut st = self.stats.lock().recover();
             st.companions_read += files.len() as u64;
             if report {
                 st.companions_unused += reports.len() as u64;
@@ -544,7 +545,7 @@ impl Tailer {
             h.len = len;
             return Some(h.time);
         }
-        self.stats.lock().unwrap().header_reads += 1;
+        self.stats.lock().recover().header_reads += 1;
         self.header_agrees.remove(path);
         let time = first_line_time(path);
         match time {
@@ -784,7 +785,7 @@ impl Tailer {
             };
             if switch {
                 if self.tail.is_some() {
-                    self.stats.lock().unwrap().rollovers += 1;
+                    self.stats.lock().recover().rollovers += 1;
                 }
                 self.flush_eddn();
                 if let Some(t) = &self.tail {
@@ -803,7 +804,7 @@ impl Tailer {
     fn on_status(&mut self) {
         let p = self.dir.join("Status.json");
         if let Some(s) = astromech_status::read_status_retry(&p, 5) {
-            self.stats.lock().unwrap().status_reads += 1;
+            self.stats.lock().recover().status_reads += 1;
             if let Some(f) = &mut self.eddn {
                 f.status(&serde_json::json!({ "BodyName": s.body_name }));
             }
@@ -877,7 +878,7 @@ impl Tailer {
             let recent = astromech_journal::journal_name_stamp(&path).is_some_and(|(s, _)| s >= recent_from);
             let by_handle = followed == Some(path.as_path()) || latest.as_ref() == Some(&path) || recent;
             if by_handle {
-                self.stats.lock().unwrap().lengths_by_handle += 1;
+                self.stats.lock().recover().lengths_by_handle += 1;
             }
             let handle = || std::fs::File::open(&path).and_then(|f| f.metadata()).map(|m| m.len());
             let len = if followed == Some(path.as_path()) {
@@ -1140,7 +1141,7 @@ mod tests {
             outfitting: None,
             tail: None,
             stats: Arc::new(std::sync::Mutex::new(Stats::default())),
-            log: Box::new(move |m| l2.lock().unwrap().push(m.to_string())),
+            log: Box::new(move |m| l2.lock().recover().push(m.to_string())),
             pending: vec![],
             callouts: None,
             eddn: None,
@@ -1203,7 +1204,7 @@ mod tests {
         let f2 = fired.clone();
         t.callouts = Some(Callouts {
             engine: astromech_announce::Engine::new(vec![Box::new(ScanRule)], &Default::default()),
-            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+            deliver: Box::new(move |rs| f2.lock().recover().extend(rs.into_iter().map(|r| r.text))),
         });
         // Delivery happens with the stats lock released (a slow sink must not hold it).
         let stats = t.stats.clone();
@@ -1211,24 +1212,24 @@ mod tests {
         let u2 = unlocked.clone();
         let inner = std::mem::replace(&mut t.callouts.as_mut().unwrap().deliver, Box::new(|_| {}));
         t.callouts.as_mut().unwrap().deliver = Box::new(move |rs| {
-            u2.lock().unwrap().push(stats.try_lock().is_ok());
+            u2.lock().recover().push(stats.try_lock().is_ok());
             inner(rs)
         });
         t.catch_up();
-        assert_eq!(t.stats.lock().unwrap().journal_lines, 2);
+        assert_eq!(t.stats.lock().recover().journal_lines, 2);
         assert!(hub.snapshot().status_seen);
-        assert!(fired.lock().unwrap().is_empty(), "{:?}", fired.lock().unwrap());
+        assert!(fired.lock().recover().is_empty(), "{:?}", fired.lock().recover());
         // Live: the rest of the half line, then a new line.
         write!(f, "ned\",\"ScanType\":\"Cargo\"}}\r\n{}", scanned("20:00:05")).unwrap();
         f.flush().unwrap();
         t.on_journal_activity();
-        assert_eq!(*fired.lock().unwrap(), ["Cargo scan.", "Cargo scan."]);
+        assert_eq!(*fired.lock().recover(), ["Cargo scan.", "Cargo scan."]);
         // A journal file the game starts later is live from its first line (its Fileheader).
         let header = "{\"timestamp\":\"2026-10-16T20:10:00Z\",\"event\":\"Fileheader\",\"part\":1}\r\n";
         std::fs::write(d.path().join("Journal.2026-10-16T201000.01.log"), header.to_string() + &scanned("20:10:00"))
             .unwrap();
         t.on_journal_activity();
-        assert_eq!(fired.lock().unwrap().len(), 3);
+        assert_eq!(fired.lock().recover().len(), 3);
         // The same notion of live as EDDN: an older journal that becomes newest (a sync tool
         // touched it) fires none of its lines again (it isn't followed). The touch is what
         // a sync tool does: its own handle, closed, then a later modified time. Writing through
@@ -1244,9 +1245,9 @@ mod tests {
         std::fs::OpenOptions::new().write(true).open(&p).unwrap().set_modified(later).unwrap();
         t.on_journal_activity();
         assert_eq!(astromech_journal::newest_journal(d.path()), Some(p.clone()));
-        let got = fired.lock().unwrap().clone();
+        let got = fired.lock().recover().clone();
         assert_eq!(got.len(), 3, "{got:?}");
-        let u = unlocked.lock().unwrap();
+        let u = unlocked.lock().recover();
         assert!(!u.is_empty() && u.iter().all(|ok| *ok), "{u:?}");
     }
 
@@ -1271,17 +1272,17 @@ mod tests {
                 vec![Box::new(astromech_announce::route::Route)],
                 &Default::default(),
             ),
-            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+            deliver: Box::new(move |rs| f2.lock().recover().extend(rs.into_iter().map(|r| r.text))),
         });
         t.catch_up();
         assert_eq!(hub.snapshot().route_hops.len(), 2);
         // Every Status.json read reads NavRoute.json again: the startup route is not news.
         t.on_status();
-        assert!(fired.lock().unwrap().is_empty(), "{:?}", fired.lock().unwrap());
+        assert!(fired.lock().recover().is_empty(), "{:?}", fired.lock().recover());
         std::fs::write(d.path().join("NavRoute.json"), route(&["K", "DA", "M"])).unwrap();
         t.on_status();
         t.on_status();
-        assert_eq!(*fired.lock().unwrap(), ["Route: 2 jumps, 20 ly.", "White dwarf at jump 1."]);
+        assert_eq!(*fired.lock().recover(), ["Route: 2 jumps, 20 ly.", "White dwarf at jump 1."]);
     }
 
     const MARKET_EVENT: &str =
@@ -1295,8 +1296,8 @@ mod tests {
         let (mut t, hub, logs) = tailer(d.path());
         t.apply_lines(vec![MARKET_EVENT.into()]);
         assert_eq!(hub.snapshot().companions.market.unwrap().market_id, Some(7));
-        assert!(logs.lock().unwrap().is_empty());
-        assert_eq!(t.stats.lock().unwrap().companions_read, 1);
+        assert!(logs.lock().recover().is_empty());
+        assert_eq!(t.stats.lock().recover().companions_read, 1);
     }
 
     /// astromech-mh3m: no notification of any kind (not for the journal, not Status.json,
@@ -1408,19 +1409,19 @@ mod tests {
         let (mut t, hub, logs) = tailer(d.path());
         t.apply_lines(vec![MARKET_EVENT.into()]);
         assert!(hub.snapshot().companions.market.is_none());
-        assert!(logs.lock().unwrap()[0].contains("Market.json") && logs.lock().unwrap()[0].contains("missing"));
+        assert!(logs.lock().recover()[0].contains("Market.json") && logs.lock().recover()[0].contains("missing"));
         // Last visit's file: reported again, still not used.
         let old = MARKET_FILE.replace("20:00:05", "19:00:05");
         std::fs::write(d.path().join("Market.json"), old).unwrap();
         t.on_companion_files(&[CompanionKind::Market]);
         assert!(hub.snapshot().companions.market.is_none());
-        assert!(logs.lock().unwrap()[1].contains("older"));
+        assert!(logs.lock().recover()[1].contains("older"));
         // The game finishes the write.
         std::fs::write(d.path().join("Market.json"), MARKET_FILE).unwrap();
         t.on_companion_files(&[CompanionKind::Market]);
         assert!(hub.snapshot().companions.market.is_some());
         assert!(t.pending.is_empty());
-        assert_eq!(t.stats.lock().unwrap().companions_unused, 2);
+        assert_eq!(t.stats.lock().recover().companions_unused, 2);
     }
 
     /// astromech-ogq4: the game rewrites Backpack.json with each BackpackChange and writes no
@@ -1476,8 +1477,8 @@ mod tests {
         }
         assert!(hub.snapshot().companions.market.is_none());
         assert_eq!(t.pending.len(), 1);
-        assert_eq!(logs.lock().unwrap().len(), 1, "retries from the status read don't repeat the report");
-        assert_eq!(t.stats.lock().unwrap().companions_unused, 1);
+        assert_eq!(logs.lock().recover().len(), 1, "retries from the status read don't repeat the report");
+        assert_eq!(t.stats.lock().recover().companions_unused, 1);
 
         // The game finishes the write; no notification for Market.json reaches us.
         std::fs::write(d.path().join("Market.json"), market_file(&now, 7)).unwrap();
@@ -1516,7 +1517,7 @@ mod tests {
         append(&j, &market_event(&t7, 7));
         t.on_journal_activity();
         assert_eq!(t.pending.len(), 1);
-        let read_before = t.stats.lock().unwrap().companions_read;
+        let read_before = t.stats.lock().recover().companions_read;
 
         // Station 8: its file and its journal line arrive together with a Status.json write.
         std::fs::write(d.path().join("Market.json"), market_file(&t8, 8)).unwrap();
@@ -1524,7 +1525,7 @@ mod tests {
         t.on_status();
         t.on_journal_activity();
         assert_eq!(hub.snapshot().companions.market.unwrap().market_id, Some(8));
-        assert_eq!(t.stats.lock().unwrap().companions_read - read_before, 1, "the file was read twice");
+        assert_eq!(t.stats.lock().recover().companions_read - read_before, 1, "the file was read twice");
         assert!(t.pending.is_empty());
     }
 
@@ -1534,11 +1535,11 @@ mod tests {
         let (mut t, _, logs) = tailer(d.path());
         t.apply_lines(vec![market_event(&ts(10 * 60), 7)]);
         assert_eq!(t.pending.len(), 1);
-        let before = logs.lock().unwrap().len();
+        let before = logs.lock().recover().len();
         t.retry_pending();
         t.retry_pending();
         assert!(t.pending.is_empty());
-        let log = logs.lock().unwrap();
+        let log = logs.lock().recover();
         assert_eq!(log.len() - before, 1);
         assert!(log.last().unwrap().contains("gave up"));
     }
@@ -1712,7 +1713,7 @@ mod tests {
         let f2 = fired.clone();
         t.callouts = Some(Callouts {
             engine: astromech_announce::Engine::new(vec![Box::new(ScanRule)], &Default::default()),
-            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+            deliver: Box::new(move |rs| f2.lock().recover().extend(rs.into_iter().map(|r| r.text))),
         });
         t.catch_up();
         assert_eq!(t.tail.as_ref().unwrap().path, current, "startup follows the journal that began last");
@@ -1723,7 +1724,7 @@ mod tests {
         t.on_journal_activity();
         assert_eq!(t.tail.as_ref().unwrap().path, current);
         assert_eq!(eddn_state(&db).0, 1, "only the appended Docked, not the history written before startup");
-        assert_eq!(*fired.lock().unwrap(), ["Cargo scan."], "only the appended scan");
+        assert_eq!(*fired.lock().recover(), ["Cargo scan."], "only the appended scan");
     }
 
     /// Run `during` once, from inside the catch-up: when the replay of the followed journal logs.
@@ -1731,7 +1732,7 @@ mod tests {
         let once = std::sync::Mutex::new(Some(during));
         t.log = Box::new(move |l| {
             if l.starts_with("journal ") {
-                if let Some(f) = once.lock().unwrap().take() {
+                if let Some(f) = once.lock().recover().take() {
                     f();
                 }
             }
@@ -1794,7 +1795,7 @@ mod tests {
         let f2 = fired.clone();
         t.callouts = Some(Callouts {
             engine: astromech_announce::Engine::new(vec![Box::new(ScanRule)], &Default::default()),
-            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+            deliver: Box::new(move |rs| f2.lock().recover().extend(rs.into_iter().map(|r| r.text))),
         });
         let j2 = j.clone();
         during_catch_up(&mut t, move || append(&j2, &format!("{}\n{}", docked(&ts(0)), scanned_at(&ts(0)).trim_end())));
@@ -1802,11 +1803,11 @@ mod tests {
         let len = std::fs::metadata(&j).unwrap().len();
         t.catch_up();
         assert_eq!(t.tail.as_ref().unwrap().committed(), len);
-        assert!(fired.lock().unwrap().is_empty());
+        assert!(fired.lock().recover().is_empty());
         assert_eq!(eddn_state(&db), (0, vec![]));
 
         t.on_journal_activity();
-        assert_eq!(*fired.lock().unwrap(), ["Cargo scan."], "only the scan written during the catch-up");
+        assert_eq!(*fired.lock().recover(), ["Cargo scan."], "only the scan written during the catch-up");
         assert_eq!(eddn_state(&db).0, 1, "only the Docked written during the catch-up");
     }
 
@@ -1869,7 +1870,7 @@ mod tests {
         let (mut t, _) = eddn_tailer(d.path());
         t.catch_up();
         touch(&older, 10);
-        let reads = |t: &Tailer| t.stats.lock().unwrap().header_reads;
+        let reads = |t: &Tailer| t.stats.lock().recover().header_reads;
         t.on_journal_activity();
         let after_first = reads(&t);
         for _ in 0..5 {
@@ -2020,7 +2021,7 @@ mod tests {
         let (mut t, db) = eddn_tailer(d.path());
         t.catch_up();
         assert_eq!(t.tail.as_ref().unwrap().path, foreign);
-        assert_eq!(t.stats.lock().unwrap().lengths_by_handle, 2, "the game's and the followed (latest) one");
+        assert_eq!(t.stats.lock().recover().lengths_by_handle, 2, "the game's and the followed (latest) one");
         assert!(t.opened.contains_key(&old) && t.opened.contains_key(&own));
 
         append(&own, &docked(&ts(0)));
@@ -2533,7 +2534,7 @@ mod tests {
         let (mut t, _, logs) = tailer(d.path());
         t.open(current.clone(), true);
         let count = |logs: &Arc<std::sync::Mutex<Vec<String>>>| {
-            logs.lock().unwrap().iter().filter(|l| l.contains("isn't the latest")).count()
+            logs.lock().recover().iter().filter(|l| l.contains("isn't the latest")).count()
         };
         assert_eq!(count(&logs), 0, "the latest is not remarked on");
         for n in 1..=3 {
@@ -2543,7 +2544,7 @@ mod tests {
             t.on_journal_activity();
         }
         assert_eq!(count(&logs), 1);
-        assert!(logs.lock().unwrap().iter().any(|l| l.contains("replay only")));
+        assert!(logs.lock().recover().iter().any(|l| l.contains("replay only")));
     }
 
     /// astromech-t16r, case 1: the app starts while the game runs and a foreign journal stamped
@@ -2893,10 +2894,10 @@ mod tests {
         let f2 = fired.clone();
         t.callouts = Some(Callouts {
             engine: astromech_announce::Engine::new(vec![Box::new(MarketRule)], &Default::default()),
-            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+            deliver: Box::new(move |rs| f2.lock().recover().extend(rs.into_iter().map(|r| r.text))),
         });
         t.catch_up();
-        assert!(fired.lock().unwrap().is_empty(), "the startup replay is silent");
+        assert!(fired.lock().recover().is_empty(), "the startup replay is silent");
 
         // A touched conflict copy is followed (a replay); meanwhile the game docks again at the
         // same market and writes a new Market.json.
@@ -2912,7 +2913,7 @@ mod tests {
         touch(&j2, 20);
         t.on_journal_activity();
         assert_eq!(t.tail.as_ref().unwrap().path, j2);
-        assert_eq!(*fired.lock().unwrap(), ["Market."], "the live dock's market callout");
+        assert_eq!(*fired.lock().recover(), ["Market."], "the live dock's market callout");
     }
 
     /// astromech-01c0: a Market event whose file wasn't there yet stays pending, and is retried
@@ -2929,7 +2930,7 @@ mod tests {
         let f2 = fired.clone();
         t.callouts = Some(Callouts {
             engine: astromech_announce::Engine::new(vec![Box::new(MarketRule)], &Default::default()),
-            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+            deliver: Box::new(move |rs| f2.lock().recover().extend(rs.into_iter().map(|r| r.text))),
         });
         t.catch_up();
         assert_eq!(t.pending.len(), 1, "no Market.json yet for the replayed dock");
@@ -2941,7 +2942,7 @@ mod tests {
         std::fs::write(d.path().join("Market.json"), market_file(&ts(30), 7)).unwrap();
         t.on_companion_files(&[CompanionKind::Market]);
         assert_eq!(t.hub.snapshot().companions.market.unwrap().market_id, Some(7), "the file is used");
-        assert!(fired.lock().unwrap().is_empty(), "the replayed dock stays silent: {:?}", fired.lock().unwrap());
+        assert!(fired.lock().recover().is_empty(), "the replayed dock stays silent: {:?}", fired.lock().recover());
 
         // A live dock whose file comes late still gets its callout, from the idle retry.
         std::fs::remove_file(d.path().join("Market.json")).unwrap();
@@ -2951,7 +2952,7 @@ mod tests {
         assert_eq!(t.pending.len(), 1);
         std::fs::write(d.path().join("Market.json"), market_file(&ts(0), 8)).unwrap();
         t.retry_pending();
-        assert_eq!(*fired.lock().unwrap(), ["Market."]);
+        assert_eq!(*fired.lock().recover(), ["Market."]);
     }
 
     /// astromech-r3s7: once the game has started a newer session, the earlier journal is no longer

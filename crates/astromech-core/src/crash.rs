@@ -9,12 +9,19 @@ pub const MARKER: &str = "crash.marker";
 pub const LAST: &str = "crash-last.txt";
 
 /// Install the panic hook. Panics on any thread are logged; the process then carries on as
-/// Rust normally would (a panic on the main thread ends it).
+/// Rust normally would (a panic on the main thread ends it). A panic in a command's handler,
+/// which the command layer catches and answers with an error ([`astromech_api::dispatching`]),
+/// is logged but leaves no crash marker: the core kept running.
 pub fn install(app_dir: &Path) {
     let marker = app_dir.join(MARKER);
     let prev = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |info| {
         let thread = std::thread::current().name().unwrap_or("unnamed").to_string();
+        if astromech_api::dispatching() {
+            crate::logging::log(&format!("panic in a command on thread {thread} (answered with an error): {info}"));
+            prev(info);
+            return;
+        }
         let bt = std::backtrace::Backtrace::force_capture();
         let text = format!(
             "astromech-core {} crashed at {}\nthread: {thread}\n{info}\n\nbacktrace:\n{bt}\n",

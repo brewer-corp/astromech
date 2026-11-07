@@ -11,6 +11,7 @@ use crate::actions::{Outcome, Runner, Verified};
 use crate::assistant::{unavailable_reason, Assistant, Handled};
 use crate::config::Config;
 use crate::health::BindsState;
+use astromech_api::Recover;
 use astromech_gamestate::GameState;
 use astromech_intent::{Decision, Grammar};
 use astromech_keybinds::active::KeyCombo;
@@ -326,29 +327,29 @@ impl Tester {
 
     /// Extend test mode by [`LEASE`]. True if it was off.
     pub fn arm(&self, now: Instant) -> bool {
-        let mut a = self.armed_until.lock().unwrap();
+        let mut a = self.armed_until.lock().recover();
         let was = a.is_some_and(|t| now < t);
         *a = Some(now + LEASE);
         !was
     }
 
     pub fn disarm(&self) {
-        *self.armed_until.lock().unwrap() = None;
+        *self.armed_until.lock().recover() = None;
     }
 
     pub fn armed(&self, now: Instant) -> bool {
-        self.armed_until.lock().unwrap().is_some_and(|t| now < t)
+        self.armed_until.lock().recover().is_some_and(|t| now < t)
     }
 
     /// Keep a push-to-talk result for the page; returns its sequence number (from 1).
     pub fn record(&self, r: DryRun) -> u64 {
         let n = self.seq.fetch_add(1, Ordering::SeqCst) + 1;
-        *self.last.lock().unwrap() = Some((n, r));
+        *self.last.lock().recover() = Some((n, r));
         n
     }
 
     pub fn last(&self) -> Option<(u64, DryRun)> {
-        self.last.lock().unwrap().clone()
+        self.last.lock().recover().clone()
     }
 }
 

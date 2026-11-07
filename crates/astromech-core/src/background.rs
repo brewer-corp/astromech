@@ -17,6 +17,7 @@
 //! (`astromech_data::ttl::SCANNED` for EDSM's bodies, `ttl::SEARCH` for Spansh's), so the new
 //! answer is the service's.
 
+use astromech_api::Recover;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -71,7 +72,7 @@ impl<V: Clone + Send + 'static> Background<V> {
         look_up: impl FnOnce() -> Result<V, E> + Send + 'static,
     ) -> Option<V> {
         let now = (self.clock)();
-        let mut entries = self.entries.lock().unwrap();
+        let mut entries = self.entries.lock().recover();
         match entries.get(key) {
             Some(Lookup::Done(v, at)) if now.saturating_duration_since(*at) < self.keep_for => return Some(v.clone()),
             Some(Lookup::Pending) => return None,
@@ -88,7 +89,7 @@ impl<V: Clone + Send + 'static> Background<V> {
                 Ok(v) => Lookup::Done(v, clock()),
                 Err(_) => Lookup::Failed(clock()),
             };
-            all.lock().unwrap().insert(key2, found);
+            all.lock().recover().insert(key2, found);
         });
         if spawned.is_err() {
             entries.remove(key);
@@ -99,7 +100,7 @@ impl<V: Clone + Send + 'static> Background<V> {
     /// The last lookup of `key` failed (tests).
     #[cfg(test)]
     pub(crate) fn failed(&self, key: &str) -> bool {
-        matches!(self.entries.lock().unwrap().get(key), Some(Lookup::Failed(_)))
+        matches!(self.entries.lock().recover().get(key), Some(Lookup::Failed(_)))
     }
 
     /// Use `clock` for now (tests).
@@ -112,7 +113,7 @@ impl<V: Clone + Send + 'static> Background<V> {
     #[cfg(test)]
     pub(crate) fn settle(&self, key: &str) {
         let deadline = Instant::now() + Duration::from_secs(10);
-        while matches!(self.entries.lock().unwrap().get(key), Some(Lookup::Pending)) {
+        while matches!(self.entries.lock().recover().get(key), Some(Lookup::Pending)) {
             assert!(Instant::now() < deadline, "the lookup never finished");
             std::thread::sleep(Duration::from_millis(1));
         }
@@ -129,7 +130,7 @@ mod tests {
         let now = Arc::new(Mutex::new(start));
         let mut b = Background::new("test-lookup");
         let n2 = now.clone();
-        b.set_clock(Arc::new(move || *n2.lock().unwrap()));
+        b.set_clock(Arc::new(move || *n2.lock().recover()));
         (b, now)
     }
 
@@ -143,7 +144,7 @@ mod tests {
         let (b, now) = fake(start);
         let tries = Arc::new(AtomicUsize::new(0));
         for s in 0..=window as u64 {
-            *now.lock().unwrap() = start + Duration::from_secs(s);
+            *now.lock().recover() = start + Duration::from_secs(s);
             let t = tries.clone();
             assert_eq!(
                 b.get("Sol", move || {
@@ -173,11 +174,11 @@ mod tests {
         assert_eq!(ask(&b), None);
         b.settle("Sol");
         assert_eq!(ask(&b), Some(7));
-        *now.lock().unwrap() = start + KEEP_FOR - Duration::from_secs(1);
+        *now.lock().recover() = start + KEEP_FOR - Duration::from_secs(1);
         assert_eq!(ask(&b), Some(7), "still fresh");
         assert_eq!(tries.load(Ordering::SeqCst), 1);
 
-        *now.lock().unwrap() = start + KEEP_FOR;
+        *now.lock().recover() = start + KEEP_FOR;
         assert_eq!(ask(&b), None, "expired: looked up again");
         b.settle("Sol");
         assert_eq!(ask(&b), Some(8), "the new answer");

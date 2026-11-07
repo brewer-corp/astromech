@@ -19,6 +19,7 @@
 //! The core follows the configured journal folder ([`Following`]): setting another one in the
 //! window (onboarding's `set_folders`) stops the follower and starts one on the new folder.
 
+use astromech_api::Recover;
 use astromech_history::{History, ImportOptions};
 use astromech_journal::journal_version;
 use notify::{RecursiveMode, Watcher};
@@ -124,7 +125,7 @@ impl Follower {
     }
 
     pub fn progress(&self) -> Progress {
-        self.progress.lock().unwrap().clone()
+        self.progress.lock().recover().clone()
     }
 
     /// Import again (after the settle time), as if the folder changed.
@@ -157,13 +158,13 @@ fn run(
             return;
         }
         // Running from here: opening can migrate and rebuild the ledgers, which takes seconds.
-        p.lock().unwrap().running = true;
+        p.lock().recover().running = true;
         if history.is_none() {
             match History::open(db) {
                 Ok(h) => history = Some(h),
                 Err(e) => {
                     log(&format!("history: can't open {}: {e}", db.display()));
-                    let mut g = p.lock().unwrap();
+                    let mut g = p.lock().recover();
                     g.running = false;
                     g.error = Some(e.to_string());
                 }
@@ -173,11 +174,11 @@ fn run(
         let version = journal_version(dir);
         if let Some(h) = history.as_mut() {
             let r = h.import_with(dir, &ImportOptions::default(), |r| {
-                let mut g = p.lock().unwrap();
+                let mut g = p.lock().recover();
                 (g.files, g.lines, g.bytes, g.bytes_total) = (r.files, r.lines, r.bytes, r.bytes_total);
             });
             let events = h.event_count().unwrap_or_default();
-            let mut g = p.lock().unwrap();
+            let mut g = p.lock().recover();
             g.running = false;
             g.events = events;
             match r {
@@ -260,7 +261,7 @@ impl Following {
     /// waits on its own thread for the old follower's to end.
     pub fn follow(&self, dir: Option<PathBuf>, data_dir: &Path, log: Log) {
         let want = dir.map(|d| (d, data_dir.join(DB_FILE)));
-        let mut s = self.state.lock().unwrap();
+        let mut s = self.state.lock().recover();
         if s.current.as_ref().map(|(d, db, _)| (d, db)) == want.as_ref().map(|(d, db)| (d, db)) {
             return;
         }
@@ -281,7 +282,7 @@ impl Following {
 
     /// The history progress, while a folder is followed.
     pub fn status(&self) -> Option<Progress> {
-        self.state.lock().unwrap().current.as_ref().map(|(_, _, f)| f.progress())
+        self.state.lock().recover().current.as_ref().map(|(_, _, f)| f.progress())
     }
 }
 

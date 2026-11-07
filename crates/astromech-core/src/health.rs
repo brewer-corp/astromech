@@ -3,6 +3,7 @@
 //! Runs at startup and whenever the Bindings folder changes.
 
 use anyhow::{Context, Result};
+use astromech_api::Recover;
 use astromech_keybinds::active::{self, ActionIndex, KeyCombo};
 use astromech_keybinds::doctor::{self, Confidence};
 use astromech_keybinds::{devices, game};
@@ -203,7 +204,7 @@ pub fn watch(
             }
             let st = run_check(&bindings_dir, game_dir.as_deref(), live_devices);
             on_change(&st);
-            *shared.write().unwrap() = st;
+            *shared.write().recover() = st;
         }
     })?;
     Ok(HealthWatch { _watcher: w })

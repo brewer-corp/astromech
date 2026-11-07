@@ -10,7 +10,7 @@ use crate::session::{self, Session, VOICE_PAUSED};
 use crate::tester::{self, Source, TESTER};
 use crate::update::{self, ApplyWhen, Status as UpStatus};
 use anyhow::Result;
-use astromech_api::{control, Exposure, Registry, Request};
+use astromech_api::{control, Exposure, Recover, Registry, Request};
 use astromech_store::Paths;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -158,15 +158,15 @@ fn api_folders(c: &Config) -> astromech_api::Folders {
 
 impl Core {
     pub fn cfg(&self) -> Config {
-        self.cfg.read().unwrap().clone()
+        self.cfg.read().recover().clone()
     }
 
     pub fn notify(&self) {
-        let _ = self.ui.lock().unwrap().send(Ui::Refresh);
+        let _ = self.ui.lock().recover().send(Ui::Refresh);
     }
 
     pub fn active(&self) -> bool {
-        self.session.lock().unwrap().is_some()
+        self.session.lock().recover().is_some()
     }
 
     /// Keep the journal history on `cfg`'s journal folder: at startup, and after every config
@@ -177,7 +177,7 @@ impl Core {
 
     /// Why the config file wasn't used, if it wasn't.
     pub fn config_note(&self) -> Option<String> {
-        self.config_watch.lock().unwrap().note.clone()
+        self.config_watch.lock().recover().note.clone()
     }
 
     /// Make a config the one in force: the window's setup edits and a fixed file both come here.
@@ -187,12 +187,12 @@ impl Core {
         apply_edsm_switch(&c, self.secrets.as_ref());
         // Under the config lock, so concurrent edits re-point in the order they saved.
         self.follow_history(&c);
-        *self.cfg.write().unwrap() = c;
+        *self.cfg.write().recover() = c;
     }
 
     /// Whether the whole config file was unreadable (so every setting is a default).
     pub fn config_failed(&self) -> bool {
-        self.config_watch.lock().unwrap().failed
+        self.config_watch.lock().recover().failed
     }
 
     /// While the config file had something wrong (values ignored, or unreadable), look at it
@@ -201,11 +201,11 @@ impl Core {
     /// at the next start, as before).
     pub fn refresh_config(&self) {
         // The usual case (a good file) costs one look and never waits on an edit in progress.
-        if self.config_watch.lock().unwrap().note.is_none() {
+        if self.config_watch.lock().recover().note.is_none() {
             return;
         }
         let _g = self.config_lock.lock().unwrap_or_else(|e| e.into_inner());
-        let mut w = self.config_watch.lock().unwrap();
+        let mut w = self.config_watch.lock().recover();
         if w.note.is_none() {
             return;
         }
@@ -241,19 +241,19 @@ impl Core {
     /// The tray status. While the voice tester's test mode is on, push-to-talk does nothing in the
     /// game and the HUD cannot say so, so the line does.
     fn status_line_for(&self, testing: bool) -> String {
-        let game = *self.game.lock().unwrap();
+        let game = *self.game.lock().recover();
         let mut s = match (game, self.active(), self.starting.load(Ordering::SeqCst)) {
             _ if testing => "Voice tester open · push-to-talk testing only".to_string(),
             (_, _, true) => "Starting voice…".to_string(),
-            (Game::Running, true, _) => format!("Elite running · {}", self.voice.lock().unwrap()),
-            (Game::Launcher, true, _) => format!("Launcher open · {}", self.voice.lock().unwrap()),
+            (Game::Running, true, _) => format!("Elite running · {}", self.voice.lock().recover()),
+            (Game::Launcher, true, _) => format!("Launcher open · {}", self.voice.lock().recover()),
             (Game::Running, false, _) => "Elite running · voice failed (see logs)".to_string(),
             _ => "Waiting for Elite".to_string(),
         };
         if VOICE_PAUSED.load(Ordering::SeqCst) {
             s = format!("{s} · paused");
         }
-        if let Some(m) = self.models.lock().unwrap().as_ref() {
+        if let Some(m) = self.models.lock().recover().as_ref() {
             s = format!("{s} · {m}");
         }
         s
@@ -280,7 +280,7 @@ impl Core {
 
     pub fn status_json(&self) -> Value {
         self.refresh_config();
-        let (killed, toasts, mining) = match self.session.lock().unwrap().as_ref() {
+        let (killed, toasts, mining) = match self.session.lock().recover().as_ref() {
             Some(s) => (s.runner.policy.is_killed(), s.toasts.recent(), Some(s.hub.mining_json())),
             None => (false, vec![], None),
         };
@@ -290,14 +290,14 @@ impl Core {
             "ok": true,
             "version": env!("CARGO_PKG_VERSION"),
             "pid": std::process::id(),
-            "game": *self.game.lock().unwrap(),
+            "game": *self.game.lock().recover(),
             "active": self.active(),
             "starting": self.starting.load(Ordering::SeqCst),
-            "voice": *self.voice.lock().unwrap(),
+            "voice": *self.voice.lock().recover(),
             "voice_paused": session::VOICE_PAUSED.load(Ordering::SeqCst),
             "killed": killed,
             "autostart": crate::autostart::is_enabled(),
-            "crash_pending": self.crash.lock().unwrap().is_some(),
+            "crash_pending": self.crash.lock().recover().is_some(),
             "status_line": self.status_line(),
             "app_dir": self.app_dir.display().to_string(),
             "log_dir": crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir()).display().to_string(),
@@ -309,9 +309,9 @@ impl Core {
             "mic": cfg.voice.mic,
             "onboarded": self.onboarded.load(Ordering::SeqCst),
             "models_missing": models_missing(&cfg),
-            "models_progress": *self.models.lock().unwrap(),
+            "models_progress": *self.models.lock().recover(),
             "models_dir": cfg.models_dir().display().to_string(),
-            "update": &self.update.lock().unwrap().snap,
+            "update": &self.update.lock().recover().snap,
             "toasts": toasts,
             "history": self.history.status(),
             "mining": mining,
@@ -329,7 +329,7 @@ impl Core {
             status: serde_json::to_string_pretty(&self.status_json()).unwrap_or_default(),
         })?;
         log(&format!("diagnostics saved: {}", p.display()));
-        if self.crash.lock().unwrap().take().is_some() {
+        if self.crash.lock().recover().take().is_some() {
             crate::crash::acknowledge(&self.app_dir);
         }
         self.notify();
@@ -337,7 +337,7 @@ impl Core {
     }
 
     pub fn kill_switch(&self) {
-        if let Some(s) = self.session.lock().unwrap().as_ref() {
+        if let Some(s) = self.session.lock().recover().as_ref() {
             if s.runner.policy.is_killed() {
                 s.runner.policy.rearm();
                 s.speaker.say("Re-armed.");
@@ -368,8 +368,8 @@ impl Core {
         match r {
             Ok(s) => {
                 log(&format!("active in {} ms: {}", t0.elapsed().as_millis(), s.voice));
-                *self.voice.lock().unwrap() = s.voice.clone();
-                *self.session.lock().unwrap() = Some(s);
+                *self.voice.lock().recover() = s.voice.clone();
+                *self.session.lock().recover() = Some(s);
                 // A voice saved in Settings while the session loaded: use it now.
                 let (old, new) = (&cfg.voice, self.cfg().voice);
                 if (old.speaker.as_str(), old.speed, old.colour) != (new.speaker.as_str(), new.speed, new.colour) {
@@ -378,12 +378,12 @@ impl Core {
             }
             Err(e) => {
                 log(&format!("couldn't go active: {e:#}"));
-                *self.voice.lock().unwrap() = format!("error: {e}");
+                *self.voice.lock().recover() = format!("error: {e}");
             }
         }
         self.starting.store(false, Ordering::SeqCst);
         // If the game went away while we were loading, unload again.
-        if *self.game.lock().unwrap() == Game::NotRunning {
+        if *self.game.lock().recover() == Game::NotRunning {
             self.deactivate("the game exited while loading");
         }
         self.notify();
@@ -391,11 +391,11 @@ impl Core {
 
     fn deactivate(&self, why: &str) {
         if !self.starting.load(Ordering::SeqCst) {
-            *self.voice.lock().unwrap() = "voice not loaded".into();
+            *self.voice.lock().recover() = "voice not loaded".into();
         }
         // Out of the lock before dropping: closing a session waits for its threads, and the
         // status, tray and kill switch all need this lock meanwhile.
-        let session = self.session.lock().unwrap().take();
+        let session = self.session.lock().recover().take();
         if let Some(s) = session {
             log(&format!("{why}: going idle (unloading voice, closing the microphone)"));
             s.speaker.interrupt();
@@ -406,7 +406,7 @@ impl Core {
     }
 
     fn set_update(&self, f: impl FnOnce(&mut update::Handle)) {
-        f(&mut self.update.lock().unwrap());
+        f(&mut self.update.lock().recover());
         self.notify();
     }
 
@@ -420,7 +420,7 @@ impl Core {
     /// Fetch `latest.json`, and download the zip if it is newer. Safe while Elite is running.
     pub fn check_update(self: &Arc<Self>, manual: bool) {
         {
-            let mut h = self.update.lock().unwrap();
+            let mut h = self.update.lock().recover();
             if h.snap.status.busy() {
                 return;
             }
@@ -507,7 +507,7 @@ impl Core {
         }
         // Claim the install under the lock, so a second click can't start another helper.
         let (payload, before) = {
-            let mut h = self.update.lock().unwrap();
+            let mut h = self.update.lock().recover();
             if h.snap.status == UpStatus::Applying {
                 return json!({"ok": false, "error": "already installing"});
             }
@@ -531,7 +531,7 @@ impl Core {
                 self.notify();
                 log("update: helper started; quitting so files can be replaced");
                 // Quit a moment later, so whoever asked (the window) still gets this reply.
-                let ui = self.ui.lock().unwrap().clone();
+                let ui = self.ui.lock().recover().clone();
                 std::thread::spawn(move || {
                     std::thread::sleep(Duration::from_millis(300));
                     let _ = ui.send(Ui::Quit);
@@ -551,7 +551,7 @@ impl Core {
         if self.cfg().update.apply != ApplyWhen::OnQuit {
             return;
         }
-        let h = self.update.lock().unwrap();
+        let h = self.update.lock().recover();
         if h.snap.status == UpStatus::Applying {
             return;
         }
@@ -642,7 +642,7 @@ impl Core {
         let cfg = self.cfg();
         match crate::speech::VoiceParams::from_config(&cfg.voice) {
             Ok(v) => {
-                if let Some(s) = self.session.lock().unwrap().as_ref() {
+                if let Some(s) = self.session.lock().recover().as_ref() {
                     s.speaker.set_voice(&v);
                 }
                 self.preview.set_voice(&v);
@@ -662,7 +662,7 @@ impl Core {
             if self.starting.load(Ordering::SeqCst) {
                 return Some(Err(anyhow::anyhow!("voice is starting; try again in a moment")));
             }
-            if let Some(s) = self.session.lock().unwrap().as_ref() {
+            if let Some(s) = self.session.lock().recover().as_ref() {
                 if !s.speaker.speaks_aloud() {
                     return Some(Err(anyhow::anyhow!("speech output is off (see the log)")));
                 }
@@ -784,13 +784,13 @@ impl Core {
             Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
         });
         add(&["ack_crash"], Exposure::Window, |c, _| {
-            c.crash.lock().unwrap().take();
+            c.crash.lock().recover().take();
             crate::crash::acknowledge(&c.app_dir);
             c.notify();
             json!({"ok": true})
         });
         add(&["quit"], Exposure::Local, |c, _| {
-            let _ = c.ui.lock().unwrap().send(Ui::Quit);
+            let _ = c.ui.lock().recover().send(Ui::Quit);
             json!({"ok": true})
         });
         add(&["check_update"], Exposure::Window, |c, _| {
@@ -841,8 +841,8 @@ impl Core {
                 .and_then(|st| crate::callouts::change_thresholds(&st, &text));
             match res {
                 Ok(t) => {
-                    if let Some(s) = c.session.lock().unwrap().as_ref() {
-                        *s.shared.prospector.write().unwrap() = t.clone();
+                    if let Some(s) = c.session.lock().recover().as_ref() {
+                        *s.shared.prospector.write().recover() = t.clone();
                     }
                     log(&format!("prospector thresholds changed: {text}"));
                     crate::callouts::thresholds_json(&t)
@@ -862,15 +862,15 @@ impl Core {
             match res {
                 Ok(list) => {
                     let n = list.0.len();
-                    if let Some(s) = c.session.lock().unwrap().as_ref() {
-                        *s.shared.shopping.write().unwrap() = list;
+                    if let Some(s) = c.session.lock().recover().as_ref() {
+                        *s.shared.shopping.write().recover() = list;
                     }
                     json!({"ok": true, "materials": n})
                 }
                 Err(e) => json!({"ok": false, "error": e}),
             }
         });
-        add(&["exobiology"], Exposure::Window, |c, _| match c.session.lock().unwrap().as_ref() {
+        add(&["exobiology"], Exposure::Window, |c, _| match c.session.lock().recover().as_ref() {
             Some(s) => {
                 let known = s.shared.known_bio.get();
                 crate::biology::view(&s.hub.snapshot(), known.as_deref())
@@ -961,7 +961,7 @@ impl Core {
         add(&["voice_test"], Exposure::Window, |c, r| {
             let text = r.text.clone().unwrap_or_default();
             let res = {
-                let s = c.session.lock().unwrap();
+                let s = c.session.lock().recover();
                 s.as_ref().map(|s| s.assistant.dry_run(&text, Source::Typed))
             };
             let res = res.unwrap_or_else(|| tester::dry_run_idle(&c.cfg(), &text));
@@ -976,7 +976,7 @@ impl Core {
         });
         add(&["learned_phrases"], Exposure::Window, |c, _| crate::learned::list(&c.cfg().data_dir()));
         add(&["learned_forget"], Exposure::Window, |c, r| {
-            let assistant = c.session.lock().unwrap().as_ref().map(|s| s.assistant.clone());
+            let assistant = c.session.lock().recover().as_ref().map(|s| s.assistant.clone());
             let heard = r.text.clone().unwrap_or_default();
             log(&format!("learned phrase forgotten: {heard:?}"));
             crate::learned::forget(&c.cfg().data_dir(), assistant.as_deref(), &heard)
@@ -993,7 +993,7 @@ impl Core {
             let arg = |k: &str| r.args.as_ref().and_then(|a| a.get(k)).and_then(Value::as_str).map(str::to_string);
             let cmd = r.text.clone().or_else(|| arg("command")).unwrap_or_default();
             let from = arg("from");
-            let runner = c.session.lock().unwrap().as_ref().map(|s| s.runner.clone());
+            let runner = c.session.lock().recover().as_ref().map(|s| s.runner.clone());
             match runner {
                 None => json!({"ok": false, "error": "Elite isn't running, so there's nothing to send keys to."}),
                 Some(runner) => {
@@ -1167,10 +1167,10 @@ pub fn open_config(path: &Path) {
 
 /// Download the speech models in the background, showing progress in the status line.
 pub fn download_models(core: &Arc<Core>) {
-    if core.models.lock().unwrap().is_some() {
+    if core.models.lock().recover().is_some() {
         return;
     }
-    *core.models.lock().unwrap() = Some("downloading speech models…".into());
+    *core.models.lock().recover() = Some("downloading speech models…".into());
     core.notify();
     let c = core.clone();
     let _ = std::thread::Builder::new().name("models".into()).spawn(move || {
@@ -1183,7 +1183,7 @@ pub fn download_models(core: &Arc<Core>) {
                 let pct = (p.done * 100).checked_div(p.total).unwrap_or(0);
                 if pct != last {
                     last = pct;
-                    *c.models.lock().unwrap() = Some(format!("{} {:?} {pct}%", a.label, p.phase));
+                    *c.models.lock().recover() = Some(format!("{} {:?} {pct}%", a.label, p.phase));
                     c.notify();
                 }
             });
@@ -1199,7 +1199,7 @@ pub fn download_models(core: &Arc<Core>) {
             }
             Some(e) => log(&format!("speech model download failed: {e}")),
         }
-        *c.models.lock().unwrap() = None;
+        *c.models.lock().recover() = None;
         c.notify();
     });
 }
@@ -1237,7 +1237,7 @@ fn watch_game(core: Arc<Core>) {
     loop {
         let names = gamewatch::process_names();
         let change = w.poll(&names);
-        *core.game.lock().unwrap() = w.game;
+        *core.game.lock().recover() = w.game;
         match change {
             Some(Change::LauncherOpened) => {
                 log("Elite launcher (EDLaunch.exe) opened");
@@ -1655,7 +1655,7 @@ mod tests {
         let core = core(d.path(), "");
         assert_eq!(core.status_line_for(false), "Waiting for Elite");
         assert_eq!(core.status_line_for(true), "Voice tester open · push-to-talk testing only");
-        *core.game.lock().unwrap() = Game::Running;
+        *core.game.lock().recover() = Game::Running;
         assert!(core.status_line_for(false).starts_with("Elite running"));
         assert_eq!(core.status_line_for(true), "Voice tester open · push-to-talk testing only");
     }
@@ -1669,7 +1669,7 @@ mod tests {
             _url: &str,
             _req: &astromech_data::Request,
         ) -> Result<astromech_data::Response, astromech_data::TransportError> {
-            let (status, body) = self.0.lock().unwrap().remove(0);
+            let (status, body) = self.0.lock().recover().remove(0);
             Ok(astromech_data::Response { status, body: body.into() })
         }
     }
@@ -1990,9 +1990,9 @@ mod tests {
         let bad = "[controls]\nptt = { device = \"231D3201\", key = \"Joy_4\" }\nrearm_hold_ms = \"slow\"\n";
         std::fs::write(&core.config_path, bad).unwrap();
         let (c, problems) = Config::load_report(&core.config_path).unwrap();
-        *core.cfg.write().unwrap() = c;
+        *core.cfg.write().recover() = c;
         let note = config_problems_note(&problems);
-        *core.config_watch.lock().unwrap() = ConfigWatch::loaded(&core.config_path, note, false);
+        *core.config_watch.lock().recover() = ConfigWatch::loaded(&core.config_path, note, false);
         let n = core.status_json()["config_note"].as_str().unwrap().to_string();
         assert!(n.contains("These config values were ignored") && n.contains("line 3: controls.rearm_hold_ms"), "{n}");
         // The good values are in force, and setup is not blocked by a note about one value.
@@ -2011,7 +2011,7 @@ mod tests {
         assert!(st["config_note"].is_null(), "{st}");
         assert_eq!(core.cfg().controls.rearm_hold_ms, 800);
         // Broken beyond TOML, then fixed again.
-        *core.config_watch.lock().unwrap() = ConfigWatch::loaded(&core.config_path, Some("x".into()), false);
+        *core.config_watch.lock().recover() = ConfigWatch::loaded(&core.config_path, Some("x".into()), false);
         std::fs::write(&core.config_path, "[controls\nptt = ").unwrap();
         assert_eq!(core.setup_needed(), ["config file has an error (see logs)"]);
         assert!(core.config_note().unwrap().contains("can't be read"));
@@ -2028,7 +2028,7 @@ mod tests {
         let core = core(d.path(), "");
         std::fs::write(&core.config_path, "[controls\nptt = ").unwrap();
         // As `run` finds it: unreadable, so defaults and a note.
-        *core.config_watch.lock().unwrap() =
+        *core.config_watch.lock().recover() =
             ConfigWatch::loaded(&core.config_path, Some("config error (see logs)".into()), true);
         assert_eq!(core.status_json()["config_note"], "config error (see logs)");
         assert_eq!(core.setup_needed(), ["config file has an error (see logs)"]);
@@ -2173,6 +2173,32 @@ mod tests {
         let now = ask("materials_inventory", None);
         assert_eq!(now, materials(&new_j));
         assert_ne!(now, materials(&old_j));
+    }
+
+    /// A handler that panics while it holds the session lock answers with an error, and the
+    /// commands that take that lock after it (`status`, `exobiology`) answer as normal.
+    #[test]
+    fn a_panic_under_the_session_lock_leaves_the_core_working() {
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        let mut reg = core.commands();
+        let c = core.clone();
+        reg.add("panic_holding_the_session", Exposure::Window, move |_, _| {
+            let _held = c.session.lock();
+            panic!("a handler's bug")
+        });
+        let app = d.path().join("app");
+        let _srv = control::serve(&app, Arc::new(reg)).unwrap();
+        let ask = |cmd: &str| {
+            let req = Request { origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
+            control::call(&app, req, None, &mut |_| {})
+        };
+        let e = ask("panic_holding_the_session").unwrap_err();
+        assert!(e.contains("a handler's bug"), "{e}");
+        assert!(core.session.is_poisoned());
+        let status = ask("status").unwrap();
+        assert_eq!((&status["ok"], &status["active"]), (&json!(true), &json!(false)), "{status}");
+        assert_eq!(ask("exobiology").unwrap(), json!({"ok": false, "error": "Elite isn't running."}));
     }
 
     /// The window's commands read and write the core's data folder, the one its config names,

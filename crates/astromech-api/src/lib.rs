@@ -11,9 +11,18 @@
 //! `origin: "app_window"` on what it forwards, and a `local` command refuses that origin
 //! (decision astromech-unh9). The token in `core.json` is the gate, not the origin.
 //!
-//! Every handler runs behind `catch_unwind`: a panic becomes an error reply, is logged, and the
-//! next call runs as normal. State a handler shares with other calls is locked with [`lock`],
-//! which recovers a lock a panicking handler poisoned instead of failing every later call.
+//! Every handler runs behind `catch_unwind`: a panic becomes an error reply naming the command
+//! and is logged, and the process carries on. While a handler runs, [`dispatching`] is true on
+//! its thread, so the core's panic hook logs such a panic without leaving a crash report for the
+//! next start. What recovers after the panic:
+//!
+//! - A lock the handler held: locked with [`lock`] (or [`Recover`] on any `Mutex` or `RwLock`)
+//!   the next caller gets it instead of a poisoned error. This crate's [`State`] and the core's
+//!   own state and session state lock this way, so later calls run as normal. A lock taken with
+//!   `.lock().unwrap()` stays poisoned and every later call that takes it panics too.
+//! - Not what the handler had half done: the state behind the lock is as it left it.
+//! - Not a panic on a thread the handler started: that is not caught here, and ends that thread
+//!   as any thread's panic does.
 //!
 //! **Rule:** this crate never depends on `astromech-core`, `astromech-input` or
 //! `astromech-policy` (scripts/check-deps.py).
@@ -30,9 +39,21 @@ use astromech_proto::Origin;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use serde_json::Value;
+use std::cell::Cell;
 use std::collections::BTreeMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
-use std::sync::{Mutex, MutexGuard};
+use std::sync::{LockResult, Mutex, MutexGuard, PoisonError};
+
+thread_local! {
+    /// How many handlers this thread is running (a handler may run another, [`Call::run`]).
+    static DISPATCHING: Cell<u32> = const { Cell::new(0) };
+}
+
+/// Whether this thread is running a command's handler, so a panic now is caught by
+/// [`Registry::dispatch`] and answered with an error (the process carries on).
+pub fn dispatching() -> bool {
+    DISPATCHING.with(|d| d.get() > 0)
+}
 
 /// Who may call a command.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -119,7 +140,10 @@ impl Registry {
             return Err(format!("not allowed: {} is for local control clients only", r.cmd));
         }
         let call = Call { registry: self, origin: r.origin, progress };
-        catch_unwind(AssertUnwindSafe(|| handler(r, &call))).unwrap_or_else(|panic| {
+        DISPATCHING.with(|d| d.set(d.get() + 1));
+        let ran = catch_unwind(AssertUnwindSafe(|| handler(r, &call)));
+        DISPATCHING.with(|d| d.set(d.get() - 1));
+        ran.unwrap_or_else(|panic| {
             let why = panic
                 .downcast_ref::<&str>()
                 .map(|s| s.to_string())
@@ -134,7 +158,19 @@ impl Registry {
 /// Lock state shared between calls, recovering it if a handler panicked while holding it.
 /// The handler that panicked got an error; the state is as it left it.
 pub fn lock<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
-    m.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+    m.lock().recover()
+}
+
+/// [`lock`]'s recovery for any lock's result: `m.lock().recover()`, `rw.read().recover()`.
+pub trait Recover<G> {
+    /// The guard, even if a panic poisoned the lock.
+    fn recover(self) -> G;
+}
+
+impl<G> Recover<G> for LockResult<G> {
+    fn recover(self) -> G {
+        self.unwrap_or_else(PoisonError::into_inner)
+    }
 }
 
 #[cfg(test)]
@@ -224,6 +260,28 @@ pub(crate) mod tests {
         assert_eq!(reg.dispatch(&req("count", None, None), &|_| {}), Ok(json!(2)));
         let log = logged();
         assert!(log.contains("command count panicked: count exploded"), "{log}");
+    }
+
+    /// [`dispatching`] is true on a handler's thread while it runs (and in a command it runs),
+    /// and false once it has answered, however it ended.
+    #[test]
+    fn dispatching_is_true_only_while_a_handler_runs() {
+        test_log();
+        let mut reg = Registry::new();
+        reg.add("inner", Exposure::Window, |_, _| Ok(json!(dispatching())));
+        reg.add("outer", Exposure::Window, |r, call| {
+            if r.text.is_some() {
+                panic!("a handler's bug");
+            }
+            Ok(json!([dispatching(), call.run("inner", None)?, dispatching()]))
+        });
+        assert!(!dispatching());
+        assert_eq!(reg.dispatch(&req("outer", None, None), &|_| {}), Ok(json!([true, true, true])));
+        assert!(!dispatching());
+        let mut boom = req("outer", None, None);
+        boom.text = Some("panic".into());
+        assert!(reg.dispatch(&boom, &|_| {}).is_err());
+        assert!(!dispatching(), "cleared after a panic too");
     }
 
     /// A handler runs another command through the registry for the same caller: the window
