@@ -5,7 +5,7 @@
     "reply": {
       "active": false,
       "app_dir": "<dir>",
-      "autostart": false,
+      "autostart": "<masked>",
       "config": "<dir>/astromech.toml",
       "config_note": null,
       "crash_pending": false,
@@ -16,7 +16,7 @@
       "log_dir": "<masked>",
       "mic": "",
       "mining": null,
-      "models_dir": "/home/supadava/.local/share/astromech/data/models",
+      "models_dir": "<dir>/models",
       "models_missing": true,
       "models_progress": null,
       "ok": true,
@@ -690,10 +690,10 @@
     "cmd": "find_elite",
     "reply": {
       "found": {
-        "bindings_dir": null,
+        "bindings_dir": "<dir>/bindings",
         "bindings_found": false,
-        "install": null,
-        "install_source": null,
+        "install": "<masked>",
+        "install_source": "<masked>",
         "journal_dir": "<dir>/journals",
         "journal_found": true,
         "ok": true

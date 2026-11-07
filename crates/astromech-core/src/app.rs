@@ -2561,9 +2561,12 @@ mod tests {
     }
 
     /// Typed replies keep the JSON the window reads (astromech-se44): a scripted run of the core's
-    /// own commands, with the temporary folder, the pid, the version and the log folder masked,
-    /// equals `tests/fixtures/core-replies.json`, recorded from the `json!` replies before they
-    /// were typed. Refresh it after a deliberate change with
+    /// own commands equals `tests/fixtures/core-replies.json`, recorded from the `json!` replies
+    /// before they were typed. Every folder the config names is under the test's temporary one,
+    /// which is masked (as `<dir>`, with `/` separators) on any host. What this machine itself
+    /// answers is masked too: the pid, the version, the log folder, start with Windows and an
+    /// installed game. The microphone commands are left out on Windows, where they list and
+    /// record real devices. Refresh it after a deliberate change with
     /// `ASTROMECH_UPDATE_REPLIES=1 cargo test -p astromech-core --lib replies_keep`.
     #[test]
     fn core_replies_keep_their_json() {
@@ -2573,12 +2576,17 @@ mod tests {
         std::fs::create_dir_all(&journals).unwrap();
         let core = core(
             d.path(),
-            &format!("data_dir = '{}'\n[game]\njournal_dir = '{}'\n", d.path().display(), journals.display()),
+            &format!(
+                "data_dir = '{0}'\n[game]\njournal_dir = '{1}'\nbindings_dir = '{0}/bindings'\ngame_dir = '{0}/game'\n\
+                 [voice]\nmodels_dir = '{0}/models'\n",
+                d.path().display(),
+                journals.display()
+            ),
         );
         let ask = |cmd: &str, args: Option<Value>, text: Option<&str>| {
             core.handle(&Request { args, text: text.map(str::to_string), ..Request::new(cmd) })
         };
-        let script: Vec<(&str, Option<Value>, Option<&str>)> = vec![
+        let mut script: Vec<(&str, Option<Value>, Option<&str>)> = vec![
             ("status", None, None),
             ("callouts", None, None),
             ("set_callout", Some(json!({"id": "scan", "enabled": false})), None),
@@ -2626,16 +2634,32 @@ mod tests {
             ("route_clear", None, None),
             ("route_resume", Some(json!({})), None),
         ];
-        let dir = d.path().display().to_string();
+        // The microphone commands answer from this machine's devices on Windows.
+        let host_devices = |cmd: &str| cfg!(windows) && (cmd == "mic_list" || cmd == "mic_check");
+        script.retain(|(cmd, _, _)| !host_devices(cmd));
+        // Any path, with `/` separators and the temporary folder as `<dir>`.
+        fn mask(v: &mut Value, dir: &str) {
+            match v {
+                Value::String(s) => *s = s.replace('\\', "/").replace(dir, "<dir>"),
+                Value::Array(a) => a.iter_mut().for_each(|v| mask(v, dir)),
+                Value::Object(m) => m.values_mut().for_each(|v| mask(v, dir)),
+                _ => {}
+            }
+        }
+        let dir = d.path().display().to_string().replace('\\', "/");
         let mut got = vec![];
         for (cmd, args, text) in script {
             let mut v = ask(cmd, args.clone(), text);
-            for k in ["pid", "version", "log_dir"] {
+            for k in ["pid", "version", "log_dir", "autostart"] {
                 if v.get(k).is_some() {
                     v[k] = json!("<masked>");
                 }
             }
-            let v: Value = serde_json::from_str(&v.to_string().replace(&dir, "<dir>")).unwrap();
+            if let Some(found) = v.get_mut("found") {
+                found["install"] = json!("<masked>");
+                found["install_source"] = json!("<masked>");
+            }
+            mask(&mut v, &dir);
             got.push(json!({"cmd": cmd, "args": args, "text": text, "reply": v}));
         }
         let got = Value::Array(got);
@@ -2644,7 +2668,8 @@ mod tests {
             std::fs::create_dir_all(file.parent().unwrap()).unwrap();
             std::fs::write(&file, serde_json::to_string_pretty(&got).unwrap() + "\n").unwrap();
         }
-        let want: Value = serde_json::from_str(&std::fs::read_to_string(&file).unwrap()).unwrap();
+        let mut want: Value = serde_json::from_str(&std::fs::read_to_string(&file).unwrap()).unwrap();
+        want.as_array_mut().unwrap().retain(|e| !host_devices(e["cmd"].as_str().unwrap_or_default()));
         for (g, w) in got.as_array().unwrap().iter().zip(want.as_array().unwrap()) {
             assert_eq!(g, w, "a reply's JSON changed");
         }
