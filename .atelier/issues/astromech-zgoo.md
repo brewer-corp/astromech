@@ -13,9 +13,6 @@ relationships:
   - kind: "issue"
     id: "astromech-7149"
     type: "blocked_by"
-  - kind: "issue"
-    id: "astromech-u8ge"
-    type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"

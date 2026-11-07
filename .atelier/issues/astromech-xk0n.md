@@ -9,15 +9,12 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates:
-  - kind: "issue"
-    id: "astromech-i1ev"
-    type: "blocked_by"
+  relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Recorded network: every HTTP request in world mode answered from net.json, with faults and a redacting record mode"
-updated_at: "2026-11-07T17:01:39.631047129+00:00"
+updated_at: "2026-11-07T17:04:39.916512501+00:00"
 ---
 
 ## Goal
