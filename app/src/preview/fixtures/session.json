@@ -1,39 +1,64 @@
 {
-  "commander": {
-    "cmdr": "F0000001",
-    "name": "Fixture",
-    "legacy": false,
-    "first_seen": "2026-09-01T10:00:05Z",
-    "last_seen": "2026-09-03T10:00:05Z"
-  },
-  "start": "2026-09-01T10:00:05Z",
-  "end": "2026-09-01T10:30:00Z",
-  "duration_secs": 1795,
-  "latest": false,
-  "earnings": [
-    {
-      "kind": "trade",
-      "amount": 500000,
-      "count": 1
-    },
-    {
-      "kind": "mission",
-      "amount": 250000,
-      "count": 1
-    },
-    {
-      "kind": "bounty",
-      "amount": 120000,
-      "count": 1
-    }
-  ],
-  "total": 870000,
-  "trade_profit": 50000,
-  "per_hour": 1744847,
-  "jumps": 2,
-  "distance_ly": 10.879999999999999,
-  "carrier_jumps": 0,
   "bounties_awarded": 0,
   "bounty_value": 0,
-  "data_sold": 0
+  "carrier_jumps": 0,
+  "commander": {
+    "cmdr": "F0000001",
+    "first_seen": "2026-09-01T10:00:05Z",
+    "last_seen": "2026-09-03T10:00:05Z",
+    "legacy": false,
+    "name": "Fixture"
+  },
+  "data_sold": 5100000,
+  "distance_ly": 0.0,
+  "duration_secs": 1795,
+  "earnings": [
+    {
+      "amount": 5000000,
+      "count": 1,
+      "kind": "organic"
+    },
+    {
+      "amount": 2000000,
+      "count": 1,
+      "kind": "community_goal"
+    },
+    {
+      "amount": 100000,
+      "count": 1,
+      "kind": "exploration"
+    },
+    {
+      "amount": 60000,
+      "count": 1,
+      "kind": "combat_bond"
+    },
+    {
+      "amount": 40000,
+      "count": 1,
+      "kind": "search_and_rescue"
+    },
+    {
+      "amount": 15000,
+      "count": 1,
+      "kind": "micro_resources"
+    },
+    {
+      "amount": 5000,
+      "count": 1,
+      "kind": "voucher"
+    },
+    {
+      "amount": 1500,
+      "count": 1,
+      "kind": "trade"
+    }
+  ],
+  "end": "2026-09-03T10:30:00Z",
+  "jumps": 0,
+  "latest": true,
+  "per_hour": 14483231,
+  "start": "2026-09-03T10:00:05Z",
+  "total": 7221500,
+  "trade_profit": 1500
 }
