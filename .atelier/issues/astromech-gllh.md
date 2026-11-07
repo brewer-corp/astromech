@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Every window command runs for real against the headless world core"
-updated_at: "2026-11-07T18:49:03.219297868+00:00"
+updated_at: "2026-11-07T18:49:34.975876128+00:00"
 ---
 
 ## Goal
