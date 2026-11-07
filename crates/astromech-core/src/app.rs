@@ -121,6 +121,25 @@ pub struct Core {
     /// The route being followed (docs/PLOTTING.md). The core owns it, not a session, so the
     /// window can set one while Elite isn't running.
     pub route: Arc<crate::route::Desk>,
+    /// The command layer's state (keybinds, journal caches), read by the window's commands.
+    pub api: Arc<astromech_api::State>,
+}
+
+/// The command layer's state over `core`'s live config: its folders are read on every call,
+/// so a `set_folders` applies at once. `data_dir` is fixed for the process.
+fn api_state(core: std::sync::Weak<Core>, data_dir: PathBuf) -> Arc<astromech_api::State> {
+    Arc::new(astromech_api::State::new(data_dir, move || {
+        core.upgrade().map(|c| api_folders(&c.cfg())).unwrap_or_default()
+    }))
+}
+
+fn api_folders(c: &Config) -> astromech_api::Folders {
+    let bindings = c.game.bindings_dir.trim();
+    astromech_api::Folders {
+        journal: c.journal_dir().unwrap_or_default(),
+        bindings: (!bindings.is_empty()).then(|| PathBuf::from(bindings)),
+        game: c.game_dir(),
+    }
 }
 
 impl Core {
@@ -716,6 +735,7 @@ impl Core {
     /// stay with the tray and a second start (decision astromech-unh9).
     pub fn commands(self: &Arc<Self>) -> Registry {
         let mut reg = Registry::new();
+        astromech_api::commands::register(&self.api, &mut reg);
         let mut add = |names: &[&str], exposure: Exposure, f: fn(&Arc<Core>, &Request) -> Value| {
             for name in names {
                 let c = self.clone();
@@ -1319,8 +1339,15 @@ pub fn run(opts: Opts) -> i32 {
     let secrets: Arc<dyn astromech_store::secrets::Secrets> = Arc::new(astromech_store::secrets::OsKeyring::new());
     apply_edsm_switch(&cfg, secrets.as_ref());
     let route = Arc::new(crate::route::Desk::in_dir(&cfg.data_dir()));
+    let data_dir = cfg.data_dir();
+    // Saved binding overrides used to live in the app dir whatever `data_dir` said; carry them
+    // across once (never overwriting). A failed copy only means the old overrides aren't seen.
+    if let Err(e) = paths.carry_over("device-overrides.json", &data_dir) {
+        log(&format!("could not carry device-overrides.json over to {}: {e}", data_dir.display()));
+    }
     let (ui_tx, ui_rx) = channel();
-    let core = Arc::new(Core {
+    let core = Arc::new_cyclic(|me| Core {
+        api: api_state(me.clone(), data_dir),
         app_dir: app_dir.clone(),
         config_path,
         onboarded: AtomicBool::new(
@@ -1458,7 +1485,9 @@ mod tests {
     fn core(dir: &Path, text: &str) -> Arc<Core> {
         let config_path = dir.join("astromech.toml");
         std::fs::write(&config_path, text).unwrap();
-        Arc::new(Core {
+        let data_dir = Config::load(&config_path).unwrap().data_dir();
+        Arc::new_cyclic(|me| Core {
+            api: api_state(me.clone(), data_dir),
             app_dir: dir.to_path_buf(),
             cfg: std::sync::RwLock::new(Config::load(&config_path).unwrap()),
             config_path,
@@ -2051,6 +2080,57 @@ mod tests {
             got, want,
             "the core's reply shapes changed: update core-reply-shapes.json (see this test) and fakecore.ts"
         );
+    }
+
+    /// Done-when for astromech-6siv: folders set in onboarding or Settings (`set_folders`, over
+    /// the control API) are what the window's keybinds and journal commands read next, with no
+    /// restart.
+    #[test]
+    fn the_window_reads_the_folders_set_folders_saved() {
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let folder = |name: &str, preset: &str, journal: &str| {
+            let (b, j) = (d.path().join(name).join("Bindings"), d.path().join(name).join("journals"));
+            std::fs::create_dir_all(&b).unwrap();
+            std::fs::create_dir_all(&j).unwrap();
+            std::fs::write(
+                b.join(format!("{preset}.4.2.binds")),
+                format!("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<Root PresetName=\"{preset}\" MajorVersion=\"4\" MinorVersion=\"2\">\n</Root>\n"),
+            )
+            .unwrap();
+            std::fs::write(j.join("Journal.2026-11-01T100000.01.log"), journal).unwrap();
+            (b, j)
+        };
+        let header = r#"{ "timestamp":"2026-11-01T10:00:00Z", "event":"Fileheader", "part":1, "gameversion":"4.1.0", "build":"r1" }"#;
+        let (old_b, old_j) = folder("old", "Before", &format!("{header}\n"));
+        let iron = r#"{ "timestamp":"2026-11-01T10:01:00Z", "event":"MaterialCollected", "Category":"Raw", "Name":"iron", "Count":3 }"#;
+        let (new_b, new_j) = folder("new", "After", &format!("{header}\n{iron}\n"));
+        let core = core(
+            d.path(),
+            &format!(
+                "data_dir = '{}'\n[game]\njournal_dir = '{}'\nbindings_dir = '{}'\n",
+                d.path().join("data").display(),
+                old_j.display(),
+                old_b.display()
+            ),
+        );
+        let app = d.path().join("app");
+        let _srv = control::serve(&app, Arc::new(core.commands())).unwrap();
+        let ask = |cmd: &str, args: Option<Value>| {
+            let req = Request { args, origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
+            control::call(&app, req, None, &mut |_| {}).unwrap()
+        };
+        let preset = |v: Value| v["presets"][0]["name"].clone();
+        let materials = |dir: &Path| serde_json::to_value(astromech_materials::from_journal_dir(dir)).unwrap();
+        assert_eq!(preset(ask("binds_state", None)), "Before");
+        assert_eq!(ask("materials_inventory", None), materials(&old_j));
+
+        let set = json!({"bindings_dir": new_b.display().to_string(), "journal_dir": new_j.display().to_string()});
+        assert_eq!(ask("set_folders", Some(set))["ok"], true);
+        assert_eq!(preset(ask("binds_state", None)), "After");
+        let now = ask("materials_inventory", None);
+        assert_eq!(now, materials(&new_j));
+        assert_ne!(now, materials(&old_j));
     }
 
     /// Done-when for astromech-c9em: a Bindings folder pasted in onboarding (`set_folders`, which

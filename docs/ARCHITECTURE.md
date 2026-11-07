@@ -222,6 +222,11 @@ astromech/
                          local control API that serves it (JSON lines over TCP, the port and token in
                          core.json; progress lines, then `{ok, value}` or `{ok: false, error}`), server
                          and client in one module for the core, the shell and tests
+                         `State`: the keybinds API and the journal caches, once per process, reading
+                         the journal, Bindings and game folders from a source the core implements over
+                         its live config (the data folder is fixed); the window's journal and
+                         local-file commands (`commands`: keybinds, materials, engineering, Odyssey,
+                         Powerplay, colonisation, exploration, logbook, docked here) run on it
     astromech-journal/   journal line parsing + tailing (seed of the ingest pipeline)
     astromech-status/    Status.json parse + flags (seeded from S5)
     astromech-gamestate/ reducer: journal + status -> GameState snapshot

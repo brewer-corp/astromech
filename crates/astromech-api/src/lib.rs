@@ -18,11 +18,15 @@
 //! **Rule:** this crate never depends on `astromech-core`, `astromech-input` or
 //! `astromech-policy` (scripts/check-deps.py).
 
+pub mod commands;
 pub mod control;
+pub mod state;
 
 pub use control::Request;
+pub use state::{Folders, State};
 
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
@@ -67,18 +71,20 @@ impl Registry {
         self
     }
 
-    /// Register `name` with typed arguments: the request's `args` (null when absent) parsed
-    /// as `A`, or a "bad args" error naming the command.
-    pub fn add_typed<A: DeserializeOwned>(
+    /// Register `name` with typed arguments and reply: the request's `args` (null when absent,
+    /// so `()` takes none) parsed as `A`, or a "bad args" error naming the command; the reply
+    /// is `R` as JSON.
+    pub fn add_typed<A: DeserializeOwned, R: Serialize>(
         &mut self,
         name: &str,
         exposure: Exposure,
-        handler: impl Fn(A, Progress) -> Result<Value, String> + Send + Sync + 'static,
+        handler: impl Fn(A, Progress) -> Result<R, String> + Send + Sync + 'static,
     ) -> &mut Self {
         self.add(name, exposure, move |r, progress| {
             let args = serde_json::from_value(r.args.clone().unwrap_or(Value::Null))
                 .map_err(|e| format!("bad args for {}: {e}", r.cmd))?;
-            handler(args, progress)
+            let reply = handler(args, progress)?;
+            serde_json::to_value(reply).map_err(|e| format!("{}: the reply can't be written as JSON: {e}", r.cmd))
         })
     }
 

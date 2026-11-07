@@ -11,8 +11,9 @@
 //! Closing the window exits this process and frees WebView2; the core keeps running.
 
 use astromech_api::control;
+use astromech_api::state::JournalState;
 use astromech_store::Paths;
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::path::PathBuf;
 use std::time::Duration;
 use tauri::{Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
@@ -92,10 +93,146 @@ fn watchdog(app: tauri::AppHandle) {
     }
 }
 
-// ---- Keybinds (M1). The window reads and edits presets itself through astromech-keybinds
-// (every write backs up first); the core reloads on its own Bindings-folder watch.
+// ---- The window's journal and local-file commands are the core's (astromech_api::commands):
+// each forwards the page's call unchanged.
 
-struct Binds(std::sync::Mutex<Option<astromech_keybinds::api::Api>>);
+/// The page's call to a command the core serves; the reply is the core's, as before.
+async fn forward(cmd: &'static str, args: Option<Value>) -> Result<Value, String> {
+    blocking(move || call_with(cmd, None, args)).await
+}
+
+#[tauri::command]
+async fn binds_state() -> Result<Value, String> {
+    forward("binds_state", None).await
+}
+
+#[tauri::command]
+async fn binds_refresh_devices() -> Result<Value, String> {
+    forward("binds_refresh_devices", None).await
+}
+
+#[tauri::command]
+async fn binds_reset() -> Result<Value, String> {
+    forward("binds_reset", None).await
+}
+
+#[tauri::command]
+async fn binds_view(path: PathBuf) -> Result<Value, String> {
+    forward("binds_view", Some(json!({ "path": path }))).await
+}
+
+#[tauri::command]
+async fn binds_set_slot(edit: Value) -> Result<Value, String> {
+    forward("binds_set_slot", Some(json!({ "edit": edit }))).await
+}
+
+#[tauri::command]
+async fn binds_copy(src: PathBuf, name: String) -> Result<Value, String> {
+    forward("binds_copy", Some(json!({ "src": src, "name": name }))).await
+}
+
+#[tauri::command]
+async fn binds_set_active(name: String, contexts: Vec<usize>) -> Result<Value, String> {
+    forward("binds_set_active", Some(json!({ "name": name, "contexts": contexts }))).await
+}
+
+#[tauri::command]
+async fn binds_restore(backup: PathBuf) -> Result<Value, String> {
+    forward("binds_restore", Some(json!({ "backup": backup }))).await
+}
+
+#[tauri::command]
+async fn binds_set_override(device: String, control: String, joy: Option<String>) -> Result<Value, String> {
+    forward("binds_set_override", Some(json!({ "device": device, "control": control, "joy": joy }))).await
+}
+
+#[tauri::command]
+async fn materials_inventory() -> Result<Value, String> {
+    forward("materials_inventory", None).await
+}
+
+#[tauri::command]
+async fn engineering_fleet() -> Result<Value, String> {
+    forward("engineering_fleet", None).await
+}
+
+#[tauri::command]
+async fn engineering_plan(plan: Value) -> Result<Value, String> {
+    forward("engineering_plan", Some(json!({ "plan": plan }))).await
+}
+
+#[tauri::command]
+async fn engineering_stats(plan: Value) -> Result<Value, String> {
+    forward("engineering_stats", Some(json!({ "plan": plan }))).await
+}
+
+#[tauri::command]
+async fn engineering_headlines() -> Result<Value, String> {
+    forward("engineering_headlines", None).await
+}
+
+#[tauri::command]
+async fn engineering_engineers() -> Result<Value, String> {
+    forward("engineering_engineers", None).await
+}
+
+#[tauri::command]
+async fn engineering_unlocks() -> Result<Value, String> {
+    forward("engineering_unlocks", None).await
+}
+
+#[tauri::command]
+async fn odyssey_view() -> Result<Value, String> {
+    forward("odyssey_view", None).await
+}
+
+#[tauri::command]
+async fn odyssey_shopping(picks: Value) -> Result<Value, String> {
+    forward("odyssey_shopping", Some(json!({ "picks": picks }))).await
+}
+
+#[tauri::command]
+async fn powerplay_overview() -> Result<Value, String> {
+    forward("powerplay_overview", None).await
+}
+
+#[tauri::command]
+async fn colonisation_projects() -> Result<Value, String> {
+    forward("colonisation_projects", None).await
+}
+
+#[tauri::command]
+async fn exploration_system() -> Result<Value, String> {
+    forward("exploration_system", None).await
+}
+
+#[tauri::command]
+async fn exploration_unsold() -> Result<Value, String> {
+    forward("exploration_unsold", None).await
+}
+
+#[tauri::command]
+async fn logbook(query: String, cmdr: Option<String>) -> Result<Value, String> {
+    forward("logbook", Some(json!({ "query": query, "cmdr": cmdr }))).await
+}
+
+#[tauri::command]
+async fn session_summary() -> Result<Value, String> {
+    forward("session_summary", None).await
+}
+
+#[tauri::command]
+async fn docked_here() -> Result<Value, String> {
+    forward("docked_here", None).await
+}
+
+#[tauri::command]
+async fn trade_route_defaults() -> Result<Value, String> {
+    forward("trade_route_defaults", None).await
+}
+
+// ---- The star map, lookups, plotting and the neutron star file, still the window's own until
+// they move too (astromech-ndzx).
 
 /// The parts of the core's `astromech.toml` the window reads, from the file the core uses
 /// (`Paths::config_in_use`: its `--config`, or the default); defaults if missing.
@@ -104,169 +241,16 @@ fn config() -> astromech_store::window::WindowConfig {
 }
 
 /// The core's data folder (`Config::data_dir()` in the core): every file the window shares with
-/// the core (`galaxy.db`, `history.sqlite`, `outfitting.sqlite`, `astromech.sqlite`, the
+/// the core (`galaxy.db`, `outfitting.sqlite`, `astromech.sqlite`, the
 /// remote-data cache) is opened here.
 fn data_dir() -> PathBuf {
     astromech_store::window::data_dir(&Paths::current())
-}
-
-fn make_api() -> Result<astromech_keybinds::api::Api, String> {
-    let cfg = config();
-    let opt = |s: &str| (!s.trim().is_empty()).then(|| PathBuf::from(s.trim()));
-    let data = Paths::current().data_dir(&cfg.data_dir);
-    // Saved binding overrides used to live in the app dir whatever `data_dir` said; carry them
-    // across once (never overwriting). A failed copy only means the old overrides aren't seen.
-    if let Err(e) = Paths::current().carry_over("device-overrides.json", &data) {
-        astromech_log::log(&format!("could not carry device-overrides.json over to {}: {e}", data.display()));
-    }
-    astromech_keybinds::api::Api::discover(opt(&cfg.game.bindings_dir), opt(&cfg.game.game_dir).as_deref(), data)
-        .map_err(|e| format!("{e:#}"))
-}
-
-fn with_api<T>(
-    b: &tauri::State<Binds>,
-    f: impl FnOnce(&mut astromech_keybinds::api::Api) -> anyhow::Result<T>,
-) -> Result<T, String> {
-    let mut g = b.0.lock().map_err(|_| "busy".to_string())?;
-    if g.is_none() {
-        *g = Some(make_api()?);
-    }
-    f(g.as_mut().unwrap()).map_err(|e| format!("{e:#}"))
-}
-
-#[tauri::command]
-fn binds_state(b: tauri::State<Binds>) -> Result<Value, String> {
-    with_api(&b, |a| Ok(serde_json::to_value(a.state())?))
-}
-
-#[tauri::command]
-fn binds_refresh_devices(b: tauri::State<Binds>) -> Result<Value, String> {
-    with_api(&b, |a| {
-        a.refresh_devices();
-        Ok(serde_json::to_value(a.state())?)
-    })
-}
-
-/// Forget the discovered folders and devices, e.g. after onboarding set the Bindings folder.
-#[tauri::command]
-fn binds_reset(b: tauri::State<Binds>) -> Result<Value, String> {
-    *b.0.lock().map_err(|_| "busy".to_string())? = None;
-    with_api(&b, |a| Ok(serde_json::to_value(a.state())?))
-}
-
-#[tauri::command]
-fn binds_view(b: tauri::State<Binds>, path: PathBuf) -> Result<Value, String> {
-    with_api(&b, |a| Ok(serde_json::to_value(a.view(&path)?)?))
-}
-
-#[tauri::command]
-fn binds_set_slot(b: tauri::State<Binds>, edit: astromech_keybinds::api::SlotEdit) -> Result<Value, String> {
-    with_api(&b, |a| Ok(serde_json::to_value(a.set_slot(&edit)?)?))
-}
-
-#[tauri::command]
-fn binds_copy(b: tauri::State<Binds>, src: PathBuf, name: String) -> Result<Value, String> {
-    with_api(&b, |a| Ok(serde_json::to_value(a.copy_preset(&src, &name)?)?))
-}
-
-#[tauri::command]
-fn binds_set_active(b: tauri::State<Binds>, name: String, contexts: Vec<usize>) -> Result<Value, String> {
-    with_api(&b, |a| Ok(serde_json::to_value(a.set_active(&name, &contexts)?)?))
-}
-
-#[tauri::command]
-fn binds_restore(b: tauri::State<Binds>, backup: PathBuf) -> Result<Value, String> {
-    with_api(&b, |a| Ok(serde_json::to_value(a.restore(&backup)?)?))
-}
-
-#[tauri::command]
-fn binds_set_override(
-    b: tauri::State<Binds>,
-    device: String,
-    control: String,
-    joy: Option<String>,
-) -> Result<Value, String> {
-    with_api(&b, |a| Ok(serde_json::to_value(a.set_override(&device, &control, joy.as_deref())?)?))
 }
 
 /// The game's journal folder, by the core's rule (`Paths::journal_dir`); empty if there is none,
 /// which callers report as a folder not found.
 fn journal_dir() -> PathBuf {
     Paths::current().journal_dir(&config().game.journal_dir).unwrap_or_default()
-}
-
-struct MaterialsCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, Value)>>);
-
-/// Engineering materials from the journal, laid out like the in-game traders.
-/// Off the main thread: the page polls every second and a recompute re-reads the session journal.
-#[tauri::command]
-async fn materials_inventory(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || materials_inventory_now(&app.state::<MaterialsCache>())).await
-}
-
-fn materials_inventory_now(cache: &MaterialsCache) -> Result<Value, String> {
-    let dir = journal_dir();
-    if !dir.is_dir() {
-        return Err(format!("journal folder not found: {}", dir.display()));
-    }
-    // Not directory metadata: on Windows that misses appends to the open journal (astromech-txzq).
-    let version = astromech_materials::journal_version(&dir);
-    {
-        let g = cache.0.lock().map_err(|_| "busy".to_string())?;
-        if let Some((s, v)) = &*g {
-            if *s == version {
-                return Ok(v.clone());
-            }
-        }
-    }
-    let v = serde_json::to_value(astromech_materials::from_journal_dir(&dir)).map_err(|e| e.to_string())?;
-    *cache.0.lock().map_err(|_| "busy".to_string())? = Some((version, v.clone()));
-    Ok(v)
-}
-
-/// On-foot engineer progress and owned gear, re-read when the journal changes (the scan reads every journal).
-struct OdysseyCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, astromech_odyssey::JournalState)>>);
-
-/// The ShipLocker and Backpack (small files, read every call) and what the journal says.
-fn odyssey_state(
-    cache: &OdysseyCache,
-) -> Result<(astromech_odyssey::Holdings, astromech_odyssey::JournalState), String> {
-    let dir = journal_dir();
-    if !dir.is_dir() {
-        return Err(format!("journal folder not found: {}", dir.display()));
-    }
-    let holdings = astromech_odyssey::Holdings::from_journal_dir(&dir);
-    let version = astromech_materials::journal_version(&dir);
-    let mut g = cache.0.lock().map_err(|_| "busy".to_string())?;
-    let state = match &*g {
-        Some((v, p)) if *v == version => p.clone(),
-        _ => {
-            let p = astromech_odyssey::journal_state(&dir, &astromech_log::log);
-            *g = Some((version, p.clone()));
-            p
-        }
-    };
-    Ok((holdings, state))
-}
-
-/// Odyssey micro-resources: inventory, engineers, and the blueprint picker's choices.
-#[tauri::command]
-async fn odyssey_view(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || {
-        let (h, p) = odyssey_state(&app.state::<OdysseyCache>())?;
-        serde_json::to_value(astromech_odyssey::view(&h, &p, "ShipLocker.json")).map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// What the picked suit/weapon upgrades and modifications need, against the inventory.
-#[tauri::command]
-async fn odyssey_shopping(app: tauri::AppHandle, picks: Vec<astromech_odyssey::Pick>) -> Result<Value, String> {
-    blocking(move || {
-        let (h, p) = odyssey_state(&app.state::<OdysseyCache>())?;
-        serde_json::to_value(astromech_odyssey::shopping(&picks, &h, &p.progress)).map_err(|e| e.to_string())
-    })
-    .await
 }
 
 /// The Powerplay journal, followed: each read takes only the lines added since the last one
@@ -283,16 +267,6 @@ fn powerplay_journal(cache: &PowerplayCache) -> Result<astromech_powerplay::Jour
         *f = None; // the journal folder setting changed
     }
     Ok(f.get_or_insert_with(|| astromech_powerplay::Follower::new(&dir)).refresh().clone())
-}
-
-/// Powerplay standing from the journals.
-#[tauri::command]
-async fn powerplay_overview(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || {
-        let j = powerplay_journal(&app.state::<PowerplayCache>())?;
-        serde_json::to_value(j.overview()).map_err(|e| e.to_string())
-    })
-    .await
 }
 
 /// The pledged power's nearest acquisition, reinforcement or undermining systems within
@@ -324,59 +298,18 @@ async fn powerplay_targets(
     .await
 }
 
-/// Everything the Engineering screen reads from the journals, re-read when the journals change.
-struct JournalState {
-    fleet: astromech_engineering::Fleet,
-    /// When the next ship or module transfer under way lands: after that the fleet above is stale
-    /// though no journal line was written (astromech-4irh).
-    fleet_next_arrival: Option<i64>,
-    ledger: astromech_materials::Ledger,
-    engineers: Vec<astromech_engineering::EngineerView>,
-    /// Every ship and suit engineer with the commander's progress and what is left to unlock.
-    unlocks: astromech_engineering::unlocks::Tree,
-    here: Option<astromech_galaxy::Here>,
-    /// Faction states seen on arrival in the newest journals (fresher than Spansh's).
-    visits: Vec<astromech_galaxy::Visit>,
-}
-
-/// Rebuilt when a journal event any page reads is appended, not on every append and not on file
-/// notifications or directory metadata (astromech-ztrb).
+/// The journal state the lookups below read (the core's command layer keeps its own for the
+/// window's journal commands); rebuilt only when a journal event it reads is appended.
 struct EngineeringCache(astromech_journal::JournalCache<JournalState>);
 
 impl Default for EngineeringCache {
-    /// Watches exactly the lines the replays in `build_journal_state` read. A reader added to
-    /// `build_journal_state` must add its pattern to `engineering_journal_events` (astromech-ldiz).
     fn default() -> Self {
-        Self(astromech_journal::JournalCache::new(&astromech_galaxy::engineering_journal_events()))
+        Self(JournalState::cache())
     }
 }
 
 fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalState>, String> {
-    let dir = journal_dir();
-    if !dir.is_dir() {
-        return Err(format!("journal folder not found: {}", dir.display()));
-    }
-    // Rebuilt on a journal change, and also when a transfer lands on the clock.
-    let clock = astromech_data::SystemClock;
-    Ok(cache.0.get_fresh(
-        &dir,
-        |st| astromech_engineering::Settled::current(st.fleet_next_arrival, &clock),
-        || build_journal_state(&dir),
-    ))
-}
-
-fn build_journal_state(dir: &std::path::Path) -> JournalState {
-    let progress = astromech_engineering::engineers::builder_from_journal_dir(dir);
-    let fleet = astromech_engineering::from_journal_dir_at(dir, &astromech_data::SystemClock);
-    JournalState {
-        fleet: fleet.fleet,
-        fleet_next_arrival: fleet.next_arrival,
-        ledger: astromech_materials::replay_journal_dir(dir),
-        engineers: progress.build(),
-        unlocks: astromech_engineering::unlocks::tree(&progress),
-        here: astromech_galaxy::here_from_journal_dir(dir),
-        visits: astromech_galaxy::visits_from_journal_dir(dir, astromech_galaxy::visits::RECENT_JOURNALS),
-    }
+    JournalState::get(&cache.0, &journal_dir())
 }
 
 /// The local star map (`galaxy.db` in the core's data folder), seeded from the bundled preload.
@@ -413,97 +346,6 @@ async fn blocking<T: Send + 'static>(f: impl FnOnce() -> Result<T, String> + Sen
     tauri::async_runtime::spawn_blocking(f).await.map_err(|e| e.to_string())?
 }
 
-/// The logbook from the history the core keeps (`history.sqlite`, read only): places visited
-/// matching `query`, their counts and first/last visit, and the timeline.
-#[tauri::command]
-async fn logbook(query: String, cmdr: Option<String>) -> Result<Value, String> {
-    blocking(move || {
-        let db = data_dir().join("history.sqlite");
-        if !db.is_file() {
-            return Err("no journal history yet: the core builds it from the journals once it runs".into());
-        }
-        let h = astromech_history::History::open_read_only(&db).map_err(|e| e.to_string())?;
-        let book = h.logbook(cmdr.as_deref(), &query, 200).map_err(|e| e.to_string())?;
-        serde_json::to_value(book).map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// The latest game session's summary (credits by activity, per hour, jumps, bounties), from the
-/// same history; `null` before the first session.
-#[tauri::command]
-async fn session_summary() -> Result<Value, String> {
-    blocking(move || {
-        let db = data_dir().join("history.sqlite");
-        if !db.is_file() {
-            return Err("no journal history yet: the core builds it from the journals once it runs".into());
-        }
-        let h = astromech_history::History::open_read_only(&db).map_err(|e| e.to_string())?;
-        serde_json::to_value(h.session(None, None).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// What the Exploration pages poll for, remembered while the journals and the history are
-/// unchanged (astromech-dt5h).
-#[derive(Default)]
-struct ExplorationCache {
-    view: std::sync::Mutex<astromech_exploration::SystemViewCache>,
-    unsold: std::sync::Mutex<astromech_history::UnsoldCache>,
-}
-
-/// The current system's bodies as scanned, with their estimated values, from the newest journals,
-/// with the bodies scanned on earlier visits and the commander's landings on them from the history
-/// (when there is one).
-#[tauri::command]
-async fn exploration_system(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || {
-        let live = app.state::<ExplorationCache>().view.lock().map_err(|_| "busy".to_string())?.fold(&journal_dir());
-        // The history adds the bodies scanned on earlier visits and the landings on every poll
-        // (the cache holds only the current visit's fold); without it (best effort) the view is
-        // the live one.
-        let view = match astromech_history::History::open_read_only(&data_dir().join("history.sqlite")) {
-            Ok(h) => h.system_view(live),
-            Err(_) => live.view(),
-        };
-        serde_json::to_value(view).map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// The latest commander's unsold cartographic and organic data, from the history the core keeps
-/// (`history.sqlite`, read only); `null` before the first commander or without a history yet.
-#[tauri::command]
-async fn exploration_unsold(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || {
-        // No history yet (the core hasn't imported the journals) is `null`, like no commander.
-        let unsold = app
-            .state::<ExplorationCache>()
-            .unsold
-            .lock()
-            .map_err(|_| "busy".to_string())?
-            .unsold_at(&data_dir().join("history.sqlite"), None)
-            .map_err(|e| e.to_string())?;
-        serde_json::to_value(unsold).map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// The station docked at: services, economies, faction and its state, pads, and which modules its
-/// outfitting sells that the ship flown would be better for. `docked: false` when not docked.
-#[tauri::command]
-async fn docked_here(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || {
-        let st = engineering_state(&app.state::<EngineeringCache>())?;
-        let ship = st.fleet.ships.iter().find(|s| s.current);
-        let state = astromech_station::state_from_journal_dir(&journal_dir());
-        let book = astromech_station::OutfittingBook::open_read_only(&data_dir().join(astromech_station::DB_FILE))
-            .map_err(|e| e.to_string())?;
-        serde_json::to_value(astromech_station::DockedHere::new(&state, ship, book.as_ref())).map_err(|e| e.to_string())
-    })
-    .await
-}
-
 /// Where a module was seen, from every `Outfitting.json` the core kept (`outfitting.sqlite`, read
 /// only): stations, nearest first when their distance from here is known, else newest first.
 #[tauri::command]
@@ -530,71 +372,6 @@ async fn outfitting_search(app: tauri::AppHandle, query: String) -> Result<Value
         }
         let (stations, snapshots) = book.counts().map_err(|e| e.to_string())?;
         Ok(serde_json::json!({ "stations": stations, "snapshots": snapshots, "found": found }))
-    })
-    .await
-}
-
-/// Every owned ship with its modules and current engineering.
-#[tauri::command]
-async fn engineering_fleet(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || {
-        let st = engineering_state(&app.state::<EngineeringCache>())?;
-        serde_json::to_value(&st.fleet).map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// Materials a build plan needs against the current inventory, with trades and farming.
-#[tauri::command]
-async fn engineering_plan(app: tauri::AppHandle, plan: astromech_engineering::Plan) -> Result<Value, String> {
-    blocking(move || {
-        let st = engineering_state(&app.state::<EngineeringCache>())?;
-        let ship = st.fleet.ships.iter().find(|s| s.id == plan.ship_id).ok_or("ship not in the fleet")?;
-        serde_json::to_value(astromech_engineering::evaluate(ship, &plan, &st.ledger)).map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// A ship's stats as fitted and with a build plan done.
-#[tauri::command]
-async fn engineering_stats(app: tauri::AppHandle, plan: astromech_engineering::Plan) -> Result<Value, String> {
-    blocking(move || {
-        let st = engineering_state(&app.state::<EngineeringCache>())?;
-        let ship = st.fleet.ships.iter().find(|s| s.id == plan.ship_id).ok_or("ship not in the fleet")?;
-        let stats = astromech_ship::compare(ship, &plan.targets).map_err(|e| e.to_string())?;
-        serde_json::to_value(stats).map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// Shield, DPS and jump range for every ship card, from the current modules.
-#[tauri::command]
-async fn engineering_headlines(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || {
-        let st = engineering_state(&app.state::<EngineeringCache>())?;
-        serde_json::to_value(astromech_ship::headlines(&st.fleet)).map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// Ship engineers: where they are, access and rank.
-#[tauri::command]
-async fn engineering_engineers(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || {
-        let st = engineering_state(&app.state::<EngineeringCache>())?;
-        serde_json::to_value(serde_json::json!({ "engineers": st.engineers, "here": st.here }))
-            .map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// The engineer unlock guide: every ship and suit engineer as a tech tree with the commander's
-/// progress and what is left to unlock each.
-#[tauri::command]
-async fn engineering_unlocks(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || {
-        let st = engineering_state(&app.state::<EngineeringCache>())?;
-        serde_json::to_value(&st.unlocks).map_err(|e| e.to_string())
     })
     .await
 }
@@ -833,70 +610,6 @@ async fn market_compare(app: tauri::AppHandle) -> Result<Value, String> {
         let c = astromech_market::here::compare_search(&g, &here, range, &market, &hold, &filters, now)
             .map_err(|e| e.to_string())?;
         serde_json::to_value(c).map_err(|e| e.to_string())
-    })
-    .await
-}
-
-/// The current ship's and commander's numbers for a trade route: cargo capacity and jump range
-/// from the latest `Loadout`, credits from `Status.json` (else the latest `LoadGame`), and the
-/// station docked at.
-#[tauri::command]
-async fn trade_route_defaults() -> Result<astromech_market::route::Defaults, String> {
-    blocking(move || {
-        let dir = journal_dir();
-        let gs = astromech_station::state_from_journal_dir(&dir);
-        let balance = std::fs::read(dir.join("Status.json"))
-            .ok()
-            .and_then(|b| serde_json::from_slice::<Value>(&b).ok())
-            .and_then(|v| v["Balance"].as_i64());
-        Ok(astromech_market::route::Defaults {
-            capacity: gs.cargo_capacity,
-            credits: balance.or(gs.credits),
-            range: gs.max_jump_range.filter(|r| *r > 1.0),
-            station: if gs.docked { gs.station.clone() } else { None },
-            system: gs.system.clone(),
-        })
-    })
-    .await
-}
-
-/// What the colonisation view was built from: the journals and `Cargo.json`'s bytes (a small
-/// file, compared whole so a change shows even where its mtime can't be read).
-type ColonisationKey = (astromech_materials::JournalVersion, Option<Vec<u8>>);
-
-#[allow(clippy::type_complexity)]
-struct ColonisationCache(
-    std::sync::Mutex<Option<(ColonisationKey, std::sync::Arc<Vec<astromech_colonisation::ProjectView>>)>>,
-);
-
-/// Colonisation projects from the journals, being built first, each with what is left to buy.
-/// The app polls this; the journals are replayed only when they or `Cargo.json` change.
-#[tauri::command]
-async fn colonisation_projects(app: tauri::AppHandle) -> Result<Value, String> {
-    blocking(move || {
-        let dir = journal_dir();
-        if !dir.is_dir() {
-            return Err(format!("journal folder not found: {}", dir.display()));
-        }
-        let cache = app.state::<ColonisationCache>();
-        let cargo = std::fs::read(dir.join("Cargo.json")).ok();
-        let version = (astromech_materials::journal_version(&dir), cargo);
-        let cached = cache
-            .0
-            .lock()
-            .map_err(|_| "busy".to_string())?
-            .as_ref()
-            .filter(|(s, _)| *s == version)
-            .map(|(_, v)| v.clone());
-        let v = match cached {
-            Some(v) => v,
-            None => {
-                let v = std::sync::Arc::new(astromech_colonisation::from_journal_dir(&dir));
-                *cache.0.lock().map_err(|_| "busy".to_string())? = Some((version, v.clone()));
-                v
-            }
-        };
-        serde_json::to_value(&*v).map_err(|e| e.to_string())
     })
     .await
 }
@@ -1278,16 +991,11 @@ pub fn main() {
                 }
             }
         }))
-        .manage(Binds(std::sync::Mutex::new(None)))
-        .manage(MaterialsCache(std::sync::Mutex::new(None)))
         .manage(EngineeringCache::default())
-        .manage(ExplorationCache::default())
-        .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
         .manage(NeutronKept(astromech_galaxy::neutron::Kept::new(&data_dir())))
         .manage(Remote(astromech_data::Client::shared(&data_dir(), std::sync::Arc::new(astromech_log::log))))
         .manage(PowerplayCache(std::sync::Mutex::new(None)))
-        .manage(ColonisationCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
             core_status,
             core_call,
