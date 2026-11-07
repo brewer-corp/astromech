@@ -320,16 +320,20 @@ app window's 1200×800. `fn` gets:
 - `world`, the core's temp world folder.
 
 The harness then closes the page and the server and quits the core, which must exit 0 with its
-home empty and its temp world gone, or the journey fails. A page that loads a second time (the
-dev server has no dependency pre-bundling, so nothing should reload it) or throws an error fails
-the journey too. Run them in `app/` with `node --test 'journeys/*.journey.ts'`, or one with
+home empty and its temp world gone, or the journey fails. A page that loads a second time or throws an error fails the journey too. Each journey's
+dev server pre-bundles at start only what `optimizeDeps.include` lists (vite-plugin-svelte adds
+svelte's entries) into a cache of its own in the journey's temp world, and discovers no other
+dependency (`noDiscovery`), so nothing re-optimises and reloads the page mid-journey, and the
+journeys `node --test` runs side by side share no cache and never write `app/node_modules/.vite`. Run them in `app/` with `node --test 'journeys/*.journey.ts'`, or one with
 `node --test journeys/lookup.journey.ts`, after building the core (`cargo build -p
 astromech-core`; `ASTROMECH_CORE` names another binary); the glob is quoted so Node expands it,
 and `journeys/harness.journey.ts`, the harness's own test, fails when the glob finds no
 journey. A failed journey leaves its Playwright trace (`pnpm exec playwright show-trace`), a
 screenshot and the core's log in `app/journeys/results/<journey>/`, which CI uploads. The
 Determinism rules hold, and lint enforces them in `app/journeys/` (the two rules above, and
-`astromech/no-playwright-time`: no `waitForTimeout`, and no `polling` but `"mutation"`). A
+`astromech/no-playwright-time`: no `waitForTimeout`, no `polling` but `"mutation"`, no
+`"networkidle"`, and outside the harness none of the page clock's `resume`, `setSystemTime`,
+`setFixedTime` or `fastForward`: a journey moves the clock with `runFor` only). A
 journey waits on what the core observed (`wait`, whose `world_wait` has its own hang guard) or
 on the page (a locator, or `waitForFunction` with `polling: "mutation"`), and nothing retries:
 the harness's timeouts and node:test's only stop a hang. `pnpm exec tsc -p journeys` typechecks

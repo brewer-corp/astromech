@@ -12,7 +12,8 @@
  *
  * It ends each journey by closing the page and the server, then quitting the core, which must
  * exit 0 with its home empty and its temp world (`astromech-world-*`) gone. A page that loads a
- * second time (Vite re-optimising its dependencies mid-journey) fails the journey, and so does
+ * second time (Vite re-optimising its dependencies mid-journey, which its dev server's settings
+ * rule out: no dependency discovery, and a pre-bundle cache of its own) fails the journey, and so does
  * an error the page throws. On a failure the journey's Playwright trace, a screenshot and the
  * core's log are kept under journeys/results/<journey>/.
  *
@@ -122,6 +123,9 @@ async function run(name: string, opts: JourneyOptions, fn: (j: Journey) => Promi
     await context?.tracing.stop({ path: join(out, "trace.zip") }).catch(() => {});
     const log = core && join(core.appDir, "logs", "astromech-core.log");
     if (log && existsSync(log)) copyFileSync(log, join(out, "astromech-core.log"));
+  } else {
+    // Stopped with no path, the trace is dropped and its temp folder removed.
+    await context?.tracing.stop();
   }
   await context?.close();
   await server?.close();
@@ -157,8 +161,7 @@ function driver(core: WorldCore, page: Page, base: string, start: number, proble
   return {
     page,
     core,
-    // appDir is <temp world>/local/astromech/data.
-    world: resolve(core.appDir, "..", "..", ".."),
+    world: tempWorld(core),
     async open(route) {
       if (opened) throw new Error("open() once per journey: the page loads once");
       opened = true;
@@ -194,18 +197,27 @@ async function devServer(core: WorldCore): Promise<ViteDevServer> {
     // Loopback only, on the first free port from 5180 (`pnpm dev` keeps 5173). No file watching:
     // a source edited during a run reloads nothing.
     server: { host: "127.0.0.1", port: 5180, strictPort: false, watch: null },
-    // No dependency pre-bundling: Vite serves svelte's own ES modules, so there is no optimiser
-    // to find a new dependency mid-journey and reload the page, and no shared cache for the
-    // journeys `node --test` runs side by side to write.
-    optimizeDeps: { noDiscovery: true, include: [] },
+    // Pre-bundled at start: only what optimizeDeps.include lists (vite-plugin-svelte adds
+    // svelte's entries). With no discovery, a dependency first met mid-journey isn't optimised,
+    // so nothing re-optimises and reloads the page.
+    optimizeDeps: { noDiscovery: true },
+    // The pre-bundled deps go in this journey's own temp world, which the core removes when it
+    // quits: the journeys `node --test` runs side by side share no cache, and none writes
+    // app/node_modules/.vite. Absolute: a relative cacheDir resolves against app/.
+    cacheDir: join(tempWorld(core), "vite"),
   });
   await server.listen();
   return server;
 }
 
+/** The core's temp world folder (`astromech-world-*`): appDir is <temp world>/local/astromech/data. */
+function tempWorld(core: WorldCore): string {
+  return resolve(core.appDir, "..", "..", "..");
+}
+
 /** Quit the core; why that fails the journey, or null. */
 async function endCore(core: WorldCore): Promise<string | null> {
-  const temp = resolve(core.appDir, "..", "..", "..");
+  const temp = tempWorld(core);
   let code: number | null;
   try {
     code = await core.quit();

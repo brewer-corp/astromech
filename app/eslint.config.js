@@ -94,4 +94,9 @@ export default ts.config(
     languageOptions: { globals: { ...globals.node } },
     rules: { "astromech/no-timer-wait": "error", "astromech/no-wall-clock": "error", "astromech/no-playwright-time": "error" },
   },
+  {
+    // The harness installs and pauses the page's clock; journeys only run it (runFor).
+    files: ["journeys/harness.ts"],
+    rules: { "astromech/no-playwright-time": ["error", { clock: true }] },
+  },
 );

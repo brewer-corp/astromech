@@ -107,8 +107,8 @@ jobs:
         working-directory: app
         timeout-minutes: 5
         run: |
-          ls journeys/*.journey.ts
-          node --test 'journeys/*.journey.ts'
+          files=$(ls journeys/*.journey.ts)
+          node --test $files
       - name: journey results (trace, screenshot, core log)
         if: failure()
         uses: actions/upload-artifact@v4
