@@ -42,14 +42,14 @@ This child lands the shared source while there are still two processes, so astro
   - two subscribers each see the same samples in order;
   - dropping one leaves the other receiving;
   - the source starts once, on the first subscribe.
-- [ ] A Windows-only `#[ignore]` test sends a key with SendInput and shows two subscribers both seeing it, before and after `restart()`. It runs with `cargo test -- --ignored` at a desktop session. Windows CI runs it best effort, like the gear-down end-to-end step, because SendInput needs a desktop session.
-- [ ] **The kill switch, end to end.** scripts/onboarding_smoke.py, which must pass in the Release workflow, gains a kill-switch step. It runs after the session is active against the mock game, with the window open:
+- [x] A Windows-only `#[ignore]` test sends a key with SendInput and shows two subscribers both seeing it, before and after `restart()`. It runs with `cargo test -- --ignored` at a desktop session. Windows CI runs it best effort, like the gear-down end-to-end step, because SendInput needs a desktop session.
+- [x] **The kill switch, end to end.** scripts/onboarding_smoke.py, which must pass in the Release workflow, gains a kill-switch step. It runs after the session is active against the mock game, with the window open:
   - it taps the bound kill switch (F8) by SendInput, and `status` must show the kill switch on;
   - it holds F8 for 1.2 s, longer than `controls.rearm_hold_ms` (1000 ms by default; session.rs:641-648, config.rs:150), and `status` must show it re-armed;
   - then it quits the app with `--quit`, keeping the config, starts the mock game first, and starts the app again. The session's listener now starts at app start, before any window, as after a crash restart or an update relaunch while Elite runs. It opens the window by a second start with `--route settings` and repeats the tap and the hold.
 
   With two processes this proves the shared source carries the presses. astromech-v3u4 reruns it in one process.
-- [ ] Checks: CONTRIBUTING's checks locally, and Windows CI's clippy, tests and shell build. The Release workflow's onboarding smoke passes on the PR, including the push-to-talk and kill-switch binding step, which is the window's listener seeing SendInput presses.
+- [x] Checks: CONTRIBUTING's checks locally, and Windows CI's clippy, tests and shell build. The Release workflow's onboarding smoke passes on the PR, including the push-to-talk and kill-switch binding step, which is the window's listener seeing SendInput presses.
 
 ## Scope
 
@@ -75,7 +75,7 @@ ARCHITECTURE §5.10a. The `Processor` and `Mapper` consumers stay as they are. O
 
 ## Report
 
-The process's one input source is `astromech_input::listen::source` (crates/astromech-input/src/listen/source.rs): a platform-neutral `Hub` over a `Backend` (Raw Input plus XInput on Windows, a fake in tests), with a fan-out thread that sends every Device and Sample message to each subscriber's own channel. On Windows the free functions `subscribe()` and `restart()` use one `OnceLock` hub. `controls::start` (through session.rs's `bus`, unchanged), `--listen` and the shell's `start_input` subscribe; each still calls `list_devices()` first. The kill-switch step is in scripts/onboarding_smoke.py (`kill_switch`, `restart_with_game_running`), and the Windows-only `#[ignore]` test is crates/astromech-input/tests/source_sendinput.rs, run best effort by a new step in ci.yml's Windows job. Lines 4-6 of Done when wait on Windows CI (the PR's CI and Release runs); nothing here has run on Windows yet.
+The process's one input source is `astromech_input::listen::source` (crates/astromech-input/src/listen/source.rs): a platform-neutral `Hub` over a `Backend` (Raw Input plus XInput on Windows, a fake in tests), with a fan-out thread that sends every Device and Sample message to each subscriber's own channel. On Windows the free functions `subscribe()` and `restart()` use one `OnceLock` hub. `controls::start` (through session.rs's `bus`, unchanged), `--listen` and the shell's `start_input` subscribe; each still calls `list_devices()` first. The kill-switch step is in scripts/onboarding_smoke.py (`kill_switch`, `restart_with_game_running`), and the Windows-only `#[ignore]` test is crates/astromech-input/tests/source_sendinput.rs, run best effort by a new step in ci.yml's Windows job. On PR #218 at b418f604 every check passed (evidence astromech-aypb): the ignored test passed in the Windows job's best-effort step, and the Release workflow's onboarding smoke passed both kill-switch runs (session started after the app; game running before the app) and the binding step.
 
 ### Deviations
 
@@ -93,5 +93,5 @@ Each listener used its own `Instant` as the samples' time base, which Mapper's d
 
 ### Open items
 
-- Unverified on Windows: the ignored test, the kill-switch smoke runs and Windows CI's clippy/tests/shell build (Windows clippy passed locally against x86_64-pc-windows-msvc with stub C tools).
+- Two processes still: astromech-v3u4 calls `restart()` after Tauri's `build` and reruns the kill-switch smoke in one process. The smoke's second run checks the window as the astromech-shell.exe process running, which v3u4 has to change.
 - The fan-out adds one channel hop between the Raw Input thread and the controls thread (microseconds, not measured). The XInput poller no longer stops when its only listener's thread ends (the hub keeps its channel open); it never did in practice, since the controls thread runs for the process.
