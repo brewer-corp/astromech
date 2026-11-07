@@ -42,26 +42,28 @@ interface Page {
   loading: RegExp;
   /** What a failed call says. */
   failed: RegExp;
+  /** The command the page reads its data with. */
+  read: string;
   /** The scenario the page needs besides the query under test (the run is in the core's status). */
   core?: string;
 }
 
 const PAGES: Page[] = [
-  { name: "Ships", view: Ships as unknown as Component, empty: /No ships in the journal yet/, loading: /Reading the journal…/, failed: /Could not read the fleet: / },
-  { name: "Stored modules", view: Stored as unknown as Component, empty: /No modules in storage/, loading: /Reading the journal…/, failed: /Could not read the stored modules: / },
-  { name: "Materials", view: Materials as unknown as Component, empty: /0 \/ 6,300 · No journal yet/, loading: /Reading the journal…/, failed: /Could not read the materials: / },
-  { name: "On foot", view: OnFoot as unknown as Component, empty: /Nothing held here/, loading: /Reading the ShipLocker…/, failed: /Could not read the inventory: / },
-  { name: "Engineers", view: Engineers as unknown as Component, empty: /^0 of \d+ unlocked/, loading: /Reading the journal…/, failed: /Could not read the engineer list: / },
-  { name: "Logbook", view: Logbook as unknown as Component, empty: /No commander in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the journal history: / },
-  { name: "Session", view: Session as unknown as Component, empty: /No game session in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the session: / },
-  { name: "Mining", view: Mining as unknown as Component, core: "core=ready&", empty: /No mining run yet/, loading: /Reading the run…/, failed: /Could not read the mining run: / },
-  { name: "Sell", view: Market as unknown as Component, props: { finder: FINDERS.find((f) => f.id === "sell") }, empty: /No buyers within 100 ly\./, loading: /Asking Ardent Insight…/, failed: /trade_search failed on purpose/ },
-  { name: "Station", view: Station as unknown as Component, empty: /Not docked/, loading: /Reading the journal…/, failed: /Could not read the docked station: / },
-  { name: "Colonisation", view: Colonisation as unknown as Component, empty: /No construction sites in your journals yet/, loading: /Reading the journals…/, failed: /Could not read the construction sites: / },
-  { name: "Exploration", view: Exploration as unknown as Component, empty: /No system in the journal yet/, loading: /Reading the journal…/, failed: /Could not read the system: / },
-  { name: "Powerplay", view: Powerplay as unknown as Component, empty: /Not pledged to a power/, loading: /Reading the journal…/, failed: /Could not read your Powerplay standing: / },
-  { name: "Data sharing", view: DataSharing as unknown as Component, empty: /Nothing yet/, loading: /Reading the sharing log…/, failed: /Could not read the sharing log: / },
-  { name: "Diagnostics", view: Diagnostics as unknown as Component, empty: /Nothing sent to EDDN yet/, loading: /^—$/, failed: /Could not read the EDDN log: / },
+  { name: "Ships", read: "engineering_fleet", view: Ships as unknown as Component, empty: /No ships in the journal yet/, loading: /Reading the journal…/, failed: /Could not read the fleet: / },
+  { name: "Stored modules", read: "engineering_fleet", view: Stored as unknown as Component, empty: /No modules in storage/, loading: /Reading the journal…/, failed: /Could not read the stored modules: / },
+  { name: "Materials", read: "materials_inventory", view: Materials as unknown as Component, empty: /0 \/ 6,300 · No journal yet/, loading: /Reading the journal…/, failed: /Could not read the materials: / },
+  { name: "On foot", read: "odyssey_view", view: OnFoot as unknown as Component, empty: /Nothing held here/, loading: /Reading the ShipLocker…/, failed: /Could not read the inventory: / },
+  { name: "Engineers", read: "engineering_unlocks", view: Engineers as unknown as Component, empty: /^0 of \d+ unlocked/, loading: /Reading the journal…/, failed: /Could not read the engineer list: / },
+  { name: "Logbook", read: "logbook", view: Logbook as unknown as Component, empty: /No commander in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the journal history: / },
+  { name: "Session", read: "session_summary", view: Session as unknown as Component, empty: /No game session in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the session: / },
+  { name: "Mining", read: "core_status", view: Mining as unknown as Component, core: "core=ready&", empty: /No mining run yet/, loading: /Reading the run…/, failed: /Could not read the mining run: / },
+  { name: "Sell", read: "trade_search", view: Market as unknown as Component, props: { finder: FINDERS.find((f) => f.id === "sell") }, empty: /No buyers within 100 ly\./, loading: /Asking Ardent Insight…/, failed: /trade_search failed on purpose/ },
+  { name: "Station", read: "docked_here", view: Station as unknown as Component, empty: /Not docked/, loading: /Reading the journal…/, failed: /Could not read the docked station: / },
+  { name: "Colonisation", read: "colonisation_projects", view: Colonisation as unknown as Component, empty: /No construction sites in your journals yet/, loading: /Reading the journals…/, failed: /Could not read the construction sites: / },
+  { name: "Exploration", read: "exploration_system", view: Exploration as unknown as Component, empty: /No system in the journal yet/, loading: /Reading the journal…/, failed: /Could not read the system: / },
+  { name: "Powerplay", read: "powerplay_overview", view: Powerplay as unknown as Component, empty: /Not pledged to a power/, loading: /Reading the journal…/, failed: /Could not read your Powerplay standing: / },
+  { name: "Data sharing", read: "eddn_log", view: DataSharing as unknown as Component, empty: /Nothing yet/, loading: /Reading the sharing log…/, failed: /Could not read the sharing log: / },
+  { name: "Diagnostics", read: "core_status", view: Diagnostics as unknown as Component, empty: /Nothing sent to EDDN yet/, loading: /^—$/, failed: /Could not read the EDDN log: / },
 ];
 
 describe.each(PAGES)("$name", (p) => {
@@ -76,9 +78,9 @@ describe.each(PAGES)("$name", (p) => {
     at(`?${p.core ?? ""}slow=never`);
     render(p.view, p.props);
     expect((await screen.findAllByText(p.loading)).length).toBeGreaterThan(0);
-    // Still waiting once the page has sent its read (Logbook debounces it), which never answers.
-    // Diagnostics shows its dash by default, so this cannot fail for it.
-    await vi.waitFor(() => expect(sent).toHaveBeenCalled());
+    // Still waiting once the page has sent its own read (Logbook debounces it), which never
+    // answers. Diagnostics shows its dash by default, so this cannot fail for it.
+    await vi.waitFor(() => expect(sent.mock.calls.map(([cmd]) => cmd)).toContain(p.read));
     await tick();
     expect(screen.queryAllByText(p.loading).length).toBeGreaterThan(0);
     expect(screen.queryByText(p.empty)).toBeNull();
