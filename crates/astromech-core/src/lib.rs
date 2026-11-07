@@ -53,6 +53,7 @@ pub mod known_bodies;
 pub mod learned;
 pub mod logging;
 pub mod lookups;
+pub mod mic;
 pub mod pipeline;
 pub mod route;
 pub mod session;

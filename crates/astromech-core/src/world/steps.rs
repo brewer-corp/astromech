@@ -28,6 +28,8 @@ pub struct Steps {
     settle: Arc<Settle>,
     /// The network recording `net` steps add to.
     replay: Arc<astromech_data::replay::Replay>,
+    /// The session's devices that `focus`, `press`, `release`, `audio` and `say` act on.
+    io: Arc<super::io::Io>,
 }
 
 impl Steps {
@@ -38,9 +40,10 @@ impl Steps {
         processes: Arc<Mutex<Vec<String>>>,
         settle: Arc<Settle>,
         replay: Arc<astromech_data::replay::Replay>,
+        io: Arc<super::io::Io>,
     ) -> Self {
         let steps = script.map(|s| s.steps).unwrap_or_default();
-        Self { steps, next: 0, broken: None, journal: None, game_dir, clock, processes, settle, replay }
+        Self { steps, next: 0, broken: None, journal: None, game_dir, clock, processes, settle, replay, io }
     }
 
     /// Run the steps up to and including the mark `to` (None: to the end), each once the core
@@ -79,6 +82,26 @@ impl Steps {
                 Ok(())
             }
             Step::Advance(d) => self.advance(*d),
+            // Read when a key is pressed: nothing to settle.
+            Step::Focus(title) => {
+                self.io.focus(title.clone());
+                Ok(())
+            }
+            // Through the buttons' thread to the push-to-talk loop: settled once both (and
+            // whatever they woke) are parked again.
+            Step::Press(i) | Step::Release(i) => {
+                self.io.input(i)?;
+                self.advance(Duration::ZERO)
+            }
+            // Read when a clip is cut or a recording made.
+            Step::Audio(samples) => {
+                self.io.audio(samples);
+                Ok(())
+            }
+            Step::Say(t) => {
+                self.io.say(t);
+                Ok(())
+            }
             Step::Journal { file, line, stamp } => {
                 let name = match file.clone().or_else(|| self.journal.clone()) {
                     Some(n) => n,
@@ -107,11 +130,7 @@ impl Steps {
                         // Cut off part way, as a reader can catch a file the game is writing.
                         std::fs::write(&path, &body[..body.len() / 2])
                     } else {
-                        // Whole or not at all: written beside it under a name the pipeline
-                        // ignores, then renamed over it.
-                        let tmp = self.game_dir.join(format!(".{name}.world"));
-                        std::fs::write(&tmp, body)?;
-                        std::fs::rename(&tmp, &path)
+                        write_whole(&self.game_dir, name, body)
                     }
                 };
                 let gen = self.settle.files.write(name, write).map_err(|e| format!("writing {name}: {e}"))?;
@@ -170,4 +189,12 @@ impl Steps {
         }
         Ok(())
     }
+}
+
+/// Write `name` in the game folder whole or not at all: beside it under a name the pipeline
+/// ignores, then renamed over it.
+pub(super) fn write_whole(game_dir: &std::path::Path, name: &str, body: &[u8]) -> std::io::Result<()> {
+    let tmp = game_dir.join(format!(".{name}.world"));
+    std::fs::write(&tmp, body)?;
+    std::fs::rename(&tmp, game_dir.join(name))
 }

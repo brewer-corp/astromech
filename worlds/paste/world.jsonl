@@ -1,0 +1,11 @@
+{"start": "2026-11-07T12:00:00Z", "foreground": "Elite - Dangerous (CLIENT)", "devices": [{"key": "hid:vkb-l", "kind": "hid", "vid": 8989, "pid": 12801, "product": "VKBsim Gladiator EVO OT L", "usage": 4, "buttons_declared": 128, "axes_declared": ["X", "Y", "Z", "RX", "RY", "RZ"], "hats_declared": 1}, {"key": "hid:vkb-r", "kind": "hid", "vid": 8989, "pid": 512, "product": "VKBsim Gladiator EVO R", "usage": 4, "buttons_declared": 128, "axes_declared": ["X", "Y", "Z", "RX", "RY", "RZ"], "hats_declared": 1}], "reactions": []}
+{"game": "running"}
+{"mark": "running"}
+{"press": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": [12]}}}
+{"release": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": []}}}
+{"mark": "pasted"}
+{"file": "Status.json", "json": {"timestamp": "2026-11-07T11:59:30Z", "event": "Status", "Flags": 16777216, "Flags2": 0, "Pips": [4, 4, 4], "FireGroup": 0, "GuiFocus": 0, "Fuel": {"FuelMain": 32.0, "FuelReservoir": 0.63}, "Cargo": 0.0, "LegalState": "Clean", "Balance": 1000}}
+{"mark": "map-closed"}
+{"press": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": [12]}}}
+{"release": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": []}}}
+{"mark": "refused"}

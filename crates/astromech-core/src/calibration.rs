@@ -342,13 +342,10 @@ pub struct MicGate {
     pub min_level_dbfs: Option<f32>,
 }
 
-/// Recording devices for the mic picker, with `calibration`.
-pub fn mic_list(want: &str, calibration: MicGate) -> Done<MicList> {
-    #[cfg(windows)]
-    let (names, default) =
-        (astromech_voice::mic::Recorder::list_names(), astromech_voice::mic::Recorder::default_device_name());
-    #[cfg(not(windows))]
-    let (names, default): (Vec<String>, Option<String>) = (vec![], None);
+/// Recording devices for the mic picker (`devices`: the names and the default's, from
+/// [`crate::mic::Mics::names`]), with `calibration`.
+pub fn mic_list(want: &str, devices: (Vec<String>, Option<String>), calibration: MicGate) -> Done<MicList> {
+    let (names, default) = devices;
     let chosen = gain::pick_name(want, &names);
     Done::new(MicList { names, default, setting: want.trim().to_string(), chosen, calibration })
 }

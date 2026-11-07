@@ -99,8 +99,14 @@ impl BindsState {
     }
 }
 
-/// Run the whole check once.
+/// Run the whole check once, with the live devices (Windows) or none.
 pub fn run_check(bindings_dir: &Path, game_dir: Option<&Path>, live_devices: bool) -> BindsState {
+    let inventory = if live_devices { devices::enumerate_live() } else { devices::Inventory::default() };
+    run_check_with(bindings_dir, game_dir, inventory)
+}
+
+/// Run the whole check once, with the controllers in `inventory`.
+pub fn run_check_with(bindings_dir: &Path, game_dir: Option<&Path>, inventory: devices::Inventory) -> BindsState {
     let mut st = BindsState {
         checked_at: chrono::Local::now().format("%H:%M:%S").to_string(),
         bindings_dir: bindings_dir.display().to_string(),
@@ -108,7 +114,6 @@ pub fn run_check(bindings_dir: &Path, game_dir: Option<&Path>, live_devices: boo
     };
     let mut notes = vec![];
     let installs = game::locate_installs(game_dir, &mut notes);
-    let inventory = if live_devices { devices::enumerate_live() } else { devices::Inventory::default() };
     let rep = doctor::run(doctor::Inputs {
         bindings_dir,
         installs,
@@ -194,11 +199,12 @@ impl Drop for HealthWatch {
     }
 }
 
-/// The thread is registered with `clock` and waits on it.
+/// The thread is registered with `clock` and waits on it. Each check reads the controllers
+/// from `devices`.
 pub fn watch(
     bindings_dir: PathBuf,
     game_dir: Option<PathBuf>,
-    live_devices: bool,
+    devices: crate::session::Devices,
     shared: Shared,
     on_change: impl Fn(&BindsState) + Send + 'static,
     clock: Arc<dyn Clock>,
@@ -231,7 +237,7 @@ pub fn watch(
             if stop2.load(Ordering::SeqCst) {
                 return;
             }
-            let st = run_check(&bindings_dir, game_dir.as_deref(), live_devices);
+            let st = run_check_with(&bindings_dir, game_dir.as_deref(), devices());
             on_change(&st);
             *shared.write().recover() = st;
         }

@@ -61,6 +61,7 @@ fn main() -> Result<()> {
     for v in &voices {
         let data = a.out.join("cache").join(v);
         let _ = std::fs::remove_dir_all(&data);
+        std::fs::create_dir_all(&data)?;
         let t = Instant::now();
         let _speaker = TtsSpeaker::start(&a.worker, &a.models, 4, &data, v, 1.0, colour, vec![a.line.clone()])?;
         let cache = data.join("tts-cache");

@@ -384,6 +384,7 @@ fn run_console(args: Args) -> Result<()> {
         std::sync::Arc::new(astromech_proto::SystemClock),
         None,
         &astromech_core::app::Http::real(),
+        &session::Io::real(),
     )?;
     log(&s.voice);
 

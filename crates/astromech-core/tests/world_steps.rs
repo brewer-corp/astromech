@@ -51,7 +51,7 @@ fn clipboard_since(core: &WorldCore, since: u64) -> Vec<Value> {
         .collect()
 }
 
-/// The jump to the route's next stop moves the route on and copies the stop after it.
+/// The jump to the route's next stop moves the route on, copies the stop after it and says it.
 #[test]
 fn a_jump_to_the_next_stop_copies_the_one_after() {
     let core = WorldCore::start(&world("jump"));
@@ -60,6 +60,9 @@ fn a_jump_to_the_next_stop_copies_the_one_after() {
     let copied = core.call("world_wait", Some(json!({"match": {"kind": "clipboard"}, "since": since}))).unwrap();
     assert_eq!(copied["text"], "Barnard's Star", "{copied}");
     assert_eq!(next_stop(&core), "Barnard's Star");
+    // And the callout says it, through the world's speaker.
+    let said = json!({"kind": "said", "text": "Next waypoint. Barnard's Star."});
+    core.call("world_wait", Some(json!({"match": said, "since": since}))).unwrap();
     assert!(core.quit().success());
 }
 

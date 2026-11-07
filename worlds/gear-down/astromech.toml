@@ -1,0 +1,10 @@
+# Gear down by voice (crates/astromech-core/tests/world_voice.rs): Elite is running and in front, the
+# commander holds push-to-talk (Joy_4 on the left stick), says "gear down" (a clip rendered by
+# render-voices) and lets go. The advances: the hold (at least [voice] min_hold_ms, 300 ms), the
+# release's debounce ([controls] debounce_ms, 150 ms: the PttUp comes from the buttons' tick once
+# it ends), then the rest of the post-roll ([voice] post_roll_ms, 200 ms, less the debounce).
+# Key_L lowers the gear (the header's reaction).
+[controls]
+ptt = { device = "231D3201", key = "Joy_4" }
+kill_switch = { device = "231D0200", key = "Joy_1" }
+paste = { device = "231D3201", key = "Joy_12" }

@@ -253,7 +253,10 @@ game step by step (journal lines, companion files, Elite starting and exiting, t
 `world_step` returns once the core has consumed each step, so a world test needs no sleeps. A
 world's `net.json` answers every HTTP request the core makes (recorded bodies, statuses and
 faults); a request it doesn't hold is refused and shows as unrecorded in `world_observed`.
-`--record-net <file>` records real answers into that form with keys and commander names
+Push-to-talk, the kill switch and the paste button are raw-input samples in `press` and
+`release` steps, the microphone gets `audio` clips (mono 16 kHz WAVs rendered by the real
+speech path, `examples/render-voices.rs`, never a personal recording), speech-to-text hears
+`say` steps, and keys sent and lines said show in `world_observed`. `--record-net <file>` records real answers into that form with keys and commander names
 redacted. A recording committed here comes from public endpoints, with no credentials, and is
 checked for redaction; never commit one holding a key, a commander name or personal data. The
 format, the settle rules and the `world_*` commands are in the [world module's doc

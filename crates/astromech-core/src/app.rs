@@ -169,6 +169,12 @@ pub struct Boundaries {
     /// the pipeline's file generations, the session events and the game watch's gate. None for
     /// the installed app.
     pub settle: Option<Arc<crate::world::Settle>>,
+    /// The session's devices ([`session::Io`]): the platform (key presses and the foreground
+    /// window), the control source (push-to-talk, the kill switch and the paste button), the
+    /// microphone, the speech worker (speech-to-text, and the speaker for sessions and
+    /// Settings' preview) and the controllers connected, for the binds check and the keybinds
+    /// pages.
+    pub io: session::Io,
 }
 
 impl Boundaries {
@@ -190,6 +196,7 @@ impl Boundaries {
             more_commands: None,
             clock: Arc::new(SystemClock),
             settle: None,
+            io: session::Io::real(),
         }
     }
 }
@@ -282,6 +289,8 @@ pub struct Core {
     pub clock: Arc<dyn Clock>,
     /// [`Boundaries::settle`].
     pub settle: Option<Arc<crate::world::Settle>>,
+    /// [`Boundaries::io`].
+    pub io: session::Io,
 }
 
 /// The command layer's state over `core`'s live config: its folders are read on every call,
@@ -566,6 +575,7 @@ impl Core {
             self.clock.clone(),
             self.settle.as_ref().map(|s| s.files.clone()),
             &self.http,
+            &self.io,
         )
         .and_then(|mut s| {
             s.start_buttons(&cfg, &self.paths, &self.opts.session)?;
@@ -865,20 +875,19 @@ impl Core {
             None
         };
         let start = || -> Result<Arc<dyn crate::speech::Speaker>> {
-            let v = &cfg.voice;
-            let s = crate::speech::TtsSpeaker::start(
-                &cfg.worker_exe(&self.paths),
-                &cfg.models_dir(&self.paths),
-                v.threads,
-                &cfg.data_dir(&self.paths),
-                &v.speaker,
-                v.speed,
-                v.colour,
-                vec![],
-            )
-            .map_err(|e| anyhow::anyhow!("couldn't start text-to-speech: {e:#}"))?;
+            let s = self
+                .io
+                .speech
+                .speaker(
+                    &cfg.worker_exe(&self.paths),
+                    &cfg.models_dir(&self.paths),
+                    &cfg.data_dir(&self.paths),
+                    &cfg.voice,
+                    vec![],
+                )
+                .map_err(|e| anyhow::anyhow!("couldn't start text-to-speech: {e:#}"))?;
             log("voice preview: Kokoro loaded (released after a minute unused)");
-            Ok(Arc::new(s))
+            Ok(s)
         };
         match self.preview.say(PREVIEW_LINE, route, start) {
             Ok(()) => Answer::ok(Previewed { line: PREVIEW_LINE }),
@@ -1128,12 +1137,12 @@ impl Core {
             let cfg = c.cfg();
             let device = cal::configured_device(&cfg.voice.mic);
             let gate = cal::open_store(&cfg.data_dir(&c.paths)).ok().and_then(|s| cal::stored_gate(&s, &device));
-            cal::mic_list(&cfg.voice.mic, cal::MicGate { device, min_level_dbfs: gate })
+            cal::mic_list(&cfg.voice.mic, c.io.mic.names(), cal::MicGate { device, min_level_dbfs: gate })
         });
         add::<(), _>(&mut reg, self, &["calibrate_start"], Window, |c, _| cal::start(&c.calibration));
         add::<(), _>(&mut reg, self, &["calibrate_record"], Window, |c, _| {
             let mic = c.cfg().voice.mic;
-            cal::record(&c.calibration, &|ms| cal::record_mic(&mic, ms))
+            cal::record(&c.calibration, &|ms| c.io.mic.record(&mic, ms))
         });
         add::<(), _>(&mut reg, self, &["calibrate_finish"], Window, |c, _| {
             let data = c.data_dir();
@@ -1149,7 +1158,7 @@ impl Core {
         add::<(), _>(&mut reg, self, &["calibrate_cancel"], Window, |c, _| cal::cancel(&c.calibration));
         add::<(), _>(&mut reg, self, &["mic_check"], Window, |c, _| {
             let mic = c.cfg().voice.mic;
-            cal::mic_check(&|ms| cal::record_mic(&mic, ms))
+            cal::mic_check(&|ms| c.io.mic.record(&mic, ms))
         });
         add::<(), _>(&mut reg, self, &["onboarding_done"], Window, |c, _| {
             let res = cal::open_store(&c.data_dir()).and_then(|s| crate::setup::mark_onboarded(&s));
@@ -1761,8 +1770,11 @@ pub(crate) fn assemble_with(
         .map(|s| crate::setup::onboarded_at_start(&s, config_exists, &cfg))
         .unwrap_or(false);
     let opener = b.opener;
+    let devices = b.io.devices.clone();
     let core = Arc::new_cyclic(|me| Core {
-        api: Arc::new(state(api_state(me.clone(), &paths, data_dir, remote, opener.clone(), &b.http))),
+        api: Arc::new(state(
+            api_state(me.clone(), &paths, data_dir, remote, opener.clone(), &b.http).with_devices(move || devices()),
+        )),
         paths,
         config_path,
         onboarded: AtomicBool::new(onboarded),
@@ -1792,6 +1804,7 @@ pub(crate) fn assemble_with(
         route,
         clock: b.clock,
         settle: b.settle,
+        io: b.io,
     });
     Assembled { core, ui: ui_rx }
 }
@@ -2027,6 +2040,7 @@ mod tests {
             more_commands: None,
             clock: Arc::new(SystemClock),
             settle: None,
+            io: session::Io::real(),
         }
     }
 

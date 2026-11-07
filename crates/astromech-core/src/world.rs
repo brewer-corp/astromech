@@ -23,8 +23,19 @@
 //!
 //! One JSON object per line; blank lines are skipped. The first line is the header,
 //! `{"start": "2026-11-07T12:00:00Z"}`: the clock's UTC time before any step (with no
-//! `world.jsonl`, the clock starts at the real time). Every later line is one step, named by its
-//! kind's key:
+//! `world.jsonl`, the clock starts at the real time). It may also give:
+//!
+//! - `"foreground": "Elite - Dangerous (CLIENT)"`: the window in front (missing or null: none);
+//! - `"devices": [<DeviceMeta>, …]`: the controllers the Raw Input listener finds
+//!   (listen::model `DeviceMeta`, as in a replay file); they are also the binds check's
+//!   connected controllers;
+//! - `"reactions": [{"scan": 38, "ext": 0, "flag": 4}, …]`: what the game does when a key goes
+//!   down, in the mock game's form: `flag` toggles that Status flag, `gui` sets GuiFocus,
+//!   `"vehicle": true` swaps the in-ship and in-SRV flags and closes any panel. The world
+//!   rewrites Status.json (whole, with the clock's time) and the key send returns once the
+//!   pipeline has handled it, as a `file` step settles.
+//!
+//! Every later line is one step, named by its kind's key:
 //!
 //! - `{"journal": <line>, "file"?: "Journal.<stamp>.<part>.log"}`: append the line to the journal
 //!   `file` (created if new: how the game starts a journal), or to the one the last `journal` step
@@ -45,10 +56,29 @@
 //!   recording's, so it answers what it matches from the next request on (the last match
 //!   answers). It settles at once.
 //!
-//! Reserved, and refused with "not supported yet" until their child lands: the step kinds
-//! `focus`, `press`, `release`, `audio` and `say` and the header's `devices`, `reactions` and
-//! `foreground` (astromech-1hh9). A malformed line, an unknown key or a step with two kinds fails
-//! the load, naming the line.
+//! - `{"focus": "Notepad"}` (or null): the window in front from now on. It settles at once.
+//! - `{"press": <sample>}` and `{"release": <sample>}`: a raw-input sample, a listen::model
+//!   `Sample` without `t_ms` (`{"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": [4]}}`;
+//!   `fg`, missing, is the window in front). It is stamped with the clock (ms since the world's
+//!   start) and goes through the core's `controls::Mapper`, on a thread registered with the
+//!   clock that ticks it as the listener's thread does, to the push-to-talk loop. It settles once
+//!   both are parked again, so what the loop does with a press (the kill switch, its spoken
+//!   line) is done when the step returns. Push-to-talk's release reaches the loop only from a
+//!   tick once its debounce (`[controls] debounce_ms`) has passed: advance by it. The listener
+//!   starts with the first session (a `game` step before the first `press`) and keeps that
+//!   session's buttons, as the installed app's bus does.
+//! - `{"audio": "<payload>.wav"}`: a clip on the world's microphone, a mono WAV at 16 kHz. The
+//!   microphone's stream is the clips one after another: push-to-talk cuts its clip from it as
+//!   from a real device (an `audio` step between the `press` and the `release`), and a
+//!   recording (calibration, the level check) is the audio since the last one.
+//! - `{"say": "gear down"}`: what speech-to-text hears for the next clip.
+//!
+//! The push-to-talk loop reads the clock: the hold is the advance between `press` and `release`
+//! (at least `[voice] min_hold_ms`), and after the release's debounce the loop sleeps the rest of
+//! the post-roll (`[voice] post_roll_ms` less the debounce) on the clock. The clip then goes to
+//! speech-to-text on a thread the clock doesn't wait for, so its keys and speech are awaited with
+//! `world_wait`. A malformed line, an unknown key or a step with two kinds fails the load, naming
+//! the line.
 //!
 //! # Settling
 //!
@@ -101,7 +131,9 @@
 //!
 //! The fakes: the process list is the world's (empty until a step starts the game); the opener,
 //! clipboard, notifier, Start with Windows and the app window record what reaches them and touch
-//! nothing; the secrets are in memory, seeded from `secrets.json`; the clock is a manual one
+//! nothing; so do the session's devices (world/io.rs: the platform, the buttons, the
+//! microphone, speech-to-text and the speaker), and no real device, window, voice worker or
+//! audio player is opened; the secrets are in memory, seeded from `secrets.json`; the clock is a manual one
 //! ([`World::clock`]), started at the header's time and moved only by the steps. Then it calls
 //! [`app::assemble`] and [`app::start`], as the installed app does, but none of what only
 //! [`app::run`] adds: no instance lock, no Start with Windows default, no update thread, no
@@ -141,7 +173,11 @@
 //!   (null when off);
 //! - `window {route}`: the app window opened (`open_window`), at a page or null;
 //! - `http {method, url, unrecorded}`: an HTTP request, its URL with the query (key-like values
-//!   `<redacted>`); `unrecorded` when the recording held no answer and it was refused.
+//!   `<redacted>`); `unrecorded` when the recording held no answer and it was refused;
+//! - `key {key, scan, extended, up}`: a key sent to the game (`key`: its Elite name, such as
+//!   `Key_L`);
+//! - `said {text}`: a line the speaker said (the world's speaker speaks aloud, so the voice
+//!   preview and the callouts use it).
 //!
 //! Two `local` commands read them, registered only in world mode, like every `world_*` command (decision astromech-unh9: the
 //! window's origin is refused):
@@ -152,6 +188,7 @@
 //!   field of `match` (`{"kind": "edit"}`), waiting for it if there is none yet. The observation
 //!   itself wakes the wait; if none arrives within [`WAIT_GUARD`], the call fails.
 
+mod io;
 mod net;
 mod script;
 pub mod settle;
@@ -300,6 +337,8 @@ pub struct World {
     steps: Arc<Mutex<steps::Steps>>,
     /// `net.json`, answering every HTTP request, and its server.
     net: net::Net,
+    /// The session's devices: keys, the foreground window, buttons, mic and speech.
+    io: Arc<io::Io>,
 }
 
 impl World {
@@ -323,10 +362,39 @@ impl World {
         let observed = Arc::<Observed>::default();
         let net = net::Net::load(src, record, &observed)?;
         let game_dir = dir.path().join("world").join("game");
-        let steps =
-            steps::Steps::new(script, game_dir, clock.clone(), processes.clone(), settle.clone(), net.replay().clone());
-        let w =
-            Self { dir, observed, processes, secrets: vec![], clock, settle, steps: Arc::new(Mutex::new(steps)), net };
+        let (devices, reactions, foreground) = match &script {
+            Some(s) => (s.devices.clone(), s.reactions.clone(), s.foreground.clone()),
+            None => Default::default(),
+        };
+        let io = io::Io::new(
+            observed.clone(),
+            clock.clone(),
+            game_dir.clone(),
+            settle.clone(),
+            reactions,
+            devices,
+            foreground,
+        );
+        let steps = steps::Steps::new(
+            script,
+            game_dir,
+            clock.clone(),
+            processes.clone(),
+            settle.clone(),
+            net.replay().clone(),
+            io.clone(),
+        );
+        let w = Self {
+            dir,
+            observed,
+            processes,
+            secrets: vec![],
+            clock,
+            settle,
+            steps: Arc::new(Mutex::new(steps)),
+            net,
+            io,
+        };
         copy_dir(src, &w.world()).with_context(|| format!("copying the world {}", src.display()))?;
         let secrets = match std::fs::read_to_string(w.world().join("secrets.json")) {
             Ok(t) => serde_json::from_str::<std::collections::BTreeMap<String, String>>(&t)
@@ -422,6 +490,7 @@ impl World {
             more_commands: Some(Arc::new(move |core, reg| register(&commands, &steps, &settle, core, reg))),
             clock: self.clock.clone(),
             settle: Some(self.settle.clone()),
+            io: self.io.session(),
         }
     }
 }
@@ -724,11 +793,11 @@ mod tests {
         assert_eq!(w.clock().now_s(), 1_794_052_800, "2026-11-07T12:00:00Z");
         std::fs::write(
             src.path().join("world.jsonl"),
-            "{\"start\": \"2026-11-07T12:00:00Z\"}\n{\"focus\": \"Elite\"}\n",
+            "{\"start\": \"2026-11-07T12:00:00Z\"}\n{\"game\": \"paused\"}\n",
         )
         .unwrap();
         let e = format!("{:#}", World::load(src.path(), None).err().unwrap());
-        assert_eq!(e, "world.jsonl line 2: the step kind `focus` is not supported yet (astromech-1hh9)");
+        assert_eq!(e, "world.jsonl line 2: `game` is \"running\", \"launcher\" or \"exited\"");
     }
 
     #[test]

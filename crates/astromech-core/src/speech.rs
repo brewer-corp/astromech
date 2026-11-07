@@ -226,6 +226,58 @@ impl Stt for WorkerStt {
     }
 }
 
+/// The speech worker (`astromech-voice-worker`) behind a boundary ([`crate::app::Boundaries`]):
+/// whether it and its models are installed, and starting speech-to-text and a Kokoro speaker.
+/// The installed app's is [`WorkerSpeech`]; a world's answers with its script's transcripts
+/// and records what is said.
+pub trait Speech: Send + Sync {
+    /// Is the worker at `exe` there to start?
+    fn worker_found(&self, exe: &Path) -> bool;
+    /// Is speech-to-text's model completely downloaded into `models`?
+    fn stt_found(&self, models: &Path) -> bool;
+    /// Is text-to-speech's model completely downloaded into `models`?
+    fn tts_found(&self, models: &Path) -> bool;
+    /// Start speech-to-text (Parakeet) for a session.
+    fn stt(&self, exe: &Path, models: &Path, threads: i32, data: &Path) -> Result<Box<dyn Stt>>;
+    /// Start a speaker in `v`'s voice, pre-rendering `phrases`.
+    fn speaker(
+        &self,
+        exe: &Path,
+        models: &Path,
+        data: &Path,
+        v: &crate::config::Voice,
+        phrases: Vec<String>,
+    ) -> Result<Arc<dyn Speaker>>;
+}
+
+/// The voice worker and its models on disk: [`WorkerStt`] and [`TtsSpeaker`].
+pub struct WorkerSpeech;
+
+impl Speech for WorkerSpeech {
+    fn worker_found(&self, exe: &Path) -> bool {
+        exe.is_file()
+    }
+    fn stt_found(&self, models: &Path) -> bool {
+        astromech_voice::models::find_stt(models).is_ok()
+    }
+    fn tts_found(&self, models: &Path) -> bool {
+        astromech_voice::models::find_tts(models).is_ok()
+    }
+    fn stt(&self, exe: &Path, models: &Path, threads: i32, data: &Path) -> Result<Box<dyn Stt>> {
+        Ok(Box::new(WorkerStt::start(exe, models, threads, data)?))
+    }
+    fn speaker(
+        &self,
+        exe: &Path,
+        models: &Path,
+        data: &Path,
+        v: &crate::config::Voice,
+        phrases: Vec<String>,
+    ) -> Result<Arc<dyn Speaker>> {
+        Ok(Arc::new(TtsSpeaker::start(exe, models, v.threads, data, &v.speaker, v.speed, v.colour, phrases)?))
+    }
+}
+
 /// Renders one line to a WAV file: the Kokoro worker, or a fake in tests.
 pub trait Synth: Send + 'static {
     fn tts(&mut self, text: &str, voice: &VoiceParams, out_wav: &Path) -> Result<()>;

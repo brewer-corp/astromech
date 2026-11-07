@@ -1,6 +1,7 @@
 //! `world.jsonl`: its header and steps, loaded (the format is in [`crate::world`]'s doc comment).
 
 use anyhow::{anyhow, bail, Context, Result};
+use astromech_input::listen::model::{DeviceMeta, SampleData};
 use serde_json::value::RawValue;
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -14,8 +15,65 @@ pub const FILE: &str = "world.jsonl";
 pub struct Script {
     /// The header's `start`: the clock's UTC time before any step.
     pub start: SystemTime,
+    /// The header's `devices`: the controllers the Raw Input listener would find.
+    pub devices: Vec<DeviceMeta>,
+    /// The header's `reactions`: what the game does when a key goes down.
+    pub reactions: Vec<Reaction>,
+    /// The header's `foreground`: the window in front before any `focus` step.
+    pub foreground: Option<String>,
     /// Each step with its line number.
     pub steps: Vec<(usize, Step)>,
+}
+
+/// What the game does when a key goes down: the mock game's key rules
+/// (`{"scan": 38, "ext": 0, "flag": 4}`, `"gui": 6`, `"vehicle": true`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Reaction {
+    pub scan: u16,
+    pub ext: bool,
+    pub effect: Effect,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Effect {
+    /// Toggle this Status flag.
+    Flag(u64),
+    /// Set GuiFocus.
+    Gui(u64),
+    /// Swap the in-ship and in-SRV flags, closing any panel.
+    Vehicle,
+}
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct KeyRule {
+    scan: u16,
+    #[serde(default)]
+    ext: u8,
+    flag: Option<u64>,
+    gui: Option<u64>,
+    #[serde(default)]
+    vehicle: bool,
+}
+
+/// A `press` or `release` step's raw-input sample, a listen::model `Sample` without its time:
+/// that is the world clock's.
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct Input {
+    pub dev: String,
+    /// The window in front as the listener saw it; missing: the world's foreground window.
+    #[serde(default)]
+    pub fg: Option<String>,
+    #[serde(default)]
+    pub injected: bool,
+    pub data: SampleData,
+}
+
+impl PartialEq for Input {
+    fn eq(&self, o: &Self) -> bool {
+        serde_json::to_value(self).ok() == serde_json::to_value(o).ok()
+    }
 }
 
 /// What a `game` step makes the process list.
@@ -46,21 +104,23 @@ pub enum Step {
     Mark(String),
     /// Add an exchange to the world's network recording.
     Net(astromech_data::replay::Exchange),
+    /// The window in front from now on (None: none).
+    Focus(Option<String>),
+    /// A raw-input sample with a button down.
+    Press(Input),
+    /// A raw-input sample with it up again.
+    Release(Input),
+    /// A clip on the microphone (mono samples at [`super::io::MIC_RATE`] Hz).
+    Audio(Vec<f32>),
+    /// What speech-to-text hears for the next clip.
+    Say(String),
 }
 
-/// The step kinds the other children of astromech-vucf add.
-const RESERVED: [(&str, &str); 5] = [
-    ("focus", "astromech-1hh9"),
-    ("press", "astromech-1hh9"),
-    ("release", "astromech-1hh9"),
-    ("audio", "astromech-1hh9"),
-    ("say", "astromech-1hh9"),
-];
+const KINDS: [&str; 11] =
+    ["journal", "file", "game", "advance", "mark", "net", "focus", "press", "release", "audio", "say"];
 
-/// The header fields the devices child adds.
-const RESERVED_HEADER: [&str; 3] = ["devices", "reactions", "foreground"];
-
-const KINDS: [&str; 6] = ["journal", "file", "game", "advance", "mark", "net"];
+/// The header's fields.
+const HEADER: [&str; 4] = ["start", "devices", "reactions", "foreground"];
 
 type Fields = BTreeMap<String, Box<RawValue>>;
 
@@ -70,7 +130,7 @@ impl Script {
     pub fn parse(text: &str, dir: &Path) -> Result<Self> {
         let mut lines = text.lines().enumerate().map(|(i, l)| (i + 1, l)).filter(|(_, l)| !l.trim().is_empty());
         let (n, header) = lines.next().ok_or_else(|| anyhow!("{FILE}: empty; its first line is the header"))?;
-        let start = header_start(header).with_context(|| format!("{FILE} line {n} (the header)"))?;
+        let h = header_fields(header).with_context(|| format!("{FILE} line {n} (the header)"))?;
         let mut steps = vec![];
         let mut marks = std::collections::HashSet::new();
         for (n, line) in lines {
@@ -82,26 +142,45 @@ impl Script {
             }
             steps.push((n, step));
         }
-        Ok(Self { start, steps })
+        Ok(Self { start: h.start, devices: h.devices, reactions: h.reactions, foreground: h.foreground, steps })
     }
+}
+
+struct Header {
+    start: SystemTime,
+    devices: Vec<DeviceMeta>,
+    reactions: Vec<Reaction>,
+    foreground: Option<String>,
 }
 
 fn fields(line: &str) -> Result<Fields> {
     serde_json::from_str(line).context("not a JSON object")
 }
 
-fn header_start(line: &str) -> Result<SystemTime> {
+fn header_fields(line: &str) -> Result<Header> {
     let f = fields(line)?;
-    for k in f.keys() {
-        if RESERVED_HEADER.contains(&k.as_str()) {
-            bail!("the header field `{k}` is not supported yet (astromech-1hh9)");
-        }
-        if k != "start" {
-            bail!("unknown header field `{k}`; the header is {{\"start\": \"<RFC 3339 time>\"}}");
-        }
+    if let Some(k) = f.keys().find(|k| !HEADER.contains(&k.as_str())) {
+        bail!("unknown header field `{k}`; the header has `start` and optionally {}", HEADER[1..].join(", "));
     }
     let start: String = parse(&f, "start")?.ok_or_else(|| anyhow!("the header needs `start`, an RFC 3339 time"))?;
-    rfc3339(&start).with_context(|| format!("start {start:?}"))
+    let start = rfc3339(&start).with_context(|| format!("start {start:?}"))?;
+    let rules: Vec<KeyRule> = parse(&f, "reactions")?.unwrap_or_default();
+    let mut reactions = vec![];
+    for (i, r) in rules.into_iter().enumerate() {
+        // The mock game's order: the vehicle swap (which closes any panel), the flag, GuiFocus.
+        let effects = [r.vehicle.then_some(Effect::Vehicle), r.flag.map(Effect::Flag), r.gui.map(Effect::Gui)];
+        let effects: Vec<Effect> = effects.into_iter().flatten().collect();
+        if effects.is_empty() || r.ext > 1 {
+            bail!("reaction {i}: give `scan`, `ext` 0 or 1, and one or more of `flag`, `gui` and `vehicle`");
+        }
+        reactions.extend(effects.into_iter().map(|effect| Reaction { scan: r.scan, ext: r.ext == 1, effect }));
+    }
+    Ok(Header {
+        start,
+        devices: parse(&f, "devices")?.unwrap_or_default(),
+        reactions,
+        foreground: parse::<Option<String>>(&f, "foreground")?.flatten(),
+    })
 }
 
 fn rfc3339(t: &str) -> Result<SystemTime> {
@@ -116,9 +195,6 @@ fn parse<T: serde::de::DeserializeOwned>(f: &Fields, k: &str) -> Result<Option<T
 fn step(line: &str, dir: &Path) -> Result<Step> {
     let f = fields(line)?;
     let kinds: Vec<&str> = f.keys().map(String::as_str).filter(|k| KINDS.contains(k)).collect();
-    if let Some((k, owner)) = RESERVED.iter().find(|(k, _)| f.contains_key(*k)) {
-        bail!("the step kind `{k}` is not supported yet ({owner})");
-    }
     let kind = match kinds.as_slice() {
         [k] => *k,
         [] => bail!("not a step: expected one of {}", KINDS.join(", ")),
@@ -191,6 +267,24 @@ fn step(line: &str, dir: &Path) -> Result<Step> {
             astromech_data::replay::Exchange::parse(f["net"].get(), dir)
                 .map_err(|e| anyhow!("`net` is one exchange in net.json's form: {e}"))?,
         ),
+        "focus" => {
+            Step::Focus(parse::<Option<String>>(&f, "focus").context("`focus` is a window title, or null")?.flatten())
+        }
+        "press" => Step::Press(parse(&f, "press")?.context("`press`")?),
+        "release" => Step::Release(parse(&f, "release")?.context("`release`")?),
+        "audio" => {
+            let p: String = parse(&f, "audio")?.context("`audio` is a WAV payload")?;
+            let (rate, samples) = astromech_voice::wav::read_mono_f32(&dir.join(&p))
+                .with_context(|| format!("reading the WAV payload {p}"))?;
+            if rate != super::io::MIC_RATE {
+                bail!(
+                    "{p} is at {rate} Hz: record or convert it at {} Hz, the world microphone's rate",
+                    super::io::MIC_RATE
+                );
+            }
+            Step::Audio(samples)
+        }
+        "say" => Step::Say(parse::<String>(&f, "say")?.context("`say` is the transcript")?),
         _ => unreachable!("one of KINDS"),
     })
 }
@@ -323,15 +417,52 @@ mod tests {
     }
 
     #[test]
-    fn the_other_childrens_kinds_are_reserved() {
-        for (k, owner) in RESERVED {
-            let e = err(&format!("{{\"{k}\": {{}}}}"));
-            assert!(e.contains(&format!("the step kind `{k}` is not supported yet ({owner})")), "{e}");
-        }
-        let e = format!(
-            "{:#}",
-            Script::parse(r#"{"start": "2026-11-07T12:00:00Z", "devices": []}"#, Path::new(".")).unwrap_err()
+    fn the_devices_header_and_steps_load() {
+        let d = tempfile::tempdir().unwrap();
+        astromech_voice::wav::write_mono_i16(&d.path().join("clip.wav"), 16_000, &[0.0, 0.5, -0.5]).unwrap();
+        astromech_voice::wav::write_mono_i16(&d.path().join("fast.wav"), 24_000, &[0.0]).unwrap();
+        let header = r#"{"start": "2026-11-07T12:00:00Z", "foreground": "Elite - Dangerous (CLIENT)",
+            "devices": [{"key": "hid:vkb-l", "kind": "hid", "vid": 8989, "pid": 12801, "product": "VKB"}],
+            "reactions": [{"scan": 38, "ext": 0, "flag": 4}, {"scan": 66, "gui": 6, "flag": 1}, {"scan": 64, "ext": 1, "vehicle": true}]}"#
+            .replace('\n', "");
+        let steps = [
+            r#"{"focus": "Notepad"}"#,
+            r#"{"focus": null}"#,
+            r#"{"press": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": [4]}}}"#,
+            r#"{"release": {"dev": "hid:vkb-l", "fg": "Notepad", "data": {"type": "hid", "buttons": []}}}"#,
+            r#"{"audio": "clip.wav"}"#,
+            r#"{"say": "gear down"}"#,
+        ];
+        let s = Script::parse(&format!("{header}\n{}", steps.join("\n")), d.path()).unwrap();
+        assert_eq!(s.foreground.as_deref(), Some("Elite - Dangerous (CLIENT)"));
+        assert_eq!(s.devices[0].elite_id().as_deref(), Some("231D3201"));
+        assert_eq!(
+            s.reactions,
+            [
+                Reaction { scan: 38, ext: false, effect: Effect::Flag(4) },
+                Reaction { scan: 66, ext: false, effect: Effect::Flag(1) },
+                Reaction { scan: 66, ext: false, effect: Effect::Gui(6) },
+                Reaction { scan: 64, ext: true, effect: Effect::Vehicle },
+            ]
         );
-        assert!(e.contains("`devices` is not supported yet"), "{e}");
+        let steps: Vec<Step> = s.steps.into_iter().map(|(_, s)| s).collect();
+        assert_eq!(steps[0], Step::Focus(Some("Notepad".into())));
+        assert_eq!(steps[1], Step::Focus(None));
+        let Step::Press(p) = &steps[2] else { panic!("{:?}", steps[2]) };
+        assert_eq!((p.dev.as_str(), p.fg.as_deref()), ("hid:vkb-l", None));
+        assert!(matches!(&p.data, SampleData::Hid { buttons, .. } if buttons == &[4]));
+        let Step::Release(r) = &steps[3] else { panic!("{:?}", steps[3]) };
+        assert_eq!(r.fg.as_deref(), Some("Notepad"));
+        let Step::Audio(a) = &steps[4] else { panic!("{:?}", steps[4]) };
+        assert_eq!(a.len(), 3);
+        assert_eq!(steps[5], Step::Say("gear down".into()));
+
+        let bad = |step: &str| format!("{:#}", Script::parse(&format!("{HEADER}\n{step}"), d.path()).unwrap_err());
+        assert!(bad(r#"{"audio": "fast.wav"}"#).contains("at 24000 Hz: record or convert it at 16000 Hz"));
+        assert!(bad(r#"{"press": {"t_ms": 5, "dev": "x", "data": {"type": "hid"}}}"#).contains("unknown field `t_ms`"));
+        let bad_header = |h: &str| format!("{:#}", Script::parse(h, d.path()).unwrap_err());
+        assert!(bad_header(r#"{"start": "2026-11-07T12:00:00Z", "reactions": [{"scan": 38}]}"#)
+            .contains("reaction 0: give `scan`"));
+        assert!(bad_header(r#"{"start": "2026-11-07T12:00:00Z", "mic": "x"}"#).contains("unknown header field `mic`"));
     }
 }
