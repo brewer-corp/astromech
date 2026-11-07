@@ -30,7 +30,7 @@ Both drive the page through the harness against the real core and a committed wo
 - [x] Journey: plot and follow.
   - The world, under worlds/journeys/, has the commander in Sol in a ship whose jump range the plotter reads (`route_plot_ship`).
   - On the Route page the commander types a destination in the plot bar and plots (app/src/modules/route/PlotBar.svelte, Plot.svelte).
-  - The core asks Spansh, which answers from recorded pages: the neutron route in worlds/preview/sol/net.json (queued, then pending, then the result, Sol to Colonia through PSR J1752-2806), or the exact route in worlds/every-command/net.json (Sol to Maia).
+  - The core asks Spansh, which answers from Spansh's public answers recorded with `--record-net` on 7 Nov 2026 in worlds/journeys/plot/net.json: the system-name suggestions, then the neutron route job (submitted, six polls queued, then the result, Sol to Colonia through PSR J1752-2806).
   - The page shows the route followed, with its next stop.
   - A journal jump into that stop, a world step, moves the page's next stop on once the page clock runs the route poll.
   - Mutation: the jump line naming a system off the route leaves the next stop where it was, and the journey fails.
