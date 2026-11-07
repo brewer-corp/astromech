@@ -181,6 +181,26 @@ pub fn call_short(app_dir: &Path, cmd: &str, route: Option<&str>) -> Result<Valu
     call(app_dir, req, Some(SHORT), &mut |_| {})
 }
 
+/// The window's call, as the shell's one proxy sends it: stamped `origin: "app_window"`, so the
+/// registry refuses the `local` commands, and with no read timeout (a plot polls Spansh for
+/// minutes; a dropped connection means the core died). A string `args` is the request's `text`
+/// (the voice tester's phrase or command id, a JSON change such as `prospector_set`'s), the
+/// commands whose args type is `string` in the generated map. Progress values go to
+/// `on_progress`.
+pub fn call_window(
+    app_dir: &Path,
+    cmd: &str,
+    args: Option<Value>,
+    on_progress: &mut dyn FnMut(Value),
+) -> Result<Value, String> {
+    let (text, args) = match args {
+        Some(Value::String(s)) => (Some(s), None),
+        a => (None, a),
+    };
+    let req = Request { args, text, origin: Some(Origin::AppWindow), ..Request::new(cmd) };
+    call(app_dir, req, None, on_progress)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -297,5 +317,33 @@ mod tests {
         assert!(short.unwrap_err().starts_with("waiting for the core's reply to plot"));
         gate.open();
         assert_eq!(patient.join().unwrap(), Ok(json!("plotted")));
+    }
+
+    #[test]
+    fn the_windows_call_is_stamped_app_window_and_takes_text_as_a_string() {
+        let d = tempfile::tempdir().unwrap();
+        let mut reg = Registry::new();
+        reg.add("echo", Exposure::Window, |r, call| {
+            call.progress(json!(1));
+            call.progress(json!(2));
+            Ok(json!({"args": r.args, "text": r.text, "origin": r.origin}))
+        });
+        reg.add("quit", Exposure::Local, |_, _| Ok(json!("bye")));
+        reg.add("fail", Exposure::Window, |_, _| Err("no journal".into()));
+        let _srv = serve(d.path(), Arc::new(reg)).unwrap();
+        let mut got = vec![];
+        let v = call_window(d.path(), "echo", Some(json!({"within_ly": 20})), &mut |p| got.push(p)).unwrap();
+        assert_eq!(v, json!({"args": {"within_ly": 20}, "text": null, "origin": "app_window"}));
+        assert_eq!(got, vec![json!(1), json!(2)]);
+        let v = call_window(d.path(), "echo", Some(json!("gear down")), &mut no_progress).unwrap();
+        assert_eq!(v, json!({"args": null, "text": "gear down", "origin": "app_window"}));
+        let v = call_window(d.path(), "echo", None, &mut no_progress).unwrap();
+        assert_eq!(v, json!({"args": null, "text": null, "origin": "app_window"}));
+        // The handler's error and the registry's refusals are the call's error.
+        assert_eq!(call_window(d.path(), "fail", None, &mut no_progress), Err("no journal".into()));
+        let e = call_window(d.path(), "quit", None, &mut no_progress).unwrap_err();
+        assert!(e.starts_with("not allowed"), "{e}");
+        let e = call_window(d.path(), "nope", None, &mut no_progress).unwrap_err();
+        assert!(e.contains("unknown command"), "{e}");
     }
 }

@@ -1,11 +1,11 @@
 /**
  * The neutron star file (astromech_galaxy::neutron): every known neutron star, downloaded once
  * into the data folder from the `neutron` pre-release when the commander presses Download (the
- * shell's `neutron_file`, `neutron_download`, `neutron_check`; the download's progress is the
- * "neutron_progress" topic). The browser preview pretends: no file until Download, then a short
+ * core's `neutron_file`, `neutron_download`, `neutron_check`; the download's progress is
+ * published on the "neutron_download" topic). The browser preview pretends: no file until Download, then a short
  * fake download (app/src/preview/shell.ts).
  */
-import { call, subscribe } from "./transport";
+import { call, subscribe, type Progress } from "./transport";
 
 /** The file's header. */
 export interface NeutronHeader {
@@ -22,11 +22,8 @@ export interface NeutronFile {
   error: string | null;
 }
 
-export interface NeutronProgress {
-  done: number;
-  /** Null when the server didn't say. */
-  total: number | null;
-}
+/** `done` bytes of `total` (null when the server didn't say). */
+export type NeutronProgress = Progress<"neutron_download">;
 
 /** The published file's size, for the copy before a download (22 Oct 2026 build). */
 export const DOWNLOAD_MB = 71;
@@ -56,7 +53,7 @@ function report(p: NeutronProgress) {
 }
 
 async function fetchFile(): Promise<NeutronFile> {
-  const stop = subscribe<NeutronProgress>("neutron_progress", report);
+  const stop = subscribe<NeutronProgress>("neutron_download", report);
   try {
     return await call<NeutronFile>("neutron_download");
   } finally {

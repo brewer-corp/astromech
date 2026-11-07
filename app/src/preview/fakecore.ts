@@ -10,8 +10,8 @@
  * - `?fail=<name>,<name>` (or `?fail=all`): those calls are rejected, as the shell rejects a command;
  * - `?slow=<ms>` or `?slow=never`: every call waits that long, or never answers;
  *   `?slow=never:<name>,<name>` limits it to the named calls.
- * A name is the shell command or core command: `logbook`, `session_summary`, `engineering_fleet`,
- * `materials_inventory`, `eddn_log`, `core_status`, and so on (the `call` name in lib/*.ts).
+ * A name is the command the window sends: `logbook`, `session_summary`, `engineering_fleet`,
+ * `materials_inventory`, `eddn_log`, `status`, and so on (the `call` name in lib/*.ts).
  * `?core=empty` makes the sample-backed pages answer as a commander with no history (previewData,
  * used by shell.ts), and the network lookups fail for want of a position unless a system is typed
  * (previewLookup). Without `?core=` the core is not running: core commands answer so, except the
@@ -660,7 +660,7 @@ export function coreReply(cmd: CoreCmd, args: unknown): Promise<Reply> {
 /** The status the core reports: none without a scenario; the sample mining run unless `empty`. */
 export async function fakeCoreStatus(): Promise<CoreStatus | null> {
   if (!fakeScenario()) return null;
-  await previewGate("core_status");
+  await previewGate("status");
   return { ...fakeStatus(), mining: fakeScenario() === "empty" ? null : (miningSample as MiningRun) };
 }
 

@@ -1,13 +1,79 @@
 /**
- * The core's status and commands, through the shell's Tauri commands (which talk to the core's
- * local control API), over the transport (transport.ts). In the browser preview everything
+ * The core's status and commands, over the transport (transport.ts): in the app, the shell's one
+ * proxy to the core's local control API. In the browser preview everything
  * reports "not connected", unless `?core=new` or `?core=ready` picks a recorded core
  * (app/src/preview/fakecore.ts).
  */
 import type { MiningRun } from "./mining";
-import { call, subscribe, type CoreCmd } from "./transport";
+import { call, subscribe } from "./transport";
 
-export type { CoreCmd } from "./transport";
+/**
+ * The core's own commands the window sends (astromech-core's `Core::commands`), whose replies
+ * carry `ok` and report most failures inside (`{ ok: false, error }`, astromech_api::reply::Answer);
+ * `coreCall` gives a failed call as the same reply. The browser preview answers them from its
+ * fake core (app/src/preview/fakecore.ts).
+ */
+export const CORE_COMMANDS = [
+  "save_diagnostics",
+  "ack_crash",
+  "check_update",
+  "install_update",
+  "autostart_on",
+  "autostart_off",
+  "pause_voice",
+  "resume_voice",
+  "kill_switch",
+  "download_models",
+  "open_config",
+  "eddn_log",
+  "set_eddn",
+  "edsm_status",
+  "set_edsm",
+  "edsm_flight_log",
+  "voice_test",
+  "voice_test_poll",
+  "voice_test_stop",
+  "voice_test_live",
+  "learned_phrases",
+  "learned_forget",
+  // Onboarding and Settings → Microphone (core: setup.rs, calibration.rs).
+  "find_elite",
+  "set_ptt",
+  "set_kill_switch",
+  "set_mic",
+  "set_folders",
+  "mic_list",
+  "mic_check",
+  "calibrate_start",
+  "calibrate_record",
+  "calibrate_finish",
+  "calibrate_cancel",
+  "onboarding_done",
+  // Settings → Voice responses.
+  "set_voice",
+  "voice_settings",
+  "voice_preview",
+  // Settings → Callouts: each callout's switch and cooldown (core: callouts.rs, setup.rs).
+  "callouts",
+  "set_callout",
+  // Settings → Prospector callouts (core: callouts.rs).
+  "prospector_thresholds",
+  "prospector_set",
+  // Engineering → the arrival briefing's shopping list (core: callouts.rs).
+  "shopping_set",
+  // Exploration → Biology: the system's biology and the sampling in progress (core: biology.rs).
+  "exobiology",
+  // Galaxy → Route: the route the core follows (core: route.rs, docs/PLOTTING.md).
+  "route",
+  "route_set",
+  "route_add",
+  "route_skip",
+  "route_back",
+  "route_clear",
+  "route_copy",
+  "route_resume",
+] as const;
+export type CoreCmd = (typeof CORE_COMMANDS)[number];
 
 export interface UpdateStatus {
   status: "idle" | "checking" | "available" | "downloading" | "ready" | "applying" | "error";
@@ -93,9 +159,10 @@ export function freshToasts(list: Toast[], lastSeen: number | null): { show: Toa
   return { show: list.filter((t) => t.id > from), last: newest };
 }
 
+/** The core's status, or null when the call fails: the core isn't running (or didn't answer). */
 export async function coreStatus(): Promise<CoreStatus | null> {
   try {
-    return await call<CoreStatus | null>("core_status");
+    return await call<CoreStatus | null>("status");
   } catch {
     return null;
   }
@@ -109,8 +176,12 @@ export type Reply = { ok: boolean; error?: string; [k: string]: any };
  * prospector threshold change as JSON ("prospector_set"); an object is a setup command's
  * arguments (e.g. `set_ptt` with `{device, key}`).
  */
-export function coreCall(cmd: CoreCmd, arg?: string | Record<string, unknown> | null): Promise<Reply> {
-  return call<Reply>(cmd, arg ?? null);
+export async function coreCall(cmd: CoreCmd, arg?: string | Record<string, unknown> | null): Promise<Reply> {
+  try {
+    return await call<Reply>(cmd, arg ?? null);
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
 }
 
 /** A button from the config as the status shows it ("231D3201 Joy_4"). */
@@ -144,9 +215,9 @@ export interface MicList {
   calibration: { device: string; min_level_dbfs: number | null };
 }
 
-export async function shellInfo(): Promise<{ version: string }> {
-  return await call<{ version: string }>("shell_info");
-}
+/** This window's own version, built into the bundle (vite.config.ts, from app/package.json, which
+ * scripts/set-version.py stamps with the release's), to set against the core's. */
+export const WINDOW_VERSION: string = __APP_VERSION__;
 
 export async function openUrl(url: string): Promise<void> {
   await call("open_external", { target: url });

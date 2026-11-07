@@ -4,7 +4,8 @@
  * answered without Tauri, a core or the network. The fake core is fakecore.ts, the shell's
  * commands are shell.ts and binds.ts, and the URL's options are query.ts.
  */
-import { CORE_COMMANDS, type Args, type CoreCmd, type Transport } from "../lib/transport";
+import { CORE_COMMANDS, type CoreCmd } from "../lib/core";
+import type { Args, Transport } from "../lib/transport";
 import { bindsCommands, onPreviewPress } from "./binds";
 import { coreReply, fakeCoreStatus, fakeScenario } from "./fakecore";
 import engineeringSample from "./fixtures/engineering.json";
@@ -24,9 +25,10 @@ const pushed = (topic: string) => (handler: (payload: unknown) => void) => {
 /** A topic the preview never pushes on. */
 const quiet = () => () => {};
 
-/** The shell's commands by name (core commands go to the fake core). */
+/** The commands that aren't CORE_COMMANDS (astromech-api's, and `status`), by name; the core's
+ * own go to the fake core. */
 export const commands: Record<string, (args: Record<string, unknown>) => unknown> = {
-  core_status: () => fakeCoreStatus(),
+  status: () => fakeCoreStatus(),
   ...shellCommands(publish),
   ...bindsCommands,
 };
@@ -37,7 +39,7 @@ export const topics: Record<string, (handler: (payload: unknown) => void) => () 
   // The tray's page requests and the shell restarting the core don't happen in a browser.
   route: quiet,
   "core-restarted": quiet,
-  neutron_progress: pushed("neutron_progress"),
+  neutron_download: pushed("neutron_download"),
 };
 
 /** What a remembered choice starts as in the preview, by its localStorage key. */
@@ -49,10 +51,10 @@ function storedDefault(name: string): string | null {
 
 export const previewTransport: Transport = {
   call(cmd: string, args?: Args) {
-    // Not a set made at load: this module and lib/transport.ts import each other.
+    // Not a set made at load: this module and lib/core.ts import each other (through lib/transport.ts).
     if ((CORE_COMMANDS as readonly string[]).includes(cmd)) return coreReply(cmd as CoreCmd, args);
     const f = commands[cmd];
-    if (!f) return Promise.reject(new Error(`preview: no fake for shell command ${cmd}`));
+    if (!f) return Promise.reject(new Error(`preview: no fake for command ${cmd}`));
     try {
       return Promise.resolve(f((args ?? {}) as Record<string, unknown>));
     } catch (e) {

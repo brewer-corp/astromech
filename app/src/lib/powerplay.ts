@@ -153,7 +153,7 @@ export interface Targets {
 
 /** The pledged power's `target` systems within `withinLy` of `origin` (or the commander). */
 export async function loadTargets(target: Target, origin: Origin, filters: Filters | null, withinLy: number): Promise<Targets> {
-  return await call<Targets>("powerplay_targets", { target, origin, filters, withinLy });
+  return await call<Targets>("powerplay_targets", { target, origin, filters, within_ly: withinLy });
 }
 
 /** The row detail: state and progress, and which other powers are there besides `power`. */

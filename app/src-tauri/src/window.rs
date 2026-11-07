@@ -1,8 +1,9 @@
 //! The window itself, built with the `window` feature (see main.rs).
 //!
 //! The app window (docs/V1-DESIGN.md §7.1): a thin Tauri v2 shell around the Svelte app in
-//! `app/`. It holds no game logic. It talks to `astromech-core` over the core's local control
-//! API (`%LOCALAPPDATA%\astromech\data\core.json`: port + token), and:
+//! `app/`. It holds no game logic. Every call the page makes goes through one Tauri command,
+//! [`call`], to `astromech-core` over the core's local control API
+//! (`%LOCALAPPDATA%\astromech\data\core.json`: port + token), and the shell:
 //! - starts the core if it isn't running (the Start menu shortcut opens this window);
 //! - restarts the core if it crashed while the window is open (§7.7 crash restart);
 //! - is single-instance: a second start (e.g. from the tray) focuses this window and switches to
@@ -12,7 +13,7 @@
 
 use astromech_api::control;
 use astromech_store::Paths;
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::path::PathBuf;
 use std::time::Duration;
 use tauri::{Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
@@ -29,32 +30,8 @@ fn endpoint_file() -> PathBuf {
 }
 
 /// A status check: bounded, so the watchdog notices a core that stopped answering.
-fn status() -> Result<Value, String> {
-    control::call(&app_dir(), control::Request::new("status"), Some(control::SHORT), &mut |_| {})
-}
-
-/// One of the page's requests to the core, stamped `origin: "app_window"`, so the core refuses
-/// its `local` commands. `text` is the voice tester's phrase or command id, `args` a command's
-/// arguments (e.g. `set_ptt` with `{device, key}`); the command's progress values go to
-/// `on_progress`. No read timeout: a plot polls Spansh for minutes; a dropped connection means
-/// the core died.
-fn call_with(
-    cmd: &str,
-    text: Option<&str>,
-    args: Option<Value>,
-    on_progress: &mut dyn FnMut(Value),
-) -> Result<Value, String> {
-    let req = control::Request {
-        text: text.map(String::from),
-        args,
-        origin: Some(astromech_proto::Origin::AppWindow),
-        ..control::Request::new(cmd)
-    };
-    control::call(&app_dir(), req, None, on_progress)
-}
-
 fn core_alive() -> bool {
-    status().is_ok()
+    control::call_short(&app_dir(), "status", None).is_ok()
 }
 
 /// Start `astromech-core --background` from next to this exe, without a console window.
@@ -98,294 +75,20 @@ fn watchdog(app: tauri::AppHandle) {
     }
 }
 
-// ---- Every page command is the core's (astromech_api::commands and ::lookups): each forwards
-// the page's call unchanged, its arguments under the names the core takes.
-
-/// Run blocking work (a call to the core) off the main thread.
-async fn blocking<T: Send + 'static>(f: impl FnOnce() -> Result<T, String> + Send + 'static) -> Result<T, String> {
-    tauri::async_runtime::spawn_blocking(f).await.map_err(|e| e.to_string())?
-}
-
-/// The page's call to a command the core serves; the reply is the core's, as before.
-async fn forward(cmd: &'static str, args: Option<Value>) -> Result<Value, String> {
-    blocking(move || call_with(cmd, None, args, &mut |_| {})).await
-}
-
+/// The page's one way to the core: any command, forwarded with `origin: "app_window"` and no
+/// read timeout (`control::call_window`). It resolves with the command's value and rejects with
+/// its error, or why the core couldn't be reached; the command's progress values go to
+/// `progress`. Off the main thread: a voice tester live run waits for Elite to come to the
+/// front, calibration and the mic check record for a few seconds, a plot polls Spansh.
 #[tauri::command]
-async fn binds_state() -> Result<Value, String> {
-    forward("binds_state", None).await
-}
-
-#[tauri::command]
-async fn binds_refresh_devices() -> Result<Value, String> {
-    forward("binds_refresh_devices", None).await
-}
-
-#[tauri::command]
-async fn binds_reset() -> Result<Value, String> {
-    forward("binds_reset", None).await
-}
-
-#[tauri::command]
-async fn binds_view(path: PathBuf) -> Result<Value, String> {
-    forward("binds_view", Some(json!({ "path": path }))).await
-}
-
-#[tauri::command]
-async fn binds_set_slot(edit: Value) -> Result<Value, String> {
-    forward("binds_set_slot", Some(json!({ "edit": edit }))).await
-}
-
-#[tauri::command]
-async fn binds_copy(src: PathBuf, name: String) -> Result<Value, String> {
-    forward("binds_copy", Some(json!({ "src": src, "name": name }))).await
-}
-
-#[tauri::command]
-async fn binds_set_active(name: String, contexts: Vec<usize>) -> Result<Value, String> {
-    forward("binds_set_active", Some(json!({ "name": name, "contexts": contexts }))).await
-}
-
-#[tauri::command]
-async fn binds_restore(backup: PathBuf) -> Result<Value, String> {
-    forward("binds_restore", Some(json!({ "backup": backup }))).await
-}
-
-#[tauri::command]
-async fn binds_set_override(device: String, control: String, joy: Option<String>) -> Result<Value, String> {
-    forward("binds_set_override", Some(json!({ "device": device, "control": control, "joy": joy }))).await
-}
-
-#[tauri::command]
-async fn materials_inventory() -> Result<Value, String> {
-    forward("materials_inventory", None).await
-}
-
-#[tauri::command]
-async fn engineering_fleet() -> Result<Value, String> {
-    forward("engineering_fleet", None).await
-}
-
-#[tauri::command]
-async fn engineering_plan(plan: Value) -> Result<Value, String> {
-    forward("engineering_plan", Some(json!({ "plan": plan }))).await
-}
-
-#[tauri::command]
-async fn engineering_stats(plan: Value) -> Result<Value, String> {
-    forward("engineering_stats", Some(json!({ "plan": plan }))).await
-}
-
-#[tauri::command]
-async fn engineering_headlines() -> Result<Value, String> {
-    forward("engineering_headlines", None).await
-}
-
-#[tauri::command]
-async fn engineering_engineers() -> Result<Value, String> {
-    forward("engineering_engineers", None).await
-}
-
-#[tauri::command]
-async fn engineering_unlocks() -> Result<Value, String> {
-    forward("engineering_unlocks", None).await
-}
-
-#[tauri::command]
-async fn odyssey_view() -> Result<Value, String> {
-    forward("odyssey_view", None).await
-}
-
-#[tauri::command]
-async fn odyssey_shopping(picks: Value) -> Result<Value, String> {
-    forward("odyssey_shopping", Some(json!({ "picks": picks }))).await
-}
-
-#[tauri::command]
-async fn powerplay_overview() -> Result<Value, String> {
-    forward("powerplay_overview", None).await
-}
-
-#[tauri::command]
-async fn colonisation_projects() -> Result<Value, String> {
-    forward("colonisation_projects", None).await
-}
-
-#[tauri::command]
-async fn exploration_system() -> Result<Value, String> {
-    forward("exploration_system", None).await
-}
-
-#[tauri::command]
-async fn exploration_unsold() -> Result<Value, String> {
-    forward("exploration_unsold", None).await
-}
-
-#[tauri::command]
-async fn logbook(query: String, cmdr: Option<String>) -> Result<Value, String> {
-    forward("logbook", Some(json!({ "query": query, "cmdr": cmdr }))).await
-}
-
-#[tauri::command]
-async fn session_summary() -> Result<Value, String> {
-    forward("session_summary", None).await
-}
-
-#[tauri::command]
-async fn docked_here() -> Result<Value, String> {
-    forward("docked_here", None).await
-}
-
-#[tauri::command]
-async fn trade_route_defaults() -> Result<Value, String> {
-    forward("trade_route_defaults", None).await
-}
-
-// ---- The star map, lookups, route plotting and the neutron star file are the core's too
-// (astromech_api::lookups).
-
-#[tauri::command]
-async fn powerplay_targets(
-    target: Value,
-    origin: Option<String>,
-    filters: Option<Value>,
-    within_ly: f64,
-) -> Result<Value, String> {
-    let args = json!({ "target": target, "origin": origin, "filters": filters, "within_ly": within_ly });
-    forward("powerplay_targets", Some(args)).await
-}
-
-#[tauri::command]
-async fn outfitting_search(query: String) -> Result<Value, String> {
-    forward("outfitting_search", Some(json!({ "query": query }))).await
-}
-
-#[tauri::command]
-async fn engineering_trip(plan: Value) -> Result<Value, String> {
-    forward("engineering_trip", Some(json!({ "plan": plan }))).await
-}
-
-#[tauri::command]
-async fn galaxy_nearby(query: String, origin: Option<String>, filters: Option<Value>) -> Result<Value, String> {
-    forward("galaxy_nearby", Some(json!({ "query": query, "origin": origin, "filters": filters }))).await
-}
-
-#[tauri::command]
-async fn stations_nearby(want: Value, origin: Option<String>, filters: Option<Value>) -> Result<Value, String> {
-    forward("stations_nearby", Some(json!({ "want": want, "origin": origin, "filters": filters }))).await
-}
-
-#[tauri::command]
-async fn galaxy_sites(kind: String, origin: Option<String>, filters: Option<Value>) -> Result<Value, String> {
-    forward("galaxy_sites", Some(json!({ "kind": kind, "origin": origin, "filters": filters }))).await
-}
-
-#[tauri::command]
-async fn colony_candidates(interest: Value, origin: Option<String>, filters: Option<Value>) -> Result<Value, String> {
-    forward("colony_candidates", Some(json!({ "interest": interest, "origin": origin, "filters": filters }))).await
-}
-
-#[tauri::command]
-async fn trade_search(
-    side: Value,
-    commodities: Vec<String>,
-    origin: Option<String>,
-    filters: Option<Value>,
-) -> Result<Value, String> {
-    let args = json!({ "side": side, "commodities": commodities, "origin": origin, "filters": filters });
-    forward("trade_search", Some(args)).await
-}
-
-#[tauri::command]
-async fn trade_anywhere(
-    side: Value,
-    commodity: String,
-    origin: Option<String>,
-    filters: Option<Value>,
-) -> Result<Value, String> {
-    let args = json!({ "side": side, "commodity": commodity, "origin": origin, "filters": filters });
-    forward("trade_anywhere", Some(args)).await
-}
-
-#[tauri::command]
-async fn trade_cargo(origin: Option<String>, filters: Option<Value>) -> Result<Value, String> {
-    forward("trade_cargo", Some(json!({ "origin": origin, "filters": filters }))).await
-}
-
-#[tauri::command]
-async fn mining_hotspots(want: Value, origin: Option<String>, filters: Option<Value>) -> Result<Value, String> {
-    forward("mining_hotspots", Some(json!({ "want": want, "origin": origin, "filters": filters }))).await
-}
-
-#[tauri::command]
-async fn market_compare() -> Result<Value, String> {
-    forward("market_compare", None).await
-}
-
-#[tauri::command]
-async fn trade_route(ask: Value, origin: Option<String>, filters: Option<Value>) -> Result<Value, String> {
-    forward("trade_route", Some(json!({ "ask": ask, "origin": origin, "filters": filters }))).await
-}
-
-#[tauri::command]
-async fn route_plot_ship() -> Result<Value, String> {
-    forward("route_plot_ship", None).await
-}
-
-#[tauri::command]
-async fn route_plot(ask: Value) -> Result<Value, String> {
-    forward("route_plot", Some(json!({ "ask": ask }))).await
-}
-
-#[tauri::command]
-async fn neutron_file() -> Result<Value, String> {
-    forward("neutron_file", None).await
-}
-
-/// The core sends the download's progress as progress lines; each goes to the page's channel.
-#[tauri::command]
-async fn neutron_download(on_progress: tauri::ipc::Channel<Value>) -> Result<Value, String> {
-    blocking(move || {
-        call_with("neutron_download", None, None, &mut |p| {
-            let _ = on_progress.send(p);
+async fn call(cmd: String, args: Option<Value>, progress: tauri::ipc::Channel<Value>) -> Result<Value, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        control::call_window(&app_dir(), &cmd, args, &mut |p| {
+            let _ = progress.send(p);
         })
     })
     .await
-}
-
-#[tauri::command]
-async fn neutron_check() -> Result<Value, String> {
-    forward("neutron_check", None).await
-}
-
-#[tauri::command]
-async fn colonisation_buy(needs: Value, origin: Option<String>, filters: Option<Value>) -> Result<Value, String> {
-    forward("colonisation_buy", Some(json!({ "needs": needs, "origin": origin, "filters": filters }))).await
-}
-
-#[tauri::command]
-async fn search_filters(lookup: String) -> Result<Value, String> {
-    forward("search_filters", Some(json!({ "lookup": lookup }))).await
-}
-
-#[tauri::command]
-async fn set_search_filters(lookup: String, filters: Value) -> Result<Value, String> {
-    forward("set_search_filters", Some(json!({ "lookup": lookup, "filters": filters }))).await
-}
-
-#[tauri::command]
-async fn galaxy_systems(prefix: String) -> Result<Value, String> {
-    forward("galaxy_systems", Some(json!({ "prefix": prefix }))).await
-}
-
-#[tauri::command]
-async fn shell_info() -> Result<Value, String> {
-    forward("shell_info", None).await
-}
-
-#[tauri::command]
-async fn open_external(target: String) -> Result<Value, String> {
-    forward("open_external", Some(json!({ "target": target }))).await
+    .map_err(|e| e.to_string())?
 }
 
 /// Presses from every stick, pad and key, for "press a control to find it", the key tester
@@ -440,23 +143,6 @@ fn start_input(app: tauri::AppHandle) {
     });
 }
 
-#[tauri::command]
-async fn core_status() -> Option<Value> {
-    blocking(|| Ok(status().ok())).await.ok().flatten()
-}
-
-/// Blocking: a voice tester live run waits for Elite to come to the front; calibration and the
-/// mic check record for a few seconds.
-#[tauri::command]
-async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Value {
-    blocking(move || {
-        Ok(call_with(&cmd, text.as_deref(), args, &mut |_| {})
-            .unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e })))
-    })
-    .await
-    .unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))
-}
-
 fn route_arg(args: &[String]) -> Option<String> {
     let i = args.iter().position(|a| a == "--route")?;
     args.get(i + 1).filter(|r| r.chars().all(|c| c.is_ascii_alphanumeric() || c == '-')).cloned()
@@ -501,60 +187,7 @@ pub fn main() {
                 }
             }
         }))
-        .invoke_handler(tauri::generate_handler![
-            core_status,
-            core_call,
-            shell_info,
-            open_external,
-            binds_state,
-            binds_refresh_devices,
-            binds_reset,
-            binds_view,
-            binds_set_slot,
-            binds_copy,
-            binds_set_active,
-            binds_restore,
-            binds_set_override,
-            materials_inventory,
-            engineering_fleet,
-            engineering_plan,
-            engineering_stats,
-            engineering_headlines,
-            engineering_engineers,
-            engineering_unlocks,
-            engineering_trip,
-            odyssey_view,
-            odyssey_shopping,
-            galaxy_nearby,
-            galaxy_sites,
-            colony_candidates,
-            stations_nearby,
-            galaxy_systems,
-            trade_search,
-            trade_anywhere,
-            trade_cargo,
-            mining_hotspots,
-            market_compare,
-            trade_route_defaults,
-            trade_route,
-            route_plot_ship,
-            route_plot,
-            neutron_file,
-            neutron_download,
-            neutron_check,
-            colonisation_projects,
-            colonisation_buy,
-            search_filters,
-            set_search_filters,
-            powerplay_overview,
-            powerplay_targets,
-            logbook,
-            docked_here,
-            outfitting_search,
-            session_summary,
-            exploration_system,
-            exploration_unsold
-        ])
+        .invoke_handler(tauri::generate_handler![call])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());
             let mut window = WebviewWindowBuilder::new(app, "main", WebviewUrl::App(hash.into()))

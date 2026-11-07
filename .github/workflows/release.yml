@@ -51,11 +51,14 @@ on:
       - scripts/pack-update.py
       - scripts/gen-starmap.py
       - scripts/onboarding_smoke.py
-      # What the onboarding smoke test drives: the wizard and the voice tester (the mock game,
+      # What the onboarding smoke test drives: the wizard, the voice tester and the window's half
+      # of the shell's proxy, which every page it opens calls through (the mock game,
       # crates/astromech-mockgame, is under crates/**)
       - app/src/lib/onboarding/**
       - app/src/modules/voicetester/**
       - app/src/App.svelte
+      - app/src/lib/transport.ts
+      - app/src/lib/core.ts
   workflow_dispatch:
 
 permissions:

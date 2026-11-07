@@ -5,7 +5,7 @@ import { answer, idle, startPreview, watch } from "./test/transport";
 
 const stationsSpy = watch("stations_nearby");
 const hotspotsSpy = watch("mining_hotspots");
-answer("core_status", () => null);
+answer("status", () => null);
 
 describe("Find or plot in the window", () => {
   afterEach(() => (location.hash = ""));

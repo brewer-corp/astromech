@@ -103,7 +103,7 @@ describe("Settings, a status read failing after a good one (astromech-cvxf)", ()
     vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] }); // the status poll; the test moves its clock
     render(View);
     await screen.findByText("Start with Windows");
-    history.replaceState(null, "", "/?core=ready&fail=core_status");
+    history.replaceState(null, "", "/?core=ready&fail=status");
     await vi.advanceTimersByTimeAsync(1000);
     expect(await screen.findByText("Could not refresh: the core did not answer.")).toBeTruthy();
     expect(screen.getByText("Start with Windows")).toBeTruthy();

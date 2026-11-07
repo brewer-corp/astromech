@@ -543,7 +543,6 @@ dependencies = [
  "astromech-input",
  "astromech-keybinds",
  "astromech-log",
- "astromech-proto",
  "astromech-store",
  "serde_json",
  "tauri",

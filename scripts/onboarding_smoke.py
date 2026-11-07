@@ -20,6 +20,11 @@ What it does, in the order a new player would:
 5. "gear down" is typed into the voice tester page and run live (the runner can't speak, and
    the voice tester's live run goes through the same tool, policy and verification as a spoken
    command); the mock is brought to the front, and the page must show the game confirmed it.
+6. Every top-level page (each module in app/src/modules) is opened, and none may show that a
+   call didn't reach its command: "not allowed", "unknown command", an internal error, "the
+   core is not running", or args the command or the shell's proxy refused. Then the star map is
+   opened (`galaxy_systems`), and the core's log must name the installed `starmap.db` as its
+   preload.
 Then the window and core are closed and the app uninstalled. The report lists each step's time
 and the total from the start of the install to the verified gear-down, against the 5 minute
 onboarding budget (docs/V1-DESIGN.md: install to working gear-down in under 5 minutes; the
@@ -31,6 +36,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -40,7 +46,15 @@ import time
 import urllib.request
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent.parent
+MODULES = ROOT / "app" / "src" / "modules"
 BUDGET_S = 5 * 60
+GEAR_DOWN = "gear down verified"
+# What a page shows when a call didn't reach its command, lower case: the registry's refusals and
+# a caught panic (crates/astromech-api/src/lib.rs), the control client with no core, and Tauri
+# refusing the proxy's own arguments.
+BROKEN = ("not allowed", "unknown command", "internal error", "the core is not running", "bad args for",
+          "invalid args")
 CDP_PORT = 9223
 ELITE_TITLE = "Elite - Dangerous (CLIENT)"
 # Set-1 scan codes: the binds press Key_L for the gear; the wizard binds F7 and F8.
@@ -330,11 +344,88 @@ def drive(a, run: Run, inst: Path, journal: Path, procs: list) -> None:
     run.notes.append(f"voice tester: {note}")
     if "confirmed it in" not in note:
         raise RuntimeError(f"gear down wasn't verified: {note}")
-    run.step(f"gear down verified ({time.time() - t_live:.2f} s from Run live)")
+    run.step(f"{GEAR_DOWN} ({time.time() - t_live:.2f} s from Run live)")
     keys = (journal / "keys.log").read_text(encoding="utf-8")
     flags = json.loads((journal / "Status.json").read_text(encoding="utf-8"))["Flags"]
     if "down scan=26" not in keys or not flags & GEAR:
         raise RuntimeError("the mock didn't get the gear key, or its gear flag isn't set")
+
+    visit_pages(page, run)
+    star_map_preload(inst, run)
+
+
+def module_ids() -> list[str]:
+    """The window's top-level pages: each module's id, its route (`#/<id>`)."""
+    ids = []
+    for m in sorted(MODULES.glob("*/manifest.ts")):
+        found = re.search(r'\bid:\s*"([a-z0-9-]+)"', m.read_text(encoding="utf-8"))
+        if not found:
+            raise RuntimeError(f"no id in {m}")
+        ids.append(found.group(1))
+    if not ids:
+        raise RuntimeError(f"no modules in {MODULES}")
+    return ids
+
+
+def settle(page: Page, quiet: float = 1.5, timeout: float = 15.0) -> str:
+    """The page's text once it has stopped changing for `quiet` seconds (its calls answered)."""
+    end = time.time() + timeout
+    last, since = None, time.time()
+    while time.time() < end:
+        t = page.text()
+        if t != last:
+            last, since = t, time.time()
+        elif time.time() - since >= quiet:
+            break
+        time.sleep(0.25)
+    return last or ""
+
+
+def broken_lines(text: str) -> list[str]:
+    return [l.strip() for l in text.splitlines() if any(b in l.lower() for b in BROKEN)]
+
+
+def visit_pages(page: Page, run: Run) -> None:
+    """Open every top-level page; fail on any that shows a call that didn't reach its command."""
+    ids = module_ids()
+    bad = {}
+    for m in ids:
+        page.eval(f"location.hash = {json.dumps('#/' + m)}")
+        text = settle(page)
+        if lines := broken_lines(text):
+            bad[m] = lines[:3]
+        if m == "diagnostics":
+            version = re.search(r"Version\n(.*)", text)
+            run.notes.append(f"Diagnostics version: {version.group(1) if version else 'not shown'}")
+    if bad:
+        raise RuntimeError(f"pages showing a call that didn't reach its command: {json.dumps(bad)}")
+    run.step(f"{len(ids)} pages opened, none refused a call")
+
+
+def redacted(p: Path) -> str:
+    """`p` as the core's log writes it: the log redacts %LOCALAPPDATA% (astromech-keybinds Redactor)."""
+    la = os.environ["LOCALAPPDATA"]
+    s = str(p)
+    return "%LOCALAPPDATA%" + s[len(la):] if s.lower().startswith(la.lower()) else s
+
+
+def star_map_preload(inst: Path, run: Run) -> None:
+    """Open the star map (it opens on first use) and find the core's line naming its preload."""
+    try:
+        core_call("galaxy_systems", args={"prefix": "Sol"})
+    except ValueError as e:  # Spansh's suggestions may fail; the star map opened before they were asked
+        run.notes.append(f"galaxy_systems: {e}")
+    log = Path(os.environ["LOCALAPPDATA"]) / "astromech" / "data" / "logs" / "astromech-core.log"
+    want = f"preload {redacted(inst / 'starmap.db')}".lower()
+    end, lines = time.time() + 10, []
+    while time.time() < end:
+        lines = [l for l in log.read_text(encoding="utf-8", errors="replace").splitlines() if "star map:" in l]
+        if any(want in l.lower() for l in lines):
+            run.notes.append(f"core log: {next(l for l in lines if want in l.lower()).strip()}")
+            run.step("star map opened with the installed preload")
+            return
+        time.sleep(0.25)
+    raise RuntimeError(f"the core's log has no star map line with {want!r}; its star map lines: {lines}")
 
 def report_md(r: dict) -> str:
     lines = ["# Onboarding smoke test: fresh install to a verified gear-down (mock game)", "",
@@ -367,8 +458,9 @@ def main(argv=None) -> int:
         smoke(a, run)
     except Exception as e:  # report what got done, then fail
         error = f"{type(e).__name__}: {e}"
-    reached = any(s["step"].startswith("gear down verified") for s in run.steps)
-    total = round(sum(s["seconds"] for s in run.steps), 2) if reached else None
+    # The onboarding time is install to the verified gear-down; the page tour after it isn't in it.
+    total = next((s["at"] for s in run.steps if s["step"].startswith(GEAR_DOWN)), None)
+    reached = total is not None
     r = {"pass": reached and error is None and total <= BUDGET_S, "total_s": total, "budget_s": BUDGET_S,
          "steps": run.steps, "notes": run.notes, "error": error}
     (a.out / "report.json").write_text(json.dumps(r, indent=1), encoding="utf-8")

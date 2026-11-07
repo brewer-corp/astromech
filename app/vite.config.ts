@@ -2,10 +2,14 @@ import { defineConfig } from "vitest/config";
 import { playwright } from "@vitest/browser-playwright";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { svelteTesting } from "@testing-library/svelte/vite";
+import pkg from "./package.json" with { type: "json" };
 
 // The Tauri shell loads dist/ (production) or this dev server (tauri dev).
 export default defineConfig({
   plugins: [svelte(), svelteTesting({ resolveBrowser: false })],
+  // The window's own version (lib/core.ts WINDOW_VERSION): the bundle ships inside the shell's
+  // exe, so Diagnostics can tell a window and a core from different releases apart.
+  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   clearScreen: false,
   server: { port: 5173, strictPort: true },
   test: {

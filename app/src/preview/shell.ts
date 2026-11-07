@@ -349,7 +349,7 @@ export function shellCommands(publish: (topic: string, payload: unknown) => void
       };
       return previewData("powerplay_overview", () => o, () => unpledged);
     },
-    powerplay_targets: ({ target, origin, withinLy }) => {
+    powerplay_targets: ({ target, origin, within_ly: withinLy }) => {
       const s = (targetsSample as unknown as Record<Target, Targets>)[target as Target];
       const shown = (hits: TargetHit[]) => ({ ...s, hits, within_ly: withinLy, here: from(s.here, origin) });
       return previewData("powerplay_targets", () => shown(s.hits.filter((h) => h.ly <= withinLy)), () => shown([]));
@@ -385,7 +385,7 @@ export function shellCommands(publish: (topic: string, payload: unknown) => void
       await previewGate("neutron_check");
       return { newer: false };
     },
-    neutron_download: () => neutronDownload((p) => publish("neutron_progress", p)),
+    neutron_download: () => neutronDownload((p) => publish("neutron_download", p)),
     shell_info: () => ({ version: "dev" }),
     open_external: ({ target }) => void window.open(target, "_blank"),
   };

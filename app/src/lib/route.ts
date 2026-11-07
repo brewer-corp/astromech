@@ -3,7 +3,7 @@
  * clipboard, ready to paste into the galaxy map's search box; arriving in it copies the one
  * after. The core owns the route, so it is followed with the window shut. The browser preview
  * (`?core=ready`) keeps one in memory (app/src/preview/fakecore.ts). Routes can be plotted from the top bar for
- * the current ship, from its system (the shell's `route_plot`): neutron routes on this PC from
+ * the current ship, from its system (the core's `route_plot`): neutron routes on this PC from
  * the neutron star file when it is downloaded, else by Spansh, and exact routes by Spansh. A
  * route plotted in the galaxy map is followed too (core: route.rs).
  */

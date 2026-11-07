@@ -10,14 +10,14 @@ import Materials from "../../modules/materials/View.svelte";
 import DataSharing from "../../modules/datasharing/View.svelte";
 import Mining from "../../modules/mining/View.svelte";
 
-// The production path (astromech-spxx): the real loaders in the app, with the shell's calls
-// answering, then failing the way the shell fails (a rejected command, or a core_call reply of
-// `{ ok: false }` when the core is down), then answering again. The preview's `?fail=` throws from
+// The production path (astromech-spxx): the real loaders in the app, with the shell's proxy
+// (`call`) answering, then failing the way it fails (a rejected call: the core's error, or that
+// the core is not running), then answering again. The preview's `?fail=` throws from
 // inside the loader, so it cannot show a loader that swallows the failure.
 const shell = vi.hoisted(() => {
   // Before any import: the transport sees Tauri once, when lib/transport.ts loads.
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  // `only`: the core_call commands that fail (the rest answer); null: every call fails.
+  // `only`: the commands that fail (the rest answer); null: every call fails.
   return { mode: "ok" as "ok" | "reject" | "core_down", only: null as Set<string> | null, invoke: vi.fn() };
 });
 vi.mock("@tauri-apps/api/core", () => ({ invoke: shell.invoke, Channel: class {} }));
@@ -28,9 +28,7 @@ const answers: Record<string, unknown> = {
   engineering_headlines: {},
   engineering_engineers: { engineers: [], here: null },
   materials_inventory: materials,
-  core_status: { ok: true, mining: miningSample },
-};
-const coreReplies: Record<string, unknown> = {
+  status: { ok: true, mining: miningSample },
   eddn_log: { ok: true, ...eddnSample },
   edsm_status: { ok: true, enabled: true, commander: "Fixture", has_key: true, key_error: null, pending: 0, last_error: null, log: [], skipped: [] },
 };
@@ -38,19 +36,16 @@ const coreReplies: Record<string, unknown> = {
 beforeEach(() => {
   shell.mode = "ok";
   shell.only = null;
-  answers.core_status = { ok: true, mining: miningSample };
+  answers.status = { ok: true, mining: miningSample };
   shell.invoke.mockReset();
-  shell.invoke.mockImplementation(async (cmd: string, args?: { cmd?: string }) => {
-    const failing = shell.only === null || (cmd === "core_call" && shell.only.has(args?.cmd ?? ""));
+  shell.invoke.mockImplementation(async (proxy: string, a: { cmd: string; args: unknown; progress: unknown }) => {
+    if (proxy !== "call" || !a.progress) throw `the window invoked ${proxy} without a progress channel`;
+    const failing = shell.only === null || shell.only.has(a.cmd);
     if (shell.mode === "reject" && failing) throw "the shell could not reach the core";
-    // The shell's core_status is `call("status").ok()`: null while the core is down.
-    if (cmd === "core_status" && shell.mode === "core_down") return null;
-    if (cmd === "core_call") {
-      if (shell.mode === "core_down" && failing) return { ok: false, error: "the core is not running" };
-      return coreReplies[args?.cmd ?? ""] ?? { ok: false, error: "no stub" };
-    }
-    if (!(cmd in answers)) throw `no stub for ${cmd}`;
-    return structuredClone(answers[cmd]);
+    // What the control client says when there is no core.json.
+    if (shell.mode === "core_down" && failing) throw "the core is not running";
+    if (!(a.cmd in answers)) throw `no stub for ${a.cmd}`;
+    return structuredClone(answers[a.cmd]);
   });
   vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
 });
@@ -136,7 +131,7 @@ describe.each(FIRST)("%s, in the app, when the first read fails by %s", (_n, how
 
 describe("Mining, in the app, with the core up and no session", () => {
   it("says there is no run yet, not that the core is down", async () => {
-    answers.core_status = { ok: true, mining: null };
+    answers.status = { ok: true, mining: null };
     render(Mining as unknown as Component);
     expect(await screen.findByText("No mining run yet.")).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/isn't running|Could not/);

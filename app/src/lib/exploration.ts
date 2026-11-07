@@ -1,6 +1,6 @@
 /**
  * Exploration: the current system's bodies as they are scanned, with their estimated values
- * (crates/astromech-exploration, through the shell's `exploration_system` command, which reads
+ * (crates/astromech-exploration, through the core's `exploration_system` command, which reads
  * the newest journals).
  */
 import { call } from "./transport";

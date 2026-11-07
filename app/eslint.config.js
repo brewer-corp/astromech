@@ -54,10 +54,15 @@ export default ts.config(
     // Tests reach the fake through src/test/transport.ts too (answer, watch, previewAnswer,
     // startPreview). They may read its fixtures (recorded inputs, as data) and drive the fake
     // world's own events: a jump in game, a galaxy-map plot, a refused clipboard, the voice
-    // previews played. The preview's own tests (src/preview/) and the two that fake Tauri's
-    // invoke to test the app's side of the transport are exempt.
+    // previews played. The preview's own tests (src/preview/) and the three that fake Tauri's
+    // invoke to test the app's side of the transport (the shell's proxy) are exempt.
     files: ["src/**/*.test.ts"],
-    ignores: ["src/preview/**", "src/lib/ui/staleTauri.browser.test.ts", "src/lib/ui/tauriFailure.browser.test.ts"],
+    ignores: [
+      "src/preview/**",
+      "src/lib/proxy.browser.test.ts",
+      "src/lib/ui/staleTauri.browser.test.ts",
+      "src/lib/ui/tauriFailure.browser.test.ts",
+    ],
     rules: {
       "no-restricted-imports": [
         "error",

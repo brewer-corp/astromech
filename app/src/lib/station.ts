@@ -1,5 +1,5 @@
 /**
- * The station you are docked at, and where you saw a module before: the shell's `docked_here`
+ * The station you are docked at, and where you saw a module before: the core's `docked_here`
  * and `outfitting_search` commands (crates/astromech-station; the core keeps every
  * `Outfitting.json` in `outfitting.sqlite`).
  */

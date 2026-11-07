@@ -1,6 +1,6 @@
 /**
  * The logbook: where the commander has been, from the journal history the core keeps
- * (crates/astromech-history, read by the shell's `logbook` command).
+ * (crates/astromech-history, read by the core's `logbook` command).
  */
 import { call } from "./transport";
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CORE_COMMANDS } from "../lib/transport";
+import { CORE_COMMANDS } from "../lib/core";
 import { coreHandlers } from "./fakecore";
 import { commands, topics } from "./transport";
 
@@ -32,13 +32,13 @@ describe("the browser preview fakes everything the window uses", () => {
     expect(missing).toEqual([]);
   });
 
-  it("answers every core command the shell lets the window send", () => {
+  it("answers every core command", () => {
     expect(CORE_COMMANDS.filter((cmd) => !(cmd in coreHandlers))).toEqual([]);
   });
 
   it("has every topic the app subscribes to", () => {
     const subs = used(SUBSCRIBE);
-    expect([...subs.keys()].sort()).toEqual(expect.arrayContaining(["input", "neutron_progress", "route"]));
+    expect([...subs.keys()].sort()).toEqual(expect.arrayContaining(["input", "neutron_download", "route"]));
     const missing = [...subs].filter(([topic]) => !(topic in topics)).map(([topic, file]) => `${topic} (${file})`);
     expect(missing).toEqual([]);
   });

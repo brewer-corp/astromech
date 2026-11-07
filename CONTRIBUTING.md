@@ -168,7 +168,7 @@ change; [AGENTS.md](AGENTS.md) has the short form.
 clock, input devices, audio and the clipboard. The core's behaviour always runs for real.
 Fixtures are recorded raw inputs (journals, Spansh and Ardent responses), dumped or recorded
 from the real thing, never invented replies. A reply written in a test is fine only to set up a
-failure, an empty or absent state, or a fault the fixtures don't hold (`answer("core_status", () =>
+failure, an empty or absent state, or a fault the fixtures don't hold (`answer("status", () =>
 null)`, a rejected call); data the page shows comes from the recorded fixtures.
 
 **Where a case goes.** Test each case once, at the lowest layer that fails without the fix.
