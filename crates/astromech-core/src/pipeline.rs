@@ -817,17 +817,20 @@ impl Tailer {
         let p = self.dir.join("Status.json");
         // Taken before the read: a write in between is read again on the next idle pass.
         let stamp = file_stamp(&p);
-        if let Some(s) = astromech_status::read_status_retry(&p, 5) {
+        // No Flags (the main menu): read, so recorded, but nothing to apply.
+        if let Some(snap) = read_status_whole(&p, 5) {
             self.status_seen = stamp;
-            self.stats.lock().recover().status_reads += 1;
-            if let Some(f) = &mut self.eddn {
-                f.status(&serde_json::json!({ "BodyName": s.body_name }));
-            }
-            self.hub.apply_status(&s);
-            if let Some(c) = &mut self.callouts {
-                c.engine.set_live(self.caught_up);
-                let fired = self.hub.read(|g| c.engine.status(&s, g, Instant::now()));
-                (c.deliver)(fired);
+            if let Some(s) = snap {
+                self.stats.lock().recover().status_reads += 1;
+                if let Some(f) = &mut self.eddn {
+                    f.status(&serde_json::json!({ "BodyName": s.body_name }));
+                }
+                self.hub.apply_status(&s);
+                if let Some(c) = &mut self.callouts {
+                    c.engine.set_live(self.caught_up);
+                    let fired = self.hub.read(|g| c.engine.status(&s, g, Instant::now()));
+                    (c.deliver)(fired);
+                }
             }
         }
         self.on_companions();
@@ -936,6 +939,23 @@ impl Tailer {
             f.flush(wall_now());
         }
     }
+}
+
+/// Status.json read whole: `None` if it couldn't be read or isn't complete JSON (half-written,
+/// held), after `tries` tries 1 ms apart; `Some(None)` for complete JSON with no Flags (the main
+/// menu), which isn't tried again.
+fn read_status_whole(p: &Path, tries: u32) -> Option<Option<astromech_status::StatusSnap>> {
+    for i in 0..tries {
+        if let Ok(b) = std::fs::read(p) {
+            if serde_json::from_slice::<serde::de::IgnoredAny>(&b).is_ok() {
+                return Some(astromech_status::parse_status(&b));
+            }
+        }
+        if i + 1 < tries {
+            std::thread::sleep(Duration::from_millis(1));
+        }
+    }
+    None
 }
 
 /// A file's modified time and length, if it is there.
@@ -1387,6 +1407,29 @@ mod tests {
         write(6, 1_002);
         t.on_idle();
         assert_eq!(hub.snapshot().gui_focus, Some(6), "a read that failed was not tried again");
+    }
+
+    /// At the main menu Status.json is complete JSON with no Flags: nothing to apply, but it was
+    /// read, so later idle passes don't read it again (astromech-43sv: four times a second, each
+    /// with five tries). A later write with Flags is still read.
+    #[test]
+    fn a_main_menu_status_json_is_not_read_again_while_unchanged() {
+        let d = tempfile::tempdir().unwrap();
+        let status = d.path().join("Status.json");
+        std::fs::write(&status, r#"{"timestamp":"t","event":"Status"}"#).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        t.on_status();
+        assert!(!hub.read(|g| g.status_seen));
+        assert_eq!(t.status_seen, file_stamp(&status), "a read of complete JSON with no Flags wasn't recorded");
+        std::fs::write(&status, r#"{"timestamp":"t","event":"Status","Flags":16777216,"GuiFocus":2}"#).unwrap();
+        std::fs::File::options()
+            .write(true)
+            .open(&status)
+            .unwrap()
+            .set_modified(std::time::SystemTime::now() + Duration::from_secs(5))
+            .unwrap();
+        t.on_idle();
+        assert_eq!(hub.snapshot().gui_focus, Some(2));
     }
 
     /// The same through the real loop, with a watcher that never reports anything.
