@@ -67,8 +67,8 @@ The core is built by one assembly that takes its boundaries as inputs. `app::run
   - `route::Desk`, for its clip writer, in place of `in_dir`'s hard-coded `clipboard::set_text` (route.rs:384-387);
   - the notifier (callouts.rs:360), the secrets (app.rs:1560), Start with Windows' get and set (autostart.rs:69-132), and gamewatch's process list (gamewatch.rs:87, read at app.rs:529 and :1445);
   - the remote-data client.
-- [ ] `core_with_state` is gone, and the core's lib tests call `assemble` with test boundaries. `cargo test --workspace` passes on Linux and on Windows CI, and the every-window-command test still passes unchanged in what it asserts.
-- [ ] The installed app is unchanged: `Boundaries::real` builds exactly what `run` builds today. Review checks the diff of `run` for that.
+- [x] `core_with_state` is gone, and the core's lib tests call `assemble` with test boundaries. `cargo test --workspace` passes on Linux and on Windows CI, and the every-window-command test still passes unchanged in what it asserts.
+- [x] The installed app is unchanged: `Boundaries::real` builds exactly what `run` builds today. Review checks the diff of `run` for that.
 
 ## Scope
 
