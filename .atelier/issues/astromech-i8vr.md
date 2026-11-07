@@ -21,7 +21,7 @@ schema_version: 2
 closed_at: "2026-11-07T09:42:05.819845708+00:00"
 status: "done"
 title: "One shell proxy for every window call; forwarders, core_call and core_status gone"
-updated_at: "2026-11-07T09:42:05.819845708+00:00"
+updated_at: "2026-11-07T09:50:43.281459907+00:00"
 ---
 
 ## Goal
@@ -30,7 +30,7 @@ The window reaches every command through one shell proxy, and the shell's per-co
 
 ## Done when
 
-- [x] The shell registers one Tauri command, `call(cmd, args, progress)`. It forwards any command to the core with `origin: "app_window"` and no read timeout, resolves with `value`, rejects with `error`, and forwards progress lines to the channel. `generate_handler!` lists only it.
+- [x] The shell registers one Tauri command, `call(cmd, args, progress)`. It forwards any command to the core with `origin: "app_window"` and no read timeout, except `status`, which keeps the short bound status-style callers have (`control::SHORT`, 10 s) so a core that stopped answering reads as not running; it resolves with `value`, rejects with `error`, and forwards progress lines to the channel. `generate_handler!` lists only it.
 - [x] The shell's direct dependencies are tauri, tauri-plugin-single-instance, serde, serde_json, anyhow, astromech-api (the control client), astromech-store (`Paths`), astromech-log, astromech-keybinds (the log `Redactor`, window.rs:1320) and astromech-input (the input listener, window.rs:1145-1195). It drops astromech-materials, -journal, -engineering, -ship, -data, -galaxy, -market, -colonisation, -history, -odyssey, -station, -powerplay and -exploration.
 - [x] `app/src/lib/transport.ts` (from astromech-xil2) sends every call through it. The `CORE_COMMANDS` split, the `text`-string special case if the wire dropped it, and the `CHANNELS` table go. A progress command's topic comes from the generated command map. `core_status` callers use `status`, with a failed call meaning the core isn't running, as `core_status` returning null means now. `powerplay_targets` sends `within_ly`.
 - [ ] scripts/onboarding_smoke.py opens every top-level page of the installed app after the wizard (the modules in app/src/modules) and fails when a page shows "not allowed", "unknown command", an internal error or "the core is not running". It passes in the Release workflow on the PR. The core log it uploads shows the star map's open line (from the galaxy-move child) naming the installed `starmap.db` as the preload.
@@ -57,6 +57,7 @@ window.rs, app/src/lib/transport.ts and the few lib modules that named shell-onl
   Reason: scripts/set-version.py stamps app/package.json with the release's version alongside the workspace's, and the bundle ships inside the shell's exe, so it is the window's own version with the core down or from another release.
 - 2026-11-07 [decision] The Release workflow's PR paths gain app/src/lib/transport.ts and app/src/lib/core.ts, and the smoke also fails on 'bad args for' and 'invalid args'.
   Reason: The smoke now drives every page through the window's half of the proxy, which nothing else exercises against the installed app; a wrongly named arg (the within_ly class) or a Tauri refusal of the proxy's own arguments is the failure this change could introduce.
+- 2026-11-07 [note] Review fixes (astromech-klw0, astromech-1k9v): call_window bounds status with control::SHORT (first Done when line reworded to say so); star_map_preload catches (ValueError, OSError). Proof: control::tests::the_windows_status_call_gives_up_on_a_core_that_never_answers passes in 10 s and, with the bound removed, fails ('the status call never gave up'); cargo test -p astromech-api 37/37; workspace clippy -D warnings, fmt, check-deps clean; shell --features window clippy clean (fake .pc incl. dbus-1, libudev; planted error caught at window.rs:86); py_compile ok; star_map_preload with core_call raising TimeoutError notes it and still finds the preload line. No app code changed.
 
 ## Report
 
