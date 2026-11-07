@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Export every command's request and reply types to TypeScript (ts-rs)"
-updated_at: "2026-11-07T06:33:38.680504277+00:00"
+updated_at: "2026-11-07T08:17:10.856720454+00:00"
 ---
 
 ## Goal
