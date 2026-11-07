@@ -38,18 +38,6 @@ pub enum Ui {
     Quit,
 }
 
-/// The config file this run uses (`--config`, else the default), noted in the app dir
-/// (`Paths::publish_config`) until the returned note is dropped at exit. Nothing reads the note
-/// now that the window reads no config of its own (its commands are the core's).
-fn choose_config(opts: &Opts, paths: &Paths) -> (PathBuf, Option<astromech_store::paths::Published>) {
-    let path = opts.config.clone().unwrap_or_else(|| paths.config_file());
-    let published = paths
-        .publish_config(&path)
-        .map_err(|e| log(&format!("couldn't note the config path for the window: {e}")))
-        .ok();
-    (path, published)
-}
-
 /// What Settings → Files says about the values `astromech.toml` had wrong.
 fn config_problems_note(problems: &[crate::config::Problem]) -> Option<String> {
     if problems.is_empty() {
@@ -1304,8 +1292,7 @@ pub fn run(opts: Opts) -> i32 {
         std::process::id()
     ));
 
-    // Dropped before `_guard`, so the note goes before another core can start and publish.
-    let (config_path, _published) = choose_config(&opts, &paths);
+    let config_path = opts.config.clone().unwrap_or_else(|| paths.config_file());
     let config_exists = config_path.is_file();
     let (mut cfg, config_watch) = if config_exists {
         match Config::load_report(&config_path) {

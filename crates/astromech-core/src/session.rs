@@ -160,12 +160,10 @@ impl Session {
         let jdir = cfg.journal_dir().context("can't find the journal folder; set game.journal_dir")?;
         let shared = callouts::shared_from_store(&data, &|m: &str| log(m));
         shared.visits.set(Arc::new(crate::visits::HistoryVisits::new(data.join(crate::history::DB_FILE))));
-        shared.known_bio.set(Arc::new(crate::biology::SpanshBiology::new(astromech_data::Client::new(
-            astromech_data::Cache::in_memory().context("opening the known-biology cache")?,
-        ))));
-        // The process's one remote-data client: the bodies-known callout looks up through it,
-        // as the voice lookups below do.
+        // The process's one remote-data client: the known-biology and bodies-known callouts look
+        // up through it, as the voice lookups below do.
         let remote = api.remote().clone();
+        shared.known_bio.set(Arc::new(crate::biology::SpanshBiology::new(remote.clone())));
         shared
             .known_bodies
             .set(Arc::new(crate::known_bodies::EdsmBodies::new(remote.clone(), Arc::new(|s: &str| log(s)))));

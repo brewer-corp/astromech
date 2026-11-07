@@ -5,8 +5,8 @@
 //! The reaction engine asks on the pipeline thread and must never block, so a system's lookup
 //! runs in the background ([`crate::background`]): the first ask starts it and answers None,
 //! later asks answer from what it found (`biology` says a late answer on the clock tick). One
-//! Spansh bodies search per system (`system_id64` plus `signals: Biological`), cached for the
-//! session by the client. A failed search is not cached: the system stays unknown (None,
+//! Spansh bodies search per system (`system_id64` plus `signals: Biological`), through the
+//! process's one client, which caches it for an hour (`ttl::SEARCH`). A failed search is not cached: the system stays unknown (None,
 //! `known: null` on the page) and the next ask after the back-off tries again.
 
 use crate::logging::log;
@@ -58,8 +58,9 @@ pub struct SpanshBiology {
 }
 
 impl SpanshBiology {
-    pub fn new(client: Client) -> Self {
-        Self { client: Arc::new(client), systems: crate::background::Background::new("known-biology") }
+    /// `client`: the process's one remote-data client.
+    pub fn new(client: Arc<Client>) -> Self {
+        Self { client, systems: crate::background::Background::new("known-biology") }
     }
 }
 
@@ -141,7 +142,7 @@ mod tests {
 
     #[test]
     fn the_first_ask_starts_a_lookup_and_later_asks_answer() {
-        let k = SpanshBiology::new(client());
+        let k = SpanshBiology::new(Arc::new(client()));
         assert_eq!(k.known(LUHMAN, None), None);
         let deadline = Instant::now() + Duration::from_secs(10);
         let found = loop {
@@ -185,7 +186,7 @@ mod tests {
     #[test]
     fn a_failed_lookup_is_unknown_not_nothing_and_is_tried_again() {
         let flaky = Client::with_transport(Cache::in_memory().unwrap(), Arc::new(Flaky(1.into())));
-        let mut k = SpanshBiology::new(flaky);
+        let mut k = SpanshBiology::new(Arc::new(flaky));
         k.systems.retry_after = Duration::from_millis(200);
         assert_eq!(k.known(LUHMAN, None), None);
         // The failed lookup: still unknown (None), never "no biology here" (Some(empty)).
