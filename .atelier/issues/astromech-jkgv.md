@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Dev bridge from pnpm dev to the headless core, and preview fixtures dumped from it"
-updated_at: "2026-11-07T18:49:02.864662337+00:00"
+updated_at: "2026-11-07T19:49:51.836106565+00:00"
 ---
 
 ## Goal
