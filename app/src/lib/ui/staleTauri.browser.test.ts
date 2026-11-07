@@ -15,7 +15,7 @@ import Mining from "../../modules/mining/View.svelte";
 // the core is not running), then answering again. The preview's `?fail=` throws from
 // inside the loader, so it cannot show a loader that swallows the failure.
 const shell = vi.hoisted(() => {
-  // Before any import: the transport sees Tauri once, when lib/transport.ts loads.
+  // Before any import: the transport checks for Tauri on each call.
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   // `only`: the commands that fail (the rest answer); null: every call fails.
   return { mode: "ok" as "ok" | "reject" | "core_down", only: null as Set<string> | null, invoke: vi.fn() };

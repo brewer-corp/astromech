@@ -6,7 +6,7 @@ import { loadTargets } from "./powerplay";
 // In the app every call goes through the shell's one proxy, `call(cmd, args, progress)`
 // (app/src-tauri/src/window.rs): what the window hands it, and what it makes of the answers.
 const tauri = vi.hoisted(() => {
-  // Before any import: the transport sees Tauri once, when lib/transport.ts loads.
+  // Before any import: the transport checks for Tauri on each call.
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   return { invoke: vi.fn() };
 });

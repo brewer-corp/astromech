@@ -17,7 +17,7 @@ export default defineConfig({
       // Pure logic: parsers, maths, the preview's fake. No DOM.
       {
         extends: true,
-        test: { name: "node", environment: "node", include: ["src/**/*.test.ts", "eslint-rules/*.test.js"], exclude: ["src/**/*.browser.test.ts"] },
+        test: { name: "node", environment: "node", include: ["src/**/*.test.ts", "eslint-rules/*.test.js"], exclude: ["src/**/*.browser.test.ts"], setupFiles: ["src/test/preview.ts"] },
       },
       // UI behaviour: pages rendered in headless Chromium behind the fake transport (CONTRIBUTING.md, Tests).
       {
@@ -25,7 +25,7 @@ export default defineConfig({
         test: {
           name: "browser",
           include: ["src/**/*.browser.test.ts"],
-          setupFiles: ["src/test/setup.ts"],
+          setupFiles: ["src/test/setup.ts", "src/test/preview.ts"],
           browser: {
             enabled: true,
             headless: true,

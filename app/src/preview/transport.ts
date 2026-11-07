@@ -5,7 +5,7 @@
  * layer's own commands (astromech-api's) are shell.ts and binds.ts, and the URL's options are
  * query.ts. The handlers are typed against the generated command map (recorded.ts).
  */
-import type { Transport } from "../lib/transport";
+import { usePreview, type Transport } from "../lib/transport";
 import { bindsCommands, onPreviewPress } from "./binds";
 import { coreCommands, fakeScenario } from "./fakecore";
 import engineeringSample from "./fixtures/engineering.json";
@@ -69,3 +69,5 @@ export const previewTransport: Transport = {
   },
   option: (name) => previewQuery().get(name) ?? storedDefault(name),
 };
+
+usePreview(previewTransport);

@@ -5,11 +5,11 @@
  * "core-restarted") or a command's progress, published on the command's own name
  * ("neutron_download"). Outside Tauri, in `pnpm dev`, the tests and a
  * preview build (scripts/preview-publish sets VITE_PREVIEW), the browser preview's fake answers
- * (app/src/preview/). A plain `pnpm build` sets neither, so the fake is dead code and dropped.
+ * (app/src/preview/): main.ts and the tests' setup files load it, and it registers itself here
+ * (`usePreview`). This module never imports it: the preview imports the app's lib modules, so
+ * that would be an import cycle, and a module imported while the cycle loaded could be handed
+ * this one half-loaded. A plain `pnpm build` loads no preview, so the fake is dropped.
  */
-import { Channel, invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
-import { previewTransport } from "../preview/transport";
 import type { Commands } from "./api/commands";
 
 /** The commands the window may send (exposure `window`); a `local` one (`quit`) doesn't typecheck. */
@@ -46,8 +46,11 @@ const publish = (topic: string, payload: unknown) => {
   for (const h of local.get(topic) ?? []) h(payload);
 };
 
+// Tauri's API loads on the first call or subscription, not with this module: the tests' setup
+// loads this module before a test that fakes Tauri replaces that API (vi.mock).
 const tauri: Transport = {
-  call(cmd, args) {
+  async call(cmd, args) {
+    const { Channel, invoke } = await import("@tauri-apps/api/core");
     const progress = new Channel<unknown>((p) => publish(cmd, p));
     return invoke("call", { cmd, args: args ?? null, progress });
   },
@@ -57,7 +60,9 @@ const tauri: Transport = {
     local.set(topic, set.add(handler));
     let un: (() => void) | undefined;
     let dead = false;
-    void listen(topic, (e) => handler(e.payload)).then((u) => (dead ? u() : (un = u)));
+    void import("@tauri-apps/api/event")
+      .then(({ listen }) => listen(topic, (e) => handler(e.payload)))
+      .then((u) => (dead ? u() : (un = u)));
     return () => {
       dead = true;
       set.delete(handler);
@@ -67,11 +72,17 @@ const tauri: Transport = {
   option: () => null,
 };
 
-const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+/** The window runs in the app (Tauri), not the browser preview. */
+export const inTauri = (): boolean => typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
-// Picked on first use, not at load: the preview's modules import this one back.
 let current: Transport | null = null;
-const transport = () => (current ??= !inTauri && (import.meta.env.DEV || import.meta.env.VITE_PREVIEW) ? previewTransport : tauri);
+let preview: Transport | null = null;
+const transport = () => current ?? (!inTauri() && preview ? preview : tauri);
+
+/** The browser preview's fake answers outside Tauri (app/src/preview/transport.ts, when it loads). */
+export function usePreview(t: Transport): void {
+  preview = t;
+}
 
 /** Answer the window's calls with `t` from now on (tests). */
 export function setTransport(t: Transport): void {

@@ -9,7 +9,7 @@ import Materials from "../../modules/materials/View.svelte";
 // The real app (Tauri) with the shell's calls failing the way it fails with no journal folder.
 // The pages must say so, never fall back to the sample fleet or inventory (astromech-32i6).
 const invoke = vi.hoisted(() => {
-  // Before any import: the transport sees Tauri once, when lib/transport.ts loads.
+  // Before any import: the transport checks for Tauri on each call.
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   return vi.fn();
 });
