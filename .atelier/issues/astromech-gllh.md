@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Every window command runs for real against the headless world core"
-updated_at: "2026-11-07T11:57:01.793127219+00:00"
+updated_at: "2026-11-07T17:13:54.055364231+00:00"
 ---
 
 ## Goal
@@ -45,3 +45,7 @@ The test, its world and the round-trip check. Don't change command behaviour. If
 ## Context
 
 ro7a's report (atelier issue show astromech-ro7a --full) gives the current table, seams and open items. Decision astromech-unh9 gives exposure. The world test spawns the binary because the core's process globals (bus, EDDN_SHARING, TESTER, VOICE_PAUSED, VOICE_TURN) would make cores in one test process interfere (decision: world format).
+
+## Notes
+
+- 2026-11-07 [note] From finding astromech-ur4v (xk0n review): Spansh's 180 s polling timeout reads the manual clock (world.rs:504 NO_WAIT, spansh.rs:1050-1061), so a recording that leaves a job queued makes a lookup spin and never return. Cap the polls or add a real-time guard that only fails the call, here where worlds first plot routes.

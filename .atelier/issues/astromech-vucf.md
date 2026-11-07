@@ -39,7 +39,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "A scripted world for the real core: headless mode, clock, game folder, recorded network"
-updated_at: "2026-11-07T17:04:39.546787022+00:00"
+updated_at: "2026-11-07T17:13:54.565530067+00:00"
 ---
 
 ## Goal
@@ -86,3 +86,4 @@ The Unknowns are resolved in the children. Which Windows-only parts lacked Linux
 - 2026-11-07 [note] From finding astromech-uerh (i1ev review): nothing guards that the file-event filter (pipeline.rs:235 may_change, used at pipeline.rs:1155, history.rs:110, health.rs:209) is applied; without it Linux watchers self-wake and quiescence breaks. Before vucf merges, add one watcher constructor that always applies it (or a Linux test that only a real write reaches the clock channel).
 - 2026-11-07 [decision] Removed the blocked_by links between vucf's children (xk0n, 1hh9, gllh, jkgv on i1ev/1hh9/xk0n; zgoo on u8ge); the order is kept by the orchestrator
   Reason: Under Atelier's new lifecycle (astromech-zk7z) children of one branch are only marked done when the owner merges, so a sibling blocked_by can never clear and would stop every later child from starting
+- 2026-11-07 [note] From finding astromech-9rru (xk0n review): record mode redacts only key and commander values; a recorded flight log keeps dated travel history (personal data), and recording one needs a real key in a world's secrets.json. Before vucf merges, add a check that fails a committed secrets.json with a non-placeholder key or a net.json holding a non-empty get-logs answer; also consider JSON-escaped values in redaction.
