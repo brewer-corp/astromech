@@ -1,6 +1,7 @@
-; astromech NSIS hooks (docs/V1-DESIGN.md §7.2, §7.5). Tauri's template already closes the
-; app window; these stop the always-running core cleanly before files are replaced or removed,
-; and undo "Start with Windows" on uninstall.
+; astromech NSIS hooks (docs/V1-DESIGN.md §7.2, §7.5). These ask the app (astromech-core.exe,
+; also Tauri's main binary, which its template closes) to quit cleanly before files are replaced
+; or removed, so the session ends and held keys are released, and undo "Start with Windows" on
+; uninstall.
 
 !macro ASTROMECH_STOP_CORE
   IfFileExists "$INSTDIR\astromech-core.exe" 0 +3

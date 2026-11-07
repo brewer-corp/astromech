@@ -17,9 +17,10 @@ the code.
   feasibility spikes.
 
 ```
-crates/         the Rust crates (astromech-core is the tray process; the rest are libraries)
+crates/         the Rust crates (astromech-core is the core and its command line; the rest are libraries)
 app/            Svelte 5 + TypeScript + Vite app shell; one folder per page in src/modules/*
-app/src-tauri/  astromech-shell, the Tauri v2 window (a workspace member; a stub without its `window` feature)
+app/src-tauri/  astromech-app, which builds astromech-core.exe: the one app, the core with its Tauri v2 tray and
+                window (a workspace member; the headless core without its `window` feature)
 data/           player-visible game data and the device sheets
 docs/           design documents, and the user guide in docs/guide/
 spikes/         spike tools (own code only)
@@ -37,13 +38,15 @@ python3 scripts/check-deps.py    # dependency rules
 cargo deny check                 # licences, advisories, sources
 
 cd app && pnpm install && pnpm build    # frontend
-pnpm tauri build                        # app window (Windows; Linux needs webkit2gtk-4.1)
+pnpm tauri build                        # the app with its window (Windows; Linux needs webkit2gtk-4.1)
 ```
 
-The window is in the workspace, but Tauri is behind its `window` feature, so `cargo build
---workspace` and `cargo test --workspace` build it as a stub and need no webkit2gtk.
+The app, `astromech-core` (package `astromech-app` in `app/src-tauri`), is in the workspace, but
+Tauri is behind its `window` feature, so `cargo build --workspace` and `cargo test --workspace`
+build it headless (the core with no tray and no window) and need no webkit2gtk; the scripts and
+CI's gear-down step run that build (`cargo build -p astromech-app --bin astromech-core`).
 `pnpm tauri build` and `pnpm tauri dev` turn the feature on (`build.features` in
-`tauri.conf.json`); to build or lint it with cargo, add `-p astromech-shell --features window`.
+`tauri.conf.json`); to build or lint it with cargo, add `-p astromech-app --features window`.
 Everything builds into the one `target/` folder.
 
 The repository's version is the placeholder `0.0.0-dev`, which sorts below every release, so a
@@ -157,8 +160,11 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 - The **Release build** also runs `scripts/onboarding_smoke.py` after the installer smoke test: a
   fresh silent install, the onboarding wizard driven in the real window, then "gear down" run live
   from the voice tester against the mock game, with each step's time. It opens the window with
-  `astromech-shell --webview-debug-port <port>`, which turns on WebView2's DevTools port on
+  `astromech-core --webview-debug-port <port>`, which turns on WebView2's DevTools port on
   127.0.0.1 so the page can be driven; nothing else uses that flag.
+  After it, `scripts/one_process_probe.py` (spike astromech-wgtr's probe) runs against a fresh
+  install: the app windowless with its tray, a second start opening the window, five closes that
+  must free every WebView2 process, the window's renderer and browser process killed, and quit.
 - The game-free MVP criteria (docs/ARCHITECTURE.md §14 Phase 1) are measured on Windows by
   `scripts/mvp_criteria.py`: the release core against the mock game window
   (`crates/astromech-mockgame`), with a report against each threshold. The

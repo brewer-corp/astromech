@@ -6,13 +6,18 @@ own Raw Input listener receiving keys? Windows only; needs psutil (Pillow for sc
     python scripts/one_process_probe.py --app <exe> --endpoint <core.json> --out <dir>
     python scripts/one_process_probe.py --app <exe> --endpoint <core.json> --out <dir> --restart
 
-It drives any app with this interface (the spike in spikes/o1-one-process now, the real app
-later): `--background` starts it with no window; a second start with `--route X` hands over to
-the running one and exits 0; the endpoint file names a localhost port that takes one JSON line
-`{token, cmd, args?}` and answers `{"ok": true, "value": V}` or `{"ok": false, "error": E}`, with
-the commands `ui_state` (`{window, tray, sink_keys, ...}`), `open_window`, `tray_churn`, `quit`
-and, with the crash hook on, `crash` (`{kind}`); and the log has a
-`window: page loaded N ms after start` line per page load, prefixed `[<pid> ...`.
+It drives any app with this interface (the spike in spikes/o1-one-process, and the installed
+app, `astromech-core.exe`): `--background` starts it with no window; a second start with
+`--route X` hands over to the running one and exits 0; the endpoint file names a localhost port
+that takes one JSON line `{token, cmd, args?}` and answers `{"ok": true, "value": V}` or
+`{"ok": false, "error": E}`, with the commands `ui_state` (`{window, tray, ...}`, and the spike's
+`sink_keys`), `open_window`, `quit`, the spike's `tray_churn` and, with the crash hook on,
+`crash` (`{kind}`); and the log has a `window: page loaded N ms after start` line per window
+(the spike prefixes its lines `[<pid> ...`).
+
+The installed app has no test hooks: `--no-sink` skips check 2 (its Raw Input is checked by the
+onboarding smoke's kill-switch runs) and `--no-churn` skips check 3; Release's installer job runs
+it so, with `--log`, `--user-data` and `--title` naming the app's own.
 
 A WebView2 process belongs to the app when it descends from the app, or its command line has
 `--webview-exe-name=<the app's exe name>`, or it names the app's EBWebView user-data folder, so a
@@ -266,7 +271,8 @@ class App:
             ls = self.log.read_text(encoding="utf-8", errors="replace").splitlines()
         except OSError:
             return []
-        return [l for l in ls if text in l and (pid is None or l.startswith(f"[{pid} "))]
+        # The spike's lines name their pid; the app's don't (one process writes its log).
+        return [l for l in ls if text in l and (pid is None or not l.startswith("[") or l.startswith(f"[{pid} "))]
 
     def page_loads(self) -> int:
         return len(self.lines("window: page loaded"))
@@ -351,7 +357,9 @@ class Probe:
         return ok
 
     def sink_check(self, label: str, into: list) -> bool:
-        """An F-key through SendInput raises the listener's count."""
+        """An F-key through SendInput raises the listener's count (not with `--no-sink`)."""
+        if self.a.no_sink:
+            return True
         v0 = self.app.state()
         if v0 is None:
             into.append({"when": label, "pass": False, "error": "ui_state didn't answer"})
@@ -439,12 +447,15 @@ class Probe:
         self.check("5", "close", all(c["pass"] for c in cycles), cycles)
 
         # 3. Tray churn from a worker thread.
-        ok, val = app.call("tray_churn", timeout=60)
-        after = app.state()
-        self.check("3", "tray churn", ok and after is not None, {"reply": val, "ui_state_after": after})
-        self.sink_check("after tray_churn", after_build)
-        self.check("2", "Raw Input survives Tauri (listener after build)",
-                   all(s["pass"] for s in after_build) and len(after_build) == 8, after_build)
+        if not a.no_churn:
+            ok, val = app.call("tray_churn", timeout=60)
+            after = app.state()
+            self.check("3", "tray churn", ok and after is not None, {"reply": val, "ui_state_after": after})
+            self.sink_check("after tray_churn", after_build)
+        if not a.no_sink:
+            self.check("2", "Raw Input survives Tauri (listener after build)",
+                       all(s["pass"] for s in after_build) and len(after_build) == (8 if not a.no_churn else 7),
+                       after_build)
 
         # 6. Window crash: the renderer, then the browser process.
         crashes = []
@@ -745,12 +756,16 @@ def header(title: str) -> list[str]:
 
 
 def probe_markdown(p: Probe) -> str:
-    lines = header("One process probe (astromech-wgtr)")
+    lines = header(f"One process probe (astromech-wgtr): {p.app.exe.name}")
     lines += ["| Check | Verdict | Detail |", "|---|---|---|"]
     for cid in sorted(p.checks):
         c = p.checks[cid]
         d = json.dumps(c["detail"], default=str)
         lines.append(f"| {cid}. {c['name']} | {'PASS' if c['pass'] else '**FAIL**'} | `{d[:600]}` |")
+    skipped = [n for n, off in (("2 (Raw Input, `--no-sink`)", p.a.no_sink), ("3 (tray churn, `--no-churn`)", p.a.no_churn))
+               if off]
+    if skipped:
+        lines += ["", f"Not run: check {' and '.join(skipped)}."]
     lines += ["", "## Raw Input with the listener started before Tauri's build (recorded, not gated)", ""]
     rec = p.notes.get("sink before build")
     if isinstance(rec, list):
@@ -776,9 +791,9 @@ def probe_markdown(p: Probe) -> str:
                      f"{[w['type'] for w in c.get('webview_after_kill', [])]}, ProcessFailed: "
                      f"{c.get('process_failed_log')}, screenshot: {c.get('screenshot')}; reopened: {c.get('reopened')} "
                      f"(beats after reopen {c.get('page_beats_after_reopen')}).")
-    lines += ["", "The spike only logs WebView2's ProcessFailed event; it does nothing on it. A dead page that "
-              "stays dead until the window is closed means the app needs its own ProcessFailed handler to "
-              "recover in place."]
+    lines += ["", "The spike only logs WebView2's ProcessFailed event; the app reloads the page after a renderer "
+              "exit and rebuilds the window after a browser-process exit. A dead page that stays dead until the "
+              "window is closed means the app has no ProcessFailed handler that recovers it in place."]
     return "\n".join(lines) + "\n"
 
 
@@ -824,6 +839,9 @@ def main(argv=None) -> int:
                    help="the recorded Raw Input run's extra start arguments; empty to skip it")
     p.add_argument("--baseline-args", default="--plain-tray", help="the cost baseline's start; empty to skip it")
     p.add_argument("--crash-hook-arg", default="--crash-hook")
+    p.add_argument("--no-sink", action="store_true",
+                   help="skip check 2: the app has no sink_keys (the installed app; the onboarding smoke checks its input)")
+    p.add_argument("--no-churn", action="store_true", help="skip check 3: the app has no tray_churn command")
     p.add_argument("--idle-seconds", type=float, default=30.0)
     p.add_argument("--restart", action="store_true", help="report restart registration instead")
     p.add_argument("--config", default="runner", help="--restart: this WER configuration's name in the report")
@@ -865,7 +883,7 @@ def main(argv=None) -> int:
         md = probe_markdown(probe)
         (a.out / "report.md").write_text(md, encoding="utf-8")
         print(md)
-    expected = {"1", "2", "3", "4", "5", "6", "7"}
+    expected = {"1", "4", "5", "6", "7"} | ({"2"} if not a.no_sink else set()) | ({"3"} if not a.no_churn else set())
     passed = expected <= set(probe.checks) and all(c["pass"] for c in probe.checks.values())
     return 0 if passed else 1
 

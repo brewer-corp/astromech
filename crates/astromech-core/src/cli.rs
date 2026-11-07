@@ -1,8 +1,11 @@
-//! astromech-core: the always-running core with the tray icon (default), or the console
-//! preview (`--console`, and the one-shot options such as `--listen` and `--health`).
+//! `astromech-core.exe`'s command line: the app (the default, with `--background` from the Run
+//! key), the console preview (`--console`, and the one-shot options such as `--listen` and
+//! `--health`), `--quit` and the update helper (`--apply-update`). The binary is built by
+//! app/src-tauri, whose `main` is [`main`] with the app it runs: the Tauri host with the tray and
+//! the window, or [`crate::app::run`] headless without its `window` feature (decision
+//! astromech-nade). Console mode and `--apply-update` run before any of the app's setup.
 
-#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
-
+use crate as astromech_core;
 use anyhow::{bail, Context, Result};
 use astromech_api::Recover;
 use astromech_core::config::{Config, SAMPLE};
@@ -86,6 +89,11 @@ struct Args {
     /// Start astromech-core again after copying (with --route: open the window at that page)
     #[arg(long)]
     relaunch: bool,
+    /// Open WebView2's DevTools port (127.0.0.1) on the window, for CI's onboarding smoke test
+    /// (scripts/onboarding_smoke.py). A flag, not an environment variable, so it can't linger
+    /// in a user's environment
+    #[arg(long, value_name = "PORT")]
+    webview_debug_port: Option<u16>,
 }
 
 impl Args {
@@ -141,7 +149,8 @@ fn quit_running() -> i32 {
     1
 }
 
-fn main() {
+/// Parse the command line and do what it asks; `app` runs the app itself. Never returns.
+pub fn main(app: fn(astromech_core::app::Opts) -> i32) -> ! {
     let args = Args::parse();
     if args.apply_update {
         let from = args.from.expect("--apply-update needs --from");
@@ -161,11 +170,12 @@ fn main() {
         std::process::exit(quit_running());
     }
     if !args.console_mode() {
-        let code = astromech_core::app::run(astromech_core::app::Opts {
+        let code = app(astromech_core::app::Opts {
             background: args.background,
             route: args.route.clone(),
             config: args.config.clone(),
             session: args.session_opts(),
+            webview_debug_port: args.webview_debug_port,
         });
         std::process::exit(code);
     }
@@ -181,6 +191,7 @@ fn main() {
         }
         std::process::exit(1);
     }
+    std::process::exit(0);
 }
 
 fn download_models(cfg: &Config, paths: &Paths) -> Result<()> {

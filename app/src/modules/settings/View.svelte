@@ -109,7 +109,7 @@
 
 <section>
   {#if !status}
-    <p class="lo">astromech's background process isn't running, so settings can't be shown. It starts with this window; if this stays, see Diagnostics.</p>
+    <p class="lo">astromech didn't answer, so settings can't be shown. If this stays, see Diagnostics.</p>
   {:else}
     <Stale error={statusErr} />
     <h3 class="section">Startup</h3>

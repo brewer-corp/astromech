@@ -1,6 +1,6 @@
-//! Where astromech keeps its files: the one rule for the core (`astromech-core`'s `Config`) and
-//! the app window (`astromech-shell`), so both open the same config, data files and logs in every
-//! layout (installed, portable, `data_dir` override).
+//! Where astromech keeps its files: the one rule for the app (`astromech-core`'s `Config` and
+//! its logs), so it opens the same config, data files and logs in every layout (installed,
+//! portable, `data_dir` override).
 
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
@@ -79,9 +79,9 @@ impl Paths {
         }
     }
 
-    /// The log folder, where the core writes `astromech-core.log` and the app window
-    /// `astromech-shell.log`: `logs` under `exe_dir/astromech-data` in portable mode, else under
-    /// the app dir. A `data_dir` override doesn't move it.
+    /// The log folder, where the app writes `astromech-core.log`: `logs` under
+    /// `exe_dir/astromech-data` in portable mode, else under the app dir. A `data_dir` override
+    /// doesn't move it.
     pub fn log_dir(&self) -> PathBuf {
         if self.portable { self.exe_dir.join("astromech-data") } else { self.app_dir.clone() }.join("logs")
     }
@@ -170,12 +170,11 @@ mod tests {
         move |k| vars.iter().find(|(n, _)| *n == k).map(|(_, v)| OsString::from(v))
     }
 
-    /// The core logs into `Paths::log_dir` (`astromech-core`'s `app::run`) and so does the app
-    /// window (`astromech-shell`'s `main`), so both files sit in one folder, which the
+    /// The app logs into `Paths::log_dir` (`astromech-core`'s `app::begin`), the folder the
     /// diagnostics bundle zips, in every layout.
     #[test]
-    fn the_core_and_the_shell_log_into_one_folder_in_every_layout() {
-        use astromech_log::{file, CORE, SHELL};
+    fn the_log_folder_in_every_layout() {
+        use astromech_log::{file, CORE};
         let exe = tempfile::tempdir().unwrap();
         let vars = [("LOCALAPPDATA", "/l")];
         let installed = Paths::new(exe.path().into(), env(&vars));
@@ -192,10 +191,9 @@ mod tests {
             let logs = p.log_dir();
             assert_eq!(logs, want, "data_dir {data_dir:?}");
             assert_ne!(logs.parent(), Some(Path::new(data_dir)), "the override doesn't move the logs");
-            assert_eq!(file(&logs, CORE).parent(), file(&logs, SHELL).parent());
-            assert_eq!(file(&logs, SHELL), want.join("astromech-shell.log"));
+            assert_eq!(file(&logs, CORE), want.join("astromech-core.log"));
         }
-        // Without LOCALAPPDATA, XDG_DATA_HOME or HOME, both fall back next to the exe.
+        // Without LOCALAPPDATA, XDG_DATA_HOME or HOME, it falls back next to the exe.
         assert_eq!(Paths::new(exe.path().into(), env(&[])).log_dir(), portable_logs);
     }
 

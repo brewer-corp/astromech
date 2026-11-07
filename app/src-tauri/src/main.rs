@@ -1,25 +1,29 @@
-//! # astromech-shell
+//! # astromech-app
 //!
-//! The app window (docs/V1-DESIGN.md §7.1): a thin Tauri v2 shell around the Svelte app in
-//! `app/`, in `window.rs`.
+//! `astromech-core.exe`, the one app (decision astromech-6i8s): the core, its tray and the
+//! window in one process. Its command line is the core's ([`astromech_core::cli`]); the app it
+//! runs is the Tauri host in `host.rs`, which builds the core with `astromech_core::app` and
+//! adds the tray (`tray.rs`) and the window around it.
 //!
 //! Tauri is behind the `window` feature, which `tauri.conf.json` (`build.features`) turns on for
 //! `pnpm tauri build` and `tauri dev`. Without it, as in a plain `cargo build --workspace` or
-//! `cargo test --workspace`, this is a stub: on Linux, Tauri needs the webkit2gtk system
-//! libraries, and the core's checks shouldn't.
+//! `cargo test --workspace`, the same binary runs the core headless ([`astromech_core::app::run`]):
+//! on Linux, Tauri needs the webkit2gtk system libraries, and the core's checks and scripts
+//! shouldn't.
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 #[cfg(feature = "window")]
-mod window;
+mod host;
+#[cfg(feature = "window")]
+mod tray;
 
 #[cfg(feature = "window")]
 fn main() {
-    window::main();
+    astromech_core::cli::main(host::run)
 }
 
 #[cfg(not(feature = "window"))]
 fn main() {
-    eprintln!("astromech-shell was built without the window: build it with `pnpm tauri build` or `--features window`");
-    std::process::exit(2);
+    astromech_core::cli::main(astromech_core::app::run)
 }

@@ -1,74 +1,96 @@
-//! The tray icon and its native menu (docs/V1-DESIGN.md §7.1, §2.2): a remote for the core
-//! while you play. Status line, Open astromech, Pause voice, Kill switch (while active),
-//! Check for updates, Quit,
-//! plus one line each when something needs attention (a crash, unfinished setup, an update
-//! ready to install). Everything else lives in the window. Left-click opens the window. Runs a
-//! Win32 message loop on the calling (main) thread.
+//! What the tray icon's native menu shows (docs/V1-DESIGN.md §7.1, §2.2): a remote for the
+//! core while you play. Status line, Open astromech, Pause voice, Kill switch (while active),
+//! Check for updates, Quit, plus one line each when something needs attention (a crash,
+//! unfinished setup, an update ready to install). Everything else lives in the window.
+//!
+//! This is the menu as data: [`read`] takes it from the core, and [`items`] turns it into the
+//! list of items in order. The Tauri host (app/src-tauri) shows that list with Tauri's tray and
+//! runs the item a click picks; left-clicking the icon opens the window.
 
-use crate::app::{Core, Ui};
-use crate::logging::log;
+use crate::app::Core;
 use crate::session::VOICE_PAUSED;
-use anyhow::{Context, Result};
 use astromech_api::Recover;
 use std::sync::atomic::Ordering;
-use std::sync::mpsc::Receiver;
-use std::sync::Arc;
-use tray_icon::menu::{CheckMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem};
-use tray_icon::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 
-const ICON_PNG: &[u8] = include_bytes!("../../../app/src-tauri/icons/32x32.png");
-
-fn icon() -> Result<tray_icon::Icon> {
-    let mut d = png::Decoder::new(std::io::Cursor::new(ICON_PNG));
-    d.set_transformations(png::Transformations::EXPAND | png::Transformations::ALPHA);
-    let mut r = d.read_info()?;
-    let mut buf = vec![0; r.output_buffer_size().context("icon size")?];
-    let info = r.next_frame(&mut buf)?;
-    buf.truncate(info.buffer_size());
-    Ok(tray_icon::Icon::from_rgba(buf, info.width, info.height)?)
+/// Which optional lines the menu has; the host rebuilds the menu when this changes, and
+/// otherwise only updates the items' texts and states.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Shape {
+    pub crash: bool,
+    pub setup: bool,
+    pub active: bool,
+    pub update: bool,
 }
 
-/// Dark context menus, to match the window. Windows has no public API for this; uxtheme's
-/// `SetPreferredAppMode` (ordinal 135, Windows 10 1903+) and `FlushMenuThemes` (136) are what
-/// Explorer and most apps use. On older builds 135 is `AllowDarkModeForApp`, which also takes a
-/// non-zero argument; without either the menu stays light.
-fn dark_menus() {
-    use windows_sys::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
-    type Proc = unsafe extern "system" fn() -> isize;
-    const FORCE_DARK: i32 = 2;
-    let name: Vec<u16> = "uxtheme.dll".encode_utf16().chain(std::iter::once(0)).collect();
-    unsafe {
-        let h = LoadLibraryW(name.as_ptr());
-        if h.is_null() {
-            return;
+/// Everything the menu shows, read from the core at one moment.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Menu {
+    pub shape: Shape,
+    /// The status line, also the tooltip's second line.
+    pub status: String,
+    pub setup: String,
+    pub install: String,
+    pub check: (&'static str, bool),
+    /// The kill switch is on (the Kill item says Re-arm).
+    pub killed: bool,
+    pub paused: bool,
+}
+
+/// A menu item's identity, which is also its Tauri menu id.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Id {
+    Status,
+    Crash,
+    Setup,
+    Open,
+    Pause,
+    Kill,
+    Install,
+    Check,
+    Quit,
+}
+
+impl Id {
+    pub const ALL: [Id; 9] =
+        [Id::Status, Id::Crash, Id::Setup, Id::Open, Id::Pause, Id::Kill, Id::Install, Id::Check, Id::Quit];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Id::Status => "status",
+            Id::Crash => "crash",
+            Id::Setup => "setup",
+            Id::Open => "open",
+            Id::Pause => "pause",
+            Id::Kill => "kill",
+            Id::Install => "install",
+            Id::Check => "check",
+            Id::Quit => "quit",
         }
-        if let Some(f) = GetProcAddress(h, 135usize as *const u8) {
-            let set_mode = std::mem::transmute::<Proc, unsafe extern "system" fn(i32) -> i32>(f);
-            set_mode(FORCE_DARK);
-        }
-        if let Some(f) = GetProcAddress(h, 136usize as *const u8) {
-            let flush = std::mem::transmute::<Proc, unsafe extern "system" fn()>(f);
-            flush();
-        }
+    }
+
+    pub fn parse(s: &str) -> Option<Id> {
+        Id::ALL.into_iter().find(|i| i.as_str() == s)
     }
 }
 
-/// Which optional lines the menu has; it is rebuilt when this changes.
-#[derive(Clone, PartialEq)]
-struct Shape {
-    crash: bool,
-    setup: bool,
-    active: bool,
-    update: bool,
+/// One line of the menu.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Item {
+    Separator,
+    Text { id: Id, text: String, enabled: bool },
+    Check { id: Id, text: String, checked: bool },
 }
 
-fn shape(core: &Core) -> Shape {
-    Shape {
-        crash: core.crash.lock().recover().is_some(),
-        setup: !core.setup_needed().is_empty(),
-        active: core.active(),
-        update: core.update.lock().recover().snap.ready,
-    }
+pub const CRASH: &str = "astromech crashed last time: save diagnostics…";
+pub const OPEN: &str = "Open astromech";
+pub const PAUSE: &str = "Pause voice";
+pub const KILL: &str = "Kill switch (stop all actions)";
+pub const REARM: &str = "Re-arm (kill switch is on)";
+pub const QUIT: &str = "Quit astromech";
+
+/// The tray icon's tooltip.
+pub fn tooltip(status: &str) -> String {
+    format!("astromech\n{status}")
 }
 
 fn setup_text(core: &Core) -> String {
@@ -85,130 +107,155 @@ fn update_text(core: &Core) -> String {
     }
 }
 
-pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
-    dark_menus();
-    let status = MenuItem::new(core.status_line(), false, None);
-    let crash = MenuItem::new("astromech crashed last time: save diagnostics…", true, None);
-    let setup = MenuItem::new(setup_text(&core), true, None);
-    let open = MenuItem::new("Open astromech", true, None);
-    let pause = CheckMenuItem::new("Pause voice", true, VOICE_PAUSED.load(Ordering::SeqCst), None);
-    let kill = MenuItem::new("Kill switch (stop all actions)", true, None);
-    let install = MenuItem::new(update_text(&core), true, None);
-    let (check_text, check_on) = core.update.lock().recover().snap.status.tray_check_item();
-    let check = MenuItem::new(check_text, check_on, None);
-    let quit = MenuItem::new("Quit astromech", true, None);
-    let sep = PredefinedMenuItem::separator;
-
-    let build = |s: &Shape| -> Result<Menu> {
-        let m = Menu::new();
-        m.append(&status)?;
-        if s.crash {
-            m.append(&crash)?;
-        }
-        if s.setup {
-            m.append(&setup)?;
-        }
-        m.append_items(&[&sep(), &open, &sep(), &pause])?;
-        if s.active {
-            m.append(&kill)?;
-        }
-        m.append(&sep())?;
-        if s.update {
-            m.append(&install)?;
-        }
-        m.append(&check)?;
-        m.append(&quit)?;
-        Ok(m)
+/// The menu as the core is now. Each of the core's locks is taken and released in turn; none is
+/// held when this returns, so the host can make its menu calls after it.
+pub fn read(core: &Core) -> Menu {
+    let shape = Shape {
+        crash: core.crash.lock().recover().is_some(),
+        setup: !core.setup_needed().is_empty(),
+        active: core.active(),
+        update: core.update.lock().recover().snap.ready,
     };
-    let mut current = shape(&core);
-    let tray = TrayIconBuilder::new()
-        .with_tooltip(format!("astromech\n{}", core.status_line()))
-        .with_icon(icon()?)
-        .with_menu(Box::new(build(&current)?))
-        .with_menu_on_left_click(false)
-        .build()
-        .context("creating the tray icon")?;
-    log("tray icon ready");
-
-    let refresh = |current: &mut Shape| -> Result<()> {
-        let line = core.status_line();
-        status.set_text(&line);
-        let _ = tray.set_tooltip(Some(format!("astromech\n{line}")));
-        let killed = core.session.lock().recover().as_ref().map(|s| s.runner.policy.is_killed()).unwrap_or(false);
-        kill.set_text(if killed { "Re-arm (kill switch is on)" } else { "Kill switch (stop all actions)" });
-        pause.set_checked(VOICE_PAUSED.load(Ordering::SeqCst));
-        setup.set_text(setup_text(&core));
-        install.set_text(update_text(&core));
-        let (check_text, check_on) = core.update.lock().recover().snap.status.tray_check_item();
-        check.set_text(check_text);
-        check.set_enabled(check_on);
-        let now = shape(&core);
-        if now != *current {
-            tray.set_menu(Some(Box::new(build(&now)?)));
-            *current = now;
-        }
-        Ok(())
-    };
-
-    loop {
-        pump(std::time::Duration::from_millis(100));
-        let mut dirty = false;
-        while let Ok(e) = TrayIconEvent::receiver().try_recv() {
-            if let TrayIconEvent::Click { button: MouseButton::Left, button_state: MouseButtonState::Up, .. } = e {
-                let _ = core.open_window(None);
-            }
-        }
-        while let Ok(e) = MenuEvent::receiver().try_recv() {
-            dirty = true;
-            let id = e.id();
-            if id == open.id() {
-                let _ = core.open_window(None);
-            } else if id == setup.id() {
-                let _ = core.open_window(Some("settings"));
-            } else if id == pause.id() {
-                let on = pause.is_checked();
-                VOICE_PAUSED.store(on, Ordering::SeqCst);
-                log(if on { "voice paused (tray)" } else { "voice resumed (tray)" });
-            } else if id == kill.id() {
-                core.kill_switch();
-            } else if id == check.id() {
-                core.check_update_in_background();
-            } else if id == install.id() {
-                let _ = core.install_update();
-            } else if id == crash.id() {
-                match core.save_diagnostics() {
-                    Ok(p) => core.opener.reveal(&p),
-                    Err(e) => log(&format!("couldn't save diagnostics: {e:#}")),
-                }
-            } else if id == quit.id() {
-                return Ok(());
-            }
-        }
-        while let Ok(m) = rx.try_recv() {
-            match m {
-                Ui::Quit => return Ok(()),
-                Ui::Refresh => dirty = true,
-            }
-        }
-        if dirty {
-            if let Err(e) = refresh(&mut current) {
-                log(&format!("tray menu update failed: {e:#}"));
-            }
-        }
+    let killed = core.session.lock().recover().as_ref().map(|s| s.runner.policy.is_killed()).unwrap_or(false);
+    let check = core.update.lock().recover().snap.status.tray_check_item();
+    Menu {
+        shape,
+        status: core.status_line(),
+        setup: setup_text(core),
+        install: update_text(core),
+        check,
+        killed,
+        paused: VOICE_PAUSED.load(Ordering::SeqCst),
     }
 }
 
-/// Dispatch pending window messages, then wait up to `max` for more.
-fn pump(max: std::time::Duration) {
-    use windows_sys::Win32::UI::WindowsAndMessaging::{
-        DispatchMessageW, MsgWaitForMultipleObjects, PeekMessageW, TranslateMessage, MSG, PM_REMOVE, QS_ALLINPUT,
-    };
-    unsafe {
-        let mut msg: MSG = std::mem::zeroed();
-        while PeekMessageW(&mut msg, std::ptr::null_mut(), 0, 0, PM_REMOVE) != 0 {
-            TranslateMessage(&msg);
-            DispatchMessageW(&msg);
+/// The menu's lines in order: the status line, then the crash and setup lines when they apply,
+/// Open, Pause voice, the kill switch while a session runs, Restart to update when one is
+/// ready, Check for updates and Quit.
+pub fn items(m: &Menu) -> Vec<Item> {
+    let text = |id, text: &str, enabled| Item::Text { id, text: text.to_string(), enabled };
+    let mut v = vec![text(Id::Status, &m.status, false)];
+    if m.shape.crash {
+        v.push(text(Id::Crash, CRASH, true));
+    }
+    if m.shape.setup {
+        v.push(text(Id::Setup, &m.setup, true));
+    }
+    v.extend([Item::Separator, text(Id::Open, OPEN, true), Item::Separator]);
+    v.push(Item::Check { id: Id::Pause, text: PAUSE.into(), checked: m.paused });
+    if m.shape.active {
+        v.push(text(Id::Kill, if m.killed { REARM } else { KILL }, true));
+    }
+    v.push(Item::Separator);
+    if m.shape.update {
+        v.push(text(Id::Install, &m.install, true));
+    }
+    v.push(text(Id::Check, m.check.0, m.check.1));
+    v.push(text(Id::Quit, QUIT, true));
+    v
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn menu(crash: bool, setup: bool, active: bool, update: bool) -> Menu {
+        Menu {
+            shape: Shape { crash, setup, active, update },
+            status: "Elite not running".into(),
+            setup: "Finish setup: push-to-talk not set…".into(),
+            install: "Restart to update to 1.2.3".into(),
+            check: ("Check for updates", true),
+            killed: false,
+            paused: false,
         }
-        MsgWaitForMultipleObjects(0, std::ptr::null(), 0, max.as_millis() as u32, QS_ALLINPUT);
+    }
+
+    /// Each line as `id text` (`-` for a separator, `[x]`/`[ ]` for the check item, `(off)` for
+    /// a disabled one), so a test reads like the menu.
+    fn lines(m: &Menu) -> Vec<String> {
+        items(m)
+            .into_iter()
+            .map(|i| match i {
+                Item::Separator => "-".into(),
+                Item::Text { id, text, enabled } => {
+                    format!("{} {text}{}", id.as_str(), if enabled { "" } else { " (off)" })
+                }
+                Item::Check { id, text, checked } => {
+                    format!("{} [{}] {text}", id.as_str(), if checked { "x" } else { " " })
+                }
+            })
+            .collect()
+    }
+
+    #[test]
+    fn idle_with_nothing_to_do_has_the_fixed_lines_only() {
+        assert_eq!(
+            lines(&menu(false, false, false, false)),
+            [
+                "status Elite not running (off)",
+                "-",
+                "open Open astromech",
+                "-",
+                "pause [ ] Pause voice",
+                "-",
+                "check Check for updates",
+                "quit Quit astromech",
+            ]
+        );
+    }
+
+    #[test]
+    fn every_optional_line_in_its_place() {
+        assert_eq!(
+            lines(&menu(true, true, true, true)),
+            [
+                "status Elite not running (off)",
+                "crash astromech crashed last time: save diagnostics…",
+                "setup Finish setup: push-to-talk not set…",
+                "-",
+                "open Open astromech",
+                "-",
+                "pause [ ] Pause voice",
+                "kill Kill switch (stop all actions)",
+                "-",
+                "install Restart to update to 1.2.3",
+                "check Check for updates",
+                "quit Quit astromech",
+            ]
+        );
+    }
+
+    #[test]
+    fn each_optional_line_alone() {
+        let only = |crash, setup, active, update| {
+            let all = lines(&menu(false, false, false, false));
+            lines(&menu(crash, setup, active, update)).into_iter().filter(|l| !all.contains(l)).collect::<Vec<_>>()
+        };
+        assert_eq!(only(true, false, false, false), ["crash astromech crashed last time: save diagnostics…"]);
+        assert_eq!(only(false, true, false, false), ["setup Finish setup: push-to-talk not set…"]);
+        assert_eq!(only(false, false, true, false), ["kill Kill switch (stop all actions)"]);
+        assert_eq!(only(false, false, false, true), ["install Restart to update to 1.2.3"]);
+    }
+
+    #[test]
+    fn states_show_in_the_items() {
+        let mut m = menu(false, false, true, false);
+        m.killed = true;
+        m.paused = true;
+        m.check = ("Checking for updates…", false);
+        let l = lines(&m);
+        assert!(l.contains(&"kill Re-arm (kill switch is on)".to_string()), "{l:?}");
+        assert!(l.contains(&"pause [x] Pause voice".to_string()), "{l:?}");
+        assert!(l.contains(&"check Checking for updates… (off)".to_string()), "{l:?}");
+        assert_eq!(tooltip(&m.status), "astromech\nElite not running");
+    }
+
+    #[test]
+    fn ids_round_trip() {
+        for id in Id::ALL {
+            assert_eq!(Id::parse(id.as_str()), Some(id));
+        }
+        assert_eq!(Id::parse("nope"), None);
     }
 }

@@ -4,6 +4,8 @@
 Fails if a workspace crate has a forbidden *direct* dependency on another workspace crate.
 Only astromech-policy may drive the input executor; voice and tools go through policy. The
 command layer (astromech-api) sits below the core, so it never reaches the core, input or policy.
+The executable's package (astromech-app, app/src-tauri: `astromech-core.exe`) is the top of the
+graph: nothing depends on it.
 """
 import json
 import subprocess
@@ -20,6 +22,8 @@ FORBIDDEN = {
 }
 # crates that must not depend on any workspace crate
 LEAVES = {"astromech-proto", "astromech-intent", "astromech-log"}
+# the executable's package, which no workspace crate may depend on
+TOP = "astromech-app"
 
 
 def main() -> int:
@@ -31,8 +35,12 @@ def main() -> int:
         deps = {d["name"] for d in pkg["dependencies"] if d["name"] in members}
         for bad in sorted(deps & FORBIDDEN.get(name, set())):
             errors.append(f"{name} must not depend on {bad} directly (docs/ARCHITECTURE.md §4)")
+        if TOP in deps:
+            errors.append(f"{name} must not depend on {TOP}, the executable's package (docs/ARCHITECTURE.md §4)")
         if name in LEAVES and deps:
             errors.append(f"{name} must not depend on workspace crates, found: {', '.join(sorted(deps))}")
+    if TOP not in members:
+        errors.append(f"{TOP} (app/src-tauri) is not a workspace member")
     for e in errors:
         print(f"::error::{e}")
     if not errors:

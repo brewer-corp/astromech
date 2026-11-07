@@ -1,7 +1,7 @@
 //! # astromech-log
 //!
-//! Rolling log files (docs/V1-DESIGN.md §7.7), one per process in the same folder:
-//! `astromech-core.log` for the core and `astromech-shell.log` for the app window. A file is
+//! Rolling log files (docs/V1-DESIGN.md §7.7), one per process in the log folder:
+//! `astromech-core.log` for the app, the core and its window in one process. A file is
 //! rolled over at 10 MB (`<name>.<stamp>.log`) and rolled-over files older than 7 days are
 //! deleted. Each line goes through the redaction the process gives [`init`] (the user's profile
 //! paths and Windows user name).
@@ -14,10 +14,8 @@ use std::time::{Duration, SystemTime};
 
 pub const MAX_BYTES: u64 = 10 * 1024 * 1024;
 pub const KEEP: Duration = Duration::from_secs(7 * 24 * 3600);
-/// The core's log name (`astromech-core.log`).
+/// The app's log name (`astromech-core.log`).
 pub const CORE: &str = "astromech-core";
-/// The app window's log name (`astromech-shell.log`).
-pub const SHELL: &str = "astromech-shell";
 
 /// Rewrites a line before it is written, e.g. to hide the user's name.
 pub type Redact = Box<dyn Fn(&str) -> String + Send>;
@@ -163,27 +161,28 @@ mod tests {
         let cur = std::fs::read_to_string(file(d.path(), CORE)).unwrap();
         assert!(cur.len() <= 100);
         assert!(!cur.contains("Sumeet"), "{cur}");
-        // The window's log in the same folder is not the core's to prune.
+        // Another log in the same folder (an older two-process install's window) is not the
+        // core's to prune.
         std::fs::write(d.path().join("astromech-shell.20260101-000000.000.log"), "x").unwrap();
         // Everything rolled over is "old" a year from now; the live file stays.
         prune(d.path(), CORE, KEEP, SystemTime::now() + Duration::from_secs(365 * 24 * 3600));
         assert_eq!(names(d.path()), ["astromech-core.log", "astromech-shell.20260101-000000.000.log"]);
     }
 
-    /// The app window's lines (e.g. a remote-data cache that won't open) land in its own file
-    /// next to the core's, redacted.
+    /// A process's lines (e.g. a remote-data cache that won't open) land in the file it named,
+    /// redacted, and not in another file in the folder.
     #[test]
-    fn the_shells_lines_land_in_its_log_file() {
+    fn lines_land_in_the_named_log_file() {
         let d = tempfile::tempdir().unwrap();
-        std::fs::write(file(d.path(), CORE), "core line\n").unwrap();
-        init(d.path(), SHELL, false, Box::new(|l: &str| l.replace("Sumeet", "<user>")));
+        std::fs::write(file(d.path(), "astromech-other"), "other line\n").unwrap();
+        init(d.path(), CORE, false, Box::new(|l: &str| l.replace("Sumeet", "<user>")));
         assert_eq!(dir().as_deref(), Some(d.path()));
         log("remote data cache not opened, answers won't be shared: C:\\Users\\Sumeet\\x locked");
-        let shell = std::fs::read_to_string(d.path().join("astromech-shell.log")).unwrap();
+        let core = std::fs::read_to_string(d.path().join("astromech-core.log")).unwrap();
         assert!(
-            shell.ends_with("  remote data cache not opened, answers won't be shared: C:\\Users\\<user>\\x locked\n"),
-            "{shell}"
+            core.ends_with("  remote data cache not opened, answers won't be shared: C:\\Users\\<user>\\x locked\n"),
+            "{core}"
         );
-        assert_eq!(std::fs::read_to_string(file(d.path(), CORE)).unwrap(), "core line\n");
+        assert_eq!(std::fs::read_to_string(file(d.path(), "astromech-other")).unwrap(), "other line\n");
     }
 }

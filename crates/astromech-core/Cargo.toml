@@ -1,6 +1,6 @@
 [package]
 name = "astromech-core"
-description = "astromech core process: game state pipeline, binds health check, push-to-talk voice commands"
+description = "astromech core: game state pipeline, binds health check, push-to-talk voice commands, the command line"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -11,9 +11,8 @@ publish.workspace = true
 [lints]
 workspace = true
 
-[[bin]]
-name = "astromech-core"
-path = "src/main.rs"
+# The `astromech-core` executable is built by app/src-tauri (decision astromech-nade); its
+# command line is the `cli` module here. src/bin/sign-update.rs is this package's own binary.
 
 [dependencies]
 astromech-log.workspace = true
@@ -54,9 +53,7 @@ ureq.workspace = true
 ed25519-dalek.workspace = true
 
 [target.'cfg(windows)'.dependencies]
-tray-icon = "0.26"
-windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_Console", "Win32_System_DataExchange", "Win32_System_Diagnostics_ToolHelp", "Win32_System_LibraryLoader", "Win32_System_Memory", "Win32_System_Registry", "Win32_System_Threading", "Win32_UI_WindowsAndMessaging", "Win32_Security"] }
-png = "0.18"
+windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_Console", "Win32_System_DataExchange", "Win32_System_Diagnostics_ToolHelp", "Win32_System_Memory", "Win32_System_Registry", "Win32_System_Threading", "Win32_Security"] }
 
 [dev-dependencies]
 chrono-tz.workspace = true

@@ -1,8 +1,12 @@
 //! # astromech-core
 //!
-//! The long-running core process (ARCHITECTURE.md §18, V1-DESIGN.md §7).
-//! - [`app`]: the always-running core (M0): tray, single instance, start with Windows, game
-//!   detection with idle/active sessions, the app window, crash marker and diagnostics;
+//! The always-running core of the one app (ARCHITECTURE.md §18, V1-DESIGN.md §7; decision
+//! astromech-6i8s). The executable, `astromech-core.exe`, is built by app/src-tauri around it.
+//! - [`cli`]: the executable's command line (the app, the console preview, `--quit`, the update
+//!   helper);
+//! - [`app`]: the always-running core (M0): single instance, start with Windows, game
+//!   detection with idle/active sessions, the window and tray it asks its [`app::Ui`] for,
+//!   crash marker and diagnostics; [`tray`]: what the tray menu shows;
 //! - [`session`]: one active session, everything that runs while Elite does;
 //! - [`pipeline`]: journal tail (with file rollover) + Status.json watching, feeding
 //!   [`hub::StateHub`] and, when switched on, the EDDN feed; read positions persist in `astromech-store`;
@@ -35,6 +39,7 @@ pub mod background;
 pub mod biology;
 pub mod calibration;
 pub mod callouts;
+pub mod cli;
 pub mod clipboard;
 pub mod colonisation;
 pub mod config;
@@ -60,7 +65,6 @@ pub mod speech;
 pub mod summary;
 pub mod tester;
 pub mod trade;
-#[cfg(windows)]
 pub mod tray;
 pub mod update;
 pub mod visits;

@@ -67,9 +67,9 @@ already running; setup says so.
 
 ## The tray icon
 
-astromech's main process lives in the tray and uses little memory until Elite starts. It loads
-the speech models only while Elite (or its launcher) is running, and unloads them after Elite
-has gone.
+astromech lives in the tray and uses little memory until Elite starts. Closing the window
+leaves it there, with push-to-talk and the kill switch still working. It loads the speech models
+only while Elite (or its launcher) is running, and unloads them after Elite has gone.
 
 - Left-click the icon to open the window.
 - Right-click for the menu. The first line says what astromech is doing: "Waiting for Elite",
@@ -124,8 +124,8 @@ delete it.
 - **Settings** shows push-to-talk, the models, the microphone and calibration at a glance.
 - **Diagnostics** shows whether astromech sees Elite, the voice state and the kill switch.
   **Save diagnostics** makes a zip of the logs for a bug report.
-- If the window says astromech's background process is not running, it starts with the
-  window. If that message stays, open Diagnostics, or look in `data\logs`.
+- If a page says astromech didn't answer and the message stays, open Diagnostics, or look in
+  `data\logs`.
 - Hold push-to-talk, say "gear down", and nothing happens: [Voice](voice.md#when-nothing-happens)
   has a checklist.
 

@@ -43,10 +43,8 @@
   const game = (g: CoreStatus["game"]) =>
     g === "running" ? "Running" : g === "launcher" ? "Launcher open" : "Not running";
 
-  // The window and the background process ship together; only a half-applied update splits them.
-  const version = $derived(
-    !status ? `${shell} (background process not running)` : status.version === shell ? shell : `window ${shell}, background ${status.version}`,
-  );
+  // The window is built into the app, so its version is the app's.
+  const version = shell;
 </script>
 
 {#snippet rows(entries: EddnLogEntry[])}

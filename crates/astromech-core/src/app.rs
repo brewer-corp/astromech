@@ -1,9 +1,9 @@
-//! The always-running core (M0, docs/V1-DESIGN.md §7): tray icon, single instance, start with
-//! Windows, game detection with idle/active, the app window launched from the tray, crash
-//! marker and diagnostics. [`run`] is what `astromech-core.exe` does when started without a
-//! console option (and with `--background` from the Run key). The core itself is built by
-//! [`assemble`] from its [`Boundaries`] and started by [`start`]; `run` adds the installed app's
-//! steps around them.
+//! The always-running core (M0, docs/V1-DESIGN.md §7): single instance, start with Windows,
+//! game detection with idle/active, crash marker and diagnostics. The core itself is built by
+//! [`assemble`] from its [`Boundaries`] and started by [`start`]. The installed app's steps
+//! around them are [`begin`], [`boot`] and [`shutdown`]: the Tauri host in app/src-tauri runs
+//! them around its tray and window (decision astromech-6i8s), and [`run`] runs them headless,
+//! as the binary built without the `window` feature does (Linux, CI, scripts).
 
 use crate::config::Config;
 use crate::gamewatch::{self, Change, Game};
@@ -19,12 +19,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc::{channel, Receiver, Sender};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Condvar, Mutex};
 use std::time::{Duration, Instant};
 use ts_rs::TS;
-
-pub const SHELL_EXE: &str = if cfg!(windows) { "astromech-shell.exe" } else { "astromech-shell" };
 
 #[derive(Debug, Clone, Default)]
 pub struct Opts {
@@ -34,13 +31,78 @@ pub struct Opts {
     pub route: Option<String>,
     pub config: Option<PathBuf>,
     pub session: session::Opts,
+    /// `--webview-debug-port`: the window's WebView2 DevTools port (CI's onboarding smoke).
+    pub webview_debug_port: Option<u16>,
 }
 
-/// Messages to the UI thread (the tray).
-#[derive(Debug, Clone, PartialEq)]
-pub enum Ui {
-    Refresh,
-    Quit,
+/// The app's user interface, which the core asks for: the tray and the window in the Tauri host
+/// (app/src-tauri), or [`Headless`]. The core calls it from any thread, holding none of its
+/// locks.
+pub trait Ui: Send + Sync {
+    /// What the tray shows changed: update it soon, without waiting.
+    fn refresh(&self);
+    /// Open the window at `route`, or focus it and switch it to `route`.
+    fn open_window(&self, route: Option<&str>) -> Result<(), String>;
+    /// Whether the window is open.
+    fn window_open(&self) -> bool;
+    /// The window and the tray, for the `ui_state` command (scripts/one_process_probe.py).
+    fn state(&self) -> UiState;
+    /// Quit the app: the host ends its loop and then calls [`shutdown`].
+    fn quit(&self);
+}
+
+/// The `ui_state` reply.
+#[derive(Debug, Clone, PartialEq, Serialize, TS)]
+pub struct UiState {
+    pub window: WindowState,
+    /// The tray icon is in the notification area (Tauri's `TrayIcon::rect` has a rectangle).
+    pub tray: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, TS)]
+#[serde(rename_all = "snake_case")]
+pub enum WindowState {
+    Open,
+    Closed,
+}
+
+/// No tray and no window: the binary built without the `window` feature. `quit` ends
+/// [`Headless::wait`].
+#[derive(Default)]
+pub struct Headless {
+    quit: Mutex<bool>,
+    asked: Condvar,
+}
+
+impl Headless {
+    /// Until something asks to quit.
+    pub fn wait(&self) {
+        let mut q = self.quit.lock().recover();
+        while !*q {
+            q = self.asked.wait(q).recover();
+        }
+    }
+}
+
+impl Ui for Headless {
+    fn refresh(&self) {}
+
+    fn open_window(&self, _: Option<&str>) -> Result<(), String> {
+        Err("this build of astromech has no window (built without the `window` feature)".into())
+    }
+
+    fn window_open(&self) -> bool {
+        false
+    }
+
+    fn state(&self) -> UiState {
+        UiState { window: WindowState::Closed, tray: false }
+    }
+
+    fn quit(&self) {
+        *self.quit.lock().recover() = true;
+        self.asked.notify_all();
+    }
 }
 
 /// Opens what the commander asked to see: links, folders and files.
@@ -100,7 +162,7 @@ pub struct Boundaries {
     /// The app, log and exe folders, and the folders the config falls back to (journal, data,
     /// models). The core reads these, never `Paths::current()`, after startup.
     pub paths: Paths,
-    /// The running processes, for the game watch and the open window's check.
+    /// The running processes, for the game watch.
     pub processes: ProcessList,
     /// URLs, folders, the saved diagnostics and the config file.
     pub opener: Arc<dyn Opener>,
@@ -114,11 +176,13 @@ pub struct Boundaries {
     pub autostart: Arc<dyn crate::autostart::Autostart>,
     /// The remote-data client for the data folder the config names.
     pub remote: RemoteClient,
+    /// The tray and the window.
+    pub ui: Arc<dyn Ui>,
 }
 
 impl Boundaries {
     /// The installed app's: the real processes, Explorer, the clipboard, toasts, the OS keyring,
-    /// the Run key and HTTP, over `paths`.
+    /// the Run key and HTTP, over `paths`, and no UI ([`Headless`]) until the host gives its own.
     pub fn real(paths: Paths) -> Self {
         Self {
             paths,
@@ -129,6 +193,7 @@ impl Boundaries {
             secrets: Arc::new(astromech_store::secrets::OsKeyring::new()),
             autostart: Arc::new(crate::autostart::RunKey),
             remote: Arc::new(remote_client),
+            ui: Arc::new(Headless::default()),
         }
     }
 }
@@ -171,7 +236,8 @@ impl ConfigWatch {
     }
 }
 
-/// Shared state; the tray reads it, the watcher and control API write it.
+/// Shared state; the tray and the window read it, the watcher, the window and the control API
+/// write it.
 pub struct Core {
     /// The app, log and exe folders, and the config's fallback folders ([`Boundaries::paths`]).
     pub paths: Paths,
@@ -193,7 +259,8 @@ pub struct Core {
     pub crash: Mutex<Option<String>>,
     pub models: Mutex<Option<String>>,
     pub update: Mutex<update::Handle>,
-    pub ui: Mutex<Sender<Ui>>,
+    /// The tray and the window ([`Boundaries::ui`]).
+    pub ui: Arc<dyn Ui>,
     pub opts: Opts,
     /// A mic calibration in progress from the window.
     pub calibration: Mutex<Option<crate::calibration::Run>>,
@@ -258,8 +325,9 @@ impl Core {
         self.cfg().data_dir(&self.paths)
     }
 
+    /// Something the tray shows changed.
     pub fn notify(&self) {
-        let _ = self.ui.lock().recover().send(Ui::Refresh);
+        self.ui.refresh();
     }
 
     pub fn active(&self) -> bool {
@@ -634,8 +702,8 @@ impl Core {
             (p, before)
         };
         let install_dir = self.paths.exe_dir().to_path_buf();
-        // Bring the window back afterwards if it is open now (the helper closes it to replace it).
-        let window_open = (self.processes)().iter().any(|n| n.eq_ignore_ascii_case(SHELL_EXE));
+        // Bring the window back afterwards if it is open now (quitting closes it).
+        let window_open = self.ui.window_open();
         let after = if window_open { update::After::RelaunchWithWindow } else { update::After::Relaunch };
         self.deactivate("installing update");
         match update::spawn_apply(&payload, &install_dir, after) {
@@ -643,10 +711,10 @@ impl Core {
                 self.notify();
                 log("update: helper started; quitting so files can be replaced");
                 // Quit a moment later, so whoever asked (the window) still gets this reply.
-                let ui = self.ui.lock().recover().clone();
+                let ui = self.ui.clone();
                 std::thread::spawn(move || {
                     std::thread::sleep(Duration::from_millis(300));
-                    let _ = ui.send(Ui::Quit);
+                    ui.quit();
                 });
                 Answer::ok(Nothing {})
             }
@@ -678,22 +746,11 @@ impl Core {
         }
     }
 
-    /// Launch (or focus) the app window at `route`.
+    /// Open (or focus) the app window at `route`: from the tray, a second start (`open_window`
+    /// over the control API) and the start itself.
     pub fn open_window(&self, route: Option<&str>) -> Result<(), String> {
-        let exe = std::env::var_os("ASTROMECH_SHELL")
-            .map(PathBuf::from)
-            .unwrap_or_else(|| self.paths.exe_dir().join(SHELL_EXE));
-        if !exe.is_file() {
-            let m = format!("the app window ({}) isn't installed next to the core", exe.display());
-            log(&m);
-            return Err(m);
-        }
-        let mut c = std::process::Command::new(&exe);
-        if let Some(r) = route {
-            c.arg("--route").arg(r);
-        }
-        match c.spawn() {
-            Ok(_) => {
+        match self.ui.open_window(route) {
+            Ok(()) => {
                 log(&format!("opened the app window{}", route.map(|r| format!(" at {r}")).unwrap_or_default()));
                 Ok(())
             }
@@ -917,9 +974,11 @@ impl Core {
             Done::empty()
         });
         add::<(), _>(&mut reg, self, &["quit"], Local, |c, _| {
-            let _ = c.ui.lock().recover().send(Ui::Quit);
+            c.ui.quit();
             Done::empty()
         });
+        // The window and the tray, for scripts/one_process_probe.py.
+        add::<(), _>(&mut reg, self, &["ui_state"], Local, |c, _| c.ui.state());
         add::<(), _>(&mut reg, self, &["check_update"], Window, |c, _| {
             c.check_update_in_background();
             Done::empty()
@@ -1571,10 +1630,9 @@ fn watch_game(core: Arc<Core>) {
     }
 }
 
-/// A core built by [`assemble`], and the receiving end of its messages to the UI thread.
+/// A core built by [`assemble`].
 pub struct Assembled {
     pub core: Arc<Core>,
-    pub ui: Receiver<Ui>,
 }
 
 /// Build the core on `b`: load the config (`opts.config`, else the paths' config file), set
@@ -1638,7 +1696,6 @@ pub(crate) fn assemble_with(
     if let Err(e) = paths.carry_over("device-overrides.json", &data_dir) {
         log(&format!("could not carry device-overrides.json over to {}: {e}", data_dir.display()));
     }
-    let (ui_tx, ui_rx) = channel();
     let remote = (b.remote)(&data_dir);
     let onboarded = crate::calibration::open_store(&data_dir)
         .map(|s| crate::setup::onboarded_at_start(&s, config_exists, &cfg))
@@ -1660,7 +1717,7 @@ pub(crate) fn assemble_with(
         crash: Mutex::new(crash),
         models: Mutex::new(None),
         update: Mutex::new(update_handle),
-        ui: Mutex::new(ui_tx),
+        ui: b.ui,
         opts: opts.clone(),
         calibration: Mutex::new(None),
         history: Default::default(),
@@ -1671,13 +1728,14 @@ pub(crate) fn assemble_with(
         autostart: b.autostart,
         route,
     });
-    Assembled { core, ui: ui_rx }
+    Assembled { core }
 }
 
-/// What [`start`] started that its caller keeps: the control API, while it is held. The
-/// threads are detached.
+/// What [`start`] started that its caller keeps: the control API, while it is held, and the
+/// command registry it serves, which the window calls in process. The threads are detached.
 pub struct Started {
     pub server: Option<control::Server>,
+    pub commands: Arc<Registry>,
 }
 
 /// Start an assembled core: set the process-wide EDDN and EDSM switches from its config, serve
@@ -1688,7 +1746,8 @@ pub fn start(core: &Arc<Core>) -> Started {
     crate::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, Ordering::SeqCst);
     apply_edsm_switch(&cfg, &core.data_dir(), core.secrets.as_ref());
 
-    let server = match control::serve(core.paths.app_dir(), Arc::new(core.commands())) {
+    let commands = Arc::new(core.commands());
+    let server = match control::serve(core.paths.app_dir(), commands.clone()) {
         Ok(s) => {
             log(&format!("control API on 127.0.0.1:{}", s.endpoint.port));
             Some(s)
@@ -1737,11 +1796,19 @@ pub fn start(core: &Arc<Core>) -> Started {
         })
         .expect("spawn preview reaper");
 
-    Started { server }
+    Started { server, commands }
 }
 
-/// Run the core until "Quit". Returns the exit code.
-pub fn run(opts: Opts) -> i32 {
+/// What [`begin`] holds for the rest of the run: the paths, and the single-instance lock.
+pub struct Begun {
+    pub paths: Paths,
+    _guard: crate::instance::Guard,
+}
+
+/// The installed app's first steps, before any UI: logging and the crash hook in the paths'
+/// folders, then the single-instance lock. `None` when another instance runs: this start has
+/// asked it to open the window (unless `--background`), and should exit 0.
+pub fn begin(opts: &Opts) -> Option<Begun> {
     let paths = Paths::current();
     let app_dir = paths.app_dir().to_path_buf();
     let _ = std::fs::create_dir_all(&app_dir);
@@ -1749,14 +1816,14 @@ pub fn run(opts: Opts) -> i32 {
     crate::crash::install(&app_dir);
 
     // Single instance: a second start opens the window of the first, then exits.
-    let Some(_guard) = crate::instance::acquire(&app_dir) else {
+    let Some(guard) = crate::instance::acquire(&app_dir) else {
         if !opts.background {
             match control::call_short(&app_dir, "open_window", opts.route.as_deref()) {
                 Ok(_) => log("already running: asked it to open the window"),
                 Err(e) => log(&format!("already running, but it didn't answer: {e:#}")),
             }
         }
-        return 0;
+        return None;
     };
     log(&format!(
         "astromech-core {} starting{} (pid {})",
@@ -1764,18 +1831,31 @@ pub fn run(opts: Opts) -> i32 {
         if opts.background { " in the background" } else { "" },
         std::process::id()
     ));
+    Some(Begun { paths, _guard: guard })
+}
 
-    let b = Boundaries::real(paths.clone());
+/// A core [`boot`] built and started.
+pub struct Booted {
+    pub core: Arc<Core>,
+    pub started: Started,
+}
+
+/// Build and start the installed app's core with `ui` as its tray and window: turn Start with
+/// Windows on the first time, [`assemble`] on [`Boundaries::real`], [`start`], and check for
+/// updates. The caller then shows its UI and calls [`open_at_start`].
+pub fn boot(opts: &Opts, begun: &Begun, ui: Arc<dyn Ui>) -> Booted {
+    let paths = &begun.paths;
+    let b = Boundaries { ui, ..Boundaries::real(paths.clone()) };
     if !paths.portable() {
         if let Ok(exe) = std::env::current_exe() {
-            if let Some(m) = crate::autostart::apply_default(&app_dir, &exe, b.autostart.as_ref()) {
+            if let Some(m) = crate::autostart::apply_default(paths.app_dir(), &exe, b.autostart.as_ref()) {
                 log(&m);
             }
         }
     }
 
-    let Assembled { core, ui } = assemble(&opts, b);
-    let _started = start(&core);
+    let Assembled { core } = assemble(opts, b);
+    let started = start(&core);
 
     if core.cfg().update.check {
         let c = core.clone();
@@ -1790,41 +1870,35 @@ pub fn run(opts: Opts) -> i32 {
             })
             .expect("spawn update checker");
     }
+    Booted { core, started }
+}
 
-    if !opts.background && !paths.portable() {
+/// Open the window, at `--route` if given, unless started with `--background` (Start with
+/// Windows) or portable.
+pub fn open_at_start(opts: &Opts, core: &Core) {
+    if !opts.background && !core.paths.portable() {
         let _ = core.open_window(opts.route.as_deref());
     }
+}
 
-    let code = ui_loop(core.clone(), ui);
+/// The last steps after a quit, before the process exits: end the session (cancels actions,
+/// releases held keys) and apply a staged update if it waits for a quit.
+pub fn shutdown(core: &Core) {
     log("quitting");
     core.deactivate("quit");
     core.apply_on_quit();
-    code
 }
 
-#[cfg(windows)]
-fn ui_loop(core: Arc<Core>, rx: Receiver<Ui>) -> i32 {
-    match crate::tray::run(core.clone(), &rx) {
-        Ok(()) => 0,
-        Err(e) => {
-            log(&format!("tray icon failed: {e:#}; running without it until Quit (via the app window)"));
-            headless(&rx)
-        }
-    }
-}
-
-#[cfg(not(windows))]
-fn ui_loop(_core: Arc<Core>, rx: Receiver<Ui>) -> i32 {
-    log("no tray on this platform; running headless (quit via the control API or Ctrl+C)");
-    headless(&rx)
-}
-
-fn headless(rx: &Receiver<Ui>) -> i32 {
-    while let Ok(m) = rx.recv() {
-        if m == Ui::Quit {
-            break;
-        }
-    }
+/// Run the core headless (no tray, no window) until `quit`. Returns the exit code. What the
+/// binary built without the `window` feature does: Linux, CI and the scripts.
+pub fn run(opts: Opts) -> i32 {
+    let Some(begun) = begin(&opts) else { return 0 };
+    let ui = Arc::new(Headless::default());
+    let booted = boot(&opts, &begun, ui.clone());
+    open_at_start(&opts, &booted.core);
+    log("no tray in this build; running headless (quit via the control API or Ctrl+C)");
+    ui.wait();
+    shutdown(&booted.core);
     0
 }
 
@@ -1898,6 +1972,7 @@ mod tests {
             secrets: Arc::new(astromech_store::secrets::MemorySecrets::default()),
             autostart: Arc::new(NoAutostart),
             remote: Arc::new(move |_: &Path| remote.clone()),
+            ui: Arc::new(Headless::default()),
         }
     }
 

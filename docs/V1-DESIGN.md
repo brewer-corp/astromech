@@ -707,24 +707,26 @@ skip the guide. A new rule's lines go in that test.
 ## 7. Infrastructure
 
 ### 7.1 Process and tray model
-**Two processes, and the core owns a native tray menu.**
-- `astromech-core.exe` (Rust, no WebView) is the only process that's always running: tray icon
-  and **native context menu** (the `tray-icon` crate's OS menu, dark via uxtheme: status line,
-  Open astromech, Pause voice, Kill switch while active, Quit, plus a crash / Finish setup /
-  Restart to update line when relevant),
-  game watcher, journal pipeline, input listeners, voice, the local API. Idle memory target
-  about 20–40 MB; models load only while Elite runs (§7.6).
-- `astromech-shell.exe` (Tauri v2 + Svelte) is the window, started from the tray or on first
-  run, talking to the core over the local API. Closing it exits it and frees WebView2
-  (typically 100–200 MB across its processes).
+**One process, with a native tray menu** (decision astromech-6i8s; ARCHITECTURE §18.1).
+- `astromech-core.exe` is a Tauri v2 app and the only process that's always running: the tray
+  icon and its **native context menu** (Tauri's tray, dark via uxtheme: status line, Open
+  astromech, Pause voice, Kill switch while active, Check for updates, Quit, plus a crash /
+  Finish setup / Restart to update line when relevant), the game watcher, journal pipeline,
+  input listener, voice and the local API, and, when asked, the window. Idle memory target
+  about 20–40 MB; models load only while Elite runs (§7.6). The speech worker is its one
+  supervised helper process.
+- The window (Svelte, in WebView2) is built when you open it (the tray, the Start-menu
+  shortcut, a second start) and calls the core in the same process. Closing it destroys it and
+  frees WebView2 (typically 100–200 MB across its processes); astromech stays in the tray.
+  Start with Windows (`--background`) builds no window.
 - Revision 1's webview tray popover is dropped: a native menu is instant, needs no WebView2,
-  and works even if the shell is broken.
+  and works with the window closed.
 
 ### 7.2 Packaging
 - **Tauri bundler, NSIS installer, `installMode: "currentUser"`** → installs to
   `%LOCALAPPDATA%\astromech` (Tauri's per-user default; M0 note: the template has no install-dir option, so user data moved to its `data\` subfolder), no admin, no UAC prompt. One installer carries
-  `astromech-shell.exe`, `astromech-core.exe`, `astromech-voice-worker.exe` (as Tauri
-  `externalBin`/resources) and the OFL fonts. Speech models download on first run (≈ 700 MB,
+  `astromech-core.exe` (the app), `astromech-voice-worker.exe` (as Tauri `externalBin`),
+  resources and the OFL fonts. Speech models download on first run (≈ 700 MB,
   SHA-256 checked, as now) so the installer stays small.
 - WebView2: use the bootstrapper (`webviewInstallMode: downloadBootstrapper`); Windows 11 already has it.
 - Uninstall removes the program; user data (`%LOCALAPPDATA%\astromech\data`) stays unless the
@@ -736,7 +738,7 @@ skip the guide. A new rule's lines go in that test.
 - **Channel:** GitHub Releases `v*` tags. Each release ships `latest.json` (version, zip name,
   SHA-256, notes) and `latest.json.sig` (ed25519 over the exact JSON bytes). The verifying key
   is baked into the core (`PUBLIC_KEY_HEX`); CI holds the private seed as `ASTROMECH_UPDATE_KEY`.
-- **Payload:** a zip of `astromech-shell.exe`, `astromech-core.exe`, `astromech-voice-worker.exe`,
+- **Payload:** a zip of `astromech-core.exe`, `astromech-voice-worker.exe`,
   `starmap.db` and the licence files. Not NSIS: overlaying files avoids SmartScreen on every `setup.exe`.
   `data\` (config, logs, models, DB) is never overwritten. `uninstall.exe` stays.
 - **When:** check and download any time, including while Elite is running. Apply drops keys and
@@ -776,16 +778,16 @@ skip the guide. A new rule's lines go in that test.
   mic, go idle. Setting: "Keep voice loaded" for fast restarts.
 
 ### 7.7 Single instance, crash restart, logs
-- **Single instance:** a named mutex `Local\astromech-core` in the core (second start → tell
-  the first to open the window, then exit); the shell uses Tauri's single-instance plugin.
-- **Crash restart:** the shell checks the core on start and restarts it if missing; the core
-  installs a panic hook that writes the panic + backtrace to the log and a crash marker. On the
+- **Single instance:** a named mutex `Local\astromech-core` (second start → tell the first to
+  open the window, then exit).
+- **Crash restart:** through Windows' restart registration (astromech-dl53; the shell that
+  restarted the core is gone with the one app). The app installs a panic hook that writes the panic + backtrace to the log and a crash marker. On the
   next start the tray offers "astromech crashed last time · Save diagnostics". The voice worker is
   already a supervised child (restarted by the core).
 - **Logs:** rolling files in `%LOCALAPPDATA%\astromech\data\logs` (7 days, 10 MB each), the same lines
-  as the preview console; usernames redacted. The core writes `astromech-core.log`, the app window
-  `astromech-shell.log` (its release build has no console). **Diagnostics bundle** (§1.5 #2), with
-  both logs, from the tray or settings.
+  as the preview console; usernames redacted. The app writes `astromech-core.log`, the window's
+  lines included (the release build has no console). **Diagnostics bundle** (§1.5 #2), with the
+  logs, from the tray or settings.
 
 ### 7.8 Release CI
 On a `v*` tag:
@@ -823,18 +825,19 @@ Total about **11 weeks**.
 ---
 
 ### 7.10 As built in M0 (11 Oct 2026)
-- `astromech-core.exe` with no options is the tray app; `--background` (Run key) skips the window;
+- `astromech-core.exe` with no options is the app with its window; `--background` (Run key) skips the window;
   `--console` is the old console preview (the e2e uses it); `--quit` asks a running core to exit
   (the installer uses it). One-shot options (`--listen`, `--health`, …) still work.
-- The window ↔ core link in M0 is a small local control API (JSON lines on 127.0.0.1, port and a
-  per-run token in `data\core.json`): status, open window, save diagnostics, quit. The full
-  WebSocket API replaces it as modules need it.
+- The window ↔ core link in M0 was a small local control API (JSON lines on 127.0.0.1, port and a
+  per-run token in `data\core.json`). Since the one app (decision astromech-6i8s) the window
+  calls the core's command registry in process; `core.json` stays for local clients (a second
+  start, `--quit`, the scripts).
 - Active = launcher or game running (the launcher pre-warms); idle after the game has been gone
   for two polls (6 s). The Raw Input listener starts at the first activation and stays.
 - Start with Windows, Open config file and Download speech models moved from the tray to
   Settings (14 Oct); the tray links there with "Finish setup" while something is missing.
-- Crash restart: the window's watchdog restarts the core if `core.json` exists but the core
-  doesn't answer (a clean Quit removes the file, so it stays off).
+- Crash restart: in M0 the window's watchdog restarted the core. The one app has no second
+  process to watch it; crash restart moves to Windows' restart registration (astromech-dl53).
 
 ### 7.11 As built in M1 (11 Oct 2026)
 - **Where the keybinds code runs.** The app window reads and edits presets itself, through

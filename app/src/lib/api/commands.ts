@@ -101,6 +101,7 @@ import type { TradeRouteAsk } from "./types/TradeRouteAsk";
 import type { Tree } from "./types/Tree";
 import type { Tried } from "./types/Tried";
 import type { Trip } from "./types/Trip";
+import type { UiState } from "./types/UiState";
 import type { UnsoldData } from "./types/UnsoldData";
 import type { VoiceSettings } from "./types/VoiceSettings";
 import type { WantArg } from "./types/WantArg";
@@ -206,6 +207,7 @@ export type Commands = {
   trade_route: { args: Near<AskArg<TradeRouteAsk>>; reply: TradeRoute; exposure: "window" };
   trade_route_defaults: { args: null; reply: Defaults; exposure: "window" };
   trade_search: { args: Near<TradeArgs>; reply: Search; exposure: "window" };
+  ui_state: { args: null; reply: UiState; exposure: "local" };
   voice_preview: { args: null; reply: Answer<Previewed>; exposure: "window" };
   voice_settings: { args: null; reply: Done<VoiceSettings>; exposure: "window" };
   voice_test: { args: string; reply: Done<Tried>; exposure: "window" };

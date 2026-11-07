@@ -2,23 +2,25 @@
 """WebView cost harness: what the app window costs, against the S11 budgets
 (docs/ARCHITECTURE.md §14 Phase 0 and §18.1).
 
-    python scripts/webview_cost.py --shell target/release/astromech-shell.exe --out webview-report
+    python scripts/webview_cost.py --app target/release/astromech-core.exe --out webview-report
 
-Runs the app window (WebView2 on Windows, WebKitGTK on Linux) in a scratch profile and measures:
-- cold start: from starting the process to the window's first page load (the shell logs
-  `window: page loaded`). The first start makes the WebView's profile and starts the core; the
-  later ones reuse the profile and find the core running (in the tray), as a player's usually
-  do. The budget is judged on the later ones' median, and on a start with the core not running
-  and one after a core crash (its endpoint file left behind).
-- memory: the private working set (USS) summed over the window process and its WebView
-  processes (the core and its workers excluded), idle on a list-heavy page, and its peak while
-  moving between pages.
+Runs the app (`astromech-core`: the core, the tray and the window in one process; WebView2 on
+Windows, WebKitGTK on Linux) in a scratch profile and measures:
+- cold start: to the window's first page load (the app logs `window: page loaded` in
+  `astromech-core.log`). The first start makes the WebView's profile. The later ones open the
+  window in the app running windowless (in the tray), as a player usually does: the app is
+  started with `--background`, then a second start with `--route` opens the window. The budget
+  is judged on the later ones' median, and on a start with the app not running at all.
+- memory: the private working set (USS) summed over the app process and its WebView processes
+  (the speech worker excluded), idle on a list-heavy page, and its peak while moving between
+  pages; and the app windowless, before the window opens.
 - CPU: the same processes' CPU time over an idle stretch and while moving between pages, as a
   share of the whole machine (what Task Manager shows) and of one core.
 Pages are changed the way the tray does it: a second start with `--route <page>` hands the page
 to the running window. The page data is whatever a fresh profile has (no game data), so lists
 are short apart from the keybinds; frame-time impact next to Elite needs the game and a GPU
-(astromech-7ck3). Needs psutil. Exit status 1 when a budget is missed.
+(astromech-7ck3). The fuller rework (open, closed again, no WebView left) is astromech-xz7i.
+Needs psutil. Exit status 1 when a budget is missed.
 """
 
 from __future__ import annotations
@@ -30,6 +32,7 @@ import platform
 import statistics
 import subprocess
 import sys
+import json
 import tempfile
 import time
 from pathlib import Path
@@ -46,8 +49,7 @@ def judge(r: dict) -> list[dict]:
     cs = r["cold_start"]
     later = cs["later_s"]
     med = statistics.median(later) if later else None
-    no_core = cs.get("core_not_running_s")
-    crashed = cs.get("after_core_crash_s")
+    not_running = cs.get("app_not_running_s")
     idle, use = r["idle"], r["in_use"]
     # The idle numbers count only if the window and its WebView were there to measure.
     measured = idle.get("window_alive", False) and idle.get("webview_seen", False) and idle["uss_mb_max"] > 20
@@ -60,11 +62,11 @@ def judge(r: dict) -> list[dict]:
                   f"in use {use['cpu_machine_pct']}%",
          "pass": measured and idle["cpu_machine_pct"] <= IDLE_CPU_MAX},
         {"id": "cold_start", "budget": f"< {COLD_START_MAX_S:g} s cold start",
-         "value": f"median {med if med is None else round(med, 2)} s over {len(later)} starts with the core "
-                  f"running; {no_core} s with the core not running, {crashed} s after a core crash "
+         "value": f"median {med if med is None else round(med, 2)} s over {len(later)} window opens in the app "
+                  f"running windowless; {not_running} s with the app not running "
                   f"(first start, new profile: {cs['first_s']} s)",
-         "pass": med is not None and med < COLD_START_MAX_S and all(
-             s is not None and s < COLD_START_MAX_S for s in (no_core, crashed))},
+         "pass": med is not None and med < COLD_START_MAX_S and not_running is not None
+                 and not_running < COLD_START_MAX_S},
         # The harness's own check: the page changes reached the running window.
         {"id": "page_changes", "budget": "harness check: every page change reached the running window",
          "value": f"{use.get('switches', 0)} asked, {use.get('pages_received', 0)} received, "
@@ -84,18 +86,20 @@ def markdown(rep: dict) -> str:
         lines.append(f"| {c['budget']} | {c['value']} | {'PASS' if c['pass'] else '**FAIL**'} |")
     r = rep["results"]
     lines += ["", f"- Cold starts (s): first {r['cold_start']['first_s']}, then {r['cold_start']['later_s']}; "
-              f"the window's own count from process start to page load (ms): {r['cold_start']['in_process_ms']}.",
+              f"the app's own count from its start to the page load, with it not running (ms): "
+              f"{r['cold_start']['in_process_ms']}.",
               f"- Idle on `{LIST_PAGE}` for {r['idle']['seconds']} s: {r['idle']['processes']} processes "
               f"({', '.join(r['idle']['names'])}).",
-              "- Cold start ends at the window's first page load (navigation finished). The app mounts in its "
-              "module script, which runs before that; data it fetches afterwards isn't counted. With the core "
-              "not running, it includes the window starting the core.",
-              f"- Starting the window after a core crash (core gone, its core.json left behind): "
-              f"{r['cold_start'].get('after_core_crash_s')} s.",
+              "- Cold start ends at the window's first page load (navigation finished). The page mounts in its "
+              "module script, which runs before that; data it fetches afterwards isn't counted. With the app "
+              "not running, it includes the app's own start; in the app running windowless, it starts at the "
+              "second start that asks for the window.",
+              f"- The app windowless before the window opens: {r.get('windowless', {}).get('uss_mb_mean')} MB "
+              f"mean private working set, {r.get('windowless', {}).get('processes')} processes.",
               f"- In use: {r['in_use']['switches']} page changes over {r['in_use']['seconds']} s "
               f"({', '.join(PAGES)}); peak {r['in_use']['uss_mb_max']} MB; second starts exited with "
               f"{r['in_use'].get('switch_exit_codes')}, extra windows opened: {r['in_use'].get('extra_windows')}.",
-              f"- The core (not part of the window's budget): {r['core_mb']} MB private working set.",
+              "- The app process and its WebView processes are measured together: the core is in the app.",
               "", "Not covered: frame-time impact next to Elite (desktop and VR) and GPU use; that needs the game "
               "(astromech-7ck3). Pages show a fresh profile's data, not a played commander's."]
     return "\n".join(lines) + "\n"
@@ -104,18 +108,18 @@ def markdown(rep: dict) -> str:
 # ---------------------------------------------------------------------------------------------
 
 
-def tree(shell, psutil) -> list:
-    """The window process and every process under it except the core and its workers."""
-    out = [shell]
+def tree(app, psutil) -> list:
+    """The app process and every process under it except the speech worker."""
+    out = [app]
     try:
-        kids = shell.children()
+        kids = app.children()
     except psutil.Error:
         return out
     stack = list(kids)
     while stack:
         p = stack.pop()
         try:
-            if p.name().lower().startswith("astromech-core") or p.name().lower().startswith("astromech-voice"):
+            if p.name().lower().startswith("astromech-voice"):
                 continue
             out.append(p)
             stack.extend(p.children())
@@ -124,8 +128,8 @@ def tree(shell, psutil) -> list:
     return out
 
 
-def our_cores(prof: "Profile", psutil) -> list:
-    """The cores the window started in this profile (never another astromech on the machine)."""
+def our_apps(prof: "Profile", psutil) -> list:
+    """The app's processes in this profile (never another astromech on the machine)."""
     out = []
     for p in psutil.process_iter(["name"]):
         try:
@@ -159,9 +163,9 @@ def cpu_s(procs, psutil) -> float:
     return t
 
 
-def window(shell, psutil, seconds: float, action=None) -> dict:
+def window(app, psutil, seconds: float, action=None) -> dict:
     """Sample memory every second and CPU time over `seconds`; `action(i)` runs each second."""
-    procs = tree(shell, psutil)
+    procs = tree(app, psutil)
     c0, t0 = cpu_s(procs, psutil), time.time()
     mems, i = [], 0
     while time.time() - t0 < seconds:
@@ -169,7 +173,7 @@ def window(shell, psutil, seconds: float, action=None) -> dict:
             action(i)
         i += 1
         time.sleep(1)
-        procs = tree(shell, psutil)
+        procs = tree(app, psutil)
         mems.append(uss_mb(procs, psutil))
     wall = time.time() - t0
     used = cpu_s(procs, psutil) - c0
@@ -188,7 +192,7 @@ def window(shell, psutil, seconds: float, action=None) -> dict:
 
 
 class Profile:
-    """A scratch per-user folder for the window and the core it starts."""
+    """A scratch per-user folder for the app."""
 
     def __init__(self, root: Path):
         self.root = root
@@ -201,7 +205,8 @@ class Profile:
             self.env["XDG_CONFIG_HOME"] = str(root / "config")
             self.env["XDG_CACHE_HOME"] = str(root / "cache")
             self.env["LOCALAPPDATA"] = str(root)  # where the keybinds look for Elite's Bindings folder
-        self.log = root / "astromech" / "data" / "logs" / "astromech-shell.log"
+        self.log = root / "astromech" / "data" / "logs" / "astromech-core.log"
+        self.endpoint = root / "astromech" / "data" / "core.json"
 
     def lines(self, text: str) -> list[str]:
         try:
@@ -216,65 +221,95 @@ class Profile:
         return self.lines(" asked for")
 
 
-def start(shell_exe: Path, prof: Profile, args=()) -> subprocess.Popen:
-    return subprocess.Popen([str(shell_exe), *args], env=prof.env, stdout=subprocess.DEVNULL,
+def start(app_exe: Path, prof: Profile, args=()) -> subprocess.Popen:
+    return subprocess.Popen([str(app_exe), *args], env=prof.env, stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL)
 
 
-def stop(p: subprocess.Popen, psutil) -> None:
-    """Close the window and its WebView processes; the core stays, as it does for a player."""
-    try:
-        for c in psutil.Process(p.pid).children(recursive=True):
-            if not c.name().lower().startswith("astromech-"):
-                c.kill()
-    except psutil.Error:
-        pass
-    p.kill()
-    p.wait()
+def quit_app(app_exe: Path, prof: Profile, psutil) -> None:
+    """Quit the app (`--quit`), and make sure no process of it is left in the profile."""
+    subprocess.run([str(app_exe), "--quit"], env=prof.env, timeout=30)
+    end = time.time() + 10
+    while our_apps(prof, psutil) and time.time() < end:
+        time.sleep(0.2)
+    for p in our_apps(prof, psutil):
+        p.kill()
+    time.sleep(1)
 
 
-def cold_start(shell_exe: Path, prof: Profile, psutil, timeout: float) -> tuple[float, int]:
-    """Seconds from starting the window to its first page load, and its own count in ms."""
+def wait_load(prof: Profile, seen: int, t0: float, timeout: float, p: subprocess.Popen | None = None) -> tuple[float, int]:
+    """Seconds from `t0` to a page load after the first `seen`, and the app's own count in ms."""
+    while time.perf_counter() - t0 < timeout:
+        loads = prof.page_loads()
+        if len(loads) > seen:
+            ms = int(loads[-1].split("page loaded ")[1].split(" ms")[0])
+            return time.perf_counter() - t0, ms
+        if p is not None and p.poll() is not None:
+            raise RuntimeError(f"the app exited ({p.returncode}) before its page loaded")
+        time.sleep(0.01)
+    raise RuntimeError(f"no page load within {timeout} s (log {prof.log})")
+
+
+def wait_endpoint(prof: Profile, p: subprocess.Popen, timeout: float) -> None:
+    """Until the app started as `p` has published its control endpoint."""
+    end = time.time() + timeout
+    while time.time() < end:
+        try:
+            if json.loads(prof.endpoint.read_text(encoding="utf-8")).get("pid") == p.pid:
+                return
+        except (OSError, ValueError):
+            pass
+        if p.poll() is not None:
+            raise RuntimeError(f"the app exited ({p.returncode}) before its control endpoint was there")
+        time.sleep(0.05)
+    raise RuntimeError(f"no control endpoint within {timeout} s")
+
+
+def cold_start(app_exe: Path, prof: Profile, psutil, timeout: float) -> tuple[float, int]:
+    """The app not running: seconds from starting it to its window's first page load, and its own
+    count in ms. The app is quit after."""
     seen = len(prof.page_loads())
     t0 = time.perf_counter()
-    p = start(shell_exe, prof)
+    p = start(app_exe, prof)
     try:
-        while time.perf_counter() - t0 < timeout:
-            loads = prof.page_loads()
-            if len(loads) > seen:
-                dt = time.perf_counter() - t0
-                ms = int(loads[-1].split("page loaded ")[1].split(" ms")[0])
-                return dt, ms
-            if p.poll() is not None:
-                raise RuntimeError(f"the window exited ({p.returncode}) before its page loaded")
-            time.sleep(0.01)
-        raise RuntimeError(f"no page load within {timeout} s (log {prof.log})")
+        return wait_load(prof, seen, t0, timeout, p)
     finally:
-        stop(p, psutil)
-        time.sleep(1)
+        quit_app(app_exe, prof, psutil)
+
+
+def windowless_start(app_exe: Path, prof: Profile, psutil, timeout: float, seconds: float) -> tuple[float, int, dict]:
+    """The app running windowless (`--background`), measured for `seconds`, then a second start
+    with `--route` opens the window: seconds from that start to the page load, the app's own count
+    in ms, and the windowless measurement. The app is quit after."""
+    p = start(app_exe, prof, ["--background"])
+    try:
+        wait_endpoint(prof, p, timeout)
+        idle = window(psutil.Process(p.pid), psutil, seconds) if seconds else {}
+        seen = len(prof.page_loads())
+        t0 = time.perf_counter()
+        start(app_exe, prof, ["--route", LIST_PAGE]).wait(timeout=30)
+        dt, ms = wait_load(prof, seen, t0, timeout, p)
+        return dt, ms, idle
+    finally:
+        quit_app(app_exe, prof, psutil)
 
 
 def measure(a, psutil) -> dict:
     root = Path(tempfile.mkdtemp(prefix="webview-cost-", dir=a.work))
     prof = Profile(root)
-    # The first start also starts the core; the later ones find it running (in the tray).
-    starts = [cold_start(a.shell, prof, psutil, a.timeout) for _ in range(a.starts)]
-    # The core not running (it quit cleanly): the window starts it, as at a player's first launch
-    # of the day.
-    core_exe = a.shell.with_name("astromech-core" + (".exe" if os.name == "nt" else ""))
-    subprocess.run([str(core_exe), "--quit"], env=prof.env, timeout=30)
-    if our_cores(prof, psutil):
-        raise RuntimeError("the core didn't quit")
-    no_core = cold_start(a.shell, prof, psutil, a.timeout)
-    # After a core crash: the core is gone but its endpoint file (core.json) is left behind.
-    for c in our_cores(prof, psutil):
-        c.kill()
-    time.sleep(1)
-    crashed = cold_start(a.shell, prof, psutil, a.timeout)
+    # The first start makes the WebView's profile, with the app not running.
+    first = cold_start(a.app, prof, psutil, a.timeout)
+    # The window opened in the app running in the tray, as a player usually opens it; the
+    # first of these also measures the app windowless.
+    later = [windowless_start(a.app, prof, psutil, a.timeout, a.idle_seconds if i == 0 else 0)
+             for i in range(a.starts - 1)]
+    windowless = later[0][2] if later else {}
+    # The app not running, on the profile it made.
+    not_running = cold_start(a.app, prof, psutil, a.timeout)
     loads_before = len(prof.page_loads())
-    shell = start(a.shell, prof, ["--route", LIST_PAGE])
+    app = start(a.app, prof, ["--route", LIST_PAGE])
     try:
-        sp = psutil.Process(shell.pid)
+        sp = psutil.Process(app.pid)
         end = time.time() + a.timeout
         while time.time() < end and len(prof.page_loads()) <= loads_before:
             time.sleep(0.05)
@@ -288,29 +323,26 @@ def measure(a, psutil) -> dict:
         def switch(i):
             # A second start hands the page to the running window and exits.
             if i % 2 == 0:
-                codes.append(start(a.shell, prof, ["--route", PAGES[(i // 2) % len(PAGES)]]).wait(timeout=30))
+                codes.append(start(a.app, prof, ["--route", PAGES[(i // 2) % len(PAGES)]]).wait(timeout=30))
 
         in_use = window(sp, psutil, a.use_seconds, switch)
         in_use["switches"] = len(codes)
         in_use["switch_exit_codes"] = sorted(set(codes))
-        # A second start that opened its own window instead would load a page of its own.
+        # A second start that opened a window of its own instead would load a page of its own.
         in_use["extra_windows"] = len(prof.page_loads()) - loads_before
-        # The running window logs each page a second start asks it for.
+        # The running app logs each page a second start asks its window for.
         in_use["pages_received"] = len(prof.pages_asked()) - asked_before
         in_use["window_alive"] = sp.is_running()
-        cores = our_cores(prof, psutil)
-        core_mb = round(uss_mb(cores, psutil), 1) if cores else None
     finally:
-        stop(shell, psutil)
-        for c in our_cores(prof, psutil):
-            c.kill()
+        quit_app(a.app, prof, psutil)
     return {
-        "cold_start": {"first_s": round(starts[0][0], 3), "later_s": [round(s, 3) for s, _ in starts[1:]],
-                       "in_process_ms": [ms for _, ms in starts], "core_not_running_s": round(no_core[0], 3),
-                       "after_core_crash_s": round(crashed[0], 3)},
+        "cold_start": {"first_s": round(first[0], 3), "later_s": [round(s, 3) for s, _, _ in later],
+                       # The app's own count runs from its process start, so only for starts with it not running.
+                       "in_process_ms": [first[1], not_running[1]],
+                       "app_not_running_s": round(not_running[0], 3)},
+        "windowless": windowless,
         "idle": idle,
         "in_use": in_use,
-        "core_mb": core_mb,
     }
 
 
@@ -323,10 +355,11 @@ def git_commit() -> str:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    p.add_argument("--shell", type=Path, required=True, help="astromech-shell(.exe)")
+    p.add_argument("--app", type=Path, required=True, help="astromech-core(.exe), built with the window")
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--work", type=Path, default=None, help="where the scratch profile goes (default: temp)")
-    p.add_argument("--starts", type=int, default=6, help="cold starts (the first makes the profile)")
+    p.add_argument("--starts", type=int, default=6,
+                   help="cold starts: the first makes the profile, the rest open the window in the app windowless")
     p.add_argument("--settle", type=float, default=10.0, help="seconds after the page loads before idle")
     p.add_argument("--idle-seconds", type=float, default=30.0)
     p.add_argument("--use-seconds", type=float, default=30.0)

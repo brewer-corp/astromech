@@ -1,8 +1,9 @@
 [workspace]
 resolver = "3"
 members = ["crates/*", "app/src-tauri"]
-# The window (app/src-tauri) builds as a stub unless its `window` feature is on, so the
-# workspace's checks need no webkit2gtk on Linux. tauri build turns it on (tauri.conf.json).
+# The app (app/src-tauri, the `astromech-core` executable) builds headless unless its `window`
+# feature is on, so the workspace's checks need no webkit2gtk on Linux. tauri build turns it on
+# (tauri.conf.json).
 exclude = ["spikes"]
 
 [workspace.package]
@@ -43,6 +44,7 @@ astromech-station = { path = "crates/astromech-station" }
 astromech-exploration = { path = "crates/astromech-exploration" }
 astromech-log = { path = "crates/astromech-log" }
 astromech-api = { path = "crates/astromech-api" }
+astromech-core = { path = "crates/astromech-core" }
 anyhow = "1.0.104"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0.151"
