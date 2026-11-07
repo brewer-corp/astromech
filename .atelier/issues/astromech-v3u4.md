@@ -45,10 +45,10 @@ updated_at: "2026-11-07T18:54:50.934536383+00:00"
   - No Tauri menu or window call is made while a `Core` lock is held. tray.rs:137 takes the session lock on the UI thread; that read happens before any menu call.
   - Quit, from the tray, the `quit` command or `install_update` (app.rs:540-544), calls `app.exit(0)`. The shutdown that ends `run` today, `deactivate("quit")` then `apply_on_quit` (app.rs:1669-1672), runs in `RunEvent::Exit`, so held keys are still released.
   - If the tray fails, the app logs it and runs on without it (app.rs:1675-1683).
-- [ ] **Input after `build`.** The shared input source from astromech-7i2k is started, or restarted with `restart()`, after `Builder::build`, before the session can attach. tao registers keyboard and mouse Raw Input to its own hidden window when it builds the loop (tao raw_input.rs:128-157, called at event_loop.rs:200; tauri-2.12.3 app.rs:2534 sets the filter again).
+- [x] **Input after `build`.** The shared input source from astromech-7i2k is started, or restarted with `restart()`, after `Builder::build`, before the session can attach. tao registers keyboard and mouse Raw Input to its own hidden window when it builds the loop (tao raw_input.rs:128-157, called at event_loop.rs:200; tauri-2.12.3 app.rs:2534 sets the filter again).
   - Opening and closing the window must not register again. If the spike's check 2 showed the window does, the source registers again after each window build.
   - The device-event filter is left at its default. `DeviceEventFilter::Always` would make tao call `RIDEV_REMOVE`, which unregisters astromech's own listener too.
-- [ ] The window.
+- [x] The window.
   - `--background` (the Run key) creates no window and no WebView2 process. A start without it opens the window (app.rs:1664-1666).
   - `Core::open_window` builds the window, or focuses it and emits `route`. Callers are the tray, a second start through the mutex and `open_window` over the control API (app.rs:1498-1507), and an update's `--route settings` relaunch. This replaces spawning `SHELL_EXE` (app.rs:573-599).
   - Closing the window destroys it, and `ExitRequested` with no code is prevented.
@@ -63,19 +63,19 @@ updated_at: "2026-11-07T18:54:50.934536383+00:00"
   - app/src/modules/settings/View.svelte:112;
   - the version line in app/src/modules/diagnostics/View.svelte:46-48;
   - docs/guide/getting-started.md:70 and :127.
-- [ ] Packaging, so the release build and its smokes pass at this child:
+- [x] Packaging, so the release build and its smokes pass at this child:
   - tauri.conf.json: `mainBinaryName` is `astromech-core` and `externalBin` holds only the voice worker. scripts/stage-sidecars.sh stages only the worker.
   - .github/workflows/release.yml: the core is built by `tauri build` (`sign-update` and `mockgame` are still built separately). The smoke's file list drops `astromech-shell.exe`, and the pack-update list matches.
   - .github/workflows/ci.yml: the Windows job builds and runs clippy on the new package with `--features window`. ci.yml's gear-down step and .github/workflows/criteria.yml:61 build the headless binary from the new package.
   - scripts/onboarding_smoke.py starts `astromech-core.exe --webview-debug-port …` and finds the install by `astromech-core.exe`.
   - scripts/webview_cost.py and webview-cost.yml are retargeted to the one executable: the app is started with `--route` by a second start, and it logs to `astromech-core.log`. The "core not running" and "after a core crash" cold starts are replaced by "app not running" and "app running windowless". The fuller rework is astromech-xz7i.
-- [ ] **The kill switch in one process.** The onboarding smoke's kill-switch step from astromech-7i2k passes against the one app. That step taps F8 to kill and holds F8 for 1.2 s to re-arm, with the window open, in two runs: mock game after the app, and mock game before the app. Before the app is the case where the session's listener could start before Tauri's `build`. Each run then closes the window with `WM_CLOSE` and taps F8 once more, checking that the kill switch comes on.
-- [ ] `scripts/one_process_probe.py` from the spike passes against the installed app on Windows CI. It runs as a step of the Release workflow's installer job, with the endpoint `%LOCALAPPDATA%\astromech\data\core.json`. Its WebView2 match counts processes by command line as well as by descent. For the real app, check 2 (Raw Input) is covered by the onboarding smoke's kill-switch runs, so the probe skips it with `--no-sink`, and the app has no extra test hook.
+- [x] **The kill switch in one process.** The onboarding smoke's kill-switch step from astromech-7i2k passes against the one app. That step taps F8 to kill and holds F8 for 1.2 s to re-arm, with the window open, in two runs: mock game after the app, and mock game before the app. Before the app is the case where the session's listener could start before Tauri's `build`. Each run then closes the window with `WM_CLOSE` and taps F8 once more, checking that the kill switch comes on.
+- [x] `scripts/one_process_probe.py` from the spike passes against the installed app on Windows CI. It runs as a step of the Release workflow's installer job, with the endpoint `%LOCALAPPDATA%\astromech\data\core.json`. Its WebView2 match counts processes by command line as well as by descent. For the real app, check 2 (Raw Input) is covered by the onboarding smoke's kill-switch runs, so the probe skips it with `--no-sink`, and the app has no extra test hook.
 - [x] Docs:
   - ARCHITECTURE §18.1 describes one process and links astromech-6i8s; §18.6 and the naming lines at §18 (1709-1712) are updated.
   - V1-DESIGN §7.1 and §7.10 describe the one process.
   - CONTRIBUTING's layout and build lines name the new package.
-- [ ] CONTRIBUTING's checks pass locally. On the PR, Windows CI, the Release build (installer smoke, onboarding smoke, probe) and App window cost pass.
+- [x] CONTRIBUTING's checks pass locally. On the PR, Windows CI, the Release build (installer smoke, onboarding smoke, probe) and App window cost pass.
 - [ ] After merge (needs-human: Sumeet's PC, next to Elite, the S11 run). He checks:
   - At login, Start with Windows shows the tray and no window.
   - Left-clicking the tray icon opens the window. Pause voice and the kill switch work from the tray menu while Elite runs.
@@ -124,7 +124,7 @@ Spike results on astromech-wgtr (its Close Reason and evidence receipt). The Tau
 
 ## Report
 
-Implementer report (agent-factory implement, with migrate's atomic change: every consumer is in this repo). Commit on astromech-y6d6 after 7b88ee7b; Windows CI not yet run.
+Implementer report (agent-factory implement, with migrate's atomic change: every consumer is in this repo). Commits 26afef19 (the change), 0891652b (findings 2wu4, zo5n), 107e5c5d and f47c529b (the Status.json idle read, findings from the MVP criteria failure and 43sv) on astromech-y6d6. PR #218 passed every check at a2e6c32d (evidence astromech-ahj1).
 
 Outcome: `astromech-core.exe` is built by app/src-tauri (package `astromech-app`, binary `astromech-core`). Its `main` is `astromech_core::cli::main` (the old main.rs, every option kept, plus `--webview-debug-port`) with the app it runs: `host::run` with the `window` feature, `app::run` (headless) without. `host::run` is `app::begin` (logging, crash hook, mutex and hand-over), Tauri's `Builder::build`, dark menus, `app::boot` (autostart default, `assemble`, `start`, update thread), the tray, `app::open_at_start`, and the loop; `RunEvent::Exit` runs `app::shutdown` (deactivate, apply_on_quit) then drops the control server and the mutex. The core reaches the tray and window through `app::Ui` (`Boundaries::ui`): `notify` posts one coalesced tray refresh with `run_on_main_thread`, `open_window` builds or focuses the window (off the main thread), quit is `app.exit(0)`, and `ui_state` (local) answers `{window, tray}`. The tray menu is `astromech_core::tray::{read, items}` (pure, unit-tested per shape) shown by app/src-tauri/src/tray.rs with Tauri's tray. The window's `call` dispatches `control::window_request` into the `Registry` (`Started.commands`) on `spawn_blocking`. A WebView2 ProcessFailed handler reloads after a renderer exit and rebuilds the window after a browser exit; the press listener subscribes per window and stops on `Destroyed`. Removed: window.rs (watchdog, core start, single-instance plugin, `core-restarted`), `SHELL_EXE`/`ASTROMECH_SHELL`, the `Ui` channel, the core's tray-icon/png deps and Win32 pump, `astromech_log::SHELL`. Packaging: `mainBinaryName` astromech-core, `externalBin` only the worker, release.yml/ci.yml/criteria.yml/webview-cost.yml retargeted, the probe runs as a Release installer-job step, the smoke's second kill-switch run and WM_CLOSE tap added.
 
@@ -133,7 +133,15 @@ Proof (Linux, after the last change):
 - `cargo clippy --workspace --all-targets --locked -D warnings` clean; `cargo clippy -p astromech-app --features window --all-targets --locked -D warnings` clean on Linux (fake .pc files) and for `--target x86_64-pc-windows-msvc` (fake cl, lib and llvm-rc; a planted type error in the Windows-only ProcessFailed code fails it), and the workspace's Windows-target clippy clean.
 - `cargo fmt --all --check`, `scripts/check-deps.py` (32 crates), `scripts/check-guide.py`, `cargo deny check` pass; `pnpm lint`, `pnpm check`, `pnpm build`, `pnpm test` (534/534), `scripts/check-dist.py` pass; `scripts/test_webview_cost.py` 7/7; the three edited scripts compile.
 - Headless binary live (temp HOME and LOCALAPPDATA): `--version` prints `astromech-core 0.0.0-dev`; `--background` publishes core.json with its pid; `status` ok; `ui_state` `{window: closed, tray: false}`, refused with `origin: app_window`; `open_window` answers the no-window error; a second start with `--route` exits 0 ("already running: asked it to open the window"); `quit` exits 0 and removes core.json.
-- By inspection only: the Tauri tray, window, ProcessFailed and press listener at run time (no WebView2 here).
+- By inspection only on Linux: the Tauri tray, window, ProcessFailed and press listener at run time (no WebView2 here); Windows CI below runs them.
+
+Proof (Windows CI, PR #218 at a2e6c32d, evidence astromech-ahj1), by Done when line:
+- Input after build: Release run 42405888691's onboarding smoke, in its second run (mock game before the app, the session's listener at app start): 'kill switch: a tap of F8 killed, a 1.2 s hold re-armed, window open (game running before the app)'; after a window open and close, the WM_CLOSE tap still kills (both runs). The device-event filter is left alone (inspection).
+- The window: the installed-app probe in the same job, 'PASS 1 windowless' (`--background`, no WebView2 for 30 s), 'PASS 4 open' (a second start opens it), 'PASS 5 close' (5 cycles: destroyed, WebView2 gone in about 2.1 s, app and tray alive), 'PASS 6 window crash' with recovered in place for both kills ('window: reloading the page' after kind 1, 'window: rebuilt at keybinds' after kind 0); the smoke's 'window opened by a second start (--route settings)'.
+- Packaging: the Release job (tauri build of the app, installer smoke 'smoke test OK' without astromech-shell.exe, onboarding smoke and probe); CI run 42405888682's Windows job building and linting `astromech-app --features window` and the gear-down e2e on the headless build ('E2E OK'); MVP criteria (42405888696) on the headless release build; App window cost (42405888677) on the one app.
+- The kill switch in one process: the onboarding smoke's six kill-switch lines, three per run (tap and hold with the window open, WM_CLOSE, tap with the window closed), 'Result: **PASS**'.
+- The probe: checks 1 and 4-7 PASS with `--no-sink --no-churn --expect-recovery`; cost (reported) background 6.9 MB in 1 process, after each close 16.3 to 11.5 MB in 1 process, no WebView2 left.
+- The checks line: the local checks above, and on the PR the Windows job (tests 1311 passed, 0 failed), the Release build (installer smoke, onboarding smoke, probe) and App window cost (WebView2: idle 149.2 MB, 0.37% CPU, cold start median 0.62 s windowless and 0.675 s not running).
 
 ### Deviations
 
@@ -151,6 +159,6 @@ Proof (Linux, after the last change):
 
 ### Open items
 
-- CI: Windows build and clippy of `astromech-app --features window`, the Release installer smoke, the onboarding smoke's two kill-switch runs with the WM_CLOSE tap, the probe step (checks 1, 4-7), App window cost, and the spike's One process workflow (the probe script changed). Done when lines 3 (input after build), 4 (the window), 8 (packaging), 9 (kill switch), 10 (probe) and 12 (CI checks) wait for them.
-- Independent review is outstanding.
+- Not covered: the after-merge line, which is Sumeet's at his PC next to Elite (needs-human): Start with Windows at login, the tray's left-click and menu while Elite runs, push-to-talk and the kill switch with the window open and closed, no visible hitch on open and close, and Quit. The tray icon was never clicked on CI, and keys were injected, not pressed.
+- Review: 26afef19 to 107e5c5d were reviewed (findings 2wu4, zo5n and 43sv; 107e5c5d approved in astromech-gcgf). f47c529b, the 43sv fix, ran green at a2e6c32d; whether it has had its own review is not recorded here.
 - The 08-app-processes diagram, the upgrade path and the `astromech-shell.exe` forwarder (astromech-9lh3), crash restart (astromech-dl53) and the fuller cost harness (astromech-xz7i) are not here. spikes/o1-one-process stays until fmub and dl53 no longer need it.

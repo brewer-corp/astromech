@@ -1,0 +1,29 @@
+---
+created_at: "2026-11-07T20:15:23.165871727+00:00"
+id: "astromech-ahj1"
+evidence_type: "validation"
+commit: "74e8546b1aca86209fb4203a79ccba019a357afb"
+result: "pass"
+captured_at: "2026-11-07T20:15:23.165789864+00:00"
+uri: "https://github.com/brewer-corp/astromech/actions/runs/42405888691"
+agent_identity: "astromech-v3u4 implementer (Claude)"
+target:
+  kind: "issue"
+  id: "astromech-v3u4"
+  role: "validates"
+relationships:
+  blocks: []
+  children: []
+  attachments:
+  - kind: "issue"
+    id: "astromech-v3u4"
+    role: "validates"
+  relates: []
+schema: "atelier.evidence"
+schema_version: 2
+status: "recorded"
+title: "PR #218 at a2e6c32d500e28b07a45bbcdf6f0aeda3c2e4c2f (f47c529b plus records), all checks pass. Release build run 42405888691, job 'Windows installer (build, install, smoke test)' (128503367381): installer smoke 'core: astromech-core 0.0.0-dev', 'autostart: \"...\\\\astromech-core.exe\" --background', 'smoke test OK' (file list without astromech-shell.exe, single instance, --quit, uninstall). Onboarding smoke 'Result: **PASS**. Install to verified gear-down: 10.08 s', with 'push-to-talk and kill switch bound by pressing keys (1.25 s)'; run 1: 'kill switch: a tap of F8 killed, a 1.2 s hold re-armed, window open (session started after the app)', 'window closed with WM_CLOSE, the app still running (session started after the app)', 'kill switch: a tap of F8 killed with the window closed (session started after the app)'; run 2: 'mock game started, then the app in the background: session running, no window', 'window opened by a second start (--route settings)', then the same three lines '(game running before the app)'. One-process probe step (installed app, --no-sink --no-churn --expect-recovery): 'PASS 1 windowless' (tray rect, window closed, webview_pids_in_30s []), 'PASS 4 open' (second start exit 0, page loaded in 0.65 s), 'PASS 5 close' (5 cycles, window closed in 0.03 s, WebView2 gone in about 2.1 s, app and tray alive), 'PASS 6 window crash' renderer and browser both recovered true: 'window: WebView2 process failed: kind 1 (render process exited)' then 'window: reloading the page'; 'kind 0 (browser process exited)' then 'window: rebuilt at keybinds'; 'PASS 7 quit' (exit 0 in 0.02 s, webview_left []). Probe cost (reported): background 6.9 MB, 1 process; window open 159.2 MB, 7 processes; after each of 5 closes 16.3 to 11.5 MB, 1 process (the app alone, no WebView2). CI run 42405888682, job 'Windows (MSVC build + tests, the app with its window)' (128503367562): clippy, build, tests (1311 passed, 0 failed), source_sendinput 'two_subscribers_see_a_sent_key_before_and_after_restart ... ok', gear-down e2e on the headless build, and 'the app with its window (Tauri) build' and '... clippy' finished. App window cost run 42405888677, job 'WebView2 (Windows)' (128503367631): all four budgets PASS: idle 149.2 MB mean, 0.37% CPU; cold start median 0.62 s over 5 window opens in the app running windowless, 0.675 s with the app not running; 15 page changes, 15 received, 0 extra windows. Also green: Linux (42405888682), WebKitGTK (42405888677), MVP criteria (42405888696), One process (Windows) probe and restart on the spike (42405888689), atelier doctor (42405888719)."
+updated_at: "2026-11-07T20:15:23.439597045+00:00"
+---
+
+PR #218 at a2e6c32d500e28b07a45bbcdf6f0aeda3c2e4c2f (f47c529b plus records), all checks pass. Release build run 42405888691, job 'Windows installer (build, install, smoke test)' (128503367381): installer smoke 'core: astromech-core 0.0.0-dev', 'autostart: "...\\astromech-core.exe" --background', 'smoke test OK' (file list without astromech-shell.exe, single instance, --quit, uninstall). Onboarding smoke 'Result: **PASS**. Install to verified gear-down: 10.08 s', with 'push-to-talk and kill switch bound by pressing keys (1.25 s)'; run 1: 'kill switch: a tap of F8 killed, a 1.2 s hold re-armed, window open (session started after the app)', 'window closed with WM_CLOSE, the app still running (session started after the app)', 'kill switch: a tap of F8 killed with the window closed (session started after the app)'; run 2: 'mock game started, then the app in the background: session running, no window', 'window opened by a second start (--route settings)', then the same three lines '(game running before the app)'. One-process probe step (installed app, --no-sink --no-churn --expect-recovery): 'PASS 1 windowless' (tray rect, window closed, webview_pids_in_30s []), 'PASS 4 open' (second start exit 0, page loaded in 0.65 s), 'PASS 5 close' (5 cycles, window closed in 0.03 s, WebView2 gone in about 2.1 s, app and tray alive), 'PASS 6 window crash' renderer and browser both recovered true: 'window: WebView2 process failed: kind 1 (render process exited)' then 'window: reloading the page'; 'kind 0 (browser process exited)' then 'window: rebuilt at keybinds'; 'PASS 7 quit' (exit 0 in 0.02 s, webview_left []). Probe cost (reported): background 6.9 MB, 1 process; window open 159.2 MB, 7 processes; after each of 5 closes 16.3 to 11.5 MB, 1 process (the app alone, no WebView2). CI run 42405888682, job 'Windows (MSVC build + tests, the app with its window)' (128503367562): clippy, build, tests (1311 passed, 0 failed), source_sendinput 'two_subscribers_see_a_sent_key_before_and_after_restart ... ok', gear-down e2e on the headless build, and 'the app with its window (Tauri) build' and '... clippy' finished. App window cost run 42405888677, job 'WebView2 (Windows)' (128503367631): all four budgets PASS: idle 149.2 MB mean, 0.37% CPU; cold start median 0.62 s over 5 window opens in the app running windowless, 0.675 s with the app not running; 15 page changes, 15 received, 0 extra windows. Also green: Linux (42405888682), WebKitGTK (42405888677), MVP criteria (42405888696), One process (Windows) probe and restart on the spike (42405888689), atelier doctor (42405888719).
