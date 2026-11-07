@@ -23,7 +23,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Route page redesign: the title is the plotter, the route a timeline"
-updated_at: "2026-11-07T03:00:11.382188128+00:00"
+updated_at: "2026-11-07T15:10:12.818348629+00:00"
 ---
 
 ## Goal
@@ -33,7 +33,7 @@ The Galaxy > Route page shows where you are and what's next at a glance, and is 
 ## Done when
 
 - [ ] Every child is done and the page matches the design in the preview at 1440p.
-- [ ] After merge (needs the game): Sumeet follows a neutron route with it in game. Stand-in: the preview at 1100 px and 2560 px, and the route tests.
+- [ ] The page holds up in the preview at 1100 px and 2560 px, and the route tests pass.
 
 ## Design
 
