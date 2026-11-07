@@ -10,6 +10,13 @@ created_at: 2026-11-07T12:59:09.185205173Z
 event:
   event: finding
   recommendation: defer
+  disposition:
+    decision: defer
+    identity: claude-orchestrator-kjfs
+    commit: 803fcfdebb489c64800d84db6b23ffdf3b90e774
+    recorded_at: 2026-11-07T12:59:47.045812463Z
+    follow_up: astromech-d2nq
+    reason: Fixed in d2nq's commits; noted there
 ---
 
 low: crates/astromech-core/src/app.rs:1580-1582 assemble's doc comment is garbled ('load the config (...), set / make the core with ...'): a sentence was half-edited. And crates/astromech-core/src/app/every_window_command.rs:186-188 save_diagnostics' reason still says the zip is revealed 'with no opener seam', which this change added (Boundaries.opener). Fix both in the next commit on this branch (d2nq/gllh touch these files).
