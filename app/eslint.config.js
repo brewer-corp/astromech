@@ -20,7 +20,18 @@ const BACKDOORS = [
 ];
 
 export default ts.config(
-  { ignores: ["dist/", "dist-preview/", "dist-shots/", "src-tauri/", "node_modules/"] },
+  {
+    ignores: [
+      "dist/",
+      "dist-preview/",
+      "dist-shots/",
+      "src-tauri/",
+      "node_modules/",
+      // ts-rs's output (astromech-se44): generated from the Rust command layer, not hand-written.
+      // src/lib/api/commands.ts, generated beside it, is linted.
+      "src/lib/api/types/",
+    ],
+  },
   js.configs.recommended,
   ...ts.configs.recommended,
   ...svelte.configs.recommended,

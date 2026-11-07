@@ -103,7 +103,7 @@ impl Outcome {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct LogEntry {
     /// Unix seconds.
     pub at: i64,

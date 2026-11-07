@@ -10,9 +10,9 @@ use crate::speech::Speaker;
 use astromech_announce::arrival::{ShoppingList, Want};
 use astromech_announce::prospector::{self, Thresholds};
 use astromech_announce::{Engine, Reaction, SpeechQueue};
+use astromech_api::reply::{Answer, Done};
 use astromech_api::Recover;
 use serde::Serialize;
-use serde_json::{json, Value};
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
@@ -45,11 +45,8 @@ fn open_store(data: &std::path::Path) -> Result<astromech_store::Store, String> 
 
 /// The prospector thresholds for Settings, as [`thresholds_json`]: the defaults on a machine
 /// whose data folder does not exist yet.
-pub fn thresholds_view(data: &std::path::Path) -> Value {
-    match open_store(data) {
-        Ok(st) => thresholds_json(&load_thresholds(&st)),
-        Err(e) => json!({"ok": false, "error": e}),
-    }
+pub fn thresholds_view(data: &std::path::Path) -> Answer<Ores> {
+    open_store(data).map(|st| thresholds_json(&load_thresholds(&st))).into()
 }
 
 /// What the callout rules share, with the thresholds and shopping list read from the database in
@@ -68,33 +65,65 @@ pub fn shared_from_store(data: &std::path::Path, log: &dyn Fn(&str)) -> astromec
     }
 }
 
-/// Every ore with its default and current threshold (`null`: not called out), for Settings.
-pub fn thresholds_json(t: &Thresholds) -> Value {
-    let ores: Vec<Value> = prospector::ORES
-        .iter()
-        .map(|o| json!({"ore": o.symbol, "name": o.name, "default": o.default, "threshold": t.get(o.symbol)}))
-        .collect();
-    json!({"ok": true, "ores": ores})
+/// The prospector thresholds Settings shows (`prospector_thresholds`, `prospector_set`).
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct Ores {
+    pub ores: Vec<OreThreshold>,
 }
 
-/// Every callout with what is in effect, for Settings → Callouts: `enabled` and `cooldown_s`
-/// are the configured values or the callout's own; `default_*` are the callout's own.
-pub fn callouts_json(settings: &astromech_announce::Settings) -> Value {
-    let list: Vec<Value> = astromech_announce::catalog()
+/// One ore's default and current threshold, percent (`null`: not called out).
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct OreThreshold {
+    pub ore: &'static str,
+    pub name: &'static str,
+    pub default: Option<f64>,
+    pub threshold: Option<f64>,
+}
+
+/// Every ore with its default and current threshold (`null`: not called out), for Settings.
+pub fn thresholds_json(t: &Thresholds) -> Ores {
+    let ores = prospector::ORES
+        .iter()
+        .map(|o| OreThreshold { ore: o.symbol, name: o.name, default: o.default, threshold: t.get(o.symbol) })
+        .collect();
+    Ores { ores }
+}
+
+/// Settings → Callouts (`callouts`).
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct CalloutList {
+    pub callouts: Vec<CalloutSetting>,
+}
+
+/// One callout: `enabled` and `cooldown_s` are the configured values or the callout's own;
+/// `default_*` are the callout's own.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct CalloutSetting {
+    pub id: &'static str,
+    pub title: &'static str,
+    pub enabled: bool,
+    pub cooldown_s: f64,
+    pub default_enabled: bool,
+    pub default_cooldown_s: f64,
+}
+
+/// Every callout with what is in effect, for Settings → Callouts.
+pub fn callouts_json(settings: &astromech_announce::Settings) -> Done<CalloutList> {
+    let callouts = astromech_announce::catalog()
         .iter()
         .map(|i| {
             let s = settings.0.get(i.id).cloned().unwrap_or_default();
-            json!({
-                "id": i.id,
-                "title": i.title,
-                "enabled": s.enabled.unwrap_or(i.default_enabled),
-                "cooldown_s": s.cooldown_s.unwrap_or(i.default_cooldown_s),
-                "default_enabled": i.default_enabled,
-                "default_cooldown_s": i.default_cooldown_s,
-            })
+            CalloutSetting {
+                id: i.id,
+                title: i.title,
+                enabled: s.enabled.unwrap_or(i.default_enabled),
+                cooldown_s: s.cooldown_s.unwrap_or(i.default_cooldown_s),
+                default_enabled: i.default_enabled,
+                default_cooldown_s: i.default_cooldown_s,
+            }
         })
         .collect();
-    json!({"ok": true, "callouts": list})
+    Done::new(CalloutList { callouts })
 }
 
 /// A change from Settings: `{"ore": "platinum", "threshold": 25}` (`null` turns it off) or
@@ -196,7 +225,7 @@ pub struct Callouts {
 }
 
 /// One toast for the app window.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Toast {
     /// Increases by one per toast; the window shows the ones newer than it has seen.
     pub id: u64,
@@ -690,7 +719,7 @@ mod tests {
         change_thresholds(&store, r#"{"ore":"painite","threshold":null}"#).unwrap();
         let t = load_thresholds(&store);
         assert_eq!((t.get("platinum"), t.get("painite")), (Some(35.0), None));
-        let v = thresholds_json(&t);
+        let v = serde_json::to_value(thresholds_json(&t)).unwrap();
         let plat = v["ores"].as_array().unwrap().iter().find(|o| o["ore"] == "platinum").unwrap().clone();
         assert_eq!((plat["default"].as_f64(), plat["threshold"].as_f64()), (Some(20.0), Some(35.0)));
         change_thresholds(&store, r#"{"ore":"platinum","reset":true}"#).unwrap();
@@ -708,7 +737,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         // No data folder yet: Settings gets the defaults, not "opening the database".
         let data = d.path().join("not").join("yet");
-        let v = thresholds_view(&data);
+        let v = serde_json::to_value(thresholds_view(&data)).unwrap();
         assert_eq!(v["ok"], true, "{v}");
         let plat = v["ores"].as_array().unwrap().iter().find(|o| o["ore"] == "platinum").unwrap().clone();
         assert_eq!(plat["threshold"].as_f64(), Some(20.0));

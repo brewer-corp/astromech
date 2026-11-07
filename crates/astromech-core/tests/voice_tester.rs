@@ -243,7 +243,7 @@ fn ask_only_near_misses_are_never_learned() {
         let h = a.handle(heard, Voice);
         assert!(matches!(h, Handled::Asked { .. }), "{heard}: still asks, {h:?}");
     }
-    assert_eq!(astromech_core::learned::list(data.path())["phrases"], serde_json::json!([]));
+    assert_eq!(learned(data.path())["phrases"], serde_json::json!([]));
 }
 
 /// A genuine near-miss is still learned: after one yes for a spoken answer, after two for a
@@ -264,11 +264,11 @@ fn genuine_phrases_are_learned_key_presses_after_two_yes() {
     assert!(matches!(a.handle(heard, Voice), Handled::Asked { command: "hardpoints.deploy", .. }));
     assert!(matches!(a.handle("yes", Voice), Handled::Ran { command: "hardpoints.deploy", .. }));
     assert!(matches!(a.handle(heard, Voice), Handled::Asked { command: "hardpoints.deploy", .. }));
-    let listed = astromech_core::learned::list(data.path());
+    let listed = learned(data.path());
     assert_eq!(listed["phrases"].as_array().unwrap().len(), 1, "only the status phrase so far: {listed}");
     assert!(matches!(a.handle("yes", Voice), Handled::Ran { command: "hardpoints.deploy", .. }));
     assert!(matches!(a.handle(heard, Voice), Handled::Ran { command: "hardpoints.deploy", .. }));
-    assert_eq!(astromech_core::learned::list(data.path())["phrases"].as_array().unwrap().len(), 2);
+    assert_eq!(learned(data.path())["phrases"].as_array().unwrap().len(), 2);
 
     // A restart loads the same rule from the saved counts.
     let mut g = astromech_core::assistant::grammar();
@@ -377,4 +377,9 @@ fn recorded_clip_shows_transcript_and_intent() {
     assert!(!d.transcript.is_empty());
     assert_eq!(d.intent.as_ref().map(|i| i.command.as_str()), Some(expect.as_str()));
     r.nothing_happened();
+}
+
+/// The learned phrases as the window reads them.
+fn learned(data: &std::path::Path) -> serde_json::Value {
+    serde_json::to_value(astromech_core::learned::list(data)).unwrap()
 }

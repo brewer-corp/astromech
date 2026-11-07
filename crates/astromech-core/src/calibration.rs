@@ -4,11 +4,13 @@
 //! name the session's recorder reports, so the session finds it again ([`stored_gate`]).
 
 use anyhow::{bail, ensure, Result};
+use astromech_api::reply::{Answer, Done, Nothing};
 use astromech_api::Recover;
 use astromech_store::Store;
 use astromech_voice::gain::{self, Calibration};
 use serde::Serialize;
-use serde_json::{json, Value};
+#[cfg(test)]
+use serde_json::Value;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 
@@ -100,7 +102,7 @@ pub fn read_wavs(files: &[PathBuf]) -> Result<(u32, Vec<f32>, Vec<Vec<f32>>)> {
 }
 
 /// What a short recording says about the mic: the level check in onboarding.
-#[derive(Debug, Clone, Serialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, PartialEq, ts_rs::TS)]
 pub struct LevelCheck {
     pub device: String,
     pub peak_dbfs: f32,
@@ -181,73 +183,125 @@ impl Run {
 /// Something that records a clip of a given length from the chosen mic.
 pub type RecordFn<'a> = &'a dyn Fn(u64) -> Result<Clip>;
 
-fn step_json(run: &Run) -> Value {
-    match run.next() {
-        Some((phrase, ms)) => json!({"step": run.step(), "steps": PHRASES.len() + 1, "phrase": phrase, "ms": ms}),
-        None => json!({"step": run.step(), "steps": PHRASES.len() + 1, "phrase": null, "ms": 0}),
-    }
+/// The next clip to record: `phrase` is "" for the silence, `null` once every clip is in.
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
+#[ts(rename = "CalibrationStep")]
+pub struct Step {
+    pub step: usize,
+    pub steps: usize,
+    pub phrase: Option<&'static str>,
+    pub ms: u64,
 }
 
-fn err(e: impl std::fmt::Display) -> Value {
-    json!({"ok": false, "error": e.to_string()})
+fn step_of(run: &Run) -> Step {
+    let (phrase, ms) = match run.next() {
+        Some((phrase, ms)) => (Some(phrase), ms),
+        None => (None, 0),
+    };
+    Step { step: run.step(), steps: PHRASES.len() + 1, phrase, ms }
 }
 
-/// The window's calibration and mic-check commands, over the control API:
-/// - `calibrate_start`: forget any run in progress; reply with the first step;
-/// - `calibrate_record`: record the next clip; reply with its level and the next step;
-/// - `calibrate_finish`: compute and store the gate; reply with the result;
-/// - `calibrate_cancel`;
-/// - `mic_check`: record a short clip and say whether speech is loud enough.
-pub fn handle(cmd: &str, run: &Mutex<Option<Run>>, record: RecordFn, store: &dyn Fn() -> Result<Store>) -> Value {
+/// `calibrate_start`'s reply.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct Started {
+    pub phrases: [&'static str; 3],
+    pub next: Step,
+}
+
+/// `calibrate_record`'s reply: the clip's level and the next step.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct Recorded {
+    pub level: LevelCheck,
+    pub next: Step,
+}
+
+/// `calibrate_finish`'s reply: the gate stored for the device.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct Calibrated {
+    pub device: String,
+    pub noise_dbfs: f32,
+    pub speech_peak_dbfs: f32,
+    pub min_level_dbfs: f32,
+    pub gain_db: f32,
+}
+
+/// `mic_check`'s reply.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct Checked {
+    pub level: LevelCheck,
+}
+
+// The window's calibration and mic-check commands, over the control API.
+
+/// `calibrate_start`: forget any run in progress; reply with the first step.
+pub fn start(run: &Mutex<Option<Run>>) -> Done<Started> {
+    let r = Run::default();
+    let next = step_of(&r);
+    *run.lock().recover() = Some(r);
+    Done::new(Started { phrases: PHRASES, next })
+}
+
+/// `calibrate_record`: record the next clip; reply with its level and the next step.
+pub fn record(run: &Mutex<Option<Run>>, record: RecordFn) -> Answer<Recorded> {
     let mut g = run.lock().recover();
-    match cmd {
-        "calibrate_start" => {
-            let r = Run::default();
-            let v = step_json(&r);
-            *g = Some(r);
-            json!({"ok": true, "phrases": PHRASES, "next": v})
-        }
-        "calibrate_record" => {
-            let Some(r) = g.as_mut() else { return err("calibration hasn't started") };
-            let Some((_, ms)) = r.next() else { return err("calibration already has every clip") };
-            let clip = match record(ms) {
-                Ok(c) => c,
-                Err(e) => return err(format!("{e:#}")),
-            };
-            let level = level_check(&clip);
-            if let Err(e) = r.add(clip) {
-                return err(e);
-            }
-            json!({"ok": true, "level": level, "next": step_json(r)})
-        }
-        "calibrate_finish" => {
-            let Some(r) = g.as_ref() else { return err("calibration hasn't started") };
-            let res = store().and_then(|s| r.finish(&s));
-            match res {
-                Ok((device, c)) => {
-                    *g = None;
-                    json!({
-                        "ok": true,
-                        "device": device,
-                        "noise_dbfs": round1(c.noise_dbfs),
-                        "speech_peak_dbfs": round1(c.speech_peak_dbfs),
-                        "min_level_dbfs": round1(c.min_level_dbfs),
-                        "gain_db": round1(c.gain_db),
-                    })
-                }
-                Err(e) => err(format!("{e:#}")),
-            }
-        }
-        "calibrate_cancel" => {
-            *g = None;
-            json!({"ok": true})
-        }
-        "mic_check" => match record(PHRASE_MS) {
-            Ok(c) => json!({"ok": true, "level": level_check(&c)}),
-            Err(e) => err(format!("{e:#}")),
-        },
-        c => err(format!("unknown command {c:?}")),
+    let Some(r) = g.as_mut() else { return Answer::failed("calibration hasn't started") };
+    let Some((_, ms)) = r.next() else { return Answer::failed("calibration already has every clip") };
+    let clip = match record(ms) {
+        Ok(c) => c,
+        Err(e) => return Answer::failed(format!("{e:#}")),
+    };
+    let level = level_check(&clip);
+    if let Err(e) = r.add(clip) {
+        return Answer::failed(e);
     }
+    Answer::ok(Recorded { level, next: step_of(r) })
+}
+
+/// `calibrate_finish`: compute and store the gate; reply with the result.
+pub fn finish(run: &Mutex<Option<Run>>, store: &dyn Fn() -> Result<Store>) -> Answer<Calibrated> {
+    let mut g = run.lock().recover();
+    let Some(r) = g.as_ref() else { return Answer::failed("calibration hasn't started") };
+    match store().and_then(|s| r.finish(&s)) {
+        Ok((device, c)) => {
+            *g = None;
+            Answer::ok(Calibrated {
+                device,
+                noise_dbfs: round1(c.noise_dbfs),
+                speech_peak_dbfs: round1(c.speech_peak_dbfs),
+                min_level_dbfs: round1(c.min_level_dbfs),
+                gain_db: round1(c.gain_db),
+            })
+        }
+        Err(e) => Answer::failed(format!("{e:#}")),
+    }
+}
+
+/// `calibrate_cancel`.
+pub fn cancel(run: &Mutex<Option<Run>>) -> Done<Nothing> {
+    *run.lock().recover() = None;
+    Done::empty()
+}
+
+/// `mic_check`: record a short clip and say whether speech is loud enough.
+pub fn mic_check(record: RecordFn) -> Answer<Checked> {
+    match record(PHRASE_MS) {
+        Ok(c) => Answer::ok(Checked { level: level_check(&c) }),
+        Err(e) => Answer::failed(format!("{e:#}")),
+    }
+}
+
+/// One of the commands above by name, as JSON (tests).
+#[cfg(test)]
+pub fn handle(cmd: &str, run: &Mutex<Option<Run>>, rec: RecordFn, store: &dyn Fn() -> Result<Store>) -> Value {
+    let v = match cmd {
+        "calibrate_start" => serde_json::to_value(start(run)),
+        "calibrate_record" => serde_json::to_value(record(run, rec)),
+        "calibrate_finish" => serde_json::to_value(finish(run, store)),
+        "calibrate_cancel" => serde_json::to_value(cancel(run)),
+        "mic_check" => serde_json::to_value(mic_check(rec)),
+        c => serde_json::to_value(Answer::<Nothing>::failed(format!("unknown command {c:?}"))),
+    };
+    v.unwrap()
 }
 
 /// Record `ms` of audio from the `[voice] mic` device (Windows).
@@ -270,16 +324,33 @@ pub fn record_mic(_want: &str, _ms: u64) -> Result<Clip> {
     bail!("recording needs Windows")
 }
 
-/// Recording devices for the mic picker: names, the Windows default, and which one the
-/// `[voice] mic` setting picks.
-pub fn mic_list(want: &str) -> Value {
+/// The mic picker (`mic_list`): recording devices, the Windows default, which one the
+/// `[voice] mic` setting picks, and the gate calibrated for it.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct MicList {
+    pub names: Vec<String>,
+    pub default: Option<String>,
+    pub setting: String,
+    pub chosen: Option<String>,
+    pub calibration: MicGate,
+}
+
+/// The device the setting picks and its calibrated gate (`null`: not calibrated).
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct MicGate {
+    pub device: String,
+    pub min_level_dbfs: Option<f32>,
+}
+
+/// Recording devices for the mic picker, with `calibration`.
+pub fn mic_list(want: &str, calibration: MicGate) -> Done<MicList> {
     #[cfg(windows)]
     let (names, default) =
         (astromech_voice::mic::Recorder::list_names(), astromech_voice::mic::Recorder::default_device_name());
     #[cfg(not(windows))]
     let (names, default): (Vec<String>, Option<String>) = (vec![], None);
     let chosen = gain::pick_name(want, &names);
-    json!({"ok": true, "names": names, "default": default, "setting": want.trim(), "chosen": chosen})
+    Done::new(MicList { names, default, setting: want.trim().to_string(), chosen, calibration })
 }
 
 #[cfg(test)]

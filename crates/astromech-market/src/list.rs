@@ -16,7 +16,8 @@ use std::collections::BTreeMap;
 pub const LOOKUP: &str = "colonisation.buy";
 
 /// One commodity still to buy.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
+#[ts(rename = "MarketNeed")]
 pub struct Need {
     /// Journal and Ardent symbol: "steel".
     pub symbol: String,
@@ -25,7 +26,7 @@ pub struct Need {
 }
 
 /// One listed commodity a station sells.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct StockLine {
     pub commodity: String,
     pub name: String,
@@ -37,7 +38,7 @@ pub struct StockLine {
 }
 
 /// A station selling some of the list.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Stockist {
     pub market_id: i64,
     pub station: String,
@@ -61,7 +62,7 @@ pub struct Stockist {
 }
 
 /// Where to buy the list.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct ListPlan {
     /// Stations, most of the list first, then nearest.
     pub stations: Vec<Stockist>,

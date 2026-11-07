@@ -78,7 +78,7 @@ pub const REQUESTS: usize = 4;
 const AIM: f64 = 30.0;
 
 /// The least reserve level a ring must have. Spansh files it on the ringed body.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "lowercase")]
 pub enum Reserve {
     Pristine,
@@ -98,7 +98,8 @@ impl Reserve {
 
 /// What a hotspot search asks for: rings with a hotspot of `ore`, of one ring type, with at
 /// least a reserve level.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
+#[ts(rename = "MiningWant")]
 pub struct Want {
     /// The ore's symbol, from the ore list: "painite".
     pub ore: String,
@@ -138,7 +139,7 @@ pub fn spoken_ores() -> Vec<(&'static str, &'static str)> {
 }
 
 /// One ring with a hotspot of the ore asked for.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Hotspot {
     pub system: String,
     #[serde(skip)]
@@ -171,7 +172,7 @@ pub enum Order {
 }
 
 /// One hotspot search's answer.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Hotspots {
     /// Bodies within the radius with the ore in a ring and the reserve asked for (Spansh's
     /// count, which stops at 10000); their rings are what `rings` was picked from.

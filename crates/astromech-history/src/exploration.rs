@@ -16,7 +16,7 @@ use astromech_store::rusqlite::{params, params_from_iter};
 use serde::Serialize;
 
 /// A commander's unsold data.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct UnsoldData {
     pub commander: Commander,
     #[serde(flatten)]

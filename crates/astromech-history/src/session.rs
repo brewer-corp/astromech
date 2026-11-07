@@ -17,7 +17,7 @@ use astromech_journal::{ExtraEvent, JournalEvent};
 use astromech_store::rusqlite::{params, Result};
 use serde::Serialize;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, ts_rs::TS)]
 pub struct EarningTotal {
     pub kind: String,
     pub amount: i64,
@@ -25,7 +25,7 @@ pub struct EarningTotal {
     pub count: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Session {
     pub commander: Commander,
     /// The `LoadGame` that started it, and the session's last event.

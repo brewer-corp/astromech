@@ -12,7 +12,7 @@ use std::sync::Mutex;
 
 /// Where Elite keeps what astromech reads. Bindings and journals appear the first time the game
 /// runs on this account; the install is only needed for built-in preset names.
-#[derive(Debug, Clone, Serialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, PartialEq, ts_rs::TS)]
 pub struct Found {
     pub bindings_dir: Option<String>,
     pub bindings_found: bool,
@@ -65,6 +65,69 @@ pub enum Edit {
     CalloutEnabled(String, bool),
     /// `[callouts.<id>] cooldown_s`; None goes back to the callout's own cooldown.
     CalloutCooldown(String, Option<f64>),
+}
+
+/// What the window sends to the config edits, for its TypeScript types: [`Edit::from_request`]
+/// reads these fields from the request's args (and says what is wrong inside the reply).
+/// `set_ptt` and `set_kill_switch` take a [`Button`] or null.
+pub mod args {
+    use serde::{Deserialize, Serialize};
+
+    /// `set_mic`.
+    #[derive(Debug, Default, Serialize, Deserialize, ts_rs::TS)]
+    #[ts(rename = "SetMicArgs")]
+    pub struct Mic {
+        pub mic: String,
+    }
+
+    /// `set_folders`: either or both.
+    #[derive(Debug, Default, Serialize, Deserialize, ts_rs::TS)]
+    #[ts(rename = "SetFoldersArgs")]
+    #[ts(optional_fields)]
+    pub struct Folders {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub bindings_dir: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub journal_dir: Option<String>,
+    }
+
+    /// `set_voice`: any of a Kokoro voice name, a speed and a colour.
+    #[derive(Debug, Default, Serialize, Deserialize, ts_rs::TS)]
+    #[ts(rename = "SetVoiceArgs")]
+    #[ts(optional_fields = nullable)]
+    pub struct Voice {
+        pub speaker: Option<String>,
+        pub speed: Option<f32>,
+        pub colour: Option<astromech_voice::colour::Colour>,
+    }
+
+    /// `set_eddn`.
+    #[derive(Debug, Default, Serialize, Deserialize, ts_rs::TS)]
+    #[ts(rename = "SetEddnArgs")]
+    pub struct Eddn {
+        pub enabled: bool,
+    }
+
+    /// `set_edsm`: any of the switch, the commander name and the API key (to the OS keyring;
+    /// empty forgets it).
+    #[derive(Debug, Default, Serialize, Deserialize, ts_rs::TS)]
+    #[ts(rename = "SetEdsmArgs")]
+    #[ts(optional_fields = nullable)]
+    pub struct Edsm {
+        pub enabled: Option<bool>,
+        pub commander: Option<String>,
+        pub api_key: Option<String>,
+    }
+
+    /// `set_callout`: a callout's switch and/or cooldown (null: back to the callout's own).
+    #[derive(Debug, Default, Serialize, Deserialize, ts_rs::TS)]
+    #[ts(rename = "SetCalloutArgs")]
+    #[ts(optional_fields = nullable)]
+    pub struct Callout {
+        pub id: String,
+        pub enabled: Option<bool>,
+        pub cooldown_s: Option<f64>,
+    }
 }
 
 /// The longest cooldown Settings accepts (a day).
@@ -354,6 +417,29 @@ pub fn onboarded_at_start(store: &astromech_store::Store, config_file_exists: bo
 
 #[cfg(test)]
 mod tests {
+    /// The TypeScript arg types describe what `from_request` reads: each one, as the window
+    /// would send it, is a valid edit.
+    #[test]
+    fn the_typed_args_are_what_from_request_reads() {
+        use super::args::*;
+        fn v(x: impl serde::Serialize) -> Value {
+            serde_json::to_value(x).unwrap()
+        }
+        let cases: Vec<(&str, Value)> = vec![
+            ("set_ptt", v(Some(Button { device: "Keyboard".into(), key: "Key_F13".into() }))),
+            ("set_mic", v(Mic { mic: "USB".into() })),
+            ("set_folders", v(Folders { journal_dir: Some("D:\\J".into()), ..Default::default() })),
+            ("set_voice", v(Voice { speaker: Some("bf_emma".into()), speed: Some(1.1), colour: None })),
+            ("set_eddn", v(Eddn { enabled: true })),
+            ("set_edsm", v(Edsm { enabled: Some(true), commander: Some("Jameson".into()), api_key: None })),
+            ("set_callout", v(Callout { id: "scan".into(), enabled: Some(false), cooldown_s: Some(90.0) })),
+        ];
+        for (cmd, args) in cases {
+            let edits = Edit::from_request(cmd, Some(&args)).unwrap_or_else(|e| panic!("{cmd} {args}: {e:#}"));
+            assert!(!edits.is_empty(), "{cmd} {args}");
+        }
+    }
+
     use super::*;
 
     fn b(d: &str, k: &str) -> Button {

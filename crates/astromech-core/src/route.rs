@@ -27,7 +27,7 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Waypoint {
     pub system: String,
     /// What is there, e.g. the engineer's name.
@@ -46,7 +46,8 @@ impl Waypoint {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+#[ts(rename = "FollowedRoute")]
 pub struct Route {
     pub name: String,
     /// Where it came from: "engineer trip", "nearby", "import".
@@ -334,7 +335,8 @@ pub fn command_reply(desk: &Desk, cmd: Command) -> String {
 }
 
 /// The route as the app window shows it.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
+#[ts(rename = "RouteView")]
 pub struct View {
     pub route: Option<Route>,
     /// Last system the journal put us in.

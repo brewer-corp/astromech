@@ -14,7 +14,7 @@ pub const SEARCH_SIZE: usize = 40;
 
 /// A station service the lookups offer. Traders and brokers come by type, because they trade
 /// different things.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum Service {
     InterstellarFactors,
@@ -157,7 +157,8 @@ impl Service {
 }
 
 /// What a station lookup looks for.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
+#[ts(rename = "StationWant")]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Want {
     Service {
@@ -326,7 +327,7 @@ pub fn pad_of(s: &Station) -> Option<Pad> {
 }
 
 /// One station offering what was asked for.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct StationHit {
     pub name: String,
     pub station_type: Option<String>,

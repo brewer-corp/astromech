@@ -122,7 +122,8 @@ pub fn discard_list(api: &dyn Api) -> Result<Vec<String>, String> {
 }
 
 /// One visit in the flight log.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "EdsmVisit")]
 pub struct Visit {
     pub system: String,
     /// UTC, `YYYY-MM-DD HH:MM:SS`.

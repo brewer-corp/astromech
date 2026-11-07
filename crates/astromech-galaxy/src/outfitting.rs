@@ -10,7 +10,7 @@ use std::collections::HashSet;
 use std::sync::OnceLock;
 
 /// A hardpoint's mount.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub enum Mount {
     Fixed,
     Gimballed,
@@ -294,7 +294,7 @@ pub fn is_modifier(w: &str) -> bool {
 }
 
 /// A module to buy: its name, and the class, rating and mount when they matter.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub struct ModuleWant {
     pub name: String,
     #[serde(default)]

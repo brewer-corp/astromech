@@ -43,7 +43,7 @@ const CELL_LEN: usize = 10;
 const POS_LEN: usize = 12;
 
 /// What the header says.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
 pub struct Header {
     /// Grid cell edge, light years.
     pub cell_ly: u32,

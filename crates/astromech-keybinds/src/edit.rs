@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 
 pub const BACKUP_DIR: &str = "astromech-backups";
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
 pub struct Backup {
     pub path: PathBuf,
     pub file_name: String,
@@ -163,7 +163,7 @@ pub fn set_slot_text(text: &str, action: &str, slot: &str, binding: Option<&Slot
     Ok(out)
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
 pub struct EditResult {
     pub path: PathBuf,
     pub backup: PathBuf,

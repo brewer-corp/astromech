@@ -74,7 +74,7 @@ impl Holdings {
 }
 
 /// One micro-resource on the inventory page.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct ItemLine {
     pub id: String,
     pub name: String,

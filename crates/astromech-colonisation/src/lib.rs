@@ -56,7 +56,7 @@ impl From<StoreError> for Error {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Resource {
     pub name: String,
     pub name_localised: Option<String>,
@@ -72,13 +72,13 @@ impl Resource {
 }
 
 /// One `ColonisationContribution` event: what the commander delivered.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Contribution {
     pub timestamp: String,
     pub items: Vec<(String, i64)>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Project {
     pub market_id: i64,
     /// From the `Docked` at this market, when seen. The depot event itself has no names.
@@ -424,7 +424,7 @@ pub fn replay_lines<'a>(t: &mut Tracker, lines: impl IntoIterator<Item = &'a str
 }
 
 /// A project and what is left to buy for it, for the app.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct ProjectView {
     #[serde(flatten)]
     pub project: Project,

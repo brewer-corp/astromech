@@ -24,6 +24,7 @@ windows-sys = { workspace = true, features = [
 ] }
 
 [dependencies]
+ts-rs.workspace = true
 anyhow.workspace = true
 roxmltree.workspace = true
 serde.workspace = true

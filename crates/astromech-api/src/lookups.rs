@@ -15,7 +15,8 @@ use serde_json::Value;
 use std::sync::Arc;
 
 /// The common arguments of a search near somewhere.
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct Near<W> {
     #[serde(flatten)]
     what: W,
@@ -23,52 +24,58 @@ struct Near<W> {
     filters: Option<Filters>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct QueryArg {
     query: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct WantArg<W> {
     want: W,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct KindArg {
     kind: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct InterestArg {
     interest: astromech_galaxy::Interest,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct TradeArgs {
     side: astromech_market::Side,
     commodities: Vec<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct AnywhereArgs {
     side: astromech_market::Side,
     commodity: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct AskArg<A> {
     ask: A,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct NeedsArg {
     needs: Vec<astromech_market::list::Need>,
 }
 
-#[derive(Deserialize)]
-struct Nothing {}
-
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct TargetsArgs {
     target: astromech_galaxy::Target,
     origin: Option<String>,
@@ -76,34 +83,33 @@ struct TargetsArgs {
     within_ly: f64,
 }
 
-#[derive(Deserialize)]
-struct PlanArg {
-    plan: astromech_engineering::Plan,
-}
-
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct LookupArg {
     lookup: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct SetFiltersArgs {
     lookup: String,
     filters: Filters,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct PrefixArg {
     prefix: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct TargetArg {
     target: String,
 }
 
 /// Where a module was seen, from every `Outfitting.json` the core kept.
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct Outfitting {
     pub stations: i64,
     pub snapshots: i64,
@@ -111,7 +117,7 @@ pub struct Outfitting {
 }
 
 /// Where to sell the cargo in the hold.
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct CargoSale {
     pub here: Here,
     pub range: f64,
@@ -120,7 +126,7 @@ pub struct CargoSale {
 }
 
 /// A trade route from where the search started.
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct TradeRoute {
     pub here: Here,
     pub route: astromech_market::route::Route,
@@ -128,7 +134,7 @@ pub struct TradeRoute {
 
 /// The current ship as the route plotters see it, or why there is none, and the system the
 /// commander is in.
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct PlotShip {
     pub here: Option<String>,
     pub ship: Option<astromech_galaxy::plot::Ship>,
@@ -136,7 +142,7 @@ pub struct PlotShip {
 }
 
 /// A plotted route and the follower's view once it took it.
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct RoutePlotted {
     pub plotted: astromech_galaxy::plot::Plotted,
     pub view: Value,
@@ -144,33 +150,33 @@ pub struct RoutePlotted {
 
 /// What the Route page shows of the neutron star file: its header if it is there, and why it
 /// can't be read if not (also when it failed to load for a plot).
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct NeutronFile {
     pub file: Option<astromech_galaxy::neutron::Header>,
     pub error: Option<String>,
 }
 
 /// A download's progress, about once a megabyte and at the end.
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct NeutronProgress {
     pub done: u64,
     pub total: Option<u64>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct NeutronCheck {
     pub newer: bool,
 }
 
 /// Where to buy a project's shopping list.
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct ShoppingPlan {
     pub here: Here,
     pub range: f64,
     pub plan: astromech_market::list::ListPlan,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct ShellInfo {
     pub version: &'static str,
 }
@@ -347,7 +353,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     // Where to sell the cargo in the hold (`Cargo.json`): the best stations for the whole load
     // and the best for each commodity.
     let s = state.clone();
-    reg.add_typed("trade_cargo", Window, move |x: Near<Nothing>, _| {
+    reg.add_typed("trade_cargo", Window, move |x: Near<crate::Nothing>, _| {
         let (g, here, range, filters) = near(&s, &x)?;
         let hold = astromech_market::cargo::from_journal_dir(&s.journal_dir());
         let plan = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters, 8, now()).map_err(text)?;
@@ -431,7 +437,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
 
     // Which engineers to visit for a plan, in order, from the commander's current system.
     let s = state.clone();
-    reg.add_typed("engineering_trip", Window, move |x: PlanArg, _| {
+    reg.add_typed("engineering_trip", Window, move |x: crate::commands::PlanArg, _| {
         let st = s.engineering()?;
         let ship = st.fleet.ships.iter().find(|s| s.id == x.plan.ship_id).ok_or("ship not in the fleet")?;
         let result = astromech_engineering::evaluate(ship, &x.plan, &st.ledger);
@@ -520,7 +526,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     let s = state.clone();
     reg.add_typed("neutron_file", Window, move |(), _| Ok(neutron_status(&s)));
     let s = state.clone();
-    reg.add_typed("neutron_download", Window, move |(), call| neutron_download(&s, call));
+    reg.add_typed("neutron_download", Window, move |(), call| neutron_download(&s, call)).progress::<NeutronProgress>();
     // Whether the published file differs from the one downloaded (a small checksum file).
     let s = state.clone();
     reg.add_typed("neutron_check", Window, move |(), _| {

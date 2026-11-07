@@ -24,7 +24,7 @@ use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
 /// Where the phrase came from.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum Source {
     Typed,
@@ -32,7 +32,7 @@ pub enum Source {
 }
 
 /// The matched intent.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Intent {
     /// Command id, e.g. "landing_gear.down".
     pub command: String,
@@ -45,7 +45,7 @@ pub struct Intent {
 }
 
 /// What the assistant would do with the phrase right now.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum Would {
     /// Press the keys, then say `message`.
@@ -71,7 +71,7 @@ pub enum Would {
 }
 
 /// One tested phrase.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct DryRun {
     pub source: Source,
     pub transcript: String,

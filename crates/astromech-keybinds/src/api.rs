@@ -18,7 +18,7 @@ pub struct Api {
     pub data_dir: PathBuf,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
 pub struct State {
     pub bindings_dir: PathBuf,
     pub bindings_found: bool,
@@ -34,7 +34,7 @@ pub struct State {
 /// "That's not where I pressed": per device, sheet control → the Joy name it really sends.
 pub type Overrides = BTreeMap<String, BTreeMap<String, String>>;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, ts_rs::TS)]
 pub struct SlotEdit {
     pub path: PathBuf,
     pub action: String,

@@ -12,7 +12,7 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 
 /// One genus on a body: known from the DSS (or a sample), or predicted from the conditions.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct GenusBio {
     pub genus: String,
     /// The DSS or a sample says it's there; false: predicted only.
@@ -29,7 +29,7 @@ pub struct GenusBio {
 }
 
 /// A body with biology: what's there, what it's worth.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct BodyBio {
     pub body_id: Option<i64>,
     pub name: String,

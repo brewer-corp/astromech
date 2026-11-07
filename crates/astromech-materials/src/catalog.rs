@@ -3,7 +3,8 @@
 //! Journal `Name` values are matched after stripping to lowercase ASCII letters. Display names
 //! and trader rows come from community ID tables (EDCD/FDevIDs), not Frontier assets.
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[ts(rename = "MaterialKind")]
 #[serde(rename_all = "snake_case")]
 pub enum Kind {
     Raw,

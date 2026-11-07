@@ -25,7 +25,7 @@ use serde::Serialize;
 use std::path::Path;
 
 /// A suit or weapon in the blueprint picker.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct GearRef {
     pub id: String,
     pub name: String,
@@ -35,7 +35,7 @@ pub struct GearRef {
 }
 
 /// A modification in the blueprint picker.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct ModRef {
     pub id: String,
     pub name: String,
@@ -49,7 +49,7 @@ pub struct ModRef {
 }
 
 /// Everything the Odyssey page shows except a shopping list.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct OdysseyView {
     pub source: String,
     pub locker_ts: Option<String>,

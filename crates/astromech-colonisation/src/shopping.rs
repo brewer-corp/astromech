@@ -115,7 +115,8 @@ pub fn commodity_id(name: &str) -> String {
     n.strip_suffix("_name;").unwrap_or(n).to_string()
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "ColonisationLine")]
 pub struct Line {
     /// Market symbol ([`commodity_id`]), as Ardent and `Cargo.json` name it: `steel`.
     pub symbol: String,
@@ -127,7 +128,7 @@ pub struct Line {
     pub to_buy: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct ShoppingList {
     /// Commodities still needed, largest `to_buy` first.
     pub lines: Vec<Line>,

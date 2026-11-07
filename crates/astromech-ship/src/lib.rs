@@ -34,14 +34,16 @@ pub enum Error {
 }
 
 /// A ship's stats as fitted and once its build plan is done.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "ShipComparison")]
 pub struct Comparison {
     pub current: Side,
     pub planned: Side,
 }
 
 /// One build's stats, with the figures the Ships page shows that are worked out from them.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "ShipSide")]
 pub struct Side {
     #[serde(flatten)]
     pub stats: ShipStats,
@@ -57,7 +59,7 @@ impl From<ShipStats> for Side {
 
 /// What the ship detail gets: both builds' stats, or the hull the calculations don't have
 /// (no stats at all; the page shows the ship as incomplete).
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 #[serde(untagged)]
 pub enum Compared {
     Stats(Box<Comparison>),
@@ -84,7 +86,7 @@ pub fn compare(ship: &astromech_engineering::Ship, targets: &[Target]) -> Result
 }
 
 /// What a ship card shows, from the current modules.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Headline {
     /// Maximum jump range, ly.
     pub jump: Option<f64>,
@@ -125,7 +127,7 @@ pub fn headlines(fleet: &astromech_engineering::Fleet) -> BTreeMap<i64, Headline
 }
 
 /// Everything the Ships page shows for one build.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct ShipStats {
     /// Hull alone, t.
     pub hull_mass: f64,
@@ -158,7 +160,7 @@ pub struct ShipStats {
 
 /// Single-jump and total ranges, light years. "Max" is with only one jump's fuel aboard and no
 /// cargo; "unladen" and "laden" are with a full tank. All include a Guardian FSD booster.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct JumpRange {
     pub max: f64,
     pub unladen: f64,
@@ -170,7 +172,7 @@ pub struct JumpRange {
 
 /// What a route plotter needs to know about the ship's jumps: the frame shift drive, engineering
 /// included, and the masses it moves (Spansh's exact plotter takes these numbers).
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Fsd {
     /// Optimal mass, t.
     pub optimal_mass: f64,
@@ -212,7 +214,7 @@ fn supercharge_multiplier(item: &str) -> u8 {
 }
 
 /// Power plant output against module draw, MW.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Power {
     pub generation: f64,
     /// Hardpoints retracted.
@@ -223,7 +225,7 @@ pub struct Power {
 
 /// Shield strength (MJ) and resistances (fractions; negative is a weakness), boosters included,
 /// with no pips to systems.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Shield {
     pub strength: f64,
     pub explosive: f64,
@@ -232,7 +234,7 @@ pub struct Shield {
 }
 
 /// Hull integrity and resistances (fractions), reinforcement packages included.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Armour {
     pub integrity: f64,
     pub explosive: f64,
@@ -244,7 +246,7 @@ pub struct Armour {
     pub module_protection: f64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Weapons {
     /// Damage per second while firing.
     pub dps: f64,
@@ -257,14 +259,14 @@ pub struct Weapons {
 }
 
 /// Capacity (MJ) and full recharge rate (MW, at four pips) of each capacitor.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Distributor {
     pub weapons: Capacitor,
     pub systems: Capacitor,
     pub engines: Capacitor,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Capacitor {
     pub capacity: f64,
     pub recharge: f64,

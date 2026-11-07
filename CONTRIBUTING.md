@@ -104,6 +104,16 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   `call`, `subscribe` and `previewOption` (lint enforces it); a new command or topic needs a fake
   handler (`app/src/preview/coverage.test.ts`), and a release build must carry none of the fake
   (`scripts/check-dist.py app/dist` after `pnpm build`, run in CI).
+- Every command's args, reply and progress types are exported to TypeScript from the Rust
+  command layer (ts-rs): `app/src/lib/api/types/` (generated, so lint skips it) and
+  `app/src/lib/api/commands.ts`, which maps each command name to `{ args, reply, exposure,
+  progress? }`. After changing a command or a type it returns, update them with
+  `ASTROMECH_UPDATE_BINDINGS=1 cargo test -p astromech-core --lib bindings` and commit the result.
+  `cargo test -p astromech-core` fails while the checked-in files differ, and
+  `cargo test -p astromech-api` while the command layer's own part does. A `serde_json::Value`
+  (ts-rs's `JsonValue`) in a command's args or reply needs an entry with a reason in
+  `JSON_VALUES` (crates/astromech-core/src/app.rs). Two types with one name need a
+  `#[ts(rename = "…")]`; the test names them.
 - To show a UI change to someone off this machine, work on the real page on its branch against the
   browser preview (add a fixture under `app/src/preview/fixtures/` when the change needs data the
   preview lacks), then `scripts/preview-publish --page route --query route=exact`. It builds the

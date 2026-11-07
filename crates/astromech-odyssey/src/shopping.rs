@@ -8,7 +8,7 @@ use crate::engineers::{unlocked, Progress};
 use crate::inventory::{category_title, Holdings};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Pick {
     /// Upgrade a suit or weapon from grade `from` to grade `to` (each step in between).
@@ -21,7 +21,8 @@ pub enum Pick {
     },
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "OdysseyNeed")]
 pub struct Need {
     pub id: String,
     pub name: String,
@@ -35,7 +36,7 @@ pub struct Need {
 }
 
 /// An engineer who fits a picked modification.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct FitBy {
     pub name: String,
     pub system: String,
@@ -44,7 +45,7 @@ pub struct FitBy {
     pub unconfirmed: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct PickResult {
     pub pick: Pick,
     pub title: String,
@@ -61,7 +62,7 @@ pub struct PickResult {
     pub error: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Shopping {
     pub picks: Vec<PickResult>,
     /// Every pick's materials together, against the same inventory.

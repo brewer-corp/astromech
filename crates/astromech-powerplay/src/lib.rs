@@ -43,7 +43,8 @@ pub struct Journal {
 }
 
 /// The current system as the page shows it.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "PowerplaySystemView")]
 pub struct SystemView {
     #[serde(flatten)]
     pub power: SystemPower,
@@ -57,7 +58,7 @@ pub struct SystemView {
 }
 
 /// The page's data as of now.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Overview {
     pub standing: StandingView,
     pub here: Option<String>,

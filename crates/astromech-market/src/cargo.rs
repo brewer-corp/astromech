@@ -23,7 +23,7 @@ use std::collections::BTreeMap;
 pub const LOOKUP: &str = "trade.cargo";
 
 /// One commodity to sell, merged across its inventory lines.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Load {
     pub symbol: String,
     pub name: String,
@@ -31,7 +31,7 @@ pub struct Load {
 }
 
 /// Cargo left out of the plan, and why.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Kept {
     pub name: String,
     pub tonnes: i64,
@@ -72,7 +72,7 @@ pub fn sellable(inventory: &[CargoItem]) -> (Vec<Load>, Vec<Kept>) {
 }
 
 /// One commodity sold at a station.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct SaleLine {
     pub commodity: String,
     pub name: String,
@@ -84,7 +84,7 @@ pub struct SaleLine {
 }
 
 /// A station's offer for the whole load.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct StationSale {
     pub market_id: i64,
     pub station: String,
@@ -155,7 +155,7 @@ pub fn whole_load(load: &[Load], prices: &[Vec<Offer>]) -> Vec<StationSale> {
 }
 
 /// One commodity's best station on its own.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct CommoditySale {
     pub commodity: String,
     pub name: String,
@@ -168,7 +168,7 @@ pub struct CommoditySale {
 }
 
 /// Where to sell the hold.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct CargoPlan {
     pub load: Vec<Load>,
     pub kept: Vec<Kept>,

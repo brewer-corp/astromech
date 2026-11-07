@@ -604,7 +604,7 @@ impl State {
 }
 
 /// Ship engineers: where they are, access and rank, and where the commander is.
-#[derive(Serialize)]
+#[derive(Serialize, ts_rs::TS)]
 pub struct Engineers {
     pub engineers: Vec<astromech_engineering::EngineerView>,
     pub here: Option<astromech_galaxy::Here>,

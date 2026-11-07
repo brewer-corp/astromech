@@ -10,6 +10,16 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Condvar, Mutex};
 use std::time::{Duration, Instant};
 
+/// The mining run in the status reply: when it started (RFC 3339), tons refined by commodity,
+/// their total and the rate per hour.
+#[derive(Debug, Clone, serde::Serialize, ts_rs::TS)]
+pub struct Mining {
+    pub started: Option<String>,
+    pub refined: std::collections::BTreeMap<String, u32>,
+    pub total: u32,
+    pub per_hour: Option<f64>,
+}
+
 #[derive(Default)]
 pub struct StateHub {
     state: Mutex<(GameState, u64)>,
@@ -69,14 +79,19 @@ impl StateHub {
     }
 
     /// The current mining run, as the status reply shows it.
-    pub fn mining_json(&self) -> serde_json::Value {
+    pub fn mining(&self) -> Mining {
         let m = self.mining.lock().recover();
-        serde_json::json!({
-            "started": m.started.map(|t| t.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)),
-            "refined": m.refined,
-            "total": m.total(),
-            "per_hour": m.per_hour(),
-        })
+        Mining {
+            started: m.started.map(|t| t.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)),
+            refined: m.refined.clone(),
+            total: m.total(),
+            per_hour: m.per_hour(),
+        }
+    }
+
+    /// [`StateHub::mining`] as JSON.
+    pub fn mining_json(&self) -> serde_json::Value {
+        serde_json::to_value(self.mining()).unwrap_or_default()
     }
 
     /// Wait until `flag` is set (`expect`) or clear, up to `timeout`. Returns early (false)

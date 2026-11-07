@@ -10,51 +10,60 @@ use serde::Deserialize;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct PathArg {
     path: PathBuf,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct EditArg {
     edit: SlotEdit,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct CopyArgs {
     src: PathBuf,
     name: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct ActiveArgs {
     name: String,
     contexts: Vec<usize>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct BackupArg {
     backup: PathBuf,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct OverrideArgs {
     device: String,
     control: String,
     joy: Option<String>,
 }
 
-#[derive(Deserialize)]
-struct PlanArg {
-    plan: astromech_engineering::Plan,
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
+pub(crate) struct PlanArg {
+    pub(crate) plan: astromech_engineering::Plan,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct PicksArg {
     picks: Vec<astromech_odyssey::Pick>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 struct LogbookArgs {
     query: String,
     cmdr: Option<String>,

@@ -54,7 +54,7 @@ impl Default for Timing {
 }
 
 /// What the history thread is doing, for the app.
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, ts_rs::TS)]
 pub struct Progress {
     /// An import is running.
     pub running: bool,

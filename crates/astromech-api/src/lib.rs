@@ -28,12 +28,15 @@
 //! **Rule:** this crate never depends on `astromech-core`, `astromech-input` or
 //! `astromech-policy` (scripts/check-deps.py).
 
+pub mod bindings;
 pub mod commands;
 pub mod control;
 pub mod lookups;
+pub mod reply;
 pub mod state;
 
 pub use control::Request;
+pub use reply::{Answer, Nothing};
 pub use state::{preload_beside, Folders, GalaxyHolder, Peek, State};
 
 use astromech_proto::Origin;
@@ -44,6 +47,7 @@ use std::cell::Cell;
 use std::collections::BTreeMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::sync::{LockResult, Mutex, MutexGuard, PoisonError};
+use ts_rs::{TypeVisitor, TS};
 
 /// What this thread is doing, for [`panic_is_caught`].
 #[derive(Clone, Copy, PartialEq)]
@@ -109,10 +113,51 @@ impl Call<'_> {
 
 type Handler = Box<dyn Fn(&Request, &Call) -> Result<Value, String> + Send + Sync>;
 
+/// One TypeScript type, for [`bindings`]: its name and a walk over it and what it uses.
+#[derive(Clone, Copy)]
+pub struct Ty {
+    name: fn(&ts_rs::Config) -> String,
+    walk: fn(&mut bindings::Walk),
+}
+
+impl Ty {
+    fn of<T: TS + ?Sized + 'static>() -> Self {
+        Self { name: |cfg| T::name(cfg), walk: |w| w.visit::<T>() }
+    }
+}
+
+/// A command's TypeScript types: what the window sends as `args` (`string` for a command that
+/// reads the request's `text`), the reply's `value`, and the progress values sent before it.
+#[derive(Clone, Copy)]
+pub struct Types {
+    pub args: Ty,
+    pub reply: Ty,
+    pub progress: Option<Ty>,
+}
+
+struct Entry {
+    exposure: Exposure,
+    handler: Handler,
+    /// None for a command registered with [`Registry::add`], which [`bindings`] refuses.
+    types: Option<Types>,
+}
+
 /// The commands, by name.
 #[derive(Default)]
 pub struct Registry {
-    entries: BTreeMap<String, (Exposure, Handler)>,
+    entries: BTreeMap<String, Entry>,
+}
+
+/// A command just registered with its types, to name the progress values it sends.
+pub struct Added<'a>(&'a mut Entry);
+
+impl Added<'_> {
+    /// The command sends `P` values through [`Call::progress`] before it answers.
+    pub fn progress<P: TS + ?Sized + 'static>(self) {
+        if let Some(t) = &mut self.0.types {
+            t.progress = Some(Ty::of::<P>());
+        }
+    }
 }
 
 impl Registry {
@@ -120,40 +165,71 @@ impl Registry {
         Self::default()
     }
 
-    /// Register `name`. The handler reads what it needs from the request (`args`, `text`,
-    /// `route`). Panics if `name` is already registered: two handlers for one name is a bug.
+    fn insert(&mut self, name: &str, exposure: Exposure, handler: Handler, types: Option<Types>) -> Added<'_> {
+        use std::collections::btree_map::Entry::{Occupied, Vacant};
+        match self.entries.entry(name.to_string()) {
+            Occupied(_) => panic!("command {name:?} registered twice"),
+            Vacant(v) => Added(v.insert(Entry { exposure, handler, types })),
+        }
+    }
+
+    /// Register `name` without TypeScript types (tests' own commands): the handler reads what
+    /// it needs from the request (`args`, `text`, `route`). [`bindings`] refuses a registry
+    /// with such a command. Panics if `name` is already registered: two handlers for one name
+    /// is a bug.
     pub fn add(
         &mut self,
         name: &str,
         exposure: Exposure,
         handler: impl Fn(&Request, &Call) -> Result<Value, String> + Send + Sync + 'static,
     ) -> &mut Self {
-        let old = self.entries.insert(name.to_string(), (exposure, Box::new(handler)));
-        assert!(old.is_none(), "command {name:?} registered twice");
+        self.insert(name, exposure, Box::new(handler), None);
         self
     }
 
     /// Register `name` with typed arguments and reply: the request's `args` (null when absent,
     /// so `()` takes none) parsed as `A`, or a "bad args" error naming the command; the reply
     /// is `R` as JSON.
-    pub fn add_typed<A: DeserializeOwned, R: Serialize>(
+    pub fn add_typed<A: DeserializeOwned + TS + 'static, R: Serialize + TS + 'static>(
         &mut self,
         name: &str,
         exposure: Exposure,
         handler: impl Fn(A, &Call) -> Result<R, String> + Send + Sync + 'static,
-    ) -> &mut Self {
-        self.add(name, exposure, move |r, call| {
+    ) -> Added<'_> {
+        self.add_request::<A, R>(name, exposure, move |r, call| {
             let args = serde_json::from_value(r.args.clone().unwrap_or(Value::Null))
                 .map_err(|e| format!("bad args for {}: {e}", r.cmd))?;
-            let reply = handler(args, call)?;
-            serde_json::to_value(reply).map_err(|e| format!("{}: the reply can't be written as JSON: {e}", r.cmd))
+            handler(args, call)
         })
+    }
+
+    /// Register `name` with a typed reply and a handler that reads the request itself: `A` is
+    /// what the window sends as `args` for it, `String` when the handler reads the request's
+    /// `text` (the window's `call(cmd, "…")`), `()` when it reads neither.
+    pub fn add_request<A: TS + ?Sized + 'static, R: Serialize + TS + 'static>(
+        &mut self,
+        name: &str,
+        exposure: Exposure,
+        handler: impl Fn(&Request, &Call) -> Result<R, String> + Send + Sync + 'static,
+    ) -> Added<'_> {
+        let types = Types { args: Ty::of::<A>(), reply: Ty::of::<R>(), progress: None };
+        let handler: Handler = Box::new(move |r, call| {
+            let reply = handler(r, call)?;
+            serde_json::to_value(reply).map_err(|e| format!("{}: the reply can't be written as JSON: {e}", r.cmd))
+        });
+        self.insert(name, exposure, handler, Some(types))
+    }
+
+    /// Every command: its name, who may call it and its types (None if registered with
+    /// [`Registry::add`]).
+    pub fn commands(&self) -> impl Iterator<Item = (&str, Exposure, Option<&Types>)> {
+        self.entries.iter().map(|(n, e)| (n.as_str(), e.exposure, e.types.as_ref()))
     }
 
     /// Run the request's command: its value, or why it didn't run or failed. `progress` gets
     /// the progress values the command sends before it answers.
     pub fn dispatch(&self, r: &Request, progress: &dyn Fn(Value)) -> Result<Value, String> {
-        let Some((exposure, handler)) = self.entries.get(&r.cmd) else {
+        let Some(Entry { exposure, handler, .. }) = self.entries.get(&r.cmd) else {
             return Err(format!("unknown command {:?}", r.cmd));
         };
         if *exposure == Exposure::Local && r.origin.is_some() {
@@ -222,7 +298,7 @@ pub(crate) mod tests {
         Request { cmd: cmd.into(), args, origin, ..Default::default() }
     }
 
-    #[derive(Deserialize)]
+    #[derive(Deserialize, ts_rs::TS)]
     struct Add {
         a: i64,
         b: i64,

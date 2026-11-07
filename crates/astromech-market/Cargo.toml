@@ -12,6 +12,7 @@ publish.workspace = true
 workspace = true
 
 [dependencies]
+ts-rs.workspace = true
 astromech-data.workspace = true
 astromech-galaxy.workspace = true
 astromech-journal.workspace = true

@@ -14,7 +14,7 @@ use astromech_data::Client;
 use serde::{Deserialize, Serialize};
 
 /// Which Spansh plotter.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "lowercase")]
 pub enum Plotter {
     /// Boosts from neutron stars on the way (`/api/route`).
@@ -45,7 +45,8 @@ fn yes() -> bool {
 }
 
 /// A route to plot from the commander's system, as the window's top bar asks for it.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
+#[ts(rename = "PlotAsk")]
 pub struct Ask {
     pub plotter: Plotter,
     pub to: String,
@@ -58,7 +59,8 @@ pub struct Ask {
 }
 
 /// The ship a route is plotted for.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "PlotterShip")]
 pub struct Ship {
     /// "Asp Explorer", or its name if it has one.
     pub name: String,
@@ -97,11 +99,13 @@ impl Ship {
 }
 
 /// A stop on a plotted route (the core's `Waypoint`).
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "PlotStop")]
 pub struct Stop {
     pub system: String,
     /// "neutron boost", "fuel", or both.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub label: Option<String>,
     /// Jumps from the stop before (0 for the first): the route strip's "N jumps left".
     pub jumps: u32,
@@ -123,7 +127,7 @@ fn stop(system: &str, jumps: u32, neutron: bool, refuel: bool) -> Stop {
 
 /// A plotted route: what the core's `route_set` takes (`name`, `source`, `waypoints`), and its
 /// totals for the page.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Plotted {
     pub name: String,
     pub source: &'static str,
@@ -140,10 +144,12 @@ pub struct Plotted {
     /// Local routes: whether the search proved no route has fewer jumps; false for a long route
     /// it found near the fewest ([`crate::neutron_plot::Route::fewest`]). `None` from Spansh.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub fewest: Option<bool>,
     /// Why Spansh plotted a neutron route although the neutron star file is there: it can't be
     /// read.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub fallback: Option<String>,
 }
 

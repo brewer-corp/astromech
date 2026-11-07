@@ -12,7 +12,7 @@ use astromech_store::rusqlite::{params, Result};
 use serde::Serialize;
 
 /// A visited system or station.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Place {
     /// `system` or `station`.
     pub kind: String,
@@ -26,7 +26,7 @@ pub struct Place {
     pub last: String,
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, ts_rs::TS)]
 pub struct Totals {
     /// Different systems and stations visited, and every arrival and docking.
     pub systems: i64,
@@ -35,7 +35,7 @@ pub struct Totals {
     pub station_visits: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Logbook {
     pub commander: Option<Commander>,
     pub commanders: Vec<Commander>,

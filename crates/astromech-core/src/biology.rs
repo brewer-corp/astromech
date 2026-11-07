@@ -11,11 +11,12 @@
 
 use crate::logging::log;
 use astromech_announce::biology::KnownBiology;
+use astromech_api::reply::Done;
 use astromech_data::spansh::{self, Reference, Search};
 use astromech_data::Client;
 use astromech_exobiology::known::{self, KnownBody};
 use astromech_gamestate::GameState;
-use serde_json::{json, Value};
+use serde::Serialize;
 use std::sync::Arc;
 
 /// The known bodies with biology from a Spansh bodies search.
@@ -73,36 +74,77 @@ impl KnownBiology for SpanshBiology {
     }
 }
 
+/// The Biology page's view (`exobiology`).
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct Biology {
+    pub system: Option<String>,
+    pub bodies: Vec<astromech_exploration::biology::BodyBio>,
+    /// What others reported, when asked; `null` before the answer (or when it failed).
+    pub known: Option<Vec<KnownView>>,
+    pub sampling: Option<SamplingView>,
+}
+
+/// A body others reported biology on, most valuable first.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct KnownView {
+    pub name: String,
+    pub body_id: Option<i64>,
+    pub signals: u32,
+    pub genera: Vec<String>,
+    pub species: Vec<SpeciesValue>,
+    /// Lowest and highest value: sampled species exactly, other known genera over their range.
+    pub value: (i64, i64),
+}
+
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct SpeciesValue {
+    pub name: String,
+    pub value: i64,
+}
+
+/// The species being sampled.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct SamplingView {
+    pub genus: String,
+    pub species: String,
+    pub count: u8,
+    pub complete: bool,
+    pub colony_range_m: Option<u32>,
+    pub body_id: Option<i64>,
+    pub clearance: Option<astromech_exobiology::sampling::Clearance>,
+}
+
 /// The Biology page's view: the system's bodies with biology from the journal, ranked by value,
 /// what others reported (Spansh) when asked, and the sampling in progress.
-pub fn view(game: &GameState, known: Option<&dyn KnownBiology>) -> Value {
+pub fn view(game: &GameState, known: Option<&dyn KnownBiology>) -> Done<Biology> {
     let ex = &game.exobiology;
     let sys = &game.system_bodies;
     let reported = sys.system_address().and_then(|a| known?.known(a, game.star_pos)).map(known::ranked);
-    let sampling = ex.sampling.current.as_ref().map(|p| {
-        json!({
-            "genus": p.genus,
-            "species": p.species,
-            "count": p.count,
-            "complete": p.complete,
-            "colony_range_m": p.colony_range_m,
-            "body_id": p.body_id,
-            "clearance": ex.sampling.clearance(),
-        })
+    let sampling = ex.sampling.current.as_ref().map(|p| SamplingView {
+        genus: p.genus.clone(),
+        species: p.species.clone(),
+        count: p.count,
+        complete: p.complete,
+        colony_range_m: p.colony_range_m,
+        body_id: p.body_id,
+        clearance: ex.sampling.clearance(),
     });
-    json!({
-        "ok": true,
-        "system": sys.system(),
-        "bodies": astromech_exploration::biology::ranked(sys),
-        "known": reported.map(|k| k.iter().map(|b| json!({
-            "name": b.name,
-            "body_id": b.body_id,
-            "signals": b.signals,
-            "genera": b.genera,
-            "species": b.species.iter().map(|(n, v)| json!({"name": n, "value": v})).collect::<Vec<_>>(),
-            "value": b.value(),
-        })).collect::<Vec<_>>()),
-        "sampling": sampling,
+    Done::new(Biology {
+        system: sys.system().map(str::to_string),
+        bodies: astromech_exploration::biology::ranked(sys),
+        known: reported.map(|k| {
+            k.iter()
+                .map(|b| KnownView {
+                    name: b.name.clone(),
+                    body_id: b.body_id,
+                    signals: b.signals,
+                    genera: b.genera.clone(),
+                    species: b.species.iter().map(|(n, v)| SpeciesValue { name: n.clone(), value: *v }).collect(),
+                    value: b.value(),
+                })
+                .collect()
+        }),
+        sampling,
     })
 }
 
@@ -223,14 +265,14 @@ mod tests {
                 })
             }
         }
-        let v = view(&g, Some(&Ready));
+        let v = serde_json::to_value(view(&g, Some(&Ready))).unwrap();
         assert_eq!(v["system"], "Luhman 16");
         assert_eq!(v["bodies"][0]["name"], "Luhman 16 B 4");
         assert_eq!(v["bodies"][0]["signals"], 2);
         assert_eq!(v["known"][0]["name"], "Luhman 16 B 3", "most valuable first");
         assert_eq!(v["sampling"]["species"], "Bacterium Vesicula");
         assert_eq!(v["sampling"]["count"], 1);
-        let none = view(&g, None);
+        let none = serde_json::to_value(view(&g, None)).unwrap();
         assert!(none["known"].is_null());
     }
 }

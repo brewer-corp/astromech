@@ -1072,7 +1072,7 @@ pub fn parse_extra(event: &str, v: &Value) -> Option<ExtraEvent> {
 }
 
 /// What a station offers, from `Docked` (and `Location` when logging in docked).
-#[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize, ts_rs::TS)]
 pub struct StationInfo {
     /// `Orbis`, `Outpost`, `FleetCarrier`, ...
     pub station_type: Option<String>,
@@ -1087,7 +1087,7 @@ pub struct StationInfo {
     pub dist_from_star_ls: Option<f64>,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, ts_rs::TS)]
 pub struct StationEconomy {
     /// `$economy_Refinery;`
     pub name: String,
@@ -1096,7 +1096,7 @@ pub struct StationEconomy {
     pub proportion: f64,
 }
 
-#[derive(Debug, Clone, PartialEq, serde::Serialize)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, ts_rs::TS)]
 pub struct StationFaction {
     pub name: String,
     /// `FactionState` (Boom, War, ...). Missing for factions without one (fleet carriers).
@@ -1104,7 +1104,7 @@ pub struct StationFaction {
 }
 
 /// How many pads of each size the station has.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
 pub struct LandingPads {
     pub small: i64,
     pub medium: i64,

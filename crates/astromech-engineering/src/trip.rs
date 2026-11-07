@@ -21,7 +21,7 @@ use std::collections::{BTreeMap, HashMap};
 
 /// One leg: light years, jumps at the ship's range, and whether the count came from the star
 /// map (exact) or `ceil(ly / range)`.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, ts_rs::TS)]
 pub struct Hop {
     pub ly: f64,
     pub jumps: u32,
@@ -32,7 +32,7 @@ pub struct Hop {
 /// supercruise leg), so the solver prefers fewer stops when the jump counts are close.
 const STOP_COST: u32 = 1;
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Job {
     pub slot: String,
     pub slot_name: String,
@@ -44,10 +44,12 @@ pub struct Job {
     pub what: String,
     pub grade: u8,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub note: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "TripStop")]
 pub struct Stop {
     pub engineer: String,
     pub system: String,
@@ -57,7 +59,7 @@ pub struct Stop {
     pub jobs: Vec<Job>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Blocked {
     pub job: Job,
     pub reason: String,
@@ -65,7 +67,7 @@ pub struct Blocked {
     pub unlock: Vec<(String, String)>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Trip {
     pub start: Option<String>,
     pub range: f64,

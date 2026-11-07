@@ -68,7 +68,7 @@ pub struct Item {
 }
 
 /// One station that sold a module you searched for.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Seen {
     pub market_id: i64,
     pub station_name: String,

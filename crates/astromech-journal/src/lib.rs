@@ -361,7 +361,7 @@ pub struct CargoSnap {
 }
 
 /// One `Cargo.json` inventory line.
-#[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize, ts_rs::TS)]
 pub struct CargoItem {
     /// Lowercase symbol, as markets use it: "lowtemperaturediamond".
     pub symbol: String,

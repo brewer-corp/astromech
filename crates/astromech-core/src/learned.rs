@@ -2,7 +2,8 @@
 //! aliases), for the Voice tester page: list them, and forget one that was taught wrongly.
 
 use crate::assistant::Assistant;
-use serde_json::{json, Value};
+use astromech_api::Answer;
+use serde::Serialize;
 use std::path::Path;
 
 fn open(data: &Path) -> Result<astromech_store::Store, String> {
@@ -10,43 +11,65 @@ fn open(data: &Path) -> Result<astromech_store::Store, String> {
     astromech_store::Store::open(&data.join("astromech.sqlite")).map_err(|e| format!("opening the database: {e}"))
 }
 
-/// `{"ok": true, "phrases": [{"heard", "command", "does"}]}`: what was heard, the command it now
-/// runs and that command's usual phrase. The most used first. Only phrases that run without
+/// The learned phrases, the most used first.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct Phrases {
+    pub phrases: Vec<Phrase>,
+}
+
+/// What was heard, the command it now runs and that command's usual phrase.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct Phrase {
+    pub heard: String,
+    pub command: String,
+    pub does: String,
+}
+
+/// `{"ok": true, "phrases": [{"heard", "command", "does"}]}`. Only phrases that run without
 /// asking are listed (`assistant::alias_runs`): not one confirmed once for a key-pressing
 /// command, nor an ask-only one.
-pub fn list(data: &Path) -> Value {
+pub fn list(data: &Path) -> Answer<Phrases> {
     let rows = open(data).and_then(|st| st.aliases().map_err(|e| format!("reading the learned phrases: {e}")));
-    match rows {
-        Ok(rows) => {
-            let g = astromech_intent::Grammar::mvp(&[]);
-            let phrases: Vec<Value> = rows
-                .iter()
-                .filter(|(heard, command, count)| crate::assistant::alias_runs(heard, command, *count))
-                .map(|(heard, command, _)| {
-                    json!({"heard": heard, "command": command, "does": g.canonical(command).unwrap_or(command)})
-                })
-                .collect();
-            json!({"ok": true, "phrases": phrases})
-        }
-        Err(e) => json!({"ok": false, "error": e}),
-    }
+    rows.map(|rows| {
+        let g = astromech_intent::Grammar::mvp(&[]);
+        let phrases = rows
+            .iter()
+            .filter(|(heard, command, count)| crate::assistant::alias_runs(heard, command, *count))
+            .map(|(heard, command, _)| Phrase {
+                heard: heard.clone(),
+                command: command.clone(),
+                does: g.canonical(command).unwrap_or(command).to_string(),
+            })
+            .collect();
+        Phrases { phrases }
+    })
+    .into()
 }
 
 /// Forget `heard`, in the running assistant too when there is one, and answer with the list.
-pub fn forget(data: &Path, assistant: Option<&Assistant>, heard: &str) -> Value {
+pub fn forget(data: &Path, assistant: Option<&Assistant>, heard: &str) -> Answer<Phrases> {
     let gone = match assistant {
         Some(a) => Ok(a.forget(heard)),
         None => open(data).and_then(|st| st.forget_alias(heard).map_err(|e| format!("forgetting the phrase: {e}"))),
     };
     match gone {
         Ok(_) => list(data),
-        Err(e) => json!({"ok": false, "error": e}),
+        Err(e) => Answer::failed(e),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::{json, Value};
+
+    fn list(data: &Path) -> Value {
+        serde_json::to_value(super::list(data)).unwrap()
+    }
+
+    fn forget(data: &Path, a: Option<&Assistant>, heard: &str) -> Value {
+        serde_json::to_value(super::forget(data, a, heard)).unwrap()
+    }
 
     #[test]
     fn learned_phrases_are_listed_and_forgotten() {

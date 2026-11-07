@@ -10,14 +10,17 @@ use crate::session::{self, Session, VOICE_PAUSED};
 use crate::tester::{self, Source, TESTER};
 use crate::update::{self, ApplyWhen, Status as UpStatus};
 use anyhow::Result;
+use astromech_api::reply::{Answer, Done, Nothing};
 use astromech_api::{control, Exposure, Recover, Registry, Request};
 use astromech_store::Paths;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
+use ts_rs::TS;
 
 pub const SHELL_EXE: &str = if cfg!(windows) { "astromech-shell.exe" } else { "astromech-shell" };
 
@@ -266,44 +269,56 @@ impl Core {
         v
     }
 
-    pub fn status_json(&self) -> Value {
+    /// The `status` reply: the core's state for the window and the tray.
+    pub fn status(&self) -> Done<Status> {
         self.refresh_config();
         let (killed, toasts, mining) = match self.session.lock().recover().as_ref() {
-            Some(s) => (s.runner.policy.is_killed(), s.toasts.recent(), Some(s.hub.mining_json())),
+            Some(s) => (s.runner.policy.is_killed(), s.toasts.recent(), Some(s.hub.mining())),
             None => (false, vec![], None),
         };
         let cfg = self.cfg();
         let button = |b: &Option<crate::config::Button>| b.as_ref().map(|b| format!("{} {}", b.device, b.key));
-        json!({
-            "ok": true,
-            "version": env!("CARGO_PKG_VERSION"),
-            "pid": std::process::id(),
-            "game": *self.game.lock().recover(),
-            "active": self.active(),
-            "starting": self.starting.load(Ordering::SeqCst),
-            "voice": *self.voice.lock().recover(),
-            "voice_paused": session::VOICE_PAUSED.load(Ordering::SeqCst),
-            "killed": killed,
-            "autostart": crate::autostart::is_enabled(),
-            "crash_pending": self.crash.lock().recover().is_some(),
-            "status_line": self.status_line(),
-            "app_dir": self.app_dir.display().to_string(),
-            "log_dir": crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir()).display().to_string(),
-            "config": self.config_path.display().to_string(),
-            "config_note": self.config_note(),
-            "setup_needed": self.setup_needed(),
-            "ptt": button(&cfg.controls.ptt),
-            "kill_switch": button(&cfg.controls.kill_switch),
-            "mic": cfg.voice.mic,
-            "onboarded": self.onboarded.load(Ordering::SeqCst),
-            "models_missing": models_missing(&cfg),
-            "models_progress": *self.models.lock().recover(),
-            "models_dir": cfg.models_dir().display().to_string(),
-            "update": &self.update.lock().recover().snap,
-            "toasts": toasts,
-            "history": self.history.status(),
-            "mining": mining,
+        // Each lock is taken and let go on its own: a guard held to the end of the struct below
+        // would deadlock `status_line`, which takes them again.
+        let game = *self.game.lock().recover();
+        let voice = self.voice.lock().recover().clone();
+        let crash_pending = self.crash.lock().recover().is_some();
+        let models_progress = self.models.lock().recover().clone();
+        let update = self.update.lock().recover().snap.clone();
+        Done::new(Status {
+            version: env!("CARGO_PKG_VERSION"),
+            pid: std::process::id(),
+            game,
+            active: self.active(),
+            starting: self.starting.load(Ordering::SeqCst),
+            voice,
+            voice_paused: session::VOICE_PAUSED.load(Ordering::SeqCst),
+            killed,
+            autostart: crate::autostart::is_enabled(),
+            crash_pending,
+            status_line: self.status_line(),
+            app_dir: self.app_dir.display().to_string(),
+            log_dir: crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir()).display().to_string(),
+            config: self.config_path.display().to_string(),
+            config_note: self.config_note(),
+            setup_needed: self.setup_needed(),
+            ptt: button(&cfg.controls.ptt),
+            kill_switch: button(&cfg.controls.kill_switch),
+            mic: cfg.voice.mic.clone(),
+            onboarded: self.onboarded.load(Ordering::SeqCst),
+            models_missing: models_missing(&cfg),
+            models_progress,
+            models_dir: cfg.models_dir().display().to_string(),
+            update,
+            toasts,
+            history: self.history.status(),
+            mining,
         })
+    }
+
+    /// [`Core::status`] as JSON (diagnostics).
+    pub fn status_json(&self) -> Value {
+        serde_json::to_value(self.status()).unwrap_or_default()
     }
 
     pub fn save_diagnostics(&self) -> Result<PathBuf> {
@@ -489,21 +504,21 @@ impl Core {
     }
 
     /// Quit, overlay the staged payload, relaunch. Elite may still be running.
-    pub fn install_update(self: &Arc<Self>) -> Value {
+    pub fn install_update(self: &Arc<Self>) -> Answer<Nothing> {
         if self.cfg().update.apply == ApplyWhen::Never {
-            return json!({"ok": false, "error": "updates are set to never apply ([update] apply = \"never\")"});
+            return Answer::failed("updates are set to never apply ([update] apply = \"never\")");
         }
         // Claim the install under the lock, so a second click can't start another helper.
         let (payload, before) = {
             let mut h = self.update.lock().recover();
             if h.snap.status == UpStatus::Applying {
-                return json!({"ok": false, "error": "already installing"});
+                return Answer::failed("already installing");
             }
             if !h.snap.ready {
-                return json!({"ok": false, "error": h.snap.error.clone().unwrap_or_else(|| "no update ready".into())});
+                return Answer::failed(h.snap.error.clone().unwrap_or_else(|| "no update ready".into()));
             }
             let Some(p) = h.payload.clone() else {
-                return json!({"ok": false, "error": "update payload missing"});
+                return Answer::failed("update payload missing");
             };
             let before = h.snap.status;
             h.snap.status = UpStatus::Applying;
@@ -524,13 +539,13 @@ impl Core {
                     std::thread::sleep(Duration::from_millis(300));
                     let _ = ui.send(Ui::Quit);
                 });
-                json!({"ok": true})
+                Answer::ok(Nothing {})
             }
             Err(e) => {
                 let m = format!("{e:#}");
                 log(&format!("update: couldn't start helper: {m}"));
                 self.set_update(|h| h.snap.status = before);
-                json!({"ok": false, "error": m})
+                Answer::failed(m)
             }
         }
     }
@@ -583,7 +598,7 @@ impl Core {
 
     /// Setup edits from the window: write `astromech.toml`, then use it. Voice picks the new
     /// buttons and mic up the next time it starts (when Elite next starts).
-    fn edit_config(&self, r: &Request) -> Value {
+    fn edit_config(&self, r: &Request) -> Answer<Applies> {
         let res = crate::setup::Edit::from_request(&r.cmd, r.args.as_ref()).and_then(|edits| {
             crate::setup::edit(&self.config_lock, &self.config_path, &edits, |c| self.install_config(c))
         });
@@ -595,32 +610,32 @@ impl Core {
                 }
                 self.notify();
                 let now = matches!(r.cmd.as_str(), "set_voice" | "set_eddn" | "set_edsm");
-                json!({"ok": true, "applies_next_session": !now && self.active()})
+                Answer::ok(Applies { applies_next_session: !now && self.active() })
             }
-            Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
+            Err(e) => Answer::failed(format!("{e:#}")),
         }
     }
 
     /// Settings → Data sharing, EDSM: the API key (to the OS keyring; empty forgets it), then
     /// the switch and commander name (to the config), then the uploader's credentials.
-    fn set_edsm(&self, r: &Request) -> Value {
+    fn set_edsm(&self, r: &Request) -> Answer<Applies> {
         let edits = match crate::setup::Edit::from_request(&r.cmd, r.args.as_ref()) {
             Ok(e) => e,
-            Err(e) => return json!({"ok": false, "error": format!("{e:#}")}),
+            Err(e) => return Answer::failed(format!("{e:#}")),
         };
         if let Some(k) = r.args.as_ref().and_then(|a| a.get("api_key")).filter(|k| !k.is_null()) {
             let Some(k) = k.as_str().map(str::trim) else {
-                return json!({"ok": false, "error": "api_key must be text"});
+                return Answer::failed("api_key must be text");
             };
             if let Err(e) = self.secrets.set(astromech_eddn::edsm::KEY_SECRET, Some(k).filter(|k| !k.is_empty())) {
-                return json!({"ok": false, "error": format!("couldn't save the API key: {e}")});
+                return Answer::failed(format!("couldn't save the API key: {e}"));
             }
             log(if k.is_empty() { "EDSM: API key removed" } else { "EDSM: API key saved in the OS keyring" });
         }
         if edits.is_empty() {
             apply_edsm_switch(&self.cfg(), self.secrets.as_ref());
             self.notify();
-            return json!({"ok": true, "applies_next_session": false});
+            return Answer::ok(Applies { applies_next_session: false });
         }
         self.edit_config(r)
     }
@@ -643,7 +658,7 @@ impl Core {
     /// Settings' preview: say a sample line in the configured voice, through the session's
     /// speaker if voice is running, else a Kokoro started for the preview. Refused while a
     /// session loads (it would load a second Kokoro) and when speech output is off.
-    fn preview_voice(&self) -> Value {
+    fn preview_voice(&self) -> Answer<Previewed> {
         use crate::speech::PREVIEW_LINE;
         let cfg = self.cfg();
         let route = || -> Option<Result<()>> {
@@ -682,143 +697,158 @@ impl Core {
             Ok(Arc::new(s))
         };
         match self.preview.say(PREVIEW_LINE, route, start) {
-            Ok(()) => json!({"ok": true, "line": PREVIEW_LINE}),
-            Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
+            Ok(()) => Answer::ok(Previewed { line: PREVIEW_LINE }),
+            Err(e) => Answer::failed(format!("{e:#}")),
         }
     }
 
-    /// The Route page's commands. `route_set` takes `{name, source, waypoints}` or, for an
-    /// import, `{name, source, text}` (a Spansh CSV or one system per line). `route_add` takes
-    /// `{system, label, source}`: a lookup result's Add stop.
-    fn route_cmd(&self, r: &Request) -> Value {
-        use crate::route::{parse_list, Route, Waypoint};
+    /// The Route page's commands besides `route_set`, `route_add` and `route_resume`.
+    fn route_cmd(&self, cmd: &str) -> Done<RouteReply> {
         let d = &self.route;
-        let v = match r.cmd.as_str() {
-            "route_set" => {
-                let a = r.args.clone().unwrap_or_default();
-                let s = |k: &str| a.get(k).and_then(|x| x.as_str()).unwrap_or_default().to_string();
-                let waypoints: Vec<Waypoint> = match a.get("text").and_then(|t| t.as_str()) {
-                    Some(t) => parse_list(t),
-                    None => match serde_json::from_value(a.get("waypoints").cloned().unwrap_or_default()) {
-                        Ok(w) => w,
-                        Err(e) => return json!({"ok": false, "error": format!("bad waypoints: {e}")}),
-                    },
-                };
-                let name = if s("name").trim().is_empty() { "Route".to_string() } else { s("name") };
-                match d.set(Route::new(&name, &s("source"), waypoints)) {
-                    Ok(v) => v,
-                    Err(e) => return json!({"ok": false, "error": e}),
-                }
-            }
-            "route_add" => {
-                let a = r.args.clone().unwrap_or_default();
-                let s = |k: &str| a.get(k).and_then(|x| x.as_str()).map(str::to_string);
-                let stop = Waypoint { system: s("system").unwrap_or_default(), label: s("label"), jumps: None };
-                match d.add(stop, &s("source").unwrap_or_default()) {
-                    Ok(v) => v,
-                    Err(e) => return json!({"ok": false, "error": e}),
-                }
-            }
+        let view = match cmd {
             "route_skip" => d.step(true),
             "route_back" => d.step(false),
             "route_clear" => d.clear(),
             "route_copy" => d.copy_next(),
-            "route_resume" => match d.resume() {
-                Ok(v) => v,
-                Err(e) => return json!({"ok": false, "error": e}),
-            },
             _ => d.view(),
         };
-        json!({"ok": true, "view": v})
+        Done::new(RouteReply { view })
+    }
+
+    /// `route_set`: `{name, source, waypoints}` or, for an import, `{name, source, text}` (a
+    /// Spansh CSV or one system per line).
+    fn route_set(&self, a: RouteSetArgs) -> Answer<RouteReply> {
+        use crate::route::{parse_list, Route};
+        let waypoints = match (a.text, a.waypoints) {
+            (Some(t), _) => parse_list(&t),
+            (None, Some(w)) => w,
+            (None, None) => return Answer::failed("bad waypoints: expected waypoints or text"),
+        };
+        let name = a.name.filter(|n| !n.trim().is_empty()).unwrap_or_else(|| "Route".to_string());
+        self.route
+            .set(Route::new(&name, &a.source.unwrap_or_default(), waypoints))
+            .map(|view| RouteReply { view })
+            .into()
+    }
+
+    /// `route_add`: `{system, label, source}`, a lookup result's Add stop.
+    fn route_add(&self, a: RouteAddArgs) -> Answer<RouteReply> {
+        let stop = crate::route::Waypoint { system: a.system.unwrap_or_default(), label: a.label, jumps: None };
+        self.route.add(stop, &a.source.unwrap_or_default()).map(|view| RouteReply { view }).into()
     }
 
     /// The core's commands. Each one's value is its reply as the window reads it; an error the
-    /// window shows is `{"ok": false, "error": …}` inside the value. `quit` and `open_window`
-    /// stay with the tray and a second start (decision astromech-unh9).
+    /// window shows is `{"ok": false, "error": …}` inside the value ([`Answer`]). `quit` and
+    /// `open_window` stay with the tray and a second start (decision astromech-unh9). A command
+    /// that takes nothing ignores its args, as before they were typed.
     pub fn commands(self: &Arc<Self>) -> Registry {
+        use crate::calibration as cal;
+        use Exposure::{Local, Window};
         let mut reg = Registry::new();
         astromech_api::commands::register(&self.api, &mut reg);
         astromech_api::lookups::register(&self.api, &mut reg);
-        let mut add = |names: &[&str], exposure: Exposure, f: fn(&Arc<Core>, &Request) -> Value| {
+
+        // Each handler gets the core and the request; `A` is what the window sends as args
+        // (`String`: the request's text).
+        fn add<A: TS + ?Sized + 'static, R: Serialize + TS + 'static>(
+            reg: &mut Registry,
+            core: &Arc<Core>,
+            names: &[&str],
+            exposure: Exposure,
+            f: fn(&Arc<Core>, &Request) -> R,
+        ) {
             for name in names {
-                let c = self.clone();
-                reg.add(name, exposure, move |r, _| Ok(f(&c, r)));
+                let c = core.clone();
+                reg.add_request::<A, R>(name, exposure, move |r, _| Ok(f(&c, r)));
             }
-        };
-        add(
-            &[
-                "route",
-                "route_set",
-                "route_add",
-                "route_skip",
-                "route_back",
-                "route_clear",
-                "route_copy",
-                "route_resume",
-            ],
-            Exposure::Window,
-            |c, r| c.route_cmd(r),
+        }
+        // Args parsed as `A`; a bad one is the reply's own error, as the window reads it.
+        fn parsed<A: serde::de::DeserializeOwned, R>(r: &Request, why: &str) -> Result<A, Answer<R>> {
+            serde_json::from_value(r.args.clone().unwrap_or_else(|| json!({})))
+                .map_err(|e| Answer::failed(format!("{why}: {e}")))
+        }
+        fn text(r: &Request) -> String {
+            r.text.clone().unwrap_or_default()
+        }
+
+        add::<(), _>(
+            &mut reg,
+            self,
+            &["route", "route_skip", "route_back", "route_clear", "route_copy"],
+            Window,
+            |c, r| c.route_cmd(&r.cmd),
         );
-        add(&["status"], Exposure::Window, |c, _| c.status_json());
-        add(&["open_window"], Exposure::Local, |c, r| match c.open_window(r.route.as_deref()) {
-            Ok(()) => json!({"ok": true}),
-            Err(e) => json!({"ok": false, "error": e}),
+        add::<(), Answer<RouteReply>>(&mut reg, self, &["route_resume"], Window, |c, _| {
+            c.route.resume().map(|view| RouteReply { view }).into()
         });
-        add(&["save_diagnostics"], Exposure::Window, |c, _| match c.save_diagnostics() {
+        add::<RouteSetArgs, _>(&mut reg, self, &["route_set"], Window, |c, r| match parsed(r, "bad waypoints") {
+            Ok(a) => c.route_set(a),
+            Err(e) => e,
+        });
+        add::<RouteAddArgs, _>(&mut reg, self, &["route_add"], Window, |c, r| match parsed(r, "bad stop") {
+            Ok(a) => c.route_add(a),
+            Err(e) => e,
+        });
+        add::<(), _>(&mut reg, self, &["status"], Window, |c, _| c.status());
+        // `route` is the request's page to show, not args.
+        add::<(), Answer<Nothing>>(&mut reg, self, &["open_window"], Local, |c, r| {
+            c.open_window(r.route.as_deref()).map(|()| Nothing {}).into()
+        });
+        add::<(), _>(&mut reg, self, &["save_diagnostics"], Window, |c, _| match c.save_diagnostics() {
             Ok(p) => {
                 reveal(&p);
-                json!({"ok": true, "path": p.display().to_string()})
+                Answer::ok(Saved { path: p.display().to_string() })
             }
-            Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
+            Err(e) => Answer::failed(format!("{e:#}")),
         });
-        add(&["ack_crash"], Exposure::Window, |c, _| {
+        add::<(), _>(&mut reg, self, &["ack_crash"], Window, |c, _| {
             c.crash.lock().recover().take();
             crate::crash::acknowledge(&c.app_dir);
             c.notify();
-            json!({"ok": true})
+            Done::empty()
         });
-        add(&["quit"], Exposure::Local, |c, _| {
+        add::<(), _>(&mut reg, self, &["quit"], Local, |c, _| {
             let _ = c.ui.lock().recover().send(Ui::Quit);
-            json!({"ok": true})
+            Done::empty()
         });
-        add(&["check_update"], Exposure::Window, |c, _| {
+        add::<(), _>(&mut reg, self, &["check_update"], Window, |c, _| {
             c.check_update_in_background();
-            json!({"ok": true})
+            Done::empty()
         });
-        add(&["install_update"], Exposure::Window, |c, _| c.install_update());
-        add(&["autostart_on", "autostart_off"], Exposure::Window, |c, r| {
+        add::<(), _>(&mut reg, self, &["install_update"], Window, |c, _| c.install_update());
+        add::<(), Answer<Nothing>>(&mut reg, self, &["autostart_on", "autostart_off"], Window, |c, r| {
             let on = r.cmd == "autostart_on";
             let res =
                 std::env::current_exe().map_err(|e| e.to_string()).and_then(|exe| crate::autostart::set(on, &exe));
             c.notify();
-            match res {
-                Ok(()) => {
-                    log(if on { "start with Windows: on" } else { "start with Windows: off" });
-                    json!({"ok": true})
-                }
-                Err(e) => json!({"ok": false, "error": e}),
+            if res.is_ok() {
+                log(if on { "start with Windows: on" } else { "start with Windows: off" });
             }
+            res.map(|()| Nothing {}).into()
         });
-        add(&["pause_voice", "resume_voice"], Exposure::Window, |c, r| {
+        add::<(), _>(&mut reg, self, &["pause_voice", "resume_voice"], Window, |c, r| {
             VOICE_PAUSED.store(r.cmd == "pause_voice", Ordering::SeqCst);
             log(if r.cmd == "pause_voice" { "voice paused" } else { "voice resumed" });
             c.notify();
-            json!({"ok": true})
+            Done::empty()
         });
-        add(&["kill_switch"], Exposure::Window, |c, _| {
+        add::<(), _>(&mut reg, self, &["kill_switch"], Window, |c, _| {
             c.kill_switch();
-            json!({"ok": true})
+            Done::empty()
         });
-        add(&["download_models"], Exposure::Window, |c, _| {
+        add::<(), _>(&mut reg, self, &["download_models"], Window, |c, _| {
             download_models(c);
-            json!({"ok": true})
+            Done::empty()
         });
-        add(&["open_config"], Exposure::Window, |c, _| {
+        add::<(), _>(&mut reg, self, &["open_config"], Window, |c, _| {
             open_config(&c.config_path);
-            json!({"ok": true})
+            Done::empty()
         });
-        add(&["prospector_thresholds"], Exposure::Window, |c, _| crate::callouts::thresholds_view(&c.cfg().data_dir()));
-        add(&["prospector_set"], Exposure::Window, |c, r| {
+        add::<(), _>(&mut reg, self, &["prospector_thresholds"], Window, |c, _| {
+            crate::callouts::thresholds_view(&c.cfg().data_dir())
+        });
+        // The change as JSON text: `{"ore", "threshold"}` or `{"ore", "reset": true}`.
+        add::<String, Answer<crate::callouts::Ores>>(&mut reg, self, &["prospector_set"], Window, |c, r| {
             let text = r.text.clone().unwrap_or_default();
             let res = std::fs::create_dir_all(c.cfg().data_dir())
                 .map_err(|e| e.to_string())
@@ -827,18 +857,17 @@ impl Core {
                         .map_err(|e| format!("opening the database: {e}"))
                 })
                 .and_then(|st| crate::callouts::change_thresholds(&st, &text));
-            match res {
-                Ok(t) => {
-                    if let Some(s) = c.session.lock().recover().as_ref() {
-                        *s.shared.prospector.write().recover() = t.clone();
-                    }
-                    log(&format!("prospector thresholds changed: {text}"));
-                    crate::callouts::thresholds_json(&t)
+            res.map(|t| {
+                if let Some(s) = c.session.lock().recover().as_ref() {
+                    *s.shared.prospector.write().recover() = t.clone();
                 }
-                Err(e) => json!({"ok": false, "error": e}),
-            }
+                log(&format!("prospector thresholds changed: {text}"));
+                crate::callouts::thresholds_json(&t)
+            })
+            .into()
         });
-        add(&["shopping_set"], Exposure::Window, |c, r| {
+        // The shopping list change as JSON text.
+        add::<String, Answer<ShoppingSet>>(&mut reg, self, &["shopping_set"], Window, |c, r| {
             let text = r.text.clone().unwrap_or_default();
             let res = std::fs::create_dir_all(c.cfg().data_dir())
                 .map_err(|e| e.to_string())
@@ -847,41 +876,44 @@ impl Core {
                         .map_err(|e| format!("opening the database: {e}"))
                 })
                 .and_then(|st| crate::callouts::change_shopping(&st, &text));
-            match res {
-                Ok(list) => {
-                    let n = list.0.len();
-                    if let Some(s) = c.session.lock().recover().as_ref() {
-                        *s.shared.shopping.write().recover() = list;
-                    }
-                    json!({"ok": true, "materials": n})
+            res.map(|list| {
+                let materials = list.0.len();
+                if let Some(s) = c.session.lock().recover().as_ref() {
+                    *s.shared.shopping.write().recover() = list;
                 }
-                Err(e) => json!({"ok": false, "error": e}),
-            }
+                ShoppingSet { materials }
+            })
+            .into()
         });
-        add(&["exobiology"], Exposure::Window, |c, _| match c.session.lock().recover().as_ref() {
+        add::<(), _>(&mut reg, self, &["exobiology"], Window, |c, _| match c.session.lock().recover().as_ref() {
             Some(s) => {
                 let known = s.shared.known_bio.get();
-                crate::biology::view(&s.hub.snapshot(), known.as_deref())
+                Answer::Done(crate::biology::view(&s.hub.snapshot(), known.as_deref()))
             }
-            None => json!({"ok": false, "error": "Elite isn't running."}),
+            None => Answer::failed("Elite isn't running."),
         });
-        add(&["eddn_log"], Exposure::Window, |c, _| {
+        add::<(), _>(&mut reg, self, &["eddn_log"], Window, |c, _| {
             let cfg = c.cfg();
             eddn_log(&cfg.data_dir(), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
         });
-        add(&["find_elite"], Exposure::Window, |c, _| json!({"ok": true, "found": crate::setup::find_elite(&c.cfg())}));
-        add(
-            &["set_ptt", "set_kill_switch", "set_mic", "set_folders", "set_voice", "set_eddn", "set_callout"],
-            Exposure::Window,
-            |c, r| c.edit_config(r),
-        );
-        add(&["callouts"], Exposure::Window, |c, _| crate::callouts::callouts_json(&c.cfg().callouts));
-        add(&["edsm_status"], Exposure::Window, |c, _| {
+        add::<(), _>(&mut reg, self, &["find_elite"], Window, |c, _| {
+            Done::new(FindElite { found: crate::setup::find_elite(&c.cfg()) })
+        });
+        add::<Option<crate::config::Button>, _>(&mut reg, self, &["set_ptt", "set_kill_switch"], Window, |c, r| {
+            c.edit_config(r)
+        });
+        add::<crate::setup::args::Mic, _>(&mut reg, self, &["set_mic"], Window, |c, r| c.edit_config(r));
+        add::<crate::setup::args::Folders, _>(&mut reg, self, &["set_folders"], Window, |c, r| c.edit_config(r));
+        add::<crate::setup::args::Voice, _>(&mut reg, self, &["set_voice"], Window, |c, r| c.edit_config(r));
+        add::<crate::setup::args::Eddn, _>(&mut reg, self, &["set_eddn"], Window, |c, r| c.edit_config(r));
+        add::<crate::setup::args::Callout, _>(&mut reg, self, &["set_callout"], Window, |c, r| c.edit_config(r));
+        add::<(), _>(&mut reg, self, &["callouts"], Window, |c, _| crate::callouts::callouts_json(&c.cfg().callouts));
+        add::<(), _>(&mut reg, self, &["edsm_status"], Window, |c, _| {
             let cfg = c.cfg();
             edsm_status(&cfg, c.secrets.as_ref())
         });
-        add(&["set_edsm"], Exposure::Window, |c, r| c.set_edsm(r));
-        add(&["edsm_flight_log"], Exposure::Window, |c, _| {
+        add::<crate::setup::args::Edsm, _>(&mut reg, self, &["set_edsm"], Window, |c, r| c.set_edsm(r));
+        add::<(), Answer<FlightLog>>(&mut reg, self, &["edsm_flight_log"], Window, |c, _| {
             let creds = edsm_credentials(&c.cfg().edsm, c.secrets.as_ref());
             match creds {
                 Ok(Some(c)) => {
@@ -889,107 +921,106 @@ impl Core {
                         &format!("astromech/{}", env!("CARGO_PKG_VERSION")),
                         astromech_eddn::edsm::api::FLIGHT_LOG_TIMEOUT,
                     );
-                    match astromech_eddn::edsm::api::flight_log(&api, &c) {
-                        Ok(visits) => json!({"ok": true, "visits": visits}),
-                        Err(e) => json!({"ok": false, "error": e}),
-                    }
+                    astromech_eddn::edsm::api::flight_log(&api, &c).map(|visits| FlightLog { visits }).into()
                 }
-                Ok(None) => json!({"ok": false, "error": "set your EDSM commander name and API key first"}),
-                Err(e) => json!({"ok": false, "error": e}),
+                Ok(None) => Answer::failed("set your EDSM commander name and API key first"),
+                Err(e) => Answer::failed(e),
             }
         });
-        add(&["voice_settings"], Exposure::Window, |c, _| {
+        add::<(), _>(&mut reg, self, &["voice_settings"], Window, |c, _| {
             let v = c.cfg().voice;
-            json!({
-                "ok": true,
-                "speaker": v.speaker,
-                "speed": v.speed,
-                "colour": v.colour,
-                "voices": crate::speech::voice_choices(),
-                "speeds": [crate::setup::SPEEDS.start(), crate::setup::SPEEDS.end()],
+            Done::new(VoiceSettings {
+                speaker: v.speaker,
+                speed: v.speed,
+                colour: v.colour,
+                voices: crate::speech::voice_choices(),
+                speeds: [*crate::setup::SPEEDS.start(), *crate::setup::SPEEDS.end()],
             })
         });
-        add(&["voice_preview"], Exposure::Window, |c, _| c.preview_voice());
-        add(&["mic_list"], Exposure::Window, |c, _| {
+        add::<(), _>(&mut reg, self, &["voice_preview"], Window, |c, _| c.preview_voice());
+        add::<(), _>(&mut reg, self, &["mic_list"], Window, |c, _| {
             let cfg = c.cfg();
-            let mut v = crate::calibration::mic_list(&cfg.voice.mic);
-            let device = crate::calibration::configured_device(&cfg.voice.mic);
-            let gate = crate::calibration::open_store(&cfg.data_dir())
-                .ok()
-                .and_then(|s| crate::calibration::stored_gate(&s, &device));
-            v["calibration"] = json!({"device": device, "min_level_dbfs": gate});
+            let device = cal::configured_device(&cfg.voice.mic);
+            let gate = cal::open_store(&cfg.data_dir()).ok().and_then(|s| cal::stored_gate(&s, &device));
+            cal::mic_list(&cfg.voice.mic, cal::MicGate { device, min_level_dbfs: gate })
+        });
+        add::<(), _>(&mut reg, self, &["calibrate_start"], Window, |c, _| cal::start(&c.calibration));
+        add::<(), _>(&mut reg, self, &["calibrate_record"], Window, |c, _| {
+            let mic = c.cfg().voice.mic;
+            cal::record(&c.calibration, &|ms| cal::record_mic(&mic, ms))
+        });
+        add::<(), _>(&mut reg, self, &["calibrate_finish"], Window, |c, _| {
+            let data = c.cfg().data_dir();
+            let v = cal::finish(&c.calibration, &|| cal::open_store(&data));
+            if let Answer::Done(d) = &v {
+                log(&format!(
+                    "microphone: calibrated {:?} (min_level_dbfs {})",
+                    d.value.device, d.value.min_level_dbfs
+                ));
+            }
             v
         });
-        add(
-            &["calibrate_start", "calibrate_record", "calibrate_finish", "calibrate_cancel", "mic_check"],
-            Exposure::Window,
-            |c, r| {
-                let cfg = c.cfg();
-                let record = |ms| crate::calibration::record_mic(&cfg.voice.mic, ms);
-                let store = || crate::calibration::open_store(&cfg.data_dir());
-                let v = crate::calibration::handle(&r.cmd, &c.calibration, &record, &store);
-                if r.cmd == "calibrate_finish" && v["ok"] == true {
-                    log(&format!("microphone: calibrated {} (min_level_dbfs {})", v["device"], v["min_level_dbfs"]));
-                }
-                v
-            },
-        );
-        add(&["onboarding_done"], Exposure::Window, |c, _| {
-            let res =
-                crate::calibration::open_store(&c.cfg().data_dir()).and_then(|s| crate::setup::mark_onboarded(&s));
+        add::<(), _>(&mut reg, self, &["calibrate_cancel"], Window, |c, _| cal::cancel(&c.calibration));
+        add::<(), _>(&mut reg, self, &["mic_check"], Window, |c, _| {
+            let mic = c.cfg().voice.mic;
+            cal::mic_check(&|ms| cal::record_mic(&mic, ms))
+        });
+        add::<(), _>(&mut reg, self, &["onboarding_done"], Window, |c, _| {
+            let res = cal::open_store(&c.cfg().data_dir()).and_then(|s| crate::setup::mark_onboarded(&s));
             match res {
                 Ok(()) => {
                     c.onboarded.store(true, Ordering::SeqCst);
                     c.notify();
-                    json!({"ok": true})
+                    Answer::ok(Nothing {})
                 }
-                Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
+                Err(e) => Answer::failed(format!("{e:#}")),
             }
         });
-        add(&["voice_test"], Exposure::Window, |c, r| {
-            let text = r.text.clone().unwrap_or_default();
+        // The phrase to try, as text.
+        add::<String, _>(&mut reg, self, &["voice_test"], Window, |c, r| {
+            let text = text(r);
             let res = {
                 let s = c.session.lock().recover();
                 s.as_ref().map(|s| s.assistant.dry_run(&text, Source::Typed))
             };
-            let res = res.unwrap_or_else(|| tester::dry_run_idle(&c.cfg(), &text));
-            json!({"ok": true, "result": res})
+            let result = res.unwrap_or_else(|| tester::dry_run_idle(&c.cfg(), &text));
+            Done::new(Tried { result })
         });
-        add(&["voice_test_poll"], Exposure::Window, |c, _| {
+        add::<(), _>(&mut reg, self, &["voice_test_poll"], Window, |c, _| {
             if TESTER.arm(Instant::now()) {
                 log("voice tester open: push-to-talk is tested there, nothing is pressed");
             }
-            let last = TESTER.last().map(|(seq, r)| json!({"seq": seq, "result": r}));
-            json!({"ok": true, "listening": c.active(), "last": last})
+            let last = TESTER.last().map(|(seq, result)| Heard { seq, result });
+            Done::new(Poll { listening: c.active(), last })
         });
-        add(&["learned_phrases"], Exposure::Window, |c, _| crate::learned::list(&c.cfg().data_dir()));
-        add(&["learned_forget"], Exposure::Window, |c, r| {
+        add::<(), _>(&mut reg, self, &["learned_phrases"], Window, |c, _| crate::learned::list(&c.cfg().data_dir()));
+        // The phrase to forget, as text.
+        add::<String, _>(&mut reg, self, &["learned_forget"], Window, |c, r| {
             let assistant = c.session.lock().recover().as_ref().map(|s| s.assistant.clone());
             let heard = r.text.clone().unwrap_or_default();
             log(&format!("learned phrase forgotten: {heard:?}"));
             crate::learned::forget(&c.cfg().data_dir(), assistant.as_deref(), &heard)
         });
-        add(&["voice_test_stop"], Exposure::Window, |_, _| {
+        add::<(), _>(&mut reg, self, &["voice_test_stop"], Window, |_, _| {
             if TESTER.armed(Instant::now()) {
                 log("voice tester closed: push-to-talk acts again");
             }
             TESTER.disarm();
-            json!({"ok": true})
+            Done::empty()
         });
-        add(&["voice_test_live"], Exposure::Window, |c, r| {
+        add::<LiveRequest, Answer<Ran>>(&mut reg, self, &["voice_test_live"], Window, |c, r| {
             // The command id as text, or `{command, from}` for a lookup from a named system.
             let arg = |k: &str| r.args.as_ref().and_then(|a| a.get(k)).and_then(Value::as_str).map(str::to_string);
             let cmd = r.text.clone().or_else(|| arg("command")).unwrap_or_default();
             let from = arg("from");
             let runner = c.session.lock().recover().as_ref().map(|s| s.runner.clone());
             match runner {
-                None => json!({"ok": false, "error": "Elite isn't running, so there's nothing to send keys to."}),
+                None => Answer::failed("Elite isn't running, so there's nothing to send keys to."),
                 Some(runner) => {
                     log(&format!("voice tester: live run of {cmd} (from {from:?})"));
-                    match tester::live(&runner, &cmd, from.as_deref(), tester::SWITCH_WAIT) {
-                        Ok(m) => json!({"ok": true, "message": m}),
-                        Err(e) => json!({"ok": false, "error": e}),
-                    }
+                    tester::live(&runner, &cmd, from.as_deref(), tester::SWITCH_WAIT)
+                        .map(|message| Ran { message })
+                        .into()
                 }
             }
         });
@@ -1058,55 +1089,243 @@ pub fn apply_edsm_switch(c: &Config, secrets: &dyn astromech_store::secrets::Sec
 
 /// EDSM status for Settings → Data sharing: the switch, the commander name, whether an API key
 /// is saved (never the key), whether uploading is on, and the queue and send log as for EDDN.
-pub fn edsm_status(c: &Config, secrets: &dyn astromech_store::secrets::Secrets) -> Value {
+pub fn edsm_status(c: &Config, secrets: &dyn astromech_store::secrets::Secrets) -> Answer<Outbox<EdsmHead>> {
     let (has_key, key_error) = match secrets.get(astromech_eddn::edsm::KEY_SECRET) {
         Ok(k) => (k.is_some_and(|k| !k.is_empty()), None),
         Err(e) => (false, Some(e)),
     };
-    let base = json!({"ok": true, "enabled": c.edsm.enabled, "commander": c.edsm.commander, "has_key": has_key,
-        "key_error": key_error, "uploading": crate::pipeline::EDSM.get().is_some()});
-    outbox_status(&c.data_dir().join(astromech_eddn::edsm::DB_FILE), base)
+    let head = EdsmHead {
+        enabled: c.edsm.enabled,
+        commander: c.edsm.commander.clone(),
+        has_key,
+        key_error,
+        uploading: crate::pipeline::EDSM.get().is_some(),
+    };
+    outbox_status(&c.data_dir().join(astromech_eddn::edsm::DB_FILE), head)
 }
 
 /// EDDN status for Settings → Data sharing and the send log for Diagnostics: the switch, queue
 /// depth, last send and last error (a failed send, not a message discarded here), the gateway's answers and (apart, so they can't push those
 /// off screen) the messages never queued. Reads `eddn.sqlite` only if it exists, so asking never
 /// creates it.
-pub fn eddn_log(data_dir: &Path, enabled: bool, test: bool) -> Value {
-    let base = json!({"ok": true, "enabled": enabled, "test": test});
-    outbox_status(&data_dir.join(astromech_eddn::DB_FILE), base)
+pub fn eddn_log(data_dir: &Path, enabled: bool, test: bool) -> Answer<Outbox<EddnHead>> {
+    outbox_status(&data_dir.join(astromech_eddn::DB_FILE), EddnHead { enabled, test })
 }
 
-/// `base` with an outbox's queue depth, last send, last error, send log and skips. Reads the
+/// `head` with an outbox's queue depth, last send, last error, send log and skips. Reads the
 /// file only if it exists, so asking never creates it.
-fn outbox_status(p: &Path, mut base: Value) -> Value {
+fn outbox_status<H>(p: &Path, head: H) -> Answer<Outbox<H>> {
     use astromech_eddn::Outcome::{Discarded, Dropped, GaveUp, Rejected, Retry, Sent};
-    for (k, v) in [
-        ("pending", json!(0)),
-        ("last_sent", Value::Null),
-        ("last_error", Value::Null),
-        ("log", json!([])),
-        ("skipped", json!([])),
-    ] {
-        base[k] = v;
-    }
     if !p.is_file() {
-        return base;
+        return Answer::ok(Outbox {
+            head,
+            pending: 0,
+            last_sent: None,
+            last_error: None,
+            log: vec![],
+            skipped: vec![],
+        });
     }
-    let read = || -> Result<Value> {
+    let read = || -> Result<Outbox<H>> {
         let o = astromech_eddn::Outbox::open(p)?;
-        let mut v = base.clone();
-        v["pending"] = json!(o.pending()?);
-        v["last_sent"] = json!(o.recent_of(&[Sent], 1)?.pop());
         // EDSM: errors logged before the commander name or key last changed are out of date.
         let cleared = o.meta(astromech_eddn::edsm::ERRORS_CLEARED)?.and_then(|t| t.parse::<i64>().ok());
-        v["last_error"] = json!(o.recent_of_after(&[Rejected, Retry, GaveUp], cleared.unwrap_or(0), 1)?.pop());
-        v["log"] = json!(o.recent_of(&[Sent, Rejected, Retry, GaveUp, Discarded], 50)?);
-        v["skipped"] = json!(o.recent_of(&[Dropped], 50)?);
-        Ok(v)
+        Ok(Outbox {
+            pending: o.pending()?,
+            last_sent: o.recent_of(&[Sent], 1)?.pop(),
+            last_error: o.recent_of_after(&[Rejected, Retry, GaveUp], cleared.unwrap_or(0), 1)?.pop(),
+            log: o.recent_of(&[Sent, Rejected, Retry, GaveUp, Discarded], 50)?,
+            skipped: o.recent_of(&[Dropped], 50)?,
+            head,
+        })
     };
-    read().unwrap_or_else(|e| json!({"ok": false, "error": format!("reading {}: {e}", p.display())}))
+    read().map_err(|e| format!("reading {}: {e}", p.display())).into()
 }
+
+/// The core's replies that are not another module's (astromech-se44): their JSON is what the
+/// window has always read (`core_replies_keep_their_json`).
+mod replies {
+    use super::*;
+
+    /// The `status` reply.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    #[ts(rename = "CoreStatus")]
+    pub struct Status {
+        pub version: &'static str,
+        pub pid: u32,
+        pub game: Game,
+        pub active: bool,
+        pub starting: bool,
+        pub voice: String,
+        pub voice_paused: bool,
+        pub killed: bool,
+        pub autostart: bool,
+        pub crash_pending: bool,
+        pub status_line: String,
+        pub app_dir: String,
+        pub log_dir: String,
+        pub config: String,
+        pub config_note: Option<String>,
+        pub setup_needed: Vec<&'static str>,
+        /// "device key", e.g. "231D3201 Joy_4".
+        pub ptt: Option<String>,
+        pub kill_switch: Option<String>,
+        pub mic: String,
+        pub onboarded: bool,
+        pub models_missing: bool,
+        pub models_progress: Option<String>,
+        pub models_dir: String,
+        pub update: update::Snapshot,
+        pub toasts: Vec<crate::callouts::Toast>,
+        pub history: Option<crate::history::Progress>,
+        /// The session's mining run; `null` while Elite isn't running.
+        pub mining: Option<crate::hub::Mining>,
+    }
+
+    /// A config edit's reply: whether it applies only from the next game session.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct Applies {
+        pub applies_next_session: bool,
+    }
+
+    /// `voice_preview`: the line being said.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct Previewed {
+        pub line: &'static str,
+    }
+
+    /// The Route page's commands: the route as it is now.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct RouteReply {
+        pub view: crate::route::View,
+    }
+
+    /// `route_set`: a name and a source, and the waypoints or, for an import, the text (a
+    /// Spansh CSV or one system per line).
+    #[derive(Debug, Deserialize, ts_rs::TS)]
+    #[ts(optional_fields = nullable)]
+    pub struct RouteSetArgs {
+        pub name: Option<String>,
+        pub source: Option<String>,
+        pub text: Option<String>,
+        pub waypoints: Option<Vec<crate::route::Waypoint>>,
+    }
+
+    /// `route_add`: a lookup result's Add stop.
+    #[derive(Debug, Deserialize, ts_rs::TS)]
+    #[ts(optional_fields = nullable)]
+    pub struct RouteAddArgs {
+        pub system: Option<String>,
+        pub label: Option<String>,
+        pub source: Option<String>,
+    }
+
+    /// `save_diagnostics`: the zip written.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct Saved {
+        pub path: String,
+    }
+
+    /// `shopping_set`: how many materials the list has now.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct ShoppingSet {
+        pub materials: usize,
+    }
+
+    /// `find_elite`.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct FindElite {
+        pub found: crate::setup::Found,
+    }
+
+    /// `edsm_flight_log`.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct FlightLog {
+        pub visits: Vec<astromech_eddn::edsm::api::Visit>,
+    }
+
+    /// `voice_settings`: the configured voice and what Settings may pick.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct VoiceSettings {
+        pub speaker: String,
+        pub speed: f32,
+        pub colour: astromech_voice::colour::Colour,
+        pub voices: Vec<crate::speech::VoiceChoice>,
+        /// The slowest and fastest speed.
+        pub speeds: [f32; 2],
+    }
+
+    /// `voice_test`: what the phrase would do.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct Tried {
+        pub result: tester::DryRun,
+    }
+
+    /// `voice_test_poll`: whether voice is listening, and the last phrase push-to-talk heard.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct Poll {
+        pub listening: bool,
+        pub last: Option<Heard>,
+    }
+
+    /// A phrase heard in the voice tester, numbered so the page shows each once.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct Heard {
+        pub seq: u64,
+        pub result: tester::DryRun,
+    }
+
+    /// `voice_test_live`: the command id as the request's text, or a lookup from a named system.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    #[serde(untagged)]
+    pub enum LiveRequest {
+        Command(String),
+        From(LiveFrom),
+    }
+
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct LiveFrom {
+        pub command: String,
+        pub from: String,
+    }
+
+    /// `voice_test_live`: what was done.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct Ran {
+        pub message: String,
+    }
+
+    /// An outbox's state with `H` (the switch and what else the service shows): queue depth,
+    /// the last send, the last error, the send log and the messages never queued.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct Outbox<H> {
+        #[serde(flatten)]
+        pub head: H,
+        pub pending: usize,
+        pub last_sent: Option<astromech_eddn::outbox::LogEntry>,
+        pub last_error: Option<astromech_eddn::outbox::LogEntry>,
+        pub log: Vec<astromech_eddn::outbox::LogEntry>,
+        pub skipped: Vec<astromech_eddn::outbox::LogEntry>,
+    }
+
+    /// `eddn_log`'s switch and whether messages go to the test schemas.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct EddnHead {
+        pub enabled: bool,
+        pub test: bool,
+    }
+
+    /// `edsm_status`'s settings: never the key, only whether one is saved.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct EdsmHead {
+        pub enabled: bool,
+        pub commander: String,
+        pub has_key: bool,
+        pub key_error: Option<String>,
+        pub uploading: bool,
+    }
+}
+pub use replies::*;
 
 /// Open a URL or folder with the default handler.
 pub fn open_path(target: &str) {
@@ -1811,6 +2030,7 @@ mod tests {
 
     #[test]
     fn eddn_log_reads_the_outbox_without_creating_it() {
+        let eddn_log = |d: &Path, on, test| serde_json::to_value(super::eddn_log(d, on, test)).unwrap();
         let d = tempfile::tempdir().unwrap();
         let v = eddn_log(d.path(), false, true);
         assert_eq!(
@@ -2392,7 +2612,13 @@ mod tests {
             ("ack_crash", None, None),
             ("onboarding_done", None, None),
             ("route", None, None),
-            ("route_set", Some(json!({"name": "Trip", "source": "search", "waypoints": [{"system": "Sol"}, {"system": "Colonia", "label": "x", "jumps": 3}]})), None),
+            (
+                "route_set",
+                Some(
+                    json!({"name": "Trip", "source": "search", "waypoints": [{"system": "Sol"}, {"system": "Colonia", "label": "x", "jumps": 3}]}),
+                ),
+                None,
+            ),
             ("route_add", Some(json!({"system": "Deciat", "label": "Farseer", "source": "engineer trip"})), None),
             ("route_skip", None, None),
             ("route_back", None, None),
@@ -2423,5 +2649,42 @@ mod tests {
             assert_eq!(g, w, "a reply's JSON changed");
         }
         assert_eq!(got, want);
+    }
+
+    /// Where a command's args or reply may hold a `serde_json::Value` (ts-rs's `JsonValue`,
+    /// which tells the window nothing), each with why. `bindings_use_json_value_only_where_allowed`
+    /// fails for any other, and for an entry no longer needed.
+    const JSON_VALUES: &[(&str, &str, &str)] = &[(
+        "route_plot",
+        "reply",
+        "its `view` is route_set's, which astromech-api reads through Call::run and can't name: the \
+         route follower's types are the core's",
+    )];
+
+    /// The registry's TypeScript types (astromech-se44) are the checked-in `app/src/lib/api/`
+    /// files: `types/` (ts-rs) and `commands.ts`. After changing a command's args or reply,
+    /// update them with `ASTROMECH_UPDATE_BINDINGS=1 cargo test -p astromech-core --lib bindings`.
+    #[test]
+    fn bindings_are_the_checked_in_typescript() {
+        let d = tempfile::tempdir().unwrap();
+        let reg = core(d.path(), "").commands();
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../app/src/lib/api");
+        if let Err(e) = astromech_api::bindings::check_or_write(&reg, &dir) {
+            panic!("{e}");
+        }
+    }
+
+    #[test]
+    fn bindings_use_json_value_only_where_allowed() {
+        let d = tempfile::tempdir().unwrap();
+        let found = astromech_api::bindings::json_values(&core(d.path(), "").commands());
+        let allowed: Vec<(String, &str)> = JSON_VALUES.iter().map(|(c, p, _)| (c.to_string(), *p)).collect();
+        let not_allowed: Vec<_> = found.iter().filter(|f| !allowed.contains(f)).collect();
+        assert!(
+            not_allowed.is_empty(),
+            "a serde_json::Value (JsonValue) in {not_allowed:?}: give it a type, or add it to JSON_VALUES with why"
+        );
+        let stale: Vec<_> = allowed.iter().filter(|a| !found.contains(a)).collect();
+        assert!(stale.is_empty(), "JSON_VALUES lists {stale:?}, which no longer holds a JsonValue: remove it");
     }
 }

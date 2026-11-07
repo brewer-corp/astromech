@@ -7,23 +7,25 @@ use crate::catalog::{self, Spec};
 use astromech_journal::{FactionSnap, JournalEvent, JournalLine};
 use serde::Serialize;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, ts_rs::TS)]
 pub struct SourceNote {
     pub kind: String,
     pub summary: String,
     pub hint: String,
     /// Live "nearest systems" lookup that applies (`astromech_galaxy::QUERIES` id).
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub query: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, ts_rs::TS)]
 pub struct PoolMat {
     pub id: String,
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "HgeHere")]
 pub struct Here {
     pub system: String,
     pub allegiance: String,

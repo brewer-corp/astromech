@@ -55,7 +55,7 @@ impl Body {
 }
 
 /// A species that could be there.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Candidate {
     pub genus: &'static str,
     pub species: &'static str,

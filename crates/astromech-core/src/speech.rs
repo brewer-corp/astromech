@@ -60,7 +60,7 @@ impl VoiceParams {
 }
 
 /// One voice the Settings picker offers: English Kokoro voices, British first.
-#[derive(Debug, Clone, serde::Serialize, PartialEq)]
+#[derive(Debug, Clone, serde::Serialize, PartialEq, ts_rs::TS)]
 pub struct VoiceChoice {
     pub name: &'static str,
     /// "Emma"

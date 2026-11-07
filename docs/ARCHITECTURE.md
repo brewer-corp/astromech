@@ -221,7 +221,12 @@ astromech/
                          decision astromech-unh9), every handler behind catch_unwind, and the core's
                          local control API that serves it (JSON lines over TCP, the port and token in
                          core.json; progress lines, then `{ok, value}` or `{ok: false, error}`), server
-                         and client in one module for the core, the shell and tests
+                         and client in one module for the core, the shell and tests;
+                         `bindings`: every command's args, reply and progress types exported to
+                         TypeScript with ts-rs (`app/src/lib/api/types/`, and `commands.ts`
+                         mapping each name to `{ args, reply, exposure, progress? }`), checked
+                         fresh by the core's test over the whole registry (astromech-se44);
+                         `reply::Answer`: a core command's own `{ok, …}` / `{ok: false, error}`;
                          `State`: the keybinds API, the journal caches, the one remote-data client,
                          the star map (opened on first use, shared with the session's voice lookups),
                          the neutron star file and the long jobs' one-at-a-time flags, once per
@@ -437,7 +442,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
 | `hidapi` | 2.6.7 | 2026-08 | active | Not needed in v1. Raw Input already provides HID reports |
 | `tray-icon` | 0.26.1 | 2026-10 | active (Tauri org, standalone crate) | tray |
 | `tauri` (v2) + plugins dialog, single-instance, window-state | 2.x ⚠ pin at K3 | 2026 | active | **`astromech-shell.exe` only** (separate process; §18). Not linked into the core |
-| `specta` + `specta-typescript` (or `ts-rs`) | specta 2.0.0-rc.x ⚠ pre-release | 2026-05 | active | Generate TS types for the `astromech-web` protocol (`astromech-proto`) |
+| `ts-rs` | 12.0.1 | 2026 | active | TS types for every command's args and reply (`astromech-api::bindings`, astromech-se44). Chosen over `specta` (2.0 still a pre-release) and `tauri-specta` (the shell forwards through one proxy, so commands aren't Tauri commands) |
 | `global-hotkey` | 0.8.0 | 2026-05 | active | **Not used.** `RegisterHotKey` consumes the key and is keyboard-only; controls use Raw Input instead |
 | `cargo-deny` / `cargo-about` | 0.20.2 / 0.9.2 | 2026-07 / 2026-08 | active | licence allowlist, advisories, third-party notices (§16) |
 | `single-instance` | 0.3.3 | **2021** | stale | Prefer a ~20-line named-mutex via `windows` |
@@ -754,7 +759,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - `cmd` accepts **only tier 0 and tier 1 tools, through the same policy layer**, and is rate-limited separately.
 - **Assets:** embedded with `rust-embed`. ~~egui compiled to wasm~~ **v0.6 decision:** the dashboard is dashboard modules of the same Svelte/TS frontend as the app window (§18).
 - **Clients:** the app window (Tauri shell or browser fallback, localhost and token only; the only clients allowed to send binds-editing messages) and paired LAN dashboards (read-mostly; tier 0/1 tools only).
-- **Types:** shared protocol types live in a `astromech-proto` crate (`specta` derive). TS is generated with `specta-typescript` (`ts-rs` is an alternative), and CI checks that the generated file is fresh.
+- **Types:** the command layer's request and reply types derive `ts_rs::TS` where they are defined; `astromech-api::bindings` writes the TS (`app/src/lib/api/`), and a test fails when the checked-in files are stale.
 
 ### 5.19 `astromech-store`
 - **Config:** `%APPDATA%\astromech\config.toml` (`directories::ProjectDirs`), versioned with migrations.

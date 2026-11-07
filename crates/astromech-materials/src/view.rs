@@ -7,19 +7,20 @@ use astromech_journal::{JournalEvent, JournalLine};
 use serde::Serialize;
 use std::path::Path;
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Inventory {
     pub source: String,
     pub snapshot_ts: Option<String>,
     pub kinds: Vec<KindView>,
     pub other: Vec<Cell>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub here: Option<Here>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub farm: Vec<FarmLine>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, ts_rs::TS)]
 pub struct FarmLine {
     pub id: String,
     pub name: String,
@@ -28,7 +29,7 @@ pub struct FarmLine {
     pub summary: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct KindView {
     pub id: String,
     pub title: String,
@@ -39,13 +40,13 @@ pub struct KindView {
     pub capacity: i64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct GroupView {
     pub name: String,
     pub cells: Vec<Cell>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Cell {
     pub id: String,
     pub name: String,

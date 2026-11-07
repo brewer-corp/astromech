@@ -40,7 +40,7 @@ use serde::Serialize;
 use serde_json::Value;
 
 /// A row of `commanders`. `cmdr` is the key every ledger uses.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, ts_rs::TS)]
 pub struct Commander {
     pub cmdr: String,
     pub name: String,
@@ -51,7 +51,7 @@ pub struct Commander {
 
 /// A row of `visits`. `kind` is `system` or `station`. Count jumps with `via == "FSDJump"`:
 /// carrier jumps and logins are arrivals too.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Visit {
     pub ts: String,
     pub kind: String,

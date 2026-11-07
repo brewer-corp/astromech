@@ -5,7 +5,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Landing pad size, smallest first.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, ts_rs::TS)]
 pub enum Pad {
     S,
     M,
@@ -63,7 +63,7 @@ impl Pad {
 }
 
 /// One lookup's filters. A filter a result can't be judged on (a system has no pad) keeps it.
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 #[serde(default)]
 pub struct Filters {
     /// Hide stations without a pad at least this big. `None`: any pad.
