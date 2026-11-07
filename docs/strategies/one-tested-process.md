@@ -6,8 +6,8 @@ last_changed: "2026-11-06: first version, from the architecture and testing disc
 # Why
 
 astromech is two processes that each do half the work. The core runs the live pipeline, voice,
-input, the route follower and the tray. The Tauri shell, meant to be thin, runs about 42
-commands of its own: journal scans, keybind edits, Spansh lookups and route plotting. So every
+input, the route follower and the tray. The Tauri shell, meant to be thin, registers 52
+commands, 48 of them its own: journal scans, keybind edits, Spansh lookups and route plotting. So every
 cache and the 184 MB neutron star file have two owners, and the "one API for every client"
 rule (ARCHITECTURE §18) is broken by the shell itself. Testing matches the split. The window
 is tested against hand-written fixtures behind an `inTauri` check in about 26 modules. The
@@ -27,10 +27,13 @@ its own: the transport seam and the command layer, even before the single-proces
 
 # Success Criteria
 
-- one-process: The installed app is one process. With the window closed, no WebView2 process
-  is left, and the idle memory stays inside the S11 budget (`scripts/webview_cost.py`, under
-  250 MB with the window open). Shown by the harness on Sumeet's PC, which he runs when the
-  agent asks.
+- one-process: The installed app is one app process plus its supervised speech worker
+  (`astromech-voice-worker`, which stays separate). With the window closed, no WebView2
+  process is left, and the app process's idle memory is at most 50 MB above today's core
+  alone. With the window open, the window's cost (the app process's rise plus its WebView2
+  processes) stays inside S11's 250 MB. Shown by `scripts/webview_cost.py`, changed to measure
+  this, in the Windows webview-cost CI job before merge, and by Sumeet's run of it next to
+  Elite when the agent asks.
 - one-command-list: Every command the window uses is served by the command layer and reachable
   over the control API and the headless mode. The shell holds only the window, the tray and
   startup. Shown by a test that lists the window's commands and calls each one through the
@@ -45,7 +48,8 @@ its own: the transport seam and the command layer, even before the single-proces
 # Shape
 
 - **One process** (decision astromech-6i8s, superseding ARCHITECTURE §18's process model): the
-  tray, the pipeline, voice, input and the window live in one Tauri app. Closing the window
+  tray, the pipeline, voice, input and the window live in one Tauri app. The speech worker
+  stays a separate supervised process. Closing the window
   destroys it, so WebView2 exits. Start with Windows never creates a window. Crash restart
   comes from Windows' restart registration, or a minimal watchdog if that can't cover it.
 - **One command layer in a crate**: every way in (Tauri `invoke`, the TCP control API, and
@@ -87,7 +91,7 @@ approval to an independent agent review. An orchestrator may change the incremen
 sequencing, crate and module names, the record-and-replay format, and which journeys the
 suite holds beyond the three named above. These must come back to Sumeet: changing the outcome
 or success criteria; dropping the journey suite or the single-process merge; anything that
-changes what the shipped app does while playing; and any rise in idle memory above S11.
+changes what the shipped app does while playing; and any idle memory beyond the one-process criterion's bounds.
 
 # Risks and Unknowns
 
@@ -98,7 +102,9 @@ changes what the shipped app does while playing; and any rise in idle memory abo
 - Core memory: the neutron star file and the scan caches move into the always-on process.
   They load on first use and are dropped when idle.
 - A fault in the window side now shares a process with the kill switch. Commands run behind
-  `catch_unwind` on worker threads; a native crash takes everything down, which crash restart
-  must cover.
+  `catch_unwind` on worker threads; a native crash (SQLite, WebView2's host side) takes the
+  process down, which crash restart must cover. Speech stays isolated in its worker.
+- Putting every window command on the control API widens what a local client can do; which
+  commands pass `astromech-policy` is settled in the command layer increment.
 - The headless core needs Linux stand-ins for sending keys, the keyboard hook and audio. Some
   exist for tests. Which are missing is found in the headless increment.

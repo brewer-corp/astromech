@@ -26,7 +26,7 @@ Every command the window uses lives in one Rust command layer in a crate. Tauri 
 
 ## Done when
 
-- [ ] The about 42 shell commands in app/src-tauri/src/window.rs and the core's control commands are handlers in the command layer, each run behind `catch_unwind` on a worker thread.
+- [ ] The shell's own commands (52 registered in `generate_handler` in app/src-tauri/src/window.rs, 48 besides `core_status`, `core_call`, `shell_info` and `open_external`) and the core's control commands are handlers in the command layer, each run behind `catch_unwind` on a worker thread.
 - [ ] Their request and reply types are exported to TypeScript (tauri-specta or ts-rs), and the window's transport and fake handlers are typed against them.
 - [ ] A test lists the window's commands and calls each through a running core's control API (success criterion one-command-list).
 - [ ] The neutron star file and the scan caches have one owner, load on first use and drop when idle.
@@ -34,4 +34,5 @@ Every command the window uses lives in one Rust command layer in a crate. Tauri 
 ## Unknowns
 
 - How the commands' state (binds API, neutron file, caches, galaxy) is owned and locked once one process serves several clients.
+- Which commands a local control-API client may call, and which go through `astromech-policy`: today the shell allow-lists `core_call`, and every window command on the control API widens what a local client can do.
 - Which crate holds the layer, and whether the control API moves from JSON lines to the planned WebSocket API (astromech-proto) now or later.

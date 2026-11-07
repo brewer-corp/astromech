@@ -31,7 +31,7 @@ A small suite of user journeys runs on every push against the real headless core
 
 - [ ] Journeys, at least: plot and follow a route; jump into the next stop, and it is copied and read out; a lookup fails (recorded 503) and the page shows its error with TRY AGAIN. Others to choose when planning: paste only while the galaxy map is open; set up push-to-talk and the mic; edit a keybind and the right .binds file changes; the kill switch stops input.
 - [ ] They run in CI on every push, with no sleeps, wall-clock reads or retries (lint and review), and pass on the mission's last merged commit (success criterion journeys-in-ci).
-- [ ] The release workflow launches the packaged app on Windows, sees the window connect, and quits it.
+- [ ] The release smoke covers the packaged one-process app: the existing install, start, status, quit and uninstall step in .github/workflows/release.yml and `scripts/onboarding_smoke.py` (which drives the real window) are adapted, not duplicated, and pass.
 
 ## Unknowns
 
