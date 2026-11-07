@@ -1,0 +1,18 @@
+# The plot-and-follow journey (app/journeys/route.journey.ts): Jameson in his Asp Explorer, docked
+# at Abraham Lincoln in Sol (the game folder of worlds/preview/sol-nov; the plotter reads a
+# 36.48 ly range from its Loadout). Elite starts, the commander plots a neutron route to Colonia
+# from the plot bar, and a jump into the route's first stop, PSR J1752-2806, follows it. The jump
+# line is hand-built in the shape the game writes, with the system's address and position from
+# Spansh's answer.
+#
+# Provenance: net.json is Spansh's public answers (no account, key or commander sent), recorded on
+# 7 Nov 2026 at about 23:40 UTC with `astromech-core --world worlds/journeys/plot --record-net
+# <file>` by stepping to "running", calling galaxy_systems {prefix: "Colonia"} and route_plot
+# (neutron, Sol to Colonia, 60% efficiency), then stepping to "jumped": the system-name
+# suggestions, the route job's submission and its seven polls (six queued, then the route), and the
+# biological-signals bodies search the core makes on arriving, whole and untrimmed; nothing was
+# redacted. EDSM's body list for PSR J1752-2806, asked on arriving, is left out because its answer
+# names another player (the star's discoverer): the world refuses that request, as it does any it
+# doesn't hold.
+[eddn]
+enabled = false
