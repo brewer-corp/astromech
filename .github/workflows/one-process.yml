@@ -63,6 +63,13 @@ jobs:
           name: one-process-probe
           path: one-process-report/
           if-no-files-found: warn
+      # The spike itself, for running the restart mode on a desktop (Atelier astromech-fmub).
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: astromech-spike-exe
+          path: spikes/o1-one-process/target/release/astromech-spike.exe
+          if-no-files-found: warn
 
   restart:
     runs-on: windows-latest
