@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "One Raw Input registration per process, shared by push-to-talk and the window's press listener"
-updated_at: "2026-11-07T11:57:35.950925980+00:00"
+updated_at: "2026-11-07T14:01:02.739585882+00:00"
 ---
 
 ## Goal
@@ -60,3 +60,7 @@ Nothing about what a press does changes: mapping, debounce, re-arm hold and trac
 ## Context
 
 ARCHITECTURE §5.10a. The `Processor` and `Mapper` consumers stay as they are. Only where their `Msg` stream comes from changes. The spike (astromech-wgtr) records whether a listener registered before Tauri's build survives it (probe check 2).
+
+## Notes
+
+- 2026-11-07 [note] From spike astromech-wgtr (evidence astromech-t55z, astromech-mb4f): start the shared Raw Input source after Builder::build, never before. With astromech's listener started before build, it saw none of the keys sent at start, after the window opened, after it closed and after tray churn: tao registers keyboard and mouse to its own hidden window when it builds the loop, and the process keeps only the last registration per device class. Started after build, it saw every key at 8 points, including after each of 5 window closes and after 50 tray-menu rebuilds. Nothing re-registers when a window opens or closes; only Tauri's set_device_event_filter (run once inside build) would, so the app must not call it later.

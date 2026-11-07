@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "webview_cost.py measures the one app windowless, open and closed again, and fails on a WebView2 process left behind"
-updated_at: "2026-11-07T11:57:35.951210811+00:00"
+updated_at: "2026-11-07T14:01:04.129959350+00:00"
 ---
 
 ## Goal
@@ -60,3 +60,7 @@ scripts/webview_cost.py, scripts/test_webview_cost.py, .github/workflows/webview
 - Today's harness: webview_cost.py:105-306.
 - The spike's probe, and its reports on astromech-wgtr.
 - The current Windows baseline: the core 6.2 MB and the window group 143 MB (run 42349317319).
+
+## Notes
+
+- 2026-11-07 [note] From spike astromech-wgtr (evidence astromech-t55z, astromech-mb4f; windows-latest, Server 2025, 4 CPUs): the baseline for the one app's cost. Private working set of the app plus its WebView2 processes, 30 s idle: spike windowless 3.3 to 3.5 MB (CPU 0.0%); window open 124.1 MB mean, 126.3 MB max, 7 processes (CPU 0.25 to 0.26% of the machine, about 1% of one core); after closes 1-5: 9.6, 9.7, 8.8, 7.9, 7.7 MB (run 2: 9.7 to 7.4 MB), one process and no WebView2 left, which was gone about 2.3 s after WM_CLOSE; the plain tray-icon baseline (tray.rs today, no Tauri) 1.9 MB. Today's core alone is 6.2 MB and the window group 143 MB (webview-cost run 42349317319). The spike has no pipeline, voice or caches, so the real app adds those. scripts/one_process_probe.py's measure() and its WebView2 ownership rule (descent, --webview-exe-name, the EBWebView folder) can be reused.
