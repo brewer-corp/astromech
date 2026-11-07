@@ -1875,6 +1875,8 @@ mod tests {
     /// Test mode is on the tray status line, over whatever the game is doing.
     #[test]
     fn the_status_line_says_when_push_to_talk_is_only_testing() {
+        // The line also says when voice is paused, which another test sets for a moment.
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
         let d = tempfile::tempdir().unwrap();
         let core = core(d.path(), "");
         assert_eq!(core.status_line_for(false), "Waiting for Elite");

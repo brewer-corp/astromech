@@ -22,7 +22,9 @@ enum Want {
     Ok,
     /// The handler's own error (in the envelope or the reply), containing this text.
     Fails(&'static str),
-    /// Not called: the effect has no seam and no state stops it first. The text names the seam.
+    /// Not called: the effect has no seam and no state stops it first on every platform this
+    /// test runs on (Windows CI too). The text names the seam. An allowance for this test only:
+    /// astromech-vucf's headless core calls every command.
     NotCalled(&'static str),
 }
 
