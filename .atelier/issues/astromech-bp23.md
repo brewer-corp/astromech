@@ -49,11 +49,11 @@ Every command the window uses is registered in one command layer, the registry i
 
 ## Done when
 
-- [ ] Every child is done.
-- [ ] The shell's 52 commands are gone from `generate_handler` except one proxy. The 48 shell commands, `open_external` and `shell_info` are command-layer handlers. `core_call` and `core_status` are replaced by the proxy. The core's control commands are registry entries. Every command runs behind `catch_unwind` on a worker thread.
-- [ ] Every command's request and reply types are exported to TypeScript with ts-rs, and the window's transport and fake handlers are typed against them.
-- [ ] A test lists the window's commands and calls each through a running core's control API. This advances success criterion one-command-list, which astromech-vucf completes by running the same test against the headless core and its scripted world. The typed `call()` (astromech-96dv) limits the window to the registry's `window` entries this test calls.
-- [ ] The neutron star file and the scan caches have one owner, the command layer's state in the core. They load on first use and drop when idle.
+- [x] Every child is done.
+- [x] The shell's 52 commands are gone from `generate_handler` except one proxy. The 48 shell commands, `open_external` and `shell_info` are command-layer handlers. `core_call` and `core_status` are replaced by the proxy. The core's control commands are registry entries. Every command runs behind `catch_unwind` on a worker thread.
+- [x] Every command's request and reply types are exported to TypeScript with ts-rs, and the window's transport and fake handlers are typed against them.
+- [x] A test lists the window's commands and calls each through a running core's control API. This advances success criterion one-command-list, which astromech-vucf completes by running the same test against the headless core and its scripted world. The typed `call()` (astromech-96dv) limits the window to the registry's `window` entries this test calls.
+- [x] The neutron star file and the scan caches have one owner, the command layer's state in the core. They load on first use and drop when idle.
 - [ ] The Release workflow's onboarding smoke on the bp23 PR opens every top-level page of the installed app against the real core with no "not allowed", unknown-command or internal error.
 
 ## Background

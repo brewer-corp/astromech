@@ -29,10 +29,10 @@ The one-owner claims of the command layer are exactly true, and nothing is left 
 
 ## Done when
 
-- [ ] The known-biology lookup (crates/astromech-core/src/session.rs:163) uses the command layer's one `astromech_data::Client`, or ARCHITECTURE names it as the one exception with its reason (a session-only in-memory cache); either way ARCHITECTURE §5.8's "one limiter spaces every lookup" is true as written.
-- [ ] `Paths::publish_config` / `config_in_use` and the `config.path` note (crates/astromech-store/src/paths.rs:155-180, crates/astromech-core/src/app.rs:41-50) are deleted, with any test that only covered them.
-- [ ] ARCHITECTURE §5.8 no longer says the core and the window both open `remote_cache.sqlite`.
-- [ ] `cargo test --workspace`, clippy and check-deps pass.
+- [x] The known-biology lookup (crates/astromech-core/src/session.rs:163) uses the command layer's one `astromech_data::Client`, or ARCHITECTURE names it as the one exception with its reason (a session-only in-memory cache); either way ARCHITECTURE §5.8's "one limiter spaces every lookup" is true as written.
+- [x] `Paths::publish_config` / `config_in_use` and the `config.path` note (crates/astromech-store/src/paths.rs:155-180, crates/astromech-core/src/app.rs:41-50) are deleted, with any test that only covered them.
+- [x] ARCHITECTURE §5.8 no longer says the core and the window both open `remote_cache.sqlite`.
+- [x] `cargo test --workspace`, clippy and check-deps pass.
 
 ## Context
 

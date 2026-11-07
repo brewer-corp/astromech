@@ -27,9 +27,9 @@ The neutron star file (about 80 MB loaded) and the command layer's scan caches l
 
 ## Done when
 
-- [ ] `State` has `release_idle(now, idle)`, following `PreviewSlot::release_idle` (crates/astromech-core/src/speech.rs:142). It drops the loaded neutron file (`Kept` gains a way to unload), each scan cache, and the `Galaxy`'s in-memory map when none was used for `idle`. The core's existing reaper thread (app.rs, the `preview-idle` loop) calls it, and the idle time is a named constant (10 minutes unless the implementer finds a reason).
-- [ ] A test with an explicit `now` (no sleeps) shows: a plot loads the file; `release_idle` before `idle` keeps it and after `idle` drops it; the next plot loads it again. One test per cache does the same.
-- [ ] The core logs one line when it drops the neutron file, as the voice preview does.
+- [x] `State` has `release_idle(now, idle)`, following `PreviewSlot::release_idle` (crates/astromech-core/src/speech.rs:142). It drops the loaded neutron file (`Kept` gains a way to unload), each scan cache, and the `Galaxy`'s in-memory map when none was used for `idle`. The core's existing reaper thread (app.rs, the `preview-idle` loop) calls it, and the idle time is a named constant (10 minutes unless the implementer finds a reason).
+- [x] A test with an explicit `now` (no sleeps) shows: a plot loads the file; `release_idle` before `idle` keeps it and after `idle` drops it; the next plot loads it again. One test per cache does the same.
+- [x] The core logs one line when it drops the neutron file, as the voice preview does.
 
 ## Scope
 

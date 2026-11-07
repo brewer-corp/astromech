@@ -29,9 +29,9 @@ A command that panics inside the core answers with an error, and the core then c
 
 ## Done when
 
-- [ ] The core's handlers and the session threads they share state with lock through `astromech_api::lock` (or the same poison recovery), so a panic under the `session` lock or any other core lock no longer makes later `status`, `voice_test`, exobiology and similar calls fail until restart. A test in crates/astromech-core panics a handler while it holds the session lock, then calls `status` over the control API and gets its normal reply.
-- [ ] A panic that the registry catches writes no `crash.marker` (crates/astromech-core/src/crash.rs:16), while a panic outside dispatch still does; a test covers both.
-- [ ] astromech-api's doc comment on panics says exactly what recovers.
+- [x] The core's handlers and the session threads they share state with lock through `astromech_api::lock` (or the same poison recovery), so a panic under the `session` lock or any other core lock no longer makes later `status`, `voice_test`, exobiology and similar calls fail until restart. A test in crates/astromech-core panics a handler while it holds the session lock, then calls `status` over the control API and gets its normal reply.
+- [x] A panic that the registry catches writes no `crash.marker` (crates/astromech-core/src/crash.rs:16), while a panic outside dispatch still does; a test covers both.
+- [x] astromech-api's doc comment on panics says exactly what recovers.
 
 ## Context
 
