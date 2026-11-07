@@ -212,8 +212,11 @@ dependencies = [
  "astromech-proto",
  "astromech-ship",
  "astromech-station",
+ "astromech-store",
+ "flate2",
  "serde",
  "serde_json",
+ "sha2",
  "tempfile",
 ]
 
@@ -520,21 +523,12 @@ dependencies = [
 name = "astromech-shell"
 version = "0.0.0-dev"
 dependencies = [
- "anyhow",
  "astromech-api",
- "astromech-data",
- "astromech-engineering",
- "astromech-galaxy",
  "astromech-input",
- "astromech-journal",
  "astromech-keybinds",
  "astromech-log",
- "astromech-market",
- "astromech-powerplay",
  "astromech-proto",
- "astromech-station",
  "astromech-store",
- "serde",
  "serde_json",
  "tauri",
  "tauri-build",

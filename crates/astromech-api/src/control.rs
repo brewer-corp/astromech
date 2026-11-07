@@ -241,8 +241,8 @@ mod tests {
         let (seen_tx, seen_rx) = channel::<()>();
         let seen_rx = Mutex::new(seen_rx);
         let mut reg = Registry::new();
-        reg.add("job", Exposure::Window, move |_, progress| {
-            progress(json!("halfway"));
+        reg.add("job", Exposure::Window, move |_, call| {
+            call.progress(json!("halfway"));
             crate::lock(&seen_rx)
                 .recv_timeout(Duration::from_secs(60))
                 .map_err(|_| "the progress line never reached the client".to_string())?;

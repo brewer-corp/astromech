@@ -258,7 +258,7 @@ impl Assistant {
             self.say(m);
             Outcome::Spoken(m.into())
         };
-        let galaxy = match (&game.powerplay.power, self.runner.galaxy.clone()) {
+        let galaxy = match (&game.powerplay.power, self.runner.galaxy()) {
             (None, _) => return said(targets::NOT_PLEDGED),
             (_, None) => return said(lookup::NO_STAR_MAP),
             (Some(_), Some(g)) => g,
@@ -289,7 +289,7 @@ impl Assistant {
         from: Option<&str>,
     ) -> Outcome {
         let game = self.runner.hub.snapshot();
-        let Some(galaxy) = self.runner.galaxy.clone() else {
+        let Some(galaxy) = self.runner.galaxy() else {
             self.say(lookup::NO_STAR_MAP);
             return Outcome::Spoken(lookup::NO_STAR_MAP.into());
         };
@@ -316,7 +316,7 @@ impl Assistant {
     /// named in `from`), and say the answer when it arrives (off this thread).
     fn hotspot_lookup(&self, want: astromech_market::mining::Want, from: Option<&str>) -> Outcome {
         let game = self.runner.hub.snapshot();
-        let Some(galaxy) = self.runner.galaxy.clone() else {
+        let Some(galaxy) = self.runner.galaxy() else {
             self.say(lookup::NO_STAR_MAP);
             return Outcome::Spoken(lookup::NO_STAR_MAP.into());
         };
@@ -458,8 +458,7 @@ impl Assistant {
         };
         // Every question can replay the journals (they grow all through play), as well as search.
         self.say("Looking that up.");
-        let (projects, galaxy, speaker) =
-            (self.projects.clone(), self.runner.galaxy.clone(), self.runner.speaker.clone());
+        let (projects, galaxy, speaker) = (self.projects.clone(), self.runner.galaxy(), self.runner.speaker.clone());
         let (commodity, from, now) = (commodity.map(str::to_string), from.map(str::to_string), self.clock.now_s());
         Outcome::LookingUp(std::thread::spawn(move || {
             let lookup = galaxy.as_deref().map(|g| (g, &filters));

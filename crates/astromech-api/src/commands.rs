@@ -225,9 +225,8 @@ mod tests {
         std::fs::write(bindings.join("Mine.4.2.binds"), PRESET).unwrap();
         std::fs::write(bindings.join("StartPreset.4.start"), "Mine\nMine\nMine\nMine").unwrap();
         let b = bindings.clone();
-        let state = Arc::new(State::new(d.path().join("data"), move || Folders {
-            bindings: Some(b.clone()),
-            ..Folders::default()
+        let state = Arc::new(State::new(d.path().join("data"), crate::state::tests::offline(), None, move || {
+            Folders { bindings: Some(b.clone()), ..Folders::default() }
         }));
         let mut reg = Registry::new();
         register(&state, &mut reg);
@@ -294,9 +293,11 @@ mod tests {
             },
             ..Inventory::default()
         };
-        let state =
-            State::new(d.path().join("data"), move || Folders { bindings: Some(b.clone()), ..Folders::default() })
-                .with_devices(devices);
+        let state = State::new(d.path().join("data"), crate::state::tests::offline(), None, move || Folders {
+            bindings: Some(b.clone()),
+            ..Folders::default()
+        })
+        .with_devices(devices);
         let mut reg = Registry::new();
         register(&Arc::new(state), &mut reg);
         let ids = |v: Value| {
@@ -318,7 +319,8 @@ mod tests {
         std::fs::write(game.join("ControlSchemes").join("Keyboard.binds"), PRESET.replace("Mine", "Keyboard")).unwrap();
         let folders = Arc::new(std::sync::Mutex::new(Folders { bindings: Some(b), ..Folders::default() }));
         let f = folders.clone();
-        let state = State::new(d.path().join("data"), move || crate::lock(&f).clone());
+        let state =
+            State::new(d.path().join("data"), crate::state::tests::offline(), None, move || crate::lock(&f).clone());
         let mut reg = Registry::new();
         register(&Arc::new(state), &mut reg);
         let names = |v: Value| v["presets"].as_array().unwrap().iter().map(|p| p["name"].clone()).collect::<Vec<_>>();

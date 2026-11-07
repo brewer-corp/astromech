@@ -1,18 +1,110 @@
 //! The command layer's state, built once per process and shared by every caller: the keybinds
-//! [`Api`] and the journal caches the window's pages poll. Each piece has its own short-held
-//! lock, recovered if a handler panicked holding it ([`crate::lock`]).
+//! [`Api`], the journal caches the window's pages poll, the process's one remote-data client,
+//! the star map ([`GalaxyHolder`]), the neutron star file and the one-at-a-time flags of the long
+//! jobs. Each piece has its own short-held lock, recovered if a handler panicked holding it
+//! ([`crate::lock`]). A long job (a route search, a plot) holds a flag, not a lock, so other
+//! callers aren't kept waiting.
 //!
 //! The folders come from a [`Folders`] source read on every call (the core implements it over
 //! its live config), so a folder changed in onboarding or Settings applies at once: the keybinds
 //! `Api` is rebuilt when the Bindings or game folder it was built from changes, and each journal
-//! cache is dropped when the journal folder changes. The data folder is fixed for the process.
+//! cache is dropped when the journal folder changes. The data folder is fixed for the process,
+//! so the client, the star map and the neutron star file in it are never reopened.
 
 use crate::lock;
 use astromech_journal::{journal_version, JournalCache, JournalVersion};
 use astromech_keybinds::api::Api;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
+
+/// The star map preload's file name: the bundled `starmap.db`, which the installer puts next to
+/// the app's executables.
+pub const PRELOAD: &str = "starmap.db";
+
+/// The bundled star map preload for a process running `exe`: the `starmap.db` next to it, if
+/// there is one. Without one the star map opens with no preload, as a dev build's does.
+pub fn preload_beside(exe: &Path) -> Option<PathBuf> {
+    let p = exe.with_file_name(PRELOAD);
+    p.is_file().then_some(p)
+}
+
+/// The local star map, opened on first use and then kept. A failed open is not remembered: the
+/// next call tries again. The window's lookups and the session's voice lookups share one.
+pub struct GalaxyHolder {
+    open: Box<dyn Fn() -> anyhow::Result<astromech_galaxy::Galaxy> + Send + Sync>,
+    slot: Mutex<Option<Arc<astromech_galaxy::Galaxy>>>,
+}
+
+impl GalaxyHolder {
+    /// A star map that `open` opens when it is first asked for.
+    pub fn new(open: impl Fn() -> anyhow::Result<astromech_galaxy::Galaxy> + Send + Sync + 'static) -> Self {
+        Self { open: Box::new(open), slot: Mutex::new(None) }
+    }
+
+    /// The star map in `db` (seeded once from `preload`, if there is one), answering remote
+    /// requests through `remote`. Opening it logs which database and preload it used, or why
+    /// it couldn't.
+    pub fn at(db: PathBuf, preload: Option<PathBuf>, remote: Arc<astromech_data::Client>) -> Self {
+        Self::new(move || {
+            let opened = astromech_galaxy::Galaxy::open(&db, preload.as_deref(), remote.clone());
+            let from = preload.as_ref().map_or("no preload".into(), |p| format!("preload {}", p.display()));
+            match &opened {
+                Ok(_) => astromech_log::log(&format!("star map: opened {}, {from}", db.display())),
+                Err(e) => astromech_log::log(&format!(
+                    "star map: {} not opened ({from}), site lookups are off: {e:#}",
+                    db.display()
+                )),
+            }
+            opened
+        })
+    }
+
+    /// A star map that is open already (a test's, over a store in memory).
+    pub fn opened(galaxy: astromech_galaxy::Galaxy) -> Self {
+        Self { open: Box::new(|| anyhow::bail!("opened already")), slot: Mutex::new(Some(Arc::new(galaxy))) }
+    }
+
+    /// The star map, opening it if it isn't open yet.
+    pub fn get(&self) -> Result<Arc<astromech_galaxy::Galaxy>, String> {
+        let mut g = lock(&self.slot);
+        if let Some(x) = g.as_ref() {
+            return Ok(x.clone());
+        }
+        let opened = Arc::new((self.open)().map_err(|e| format!("{e:#}"))?);
+        *g = Some(opened.clone());
+        Ok(opened)
+    }
+}
+
+/// Holds one of the state's one-at-a-time flags while its job runs and clears it when the job
+/// ends, however it ends.
+pub(crate) struct Busy<'a>(&'a AtomicBool);
+
+impl<'a> Busy<'a> {
+    /// `None` when the flag is held already.
+    pub(crate) fn take(flag: &'a AtomicBool) -> Option<Self> {
+        (!flag.swap(true, Ordering::SeqCst)).then_some(Busy(flag))
+    }
+}
+
+impl Drop for Busy<'_> {
+    fn drop(&mut self) {
+        self.0.store(false, Ordering::SeqCst);
+    }
+}
+
+/// Opens a URL in the browser or a folder in the file manager (explorer.exe on Windows).
+pub type Opener = Box<dyn Fn(&str) -> Result<(), String> + Send + Sync>;
+
+fn open_with_the_system(target: &str) -> Result<(), String> {
+    #[cfg(windows)]
+    let r = std::process::Command::new("explorer.exe").arg(target).spawn();
+    #[cfg(not(windows))]
+    let r = std::process::Command::new("xdg-open").arg(target).spawn();
+    r.map(|_| ()).map_err(|e| e.to_string())
+}
 
 /// The folders the state reads, as configured now.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -143,12 +235,47 @@ pub struct State {
     /// Keyed by the history in the data folder, which is fixed, so it is never dropped.
     unsold: Mutex<astromech_history::UnsoldCache>,
     colonisation: ForDir<Versioned<ColonisationKey, Vec<astromech_colonisation::ProjectView>>>,
+    /// The process's one remote-data client (Spansh, Ardent, EDSM).
+    remote: Arc<astromech_data::Client>,
+    galaxy: Arc<GalaxyHolder>,
+    /// The neutron star file in the data folder, loaded on the first local neutron plot and kept
+    /// (about 80 MB), and loaded again when a download replaces it.
+    pub(crate) neutron: astromech_galaxy::neutron::Kept,
+    /// Where the neutron star file is published.
+    pub(crate) neutron_url: String,
+    /// A trade route search is running (one Spansh job at a time, even if the page is left and
+    /// opened again while the first still polls).
+    pub(crate) route_busy: AtomicBool,
+    /// A route is being plotted for the follower (one at a time, the same way).
+    pub(crate) plot_busy: AtomicBool,
+    /// How a route plot polls Spansh.
+    pub(crate) plot_polling: astromech_data::spansh::Polling,
+    /// Folders `open_external` may open (with what is under them), besides the data folder.
+    openable: Vec<PathBuf>,
+    opener: Opener,
 }
 
 impl State {
-    /// `data_dir`: the core's data folder for this process. `folders`: read on every call.
-    pub fn new(data_dir: PathBuf, folders: impl Fn() -> Folders + Send + Sync + 'static) -> Self {
+    /// `data_dir`: the core's data folder for this process. `remote`: the process's one
+    /// remote-data client. `preload`: the star map preload ([`preload_beside`]). `folders`: read
+    /// on every call.
+    pub fn new(
+        data_dir: PathBuf,
+        remote: Arc<astromech_data::Client>,
+        preload: Option<PathBuf>,
+        folders: impl Fn() -> Folders + Send + Sync + 'static,
+    ) -> Self {
+        let galaxy = GalaxyHolder::at(data_dir.join("galaxy.db"), preload, remote.clone());
         Self {
+            neutron: astromech_galaxy::neutron::Kept::new(&data_dir),
+            neutron_url: astromech_galaxy::neutron::RELEASE_URL.into(),
+            route_busy: AtomicBool::new(false),
+            plot_busy: AtomicBool::new(false),
+            plot_polling: Default::default(),
+            openable: vec![],
+            opener: Box::new(open_with_the_system),
+            remote,
+            galaxy: Arc::new(galaxy),
             data_dir,
             folders: Box::new(folders),
             devices: Box::new(astromech_keybinds::devices::enumerate_live),
@@ -161,6 +288,76 @@ impl State {
             unsold: Mutex::new(Default::default()),
             colonisation: ForDir::new(|_| Mutex::new(None)),
         }
+    }
+
+    /// Folders `open_external` may open besides the data folder (the core's app and log folders).
+    pub fn openable(mut self, folders: Vec<PathBuf>) -> Self {
+        self.openable = folders;
+        self
+    }
+
+    /// Poll Spansh for a route plot this way instead of every few seconds (a test's recorded
+    /// answers need no wait).
+    pub fn plot_polling(mut self, polling: astromech_data::spansh::Polling) -> Self {
+        self.plot_polling = polling;
+        self
+    }
+
+    /// Open URLs and folders with `opener` instead of the system's (a test's).
+    #[cfg(test)]
+    pub(crate) fn with_opener(mut self, opener: impl Fn(&str) -> Result<(), String> + Send + Sync + 'static) -> Self {
+        self.opener = Box::new(opener);
+        self
+    }
+
+    /// Fetch the neutron star file from `url` instead of the `neutron` pre-release (a test's
+    /// server).
+    #[cfg(test)]
+    pub(crate) fn with_neutron_url(mut self, url: &str) -> Self {
+        self.neutron_url = url.into();
+        self
+    }
+
+    /// The process's one remote-data client.
+    pub fn remote(&self) -> &Arc<astromech_data::Client> {
+        &self.remote
+    }
+
+    /// The star map, shared with the session's voice lookups.
+    pub fn galaxy_holder(&self) -> &Arc<GalaxyHolder> {
+        &self.galaxy
+    }
+
+    /// The star map, opened on first use.
+    pub fn galaxy(&self) -> Result<Arc<astromech_galaxy::Galaxy>, String> {
+        self.galaxy.get()
+    }
+
+    /// Open `target` if it is a link the app opens (the project's GitHub pages, Coriolis, EDSY,
+    /// Spansh, Inara) or a folder under the data folder or another [`State::openable`] one;
+    /// "not allowed" otherwise.
+    pub fn open_external(&self, target: &str) -> Result<(), String> {
+        let ok_url = astromech_engineering::links::is_openable_url(target);
+        let ok_dir = {
+            let p = Path::new(target);
+            p.is_dir()
+                && p.canonicalize().is_ok_and(|p| {
+                    std::iter::once(&self.data_dir)
+                        .chain(&self.openable)
+                        .filter_map(|r| r.canonicalize().ok())
+                        .any(|r| p.starts_with(r))
+                })
+        };
+        if !ok_url && !ok_dir {
+            return Err("not allowed".into());
+        }
+        (self.opener)(target)
+    }
+
+    /// The settings store, `astromech.sqlite` in the data folder (saved search filters).
+    pub fn settings(&self) -> Result<astromech_store::Store, String> {
+        std::fs::create_dir_all(&self.data_dir).map_err(|e| e.to_string())?;
+        astromech_store::Store::open(&self.data_dir.join("astromech.sqlite")).map_err(|e| e.to_string())
     }
 
     /// Devices from `devices` instead of the live ones (a test's controllers).
@@ -309,9 +506,27 @@ pub struct Engineers {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use std::io::Write;
+
+    /// A client whose every request fails, for tests that look nothing up.
+    pub(crate) fn offline() -> Arc<astromech_data::Client> {
+        struct Offline;
+        impl astromech_data::Transport for Offline {
+            fn send(
+                &self,
+                url: &str,
+                _: &astromech_data::Request,
+            ) -> Result<astromech_data::Response, astromech_data::TransportError> {
+                Err(astromech_data::TransportError::Offline(format!("no network in this test: {url}")))
+            }
+        }
+        Arc::new(
+            astromech_data::Client::with_transport(astromech_data::Cache::in_memory().unwrap(), Arc::new(Offline))
+                .limiter(astromech_data::Limiter::none()),
+        )
+    }
 
     /// A journal folder with one journal and a state reading it.
     struct World {
@@ -330,7 +545,7 @@ mod tests {
         std::fs::create_dir_all(&journals).unwrap();
         std::fs::write(journals.join("Journal.2026-11-01T100000.01.log"), START).unwrap();
         let (j, data) = (journals.clone(), d.path().join("data"));
-        let state = State::new(data, move || Folders { journal: j.clone(), ..Folders::default() });
+        let state = State::new(data, offline(), None, move || Folders { journal: j.clone(), ..Folders::default() });
         World { _d: d, journals, state }
     }
 
@@ -422,13 +637,58 @@ mod tests {
         }
         let now = Arc::new(Mutex::new(one.clone()));
         let n = now.clone();
-        let state =
-            State::new(d.path().join("data"), move || Folders { journal: lock(&n).clone(), ..Folders::default() });
+        let state = State::new(d.path().join("data"), offline(), None, move || Folders {
+            journal: lock(&n).clone(),
+            ..Folders::default()
+        });
         let a = state.materials().unwrap();
         *lock(&now) = two;
         let b = state.materials().unwrap();
         assert!(!Arc::ptr_eq(&a, &b));
         *lock(&now) = one;
         assert!(!Arc::ptr_eq(&a, &state.materials().unwrap()), "the first folder's cache was dropped");
+    }
+
+    #[test]
+    fn the_preload_is_the_starmap_db_next_to_the_exe() {
+        let d = tempfile::tempdir().unwrap();
+        let exe = d.path().join("astromech-core.exe");
+        assert_eq!(preload_beside(&exe), None, "none there: no preload, as the session opened it");
+        std::fs::write(d.path().join("starmap.db"), "").unwrap();
+        assert_eq!(preload_beside(&exe), Some(d.path().join("starmap.db")));
+    }
+
+    /// A star map that won't open is tried again on the next call, and kept once open.
+    #[test]
+    fn a_star_map_that_failed_to_open_is_opened_on_the_next_call() {
+        let tries = Arc::new(Mutex::new(0));
+        let t = tries.clone();
+        let holder = GalaxyHolder::new(move || {
+            let mut n = lock(&t);
+            *n += 1;
+            anyhow::ensure!(*n > 1, "the disk is busy");
+            Ok(astromech_galaxy::Galaxy::with_remote(astromech_galaxy::Store::in_memory()?, offline()))
+        });
+        assert_eq!(holder.get().err().as_deref(), Some("the disk is busy"));
+        let g = holder.get().unwrap();
+        assert!(Arc::ptr_eq(&g, &holder.get().unwrap()));
+        assert_eq!(*lock(&tries), 2);
+    }
+
+    /// Opening the star map names the database and the preload, or says there is none.
+    #[test]
+    fn opening_the_star_map_logs_its_database_and_preload() {
+        crate::tests::test_log();
+        let d = tempfile::tempdir().unwrap();
+        let db = d.path().join("galaxy.db");
+        GalaxyHolder::at(db.clone(), None, offline()).get().unwrap();
+        let line = format!("star map: opened {}, no preload", db.display());
+        assert!(crate::tests::logged().contains(&line), "{}", crate::tests::logged());
+
+        let (db, pre) = (d.path().join("other.db"), d.path().join("starmap.db"));
+        astromech_galaxy::Store::open(&pre).unwrap();
+        GalaxyHolder::at(db.clone(), Some(pre.clone()), offline()).get().unwrap();
+        let line = format!("star map: opened {}, preload {}", db.display(), pre.display());
+        assert!(crate::tests::logged().contains(&line), "{}", crate::tests::logged());
     }
 }

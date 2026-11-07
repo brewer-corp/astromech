@@ -91,7 +91,7 @@ fn rig(power: Option<&str>) -> Rig {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
-        galaxy: Some(Arc::new(Galaxy::with_remote(stars, client.clone()))),
+        stars: Arc::new(astromech_api::GalaxyHolder::opened(Galaxy::with_remote(stars, client.clone()))),
         remote: client,
     });
     let store = Arc::new(Mutex::new(astromech_store::Store::in_memory().unwrap()));

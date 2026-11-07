@@ -63,6 +63,12 @@ fn rig(at_sol: bool) -> (Assistant, Arc<RecordingSpeaker>, Arc<NoKeys>) {
 }
 
 fn rig_with(at_sol: bool, transport: Recorded) -> (Assistant, Arc<RecordingSpeaker>, Arc<NoKeys>) {
+    rig_opening(at_sol, transport, 0)
+}
+
+/// [`rig_with`] whose star map is opened on the first lookup, and fails to open `failures`
+/// times first.
+fn rig_opening(at_sol: bool, transport: Recorded, failures: usize) -> (Assistant, Arc<RecordingSpeaker>, Arc<NoKeys>) {
     let hub = Arc::new(StateHub::new());
     hub.update(|g| {
         g.status_seen = true;
@@ -84,7 +90,17 @@ fn rig_with(at_sol: bool, transport: Recorded) -> (Assistant, Arc<RecordingSpeak
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
-        galaxy: Some(Arc::new(Galaxy::with_remote(Store::in_memory().unwrap(), client.clone()))),
+        stars: Arc::new(astromech_api::GalaxyHolder::new({
+            let (client, left) = (client.clone(), Mutex::new(failures));
+            move || {
+                let mut left = left.lock().unwrap();
+                if *left > 0 {
+                    *left -= 1;
+                    anyhow::bail!("galaxy.db is locked");
+                }
+                Ok(Galaxy::with_remote(Store::in_memory()?, client.clone()))
+            }
+        })),
         remote: client,
     });
     (Assistant::new(runner), speaker, exec)
@@ -190,4 +206,24 @@ fn a_named_system_is_searched_from_and_named() {
         .unwrap();
     assert!(m.starts_with("From Sol. Nearest crystalline shards: "), "{m}");
     assert_eq!(a.dry_run("nearest crystalline shards", Source::Typed).live_from, None);
+}
+
+/// The star map opens on the first voice lookup that needs it. While it can't be opened the
+/// lookup says lookups are off, and the next one tries again.
+#[test]
+fn a_star_map_that_would_not_open_is_tried_again_on_the_next_lookup() {
+    let (a, speaker, _) = rig_opening(true, Recorded::default(), 1);
+    let Handled::Ran { outcome: Outcome::Spoken(s), .. } =
+        a.handle("nearest crystalline shards", astromech_proto::Origin::Voice)
+    else {
+        panic!("not spoken")
+    };
+    assert_eq!(s, astromech_tools::lookup::NO_STAR_MAP);
+    assert_eq!(speaker.take(), vec![s]);
+    let Handled::Ran { outcome: Outcome::LookingUp(h), .. } =
+        a.handle("nearest crystalline shards", astromech_proto::Origin::Voice)
+    else {
+        panic!("not a lookup")
+    };
+    assert_eq!(h.join().unwrap(), ANSWER);
 }

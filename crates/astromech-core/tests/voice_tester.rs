@@ -85,7 +85,7 @@ fn rig() -> Rig {
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
         remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
-        galaxy: None,
+        stars: Arc::new(astromech_api::GalaxyHolder::new(|| anyhow::bail!("no star map in this test"))),
     });
     let assistant = Assistant::new(runner.clone());
     Rig { _dir: dir, exec, speaker, runner, assistant }

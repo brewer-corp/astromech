@@ -38,8 +38,9 @@ pub enum Ui {
     Quit,
 }
 
-/// The config file this run uses (`--config`, else the default), told to the app window so it
-/// reads the same one (`Paths::config_in_use`) until the returned note is dropped at exit.
+/// The config file this run uses (`--config`, else the default), noted in the app dir
+/// (`Paths::publish_config`) until the returned note is dropped at exit. Nothing reads the note
+/// now that the window reads no config of its own (its commands are the core's).
 fn choose_config(opts: &Opts, paths: &Paths) -> (PathBuf, Option<astromech_store::paths::Published>) {
     let path = opts.config.clone().unwrap_or_else(|| paths.config_file());
     let published = paths
@@ -126,11 +127,24 @@ pub struct Core {
 }
 
 /// The command layer's state over `core`'s live config: its folders are read on every call,
-/// so a `set_folders` applies at once. `data_dir` is fixed for the process.
-fn api_state(core: std::sync::Weak<Core>, data_dir: PathBuf) -> Arc<astromech_api::State> {
-    Arc::new(astromech_api::State::new(data_dir, move || {
-        core.upgrade().map(|c| api_folders(&c.cfg())).unwrap_or_default()
-    }))
+/// so a `set_folders` applies at once. `data_dir` is fixed for the process, and with it the
+/// process's one remote-data client (`remote`, its cache in `data_dir`) and the star map, whose
+/// preload is the bundled `starmap.db` next to this exe. `open_external` may open folders under
+/// `app_dir` and the log folder too.
+fn api_state(
+    core: std::sync::Weak<Core>,
+    data_dir: PathBuf,
+    remote: Arc<astromech_data::Client>,
+    openable: Vec<PathBuf>,
+) -> astromech_api::State {
+    let preload = std::env::current_exe().ok().and_then(|exe| astromech_api::preload_beside(&exe));
+    let folders = move || core.upgrade().map(|c| api_folders(&c.cfg())).unwrap_or_default();
+    astromech_api::State::new(data_dir, remote, preload, folders).openable(openable)
+}
+
+/// The process's one remote-data client, its cache in `data_dir`.
+pub fn remote_client(data_dir: &Path) -> Arc<astromech_data::Client> {
+    astromech_data::Client::shared(data_dir, Arc::new(|s: &str| log(s)))
 }
 
 fn api_folders(c: &Config) -> astromech_api::Folders {
@@ -347,7 +361,7 @@ impl Core {
         self.notify();
         let t0 = Instant::now();
         let cfg = self.cfg();
-        let r = Session::start(&cfg, &self.opts.session, self.route.clone()).and_then(|mut s| {
+        let r = Session::start(&cfg, &self.opts.session, self.route.clone(), &self.api).and_then(|mut s| {
             s.start_buttons(&cfg, &self.opts.session)?;
             Ok(s)
         });
@@ -736,6 +750,7 @@ impl Core {
     pub fn commands(self: &Arc<Self>) -> Registry {
         let mut reg = Registry::new();
         astromech_api::commands::register(&self.api, &mut reg);
+        astromech_api::lookups::register(&self.api, &mut reg);
         let mut add = |names: &[&str], exposure: Exposure, f: fn(&Arc<Core>, &Request) -> Value| {
             for name in names {
                 let c = self.clone();
@@ -1346,8 +1361,10 @@ pub fn run(opts: Opts) -> i32 {
         log(&format!("could not carry device-overrides.json over to {}: {e}", data_dir.display()));
     }
     let (ui_tx, ui_rx) = channel();
+    let openable = vec![app_dir.clone(), paths.log_dir()];
+    let remote = remote_client(&data_dir);
     let core = Arc::new_cyclic(|me| Core {
-        api: api_state(me.clone(), data_dir),
+        api: Arc::new(api_state(me.clone(), data_dir, remote, openable)),
         app_dir: app_dir.clone(),
         config_path,
         onboarded: AtomicBool::new(
@@ -1483,11 +1500,35 @@ mod tests {
 
     /// A core as `run` builds it, on the config file `text` in `dir`, without its threads.
     fn core(dir: &Path, text: &str) -> Arc<Core> {
+        core_with(dir, text, offline())
+    }
+
+    /// A client whose every request fails, for tests that look nothing up.
+    fn offline() -> Arc<astromech_data::Client> {
+        struct Offline;
+        impl astromech_data::Transport for Offline {
+            fn send(
+                &self,
+                url: &str,
+                _: &astromech_data::Request,
+            ) -> Result<astromech_data::Response, astromech_data::TransportError> {
+                Err(astromech_data::TransportError::Offline(format!("no network in this test: {url}")))
+            }
+        }
+        Arc::new(astromech_data::Client::with_transport(astromech_data::Cache::in_memory().unwrap(), Arc::new(Offline)))
+    }
+
+    const NO_WAIT: astromech_data::spansh::Polling =
+        astromech_data::spansh::Polling { every: Duration::ZERO, timeout: Duration::from_secs(5) };
+
+    /// [`core`] with its lookups going through `remote`.
+    fn core_with(dir: &Path, text: &str, remote: Arc<astromech_data::Client>) -> Arc<Core> {
         let config_path = dir.join("astromech.toml");
         std::fs::write(&config_path, text).unwrap();
         let data_dir = Config::load(&config_path).unwrap().data_dir();
         Arc::new_cyclic(|me| Core {
-            api: api_state(me.clone(), data_dir),
+            // Recorded Spansh answers need no wait between polls.
+            api: Arc::new(api_state(me.clone(), data_dir, remote, vec![]).plot_polling(NO_WAIT)),
             app_dir: dir.to_path_buf(),
             cfg: std::sync::RwLock::new(Config::load(&config_path).unwrap()),
             config_path,
@@ -1655,7 +1696,6 @@ mod tests {
             supercharge_multiplier: 4,
         };
         let ship = Ship { name: "Asp".into(), range: fsd.range(0.0), fsd, cargo: 0.0, unresolved: vec![] };
-        let no_wait = astromech_data::spansh::Polling { every: Duration::ZERO, timeout: Duration::from_secs(5) };
         let plotted = |plotter: Plotter, to: &str, answers: Vec<(u16, &'static str)>| {
             let client = astromech_data::Client::with_transport(
                 astromech_data::Cache::in_memory().unwrap(),
@@ -1663,7 +1703,7 @@ mod tests {
             )
             .limiter(astromech_data::Limiter::none());
             let ask = Ask { plotter, to: to.into(), efficiency: 60, refuel_every_scoopable: true };
-            serde_json::to_value(plot(&client, "Sol", &ask, &ship, no_wait).unwrap()).unwrap()
+            serde_json::to_value(plot(&client, "Sol", &ask, &ship, NO_WAIT).unwrap()).unwrap()
         };
 
         let d = tempfile::tempdir().unwrap();
@@ -2133,115 +2173,99 @@ mod tests {
         assert_ne!(now, materials(&old_j));
     }
 
-    /// Done-when for astromech-c9em: a Bindings folder pasted in onboarding (`set_folders`, which
-    /// the core writes to its config) is what the window reads, in the default, portable and
-    /// `--config` layouts.
+    /// The window's commands read and write the core's data folder, the one its config names,
+    /// fixed at startup: a filter saved there and the history there are what come back.
     #[test]
-    fn a_pasted_bindings_folder_is_what_the_window_reads_in_every_layout() {
-        use astromech_store::window::WindowConfig;
-        let env = |app: &Path| {
-            let app = app.to_path_buf();
-            move |k: &str| (k == "XDG_DATA_HOME").then(|| app.clone().into_os_string())
+    fn the_window_reads_the_data_folder_the_config_names() {
+        let d = tempfile::tempdir().unwrap();
+        let data = d.path().join("elsewhere");
+        std::fs::create_dir_all(&data).unwrap();
+        let saved = astromech_galaxy::Filters { max_distance_ly: Some(42), ..Default::default() };
+        let store = astromech_store::Store::open(&data.join("astromech.sqlite")).unwrap();
+        astromech_galaxy::filters::save(&store, "trade.sell", &saved).unwrap();
+        drop(store);
+        let journals = Path::new(env!("CARGO_MANIFEST_DIR")).join("../astromech-history/tests/fixtures");
+        let mut h = astromech_history::History::open(&data.join("history.sqlite")).unwrap();
+        h.import(&journals, &Default::default()).unwrap();
+        drop(h);
+
+        let core = core(d.path(), &format!("data_dir = '{}'\n", data.display()));
+        assert_ne!(core.cfg().data_dir(), Config::default().data_dir());
+        let app = d.path().join("app");
+        let _srv = control::serve(&app, Arc::new(core.commands())).unwrap();
+        let ask = |cmd: &str, args: Value| {
+            let req =
+                Request { args: Some(args), origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
+            control::call(&app, req, None, &mut |_| {}).unwrap()
         };
-        let paste = |config: &Path, dir: &str| {
-            crate::setup::write(config, &[crate::setup::Edit::BindingsDir(dir.into())]).unwrap();
-        };
-        // `--config` somewhere else, with the window's Paths made afresh as the shell does.
-        for layout in ["default", "portable", "--config"] {
-            let (exe, app, elsewhere) =
-                (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
-            if layout == "portable" {
-                std::fs::write(exe.path().join("astromech.toml"), "").unwrap();
-            }
-            let paths = || astromech_store::Paths::new(exe.path().into(), env(app.path()));
-            let mut opts = Opts::default();
-            if layout == "--config" {
-                opts.config = Some(elsewhere.path().join("mine.toml"));
-            }
-            let (used, _published) = choose_config(&opts, &paths());
-            paste(&used, "D:\\Pasted\\Bindings");
-            let seen = WindowConfig::load(&paths());
-            assert_eq!(seen.game.bindings_dir, "D:\\Pasted\\Bindings", "{layout}");
-            if layout == "--config" {
-                assert_eq!(used, elsewhere.path().join("mine.toml"));
-            }
-        }
-        // A later start without --config takes the window back to the default file.
-        let (exe, app) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
-        let paths = || astromech_store::Paths::new(exe.path().into(), env(app.path()));
-        let custom = app.path().join("other.toml");
-        let _earlier = choose_config(&Opts { config: Some(custom), ..Opts::default() }, &paths());
-        let _later = choose_config(&Opts::default(), &paths());
-        assert_eq!(paths().config_in_use(), paths().config_file());
+        let filters = ask("search_filters", json!({"lookup": "trade.sell"}));
+        assert_eq!(filters["max_distance_ly"], 42, "{filters}");
+        let logbook = ask("logbook", json!({"query": "Alpha", "cmdr": null}));
+        let want = astromech_history::History::open_read_only(&data.join("history.sqlite"))
+            .unwrap()
+            .logbook(None, "Alpha", 200)
+            .unwrap();
+        assert_eq!(logbook, serde_json::to_value(want).unwrap());
+        assert!(logbook.to_string().contains("Alpha Centauri"), "{logbook}");
     }
 
-    /// The config `run` loads from the file `choose_config` picked: defaults when it is missing.
-    fn loaded(path: &Path) -> Config {
-        if path.is_file() {
-            Config::load_report(path).unwrap().0
-        } else {
-            Config::default()
-        }
-    }
-
-    fn window_env(app: &Path) -> impl Fn(&str) -> Option<std::ffi::OsString> {
-        let app = app.to_path_buf();
-        move |k: &str| (k == "XDG_DATA_HOME").then(|| app.clone().into_os_string())
-    }
-
-    /// Done-when (1) for astromech-f2k1: the window sets up its remote-data cache
-    /// (`astromech_store::window::data_dir`, read before its own tray core starts) in the data
-    /// folder of the core it talks to: the running one's `--config` profile, and once that core
-    /// has quit, the default, which the core the window starts uses, though the earlier
-    /// `--config` file is still there.
+    /// `route_plot` plots from recorded Spansh answers for the journal's ship and hands the route
+    /// to the follower through the registry: the Route page's `route` shows it.
     #[test]
-    fn the_window_opens_its_cache_in_the_running_cores_data_folder() {
-        use astromech_store::window::data_dir;
-        let (exe, app, elsewhere) =
-            (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
-        let paths = || astromech_store::Paths::new(exe.path().into(), window_env(app.path()));
-        let profile = elsewhere.path().join("profile.toml");
-        std::fs::write(&profile, "data_dir = \"/profile-data\"\n").unwrap();
-
-        let (used, published) = choose_config(&Opts { config: Some(profile.clone()), ..Opts::default() }, &paths());
-        assert_eq!(data_dir(&paths()), paths().data_dir(&loaded(&used).data_dir));
-        assert_eq!(data_dir(&paths()), Path::new("/profile-data"));
-        // That core quits; the window opens next and starts a core without --config.
-        drop(published);
-        assert!(profile.is_file());
-        let window_sees = data_dir(&paths());
-        let (used, _published) = choose_config(&Opts::default(), &paths());
-        assert_eq!(window_sees, paths().data_dir(&loaded(&used).data_dir));
-        assert_eq!(window_sees, paths().app_dir());
-    }
-
-    /// Done-when (2) for astromech-f2k1: a tray core started with `--config` naming a file that
-    /// doesn't exist yet runs on defaults, and the window gets the same data and Bindings folders
-    /// (not the default file's), until the core writes that file.
-    #[test]
-    fn a_config_not_written_yet_gives_the_window_the_cores_folders() {
-        use astromech_store::window::{data_dir, WindowConfig};
-        let (exe, app, elsewhere) =
-            (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
-        let paths = || astromech_store::Paths::new(exe.path().into(), window_env(app.path()));
-        std::fs::create_dir_all(paths().app_dir()).unwrap();
+    fn a_plotted_route_is_the_one_the_follower_shows() {
+        macro_rules! fixture {
+            ($name:literal) => {
+                include_str!(concat!("../../astromech-data/tests/fixtures/", $name))
+            };
+        }
+        let d = tempfile::tempdir().unwrap();
+        let journals = d.path().join("journals");
+        std::fs::create_dir_all(&journals).unwrap();
         std::fs::write(
-            paths().config_file(),
-            "data_dir = \"/default-data\"\n[game]\nbindings_dir = \"D:\\\\Default\\\\Bindings\"\n",
+            journals.join("Journal.2026-11-01T100000.01.log"),
+            r#"{ "timestamp":"2026-11-01T10:00:00Z", "event":"Fileheader", "part":1, "gameversion":"4.2.0", "build":"r1" }
+{ "timestamp":"2026-11-01T10:00:01Z", "event":"LoadGame", "Commander":"Test", "FID":"F1", "Ship":"asp", "ShipID":1, "Credits":1000 }
+{ "timestamp":"2026-11-01T10:00:02Z", "event":"Loadout", "Ship":"asp", "ShipID":1, "ShipName":"", "ShipIdent":"", "FuelCapacity":{"Main":32.0,"Reserve":0.63}, "UnladenMass":400.6, "MaxJumpRange":30.0, "Modules":[{"Slot":"PowerPlant","Item":"int_powerplant_size4_class5","On":true,"Priority":0},{"Slot":"FrameShiftDrive","Item":"int_hyperdrive_size5_class5","On":true,"Priority":0}] }
+{ "timestamp":"2026-11-01T10:00:03Z", "event":"Location", "StarSystem":"Sol", "SystemAddress":10477373803, "StarPos":[0.0,0.0,0.0], "Docked":false }
+"#,
         )
         .unwrap();
-        let fresh = elsewhere.path().join("fresh.toml");
+        let answers = vec![
+            (202, fixture!("spansh-exact-submit.json")),
+            (202, fixture!("spansh-exact-pending.json")),
+            (200, fixture!("spansh-exact-result.json")),
+        ];
+        let remote = astromech_data::Client::with_transport(
+            astromech_data::Cache::in_memory().unwrap(),
+            Arc::new(RecordedJob(Mutex::new(answers))),
+        )
+        .limiter(astromech_data::Limiter::none());
+        let config = format!(
+            "data_dir = '{}'\n[game]\njournal_dir = '{}'\n",
+            d.path().join("data").display(),
+            journals.display()
+        );
+        let core = core_with(d.path(), &config, Arc::new(remote));
+        let app = d.path().join("app");
+        let _srv = control::serve(&app, Arc::new(core.commands())).unwrap();
+        let ask = |cmd: &str, args: Option<Value>| {
+            let req = Request { args, origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
+            control::call(&app, req, None, &mut |_| {})
+        };
+        let ship = ask("route_plot_ship", None).unwrap();
+        assert_eq!(ship["here"], "Sol", "{ship}");
+        assert_eq!(ship["ship_error"], Value::Null, "{ship}");
 
-        let (used, _published) = choose_config(&Opts { config: Some(fresh.clone()), ..Opts::default() }, &paths());
-        assert!(!used.is_file());
-        let core = loaded(&used);
-        assert_eq!(data_dir(&paths()), paths().data_dir(&core.data_dir));
-        assert_eq!(WindowConfig::load(&paths()).game.bindings_dir, core.game.bindings_dir);
-        // The core writes its file (a Bindings folder pasted in onboarding): the window follows.
-        crate::setup::write(&used, &[crate::setup::Edit::BindingsDir("D:\\Pasted\\Bindings".into())]).unwrap();
-        assert_eq!(WindowConfig::load(&paths()).game.bindings_dir, loaded(&used).game.bindings_dir);
-        assert_eq!(loaded(&used).game.bindings_dir, "D:\\Pasted\\Bindings");
-        assert_eq!(data_dir(&paths()), paths().data_dir(&loaded(&used).data_dir));
+        let ask_maia =
+            json!({"ask": {"plotter": "exact", "to": "Maia", "efficiency": 60, "refuel_every_scoopable": true}});
+        let plotted = ask("route_plot", Some(ask_maia)).unwrap();
+        assert_eq!(plotted["plotted"]["source"], "exact plotter", "{plotted}");
+        let shown = ask("route", None).unwrap();
+        assert_eq!(shown["view"], plotted["view"]);
+        assert_eq!(shown["view"]["route"]["source"], "exact plotter", "{shown}");
+        assert_eq!(shown["view"]["route"]["name"], plotted["plotted"]["name"]);
+        assert_eq!(shown["view"]["route"]["name"], "Sol to Maia");
+        assert_eq!(shown["view"]["remaining"], 10, "{shown}");
     }
 
     fn call(core: &Arc<Core>, cmd: &str, args: Option<Value>) -> Value {

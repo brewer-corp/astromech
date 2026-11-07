@@ -2,8 +2,8 @@
 //!
 //! The command layer: one [`Registry`] of named commands that every way in dispatches
 //! through, and the core's local control API ([`control`]) that serves it. The core builds the
-//! registry and registers its own handlers; the shell's commands move in later
-//! (astromech-bp23).
+//! registry and registers its own handlers alongside the window's commands in [`commands`] and
+//! [`lookups`], which share one [`State`].
 //!
 //! Each command is [`Exposure::Window`] (the app window and local control clients may call it)
 //! or [`Exposure::Local`] (local control clients only: `quit`, `open_window`). A request
@@ -20,11 +20,13 @@
 
 pub mod commands;
 pub mod control;
+pub mod lookups;
 pub mod state;
 
 pub use control::Request;
-pub use state::{Folders, State};
+pub use state::{preload_beside, Folders, GalaxyHolder, State};
 
+use astromech_proto::Origin;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use serde_json::Value;
@@ -41,11 +43,30 @@ pub enum Exposure {
     Local,
 }
 
-/// Sends one progress value to the caller before the reply (a `{"progress": V}` line on the
-/// control API).
-pub type Progress<'a> = &'a dyn Fn(Value);
+/// What a handler gets besides its request: a way to send progress to the caller before the
+/// reply (a `{"progress": V}` line on the control API), and to run another registered command
+/// for the same caller.
+pub struct Call<'a> {
+    registry: &'a Registry,
+    origin: Option<Origin>,
+    progress: &'a dyn Fn(Value),
+}
 
-type Handler = Box<dyn Fn(&Request, Progress) -> Result<Value, String> + Send + Sync>;
+impl Call<'_> {
+    /// Send one progress value to the caller now.
+    pub fn progress(&self, v: Value) {
+        (self.progress)(v)
+    }
+
+    /// Run `cmd` through the registry with the caller's origin, as if the caller had asked for
+    /// it (its progress, if any, is not passed on).
+    pub fn run(&self, cmd: &str, args: Option<Value>) -> Result<Value, String> {
+        let r = Request { args, origin: self.origin, ..Request::new(cmd) };
+        self.registry.dispatch(&r, &|_| {})
+    }
+}
+
+type Handler = Box<dyn Fn(&Request, &Call) -> Result<Value, String> + Send + Sync>;
 
 /// The commands, by name.
 #[derive(Default)]
@@ -64,7 +85,7 @@ impl Registry {
         &mut self,
         name: &str,
         exposure: Exposure,
-        handler: impl Fn(&Request, Progress) -> Result<Value, String> + Send + Sync + 'static,
+        handler: impl Fn(&Request, &Call) -> Result<Value, String> + Send + Sync + 'static,
     ) -> &mut Self {
         let old = self.entries.insert(name.to_string(), (exposure, Box::new(handler)));
         assert!(old.is_none(), "command {name:?} registered twice");
@@ -78,25 +99,27 @@ impl Registry {
         &mut self,
         name: &str,
         exposure: Exposure,
-        handler: impl Fn(A, Progress) -> Result<R, String> + Send + Sync + 'static,
+        handler: impl Fn(A, &Call) -> Result<R, String> + Send + Sync + 'static,
     ) -> &mut Self {
-        self.add(name, exposure, move |r, progress| {
+        self.add(name, exposure, move |r, call| {
             let args = serde_json::from_value(r.args.clone().unwrap_or(Value::Null))
                 .map_err(|e| format!("bad args for {}: {e}", r.cmd))?;
-            let reply = handler(args, progress)?;
+            let reply = handler(args, call)?;
             serde_json::to_value(reply).map_err(|e| format!("{}: the reply can't be written as JSON: {e}", r.cmd))
         })
     }
 
-    /// Run the request's command: its value, or why it didn't run or failed.
-    pub fn dispatch(&self, r: &Request, progress: Progress) -> Result<Value, String> {
+    /// Run the request's command: its value, or why it didn't run or failed. `progress` gets
+    /// the progress values the command sends before it answers.
+    pub fn dispatch(&self, r: &Request, progress: &dyn Fn(Value)) -> Result<Value, String> {
         let Some((exposure, handler)) = self.entries.get(&r.cmd) else {
             return Err(format!("unknown command {:?}", r.cmd));
         };
         if *exposure == Exposure::Local && r.origin.is_some() {
             return Err(format!("not allowed: {} is for local control clients only", r.cmd));
         }
-        catch_unwind(AssertUnwindSafe(|| handler(r, progress))).unwrap_or_else(|panic| {
+        let call = Call { registry: self, origin: r.origin, progress };
+        catch_unwind(AssertUnwindSafe(|| handler(r, &call))).unwrap_or_else(|panic| {
             let why = panic
                 .downcast_ref::<&str>()
                 .map(|s| s.to_string())
@@ -115,12 +138,29 @@ pub fn lock<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use astromech_proto::Origin;
     use serde::Deserialize;
     use serde_json::json;
-    use std::sync::Arc;
+    use std::path::{Path, PathBuf};
+    use std::sync::{Arc, OnceLock};
+
+    /// This test binary's log file (one for every test: the log sink is the process's).
+    pub(crate) fn test_log() -> &'static Path {
+        static DIR: OnceLock<(tempfile::TempDir, PathBuf)> = OnceLock::new();
+        let (_, file) = DIR.get_or_init(|| {
+            let d = tempfile::tempdir().unwrap();
+            astromech_log::init(d.path(), "api-test", false, Box::new(|s| s.to_string()));
+            let file = astromech_log::file(d.path(), "api-test");
+            (d, file)
+        });
+        file
+    }
+
+    pub(crate) fn logged() -> String {
+        std::fs::read_to_string(test_log()).unwrap_or_default()
+    }
 
     fn req(cmd: &str, args: Option<Value>, origin: Option<Origin>) -> Request {
         Request { cmd: cmd.into(), args, origin, ..Default::default() }
@@ -164,8 +204,7 @@ mod tests {
 
     #[test]
     fn a_panic_holding_a_shared_lock_is_an_error_and_the_next_call_runs() {
-        let logs = tempfile::tempdir().unwrap();
-        astromech_log::init(logs.path(), "api-test", false, Box::new(|s| s.to_string()));
+        test_log();
         let shared = Arc::new(Mutex::new(0));
         let mut reg = Registry::new();
         let s = shared.clone();
@@ -183,7 +222,23 @@ mod tests {
         assert!(e.contains("count") && e.contains("count exploded"), "{e}");
         assert!(shared.is_poisoned());
         assert_eq!(reg.dispatch(&req("count", None, None), &|_| {}), Ok(json!(2)));
-        let log = std::fs::read_to_string(astromech_log::file(logs.path(), "api-test")).unwrap();
+        let log = logged();
         assert!(log.contains("command count panicked: count exploded"), "{log}");
+    }
+
+    /// A handler runs another command through the registry for the same caller: the window
+    /// can't reach a `local` command that way.
+    #[test]
+    fn a_handler_runs_another_command_as_its_caller() {
+        let mut reg = registry();
+        reg.add("twice", Exposure::Window, |r, call| {
+            let one = call.run("add", r.args.clone())?;
+            Ok(json!([one, call.run("quit", None)?]))
+        });
+        let args = Some(json!({"a": 2, "b": 3}));
+        let local = reg.dispatch(&req("twice", args.clone(), None), &|_| {});
+        assert_eq!(local, Ok(json!([5, "bye"])));
+        let e = reg.dispatch(&req("twice", args, Some(Origin::AppWindow)), &|_| {}).unwrap_err();
+        assert!(e.starts_with("not allowed: quit"), "{e}");
     }
 }

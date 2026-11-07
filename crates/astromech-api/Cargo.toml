@@ -29,8 +29,11 @@ astromech-market.workspace = true
 astromech-galaxy.workspace = true
 astromech-ship.workspace = true
 astromech-data.workspace = true
+astromech-store.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true
+flate2 = "1"
+sha2.workspace = true

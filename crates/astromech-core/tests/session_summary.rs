@@ -94,7 +94,7 @@ fn asking_by_voice_answers_the_latest_session() {
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
         remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
-        galaxy: None,
+        stars: Arc::new(astromech_api::GalaxyHolder::new(|| anyhow::bail!("no star map in this test"))),
     });
     let assistant = Assistant::new(runner).with_sessions(shared.sessions.clone());
     let h = assistant.handle("How much did I make this session?", Origin::Voice);
@@ -116,7 +116,7 @@ fn without_a_history_it_says_so() {
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
         remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
-        galaxy: None,
+        stars: Arc::new(astromech_api::GalaxyHolder::new(|| anyhow::bail!("no star map in this test"))),
     });
     Assistant::new(runner).handle("session summary", Origin::Voice);
     assert_eq!(speaker.take(), ["No session history yet."]);
@@ -146,7 +146,7 @@ fn a_history_that_cannot_be_read_says_so_rather_than_no_history() {
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
         remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
-        galaxy: None,
+        stars: Arc::new(astromech_api::GalaxyHolder::new(|| anyhow::bail!("no star map in this test"))),
     });
     Assistant::new(runner).with_sessions(shared.sessions.clone()).handle("session summary", Origin::Voice);
     assert_eq!(speaker.take(), ["Session history is unreadable right now."]);

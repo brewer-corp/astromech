@@ -60,12 +60,18 @@ pub struct Runner {
     /// The process's one remote-data client (Spansh, Ardent, EDSM): every lookup goes through
     /// it, and the star map holds the same one, so they share its rate limit and cache.
     pub remote: Arc<astromech_data::Client>,
-    /// Star map and remote lookups for "nearest crystalline shards" and friends; `None` when
-    /// the galaxy store couldn't be opened.
-    pub galaxy: Option<Arc<astromech_galaxy::Galaxy>>,
+    /// Star map and remote lookups for "nearest crystalline shards" and friends, opened on the
+    /// first lookup (the window's lookups share it).
+    pub stars: Arc<astromech_api::GalaxyHolder>,
 }
 
 impl Runner {
+    /// The star map, opened now if it isn't yet; `None` when it can't be opened (the holder
+    /// logged why), and the next lookup tries again.
+    pub fn galaxy(&self) -> Option<Arc<astromech_galaxy::Galaxy>> {
+        self.stars.get().ok()
+    }
+
     /// Start the nearest-site lookup for `kind`, near the commander or the system named in
     /// `from` ([`crate::lookups::named_origin`]). Spansh and EDSM can take many seconds, so the
     /// lookup runs on its own thread and speaks its answer when it arrives: the speech thread is
@@ -78,7 +84,7 @@ impl Runner {
             self.speaker.say(&m);
             return Outcome::Spoken(m);
         }
-        let Some(galaxy) = self.galaxy.clone() else {
+        let Some(galaxy) = self.galaxy() else {
             let m = astromech_tools::lookup::NO_STAR_MAP.to_string();
             self.speaker.say(&m);
             return Outcome::Spoken(m);

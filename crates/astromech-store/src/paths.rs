@@ -358,27 +358,20 @@ mod tests {
         assert_eq!(mk().config_in_use(), custom);
     }
 
-    /// A core started with `--config` naming a file it hasn't written yet runs on defaults; the
-    /// window reads that (missing) file too, so it gets the same defaults, not the default
-    /// file's settings, until the core writes it.
+    /// A core started with `--config` naming a file it hasn't written yet runs on defaults from
+    /// that (missing) file, not the default file, until it writes it.
     #[test]
     fn a_published_config_that_does_not_exist_yet_is_still_the_one_in_use() {
-        use crate::window::{data_dir, WindowConfig};
         let (exe, app, other) =
             (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
         let local = app.path().to_str().unwrap().to_string();
         let mk = || Paths::new(exe.path().into(), env(&[("XDG_DATA_HOME", &local)]));
         let p = mk();
         std::fs::create_dir_all(p.app_dir()).unwrap();
-        std::fs::write(p.config_file(), "data_dir = \"/default-profile\"\n[game]\nbindings_dir = \"/b\"\n").unwrap();
+        std::fs::write(p.config_file(), "data_dir = \"/default-profile\"\n").unwrap();
         let fresh = other.path().join("fresh.toml");
         let _published = p.publish_config(&fresh).unwrap();
         assert_eq!(mk().config_in_use(), fresh);
-        assert_eq!(WindowConfig::load(&mk()), WindowConfig::default());
-        assert_eq!(data_dir(&mk()), p.data_dir(""));
-        // The core writes its file: the window follows.
-        std::fs::write(&fresh, "data_dir = \"/fresh-profile\"\n").unwrap();
-        assert_eq!(data_dir(&mk()), Path::new("/fresh-profile"));
     }
 
     /// A core that crashed, was killed or predates the pid in the note (astromech-zirr, R1

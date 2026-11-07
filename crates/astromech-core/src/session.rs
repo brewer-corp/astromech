@@ -120,30 +120,18 @@ pub fn short(h: &crate::assistant::Handled) -> String {
     }
 }
 
-/// The process's one remote-data client, over `transport` (real HTTP outside tests), with its
-/// cache in `data` (the file the app window uses too), and the star map using that client: the
-/// app window's star map when the core uses the default data dir, else its own. Both go to the
-/// [`Runner`], so every lookup shares the client's rate limit and cache.
-pub fn remote_data(
-    data: &Path,
-    transport: Arc<dyn astromech_data::Transport>,
-) -> (Arc<astromech_data::Client>, Option<Arc<astromech_galaxy::Galaxy>>) {
-    let remote = astromech_data::Client::shared_with_transport(data, transport, Arc::new(|s: &str| log(s)));
-    let galaxy = match astromech_galaxy::Galaxy::open(&data.join("galaxy.db"), None, remote.clone()) {
-        Ok(g) => Some(Arc::new(g)),
-        Err(e) => {
-            log(&format!("star map not opened, site lookups are off: {e:#}"));
-            None
-        }
-    };
-    (remote, galaxy)
-}
-
 impl Session {
     /// Start everything except the buttons and microphone ([`Session::start_buttons`]).
     /// `route` is the core's route follower; the session's callout rule moves it on as the
-    /// commander jumps.
-    pub fn start(cfg: &Config, opts: &Opts, route: Arc<crate::route::Desk>) -> Result<Session> {
+    /// commander jumps. `api` is the command layer's state: its one remote-data client and its
+    /// star map serve the voice lookups too, so they share one rate limit and cache with the
+    /// window's.
+    pub fn start(
+        cfg: &Config,
+        opts: &Opts,
+        route: Arc<crate::route::Desk>,
+        api: &astromech_api::State,
+    ) -> Result<Session> {
         let args = opts;
         let data = cfg.data_dir();
         std::fs::create_dir_all(&data).with_context(|| format!("creating {}", data.display()))?;
@@ -177,7 +165,7 @@ impl Session {
         ))));
         // The process's one remote-data client: the bodies-known callout looks up through it,
         // as the voice lookups below do.
-        let (remote, galaxy) = remote_data(&data, Arc::new(astromech_data::HttpTransport::new()));
+        let remote = api.remote().clone();
         shared
             .known_bodies
             .set(Arc::new(crate::known_bodies::EdsmBodies::new(remote.clone(), Arc::new(|s: &str| log(s)))));
@@ -312,7 +300,7 @@ impl Session {
             verify_timeout: Duration::from_millis(cfg.actions.verify_timeout_ms),
             log: Arc::new(|s: &str| log(s)),
             remote,
-            galaxy,
+            stars: api.galaxy_holder().clone(),
         });
         let alias_store = astromech_store::Store::open(&data.join("astromech.sqlite"))
             .ok()
