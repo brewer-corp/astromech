@@ -7,33 +7,7 @@
 //! [`ManualClock`]: time moves only when the script calls [`ManualClock::advance`], which wakes
 //! every clock wait whose deadline passed and returns once the core has finished what was due.
 //!
-//! # Rules
-//!
-//! - **A registered thread blocks only in clock waits**: [`Clock::sleep`], a
-//!   [`ClockReceiver`]'s `recv`/`recv_timeout`, and the condvar waits on `dyn Clock`
-//!   ([`wait`](trait.Clock.html#method.wait), [`wait_timeout`](trait.Clock.html#method.wait_timeout)).
-//!   `advance` waits for every registered thread to be parked in one; a thread blocked anywhere
-//!   else (a `std` channel, a `join` of a thread that needs clock time, a long sleep) holds it
-//!   up. Network and disk I/O, a lock held briefly and a `join` of a thread that was stopped and
-//!   woken (rule 3) are work, not waits: `advance` waits for them to finish.
-//! - **A thread is registered by its parent before it is spawned**: [`Clock::register`] is taken
-//!   on the parent and moved into the child, which [enters](Registration::enter) it first, so the
-//!   child counts from its first instruction ([`spawn`](trait.Clock.html#method.spawn) does
-//!   both). A thread registered only once it runs could be missed by an `advance` in between.
-//! - **Whatever stops a clock-waiting thread wakes its wait**: set the stop flag, then
-//!   [`ClockSender::wake`] its channel or [`notify_all`](trait.Clock.html#method.notify_all) its
-//!   condvar. Under the manual clock a timed wait ends only on its deadline, so a stop that
-//!   doesn't wake waits for an `advance`. A receiver never sees its senders disconnect under
-//!   the manual clock (it holds one for its wakes), so a loop that ends only when its senders
-//!   go needs its own stop and wake.
-//! - **File watchers send into a clock channel** (`notify`'s handler calls
-//!   [`ClockSender::send`]), so an event marks its receiver busy before `advance` can see it
-//!   parked.
-//! - **Untimed waits count as parked**: a registered thread in `recv()` or `wait()` is quiescent;
-//!   only data, a notify or a stop wakes it.
-//! - Unregistered threads' timed clock waits also end only by `advance`, but `advance` doesn't
-//!   wait for those threads. Short pacing waits that finish on their own (a key hold, a file
-//!   retry) stay on real time, each with `#[allow(clippy::disallowed_methods)]` and its reason.
+//! The rules for code that waits on it are on [`Clock`].
 
 use std::cell::Cell;
 use std::collections::HashMap;
@@ -43,11 +17,39 @@ use std::sync::mpsc::{self, RecvError, RecvTimeoutError, SendError, TryRecvError
 use std::sync::{Arc, Condvar, Mutex, MutexGuard};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-/// The time, and waits that a test can move (see the [module docs](self) for the rules).
+/// The time, and waits that a test can move.
 ///
 /// Implement [`now`](Clock::now), [`utc`](Clock::utc) and [`sleep`](Clock::sleep); the waits
 /// that a clock can wake (channels, condvars, [`spawn`](trait.Clock.html#method.spawn)) are
 /// methods on `dyn Clock`, real time unless the clock is a [`ManualClock`].
+///
+/// # Rules
+///
+/// - **A registered thread blocks only in clock waits**: [`Clock::sleep`], a
+///   [`ClockReceiver`]'s `recv`/`recv_timeout`, and the condvar waits on `dyn Clock`
+///   ([`wait`](trait.Clock.html#method.wait), [`wait_timeout`](trait.Clock.html#method.wait_timeout)).
+///   `advance` waits for every registered thread to be parked in one; a thread blocked anywhere
+///   else (a `std` channel, a `join` of a thread that needs clock time, a long sleep) holds it
+///   up. Network and disk I/O, a lock held briefly and a `join` of a thread that was stopped and
+///   woken (rule 3) are work, not waits: `advance` waits for them to finish.
+/// - **A thread is registered by its parent before it is spawned**: [`Clock::register`] is taken
+///   on the parent and moved into the child, which [enters](Registration::enter) it first, so the
+///   child counts from its first instruction ([`spawn`](trait.Clock.html#method.spawn) does
+///   both). A thread registered only once it runs could be missed by an `advance` in between.
+/// - **Whatever stops a clock-waiting thread wakes its wait**: set the stop flag, then
+///   [`ClockSender::wake`] its channel or [`notify_all`](trait.Clock.html#method.notify_all) its
+///   condvar. Under the manual clock a timed wait ends only on its deadline, so a stop that
+///   doesn't wake waits for an `advance`. A receiver never sees its senders disconnect under
+///   the manual clock (it holds one for its wakes), so a loop that ends only when its senders
+///   go needs its own stop and wake.
+/// - **File watchers send into a clock channel** (`notify`'s handler calls
+///   [`ClockSender::send`]), so an event marks its receiver busy before `advance` can see it
+///   parked.
+/// - **Untimed waits count as parked**: a registered thread in `recv()` or `wait()` is quiescent;
+///   only data, a notify or a stop wakes it.
+/// - Unregistered threads' timed clock waits also end only by `advance`, but `advance` doesn't
+///   wait for those threads. Short pacing waits that finish on their own (a key hold, a file
+///   retry) stay on real time, each with `#[allow(clippy::disallowed_methods)]` and its reason.
 pub trait Clock: Send + Sync {
     /// Monotonic now, for timers and elapsed times.
     fn now(&self) -> Instant;
