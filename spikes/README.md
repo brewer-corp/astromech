@@ -15,6 +15,7 @@ the crates as seeds.
 | `s8-licence-audit/` | Licence audit of the planned dependency tree; GPL-3.0 in sherpa-onnx 1.x | `deny.toml`, `NOTICE.md` |
 | `k0-binds-doctor/` | Why a .binds file doesn't show up in game; device ID checks | `astromech-keybinds` |
 | `q1-linked-places/` | Can "place A within N ly of place B" queries (HGE system near a trader, hotspot ring near a buyer) run on Spansh and Ardent? Yes: one search per side and a local join. Findings are in the close reason of Atelier issue astromech-yn6y; `replay.sh` reruns them from the gitignored `cache/` | not yet (galaxy rework, astromech-51ue) |
+| `o1-one-process/` | Can one Tauri process hold the tray with no window, survive the window crashing, free WebView2 when the window closes and keep astromech's Raw Input listener receiving keys? What does it cost idle, and which crashes does Windows' restart registration restart? Driven by `scripts/one_process_probe.py` on Windows CI (`.github/workflows/one-process.yml`); the answers are in Atelier issue astromech-wgtr | not seeded (evidence for astromech-y6d6) |
 
 ## Deliberately left out
 

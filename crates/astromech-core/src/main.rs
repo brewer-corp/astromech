@@ -424,23 +424,21 @@ fn calibrate_files(cfg: &Config, data: &Path, files: &[PathBuf]) -> Result<()> {
 
 #[cfg(windows)]
 fn listen(secs: u64) -> Result<()> {
-    use astromech_input::listen::{tracker::Processor, win};
+    use astromech_input::listen::{source, tracker::Processor, win};
     println!("Press buttons for {secs} s; each line shows the device and key to put in astromech.toml.");
-    let start = std::time::Instant::now();
-    let (tx, rx) = std::sync::mpsc::channel();
-    let _ = win::rawinput::start(tx.clone(), start);
-    let _ = win::xinput::start(tx, start);
+    let started = std::time::Instant::now();
+    let rx = source::subscribe().rx;
     let mut p = Processor::new(astromech_input::ELITE_TITLE, None, true);
     for d in win::rawinput::list_devices() {
         p.add_device(d);
     }
-    while start.elapsed() < Duration::from_secs(secs) {
+    while started.elapsed() < Duration::from_secs(secs) {
         let evs = match rx.recv_timeout(Duration::from_millis(100)) {
-            Ok(win::Msg::Device(d)) => {
+            Ok(source::Msg::Device(d)) => {
                 p.add_device(d);
                 continue;
             }
-            Ok(win::Msg::Sample(s)) => p.process(&s),
+            Ok(source::Msg::Sample(s)) => p.process(&s),
             Err(_) => continue,
         };
         for e in evs {

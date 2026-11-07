@@ -92,26 +92,24 @@ async fn call(cmd: String, args: Option<Value>, progress: tauri::ipc::Channel<Va
 }
 
 /// Presses from every stick, pad and key, for "press a control to find it", the key tester
-/// and press-to-bind. Read-only (Raw Input with INPUTSINK + XInput polling, like the core).
+/// and press-to-bind. Read-only: a subscriber to the process's one input source
+/// (astromech_input::listen::source: Raw Input with INPUTSINK + XInput polling).
 #[cfg(windows)]
 fn start_input(app: tauri::AppHandle) {
-    use astromech_input::listen::{tracker::Processor, win};
+    use astromech_input::listen::{source, tracker::Processor, win};
     std::thread::spawn(move || {
-        let start = std::time::Instant::now();
-        let (tx, rx) = std::sync::mpsc::channel();
-        let _ = win::rawinput::start(tx.clone(), start);
-        let _ = win::xinput::start(tx, start);
         let mut p = Processor::new(astromech_input::ELITE_TITLE, None, true);
         for d in win::rawinput::list_devices() {
             p.add_device(d);
         }
+        let source::Subscription { rx, epoch: start, .. } = source::subscribe();
         loop {
             let evs = match rx.recv_timeout(Duration::from_millis(50)) {
-                Ok(win::Msg::Device(d)) => {
+                Ok(source::Msg::Device(d)) => {
                     p.add_device(d);
                     continue;
                 }
-                Ok(win::Msg::Sample(s)) => p.process(&s),
+                Ok(source::Msg::Sample(s)) => p.process(&s),
                 Err(std::sync::mpsc::RecvTimeoutError::Timeout) => p.tick(start.elapsed().as_secs_f64() * 1000.0),
                 Err(_) => break,
             };

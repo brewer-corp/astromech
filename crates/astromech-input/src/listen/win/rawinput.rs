@@ -49,16 +49,76 @@ thread_local! {
 }
 
 /// Start the listener thread. Returns once registration has been attempted.
+///
+/// A process keeps only its last registration per device class, so astromech starts this once,
+/// through [`crate::listen::source`]; call it directly only in a process with no other listener.
 pub fn start(tx: Sender<Msg>, start: Instant) -> Result<(), String> {
-    let (rtx, rrx) = std::sync::mpsc::channel();
-    std::thread::Builder::new()
-        .name("rawinput".into())
-        .spawn(move || unsafe { thread_main(tx, start, rtx) })
-        .map_err(|e| e.to_string())?;
-    rrx.recv().unwrap_or(Err("raw input thread died".into()))
+    start_sink(tx, start).1
 }
 
-unsafe fn thread_main(tx: Sender<Msg>, start: Instant, ready: Sender<Result<(), String>>) {
+/// The never-shown window that receives WM_INPUT, kept so it can register again.
+pub struct Sink {
+    hwnd: isize,
+}
+
+/// Sent to the sink window: register again, on the window's own thread. Returns 0, or 1 plus
+/// the error code.
+const WM_REGISTER_AGAIN: u32 = WM_APP + 1;
+
+impl Sink {
+    /// Register again, taking keyboards, mice and the rest back from a later registration in
+    /// this process (tao registers keyboard and mouse when Tauri builds its event loop).
+    pub fn register(&self) -> Result<(), String> {
+        let r = unsafe { SendMessageW(self.hwnd as HWND, WM_REGISTER_AGAIN, 0, 0) };
+        if r == 0 {
+            Ok(())
+        } else {
+            Err(registration_error((r - 1) as u32))
+        }
+    }
+}
+
+/// [`start`], and the sink window if it was created.
+pub(crate) fn start_sink(tx: Sender<Msg>, start: Instant) -> (Option<Sink>, Result<(), String>) {
+    let (rtx, rrx) = std::sync::mpsc::channel();
+    if let Err(e) =
+        std::thread::Builder::new().name("rawinput".into()).spawn(move || unsafe { thread_main(tx, start, rtx) })
+    {
+        return (None, Err(e.to_string()));
+    }
+    match rrx.recv() {
+        Ok((hwnd, reg)) => (hwnd.map(|hwnd| Sink { hwnd }), reg),
+        Err(_) => (None, Err("raw input thread died".into())),
+    }
+}
+
+/// Register the five device classes to `hwnd`; the error is GetLastError's code.
+unsafe fn register(hwnd: HWND) -> Result<(), u32> {
+    let usages: [(u16, u16); 5] = [(1, 6), (1, 2), (1, 4), (1, 5), (1, 8)];
+    let rids: Vec<RAWINPUTDEVICE> = usages
+        .iter()
+        .map(|&(p, u)| RAWINPUTDEVICE {
+            usUsagePage: p,
+            usUsage: u,
+            dwFlags: RIDEV_INPUTSINK | RIDEV_DEVNOTIFY,
+            hwndTarget: hwnd,
+        })
+        .collect();
+    let ok = RegisterRawInputDevices(rids.as_ptr(), rids.len() as u32, std::mem::size_of::<RAWINPUTDEVICE>() as u32);
+    if ok != 0 {
+        Ok(())
+    } else {
+        Err(GetLastError())
+    }
+}
+
+fn registration_error(code: u32) -> String {
+    format!("RegisterRawInputDevices failed, error {code}")
+}
+
+type Ready = (Option<isize>, Result<(), String>);
+
+unsafe fn thread_main(tx: Sender<Msg>, start: Instant, ready: Sender<Ready>) {
     let hinst = GetModuleHandleW(std::ptr::null());
     let class = wide("S7InputListenerSink");
     let wc = WNDCLASSEXW {
@@ -85,26 +145,11 @@ unsafe fn thread_main(tx: Sender<Msg>, start: Instant, ready: Sender<Result<(), 
         std::ptr::null(),
     );
     if hwnd.is_null() {
-        let _ = ready.send(Err(format!("CreateWindowExW failed, error {}", GetLastError())));
+        let _ = ready.send((None, Err(format!("CreateWindowExW failed, error {}", GetLastError()))));
         return;
     }
     STATE.with(|s| *s.borrow_mut() = Some(State { tx, start, hid: HashMap::new(), other: HashMap::new() }));
-    let usages: [(u16, u16); 5] = [(1, 6), (1, 2), (1, 4), (1, 5), (1, 8)];
-    let rids: Vec<RAWINPUTDEVICE> = usages
-        .iter()
-        .map(|&(p, u)| RAWINPUTDEVICE {
-            usUsagePage: p,
-            usUsage: u,
-            dwFlags: RIDEV_INPUTSINK | RIDEV_DEVNOTIFY,
-            hwndTarget: hwnd,
-        })
-        .collect();
-    let ok = RegisterRawInputDevices(rids.as_ptr(), rids.len() as u32, std::mem::size_of::<RAWINPUTDEVICE>() as u32);
-    let _ = ready.send(if ok != 0 {
-        Ok(())
-    } else {
-        Err(format!("RegisterRawInputDevices failed, error {}", GetLastError()))
-    });
+    let _ = ready.send((Some(hwnd as isize), register(hwnd).map_err(registration_error)));
     let mut msg: MSG = std::mem::zeroed();
     while GetMessageW(&mut msg, std::ptr::null_mut(), 0, 0) > 0 {
         TranslateMessage(&msg);
@@ -129,6 +174,10 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
             }
             0
         }
+        WM_REGISTER_AGAIN => match register(hwnd) {
+            Ok(()) => 0,
+            Err(code) => 1 + code as LRESULT,
+        },
         _ => DefWindowProcW(hwnd, msg, wparam, lparam),
     }
 }

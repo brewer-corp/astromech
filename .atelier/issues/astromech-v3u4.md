@@ -26,7 +26,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "The one app: astromech-core.exe runs the core, the tray and the window in one Tauri process"
-updated_at: "2026-11-07T11:57:35.951474903+00:00"
+updated_at: "2026-11-07T14:07:01.687274882+00:00"
 ---
 
 ## Goal
@@ -103,3 +103,9 @@ Not in this child:
 ## Context
 
 Spike results on astromech-wgtr (its Close Reason and evidence receipt). The Tauri `call` and window code to fold in is window.rs:84-94 (call), 96-144 (start_input), 162-234 (main and setup, page-load at 197-206).
+
+## Notes
+
+- 2026-11-07 [note] From spike astromech-wgtr (evidence astromech-t55z, astromech-mb4f): the app needs a WebView2 ProcessFailed handler to recover the window in place. It survives without one (the app, tray and control port lived, and close plus reopen loaded the page), but the window stays broken until the user closes it. A renderer exit (ProcessFailed kind 1) leaves WebView2's 'This page is having a problem' page (Error code 15) with the browser process still up: reload the webview. A browser-process exit (kind 0) leaves a blank white window and no WebView2 process: rebuild the webview (destroy and recreate the window at its route). The spike's observer is spikes/o1-one-process/src/app.rs observe_process_failed, via with_webview and webview2-com 0.39.1.
+- 2026-11-07 [note] From spike astromech-wgtr (evidence astromech-fqw9): a panic on the main thread exits with code 0x65 (101), with no WER report. tao catches the panic in its callback and re-raises it after the event loop, so it's an ordinary exit and restart registration can never cover it. Abort on an uncaught main-thread panic (astromech-dl53's crash.rs line), so it goes through WER as a crash. Other spike answers for the one app: the tray works with "windows": [] (tray rect within 10 s), closing the last window must prevent RunEvent::ExitRequested with no code, dark menus go after Builder::build, a second start hands over in about 3 s, and quit from a worker thread (app.exit(0)) exits 0 in 0.24 s with no WebView2 left.
+- 2026-11-07 [note] From finding astromech-3xyy (wgtr review): scripts/one_process_probe.py has no --no-sink option, check 3 calls the spike's tray_churn test hook, and main() fails unless checks 1-7 all ran, so as written it cannot pass against the installed app. Add --no-sink, a way to skip or serve check 3, and explicit --log, --user-data and --title for the installed app.

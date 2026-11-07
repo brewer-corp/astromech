@@ -2,6 +2,7 @@
 pub mod binds_index;
 pub mod model;
 pub mod replay;
+pub mod source;
 pub mod summary;
 pub mod tracker;
 #[cfg(windows)]

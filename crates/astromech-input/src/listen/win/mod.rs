@@ -7,10 +7,7 @@ pub fn wide(s: &str) -> Vec<u16> {
     s.encode_utf16().chain(std::iter::once(0)).collect()
 }
 
-pub enum Msg {
-    Device(crate::listen::model::DeviceMeta),
-    Sample(crate::listen::model::Sample),
-}
+pub use crate::listen::source::Msg;
 
 pub fn foreground_title() -> String {
     use windows_sys::Win32::UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowTextW};
