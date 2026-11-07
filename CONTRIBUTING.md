@@ -18,7 +18,8 @@ the code.
 
 ```
 crates/         the Rust crates (astromech-core is the tray process; the rest are libraries)
-app/            Svelte 5 + TypeScript + Vite app shell; one folder per page in src/modules/*
+app/            Svelte 5 + TypeScript + Vite app shell; one folder per page in src/modules/*;
+                app/dev/ the dev bridge to a headless core and its Node control client
 app/src-tauri/  astromech-shell, the Tauri v2 window (a workspace member; a stub without its `window` feature)
 data/           player-visible game data and the device sheets
 docs/           design documents, and the user guide in docs/guide/
@@ -66,6 +67,33 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 `--dry-run` (log key presses instead of sending them), `--health` (the binds check), `--listen 20`
 (print button names) and `--debug-input`. `astromech-core --help` lists them all.
 
+## Running the app
+
+Two loops for working on the window:
+
+- **The real core in the browser**, on any host: `cargo build -p astromech-core`, then
+  `cd app && ASTROMECH_WORLD=../worlds/<name> pnpm dev` and open http://127.0.0.1:5173/. The dev
+  server's plugin (`app/dev/bridge.ts`) starts the headless core on that world
+  (`astromech-core --world`, the binary `ASTROMECH_CORE` or `target/debug/astromech-core`), and
+  every call the page makes goes to it through the dev bridge instead of the browser preview's
+  fake. The core runs in a temp copy of the world and stops with the dev server. It answers from
+  the world's journals and recorded network, so each page shows the real core's replies. Nothing
+  moves the world's steps from the page: the bridge sends the window's calls, which can't call
+  the `world_*` commands. The shell's own pushes (the raw-input presses for "press a control",
+  the tray's page requests) don't come through the bridge. `pnpm bridge-check` (in CI) checks
+  that the bridge gives the core's own reply. With no `ASTROMECH_WORLD`, `pnpm dev` is the
+  browser preview's fake, as below.
+- **The real window**, at the PC on Windows: `cd app && pnpm tauri dev` builds and starts the
+  Tauri shell on its own `pnpm dev` (leave `ASTROMECH_WORLD` unset), with this PC's core behind
+  it (the one running, else the `astromech-core` next to the shell's exe, which it starts) and the
+  game's own folders. Use it for what only the PC has: the window itself, the tray, raw input,
+  WebView2.
+
+`app/dev/core.ts` is the Node control client the bridge uses: `startWorld(<dir>)` spawns a world
+core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`world_step`),
+`wait` (`world_wait`) and `observed` speak the control API. Scripts and journey tests can import
+it as it is (`node` runs it).
+
 ## Before a PR
 
 - Run `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`,
@@ -99,12 +127,18 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   Needs Google Chrome (or `CHROME` pointing at Chromium). `scripts/app-shots.sh` and
   `scripts/mockup-shots.sh` use the same binary; `scripts/mockup-shots.sh ds-sell ds-places`
   re-renders only the named mockups (the DESIGN.md ones are `ds-*`).
-- Outside Tauri (`pnpm dev`, the tests, a preview build) the window's one transport,
+- Outside Tauri (`pnpm dev` with no world, the tests, a preview build) the window's one transport,
   `app/src/lib/transport.ts`, is answered by the browser preview's fake in `app/src/preview/`
   (`?core=ready`, `?route=exact`, `?fail=`, `?slow=`). App code reaches the backend only through
   `call`, `subscribe` and `previewOption` (lint enforces it); a new command or topic needs a fake
   handler (`app/src/preview/coverage.test.ts`), and a release build must carry none of the fake
-  (`scripts/check-dist.py app/dist` after `pnpm build`, run in CI).
+  or the dev bridge (`scripts/check-dist.py app/dist` after `pnpm build`, run in CI).
+- The fake's fixtures (`app/src/preview/fixtures/`) are the real core's replies, dumped from
+  worlds under `worlds/preview/`. `crates/astromech-core/tests/preview_fixtures.rs` lists each
+  file with the command and args that produce it, or why the core doesn't, and fails when one
+  drifts. After a deliberate change to the core or one of those worlds, refresh them with
+  `ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-core --test preview_fixtures`, check the
+  diff, and run `pnpm check` and `pnpm test`. Don't edit a dumped fixture by hand.
 - Every command's args, reply and progress types are exported to TypeScript from the Rust
   command layer (ts-rs): `app/src/lib/api/types/` (generated, so lint skips it) and
   `app/src/lib/api/commands.ts`, which maps each command name to `{ args, reply, exposure,

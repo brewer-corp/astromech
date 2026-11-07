@@ -124,8 +124,17 @@ fn a_killed_test_process_ends_its_world_core() {
     let (app_dir, home) = line.split_once(' ').unwrap();
     parent.kill().unwrap();
     parent.wait().unwrap();
-    let mut err = String::new();
-    stderr.read_to_string(&mut err).unwrap();
+    // A guard only (finding astromech-1uyn): if the core outlives its parent, its end of the pipe
+    // stays open and this read would wait forever.
+    let (tx, rx) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        let mut err = String::new();
+        let _ = stderr.read_to_string(&mut err);
+        let _ = tx.send(err);
+    });
+    let err = rx
+        .recv_timeout(std::time::Duration::from_secs(30))
+        .expect("the world core outlived its killed parent: the end of its stdin didn't quit it");
     // The killed parent couldn't remove its (empty) home.
     let home = std::path::Path::new(home);
     assert!(files_in(home).is_empty(), "the world core wrote into its home: {:?}", files_in(home));
