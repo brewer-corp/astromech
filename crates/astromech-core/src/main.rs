@@ -9,7 +9,7 @@ use astromech_api::Recover;
 use astromech_core::config::{Config, SAMPLE};
 use astromech_core::logging::log;
 use astromech_core::session::{self, Session};
-use astromech_proto::Origin;
+use astromech_proto::{Origin, SystemClock};
 use astromech_store::Paths;
 use clap::Parser;
 use std::io::BufRead;
@@ -354,7 +354,7 @@ fn run_console(args: Args) -> Result<()> {
     if args.health {
         let data = cfg.data_dir(&paths);
         let bindings = cfg.bindings_dir().context("can't find the Bindings folder; set game.bindings_dir")?;
-        let st = astromech_core::health::run_check(&bindings, cfg.game_dir().as_deref(), cfg!(windows));
+        let st = astromech_core::health::run_check(&bindings, cfg.game_dir().as_deref(), cfg!(windows), &SystemClock);
         print!("{}", st.summary());
         session::write_health(&data, &st);
         println!("Full report: {}", data.join("health.html").display());
@@ -363,7 +363,7 @@ fn run_console(args: Args) -> Result<()> {
     let opts = args.session_opts();
     astromech_core::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, std::sync::atomic::Ordering::SeqCst);
     let data = cfg.data_dir(&paths);
-    astromech_core::app::apply_edsm_switch(&cfg, &data, &astromech_store::secrets::OsKeyring::new());
+    astromech_core::app::apply_edsm_switch(&cfg, &data, &astromech_store::secrets::OsKeyring::new(), &SystemClock);
     let route =
         std::sync::Arc::new(astromech_core::route::Desk::in_dir(&data, Box::new(astromech_core::clipboard::set_text)));
     // The command layer's state, for its one remote-data client and star map; the folders are
@@ -381,7 +381,7 @@ fn run_console(args: Args) -> Result<()> {
         route,
         &api,
         astromech_core::callouts::platform_notifier(),
-        std::sync::Arc::new(astromech_proto::SystemClock),
+        std::sync::Arc::new(SystemClock),
         None,
         &astromech_core::app::Http::real(),
         &session::Io::real(),
@@ -523,6 +523,7 @@ fn listen(_secs: u64) -> Result<()> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

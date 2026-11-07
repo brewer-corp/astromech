@@ -66,4 +66,5 @@ pub mod trade;
 pub mod tray;
 pub mod update;
 pub mod visits;
+pub mod watch;
 pub mod world;

@@ -2,6 +2,7 @@
 //! Nearby search (`Galaxy::nearby`) with the lookup's remembered filters, on Spansh's recorded
 //! famine search from Sol (astromech-galaxy's fixture) → spoken answer. Nothing is pressed and
 //! no test touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::actions::{Outcome, Runner};
 use astromech_core::assistant::{Assistant, Handled};

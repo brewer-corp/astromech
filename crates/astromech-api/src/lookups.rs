@@ -294,7 +294,7 @@ fn neutron_download(s: &State, call: &Call) -> Result<NeutronFile, String> {
         astromech_log::log(&format!("neutron star file: download failed: {e:#}{}", download_detail(&e)));
         return Err(format!("{e:#}"));
     }
-    if let Err(e) = s.neutron.get() {
+    if let Err(e) = s.neutron.get(&**s.clock()) {
         astromech_log::log(&format!("neutron star file: the download won't load: {e:#}"));
     }
     Ok(neutron_status(s))
@@ -549,6 +549,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::control::{call, serve, Request};
@@ -662,7 +663,7 @@ mod tests {
         let mut reg = Registry::new();
         register(&state, &mut reg);
         let app = d.path().join("app");
-        let _srv = serve(&app, Arc::new(reg)).unwrap();
+        let _srv = serve(&app, Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         let ask = |cmd: &str, seen: &mut Vec<Value>| {
             let req = Request { origin: Some(Origin::AppWindow), ..Request::new(cmd) };
             let r = call(&app, req, None, &mut |p| seen.push(json!({ "progress": p })));
@@ -680,7 +681,7 @@ mod tests {
         assert_eq!(seen.last(), Some(&json!({ "reply": reply })));
         assert_eq!(reply["file"]["stars"], 35, "{reply}");
         assert_eq!(reply["error"], Value::Null);
-        assert!(state.neutron.get().unwrap().is_some(), "loaded for the next plot");
+        assert!(state.neutron.get(&**state.clock()).unwrap().is_some(), "loaded for the next plot");
         assert_eq!(ask("neutron_check", &mut vec![]), json!({ "newer": false }));
     }
 }

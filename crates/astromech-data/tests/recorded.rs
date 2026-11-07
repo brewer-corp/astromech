@@ -1,5 +1,6 @@
 //! Behaviour on recorded responses (captured from the live services on 16 and 17 Oct 2026, trimmed;
 //! see tests/fixtures). No test here touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::ardent::{MarketFilter, StationService, Trade};
 use astromech_data::replay::{Exchange, Recording, Replay, Seen};

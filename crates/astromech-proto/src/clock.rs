@@ -76,6 +76,7 @@ pub trait Clock: Send + Sync {
 /// The system's clocks: `Instant::now`, `SystemTime::now` and `thread::sleep`.
 pub struct SystemClock;
 
+#[allow(clippy::disallowed_methods, reason = "the system clock is the one place the core reads real time")]
 impl Clock for SystemClock {
     fn now(&self) -> Instant {
         Instant::now()
@@ -124,6 +125,7 @@ impl dyn Clock {
         d: Duration,
     ) -> (MutexGuard<'a, T>, bool) {
         let Some(man) = self.manual() else {
+            #[allow(clippy::disallowed_methods, reason = "the system clock's wait is std's")]
             let (g, r) = cv.wait_timeout(guard, d).unwrap_or_else(|e| e.into_inner());
             return (g, r.timed_out());
         };
@@ -146,6 +148,7 @@ impl dyn Clock {
         d: Duration,
     ) -> (MutexGuard<'a, T>, bool) {
         let Some(man) = self.manual() else {
+            #[allow(clippy::disallowed_methods, reason = "the system clock's wait is std's")]
             let (g, r) = cv.wait_timeout(guard, d).unwrap_or_else(|e| e.into_inner());
             return (g, r.timed_out());
         };
@@ -180,6 +183,7 @@ impl dyn Clock {
     /// Under the manual clock, block until every registered thread but the caller is parked in
     /// a clock wait or gone, or `guard` (real time) has passed: false then. True at once on a
     /// real clock. For a registered thread a world holds still while the rest settles.
+    #[allow(clippy::disallowed_methods, reason = "a real-time hang guard: it only ends a wait that never settles")]
     pub fn wait_others_parked(&self, guard: Duration) -> bool {
         let Some(man) = self.manual() else { return true };
         let me = CURRENT.with(|c| c.get()).filter(|(clock, _)| *clock == man.id).map(|(_, r)| r);
@@ -294,6 +298,7 @@ impl<T: Send + 'static> ClockReceiver<T> {
     /// `Receiver::recv_timeout(d)`. A [wake](ClockSender::wake) is a timeout.
     pub fn recv_timeout(&self, d: Duration) -> Result<T, RecvTimeoutError> {
         let (Some((m, chan)), Some(w)) = (&self.manual, &self.waker) else {
+            #[allow(clippy::disallowed_methods, reason = "the system clock's wait is std's")]
             return match self.rx.recv_timeout(d) {
                 Ok(Msg::Item(t)) => Ok(t),
                 Ok(Msg::Wake(_)) => Err(RecvTimeoutError::Timeout),
@@ -603,6 +608,10 @@ impl ManualClock {
     pub fn new(utc: SystemTime) -> Self {
         ManualClock(Arc::new(Manual {
             id: CLOCKS.fetch_add(1, Ordering::Relaxed),
+            #[allow(
+                clippy::disallowed_methods,
+                reason = "the manual clock's origin: Instant has no other constructor"
+            )]
             mono: Instant::now(),
             utc,
             state: Mutex::default(),
@@ -691,6 +700,7 @@ impl Clock for ManualClock {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use std::sync::mpsc::channel;

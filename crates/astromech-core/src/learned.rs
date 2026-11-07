@@ -59,6 +59,7 @@ pub fn forget(data: &Path, assistant: Option<&Assistant>, heard: &str) -> Answer
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use serde_json::{json, Value};

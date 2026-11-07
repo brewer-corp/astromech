@@ -1,5 +1,6 @@
 //! Journal replay tests for the High Grade Emissions callouts: the signal with its likely pool,
 //! and the arrival line for a good HGE system on the shopping list.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

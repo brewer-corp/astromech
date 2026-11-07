@@ -2,6 +2,7 @@
 //! core's real `controls::Mapper` and push-to-talk loop on the world clock, a recorded clip on the
 //! world's microphone, the script's transcript, and keys and speech observed. No test here
 //! sleeps, reads the wall clock or retries; the only real-time waits are the core's 30 s guards.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod support;
 

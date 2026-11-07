@@ -175,7 +175,7 @@ pub fn plot_route(
     if ask.plotter == Plotter::Exact {
         return plot(client, &here.system, ask, ship, polling);
     }
-    let file = match neutron.get() {
+    let file = match neutron.get(&**client.clock_in_use()) {
         Ok(Some(file)) => file,
         Ok(None) => return plot(client, &here.system, ask, ship, polling),
         Err(e) => {

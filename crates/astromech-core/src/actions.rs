@@ -10,7 +10,7 @@ use astromech_proto::{Origin, Tier};
 use astromech_tools::{authorize_plan, plan_with, tool_name, Plan, ToolCall, Verify};
 use std::sync::Arc;
 use std::thread::JoinHandle;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 /// Background check after a press. Logged only: never spoken, never retried (a second press
 /// of a toggle could undo a late change).
@@ -242,13 +242,15 @@ impl Runner {
         let hub = self.hub.clone();
         let log = self.log.clone();
         let timeout = self.verify_timeout;
-        let t0 = Instant::now();
+        // The verify waits are on the hub's clock, so its time is measured there.
+        let t0 = hub.clock().now();
         let h = std::thread::spawn(move || {
+            let ms = || hub.clock().now().saturating_duration_since(t0).as_millis() as u64;
             let v = match verify {
                 Verify::None => Verified::Unverified,
                 Verify::Flag { bit, expect_set } => {
                     if hub.wait_flag(bit, expect_set, timeout, &|| ticket.is_cancelled()) {
-                        Verified::Confirmed { ms: t0.elapsed().as_millis() as u64 }
+                        Verified::Confirmed { ms: ms() }
                     } else if ticket.is_cancelled() {
                         Verified::Cancelled
                     } else {
@@ -257,7 +259,7 @@ impl Runner {
                 }
                 Verify::GuiFocus(want) => {
                     if hub.wait_gui(want, timeout, &|| ticket.is_cancelled()) {
-                        Verified::Confirmed { ms: t0.elapsed().as_millis() as u64 }
+                        Verified::Confirmed { ms: ms() }
                     } else if ticket.is_cancelled() {
                         Verified::Cancelled
                     } else {

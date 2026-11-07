@@ -3,6 +3,7 @@
 //! 30 ly radius; trimmed to the fields used). The area has every case: systems Spansh's own
 //! nearest-populated distance puts in range, systems only a newer colony puts in range (Spansh
 //! still says 20 ly or more), systems out of range, and a claimed one.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::spansh::{Page, System};
 use astromech_data::{Body, Cache, Client, Limiter, Request, Response, Transport, TransportError};

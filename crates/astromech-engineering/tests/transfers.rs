@@ -1,6 +1,7 @@
 //! astromech-4irh: ships and modules ordered to a station arrive when their `TransferTime` passes
 //! on the Clock, whenever the page reads the fleet: the journal says nothing at that moment, so
 //! nothing is written to prompt a rebuild.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_engineering::{from_journal_dir_at, Settled, FLEET_EVENTS};
 use astromech_journal::JournalCache;

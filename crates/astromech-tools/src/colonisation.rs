@@ -165,6 +165,7 @@ pub fn buy(need: &Need, plan: &ListPlan, max_ly: u32, now_s: i64) -> String {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_colonisation::shopping::{shopping_list, Hold};

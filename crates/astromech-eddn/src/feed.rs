@@ -232,13 +232,18 @@ impl Feed {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::message::gunzip;
     use crate::outbox::tests::{status, FakeTransport};
     use crate::testutil::{fixture, software, SHINRARTA, SHINRARTA_POS};
     use crate::transport::Response;
-    use crate::worker::wall_now;
+    use astromech_proto::Clock;
+
+    fn wall_now() -> i64 {
+        astromech_proto::SystemClock.now_s()
+    }
     use serde_json::json;
     use std::sync::mpsc::{channel, Receiver, Sender as Tx};
     use std::sync::Mutex;

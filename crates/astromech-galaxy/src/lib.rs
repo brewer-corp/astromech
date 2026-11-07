@@ -143,6 +143,7 @@ pub fn hge_score(population: i64, ly: f64) -> f64 {
 pub const FILL_RETRY_S: i64 = 600;
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 fn now_s() -> i64 {
     chrono::Utc::now().timestamp()
 }
@@ -573,6 +574,7 @@ pub fn here_from_journal_dir(dir: &Path) -> Option<Here> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     #[test]
     fn the_engineering_watch_list_has_every_reader_s_lines() {

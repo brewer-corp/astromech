@@ -9,6 +9,7 @@
 //! archive plus its `.<asset id>.ok` marker holding the archive's SHA-256).
 //! Default voices: the British ones. On Linux the worker needs the sherpa-onnx shared
 //! libraries (`LD_LIBRARY_PATH=target/debug`, after building it with `--features sherpa`).
+#![allow(clippy::disallowed_methods)] // a developer tool, not the core
 
 use anyhow::{bail, Result};
 use astromech_core::speech::TtsSpeaker;

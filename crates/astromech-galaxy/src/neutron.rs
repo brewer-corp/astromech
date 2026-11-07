@@ -363,10 +363,11 @@ impl Kept {
 
     /// The loaded file, loading it first if it isn't loaded or has changed on disk. `None` if
     /// there is no file; an error (a sentence) if it can't be read.
-    pub fn get(&self) -> Result<Option<std::sync::Arc<NeutronStars>>> {
+    /// `clock` times its use, for [`Kept::release_idle`].
+    pub fn get(&self, clock: &dyn astromech_data::Clock) -> Result<Option<std::sync::Arc<NeutronStars>>> {
         let mut s = self.lock();
         if let Some(f) = s.file.clone().filter(|f| f.is_current()) {
-            s.used = Some(std::time::Instant::now());
+            s.used = Some(clock.now());
             return Ok(Some(f));
         }
         s.file = None; // free the old one before loading the new
@@ -384,7 +385,7 @@ impl Kept {
                 s.failed = None;
                 let f = std::sync::Arc::new(f);
                 s.file = Some(f.clone());
-                s.used = Some(std::time::Instant::now());
+                s.used = Some(clock.now());
                 Ok(Some(f))
             }
             Err(e) => {

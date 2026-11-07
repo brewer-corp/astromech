@@ -8,6 +8,7 @@ mod status_file;
 pub use status_file::*;
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     #[test]

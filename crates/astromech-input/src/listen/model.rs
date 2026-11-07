@@ -311,6 +311,7 @@ pub fn elite_key(vkey: u16, scan: u16, e0: bool) -> Option<String> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     #[test]

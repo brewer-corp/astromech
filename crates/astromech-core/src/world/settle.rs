@@ -20,6 +20,7 @@ pub struct Settle {
 
 /// Wait on `cv` until `done` holds, or fail once `guard` (real time: it only stops a stuck call,
 /// and decides nothing) has passed.
+#[allow(clippy::disallowed_methods, reason = "a real-time hang guard: it only fails a stuck call and decides nothing")]
 fn wait_until<T>(m: &Mutex<T>, cv: &Condvar, guard: Duration, mut done: impl FnMut(&T) -> bool) -> Result<(), ()> {
     let deadline = Instant::now() + guard;
     let mut g = m.lock().recover();
@@ -207,6 +208,7 @@ impl Gate {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

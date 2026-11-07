@@ -389,6 +389,7 @@ pre{padding:8px;overflow-x:auto;white-space:pre-wrap}.muted{color:#888}</style><
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     #[test]

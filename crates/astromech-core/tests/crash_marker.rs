@@ -1,5 +1,6 @@
 //! The crash marker (astromech_core::crash): a panic the command layer catches leaves none, a
 //! panic anywhere else does. Its own test binary, as the panic hook is the process's.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_api::{Exposure, Registry, Request};
 use astromech_core::crash;
@@ -7,7 +8,7 @@ use astromech_core::crash;
 #[test]
 fn only_a_panic_the_command_layer_does_not_catch_leaves_a_crash_marker() {
     let app = tempfile::tempdir().unwrap();
-    crash::install(app.path());
+    crash::install(app.path(), std::sync::Arc::new(astromech_proto::SystemClock));
 
     let mut reg = Registry::new();
     reg.add("boom", Exposure::Window, |_, _| panic!("a handler's bug"));
@@ -31,7 +32,7 @@ const CHILD_APP_DIR: &str = "ASTROMECH_CRASH_TEST_APP_DIR";
 #[test]
 fn a_second_panic_while_a_caught_one_unwinds_leaves_a_crash_marker() {
     if let Some(app) = std::env::var_os(CHILD_APP_DIR) {
-        crash::install(std::path::Path::new(&app));
+        crash::install(std::path::Path::new(&app), std::sync::Arc::new(astromech_proto::SystemClock));
         struct PanicsOnDrop;
         impl Drop for PanicsOnDrop {
             fn drop(&mut self) {

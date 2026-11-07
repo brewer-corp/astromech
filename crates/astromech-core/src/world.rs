@@ -279,6 +279,10 @@ impl Observed {
 
     /// The first observation from `since` with every field of `pattern`, waiting for it to be
     /// recorded; an error if none is within `guard`.
+    #[allow(
+        clippy::disallowed_methods,
+        reason = "a real-time hang guard: it only fails a stuck call and decides nothing"
+    )]
     pub fn wait(&self, pattern: &Map<String, Value>, since: usize, guard: Duration) -> Result<Value, String> {
         // The guard is real time: it only stops a stuck call, and decides nothing in a world.
         let deadline = Instant::now() + guard;
@@ -712,6 +716,7 @@ fn serve(src: &Path, session: crate::session::Opts, record: Option<&Path>) -> Re
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 
@@ -840,7 +845,14 @@ mod tests {
         let feed = (b.http.downloads)(crate::update::DEFAULT_FEED);
         assert!(format!("{:#}", crate::update::http_get(&feed, false).unwrap_err()).contains("404"));
         let dir = w.root().join("models");
-        let e = models::download_from(&dir, &models::STT, &(b.http.downloads)(&models::STT.url()), false, &mut |_| {});
+        let e = models::download_from(
+            &dir,
+            &models::STT,
+            &(b.http.downloads)(&models::STT.url()),
+            false,
+            &*b.clock,
+            &mut |_| {},
+        );
         assert!(format!("{:#}", e.unwrap_err()).contains("503"));
         assert!(client.send(astromech_data::Service::Edsm, &astromech_data::Request::get("/api-v1/system")).is_err());
         let seen: Vec<(String, String, bool)> = w

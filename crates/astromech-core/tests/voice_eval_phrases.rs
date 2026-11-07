@@ -1,5 +1,6 @@
 //! The synthetic voice-eval phrase set (`voice-eval-phrases.tsv`, scored by
 //! `examples/voice-eval.rs`) stays a 200-phrase set that covers the whole grammar.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::eval::load_phrases;
 use astromech_intent::MVP;

@@ -200,7 +200,7 @@ impl Session {
             .context("starting the star map's thread")?;
         // 1. Binds health check.
         let bindings = cfg.bindings_dir().context("can't find the Bindings folder; set game.bindings_dir")?;
-        let st = health::run_check_with(&bindings, cfg.game_dir().as_deref(), (io.devices)());
+        let st = health::run_check_with(&bindings, cfg.game_dir().as_deref(), (io.devices)(), &*clock);
         for l in st.summary().lines() {
             log(l);
         }
@@ -243,7 +243,7 @@ impl Session {
         for p in engine.setting_problems() {
             log(&format!("config: {p}"));
         }
-        let (pending, toasts) = (Arc::new(callouts::Pending::new(clock.clone())), Arc::new(Toasts::default()));
+        let (pending, toasts) = (Arc::new(callouts::Pending::new(clock.clone())), Arc::new(Toasts::new(clock.clone())));
         let deliver = Box::new(callouts::router(
             pending.clone(),
             toasts.clone(),
@@ -514,10 +514,11 @@ fn start_voice(
     };
     let (jtx, jrx) = std::sync::mpsc::channel::<ClipJob>();
     if let Some(mut stt) = stt {
-        let a = assistant.clone();
+        let (a, c) = (assistant.clone(), clock.clone());
         std::thread::Builder::new().name("stt".into()).spawn(move || {
             while let Ok(job) = jrx.recv() {
-                let t0 = std::time::Instant::now();
+                let t0 = c.now();
+                let ms = || c.now().saturating_duration_since(t0).as_millis();
                 match stt.transcribe(&job.samples, job.rate) {
                     Ok(t) if t.is_empty() && !job.testing => a.runner.speaker.say("Say again."),
                     Ok(t) => match tester::on_heard(&TESTER, &a, &t, job.testing) {
@@ -525,7 +526,7 @@ fn start_voice(
                         tester::Heard::Tested(r) => {
                             log(&format!(
                                 "voice tester heard {t:?} ({} ms): would {:?}, nothing pressed",
-                                t0.elapsed().as_millis(),
+                                ms(),
                                 r.would
                             ));
                             a.runner.speaker.say(tester::TEST_ONLY);
@@ -535,9 +536,9 @@ fn start_voice(
                         }
                         tester::Heard::Handled(h) => {
                             if matches!(h, crate::assistant::Handled::Ignored) {
-                                log(&format!("heard {t:?} ({} ms): noise only, ignored", t0.elapsed().as_millis()));
+                                log(&format!("heard {t:?} ({} ms): noise only, ignored", ms()));
                             } else {
-                                log(&format!("heard {t:?} ({} ms)", t0.elapsed().as_millis()));
+                                log(&format!("heard {t:?} ({} ms)", ms()));
                                 log(&format!("  -> {}", short(&h)));
                             }
                             if let Some(p) = job.sidecar {
@@ -670,7 +671,7 @@ fn start_voice(
                                 let mut sidecar = None;
                                 let mut meta = serde_json::json!({});
                                 if save_clips {
-                                    let stamp = chrono::Utc::now().format("%Y%m%dT%H%M%S%.3fZ");
+                                    let stamp = chrono::DateTime::<chrono::Utc>::from(clk.utc()).format("%Y%m%dT%H%M%S%.3fZ");
                                     let wav = clips_dir.join(format!("{stamp}.wav"));
                                     if astromech_voice::wav::write_mono_i16(&wav, m.sample_rate(), &n.samples).is_ok() {
                                         sidecar = Some(wav.with_extension("json"));
@@ -824,6 +825,7 @@ mod bus {
 /// speech-to-text and speaker. The S7 replay's presses go through `controls::Mapper` into the
 /// bus as its thread forwards the listener's.
 #[cfg(all(test, windows))]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod windows_tests {
     use super::*;
     use crate::config::Button;
@@ -922,7 +924,12 @@ mod windows_tests {
         let runner = Arc::new(Runner {
             policy: Policy::new(game.clone(), Default::default()),
             hub,
-            binds: Arc::new(RwLock::new(health::run_check(&bindings, Some(&dir.path().join("nogame")), false))),
+            binds: Arc::new(RwLock::new(health::run_check(
+                &bindings,
+                Some(&dir.path().join("nogame")),
+                false,
+                &astromech_proto::SystemClock,
+            ))),
             speaker,
             verify_timeout: Duration::from_millis(200),
             log: Arc::new(|_: &str| {}),

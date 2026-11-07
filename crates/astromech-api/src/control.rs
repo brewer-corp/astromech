@@ -10,7 +10,7 @@
 
 use crate::Registry;
 use anyhow::{Context, Result};
-use astromech_proto::Origin;
+use astromech_proto::{Clock, Origin};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::io::{BufRead, BufReader, Read, Write};
@@ -76,13 +76,14 @@ impl Request {
     }
 }
 
-fn token() -> String {
+/// `clock`'s time is mixed in with the OS-seeded hashers.
+fn token(clock: &dyn Clock) -> String {
     use std::hash::{BuildHasher, Hasher};
     // RandomState is seeded from the OS RNG; two of them give 128 bits.
     let mut s = String::new();
     for _ in 0..2 {
         let mut h = std::collections::hash_map::RandomState::new().build_hasher();
-        h.write_u128(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos());
+        h.write_u128(clock.utc().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos());
         s += &format!("{:016x}", h.finish());
     }
     s
@@ -102,12 +103,13 @@ impl Drop for Server {
     }
 }
 
-/// Listen on an ephemeral localhost port and publish it in `<app_dir>/core.json`.
-pub fn serve(app_dir: &Path, registry: Arc<Registry>) -> Result<Server> {
+/// Listen on an ephemeral localhost port and publish it in `<app_dir>/core.json`. The token's
+/// time is read on `clock`.
+pub fn serve(app_dir: &Path, registry: Arc<Registry>, clock: &dyn Clock) -> Result<Server> {
     let l = TcpListener::bind(("127.0.0.1", 0)).context("binding the local control port")?;
     let endpoint = Endpoint {
         port: l.local_addr()?.port(),
-        token: token(),
+        token: token(clock),
         pid: std::process::id(),
         version: env!("CARGO_PKG_VERSION").into(),
     };
@@ -247,6 +249,7 @@ fn window_request(cmd: &str, args: Option<Value>) -> (Request, Option<Duration>)
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::Exposure;
@@ -260,7 +263,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let mut reg = Registry::new();
         reg.add("open_window", Exposure::Local, |r, _| Ok(json!({"ok": true, "route": r.route})));
-        let srv = serve(d.path(), Arc::new(reg)).unwrap();
+        let srv = serve(d.path(), Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         // The handler's reply is the value, and the request's fields reach it.
         let v = call_short(d.path(), "open_window", Some("settings")).unwrap();
         assert_eq!(v, json!({"ok": true, "route": "settings"}));
@@ -313,7 +316,7 @@ mod tests {
                 .map_err(|_| "the progress line never reached the client".to_string())?;
             Ok(json!("done"))
         });
-        let _srv = serve(d.path(), Arc::new(reg)).unwrap();
+        let _srv = serve(d.path(), Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         let mut got = vec![];
         let v = call(d.path(), Request::new("job"), None, &mut |p| {
             got.push(p);
@@ -342,7 +345,7 @@ mod tests {
             });
             Ok(json!("bye"))
         });
-        let _srv = serve(d.path(), Arc::new(reg)).unwrap();
+        let _srv = serve(d.path(), Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         assert_eq!(call_short(d.path(), "quit", None), Ok(json!("bye")));
         read_tx.send(()).unwrap();
         assert!(ran_rx.recv().unwrap(), "the effect ran before the client had the reply");
@@ -395,7 +398,7 @@ mod tests {
             g.wait();
             Ok(json!("plotted"))
         });
-        let _srv = serve(d.path(), Arc::new(reg)).unwrap();
+        let _srv = serve(d.path(), Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         // The patient client is waiting inside the handler before the impatient one calls.
         let dir = d.path().to_path_buf();
         let patient = std::thread::spawn(move || call(&dir, Request::new("plot"), None, &mut no_progress));
@@ -418,7 +421,7 @@ mod tests {
         });
         reg.add("quit", Exposure::Local, |_, _| Ok(json!("bye")));
         reg.add("fail", Exposure::Window, |_, _| Err("no journal".into()));
-        let _srv = serve(d.path(), Arc::new(reg)).unwrap();
+        let _srv = serve(d.path(), Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         let mut got = vec![];
         let v = call_window(d.path(), "echo", Some(json!({"within_ly": 20})), &mut |p| got.push(p)).unwrap();
         assert_eq!(v, json!({"args": {"within_ly": 20}, "text": null, "origin": "app_window"}));

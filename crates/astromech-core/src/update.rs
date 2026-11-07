@@ -602,6 +602,7 @@ pub fn stage(
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     #[test]
     fn the_tray_check_item_follows_the_update_status() {

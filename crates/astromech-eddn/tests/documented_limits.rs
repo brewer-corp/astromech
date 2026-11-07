@@ -4,6 +4,7 @@
 //! (EDSM has no such check), and EDDN gives a queued message up after `MAX_AGE_SECS` without
 //! delivery or `MAX_ATTEMPTS` tries (EDSM has its own delivery: refusals, no age limit). Both
 //! queues hold at most `MAX_QUEUED`.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_eddn::feed::MAX_EVENT_AGE_SECS;
 use astromech_eddn::outbox::{MAX_AGE_SECS, MAX_ATTEMPTS, MAX_QUEUED};

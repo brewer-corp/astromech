@@ -1,5 +1,5 @@
 // Ships page: selected ship as the main pane, the rest of the fleet as a bottom rail.
-// Stats come from preview/fixtures/ships.json (astromech-ship dump-ships-fixture).
+// Stats come from preview/fixtures/ships.json (the real core's, in the world worlds/preview/krait).
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
 import ships from "../../preview/fixtures/ships.json";

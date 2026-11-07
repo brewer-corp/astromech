@@ -157,6 +157,7 @@ pub fn flight_log(api: &dyn Api, c: &Credentials) -> Result<Vec<Visit>, String> 
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 pub(crate) mod tests {
     use super::*;
     use std::sync::{Arc, Mutex};

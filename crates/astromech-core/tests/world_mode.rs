@@ -1,5 +1,6 @@
 //! World mode (`astromech-core --world`): the real core headless in a world's temp copy, with its
 //! boundaries' fakes recording what reaches them, and the user's own folders never touched.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod support;
 

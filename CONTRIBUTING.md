@@ -245,6 +245,18 @@ quarantine: it needs an Atelier issue, named on the line above (`// quarantine: 
 <why>`). Lint rejects `setTimeout` and wall-clock reads in test files
 (`app/eslint-rules/tests.js`, tested by `tests.test.js` beside it).
 
+**The core's clock.** The core reads the time and waits through its clock
+(`astromech_proto::clock`: `clock.now()`, `clock.utc()`, `clock.sleep`, a clock channel's
+`recv_timeout`, `dyn Clock::wait_timeout`), so a world's manual clock moves it. Clippy rejects
+`Instant::now`, `Instant::elapsed`, `SystemTime::now`, `SystemTime::elapsed`, `chrono::Utc::now`,
+`chrono::Local::now`, `thread::sleep`, `Condvar::wait_timeout` and `mpsc::Receiver::recv_timeout`
+(`clippy.toml`). A wait that must stay real (device timing, a short pacing wait that ends on its own,
+a hang guard that decides nothing) carries `#[allow(clippy::disallowed_methods)]` with its reason.
+Rust tests are exempt for now, by an `allow` at the top of each `tests/*.rs` file and on each
+`#[cfg(test)]` module; astromech-c7lc removes those file by file. File watchers come from
+`astromech_core::watch::watcher`, which drops the notifications Linux sends for reads; clippy rejects
+`notify::recommended_watcher` elsewhere.
+
 **The frontend's two test projects** (`app/vite.config.ts`):
 
 - `node`: pure logic in `app/src/**/*.test.ts`, run in Node.
@@ -298,8 +310,11 @@ speech path, never a personal recording: `cargo run -p astromech-core --example 
 `<dir>/bm_george.wav` at 24 kHz in the default cockpit colour, and `ffmpeg -i <dir>/bm_george.wav
 -ac 1 -ar 16000 <clip>.wav` converts it), speech-to-text hears
 `say` steps, and keys sent and lines said show in `world_observed`. `--record-net <file>` records real answers into that form with keys and commander names
-redacted. A recording committed here comes from public endpoints, with no credentials, and is
-checked for redaction; never commit one holding a key, a commander name or personal data. The
+redacted, JSON-escaped echoes included. A recording committed here comes from public endpoints,
+with no credentials, and is checked for redaction; never commit one holding a key, a commander
+name or personal data. `crates/astromech-core/tests/committed_worlds.rs` fails for a world's
+`secrets.json` value that isn't a placeholder (`not-a-real-key`; it must say `not-a-real`,
+`fake` or `placeholder`, or be empty) and for a `net.json` holding an EDSM flight log with entries. The
 format, the settle rules and the `world_*` commands are in the [world module's doc
 comment](crates/astromech-core/src/world.rs); the worlds are in `worlds/`. `crates/astromech-core/tests/support/` starts one (`WorldCore`) and calls it over the
 control API. Each world core is its own process, because the core keeps process-wide state. The

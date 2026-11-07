@@ -104,6 +104,7 @@ pub fn load(bindings_dir: &Path, game_dir: Option<&Path>) -> Result<BindsIndex, 
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     #[test]

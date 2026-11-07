@@ -146,6 +146,10 @@ impl Steps {
 
     /// Advance the clock and wait until the core is quiescent again (guarded: a core that never
     /// settles fails the step instead of hanging the caller).
+    #[allow(
+        clippy::disallowed_methods,
+        reason = "a real-time hang guard: it only fails a stuck call and decides nothing"
+    )]
     fn advance(&self, d: Duration) -> Result<(), String> {
         let (tx, rx) = std::sync::mpsc::channel();
         let clock = self.clock.clone();

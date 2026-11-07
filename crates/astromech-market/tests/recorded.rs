@@ -1,6 +1,7 @@
 //! Trade lookups on recorded Ardent answers: nearby imports and exports around Sol asked with
 //! maxDistance=40 on 16 Oct 2026, trimmed to a dozen markets each (tests/fixtures; fleet
 //! carrier names and ids replaced). No test here touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::{Cache, Client, Limiter, Request, Response, Transport, TransportError};
 use astromech_galaxy::{Filters, Galaxy, Here, Pad, Store};

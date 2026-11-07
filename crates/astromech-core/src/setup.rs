@@ -416,6 +416,7 @@ pub fn onboarded_at_start(store: &astromech_store::Store, config_file_exists: bo
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     /// The TypeScript arg types describe what `from_request` reads: each one, as the window
     /// would send it, is a valid edit.

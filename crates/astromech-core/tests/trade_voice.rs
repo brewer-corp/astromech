@@ -1,6 +1,7 @@
 //! Trade questions by voice, end to end: phrase → grammar (commodity slot) → Ardent lookup on
 //! recorded answers (astromech-market's fixtures: Sol, 16 Oct 2026) → spoken answer. Nothing is
 //! pressed and no test touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::actions::{Outcome, Runner};
 use astromech_core::assistant::{Assistant, Handled};

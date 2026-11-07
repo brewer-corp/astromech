@@ -236,15 +236,25 @@ pub struct Toast {
     pub time: String,
 }
 
-/// The last few toasts.
-#[derive(Default)]
+/// The last few toasts, each stamped on `clock`.
 pub struct Toasts {
     inner: Mutex<(u64, VecDeque<Toast>)>,
+    clock: Arc<dyn Clock>,
+}
+
+impl Default for Toasts {
+    fn default() -> Self {
+        Self::new(Arc::new(SystemClock))
+    }
 }
 
 const TOASTS_KEPT: usize = 20;
 
 impl Toasts {
+    pub fn new(clock: Arc<dyn Clock>) -> Self {
+        Self { inner: Mutex::default(), clock }
+    }
+
     pub fn push(&self, rule: &str, text: &str) {
         let mut g = self.inner.lock().recover();
         g.0 += 1;
@@ -252,7 +262,8 @@ impl Toasts {
             id: g.0,
             rule: rule.into(),
             text: text.into(),
-            time: chrono::Local::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, false),
+            time: chrono::DateTime::<chrono::Local>::from(self.clock.utc())
+                .to_rfc3339_opts(chrono::SecondsFormat::Secs, false),
         };
         g.1.push_back(t);
         while g.1.len() > TOASTS_KEPT {
@@ -531,6 +542,7 @@ impl Drop for SpeechOut {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::speech::RecordingSpeaker;

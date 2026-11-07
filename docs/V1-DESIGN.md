@@ -861,9 +861,9 @@ Total about **11 weeks**.
 - **Key tester** is on the Diagnostics page (with the connected controllers).
 - **Modifiers.** Press-to-bind writes a single control. Existing modifier combos are shown and kept;
   making a new combo is left to the game's own menu for now.
-- **Browser preview.** Outside Tauri the window serves `app/src/preview/fixtures/sample.json` (made by
-  `cargo run -p astromech-keybinds --example fixture` from `data/samples/Example DualVKB.4.2.binds`,
-  generated example data) and keeps edits in memory. `scripts/app-shots.sh` screenshots every screen.
+- **Browser preview.** Outside Tauri the window serves `app/src/preview/fixtures/sample.json` (the
+  real core's replies in the world `worlds/preview/binds`, over `data/samples/Example DualVKB.4.2.binds`,
+  generated example data; CONTRIBUTING.md's Tests say how to refresh it) and keeps edits in memory. `scripts/app-shots.sh` screenshots every screen.
 
 ### 7.12 As built in M3 output-path slice (11 Oct 2026)
 - `[voice] colour = "natural" | "cockpit" | "harsh"` (default **cockpit**). DSP is `astromech_voice::colour`; the confirmation cache is coloured. Cockpit prepends a two-tone pip.

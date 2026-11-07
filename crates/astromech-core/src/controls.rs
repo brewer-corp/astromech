@@ -30,6 +30,10 @@ pub trait ControlRx: Send {
 }
 
 impl ControlRx for std::sync::mpsc::Receiver<Control> {
+    #[allow(
+        clippy::disallowed_methods,
+        reason = "the Windows listener's bus (raw-input and XInput timing); a world's ControlRx is a clock channel"
+    )]
     fn recv_timeout(&self, d: Duration) -> Result<Control, std::sync::mpsc::RecvTimeoutError> {
         std::sync::mpsc::Receiver::recv_timeout(self, d)
     }
@@ -334,6 +338,7 @@ pub fn start(
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_input::listen::model::{DevKind, SampleData};

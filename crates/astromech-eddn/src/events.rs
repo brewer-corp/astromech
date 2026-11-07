@@ -198,6 +198,7 @@ pub fn fcmaterials(ev: &Value, file: &Value) -> Result<Outgoing, Unusable> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod schema_tests {
     // The event-specific schemas: a synthetic fixture for each, built by the sender and validated
     // against its live schema file, plus the `fsssignaldiscovered` batching and the `codexentry`

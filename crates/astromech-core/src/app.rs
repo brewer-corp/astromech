@@ -22,7 +22,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use ts_rs::TS;
 
 pub const SHELL_EXE: &str = if cfg!(windows) { "astromech-shell.exe" } else { "astromech-shell" };
@@ -363,8 +363,8 @@ impl Core {
     fn install_config(&self, mut c: Config) {
         c.actions.dry_run |= self.opts.session.dry_run;
         let data_dir = c.data_dir(&self.paths);
-        apply_eddn_switch(&c, &data_dir);
-        apply_edsm_switch(&c, &data_dir, self.secrets.as_ref());
+        apply_eddn_switch(&c, &data_dir, &*self.clock);
+        apply_edsm_switch(&c, &data_dir, self.secrets.as_ref(), &*self.clock);
         // Under the config lock, so concurrent edits re-point in the order they saved.
         self.follow_history(&c);
         *self.cfg.write().recover() = c;
@@ -415,7 +415,7 @@ impl Core {
 
     /// The tray's one status line (also its tooltip, under "astromech").
     pub fn status_line(&self) -> String {
-        self.status_line_for(TESTER.armed(Instant::now()))
+        self.status_line_for(TESTER.armed(self.clock.now()))
     }
 
     /// The tray status. While the voice tester's test mode is on, push-to-talk does nothing in the
@@ -519,6 +519,7 @@ impl Core {
             log_dir: &log_dir,
             config: Some(&self.config_path),
             status: serde_json::to_string_pretty(&self.status_json()).unwrap_or_default(),
+            clock: &*self.clock,
         })?;
         log(&format!("diagnostics saved: {}", p.display()));
         if self.crash.lock().recover().take().is_some() {
@@ -563,7 +564,7 @@ impl Core {
         // new preview Kokoro can load while the session does.)
         self.preview.take();
         self.notify();
-        let t0 = Instant::now();
+        let t0 = self.clock.now();
         let cfg = self.cfg();
         let r = Session::start(
             &cfg,
@@ -583,7 +584,11 @@ impl Core {
         });
         match r {
             Ok(s) => {
-                log(&format!("active in {} ms: {}", t0.elapsed().as_millis(), s.voice));
+                log(&format!(
+                    "active in {} ms: {}",
+                    self.clock.now().saturating_duration_since(t0).as_millis(),
+                    s.voice
+                ));
                 *self.voice.lock().recover() = s.voice.clone();
                 *self.session.lock().recover() = Some(s);
                 // A voice saved in Settings while the session loaded: use it now.
@@ -664,7 +669,7 @@ impl Core {
                 self.set_update(|h| {
                     h.snap.latest = Some(m.version.clone());
                     h.snap.notes = m.notes.clone();
-                    h.snap.last_check = Some(chrono::Utc::now().to_rfc3339());
+                    h.snap.last_check = Some(chrono::DateTime::<chrono::Utc>::from(self.clock.utc()).to_rfc3339());
                     h.snap.installed = installed.into();
                 });
                 if !update::newer(&m.version, installed) {
@@ -711,7 +716,7 @@ impl Core {
                 self.set_update(|h| {
                     h.snap.status = UpStatus::Error;
                     h.snap.error = Some(format!("{e:#}"));
-                    h.snap.last_check = Some(chrono::Utc::now().to_rfc3339());
+                    h.snap.last_check = Some(chrono::DateTime::<chrono::Utc>::from(self.clock.utc()).to_rfc3339());
                 });
                 log(&format!("update: check failed: {e:#}"));
             }
@@ -827,7 +832,7 @@ impl Core {
             log(if k.is_empty() { "EDSM: API key removed" } else { "EDSM: API key saved in the OS keyring" });
         }
         if edits.is_empty() {
-            apply_edsm_switch(&self.cfg(), &self.data_dir(), self.secrets.as_ref());
+            apply_edsm_switch(&self.cfg(), &self.data_dir(), self.secrets.as_ref(), &*self.clock);
             self.notify();
             return Answer::ok(Applies { applies_next_session: false });
         }
@@ -889,7 +894,7 @@ impl Core {
             log("voice preview: Kokoro loaded (released after a minute unused)");
             Ok(s)
         };
-        match self.preview.say(PREVIEW_LINE, route, start) {
+        match self.preview.say(PREVIEW_LINE, &*self.clock, route, start) {
             Ok(()) => Answer::ok(Previewed { line: PREVIEW_LINE }),
             Err(e) => Answer::failed(format!("{e:#}")),
         }
@@ -1178,11 +1183,11 @@ impl Core {
                 let s = c.session.lock().recover();
                 s.as_ref().map(|s| s.assistant.dry_run(&text, Source::Typed))
             };
-            let result = res.unwrap_or_else(|| tester::dry_run_idle(&c.cfg(), &c.data_dir(), &text));
+            let result = res.unwrap_or_else(|| tester::dry_run_idle(&c.cfg(), &c.data_dir(), &text, &*c.clock));
             Done::new(Tried { result })
         });
         add::<(), _>(&mut reg, self, &["voice_test_poll"], Window, |c, _| {
-            if TESTER.arm(Instant::now()) {
+            if TESTER.arm(c.clock.now()) {
                 log("voice tester open: push-to-talk is tested there, nothing is pressed");
             }
             let last = TESTER.last().map(|(seq, result)| Heard { seq, result });
@@ -1196,8 +1201,8 @@ impl Core {
             log(&format!("learned phrase forgotten: {heard:?}"));
             crate::learned::forget(&c.data_dir(), assistant.as_deref(), &heard)
         });
-        add::<(), _>(&mut reg, self, &["voice_test_stop"], Window, |_, _| {
-            if TESTER.armed(Instant::now()) {
+        add::<(), _>(&mut reg, self, &["voice_test_stop"], Window, |c, _| {
+            if TESTER.armed(c.clock.now()) {
                 log("voice tester closed: push-to-talk acts again");
             }
             TESTER.disarm();
@@ -1235,11 +1240,11 @@ impl Core {
 /// The EDDN switch after a config edit: set the flag the feed and its worker read, and when
 /// sharing goes off, empty the queue now. The worker would discard it on its next pass, but it
 /// may be asleep for minutes, and switched back on by then it would send the old messages.
-fn apply_eddn_switch(c: &Config, data_dir: &Path) {
+fn apply_eddn_switch(c: &Config, data_dir: &Path, clock: &dyn Clock) {
     let was = crate::pipeline::EDDN_SHARING.swap(c.eddn.enabled, Ordering::SeqCst);
     let p = data_dir.join(astromech_eddn::DB_FILE);
     if was && !c.eddn.enabled && p.is_file() {
-        let now = astromech_eddn::worker::wall_now();
+        let now = clock.now_s();
         if let Err(e) = astromech_eddn::Outbox::open(&p).and_then(|o| o.discard_all(now)) {
             log(&format!("EDDN outbox: {e}"));
         }
@@ -1264,8 +1269,13 @@ pub fn edsm_credentials(
 
 /// The EDSM switch at start and after an edit: the credentials while uploading is on (switched
 /// on, with a commander name and an API key), and when it goes off, the queue is emptied now
-/// (as for EDDN), in the outbox under `data_dir`.
-pub fn apply_edsm_switch(c: &Config, data_dir: &Path, secrets: &dyn astromech_store::secrets::Secrets) {
+/// (as for EDDN), in the outbox under `data_dir`, stamped on `clock`.
+pub fn apply_edsm_switch(
+    c: &Config,
+    data_dir: &Path,
+    secrets: &dyn astromech_store::secrets::Secrets,
+    clock: &dyn Clock,
+) {
     let creds = if c.edsm.enabled {
         edsm_credentials(&c.edsm, secrets).unwrap_or_else(|e| {
             log(&format!("EDSM: {e}"));
@@ -1278,7 +1288,7 @@ pub fn apply_edsm_switch(c: &Config, data_dir: &Path, secrets: &dyn astromech_st
     let was = crate::pipeline::EDSM.set(creds);
     let p = data_dir.join(astromech_eddn::edsm::DB_FILE);
     if was && !on && p.is_file() {
-        let now = astromech_eddn::worker::wall_now();
+        let now = clock.now_s();
         if let Err(e) = astromech_eddn::Outbox::open(&p).and_then(|o| o.with_label("edsm").discard_all(now)) {
             log(&format!("EDSM outbox: {e}"));
         }
@@ -1587,7 +1597,8 @@ pub fn download_models(core: &Arc<Core>) {
         let mut err = None;
         for a in models::missing(&base) {
             let mut last = u64::MAX;
-            let r = models::download_from(&base, &a, &(c.http.downloads)(&a.url()), c.http.proxy_from_env, &mut |p| {
+            let url = (c.http.downloads)(&a.url());
+            let r = models::download_from(&base, &a, &url, c.http.proxy_from_env, &*c.clock, &mut |p| {
                 let pct = (p.done * 100).checked_div(p.total).unwrap_or(0);
                 if pct != last {
                     last = pct;
@@ -1821,9 +1832,9 @@ pub struct Started {
 pub fn start(core: &Arc<Core>) -> Started {
     let cfg = core.cfg();
     crate::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, Ordering::SeqCst);
-    apply_edsm_switch(&cfg, &core.data_dir(), core.secrets.as_ref());
+    apply_edsm_switch(&cfg, &core.data_dir(), core.secrets.as_ref(), &*core.clock);
 
-    let server = match control::serve(core.paths.app_dir(), Arc::new(core.commands())) {
+    let server = match control::serve(core.paths.app_dir(), Arc::new(core.commands()), &*core.clock) {
         Ok(s) => {
             log(&format!("control API on 127.0.0.1:{}", s.endpoint.port));
             Some(s)
@@ -1883,7 +1894,7 @@ pub fn run(opts: Opts) -> i32 {
     let app_dir = paths.app_dir().to_path_buf();
     let _ = std::fs::create_dir_all(&app_dir);
     crate::logging::init(&paths.log_dir(), false);
-    crate::crash::install(&app_dir);
+    crate::crash::install(&app_dir, Arc::new(SystemClock));
 
     // Single instance: a second start opens the window of the first, then exits.
     let Some(_guard) = crate::instance::acquire(&app_dir) else {
@@ -1966,6 +1977,7 @@ pub(crate) fn headless(rx: &Receiver<Ui>) -> i32 {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_voice::{catalog, download, models};
@@ -2660,7 +2672,7 @@ mod tests {
             ),
         );
         let app = d.path().join("app");
-        let _srv = control::serve(&app, Arc::new(core.commands())).unwrap();
+        let _srv = control::serve(&app, Arc::new(core.commands()), &astromech_proto::SystemClock).unwrap();
         let ask = |cmd: &str, args: Option<Value>| {
             let req = Request { args, origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
             control::call(&app, req, None, &mut |_| {}).unwrap()
@@ -2691,7 +2703,7 @@ mod tests {
             panic!("a handler's bug")
         });
         let app = d.path().join("app");
-        let _srv = control::serve(&app, Arc::new(reg)).unwrap();
+        let _srv = control::serve(&app, Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         let ask = |cmd: &str| {
             let req = Request { origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
             control::call(&app, req, None, &mut |_| {})
@@ -2723,7 +2735,7 @@ mod tests {
         let core = core(d.path(), &format!("data_dir = '{}'\n", data.display()));
         assert_ne!(core.data_dir(), Config::default().data_dir(&core.paths));
         let app = d.path().join("app");
-        let _srv = control::serve(&app, Arc::new(core.commands())).unwrap();
+        let _srv = control::serve(&app, Arc::new(core.commands()), &astromech_proto::SystemClock).unwrap();
         let ask = |cmd: &str, args: Value| {
             let req =
                 Request { args: Some(args), origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
@@ -2778,7 +2790,7 @@ mod tests {
         );
         let core = core_with(d.path(), &config, Arc::new(remote));
         let app = d.path().join("app");
-        let _srv = control::serve(&app, Arc::new(core.commands())).unwrap();
+        let _srv = control::serve(&app, Arc::new(core.commands()), &astromech_proto::SystemClock).unwrap();
         let ask = |cmd: &str, args: Option<Value>| {
             let req = Request { args, origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
             control::call(&app, req, None, &mut |_| {})

@@ -106,16 +106,12 @@ impl Follower {
         let (poke, rx) = clock.channel();
         let tx = poke.clone();
         let watcher = if timing.notify {
-            notify::recommended_watcher(move |e: notify::Result<notify::Event>| {
-                if e.is_ok() && crate::pipeline::may_change(&e) {
-                    let _ = tx.send(());
-                }
-            })
-            .and_then(|mut w| w.watch(&dir, RecursiveMode::NonRecursive).map(|()| w))
-            .map_err(|e| {
-                log(&format!("history: not watching {}: {e}; checking for new lines on a timer", dir.display()))
-            })
-            .ok()
+            crate::watch::watcher(tx, |e| e.is_ok().then_some(()))
+                .and_then(|mut w| w.watch(&dir, RecursiveMode::NonRecursive).map(|()| w))
+                .map_err(|e| {
+                    log(&format!("history: not watching {}: {e}; checking for new lines on a timer", dir.display()))
+                })
+                .ok()
         } else {
             None
         };
@@ -351,6 +347,7 @@ impl Following {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 pub(crate) mod tests {
     use super::*;
     use crate::hub::StateHub;

@@ -2,6 +2,7 @@
 //! sample dump (`scripts/test_gen_neutron.py` checks the script still builds the same bytes).
 //! The expected stars and their order are worked out here from the sample, so a change to the
 //! format or the order on either side fails one of the two tests.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_galaxy::neutron::{read_header, NeutronStars, Stars};
 use std::path::{Path, PathBuf};

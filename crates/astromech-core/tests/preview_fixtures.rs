@@ -12,6 +12,7 @@
 //! Refresh the files after a deliberate change to the core or a world with
 //! `ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-core --test preview_fixtures`, then check
 //! the diff, and that `pnpm check` and `pnpm test` in app/ still pass.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod support;
 

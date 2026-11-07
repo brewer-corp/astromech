@@ -1,5 +1,6 @@
 //! Journal replay tests for the docking callouts: pad position on a grant, the reason on a
 //! denial.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

@@ -1,5 +1,6 @@
 //! Replays a synthetic session (`fixtures/arrival`, Powerplay states as Spansh showed them on
 //! 16 Oct 2026) and checks the arrival line at each jump and the summary the page shows.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_journal::{parse_line, JournalEvent, JournalLine};
 use astromech_powerplay::{arrival_line, from_journal_dir, Journal, Work};
@@ -60,7 +61,7 @@ fn not_pledged_hears_the_state_without_a_target() {
 #[test]
 fn the_page_shows_the_current_system() {
     let j = from_journal_dir(&dir());
-    let o = j.overview();
+    let o = j.overview(chrono::Utc::now());
     assert_eq!(o.here.as_deref(), Some("Piscium Sector EB-X b1-3"));
     let s = o.system.unwrap();
     assert_eq!(s.power.controlling_power.as_deref(), Some("Pranav Antal"));
@@ -91,5 +92,8 @@ fn a_state_without_a_controller_is_named() {
     );
     let mut j = Journal::default();
     j.apply(&jump);
-    assert_eq!(j.overview().system.unwrap().summary, "Contested · acquisition: Li Yong-Rui 60%, Pranav Antal 50%");
+    assert_eq!(
+        j.overview(chrono::Utc::now()).system.unwrap().summary,
+        "Contested · acquisition: Li Yong-Rui 60%, Pranav Antal 50%"
+    );
 }

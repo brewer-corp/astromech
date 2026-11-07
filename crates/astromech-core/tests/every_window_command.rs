@@ -13,6 +13,7 @@
 //!
 //! No test here sleeps, reads the wall clock or retries; the only real-time waits are the world
 //! core's 30 s guards.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod support;
 

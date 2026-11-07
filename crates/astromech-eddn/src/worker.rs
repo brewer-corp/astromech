@@ -17,16 +17,11 @@ use astromech_proto::{Clock, ClockSender as Tx};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::RecvTimeoutError;
 use std::sync::Arc;
-use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant};
 
 /// How long the worker sleeps when nothing is queued (a submit wakes it sooner).
 const IDLE: Duration = Duration::from_secs(300);
 const MIN_RETRY: Duration = Duration::from_secs(MIN_RETRY_SECS as u64);
-
-/// Unix seconds now.
-pub fn wall_now() -> i64 {
-    SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_secs() as i64).unwrap_or(0)
-}
 
 /// One delivery pass at a time, with the monotonic retry hold.
 pub struct Courier {
@@ -189,6 +184,7 @@ impl Drop for Worker {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::outbox::tests::status;

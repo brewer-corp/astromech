@@ -1,5 +1,6 @@
 //! Downloading the neutron star file from a local HTTP server standing in for the `neutron`
 //! pre-release: a good download, a wrong checksum, a missing file. No test touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_galaxy::neutron::{download, installed, newer_available, FILE_NAME};
 use sha2::{Digest, Sha256};

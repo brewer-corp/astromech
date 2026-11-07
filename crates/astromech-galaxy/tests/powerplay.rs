@@ -1,5 +1,6 @@
 //! Nearby Powerplay targets against recorded Spansh answers (`fixtures/spansh-powerplay-*.json`,
 //! recorded 16 Oct 2026 around Lembava for Li Yong-Rui, trimmed to the system fields).
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::{Body, Cache, Client, Limiter, Request, Response, Transport, TransportError};
 use astromech_galaxy::{Filters, Galaxy, Here, Sphere, Store, Target, Targets};

@@ -1,6 +1,7 @@
 //! World steps (`world_step`): the game folder, the game process and the clock, each step
 //! settled before the call returns. No test here sleeps, reads the wall clock or retries; the
 //! only real-time waits are the core's 30 s guards, which fail a stuck call.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod support;
 

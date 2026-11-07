@@ -110,11 +110,12 @@ impl GalaxyHolder {
 
     /// A star map that is open already (a test's, over a store in memory).
     pub fn opened(galaxy: astromech_galaxy::Galaxy) -> Self {
+        let clock: Arc<dyn Clock> = Arc::new(SystemClock);
         Self {
             open: Box::new(|| anyhow::bail!("opened already")),
-            slot: Mutex::new(Slot::Open(Arc::new(galaxy), Instant::now())),
+            slot: Mutex::new(Slot::Open(Arc::new(galaxy), clock.now())),
             opening: Mutex::new(()),
-            clock: Arc::new(SystemClock),
+            clock,
         }
     }
 
@@ -434,9 +435,14 @@ impl State {
     }
 
     /// The star map, opened on first use.
-    /// Now on the process's clock (the remote-data client's), for the caches' idle times.
+    /// The process's clock: the remote-data client's (a world's in world mode).
+    pub fn clock(&self) -> &Arc<dyn Clock> {
+        self.remote.clock_in_use()
+    }
+
+    /// Now on the process's clock, for the caches' idle times.
     fn now(&self) -> Instant {
-        self.remote.clock_in_use().now()
+        self.clock().now()
     }
 
     pub fn galaxy(&self) -> Result<Arc<astromech_galaxy::Galaxy>, String> {
@@ -521,7 +527,7 @@ impl State {
             *g = None;
         }
         if g.is_none() {
-            let api = Api::discover(from.0.clone(), from.1.as_deref(), self.data_dir.clone())
+            let api = Api::discover(from.0.clone(), from.1.as_deref(), self.data_dir.clone(), self.clock().clone())
                 .map_err(|e| format!("{e:#}"))?;
             *g = Some(Binds { from, api });
         }
@@ -638,6 +644,7 @@ pub struct Engineers {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 pub(crate) mod tests {
     use super::*;
     use std::io::Write;
@@ -871,7 +878,7 @@ pub(crate) mod tests {
             w.state.data_dir().join(astromech_galaxy::neutron::FILE_NAME).display()
         );
         let released = || crate::tests::logged().matches(&line).count();
-        assert!(w.state.neutron.get().unwrap().is_some(), "a plot loads it");
+        assert!(w.state.neutron.get(&**w.state.clock()).unwrap().is_some(), "a plot loads it");
         let now = Instant::now();
         w.state.release_idle(now, IDLE);
         assert_eq!(released(), 0, "used just now: kept");
@@ -879,7 +886,7 @@ pub(crate) mod tests {
         assert_eq!(released(), 1, "unused for IDLE: dropped");
         w.state.release_idle(now + IDLE, IDLE);
         assert_eq!(released(), 1, "dropped already");
-        assert!(w.state.neutron.get().unwrap().is_some());
+        assert!(w.state.neutron.get(&**w.state.clock()).unwrap().is_some());
         w.state.release_idle(Instant::now() + IDLE, IDLE);
         assert_eq!(released(), 2, "the next plot loaded it again");
     }

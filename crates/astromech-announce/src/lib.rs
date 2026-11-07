@@ -561,6 +561,7 @@ impl SpeechQueue {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 
@@ -594,6 +595,7 @@ mod tests {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod catalog_tests {
     use super::*;
 

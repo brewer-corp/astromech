@@ -4,6 +4,7 @@
 //! Spansh's bodies search with the species players sampled there, from the quarter of the
 //! sample (by a hash of the id64) held out of the conditions in `data/catalog/exobiology.json`. So the
 //! recall measured here is on bodies the conditions never saw.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_exobiology::catalog::{self, Conditions};
 use astromech_exobiology::predict::{self, Body};

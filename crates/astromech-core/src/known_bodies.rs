@@ -32,7 +32,8 @@ pub struct EdsmBodies {
 
 impl EdsmBodies {
     pub fn new(client: Arc<Client>, log: Log) -> Self {
-        Self { client, systems: Background::new("known-bodies"), log }
+        let clock = client.clock_in_use().clone();
+        Self { client, systems: Background::new("known-bodies", clock), log }
     }
 }
 
@@ -46,6 +47,7 @@ impl KnownBodies for EdsmBodies {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_data::{Cache, Request, Response, Transport, TransportError};

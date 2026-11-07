@@ -1,4 +1,5 @@
 //! Journal replay tests for the material cap alert and the trader suggestion.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

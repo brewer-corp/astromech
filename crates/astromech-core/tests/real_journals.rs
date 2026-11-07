@@ -15,6 +15,7 @@
 //! also written there as JSON for a closer look.
 //!
 //! The test fails if any module panics or a check fails; the summary says which.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_announce::Engine;
 use astromech_core::callouts::Callouts;
@@ -907,7 +908,7 @@ fn colonisation_section(h: &Harness, o: &mut Out) {
 
 fn powerplay_section(h: &Harness, lines: &[JournalLine], o: &mut Out) {
     let j = astromech_powerplay::from_journal_dir(&h.dir);
-    let ov = j.overview();
+    let ov = j.overview(chrono::Utc::now());
     o.say(format!(
         "pledged {}, rank known {}, merits known {}, here {}, system power {}",
         ov.standing.power.is_some(),

@@ -61,7 +61,6 @@ use crate::hub::StateHub;
 use crate::world::settle::{FileGens, Watching};
 use anyhow::{Context, Result};
 use astromech_api::Recover;
-use astromech_eddn::worker::wall_now;
 use astromech_journal::companion::{load, triggers, CompanionFile, CompanionKind, Trigger};
 use astromech_journal::JournalTail;
 use astromech_proto::{Clock, ClockReceiver, ClockSender};
@@ -226,19 +225,7 @@ fn eddn_file(f: &CompanionFile) -> Option<(&'static str, &str)> {
     })
 }
 
-/// A file notification.
-type Event = notify::Result<notify::Event>;
-
-/// Whether a notification may be a change: not a file merely opened, or closed unwritten. Linux
-/// reports those (notify asks inotify for opens), and the watchers' own reads would wake them
-/// again for ever; Windows never does, so there every notification passes.
-pub(crate) fn may_change(e: &Event) -> bool {
-    use notify::event::{AccessKind, AccessMode, EventKind};
-    !matches!(
-        e,
-        Ok(notify::Event { kind: EventKind::Access(AccessKind::Open(_) | AccessKind::Close(AccessMode::Read)), .. })
-    )
-}
+use crate::watch::Event;
 
 /// Counters for logs and tests.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
@@ -358,10 +345,10 @@ impl Tailer {
                         if self.eddn.is_some() || self.edsm.is_some() {
                             if let Ok(raw) = serde_json::from_str(&j.raw_json) {
                                 if let Some(f) = &mut self.eddn {
-                                    f.journal(&raw, self.live, wall_now());
+                                    f.journal(&raw, self.live, self.clock.now_s());
                                 }
                                 if let Some(u) = &mut self.edsm {
-                                    u.journal(&raw, self.live, wall_now());
+                                    u.journal(&raw, self.live, self.clock.now_s());
                                 }
                             }
                         }
@@ -401,7 +388,7 @@ impl Tailer {
         let Some(f) = self.eddn.as_mut().filter(|f| f.awaiting("NavRoute")) else { return };
         let file = std::fs::read(self.dir.join("NavRoute.json")).ok().and_then(|b| serde_json::from_slice(&b).ok());
         if let Some(file) = file {
-            f.companion_file("NavRoute", &file, wall_now());
+            f.companion_file("NavRoute", &file, self.clock.now_s());
         }
     }
 
@@ -427,7 +414,7 @@ impl Tailer {
             }
             if let (Some(feed), Some((event, raw))) = (&mut self.eddn, eddn_file(&f)) {
                 if let Ok(file) = serde_json::from_str(raw) {
-                    feed.companion_file(event, &file, wall_now());
+                    feed.companion_file(event, &file, self.clock.now_s());
                 }
             }
             let is_market = matches!(f, CompanionFile::Market(_));
@@ -970,7 +957,7 @@ impl Tailer {
     /// End of a journal, or shutdown: send a pending signal run.
     fn flush_eddn(&mut self) {
         if let Some(f) = &mut self.eddn {
-            f.flush(wall_now());
+            f.flush(self.clock.now_s());
         }
     }
 }
@@ -1160,12 +1147,7 @@ pub fn start_with_eddn(
     let clock = hub.clock().clone();
     let (tx, rx) = clock.channel::<Event>();
     let wake = tx.clone();
-    let mut watcher = notify::recommended_watcher(move |e: Event| {
-        if may_change(&e) {
-            let _ = tx.send(e);
-        }
-    })
-    .context("creating file watcher")?;
+    let mut watcher = crate::watch::watcher(tx, Some).context("creating file watcher")?;
     watcher.watch(dir, RecursiveMode::NonRecursive).with_context(|| format!("watching {}", dir.display()))?;
     let store = match db {
         Some(p) => Some(astromech_store::Store::open(p).with_context(|| format!("opening {}", p.display()))?),
@@ -1222,6 +1204,7 @@ pub fn start_with_eddn(
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use std::io::Write;
@@ -1447,20 +1430,6 @@ mod tests {
         assert!(watches("Journal.2026-10-16T195000.01.log"));
         drop(pipe);
         files.wait("notes.txt", ignored, Duration::ZERO).expect("with no pipeline watching, nothing is waited for");
-    }
-
-    /// Opening a file, or closing it unwritten, isn't a change (Linux reports both; the
-    /// watchers' own reads would wake them for ever). A close after writing is.
-    #[test]
-    fn a_read_is_not_a_change() {
-        use notify::event::{AccessKind, AccessMode, EventKind, ModifyKind};
-        let e = |k| Ok(notify::Event::new(k));
-        assert!(!may_change(&e(EventKind::Access(AccessKind::Open(AccessMode::Any)))));
-        assert!(!may_change(&e(EventKind::Access(AccessKind::Close(AccessMode::Read)))));
-        assert!(may_change(&e(EventKind::Access(AccessKind::Close(AccessMode::Write)))));
-        assert!(may_change(&e(EventKind::Modify(ModifyKind::Any))));
-        assert!(may_change(&e(EventKind::Any)));
-        assert!(may_change(&Err(notify::Error::generic("lost"))));
     }
 
     #[test]

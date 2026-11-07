@@ -4,6 +4,7 @@
 //! preview's ship (plot.json's `ship`: 39.87 ly, the Asp Explorer's drive in tests/plot_route.rs).
 //! The whole neutron star file isn't in the repository, so this short route is the one recorded.
 //! `cargo run -q -p astromech-galaxy --example dump-local-route`
+#![allow(clippy::disallowed_methods)] // a developer tool, not the core
 use astromech_galaxy::neutron::NeutronStars;
 use astromech_galaxy::plot::Ship;
 use astromech_galaxy::Here;

@@ -1,6 +1,7 @@
 //! The recorded network (astromech-xk0n): a world core's HTTP requests are answered from its
 //! `net.json` and its `net` steps, over the control API as the window calls, and none is
 //! unrecorded. No test here sleeps, reads the wall clock or retries.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod support;
 

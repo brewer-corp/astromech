@@ -1,4 +1,5 @@
 //! Listener tests: replay fixture end to end, and axis annotations from a real preset's shape.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 use astromech_input::listen::{binds_index, model, replay, summary, tracker};
 use astromech_input::ELITE_TITLE;
 

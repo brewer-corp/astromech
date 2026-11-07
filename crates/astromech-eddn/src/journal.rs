@@ -92,6 +92,7 @@ fn event_name(ev: &Value) -> &str {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use serde_json::json;
@@ -128,6 +129,7 @@ mod tests {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod schema_tests {
     // journal/1: a synthetic fixture of each event, built by the sender and validated against the
     // live `journal-v1.0.json`, with the README's elisions asserted absent.

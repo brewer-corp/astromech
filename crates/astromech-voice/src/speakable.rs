@@ -295,6 +295,7 @@ fn scan_number(t: &str, start: usize) -> Option<(String, usize)> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::normalise;
 

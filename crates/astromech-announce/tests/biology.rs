@@ -1,6 +1,7 @@
 //! The system biology summary replayed: known biology on arrival from a recorded Spansh answer
 //! (at once, or late on the clock tick), the summary after the FSS, and a body's line after
 //! the DSS.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

@@ -221,6 +221,7 @@ impl Platform for NoInputPlatform {
 
 /// A fake game for tests: when the target key goes down, it rewrites Status.json with the bit
 /// toggled after `delay`, first writing a truncated file to exercise partial-write handling.
+#[allow(clippy::disallowed_methods)] // a test fake: exempt as tests are for now (astromech-c7lc)
 pub mod mock {
     use super::*;
     use std::path::PathBuf;

@@ -6,9 +6,11 @@ use crate::devices::Inventory;
 use crate::edit::{self, Backup, EditResult};
 use crate::profile::{self, ProfileSummary, Slot, View};
 use anyhow::{bail, Context, Result};
+use astromech_proto::Clock;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 pub struct Api {
     pub bindings_dir: PathBuf,
@@ -16,6 +18,8 @@ pub struct Api {
     pub inventory: Inventory,
     /// Where per-user overrides live: the core's data folder (`%LOCALAPPDATA%\astromech\data` by default).
     pub data_dir: PathBuf,
+    /// Stamps the backups each edit makes.
+    pub clock: Arc<dyn Clock>,
 }
 
 #[derive(Debug, Clone, Serialize, ts_rs::TS)]
@@ -45,7 +49,12 @@ pub struct SlotEdit {
 }
 
 impl Api {
-    pub fn discover(bindings_dir: Option<PathBuf>, game_dir: Option<&Path>, data_dir: PathBuf) -> Result<Api> {
+    pub fn discover(
+        bindings_dir: Option<PathBuf>,
+        game_dir: Option<&Path>,
+        data_dir: PathBuf,
+        clock: Arc<dyn Clock>,
+    ) -> Result<Api> {
         let bindings_dir =
             bindings_dir.or_else(crate::game::default_bindings_dir).context("can't find the Bindings folder")?;
         let mut notes = vec![];
@@ -54,7 +63,7 @@ impl Api {
             .map(|g| g.product_dir.join("ControlSchemes"))
             .filter(|p| p.is_dir())
             .collect();
-        Ok(Api { bindings_dir, builtin_dirs, inventory: crate::devices::enumerate_live(), data_dir })
+        Ok(Api { bindings_dir, builtin_dirs, inventory: crate::devices::enumerate_live(), data_dir, clock })
     }
 
     pub fn refresh_devices(&mut self) {
@@ -101,7 +110,7 @@ impl Api {
     }
 
     pub fn set_slot(&self, e: &SlotEdit) -> Result<EditResult> {
-        edit::set_slot(&self.bindings_dir, &e.path, &e.action, &e.slot, e.binding.as_ref(), e.analogue)
+        edit::set_slot(&self.bindings_dir, &e.path, &e.action, &e.slot, e.binding.as_ref(), e.analogue, &*self.clock)
     }
 
     pub fn copy_preset(&self, src: &Path, name: &str) -> Result<PathBuf> {
@@ -115,11 +124,11 @@ impl Api {
         if !self.state().presets.iter().any(|p| p.name == name) {
             bail!("no preset called {name:?}");
         }
-        edit::set_active(&self.bindings_dir, name, contexts)
+        edit::set_active(&self.bindings_dir, name, contexts, &*self.clock)
     }
 
     pub fn restore(&self, backup: &Path) -> Result<PathBuf> {
-        edit::restore(&self.bindings_dir, backup)
+        edit::restore(&self.bindings_dir, backup, &*self.clock)
     }
 
     fn overrides_path(&self) -> PathBuf {
@@ -154,6 +163,7 @@ impl Api {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::profile::tests::{inv, X};
@@ -170,6 +180,7 @@ mod tests {
             builtin_dirs: vec![],
             inventory: inv(&["231D3201"]),
             data_dir: d.path().join("data"),
+            clock: Arc::new(astromech_proto::SystemClock),
         };
         let st = api.state();
         assert_eq!(st.presets[0].name, "DualVKB");

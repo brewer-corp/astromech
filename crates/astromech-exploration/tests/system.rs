@@ -1,5 +1,6 @@
 //! Journal replay of a whole system into the live system view. Synthetic journal lines in the
 //! game's format.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_exploration::system::{SystemFold, SystemView};
 use astromech_journal::parse_line;

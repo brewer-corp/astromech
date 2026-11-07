@@ -9,6 +9,7 @@
 //! Writes into `--out` (default `results/voice-eval`, git-ignored): `audio/<voice>/` (the
 //! Kokoro renderings are cached there; delete them to re-render), `clips/` (one JSON sidecar
 //! per clip, the `--eval` input) and `report.md`. Never commit any of it.
+#![allow(clippy::disallowed_methods)] // a developer tool, not the core
 
 use anyhow::{bail, Context, Result};
 use astromech_core::eval::{self, Clip, Phrase};

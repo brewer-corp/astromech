@@ -193,6 +193,7 @@ impl Api for EdsmRecorder {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use std::io::{BufRead, BufReader, Write};

@@ -67,6 +67,7 @@ pub mod clock;
 pub use clock::{Clock, ClockReceiver, ClockSender, Entered, ManualClock, Registration, SystemClock};
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     #[test]

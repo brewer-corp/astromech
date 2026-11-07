@@ -306,6 +306,7 @@ pub fn handle(cmd: &str, run: &Mutex<Option<Run>>, rec: RecordFn, store: &dyn Fn
 
 /// Record `ms` of audio from the `[voice] mic` device (Windows).
 #[cfg(windows)]
+#[allow(clippy::disallowed_methods, reason = "mic sample timing: the recording is `ms` of real audio")]
 pub fn record_mic(want: &str, ms: u64) -> Result<Clip> {
     use astromech_voice::mic::Recorder;
     use std::time::{Duration, Instant};
@@ -351,6 +352,7 @@ pub fn mic_list(want: &str, devices: (Vec<String>, Option<String>), calibration:
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

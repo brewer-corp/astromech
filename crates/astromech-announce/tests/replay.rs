@@ -1,6 +1,7 @@
 //! Journal replay tests for the reaction engine: cooldown, per-rule toggle, silent catch-up,
 //! quiet during docking and combat. Synthetic journal lines; the engine's clock is the
 //! journal's own timestamps.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_announce::*;
 use astromech_gamestate::GameState;

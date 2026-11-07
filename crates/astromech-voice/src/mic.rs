@@ -44,6 +44,7 @@ pub struct StreamErrors {
     pub new: u64,
 }
 
+#[allow(clippy::disallowed_methods, reason = "mic sample timing: the audio callback's own time")]
 fn push(ring: &Arc<(Mutex<Ring>, Condvar)>, cap: usize, ch: usize, data: impl Iterator<Item = f32>) {
     let (m, cv) = &**ring;
     let mut r = m.lock().unwrap();
@@ -104,6 +105,7 @@ impl Recorder {
     }
 
     /// No audio callback for this long while the stream should be running.
+    #[allow(clippy::disallowed_methods, reason = "mic sample timing: measured against the audio callback's own time")]
     pub fn stalled(&self, max: Duration) -> bool {
         let r = self.ring.0.lock().unwrap();
         match r.last_cb {
@@ -261,6 +263,7 @@ impl Recorder {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

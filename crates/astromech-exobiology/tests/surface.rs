@@ -5,6 +5,7 @@
 //! on 51.4°. The rest are exact by construction (a quarter meridian, the equator, a short step
 //! of latitude whose length is radius × angle) or were cross-checked with the spherical law of
 //! cosines.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_exobiology::surface::{bearing_deg, distance_m, guidance, LatLon};
 

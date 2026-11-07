@@ -128,6 +128,7 @@ pub fn spoken(want: &Want, origin: &str, named: bool, found: &Result<Found, Stri
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_data::spansh::Reference;

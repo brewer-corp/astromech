@@ -33,7 +33,7 @@
 //! (its name, in any case, holds `key`, `token`, `secret` or `password`) are `<redacted>` in the
 //! URL and body a request is matched by, observed as and recorded with, so a recording made with
 //! one commander's key replays for any key. A recorded answer has those values replaced too,
-//! wherever it echoes them.
+//! wherever it echoes them, JSON-escaped (`\uXXXX`, `\/`) or not.
 
 use crate::{encode_segment, Body, Method, Request, Response, Transport, TransportError};
 use serde_json::value::RawValue;
@@ -342,6 +342,26 @@ fn redact_json(v: &mut Value, secrets: &mut Vec<String>) {
     }
 }
 
+/// Replace each of `secrets` inside every string in `v` (parsed, so JSON escapes are undone);
+/// true if any was there.
+fn scrub_strings(v: &mut Value, secrets: &[String]) -> bool {
+    match v {
+        Value::String(s) => {
+            let mut hit = false;
+            for x in secrets.iter().filter(|x| !x.is_empty() && x.as_str() != REDACTED) {
+                if s.contains(x.as_str()) {
+                    *s = s.replace(x.as_str(), REDACTED);
+                    hit = true;
+                }
+            }
+            hit
+        }
+        Value::Object(o) => o.values_mut().fold(false, |hit, x| scrub_strings(x, secrets) | hit),
+        Value::Array(a) => a.iter_mut().fold(false, |hit, x| scrub_strings(x, secrets) | hit),
+        _ => false,
+    }
+}
+
 /// How a request was answered.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Answered {
@@ -602,7 +622,10 @@ impl Tape {
                     Ok(mut v) => {
                         let mut found = vec![];
                         redact_json(&mut v, &mut found);
-                        let raw = if found.is_empty() { body } else { v.to_string() };
+                        // The text replace above misses a secret the answer wrote JSON-escaped
+                        // (`\u00eb`, `\/`); its parsed strings hold it unescaped.
+                        let echoed = scrub_strings(&mut v, &a.secrets);
+                        let raw = if found.is_empty() && !echoed { body } else { v.to_string() };
                         (Some(RawValue::from_string(raw).map_err(std::io::Error::other)?), None)
                     }
                     Err(_) if body.is_empty() => (None, None),
@@ -660,6 +683,7 @@ impl Transport for Recorder {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 
@@ -825,6 +849,23 @@ mod tests {
         assert_eq!(r.answer(&poll), Answered::Timeout);
         assert_eq!(r.answer(&poll), Answered::Reply { status: 200, body: b"done".to_vec() });
         assert_eq!(r.answer(&poll), Answered::Unrecorded, "each answer once, as recorded");
+        let _ = std::fs::remove_dir_all(d);
+    }
+
+    /// An answer that echoes a secret JSON-escaped (`\uXXXX`, `\/`) in a field not named like
+    /// one is redacted too: the raw text holds the secret only in its escaped form.
+    #[test]
+    fn a_tape_redacts_secrets_an_answer_echoes_json_escaped() {
+        let d = tempfile_dir();
+        let path = d.join("net.json");
+        let tape = Tape::create(&path).unwrap();
+        let logs = Asked::get("https://x/logs", &[("commanderName", "Zoë/K"), ("apiKey", "k/3y")]);
+        let body = r#"{"msg":"Hello, CMDR Zo\u00eb\/K","note":"key k\/3y","logs":[]}"#;
+        tape.record(&logs, Outcome::Reply { status: 200, body }).unwrap();
+        let text = std::fs::read_to_string(&path).unwrap();
+        let decoded = serde_json::from_str::<Value>(&text).unwrap().to_string();
+        assert!(!decoded.contains("Zoë/K") && !decoded.contains("k/3y"), "{text}");
+        assert!(decoded.contains("Hello, CMDR <redacted>") && decoded.contains("key <redacted>"), "{text}");
         let _ = std::fs::remove_dir_all(d);
     }
 }

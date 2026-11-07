@@ -2,6 +2,7 @@
 //! the Materials page within 2 s. The app window caches the inventory and recomputes it when
 //! [`journal_version`] changes, then the page polls every second, so each append has to change
 //! the version at once and the recompute has to stay well under a second.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_materials::{from_journal_dir, journal_version, Inventory};
 use std::io::Write;

@@ -1,6 +1,7 @@
 //! Bodies known to EDSM in the arrival briefing, replayed through the reaction engine with the
 //! core's real lookup ([`EdsmBodies`]) over a recorded EDSM answer (astromech-data's
 //! `edsm-bodies.json`: Alpha Centauri, 2 of 9 bodies). No test here touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_announce::{builtin, Engine, Settings, Shared};
 use astromech_core::known_bodies::EdsmBodies;
