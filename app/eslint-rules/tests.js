@@ -22,7 +22,8 @@ const noTimerWait = {
   },
 };
 
-/** `Date.now()` or `performance.now()`: a wall-clock read, so the test depends on how fast it runs. */
+/** `Date.now()`, `performance.now()`, or `new Date()` / `Date()` with no arguments: a wall-clock
+ * read, so the test depends on when and how fast it runs. */
 const noWallClock = {
   meta: {
     type: "problem",
@@ -33,8 +34,13 @@ const noWallClock = {
     schema: [],
   },
   create(context) {
+    const today = (node) => {
+      if (node.callee.type === "Identifier" && node.callee.name === "Date" && node.arguments.length === 0) context.report({ node, messageId: "clock" });
+    };
     return {
+      NewExpression: today,
       CallExpression(node) {
+        today(node);
         const c = node.callee;
         if (c.type !== "MemberExpression" || c.computed || c.property.name !== "now") return;
         if (c.object.type === "Identifier" && (c.object.name === "Date" || c.object.name === "performance")) {

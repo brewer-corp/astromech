@@ -17,10 +17,12 @@ tester.run("no-timer-wait", plugin.rules["no-timer-wait"], {
 });
 
 tester.run("no-wall-clock", plugin.rules["no-wall-clock"], {
-  valid: ["new Date('2026-10-16T12:00:00Z');", "vi.setSystemTime(new Date(0));", "clock.now();"],
+  valid: ["new Date('2026-10-16T12:00:00Z');", "vi.setSystemTime(new Date(0));", "new Date(NOW).toISOString();", "Date.parse(s);", "clock.now();"],
   invalid: [
     { code: "const t = Date.now();", errors: [{ messageId: "clock" }] },
     { code: "performance.now() - start;", errors: [{ messageId: "clock" }] },
+    { code: "new Date().toISOString();", errors: [{ messageId: "clock" }] },
+    { code: "const today = Date();", errors: [{ messageId: "clock" }] },
   ],
 });
 

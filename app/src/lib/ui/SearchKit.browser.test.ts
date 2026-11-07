@@ -165,7 +165,7 @@ describe("SearchKit", () => {
     loadFilters.mockResolvedValue(DEFAULT_FILTERS);
     const r: Results = {
       ...results,
-      fetched: new Date().toISOString(),
+      fetched: new Date(NOW).toISOString(),
       rows: [
         { key: 1, system: "Fresh", ly: 1, jumps: 1, exact: true, updated_at: daysAgo(3) },
         { key: 2, system: "Old", ly: 2, jumps: 1, exact: true, updated_at: daysAgo(212) },
@@ -183,7 +183,7 @@ describe("SearchKit", () => {
     loadFilters.mockResolvedValue({ ...DEFAULT_FILTERS, max_age_days: 7 });
     const r: Results = {
       ...results,
-      fetched: new Date().toISOString(),
+      fetched: new Date(NOW).toISOString(),
       rows: [
         { key: 1, system: "Fresh", ly: 1, jumps: 1, exact: true, updated_at: daysAgo(3) },
         { key: 2, system: "Old", ly: 2, jumps: 1, exact: true, updated_at: daysAgo(10) },
