@@ -39,7 +39,10 @@ pub struct Net {
 /// Each request, as the world observes it.
 fn observe(o: &Arc<Observed>) -> impl Fn(&Seen) + Send + Sync + 'static {
     let o = o.clone();
-    move |s: &Seen| o.record("http", json!({ "method": s.method, "url": s.url, "unrecorded": s.unrecorded }))
+    move |s: &Seen| {
+        let fields = json!({ "method": s.method, "url": s.url, "unrecorded": s.unrecorded, "exchange": s.exchange });
+        o.record("http", fields)
+    }
 }
 
 impl Net {

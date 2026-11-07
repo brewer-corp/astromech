@@ -123,9 +123,11 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   the handler's own error) and the effect to check, in the reply or in what the world observed.
   The test starts the headless core in the world `worlds/every-command` and calls each one through
   its control API, as the shell sends it. It fails for a `window` command with no entry, and for an
-  example field the command's args type drops (a misspelt field). A request the command makes
-  needs an answer in that world's `net.json`: a recorded body (an existing fixture will do) or a
-  fault. Only `install_update` is in `NOT_RUN_FOR_REAL`, called with no update staged.
+  example field the command's args type drops (a misspelt field). A setter's entry reads its
+  effect back with another command (`.reads`), and a lookup's reply must hold data from its
+  recording (`.has`). A request the command makes needs an answer in that world's `net.json`: a
+  recorded body (an existing fixture will do) or a fault; the test fails for an exchange no
+  request used. Only `install_update` is in `NOT_RUN_FOR_REAL`, called with no update staged.
 - To show a UI change to someone off this machine, work on the real page on its branch against the
   browser preview (add a fixture under `app/src/preview/fixtures/` when the change needs data the
   preview lacks), then `scripts/preview-publish --page route --query route=exact`. It builds the

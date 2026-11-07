@@ -172,8 +172,10 @@
 //! - `autostart {on, command}`: Start with Windows set, with the command line it would run
 //!   (null when off);
 //! - `window {route}`: the app window opened (`open_window`), at a page or null;
-//! - `http {method, url, unrecorded}`: an HTTP request, its URL with the query (key-like values
-//!   `<redacted>`); `unrecorded` when the recording held no answer and it was refused;
+//! - `http {method, url, unrecorded, exchange}`: an HTTP request, its URL with the query
+//!   (key-like values `<redacted>`); `unrecorded` when the recording held no answer and it was
+//!   refused; `exchange`, the answering exchange's place in `net.json` (from 0; `net` steps' come
+//!   after, in turn), null when refused or in record mode;
 //! - `key {key, scan, extended, up}`: a key sent to the game (`key`: its Elite name, such as
 //!   `Key_L`);
 //! - `said {text}`: a line the speaker said (the world's speaker speaks aloud, so the voice

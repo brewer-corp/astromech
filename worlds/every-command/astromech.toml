@@ -10,7 +10,8 @@
 # - EDSM's flight log: EDSM's real answer to this world's commander "Test" and its key, which is not
 #   a real one (secrets.json), recorded with --record-net (the key and commander are <redacted>);
 # - the lookups: recorded Spansh and Ardent Insight bodies already in the repository's fixtures,
-#   matched by URL and a part of the body sent.
+#   matched by URL and a part of the body sent; spansh-material-traders.json is the material
+#   trader page of crates/astromech-galaxy/tests/fixtures/spansh-services.json.
 [eddn]
 enabled = false
 [edsm]

@@ -19,7 +19,7 @@
     {"url": "https://spansh.co.uk/api/bodies/search", "method": "POST", "sent": "Brain Tree", "from": "../../crates/astromech-galaxy/tests/fixtures/spansh-sites-brain_trees.json"},
     {"url": "https://spansh.co.uk/api/bodies/search", "method": "POST", "sent": "\"ring_signals\"", "from": "../../crates/astromech-market/tests/fixtures/spansh-rings-platinum-sol.json"},
     {"url": "https://spansh.co.uk/api/bodies/search", "method": "POST", "sent": "\"Biological\"", "from": "../../crates/astromech-data/tests/fixtures/spansh-bodies-biology.json"},
-    {"url": "https://spansh.co.uk/api/stations/search", "method": "POST", "sent": "Material Trader", "from": "../../crates/astromech-data/tests/fixtures/spansh-stations-search.json"},
+    {"url": "https://spansh.co.uk/api/stations/search", "method": "POST", "sent": "Material Trader", "from": "spansh-material-traders.json"},
     {"url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/gold/nearby/imports", "from": "../../crates/astromech-market/tests/fixtures/ardent-sell-gold-lhs2435.json"},
     {"url": "https://api.ardent-insight.com/v2/commodity/name/painite/imports", "from": "../../crates/astromech-market/tests/fixtures/ardent-galaxy-sell-painite.json"},
     {"url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/steel/nearby/exports", "from": "../../crates/astromech-market/tests/fixtures/ardent-buy-steel-sol.json"},

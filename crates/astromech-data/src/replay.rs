@@ -363,6 +363,9 @@ pub struct Seen {
     pub url: String,
     /// The recording held no answer for it, so it was refused.
     pub unrecorded: bool,
+    /// Which exchange answered it: its place in the recording, then the ones added after
+    /// ([`Replay::add`]) in turn. None when refused, and in record mode.
+    pub exchange: Option<usize>,
 }
 
 type Observe = Box<dyn Fn(&Seen) + Send + Sync>;
@@ -391,14 +394,18 @@ impl Replay {
 
     /// The recorded answer to `a`.
     pub fn answer(&self, a: &Asked) -> Answered {
-        let found = {
+        let (exchange, found) = {
             let mut exchanges = self.exchanges.lock().unwrap_or_else(|e| e.into_inner());
-            exchanges.iter_mut().rev().filter(|e| e.matches(a)).find_map(|e| match &mut e.answers {
-                Answers::Always(x) => Some(x.clone()),
-                Answers::InTurn(q) => q.pop_front(),
-            })
+            let answer = exchanges.iter_mut().enumerate().rev().filter(|(_, e)| e.matches(a)).find_map(|(i, e)| {
+                match &mut e.answers {
+                    Answers::Always(x) => Some(x.clone()),
+                    Answers::InTurn(q) => q.pop_front(),
+                }
+                .map(|x| (i, x))
+            });
+            answer.map_or((None, None), |(i, x)| (Some(i), Some(x)))
         };
-        (self.observe)(&Seen { method: a.method, url: a.url.clone(), unrecorded: found.is_none() });
+        (self.observe)(&Seen { method: a.method, url: a.url.clone(), unrecorded: found.is_none(), exchange });
         match found {
             None => Answered::Unrecorded,
             Some(Answer::Reply { status, body }) => Answered::Reply { status, body },
@@ -583,7 +590,7 @@ impl Tape {
 
     /// Add `a`'s answer to the recording, redacted.
     pub fn record(&self, a: &Asked, outcome: Outcome) -> std::io::Result<()> {
-        (self.observe)(&Seen { method: a.method, url: a.url.clone(), unrecorded: false });
+        (self.observe)(&Seen { method: a.method, url: a.url.clone(), unrecorded: false, exchange: None });
         let written = match outcome {
             Outcome::Fault(f) => Written { status: None, json: None, text: None, fault: Some(f.name()) },
             Outcome::Reply { status, body } => {
