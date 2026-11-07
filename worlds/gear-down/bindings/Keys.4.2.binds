@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Root PresetName="Keys" MajorVersion="4" MinorVersion="2">
  <LandingGearToggle><Primary Device="Keyboard" Key="Key_L" /><Secondary Device="{NoDevice}" Key="" /></LandingGearToggle>
+ <GalaxyMapOpen><Primary Device="Keyboard" Key="Key_M" /><Secondary Device="{NoDevice}" Key="" /></GalaxyMapOpen>
  <ShipSpotLightToggle><Primary Device="Keyboard" Key="Key_Insert" /><Secondary Device="{NoDevice}" Key="" /></ShipSpotLightToggle>
 </Root>

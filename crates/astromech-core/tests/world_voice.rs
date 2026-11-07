@@ -59,6 +59,32 @@ fn gear_down_by_voice() {
     assert!(core.quit().success());
 }
 
+/// A voice command once Elite has lost focus ("lights on" with Notepad in front): the clip is heard
+/// and planned, but the key is refused (the policy's foreground check) and nothing reaches the game. With Elite back in front,
+/// "galaxy map" sends GalaxyMapOpen's Key_M, the game's reaction opens the map (GuiFocus 6), and
+/// the press is confirmed from Status.json (finding astromech-lwic).
+#[test]
+fn a_key_is_refused_once_elite_loses_focus_and_a_gui_reaction_opens_the_map() {
+    let core = WorldCore::start(&world("gear-down"));
+    core.step("running").unwrap();
+    let since = next(&core);
+    core.step("spoken").unwrap();
+    wait(&core, said("Landing gear deployed."), since);
+
+    let unfocused = next(&core);
+    core.step("unfocused").unwrap();
+    wait(&core, said("Elite is not the active window. Nothing pressed."), unfocused);
+    assert_eq!(seen(&core, "key", unfocused), Vec::<Value>::new(), "no key reached the game");
+
+    let map = next(&core);
+    core.step("map-open").unwrap();
+    wait(&core, key("Key_M", false), map);
+    wait(&core, said("Galaxy map open."), map);
+    let game = core.call("world_game", None).unwrap();
+    assert_eq!(game["gui_focus"], 6, "the reaction to Key_M opened the galaxy map: {game}");
+    assert!(core.quit().success());
+}
+
 /// The kill switch stops everything and says so; a voice command then is denied and sends no
 /// key. A short hold leaves it killed; a hold of `rearm_hold_ms` re-arms it. A kill during a
 /// live run's verify wait cancels it once the clock passes the wait's 25 ms slice.
