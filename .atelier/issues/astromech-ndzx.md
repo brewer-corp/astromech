@@ -39,13 +39,13 @@ The rest of the window's commands move into the command layer: star-map, lookup 
 - [x] Each moved handler returns a typed reply struct of today's JSON shape instead of `json!`. The ones that build `json!` now are `outfitting_search`, `trade_cargo`, `trade_route`, `route_plot_ship`, `route_plot`, `neutron_file`'s status, `neutron_check` and `colonisation_buy` (window.rs:519, 536, 791, 950, 963-967, 1010, 1026-1027, 1090, 1110).
 - [x] `route_plot` hands its route to the follower by calling `route_set` through the registry, not over TCP (window.rs:1002). A test plots from recorded Spansh answers and sees the route in `route`'s view.
 - [x] `neutron_download` reports progress as progress lines, and the shell forwarder passes them to the page's `Channel`. A test over a local HTTP server checks that progress arrives before the reply.
-- [ ] The star map preload, the bundled `starmap.db` (a Tauri resource at window.rs:401), is found by the core in its own exe's folder, where NSIS installs both.
+- [x] The star map preload, the bundled `starmap.db` (a Tauri resource at window.rs:401), is found by the core in its own exe's folder, where NSIS installs both.
   - The resolver is a function of the exe path, with a unit test: a `starmap.db` next to the exe is found, and none gives no preload, as the session opens today.
   - When the holder opens the star map it logs one line naming the database and the preload path, or "no preload". `Galaxy::open` (crates/astromech-galaxy/src/lib.rs:153-158) logs nothing now.
   - The installed-app check of that line is in the proxy child's onboarding smoke.
 - [x] `open_external` keeps its URL and folder rule (window.rs:1279-1298) behind a small opener the tests replace. A test shows a disallowed target gives "not allowed".
 - [x] A test in crates/astromech-core: a core built from a config whose `data_dir` is not the default serves `search_filters` and `logbook` from that folder (a saved filter and a `history.sqlite` placed there are what come back). It covers what `the_window_opens_its_cache_in_the_running_cores_data_folder` and `a_config_not_written_yet_gives_the_window_the_cores_folders` (app.rs:2068, :2092) guarded. Those tests, the astromech-c9em test from astromech-6siv and `astromech_store::window` are then deleted, since nothing uses them.
-- [ ] Checks as before; Windows CI shell build and Release onboarding smoke pass.
+- [x] Checks as before; Windows CI shell build and Release onboarding smoke pass.
 
 ## Scope
 

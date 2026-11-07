@@ -39,7 +39,7 @@ The window's journal and local-file commands are handlers in astromech-api, serv
   - one per cache shows it is rebuilt after a journal append and kept when nothing changed;
   - `binds_set_slot` and `binds_reset` from two callers in turn see each other's edits.
 - [x] A test in crates/astromech-core: `set_folders` over the control API, then `binds_state` reads the new Bindings folder and `materials_inventory` the new journal folder, with no restart. It replaces the window-side tests for astromech-c9em (`a_pasted_bindings_folder_is_what_the_window_reads_in_every_layout`, app.rs:2006-2050), deleted in the next child. Those checked that the window process found the core's config file in every layout; with one reader of `Core::cfg` that question is gone.
-- [ ] Checks as in the registry child; Windows CI's shell build and the Release onboarding smoke pass.
+- [x] Checks as in the registry child; Windows CI's shell build and the Release onboarding smoke pass.
 
 ## Scope
 

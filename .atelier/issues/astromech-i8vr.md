@@ -35,7 +35,7 @@ The window reaches every command through one shell proxy, and the shell's per-co
 - [x] `app/src/lib/transport.ts` (from astromech-xil2) sends every call through it. The `CORE_COMMANDS` split, the `text`-string special case if the wire dropped it, and the `CHANNELS` table go. A progress command's topic comes from the generated command map. `core_status` callers use `status`, with a failed call meaning the core isn't running, as `core_status` returning null means now. `powerplay_targets` sends `within_ly`.
 - [x] scripts/onboarding_smoke.py opens every top-level page of the installed app after the wizard (the modules in app/src/modules) and fails when a page shows "not allowed", "unknown command", an internal error or "the core is not running". It passes in the Release workflow on the PR. The core log it uploads shows the star map's open line (from the galaxy-move child) naming the installed `starmap.db` as the preload.
 - [x] ARCHITECTURE.md §18.2 describes the registry in astromech-api, the exposure levels and policy's role (exposure decision), JSON lines with progress lines on the wire, and ts-rs types. The process-model text stays for astromech-y6d6.
-- [ ] `cd app && pnpm -s check && pnpm -s lint && pnpm -s test` and the Rust checks pass, and so does Windows CI's shell build.
+- [x] `cd app && pnpm -s check && pnpm -s lint && pnpm -s test` and the Rust checks pass, and so does Windows CI's shell build.
 
 ## Scope
 

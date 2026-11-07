@@ -44,7 +44,7 @@ One command registry in a new crate, `astromech-api`, that every way in dispatch
   A search for `core.json`, `control::call` and `"cmd"` in scripts/, .github/ and crates/ finds no other client. List what was searched in the Close Reason.
 - [x] `Core::handle`'s commands (crates/astromech-core/src/app.rs:714) are registered entries. The existing control-API tests in app.rs (`route_commands_over_the_control_api`, `add_stop_and_set_destination_over_the_control_api` and the others) pass unchanged in what they assert.
 - [x] scripts/check-deps.py forbids `astromech-api` from depending on `astromech-input`, `astromech-policy` and `astromech-core`. ARCHITECTURE.md §4 lists the crate and the rule.
-- [ ] CONTRIBUTING.md's Rust checks pass locally. Windows CI's shell build and clippy (`-p astromech-shell --features window`) and the Release workflow's install smoke and onboarding smoke pass on the PR. This host has no webkit2gtk, so the shell's window feature builds only there.
+- [x] CONTRIBUTING.md's Rust checks pass locally. Windows CI's shell build and clippy (`-p astromech-shell --features window`) and the Release workflow's install smoke and onboarding smoke pass on the PR. This host has no webkit2gtk, so the shell's window feature builds only there.
 
 ## Scope
 
