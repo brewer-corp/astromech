@@ -18,9 +18,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Installer, updater and Start with Windows on the one executable; upgrade from the last two-process release on Windows CI"
-updated_at: "2026-11-07T11:57:35.952798610+00:00"
+updated_at: "2026-11-07T19:22:49.683844484+00:00"
 ---
 
 ## Goal
