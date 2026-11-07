@@ -10,6 +10,13 @@ created_at: 2026-11-07T17:13:08.847327513Z
 event:
   event: finding
   recommendation: defer
+  disposition:
+    decision: defer
+    identity: claude-orchestrator-kjfs
+    commit: 9c475e0e9d2cc08a0d9414c27dbf90ddfc33cb4e
+    recorded_at: 2026-11-07T17:13:55.312206793Z
+    follow_up: astromech-vucf
+    reason: Noted on vucf; before merge
 ---
 
 low: crates/astromech-data/src/replay.rs:584-604 (Tape::record) and CONTRIBUTING.md:253-258. Record mode redacts only the key-named fields and the literal secret values. A recorded flight log still holds the commander's dated travel history verbatim, which is personal data, and recording one means putting a real key in a world's secrets.json under worlds/. Only the prose rule in CONTRIBUTING.md and world.rs keeps either out of a commit. Two smaller gaps: the literal replace misses an echo that EDSM's PHP JSON escapes (\\uXXXX, \\/), and a short or common secret value (a commander named 'Sol') rewrites unrelated text in the body, so the replay no longer matches the real answer. Done when 4 holds as written, since it asks only for the key and commander. Suggested follow-up: a check (scripts/ or a test over worlds/) that fails a committed secrets.json whose key isn't an obvious placeholder, and a net.json holding a get-logs answer with a non-empty logs list. Or have record mode write EDSM's credentialed reads only with an explicit flag. Defer to astromech-vucf.
