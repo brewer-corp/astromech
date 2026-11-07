@@ -4,18 +4,24 @@ id: "astromech-7149"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: astromech-7149
 priority: "P1"
 relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-kjfs"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 closed_at: "2026-11-07T12:49:56.270625319+00:00"
 status: "done"
 title: "One core assembly that takes its boundaries (app::assemble with Boundaries)"
-updated_at: "2026-11-07T12:49:56.270625319+00:00"
+updated_at: "2026-11-07T13:00:23.014400524+00:00"
 ---
 
 ## Goal
@@ -86,6 +92,8 @@ Decision astromech-6i8s: astromech-y6d6 moves this startup into the one Tauri ex
   Reason: Wrapping at startup would start the notify thread at launch instead of with each session, and share its rate limit across sessions; both are behaviour changes
 - 2026-11-07 [decision] Tests that need command-layer seams that are not boundaries yet (devices, neutron URL, Spansh polling) use pub(crate) assemble_with(opts, b, state), which assemble calls with the identity
   Reason: Arc::new_cyclic hands the state a Weak to the core, so the state can't be swapped after assembly; the seams belong to the devices and network children
+- 2026-11-07 [decision] Made standalone (no parent) so it lands on its own before the rest of astromech-vucf
+  Reason: astromech-v3u4 (y6d6) builds on this API; as a vucf child it could only reach main when all nine vucf children were done. Resequencing is within the strategy's orchestrator authority.
 
 ## Report
 

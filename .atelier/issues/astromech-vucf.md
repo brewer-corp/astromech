@@ -4,17 +4,12 @@ id: "astromech-vucf"
 issue_type: "feature"
 labels:
 - "size-l"
-workflow_branch:
-  branch_base: main
-  work_branch: astromech-vucf
 priority: "P1"
 relationships:
   blocks: []
   children:
   - kind: "issue"
     id: "astromech-1hh9"
-  - kind: "issue"
-    id: "astromech-7149"
   - kind: "issue"
     id: "astromech-d2nq"
   - kind: "issue"
@@ -41,7 +36,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "A scripted world for the real core: headless mode, clock, game folder, recorded network"
-updated_at: "2026-11-07T12:59:45.770282485+00:00"
+updated_at: "2026-11-07T13:00:15.854454375+00:00"
 ---
 
 ## Goal
