@@ -383,8 +383,11 @@ class Probe:
         except subprocess.TimeoutExpired:
             q.kill()
             code = "timeout"
-        loaded = wait(lambda: self.app.page_loads() > loads, 10.0)
-        return {"exit_code": code, "page_loaded": bool(loaded), "s": round(time.time() - t0, 2)}
+        exited_s = round(time.time() - t0, 2)
+        # The 10 s count from the second start, not from its exit; a later load is still reported.
+        seen = wait(lambda: self.app.page_loads() > loads and max(0.01, round(time.time() - t0, 2)), t0 + 20.0 - time.time())
+        return {"exit_code": code, "page_loaded": bool(seen) and seen <= 10.0, "page_load_s": seen or None,
+                "s": exited_s}
 
     def close_window(self) -> dict:
         """WM_CLOSE to the window found by its title, as a click on X; then the window, WebView2
