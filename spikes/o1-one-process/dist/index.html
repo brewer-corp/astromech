@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>astromech spike</title>
+<style>
+  body { background: #0b0d10; color: #e8e6e3; font: 16px system-ui, sans-serif; margin: 2rem; }
+  #beat { color: #ff8a00; }
+</style>
+</head>
+<body>
+<h1>astromech spike O1</h1>
+<p>Page: <span id="route"></span></p>
+<p>Heartbeats sent: <span id="beat">0</span></p>
+<script>
+  // The page beats once a second, so the app can tell a live page from a dead one
+  // (ui_state.page_beats) after the probe kills a WebView2 process.
+  const route = document.getElementById("route");
+  const show = () => { route.textContent = location.hash.replace(/^#\/?/, "") || "home"; };
+  addEventListener("hashchange", show);
+  show();
+  let n = 0;
+  setInterval(() => {
+    window.__TAURI_INTERNALS__.invoke("beat").then(() => {
+      document.getElementById("beat").textContent = String(++n);
+    });
+  }, 1000);
+</script>
+</body>
+</html>
