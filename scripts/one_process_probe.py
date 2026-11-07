@@ -374,7 +374,8 @@ class Probe:
         return ok
 
     def second_start(self, route: str) -> dict:
-        """A second start with `--route`: it exits 0 and the window loads a page within 10 s."""
+        """A second start with `--route`: it exits 0 and the window loads a page within
+        `--page-load-s` of the start (10 s by default)."""
         loads = self.app.page_loads()
         t0 = time.time()
         q = self.app.start(["--route", route])
@@ -384,9 +385,12 @@ class Probe:
             q.kill()
             code = "timeout"
         exited_s = round(time.time() - t0, 2)
-        # The 10 s count from the second start, not from its exit; a later load is still reported.
-        seen = wait(lambda: self.app.page_loads() > loads and max(0.01, round(time.time() - t0, 2)), t0 + 20.0 - time.time())
-        return {"exit_code": code, "page_loaded": bool(seen) and seen <= 10.0, "page_load_s": seen or None,
+        # The bound counts from the second start, not from its exit; a later load (up to twice the
+        # bound, at least 20 s) is still reported.
+        bound = self.a.page_load_s
+        seen = wait(lambda: self.app.page_loads() > loads and max(0.01, round(time.time() - t0, 2)),
+                    t0 + max(20.0, 2 * bound) - time.time())
+        return {"exit_code": code, "page_loaded": bool(seen) and seen <= bound, "page_load_s": seen or None,
                 "s": exited_s}
 
     def close_window(self) -> dict:
@@ -869,6 +873,8 @@ def main(argv=None) -> int:
     p.add_argument("--no-sink", action="store_true",
                    help="skip check 2: the app has no sink_keys (the installed app; the onboarding smoke checks its input)")
     p.add_argument("--no-churn", action="store_true", help="skip check 3: the app has no tray_churn command")
+    p.add_argument("--page-load-s", type=float, default=10.0,
+                   help="checks 4-6: a second start's page must load within this many seconds of the start")
     p.add_argument("--expect-recovery", action="store_true",
                    help="check 6 also requires the window to recover in place before it is closed: the log's "
                         "'window: reloading the page' after a renderer kill, 'window: rebuilt' and a new page load "

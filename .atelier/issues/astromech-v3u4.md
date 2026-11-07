@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "The one app: astromech-core.exe runs the core, the tray and the window in one Tauri process"
-updated_at: "2026-11-07T18:54:50.934536383+00:00"
+updated_at: "2026-11-07T20:40:50.105119529+00:00"
 ---
 
 ## Goal
@@ -121,6 +121,9 @@ Spike results on astromech-wgtr (its Close Reason and evidence receipt). The Tau
 - 2026-11-07 [decision] one_process_probe.py: --no-sink skips check 2 and --no-churn skips check 3 (the expected set follows), and log lines without the spike's [pid prefix count for the app; webview_cost.py's later cold starts open the window in the app started --background, by a --route second start, plus one start with the app not running
   Reason: The app has no test hooks (Done when); its log has no pid prefix since one process writes it; the windowless app is how a player opens the window
 - 2026-11-07 [result] MVP criteria failure on PR #218 at 0891652b (open_screen.left not_confirmed, 1 of 15): not a v3u4 regression. The mock wrote GuiFocus 2 to Status.json 727 ms after the key (keys.log), 1.27 s before the core's 2 s deadline, and the core never applied it; the next write came 1.9 s later. Status.json was read only on a file notification, with five 1 ms retries, so a lost notification or a failed read (half-written, or held: the mock's own logging thread stalled about 760 ms in the same second, splitting a keys.log line) lost the update until the next write. The console-mode pipeline v3u4 runs is unchanged code; b418f604's run had the same verify spread (max 949 ms vs 948 ms, the mock's 0-1000 ms delay), with keydown p50 7.0 vs 11.2 ms (a slower runner). Fix: an idle pass re-reads Status.json when its modified time or length differs from the last good read (pipeline.rs, tests a_status_write_without_a_notification_is_read_when_idle and the_pipeline_loop_reads_status_json_without_any_notification, both failing before); the mock writes each keys.log line in one write
+- 2026-11-07 [decision] The window's open_window answers once the open is asked for: TauriUi hands every open (build or focus) to a window-open thread and returns; a failed build is logged there as before. Callers that need the window wait for ui_state or the page-load line (the onboarding smoke, upgrade_smoke and webview_cost already do; the probe bounds a second start's page load with --page-load-s, 30 s in Release)
+  Reason: Building the window waits for WebView2, whose first start on a runner took 13 s, past the second start's 10 s control-API read timeout (spike run 42410580229). On main the core only spawned the shell process, so its reply never waited for the window either; for the user nothing changes but the 'already running, but it didn't answer' log line on a slow first start
+  Rejected: Raise the second start's read timeout: still a guess at WebView2's worst start, and every caller waits for nothing it uses
 
 ## Report
 

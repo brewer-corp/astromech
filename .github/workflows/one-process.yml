@@ -6,12 +6,13 @@ name: One process (Windows)
 # which crashes Windows' restart registration restarts. Reports: the job summaries and the
 # one-process-* artifacts.
 
+# The spike is done (astromech-wgtr); the real app's probe runs in release.yml's installer job,
+# so changes to scripts/one_process_probe.py are tested there, not here.
 on:
   pull_request:
     paths:
       - .github/workflows/one-process.yml
-      - scripts/one_process_probe.py
-      - spikes/o1-one-process/**
+      - spikes/**
   workflow_dispatch:
 
 permissions:

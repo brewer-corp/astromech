@@ -41,7 +41,8 @@ pub struct Opts {
 pub trait Ui: Send + Sync {
     /// What the tray shows changed: update it soon, without waiting.
     fn refresh(&self);
-    /// Open the window at `route`, or focus it and switch it to `route`.
+    /// Open the window at `route`, or focus it and switch it to `route`. May answer before the
+    /// window is there; `window_open` and `state` say when it is.
     fn open_window(&self, route: Option<&str>) -> Result<(), String>;
     /// Whether the window is open.
     fn window_open(&self) -> bool;
@@ -762,7 +763,7 @@ impl Core {
     pub fn open_window(&self, route: Option<&str>) -> Result<(), String> {
         match self.ui.open_window(route) {
             Ok(()) => {
-                log(&format!("opened the app window{}", route.map(|r| format!(" at {r}")).unwrap_or_default()));
+                log(&format!("opening the app window{}", route.map(|r| format!(" at {r}")).unwrap_or_default()));
                 Ok(())
             }
             Err(e) => {

@@ -318,17 +318,23 @@ impl Ui for TauriUi {
         }
     }
 
+    /// Answers once the open is asked for, without waiting for the window. Building it waits
+    /// for WebView2, whose first start on a machine can take many seconds (13 s on a CI runner),
+    /// longer than a second start waits for the control API's reply. The build runs on its own
+    /// thread, which hands it to the main thread (building from a main-thread handler can
+    /// deadlock on Windows); a failed build is logged there. Callers that need the window wait
+    /// for `ui_state` or the page-load line.
     fn open_window(&self, route: Option<&str>) -> Result<(), String> {
-        if std::thread::current().name() == Some("main") {
-            let (h, route) = (self.0.clone(), route.map(String::from));
-            std::thread::spawn(move || {
+        let (h, route) = (self.0.clone(), route.map(String::from));
+        std::thread::Builder::new()
+            .name("window-open".into())
+            .spawn(move || {
                 if let Err(e) = h.open_window(route.as_deref()) {
                     log(&format!("couldn't open the app window: {e}"));
                 }
-            });
-            return Ok(());
-        }
-        self.0.open_window(route)
+            })
+            .map(|_| ())
+            .map_err(|e| format!("couldn't start opening the window: {e}"))
     }
 
     fn window_open(&self) -> bool {
