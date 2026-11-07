@@ -409,14 +409,37 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
     // Two colonisation projects in Wolf 359, one built, from the colonisation world's synthetic
     // depot visits, with 90 t of Insulating Membrane aboard a 784 t Type-9.
     t.insert("colonisation.json", whole(core("colonisation", None, "colonisation_projects", Value::Null)));
+    // In game in Synthetic Sector AB-C d1 (the exobiology world): two bodies with biological
+    // signals, A 2 mapped with its genera, and a first Stratum Tectonicas sample with the
+    // commander about 210 m from it.
+    let bio = |key: &'static str, pick: &'static str| Part {
+        key,
+        from: From::Core {
+            world: "exobiology",
+            at: Some("sampling"),
+            cmd: "exobiology",
+            args: Value::Null,
+            pick,
+            keep: &[],
+        },
+    };
     t.insert(
         "exobiology.json",
-        whole(From::Not(
-            "the sample's other players' reports come from Spansh's known-biology search, which the session \
-             makes in the background on arrival and which is recorded only for Luhman 16 \
-             (spansh-bodies-biology.json), not for the sample's synthetic system; with its sampling in \
-             progress it stays hand-assembled from the exploration crate's synthetic biology lines",
-        )),
+        vec![
+            bio("/ok", "/ok"),
+            bio("/system", "/system"),
+            bio("/bodies", "/bodies"),
+            bio("/sampling", "/sampling"),
+            Part {
+                key: "/known",
+                from: From::Not(
+                    "other players' reports come from Spansh's known-biology search, which the session \
+                     makes in the background on arrival; it is recorded only for Luhman 16 \
+                     (spansh-bodies-biology.json), not for the sample's synthetic system, so the reports \
+                     are hand-written for the sample's two bodies",
+                ),
+            },
+        ],
     );
     // The explorer world's commander, in game, scans a whole unexplored system, Synuefe AB-C
     // d1-2 (the exploration crate's synthetic lines); the history counts the unsold data.
@@ -600,6 +623,79 @@ fn put(v: &mut Value, ptr: &str, new: Value) {
     *v.pointer_mut(ptr).unwrap_or_else(|| panic!("no {ptr} to write")) = new;
 }
 
+/// Where the parts at `keys` (JSON pointers, "" for the whole file) don't cover `file` exactly
+/// once: at every level a key descends into, each key or index the file has there needs a part
+/// at or under it, and every part must name something the file has. A hand-added entry inside a
+/// composite part (a fourth headline, a key beside the dumped ones) is caught.
+fn uncovered(file: &Value, keys: &[&str]) -> Vec<String> {
+    #[derive(Default)]
+    struct Node {
+        part: bool,
+        under: BTreeMap<String, Node>,
+    }
+    let mut root = Node::default();
+    for key in keys {
+        let mut n = &mut root;
+        for seg in key.split('/').skip(1) {
+            n = n.under.entry(seg.to_string()).or_default();
+        }
+        n.part = true;
+    }
+    fn walk(n: &Node, v: Option<&Value>, at: &str, out: &mut Vec<String>) {
+        let Some(v) = v else {
+            out.push(format!("a part names {}, which the file doesn't have", if at.is_empty() { "/" } else { at }));
+            return;
+        };
+        if n.part {
+            if !n.under.is_empty() {
+                out.push(format!("{} is a part and has parts under it", if at.is_empty() { "/" } else { at }));
+            }
+            return;
+        }
+        let have: Vec<String> = match v {
+            Value::Object(o) => o.keys().cloned().collect(),
+            Value::Array(a) => (0..a.len()).map(|i| i.to_string()).collect(),
+            _ => vec![],
+        };
+        for k in have.iter().filter(|k| !n.under.contains_key(*k)) {
+            out.push(format!("{at}/{k} has no part in the table"));
+        }
+        for (k, u) in &n.under {
+            walk(u, child(v, k), &format!("{at}/{k}"), out);
+        }
+    }
+    let mut out = vec![];
+    walk(&root, Some(file), "", &mut out);
+    out
+}
+
+/// The coverage check sees a hand-added entry at any depth a part descends into, and a part
+/// naming something the file lacks.
+#[test]
+fn a_hand_added_entry_beside_the_parts_is_caught() {
+    let ships = json!({"fleet": {}, "headlines": {"1": {}, "3": {}}, "cases": [{"plan": 1, "stats": 2}]});
+    let parts = ["/fleet", "/headlines/1", "/headlines/3", "/cases/0/plan", "/cases/0/stats"];
+    assert_eq!(uncovered(&ships, &parts), Vec::<String>::new());
+    let mut added = ships.clone();
+    added["headlines"]["9"] = json!({"dps": 1});
+    added["cases"][0]["note"] = json!("by hand");
+    added["cases"].as_array_mut().unwrap().push(json!({"plan": 2, "stats": 3}));
+    assert_eq!(
+        uncovered(&added, &parts),
+        [
+            "/cases/1 has no part in the table",
+            "/cases/0/note has no part in the table",
+            "/headlines/9 has no part in the table"
+        ]
+    );
+    assert_eq!(
+        uncovered(&json!({"fleet": {}}), &["/fleet", "/gone"]),
+        ["a part names /gone, which the file doesn't have"]
+    );
+    assert_eq!(uncovered(&json!({"a": 1}), &[""]), Vec::<String>::new());
+    assert_eq!(uncovered(&json!({"a": {"b": 1}}), &["/a", "/a/b"]), ["/a is a part and has parts under it"]);
+}
+
 #[test]
 fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
     let update = std::env::var_os("ASTROMECH_UPDATE_FIXTURES").is_some_and(|v| v == "1");
@@ -626,8 +722,7 @@ fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
     }
 
     let table: BTreeMap<_, _> = table.into_iter().filter(|(n, _)| files.contains_key(n)).collect();
-    // A part the core doesn't produce says why; a composite file's parts cover its top-level
-    // keys.
+    // A part the core doesn't produce says why; a composite file's parts cover it ([`uncovered`]).
     for (name, parts) in &table {
         for part in parts {
             if let From::Not(why) | From::Input(why) = &part.from {
@@ -637,15 +732,9 @@ fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
                 eprintln!("{name}{}: kept as written: {why}", part.key);
             }
         }
-        if parts.iter().any(|p| p.key.is_empty()) {
-            assert_eq!(parts.len(), 1, "{name}: a whole-file part must be its only one");
-            continue;
-        }
-        let tops: BTreeSet<String> =
-            parts.iter().map(|p| p.key.split('/').nth(1).unwrap_or_default().to_string()).collect();
-        let keys: BTreeSet<String> = files[name].as_object().map(|o| o.keys().cloned().collect()).unwrap_or_default();
-        if tops != keys {
-            problems.push(format!("{name}: the table's parts cover {tops:?}, the file has {keys:?}"));
+        let keys: Vec<&str> = parts.iter().map(|p| p.key).collect();
+        for gap in uncovered(&files[name], &keys) {
+            problems.push(format!("{name}: {gap}"));
         }
     }
 
