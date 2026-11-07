@@ -4,6 +4,9 @@ id: "astromech-y6d6"
 issue_type: "feature"
 labels:
 - "size-l"
+workflow_branch:
+  branch_base: main
+  work_branch: astromech-y6d6
 priority: "P1"
 relationships:
   blocks: []
@@ -35,7 +38,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "One process: the core and the window in one Tauri app"
-updated_at: "2026-11-07T11:57:36.150046907+00:00"
+updated_at: "2026-11-07T12:31:30.396301948+00:00"
 ---
 
 ## Goal
@@ -62,4 +65,3 @@ What the code settles, and what the spike (astromech-wgtr) settles:
 - **Idle cost.** The spike measures it against a plain-tray baseline: reported, not gated (astromech-01ft).
 - **`core.json`.** It stays as the control API's endpoint, and the window stops using it. This is settled by decision astromech-nade; the spike is not needed for it.
 - **Restart registration.** The spike settles which crash kinds Windows restarts on the runner.
-

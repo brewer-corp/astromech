@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Spike: a windowless Tauri tray app on Windows CI (no window, window crash, close, Raw Input, restart registration)"
-updated_at: "2026-11-07T11:57:35.952505855+00:00"
+updated_at: "2026-11-07T12:31:30.396305374+00:00"
 ---
 
 ## Goal
