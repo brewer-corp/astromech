@@ -4,7 +4,7 @@ import globals from "globals";
 import ts from "typescript-eslint";
 
 export default ts.config(
-  { ignores: ["dist/", "dist-preview/", "src-tauri/", "node_modules/"] },
+  { ignores: ["dist/", "dist-preview/", "dist-shots/", "src-tauri/", "node_modules/"] },
   js.configs.recommended,
   ...ts.configs.recommended,
   ...svelte.configs.recommended,
@@ -23,14 +23,20 @@ export default ts.config(
         "error",
         {
           patterns: [
-            { group: ["**/preview/*", "**/fakecore", "**/previewquery", "**/fixtures/*"], message: "Reach the browser preview through lib/transport.ts (call, subscribe, previewOption)." },
-            { group: ["@tauri-apps/api/*"], message: "Reach the shell through lib/transport.ts (call, subscribe)." },
+            { group: ["**/preview", "**/preview/*", "**/fakecore", "**/previewquery", "**/fixtures/*"], message: "Reach the browser preview through lib/transport.ts (call, subscribe, previewOption)." },
+            { group: ["@tauri-apps/api", "@tauri-apps/api/*"], message: "Reach the shell through lib/transport.ts (call, subscribe)." },
           ],
         },
       ],
       "no-restricted-syntax": [
         "error",
+        // The same paths as no-restricted-imports, which doesn't see import().
+        {
+          selector: "ImportExpression[source.value=/preview|fakecore|fixtures|^@tauri-apps/]",
+          message: "Reach the browser preview and the shell through lib/transport.ts (call, subscribe, previewOption).",
+        },
         { selector: "Literal[value='__TAURI_INTERNALS__']", message: "Only lib/transport.ts tells the app from the browser preview." },
+        { selector: "MemberExpression[property.name='__TAURI_INTERNALS__']", message: "Only lib/transport.ts tells the app from the browser preview." },
       ],
     },
   },
