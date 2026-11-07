@@ -104,7 +104,7 @@ jobs:
           RUN: ""
           TARGET_DIR: target/debug
         run: |
-          cargo build -p astromech-core --bin astromech-core -p astromech-mockgame --locked
+          cargo build -p astromech-core --bin astromech-core -p astromech-mockgame --bin mockgame --locked
           scripts/e2e-gear-down.sh
       - uses: pnpm/action-setup@v4
         with:

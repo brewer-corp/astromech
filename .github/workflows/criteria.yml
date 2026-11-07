@@ -58,7 +58,7 @@ jobs:
         with:
           key: criteria
       - name: core and mock game (release)
-        run: cargo build -p astromech-core --bin astromech-core -p astromech-mockgame --release --locked
+        run: cargo build -p astromech-core --bin astromech-core -p astromech-mockgame --bin mockgame --release --locked
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

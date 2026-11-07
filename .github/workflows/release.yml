@@ -98,7 +98,7 @@ jobs:
       # The voice worker stays separate: built together, Cargo would unify astromech-voice's
       # features and link the GPL sherpa build into the core too.
       - name: core, mock game and sign-update (release)
-        run: cargo build --release --locked -p astromech-core --bin astromech-core --bin sign-update -p astromech-mockgame
+        run: cargo build --release --locked -p astromech-core --bin astromech-core --bin sign-update -p astromech-mockgame --bin mockgame
       - name: drop a sherpa-onnx prebuilt cache that lost its libraries
         # sherpa-onnx-sys skips its download when target/sherpa-onnx-prebuilt/<ver>/lib exists,
         # and rust-cache can restore that folder without the static libraries in it.
