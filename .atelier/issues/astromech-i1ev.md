@@ -18,9 +18,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "World steps: game folder, game process and clock, settled by file generation and clock quiescence"
-updated_at: "2026-11-07T15:21:22.604471470+00:00"
+updated_at: "2026-11-07T15:21:29.942651328+00:00"
 ---
 
 ## Goal
