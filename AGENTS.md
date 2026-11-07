@@ -8,27 +8,38 @@ and Svelte 5 app window. Start with [README.md](README.md).
 The backlog, research and plans live in [Atelier](https://github.com/spadaval/atelier) records
 under `.atelier/`, committed with the code they describe. There is no separate backlog file.
 
-- Run `atelier prime` at the start of a session and `atelier land` before handing off (the
-  Claude Code hooks in `.claude/settings.json` do this).
+- Start a session with `atelier status`; before handoff commit the records and run
+  `atelier land`. Active work may remain open, with unfinished code handed off honestly.
+  The Claude Code hooks in `.claude/settings.json` run both.
 - `atelier work missions`, `atelier work ready` and `atelier issue show <id>` orient you.
 - Missions: "Replace the daily toolbox" ([strategy](docs/strategies/replace-the-toolbox.md))
   and "Ship v1.0".
-- `atelier start <id>` creates the work branch (`<issue_type>/<id>`) from `main`. An issue
-  with children owns one branch that its children share: a child starts on its parent's
-  `<issue_type>/<parent-id>` branch, which merges when every child is done.
-  Integrate with `atelier merge <id>` after independent review, never a plain `git merge`
-  into `main`. Open a GitHub PR from the work branch for CI. `atelier merge` fast-forwards
-  `main` to the reviewed branch; pushing `main` then marks the PR merged.
+- One issue, in order: `atelier start <id>` (an item with a recorded branch switches to it;
+  otherwise on `main` it creates a branch named `<id>`, and on another branch it takes that
+  branch), implement, tick every Done when line and write the `## Report`, `atelier review
+  request <id>`, fix and re-review, approve, then `atelier merge <id>` under the PR rules
+  below, which marks the work done. Work has no close step. Only a code change makes an
+  approval stale; a Done when line rewritten after start is shown in the review brief and
+  by `merge --check`, and refuses nothing. Work that
+  changes no code and can only happen after a merge or release is a loose end, unless it is
+  an independent validation; a change with no issue takes the light path. Agent Factory's
+  Atelier reference has the detail and defines check, review, land, done and close.
+- An issue with children owns one branch that its children share, and merging it marks
+  every open child done. Never use a plain `git merge` into `main`, which runs no gate and
+  marks nothing done. Open a GitHub PR from the work branch for CI. `atelier merge` makes
+  one merge commit on `main`; pushing `main` then marks the PR merged.
 - Every push to a PR reruns CI, so push when the branch is ready for review and again only
-  after it changes; don't push each rebase onto `main`. Run CONTRIBUTING.md's checks locally
-  first: CI is for the Windows-only failures this Linux host can't reproduce. Wait for checks
-  with `watch_pull_request` and end the turn, not a `gh pr checks` polling loop. Docs-only
-  and `.atelier`-only PRs run no checks, and the Release build runs on a PR only when
-  packaging changes (the paths in `.github/workflows/release.yml`).
-- Planning changes (filing, grooming, re-prioritising, recording a decision) are committed
-  straight to `main` when they touch only `.atelier/issues`, `.atelier/evidence`,
-  `.atelier/reviews` and strategies a mission links. Anything else, including
-  `.atelier/workflow.yaml`, goes through review and `atelier merge`.
+  after it changes; a `main` that moved on needs no catch-up merge. Run CONTRIBUTING.md's
+  checks locally first: CI is for the Windows-only failures this Linux host can't reproduce.
+  Wait for checks with `watch_pull_request` and end the turn, not a `gh pr checks` polling
+  loop. Docs-only and `.atelier`-only PRs run no checks, and the Release build runs on a PR
+  only when packaging changes (the paths in `.github/workflows/release.yml`).
+- Planning changes (filing, grooming, re-prioritising, recording a decision, marking a loose
+  end or validation done) are committed straight to `main` when they touch only
+  `.atelier/issues`, `.atelier/evidence`, `.atelier/reviews` and strategies a mission
+  links. Anything else, including
+  `.atelier/workflow.yaml`, goes through review and `atelier merge`. Non-trivial planning
+  is reviewed before the work it defines starts.
 - Someday work sits in the `backlog` status so `atelier work ready` shows only near-term
   work. File it with `atelier issue create --status backlog`; `atelier issue transition
   <id> defer` parks an item and `plan` brings it back. Children of a parked parent are

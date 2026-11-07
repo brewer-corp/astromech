@@ -35,8 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      # The commit main becomes: the pushed tip, or the PR head, since `atelier merge`
-      # fast-forwards main to the reviewed branch (the GitHub merge commit never lands).
+      # The pushed tip, or the PR head rather than GitHub's merge of it: `atelier merge` makes
+      # its own merge commit into main, so GitHub's merge commit never lands.
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
