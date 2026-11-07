@@ -128,10 +128,35 @@ export interface WorldCore {
   kill(): void;
 }
 
+/** The empty homes of the world cores this process started, removed when it ends. */
+const homes = new Set<string>();
+
+function removeHome(home: string): void {
+  homes.delete(home);
+  rmSync(home, { recursive: true, force: true });
+}
+
+/** On exit, Ctrl+C or a kill, remove what's left, then end as the signal would have (the core
+ * itself quits when its stdin closes with this process). */
+let hooked = false;
+function removeHomesOnExit(): void {
+  if (hooked) return;
+  hooked = true;
+  process.once("exit", () => [...homes].forEach(removeHome));
+  for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
+    process.once(sig, () => {
+      [...homes].forEach(removeHome);
+      process.kill(process.pid, sig);
+    });
+  }
+}
+
 /** Start the core on the world folder `world` and wait for its endpoint line. */
 export async function startWorld(world: string, opts: WorldOptions = {}): Promise<WorldCore> {
   const core = opts.core ?? coreBinary();
+  removeHomesOnExit();
   const home = mkdtempSync(join(tmpdir(), "astromech-world-home-"));
+  homes.add(home);
   const env: Record<string, string | undefined> = { ...process.env };
   for (const k of PROXY_VARS) delete env[k];
   for (const k of HOME_VARS) env[k] = home;
@@ -141,7 +166,7 @@ export async function startWorld(world: string, opts: WorldOptions = {}): Promis
   const spawned = new Promise<never>((_, fail) => child.once("error", (e) => fail(new Error(`starting ${core}: ${e.message}`))));
   const lines = createInterface({ input: child.stdout!, crlfDelay: Infinity })[Symbol.asyncIterator]();
   const first = lines.next().then((r) => (r.done ? null : r.value));
-  const cleanUp = () => rmSync(home, { recursive: true, force: true });
+  const cleanUp = () => removeHome(home);
   let text: string | null;
   try {
     text = await Promise.race([first, spawned, exited.then(() => null)]);
@@ -164,7 +189,7 @@ export async function startWorld(world: string, opts: WorldOptions = {}): Promis
   void (async () => {
     for (let r = await lines.next(); !r.done; r = await lines.next());
   })();
-  // The home goes with the core, unless `quit` is checking it first.
+  // The home also goes when the core exits, unless `quit` is checking it first.
   let quitting = false;
   void exited.then(() => quitting || cleanUp());
   const contact = line.control;
