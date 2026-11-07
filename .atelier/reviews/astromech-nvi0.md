@@ -10,6 +10,12 @@ created_at: 2026-11-07T05:27:46.182567650Z
 event:
   event: finding
   recommendation: no_action
+  disposition:
+    decision: no_action
+    identity: claude-orchestrator-kjfs
+    commit: ae9bd18be9f0eb7e805fb54fc62a43ada5fde0e4
+    recorded_at: 2026-11-07T05:28:17.978963466Z
+    reason: 'Accepted: with no ?core= the preview''s header already says Not running, so Mining saying the core did not answer is consistent; preview-publish defaults to core=ready, where Mining is unchanged.'
 ---
 
 info: app/src/lib/mining.ts:16 With no ?core= the preview's Mining page now says 'Could not read the mining run: the core did not answer' instead of the sample run (after-nocore/mining.png is the one screenshot that differs). That departs from xil2 and 7rcn Done when ('every page renders as before', 'opens with its sample data') but is recorded as a decision note on xil2, makes Mining consistent with the header's 'Not running', and scripts/preview-publish defaults to core=ready, where Mining is unchanged. The accountable agent should accept it explicitly rather than let the checkbox read as met.
