@@ -95,12 +95,34 @@ pub struct Call<'a> {
     registry: &'a Registry,
     origin: Option<Origin>,
     progress: &'a dyn Fn(Value),
+    after: std::cell::RefCell<AfterReply>,
+}
+
+/// What handlers asked to run once their reply is out ([`Call::after_reply`]).
+#[derive(Default)]
+#[must_use = "run it once the reply is written"]
+pub struct AfterReply(Vec<Box<dyn FnOnce() + Send>>);
+
+impl AfterReply {
+    /// Run them, in the order they were asked for.
+    pub fn run(self) {
+        for f in self.0 {
+            f();
+        }
+    }
 }
 
 impl Call<'_> {
     /// Send one progress value to the caller now.
     pub fn progress(&self, v: Value) {
         (self.progress)(v)
+    }
+
+    /// Run `f` once the reply has been written to the caller (on the control API, after its
+    /// last line is sent; in-process, when [`Registry::dispatch`] returns): for an effect that
+    /// would cut the reply off, such as `quit` ending the process.
+    pub fn after_reply(&self, f: impl FnOnce() + Send + 'static) {
+        self.after.borrow_mut().0.push(Box::new(f));
     }
 
     /// Run `cmd` through the registry with the caller's origin, as if the caller had asked for
@@ -229,17 +251,25 @@ impl Registry {
     /// Run the request's command: its value, or why it didn't run or failed. `progress` gets
     /// the progress values the command sends before it answers.
     pub fn dispatch(&self, r: &Request, progress: &dyn Fn(Value)) -> Result<Value, String> {
+        let (reply, after) = self.dispatch_then(r, progress);
+        after.run();
+        reply
+    }
+
+    /// [`Registry::dispatch`], handing back what the handler asked to run after its reply
+    /// ([`Call::after_reply`]) for the caller to run once the reply is written.
+    pub fn dispatch_then(&self, r: &Request, progress: &dyn Fn(Value)) -> (Result<Value, String>, AfterReply) {
         let Some(Entry { exposure, handler, .. }) = self.entries.get(&r.cmd) else {
-            return Err(format!("unknown command {:?}", r.cmd));
+            return (Err(format!("unknown command {:?}", r.cmd)), AfterReply::default());
         };
         if *exposure == Exposure::Local && r.origin.is_some() {
-            return Err(format!("not allowed: {} is for local control clients only", r.cmd));
+            return (Err(format!("not allowed: {} is for local control clients only", r.cmd)), AfterReply::default());
         }
-        let call = Call { registry: self, origin: r.origin, progress };
+        let call = Call { registry: self, origin: r.origin, progress, after: Default::default() };
         let outer = RUNNING.with(|r| r.replace(Running::Handler));
         let ran = catch_unwind(AssertUnwindSafe(|| handler(r, &call)));
         RUNNING.with(|r| r.set(outer));
-        ran.unwrap_or_else(|panic| {
+        let reply = ran.unwrap_or_else(|panic| {
             let why = panic
                 .downcast_ref::<&str>()
                 .map(|s| s.to_string())
@@ -247,7 +277,8 @@ impl Registry {
                 .unwrap_or_else(|| "no message".into());
             astromech_log::log(&format!("command {} panicked: {why}", r.cmd));
             Err(format!("{} failed with an internal error: {why}", r.cmd))
-        })
+        });
+        (reply, call.after.into_inner())
     }
 }
 

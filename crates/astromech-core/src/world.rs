@@ -41,8 +41,10 @@
 //! Once the control API is up, the binary prints one line on stdout,
 //! `{"control": {"port": …, "token": …}, "app_dir": "…"}`, its callers' only way to find it
 //! ([`astromech_api::control::call_to`]). It runs until `quit`, or until its stdin reaches end of
-//! file (the process that started it has gone, even if killed outright), then removes the temp
-//! directory and exits 0. A caller keeps its stdin open: a pipe it holds.
+//! file (the process that started it has gone, even if killed outright). `quit` is answered
+//! before the core tears down. It then stops the session and the history follower, so nothing
+//! writes into the temp directory, removes it and exits 0. A caller keeps its stdin open: a pipe
+//! it holds.
 //!
 //! # Observations
 //!
@@ -407,7 +409,10 @@ fn serve(src: &Path, session: crate::session::Opts) -> Result<()> {
     })?;
     app::headless(&ui);
     log("world mode: quitting");
+    // Stop what writes into the temp folder before removing it: the session (and its threads)
+    // and the history follower, whose first open of its database may still be running.
     core.deactivate("quit");
+    core.history.stop();
     drop(started);
     let root = world.root().to_path_buf();
     if let Err(e) = world.dir.close() {

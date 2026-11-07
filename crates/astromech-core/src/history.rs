@@ -323,6 +323,19 @@ impl Following {
         }
     }
 
+    /// Stop following, and wait until the follower's thread, and one it replaced that is still
+    /// finishing, have ended: after this the history database is no longer written. A running
+    /// import finishes first ([`Follower::stop`]).
+    pub fn stop(&self) {
+        let (current, ending) = {
+            let mut s = self.state.lock().recover();
+            (s.current.take(), s.ending.take())
+        };
+        for t in current.and_then(|(_, _, f)| f.stop()).into_iter().chain(ending) {
+            let _ = t.join();
+        }
+    }
+
     /// The history progress, while a folder is followed.
     pub fn status(&self) -> Option<Progress> {
         self.state.lock().recover().current.as_ref().map(|(_, _, f)| f.progress())
@@ -390,6 +403,36 @@ pub(crate) mod tests {
         std::fs::write(&next, "{ \"timestamp\":\"2026-09-04T10:00:00Z\", \"event\":\"Fileheader\", \"part\":1, \"gameversion\":\"4.1.0.100\" }\r\n").unwrap();
         wait_for("the new file", || f.progress().events == 54);
         drop(w);
+    }
+
+    /// World mode removes the data folder after [`Following::stop`] (astromech-d2nq's teardown
+    /// flake): when it returns, the follower's thread has ended and holds nothing open. Its
+    /// thread is held at a gate (a replaced follower still finishing) while stop runs; the gate
+    /// opens as stop is called. The thread's channel is dropped only when it ends, so a send on
+    /// it after stop must fail. A stop that only signals returns while the thread still runs;
+    /// repeated, so that one is caught however the threads are scheduled.
+    #[test]
+    fn stop_returns_once_the_followers_thread_has_ended() {
+        let j = journal_dir();
+        for _ in 0..50 {
+            let data = tempfile::tempdir().unwrap();
+            let f = Following::new(fast(false), Arc::new(SystemClock));
+            let (open, gate) = std::sync::mpsc::channel::<()>();
+            f.state.lock().unwrap().ending = Some(std::thread::spawn(move || {
+                let _ = gate.recv();
+            }));
+            f.follow(Some(j.path().to_path_buf()), data.path(), quiet());
+            let poke = f.state.lock().unwrap().current.as_ref().unwrap().2.poke.clone();
+            std::thread::scope(|s| {
+                let stopper = s.spawn(|| {
+                    f.stop();
+                    poke.send(()).is_ok()
+                });
+                open.send(()).unwrap();
+                assert!(!stopper.join().unwrap(), "stop returned while the follower's thread still ran");
+            });
+            assert!(f.status().is_none());
+        }
     }
 
     #[test]

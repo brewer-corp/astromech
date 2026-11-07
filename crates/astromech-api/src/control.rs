@@ -136,19 +136,21 @@ fn handle(s: TcpStream, tok: &str, reg: &Registry) -> Result<()> {
     s.set_read_timeout(Some(Duration::from_secs(5)))?;
     let mut line = String::new();
     BufReader::new(s.try_clone()?).take(64 * 1024).read_line(&mut line)?;
-    let reply = match serde_json::from_str::<Request>(&line) {
-        Ok(r) if r.token == tok => reg.dispatch(&r, &|v| {
+    let (reply, after) = match serde_json::from_str::<Request>(&line) {
+        Ok(r) if r.token == tok => reg.dispatch_then(&r, &|v| {
             let _ = send(&s, &json!({ "progress": v }));
         }),
-        Ok(_) => Err("bad token".into()),
-        Err(e) => Err(format!("bad request: {e}")),
+        Ok(_) => (Err("bad token".into()), Default::default()),
+        Err(e) => (Err(format!("bad request: {e}")), Default::default()),
     };
     let reply = match reply {
         Ok(value) => json!({"ok": true, "value": value}),
         Err(error) => json!({"ok": false, "error": error}),
     };
-    send(&s, &reply)?;
-    Ok(())
+    let sent = send(&s, &reply);
+    // The reply is out: what would cut it off (quit ending the process) runs only now.
+    after.run();
+    Ok(sent?)
 }
 
 pub fn read_endpoint(app_dir: &Path) -> Option<Endpoint> {
@@ -319,6 +321,49 @@ mod tests {
         });
         assert_eq!(v, Ok(json!("done")));
         assert_eq!(got, vec![json!("halfway")]);
+    }
+
+    /// An effect the handler defers with `after_reply` runs only once the reply is sent: it
+    /// waits for the client to have read the reply, which a hook run before the reply never sees
+    /// (the guard then fails the call), as `quit` ending the process would cut the reply off.
+    #[test]
+    fn an_after_reply_effect_runs_once_the_reply_is_written() {
+        let d = tempfile::tempdir().unwrap();
+        let (read_tx, read_rx) = channel::<()>();
+        let read_rx = Arc::new(Mutex::new(read_rx));
+        let (ran_tx, ran_rx) = channel::<bool>();
+        let ran_tx = Mutex::new(ran_tx);
+        let mut reg = Registry::new();
+        reg.add("quit", Exposure::Local, move |_, call| {
+            let (seen, ran) = (read_rx.clone(), crate::lock(&ran_tx).clone());
+            call.after_reply(move || {
+                let read = crate::lock(&seen).recv_timeout(Duration::from_secs(60)).is_ok();
+                let _ = ran.send(read);
+            });
+            Ok(json!("bye"))
+        });
+        let _srv = serve(d.path(), Arc::new(reg)).unwrap();
+        assert_eq!(call_short(d.path(), "quit", None), Ok(json!("bye")));
+        read_tx.send(()).unwrap();
+        assert!(ran_rx.recv().unwrap(), "the effect ran before the client had the reply");
+    }
+
+    /// In-process, the effect runs as dispatch returns, after the handler's reply is made.
+    #[test]
+    fn dispatch_runs_the_after_reply_effects_before_it_returns() {
+        let ran = Arc::new(Mutex::new(vec![]));
+        let mut reg = Registry::new();
+        let r = ran.clone();
+        reg.add("twice", Exposure::Window, move |_, call| {
+            for n in [1, 2] {
+                let r = r.clone();
+                call.after_reply(move || crate::lock(&r).push(n));
+            }
+            assert!(crate::lock(&r).is_empty(), "nothing runs before the reply");
+            Ok(json!("done"))
+        });
+        assert_eq!(reg.dispatch(&Request::new("twice"), &|_| {}), Ok(json!("done")));
+        assert_eq!(*crate::lock(&ran), vec![1, 2]);
     }
 
     /// Opened once, wakes every waiter.

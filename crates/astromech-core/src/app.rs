@@ -923,9 +923,15 @@ impl Core {
             c.notify();
             Done::empty()
         });
-        add::<(), _>(&mut reg, self, &["quit"], Local, |c, _| {
-            let _ = c.ui.lock().recover().send(Ui::Quit);
-            Done::empty()
+        // Quit once the reply is written: the UI thread's teardown ends the process, which would
+        // cut off a reply still being sent.
+        let c = self.clone();
+        reg.add_request::<(), Done<Nothing>>("quit", Local, move |_, call| {
+            let ui = c.ui.lock().recover().clone();
+            call.after_reply(move || {
+                let _ = ui.send(Ui::Quit);
+            });
+            Ok(Done::empty())
         });
         add::<(), _>(&mut reg, self, &["check_update"], Window, |c, _| {
             c.check_update_in_background();
