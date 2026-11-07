@@ -627,6 +627,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - The `windows-sys` 0.61.2 source contains `RegisterRawInputDevices`, `GetRawInputData`, `GetRawInputDeviceInfoW`, `HidP_GetCaps`, `HidP_GetButtonCaps`, `HidP_GetUsages`, `XInputGetState` and `RIDEV_INPUTSINK = 0x100`.
 - **Thread and window:** a dedicated thread owns a hidden window that receives `WM_INPUT` and `WM_INPUT_DEVICE_CHANGE` (`RIDEV_DEVNOTIFY` for hot-plug).
   - ⚠ UNVERIFIED whether a message-only window (`HWND_MESSAGE`) receives background raw input. The fallback is a never-shown top-level window.
+- **One source per process** (`listen::source`, astromech-7i2k): Windows keeps only the last `RegisterRawInputDevices` call per device class in a process, so a second registration takes `WM_INPUT` away from the first, tao's own keyboard and mouse registration when Tauri builds its event loop included (spike astromech-wgtr). So one hidden window, one registration and one XInput poller start on the first `subscribe()` and run for the life of the process. Each listener (push-to-talk and the kill switch, `--listen`, the window's press listener) subscribes and gets every Device and Sample message on its own unbounded channel, after a Device message for each device already seen; a slow or dropped subscriber never blocks the others. `restart()` registers again, for after Tauri's `build`.
 - **Registered top-level collections** (usage page 0x01):
   - keyboard (0x06), mouse (0x02), joystick (0x04), gamepad (0x05), multi-axis controller (0x08).
 - **Decoding:**

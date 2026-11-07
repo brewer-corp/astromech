@@ -25,6 +25,13 @@ What it does, in the order a new player would:
    core is not running", or args the command or the shell's proxy refused. Then the star map is
    opened (`galaxy_systems`), and the core's log must name the installed `starmap.db` as its
    preload.
+7. The kill switch, with the window open and the session running: a tap of F8 (SendInput) must
+   turn it on in `status`, and a 1.2 s hold, past `controls.rearm_hold_ms` (1000 ms by
+   default), must re-arm it. Done once in the session from step 4, then again after the app is
+   quit with `--quit` (config kept), the mock game started first and the app started again in
+   the background, so the session's listener starts at app start before any window (as after a
+   crash restart or an update relaunch while Elite runs); a second start with `--route settings`
+   opens the window before the presses.
 Then the window and core are closed and the app uninstalled. The report lists each step's time
 and the total from the start of the install to the verified gear-down, against the 5 minute
 onboarding budget (docs/V1-DESIGN.md: install to working gear-down in under 5 minutes; the
@@ -59,6 +66,8 @@ CDP_PORT = 9223
 ELITE_TITLE = "Elite - Dangerous (CLIENT)"
 # Set-1 scan codes: the binds press Key_L for the gear; the wizard binds F7 and F8.
 SCAN_L, SCAN_F7, SCAN_F8 = 0x26, 0x41, 0x42
+# Longer than controls.rearm_hold_ms's default (1000 ms, crates/astromech-core/src/config.rs).
+REARM_HOLD_S = 1.2
 GEAR = 1 << 2
 
 BINDS = """<?xml version="1.0" encoding="UTF-8" ?>
@@ -276,6 +285,7 @@ def cleanup(inst: Path, procs: list) -> None:
     """Close what the run started and uninstall; a failure here doesn't hide the run's own error."""
     for p in procs:
         p.kill()
+    kill("astromech-shell.exe")  # a window the core opened (the restart step's second start)
     for cmd, timeout in (([str(inst / "astromech-core.exe"), "--quit"], 30), ([str(inst / "uninstall.exe"), "/S"], 120)):
         try:
             subprocess.run(cmd, timeout=timeout)
@@ -326,8 +336,8 @@ def drive(a, run: Run, inst: Path, journal: Path, procs: list) -> None:
     # The game starts.
     game = Path(tempfile.mkdtemp(prefix="mock-elite-")) / "EliteDangerous64.exe"
     shutil.copy(a.mock, game)
-    procs.append(subprocess.Popen([str(game), str(journal), f"{SCAN_L:x}", "0", str(GEAR), "0-1000", "600",
-                                   str(a.mock_drop)]))
+    mock = start_mock(a, game, journal)
+    procs.append(mock)
     wait_core(lambda s: s.get("active") is True, "the core's session (game detected)", 30)
     run.step("game detected, session running")
 
@@ -350,8 +360,71 @@ def drive(a, run: Run, inst: Path, journal: Path, procs: list) -> None:
     if "down scan=26" not in keys or not flags & GEAR:
         raise RuntimeError("the mock didn't get the gear key, or its gear flag isn't set")
 
+    kill_switch(run, "session started after the app")
     visit_pages(page, run)
     star_map_preload(inst, run)
+    restart_with_game_running(a, run, inst, game, journal, procs, shell=procs[0], mock=mock)
+
+
+def start_mock(a, game: Path, journal: Path) -> subprocess.Popen:
+    """The mock game as EliteDangerous64.exe: the gear on Key_L, writing into `journal`."""
+    return subprocess.Popen([str(game), str(journal), f"{SCAN_L:x}", "0", str(GEAR), "0-1000", "600",
+                             str(a.mock_drop)])
+
+
+def kill_switch(run: Run, when: str) -> None:
+    """Tap the bound kill switch (F8): on. Hold it past the re-arm hold: re-armed. Read from the
+    core's `status`, so it's the core's own listener that saw the presses."""
+    wait_core(lambda s: s.get("killed") is False, f"the kill switch armed ({when})", 10)
+    tap(SCAN_F8)
+    wait_core(lambda s: s.get("killed") is True, f"the kill switch on after a tap of F8 ({when})", 10)
+    send(0, SCAN_F8, False)
+    time.sleep(REARM_HOLD_S)
+    send(0, SCAN_F8, True)
+    wait_core(lambda s: s.get("killed") is False, f"the kill switch re-armed by a {REARM_HOLD_S} s hold ({when})", 10)
+    run.step(f"kill switch: a tap of F8 killed, a {REARM_HOLD_S} s hold re-armed ({when})")
+
+
+def shell_running() -> bool:
+    out = subprocess.run(["tasklist", "/FI", "IMAGENAME eq astromech-shell.exe", "/NH"],
+                         capture_output=True, text=True).stdout
+    return "astromech-shell.exe" in out.lower()
+
+
+def restart_with_game_running(a, run: Run, inst: Path, game: Path, journal: Path, procs: list,
+                              shell: subprocess.Popen, mock: subprocess.Popen) -> None:
+    """Quit (config kept), start the mock game, then the app: its session, and so its input
+    listener, starts at app start, before any window. Open the window by a second start, then
+    check the kill switch again."""
+    core = str(inst / "astromech-core.exe")
+    # Close the window first, so its watchdog can't start the core again while it quits.
+    shell.kill()
+    shell.wait(10)
+    subprocess.run([core, "--quit"], timeout=30)
+    endpoint = Path(os.environ["LOCALAPPDATA"]) / "astromech" / "data" / "core.json"
+    end = time.time() + 30
+    while endpoint.exists():  # a clean quit removes it
+        if time.time() > end:
+            raise RuntimeError("astromech-core --quit didn't stop the core")
+        time.sleep(0.25)
+    mock.kill()
+    mock.wait(10)
+    run.step("app quit, mock game closed")
+
+    procs.append(start_mock(a, game, journal))
+    time.sleep(1)
+    procs.append(subprocess.Popen([core, "--background"]))
+    wait_core(lambda s: s.get("active") is True, "the session at app start (game already running)", 30)
+    run.step("mock game started, then the app in the background: session running")
+    subprocess.run([core, "--route", "settings"], timeout=30)
+    end = time.time() + 30
+    while not shell_running():
+        if time.time() > end:
+            raise RuntimeError("a second start with --route settings opened no app window")
+        time.sleep(0.25)
+    time.sleep(3)  # the window's page loading, as a player would open it
+    run.step("window opened by a second start (--route settings)")
+    kill_switch(run, "game running before the app")
 
 
 def module_ids() -> list[str]:

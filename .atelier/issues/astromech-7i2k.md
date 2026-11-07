@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "One Raw Input registration per process, shared by push-to-talk and the window's press listener"
-updated_at: "2026-11-07T14:49:44.490066253+00:00"
+updated_at: "2026-11-07T15:03:08.503386974+00:00"
 ---
 
 ## Goal
@@ -32,13 +32,13 @@ This child lands the shared source while there are still two processes, so astro
 
 ## Done when
 
-- [ ] `astromech-input::listen` has one per-process source of input. `subscribe()` returns a receiver of `Msg`, and every subscriber gets every Device and Sample message.
+- [x] `astromech-input::listen` has one per-process source of input. `subscribe()` returns a receiver of `Msg`, and every subscriber gets every Device and Sample message.
   - It starts Raw Input and XInput once, with one hidden window and one registration, when it is first subscribed.
   - Its lifetime is as today: once started it runs for the life of the process, as session.rs's `bus` keeps the controls listener now (a `OnceLock`; sessions attach and detach).
   - A subscriber that falls behind or is dropped never blocks the others.
   - It has a `restart()` that registers again. astromech-v3u4 calls it once after Tauri's `build`. On Windows it is called from tests only.
-- [ ] `controls::start` (called by session.rs's `bus`), `--listen` (main.rs:423-461) and the shell's `start_input` subscribe instead of calling `rawinput::start` and `xinput::start` themselves. session.rs's `bus` keeps its attach and detach behaviour. The device list given to a new subscriber matches today's: `list_devices()` first, then the Device messages.
-- [ ] Platform-neutral unit tests drive the fan-out through a fake source:
+- [x] `controls::start` (called by session.rs's `bus`), `--listen` (main.rs:423-461) and the shell's `start_input` subscribe instead of calling `rawinput::start` and `xinput::start` themselves. session.rs's `bus` keeps its attach and detach behaviour. The device list given to a new subscriber matches today's: `list_devices()` first, then the Device messages.
+- [x] Platform-neutral unit tests drive the fan-out through a fake source:
   - two subscribers each see the same samples in order;
   - dropping one leaves the other receiving;
   - the source starts once, on the first subscribe.
@@ -64,3 +64,34 @@ ARCHITECTURE §5.10a. The `Processor` and `Mapper` consumers stay as they are. O
 ## Notes
 
 - 2026-11-07 [note] From spike astromech-wgtr (evidence astromech-t55z, astromech-mb4f): start the shared Raw Input source after Builder::build, never before. With astromech's listener started before build, it saw none of the keys sent at start, after the window opened, after it closed and after tray churn: tao registers keyboard and mouse to its own hidden window when it builds the loop, and the process keeps only the last registration per device class. Started after build, it saw every key at 8 points, including after each of 5 window closes and after 50 tray-menu rebuilds. Nothing re-registers when a window opens or closes; only Tauri's set_device_event_filter (run once inside build) would, so the app must not call it later.
+- 2026-11-07 [decision] subscribe() returns a Subscription { rx: Receiver<Msg>, epoch, status }: the receiver plus the source's time base and its status line
+  Reason: Every sample's t_ms counts from the source's start, and Mapper and Processor compare it with epoch.elapsed() (debounce, tick), so each subscriber must use the source's Instant, not its own; controls::start still returns the Raw Input/XInput status line, which only the first start knows
+  Rejected: A bare Receiver<Msg> with separate epoch()/status() calls: they would start the source too, or depend on call order
+- 2026-11-07 [decision] Unbounded per-subscriber channels, and the source remembers each device it has announced and replays a Device message for each to a new subscriber before live messages
+  Reason: An unbounded send never waits, so a slow subscriber holds nobody up and none loses a key-up (a bounded channel would drop presses from a slow one, e.g. a kill-switch release). The replay keeps what a late subscriber knows the same as with its own listener: a stick's Device message names its Elite ID, and the window joining after the session's listener (astromech-v3u4) would otherwise never see it again
+  Rejected: Bounded channels with try_send (drops input)
+- 2026-11-07 [decision] rawinput::start keeps its signature and stays public; the source uses a new rawinput::start_sink that also returns the hidden window (Sink) for restart. restart() sends the window WM_APP+1 so it registers again on its own thread
+  Reason: spikes/o1-one-process (excluded from the workspace, built by one-process.yml) calls rawinput::start to probe registrations directly; SendMessageW returns the registration's result synchronously
+
+## Report
+
+The process's one input source is `astromech_input::listen::source` (crates/astromech-input/src/listen/source.rs): a platform-neutral `Hub` over a `Backend` (Raw Input plus XInput on Windows, a fake in tests), with a fan-out thread that sends every Device and Sample message to each subscriber's own channel. On Windows the free functions `subscribe()` and `restart()` use one `OnceLock` hub. `controls::start` (through session.rs's `bus`, unchanged), `--listen` and the shell's `start_input` subscribe; each still calls `list_devices()` first. The kill-switch step is in scripts/onboarding_smoke.py (`kill_switch`, `restart_with_game_running`), and the Windows-only `#[ignore]` test is crates/astromech-input/tests/source_sendinput.rs, run best effort by a new step in ci.yml's Windows job. Lines 4-6 of Done when wait on Windows CI (the PR's CI and Release runs); nothing here has run on Windows yet.
+
+### Deviations
+
+- `subscribe()` returns a `Subscription` whose `rx` is the receiver, with the source's `epoch` and `status` beside it (decision note).
+- The `#[ignore]` test also takes the keyboard away with a second registration in the test process (as tao's does) and asserts the key is lost before `restart()`, so the after-restart check shows `restart()` re-registering, not a registration that never moved.
+- In the smoke's second run the script closes the first window before `--quit`, so the window's watchdog can't start the core again, and waits up to 30 s for core.json to go rather than trusting `--quit`'s 5 s exit code. It checks the window opened by the second start as the astromech-shell.exe process running.
+
+### Decisions
+
+See the three decision notes of 2026-11-07: the `Subscription` shape and shared time base; unbounded channels with device replay for late subscribers; `rawinput::start` kept for the o1 spike, with `start_sink` and a WM_APP message for `restart()`.
+
+### Surprises
+
+Each listener used its own `Instant` as the samples' time base, which Mapper's debounce and tick compare with; shared samples need the source's one epoch, so subscribers take it from the subscription.
+
+### Open items
+
+- Unverified on Windows: the ignored test, the kill-switch smoke runs and Windows CI's clippy/tests/shell build (Windows clippy passed locally against x86_64-pc-windows-msvc with stub C tools).
+- The fan-out adds one channel hop between the Raw Input thread and the controls thread (microseconds, not measured). The XInput poller no longer stops when its only listener's thread ends (the hub keeps its channel open); it never did in practice, since the controls thread runs for the process.
