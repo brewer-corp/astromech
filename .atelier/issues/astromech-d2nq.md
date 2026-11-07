@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Headless world mode: astromech-core --world, fakes for the assembly's boundaries, observations"
-updated_at: "2026-11-07T11:57:01.794229152+00:00"
+updated_at: "2026-11-07T12:59:46.293918836+00:00"
 ---
 
 ## Goal
@@ -52,3 +52,7 @@ The flag, the world directory loader (seed folders and config; steps come with t
 ## Context
 
 The assembly API comes from the assembly child. On Linux `ui_loop` already runs without a tray (app.rs:1685-1698). The journal folder falls back to `%USERPROFILE%` (astromech-store/src/paths.rs:150-160), hence USERPROFILE in the empty-folder test. The flag moves to the one executable in astromech-y6d6.
+
+## Notes
+
+- 2026-11-07 [note] From finding astromech-gmop (7149 review): fix assemble's half-edited doc comment (app.rs:1580-1582) and save_diagnostics' stale 'with no opener seam' reason (every_window_command.rs:186-188) in this child's commits.

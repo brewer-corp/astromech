@@ -18,6 +18,7 @@ use anyhow::{Context, Result};
 use astromech_input::exec::keys::ScanKey;
 use astromech_input::exec::platform::{IntegrityReport, Platform};
 use astromech_policy::Policy;
+use astromech_store::Paths;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
@@ -125,15 +126,18 @@ impl Session {
     /// `route` is the core's route follower; the session's callout rule moves it on as the
     /// commander jumps. `api` is the command layer's state: its one remote-data client and its
     /// star map serve the voice lookups too, so they share one rate limit and cache with the
-    /// window's.
+    /// window's. `paths` places the folders the config doesn't name, and `notifier` shows the
+    /// callouts' notifications (one at a time, behind [`callouts::Background`]).
     pub fn start(
         cfg: &Config,
+        paths: &Paths,
         opts: &Opts,
         route: Arc<crate::route::Desk>,
         api: &astromech_api::State,
+        notifier: Arc<dyn callouts::Notifier>,
     ) -> Result<Session> {
         let args = opts;
-        let data = cfg.data_dir();
+        let data = cfg.data_dir(paths);
         std::fs::create_dir_all(&data).with_context(|| format!("creating {}", data.display()))?;
         // Open the star map now, off the speech thread (it can seed from the preload), so the
         // voice lookups find it open (`Runner::stars_now`).
@@ -166,7 +170,7 @@ impl Session {
 
         // 2. Game state pipeline, feeding the callouts (spoken once the speaker exists, step 3).
         let hub = Arc::new(StateHub::new());
-        let jdir = cfg.journal_dir().context("can't find the journal folder; set game.journal_dir")?;
+        let jdir = cfg.journal_dir(paths).context("can't find the journal folder; set game.journal_dir")?;
         let shared = callouts::shared_from_store(&data, &|m: &str| log(m));
         shared.visits.set(Arc::new(crate::visits::HistoryVisits::new(data.join(crate::history::DB_FILE))));
         // The process's one remote-data client: the known-biology and bodies-known callouts look
@@ -187,7 +191,10 @@ impl Session {
         let deliver = Box::new(callouts::router(
             pending.clone(),
             toasts.clone(),
-            callouts::default_notifier().context("starting the notification thread")?,
+            Arc::new(
+                callouts::Background::start(notifier, callouts::NOTIFY_GAP)
+                    .context("starting the notification thread")?,
+            ),
         ));
         let eddn = crate::pipeline::eddn_feed(cfg, &data);
         let pipe = crate::pipeline::start_with_eddn(
@@ -209,8 +216,8 @@ impl Session {
         ));
 
         // 3. Voice.
-        let worker = cfg.worker_exe();
-        let models = cfg.models_dir();
+        let worker = cfg.worker_exe(paths);
+        let models = cfg.models_dir(paths);
         let voice_ok = !args.no_voice && worker.is_file();
         if !args.no_voice {
             use astromech_voice::models;
@@ -348,13 +355,21 @@ impl Session {
     }
 
     /// Start push-to-talk, the kill switch and the microphone (Windows only).
-    pub fn start_buttons(&mut self, cfg: &Config, opts: &Opts) -> Result<()> {
+    pub fn start_buttons(&mut self, cfg: &Config, paths: &Paths, opts: &Opts) -> Result<()> {
         let stt = self.stt.take();
         #[cfg(windows)]
-        start_voice(cfg, self.assistant.clone(), self.runner.clone(), stt, opts.debug_input, self.stop.clone())?;
+        start_voice(
+            cfg,
+            &cfg.data_dir(paths),
+            self.assistant.clone(),
+            self.runner.clone(),
+            stt,
+            opts.debug_input,
+            self.stop.clone(),
+        )?;
         #[cfg(not(windows))]
         {
-            let _ = (cfg, opts);
+            let _ = (cfg, paths, opts);
             drop(stt);
             log("push-to-talk and the kill switch need Windows; type commands instead");
         }
@@ -390,6 +405,7 @@ fn write_sidecar(path: &std::path::Path, meta: &serde_json::Value, transcript: &
 #[cfg(windows)]
 fn start_voice(
     cfg: &Config,
+    data: &Path,
     assistant: Arc<Assistant>,
     runner: Arc<Runner>,
     stt: Option<Box<dyn Stt>>,
@@ -488,7 +504,7 @@ fn start_voice(
     let min_hold = cfg.voice.min_hold_ms;
     let mut min_level = cfg.voice.min_level_dbfs;
     if let Some(m) = &mic {
-        if let Ok(st) = astromech_store::Store::open(&cfg.data_dir().join("astromech.sqlite")) {
+        if let Ok(st) = astromech_store::Store::open(&data.join("astromech.sqlite")) {
             if let Some(n) = crate::calibration::stored_gate(&st, &m.device_name()) {
                 log(&format!("microphone: using calibrated min_level_dbfs {n:.0} for {}", m.device_name()));
                 min_level = n;
@@ -496,7 +512,7 @@ fn start_voice(
         }
     }
     let save_clips = cfg.voice.save_clips;
-    let clips_dir = cfg.data_dir().join("clips");
+    let clips_dir = data.join("clips");
     if save_clips {
         let _ = std::fs::create_dir_all(&clips_dir);
         log(&format!("debug: saving PTT clips under {}", clips_dir.display()));

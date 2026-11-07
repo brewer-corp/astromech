@@ -11,8 +11,6 @@ relationships:
   - kind: "issue"
     id: "astromech-1hh9"
   - kind: "issue"
-    id: "astromech-7149"
-  - kind: "issue"
     id: "astromech-d2nq"
   - kind: "issue"
     id: "astromech-gllh"
@@ -38,7 +36,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "A scripted world for the real core: headless mode, clock, game folder, recorded network"
-updated_at: "2026-11-07T11:57:02.049342385+00:00"
+updated_at: "2026-11-07T13:00:15.854454375+00:00"
 ---
 
 ## Goal
@@ -80,3 +78,4 @@ The Unknowns are resolved in the children. Which Windows-only parts lacked Linux
 ## Notes
 
 - 2026-11-07 [note] From finding astromech-nq3c (ro7a review): the command-list test's example args are not checked against their arg types, and no arg struct uses deny_unknown_fields, so for all-optional structs (set_folders, set_voice, set_edsm, set_callout's options, binds_set_override's joy) a misspelt field parses to None and answers ok as a no-op; Want::Ok reads only the envelope. When this increment runs the test for real, read back one effect per setter, or round-trip each example through its arg type.
+- 2026-11-07 [note] From finding astromech-cq1w (7149 review): astromech-7149's Windows-only changes (start_voice's data parameter, tray.rs core.opener.reveal, RunKey's private get/set, WindowsNotifier per session) have only been read, not compiled. Before vucf merges, its PR's Windows CI (test and clippy on windows-latest) must pass, then tick 7149's Done when 3.

@@ -4,7 +4,7 @@
     "cmd": "status",
     "reply": {
       "active": false,
-      "app_dir": "<dir>",
+      "app_dir": "<dir>/local/astromech/data",
       "autostart": "<masked>",
       "config": "<dir>/astromech.toml",
       "config_note": null,
@@ -41,7 +41,7 @@
         "status": "idle"
       },
       "version": "<masked>",
-      "voice": "",
+      "voice": "voice not loaded",
       "voice_paused": false
     },
     "text": null

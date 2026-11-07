@@ -171,7 +171,8 @@ impl Drop for Busy<'_> {
 /// Opens a URL in the browser or a folder in the file manager (explorer.exe on Windows).
 pub type Opener = Box<dyn Fn(&str) -> Result<(), String> + Send + Sync>;
 
-fn open_with_the_system(target: &str) -> Result<(), String> {
+/// The system's [`Opener`]: the default handler for `target`.
+pub fn open_with_the_system(target: &str) -> Result<(), String> {
     #[cfg(windows)]
     let r = std::process::Command::new("explorer.exe").arg(target).spawn();
     #[cfg(not(windows))]

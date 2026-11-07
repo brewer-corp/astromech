@@ -380,10 +380,11 @@ impl Desk {
         Self { path, state: Mutex::new((saved, None)), clip }
     }
 
-    /// The real one: `<data>/route.json` and the Windows clipboard.
-    pub fn in_dir(data: &std::path::Path) -> Self {
+    /// The core's one: `<data>/route.json`, copying with `clip` (the installed app's is the
+    /// Windows clipboard, [`crate::clipboard::set_text`]).
+    pub fn in_dir(data: &std::path::Path, clip: Clip) -> Self {
         let _ = std::fs::create_dir_all(data);
-        Self::open(Some(data.join("route.json")), Box::new(crate::clipboard::set_text))
+        Self::open(Some(data.join("route.json")), clip)
     }
 
     fn save(&self, s: &Saved) {
