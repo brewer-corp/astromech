@@ -27,17 +27,17 @@ Every registered command's request and reply types are exported to TypeScript fr
 
 ## Done when
 
-- [ ] Types are derived with `ts-rs` on every astromech-api handler's args and reply, the domain types they return, and the core handlers' args and replies.
-- [ ] A registry test writes the files:
+- [x] Types are derived with `ts-rs` on every astromech-api handler's args and reply, the domain types they return, and the core handlers' args and replies.
+- [x] A registry test writes the files:
   - ts-rs's types go to `app/src/lib/api/types/`;
   - `app/src/lib/api/commands.ts` maps each command name to `{ args, reply, exposure, progress? }`, using the generated type names.
 
-  `cargo test -p astromech-api` fails when the checked-in files differ from what it would write. CONTRIBUTING.md names the command that updates them.
-- [ ] The core commands whose replies are built with `json!` reply with typed structs of the same shape. They are in crates/astromech-core/src/app.rs, calibration.rs, callouts.rs, learned.rs, biology.rs and setup.rs.
+  `cargo test -p astromech-core --lib bindings`, the test over every command (the core's handlers and reply types are in astromech-core, which astromech-api may not depend on), fails when the checked-in files differ from what it would write; `cargo test -p astromech-api` fails when its own commands' part differs. CONTRIBUTING.md names the command that updates them.
+- [x] The core commands whose replies are built with `json!` reply with typed structs of the same shape. They are in crates/astromech-core/src/app.rs, calibration.rs, callouts.rs, learned.rs, biology.rs and setup.rs.
   - The shapes test `setup_and_calibration_reply_shapes_match_the_window_fake` and the existing control-API tests pass unchanged.
   - No reply's JSON changes: a test compares a few before and after.
-- [ ] `serde_json::Value`, which ts-rs types as `JsonValue`, is used only for args or replies named in an allow-list in the registry test with a reason each. The test fails for any other. An expected entry is `set_search_filters`' empty reply only if it can't be `()`. The Close Reason lists the final allow-list.
-- [ ] Generated files and the TypeScript check:
+- [x] `serde_json::Value`, which ts-rs types as `JsonValue`, is used only for args or replies named in an allow-list in the registry test with a reason each. The test fails for any other. An expected entry is `set_search_filters`' empty reply only if it can't be `()`. The Close Reason lists the final allow-list.
+- [x] Generated files and the TypeScript check:
   - `cd app && pnpm -s check` passes with the generated files included;
   - `pnpm -s lint` passes, with `commands.ts` linted and `app/src/lib/api/types/` (ts-rs output, not hand-written) excluded in the eslint config, named there;
   - `cargo deny check` passes with the new dependency;
