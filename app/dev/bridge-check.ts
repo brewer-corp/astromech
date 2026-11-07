@@ -14,7 +14,9 @@ import { ROOT, startWorld } from "./core.ts";
 
 const world = join(ROOT, "worlds", "minimal");
 process.env.ASTROMECH_WORLD = world;
-const server = await createServer({ configFile: join(ROOT, "app", "vite.config.ts"), server: { port: 0, strictPort: false }, logLevel: "error" });
+// On 127.0.0.1, where the check calls it: left to Vite, the server listens on what `localhost`
+// resolves to first, ::1 on GitHub's runners. Vite takes no port 0, so a busy 5173 moves it on.
+const server = await createServer({ configFile: join(ROOT, "app", "vite.config.ts"), server: { host: "127.0.0.1", strictPort: false }, logLevel: "error" });
 await server.listen();
 const own = await startWorld(world, { stderr: "ignore" });
 let failed = false;
