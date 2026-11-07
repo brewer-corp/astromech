@@ -26,7 +26,7 @@ updated_at: "2026-11-07T22:12:26.144400043+00:00"
 
 ## Done when
 
-- [ ] webview_cost.py takes `--app <astromech-core(.exe)>` and, in a scratch profile, measures the following. A WebView2 process belongs to the app as in the probe: it is a descendant, or its command line has `--webview-exe-name=<app exe>` or names the profile's `EBWebView` folder. So an orphaned renderer still counts, and today's `tree()` (webview_cost.py:105-123), which follows descent only, is replaced.
+- [x] webview_cost.py takes `--app <astromech-core(.exe)>` and, in a scratch profile, measures the following. A WebView2 process belongs to the app as in the probe: it is a descendant, or its command line has `--webview-exe-name=<app exe>` or names the profile's `EBWebView` folder. So an orphaned renderer still counts, and today's `tree()` (webview_cost.py:105-123), which follows descent only, is replaced.
   - **Windowless:** started with `--background`, then left to settle. It records the app's private working set and CPU over the idle stretch, and that no WebView2 process belongs to it.
   - **Open:** a second start with `--route keybinds`. It records the group's private working set and CPU idle on that page, then over page changes (`PAGES`, as now), and the page changes each reach the window.
   - **Closed again:** `WM_CLOSE` to the window. It records the time until no WebView2 process belonging to the app is left, and the app's private working set after 30 s. This runs over 5 cycles, and the report shows each cycle's numbers so a leak would show.
@@ -42,14 +42,14 @@ updated_at: "2026-11-07T22:12:26.144400043+00:00"
   Memory rows are reported with no pass mark, and `IDLE_MB_MAX` goes.
 
   scripts/test_webview_cost.py covers `judge` and the report for passing and failing runs, including a WebView2 process left after a close.
-- [ ] webview-cost.yml builds the one app and runs the harness: Windows gates and Linux reports, as now. It runs on PRs that touch app/src-tauri/**, the app, crates/astromech-core/src/{app,tray,cli}.rs or the harness. Its header comment describes the one process.
+- [x] webview-cost.yml builds the one app and runs the harness: Windows gates and Linux reports, as now. It runs on PRs that touch app/src-tauri/**, the app, crates/astromech-core/src/{app,tray,cli}.rs or the harness. Its header comment describes the one process.
 - [x] scripts/one_process_probe.py is reduced to its restart mode, which astromech-dl53's job uses, and its other checks move into webview_cost.py. .github/workflows/one-process.yml is deleted.
   - The Release workflow's probe step from astromech-v3u4 runs `webview_cost.py --checks-only`, or keeps a short probe; it doesn't keep two drivers.
   - `spikes/o1-one-process/` stays, as spikes do, with its row in spikes/README.md naming what it answered.
 - [x] ARCHITECTURE §18.1's S11 text says memory is reported (astromech-01ft), and the rest of S11 is measured by this harness.
 - [x] docs/diagrams/08-app-processes.mmd shows one app process and its speech worker. Its PNG is re-rendered, or, if the renderer can't run here, marked stale in §18.1 with a follow-up item.
 - [x] A last search of docs/ and docs/guide for `astromech-shell` and "background process" finds only history and the forwarder's note. `python3 scripts/check-guide.py` passes.
-- [ ] The App window cost workflow passes on the PR on Windows, and its job summary is linked in an evidence receipt on astromech-y6d6, for success criterion one-process.
+- [x] The App window cost workflow passes on the PR on Windows, and its job summary is linked in an evidence receipt on astromech-y6d6, for success criterion one-process.
 
 ## Scope
 
@@ -83,18 +83,25 @@ scripts/webview_cost.py, scripts/test_webview_cost.py, .github/workflows/webview
 
 ## Report
 
-Implementer report (agent-factory implement). Committed on astromech-y6d6; not yet run on Windows CI.
+Implementer report (agent-factory implement). Committed on astromech-y6d6: 9da11270, the review fixes 55668f02 (findings zocz, 9nze, m6f9; approved in astromech-swnq). PR #218 passed all 9 checks at 55668f02 (evidence astromech-2v5n).
 
-Outcome against Done when: lines 2, 4, 5, 6 and 7 hold and are ticked; lines 1, 3 and 8 wait on Windows CI (App window cost on PR #218). `scripts/webview_cost.py` now runs the one app in a scratch profile windowless (`--background`), open (a second start with `--route keybinds`, idle, then page changes), closed again over 5 WM_CLOSE cycles (WebView2 gone time, the app's private working set 30 s after each close), through a renderer and a browser-process kill, and to quit, plus cold start (the median of the five window opens in the running app, and with the app not running). WebView2 ownership is the probe's rule (`webview_owner`: descent, `--webview-exe-name`, the `EBWebView` folder), replacing `tree()`. `judge` gates: no WebView2 and one app process windowless; the open; page changes; no WebView2 within 15 s of each close; the app and its control API alive after each close and crash; each crashed window recovered in place and its close passing (finding k6f1); quit; cold start < 2 s; idle CPU <= 1% windowless and open. A tray built with no rectangle at every reading is DEGRADED, not a pass (k6f1); one that had a rectangle and loses it fails (m6f9). Each cycle's reopen must exit 0 and load, and quit must start from the window open (zocz). Memory rows are `reported`, against the spike's baseline, and `IDLE_MB_MAX` is gone. `scripts/one_process_probe.py` keeps only `--restart` (380 lines, from 929); `.github/workflows/one-process.yml` is deleted; Release's probe step runs `webview_cost.py --checks-only` on the installed app. webview-cost.yml's header describes the one process, and its paths add the harness test and app.rs, tray.rs and cli.rs. ARCHITECTURE §18.1 (and §14's S11 row) say memory is reported (01ft) and what the harness measures; the 08-app-processes diagram shows one app process, its WebView2 while the window is open and the speech worker, re-rendered.
+Outcome against Done when: every line holds and is ticked. Lines 2, 4, 5, 6 and 7 by the local proof below; lines 1, 3 and 8 by Windows CI on PR #218 at 55668f02, recorded in evidence astromech-2v5n, which targets this item and astromech-y6d6 and judges success criterion one-process as pass. `scripts/webview_cost.py` now runs the one app in a scratch profile windowless (`--background`), open (a second start with `--route keybinds`, idle, then page changes), closed again over 5 WM_CLOSE cycles (WebView2 gone time, the app's private working set 30 s after each close), through a renderer and a browser-process kill, and to quit, plus cold start (the median of the five window opens in the running app, and with the app not running). WebView2 ownership is the probe's rule (`webview_owner`: descent, `--webview-exe-name`, the `EBWebView` folder), replacing `tree()`. `judge` gates: no WebView2 and one app process windowless; the open; page changes; no WebView2 within 15 s of each close; the app and its control API alive after each close and crash; each crashed window recovered in place and its close passing (finding k6f1); quit; cold start < 2 s; idle CPU <= 1% windowless and open. A tray built with no rectangle at every reading is DEGRADED, not a pass (k6f1); one that had a rectangle and loses it fails (m6f9). Each cycle's reopen must exit 0 and load, and quit must start from the window open (zocz). Memory rows are `reported`, against the spike's baseline, and `IDLE_MB_MAX` is gone. `scripts/one_process_probe.py` keeps only `--restart` (380 lines, from 929); `.github/workflows/one-process.yml` is deleted; Release's probe step runs `webview_cost.py --checks-only` on the installed app. webview-cost.yml's header describes the one process, and its paths add the harness test and app.rs, tray.rs and cli.rs. ARCHITECTURE §18.1 (and §14's S11 row) say memory is reported (01ft) and what the harness measures; the 08-app-processes diagram shows one app process, its WebView2 while the window is open and the speech worker, re-rendered.
+
+Proof (Windows CI, PR #218 at 55668f02; evidence astromech-2v5n; the reports and logs were read):
+- App window cost run 42419543386, job 'WebView2 (Windows)' (line 1, 3 and 8): harness tests 28 OK, then every gate PASS. Windowless: 1 app process, no WebView2. Open: 0.616 s, 6 WebView2 processes. Page changes: 8 of 8. Closes 1-5: reopens at 0.58-0.60 s, WebView2 gone after 2.25, 1.09, 1.09, 1.09 and 1.09 s, 1 app process after each. App alive after every close and both crashes. Renderer kill: 'window: reloading the page'. Browser kill: 'window: rebuilt at keybinds'. Both recovered and closed in 1.09 s. Quit from the open window: exit 0, none left. Cold start: median 0.6 s over 5 opens, 0.626 s not running. Idle CPU: 0.37% windowless, 0.45% open. Tray: rect at all 8 readings.
+- Memory, reported: windowless 7.2 MB (spike 3.3-3.5); open 150.3 MB mean, 151.6 max, 7 processes (spike 124.1); 30 s after closes 1-5: 13.1, 11.5, 11.3, 11.4, 10.8 MB (spike 9.6 to 7.7).
+- The same run's 'WebKitGTK (Linux)' job reports only: the Windows-only rows are `not run`, the tray is DEGRADED (no notification area under xvfb), the rest pass; windowless 43.4 MB, open 250.1 MB.
+- Release build run 42419543337, step 'one-process checks (installed app)': `--checks-only` on the installed app passed every check gate, WebView2 gone 1.05-1.06 s after each close.
+- The app logs show only the two expected ProcessFailed lines. The job logs have no errors beyond Node deprecation warnings.
 
 Proof (Linux, after the last change):
 - `python3 scripts/test_webview_cost.py`: 28 tests OK (24, then 4 more for the review's findings zocz and m6f9: each reopen must load, quit needs the window open, 5 cold-start samples on Windows, a tray that loses its rectangle fails), covering judge and the report for passing and failing runs, including a WebView2 process left after a close (`test_a_webview2_process_left_after_a_close_fails`), the crashed window's close (`test_a_crashed_windows_close_must_pass`), the tray fallback (`test_the_tray_fallback_is_degraded_not_a_pass`), memory with no pass mark, `--checks-only` and Linux's not-run rows, and the ownership rule (an orphaned renderer counts). Four mutations of webview_cost.py (the 15 s bound, the tray verdict, the crash close, the windowless WebView2 check) each made the suite fail.
 - py_compile and pyflakes (offline uv cache) clean on webview_cost.py, its test and one_process_probe.py; the probe refuses to run without `--restart`.
 - actionlint 1.7.12 on webview-cost.yml and release.yml: clean; both parse as YAML.
-- A live `--checks-only` run against the headless debug build (no `window` feature, so no window or tray), with HOME and the profile in scratch: launch, the control API, `ui_state`, sampling, quit, the log copy and the report all ran; windowless and quit PASS, open and tray FAIL as expected without a window, the Windows-only rows `not run`; no process was left.
+- A live `--checks-only` run against the headless debug build (no `window` feature, so no window or tray), at 9da11270 with HOME and the profile in scratch. Launch, the control API, `ui_state`, sampling, quit, the log copy and the report all ran, and no process was left. Windowless passed. Open and tray failed, as expected with no window, and the Windows-only rows were `not run`. Quit passed then, but only because the quit gate didn't yet need the window open: since 55668f02 (finding zocz) it would fail on a build with no window. Not rerun after that change.
 - `python3 scripts/check-guide.py`: 22 pages, 0 problems. A search of docs/ for `astromech-shell` and "background process" finds only ARCHITECTURE's v0.x history, V1-DESIGN's forwarder notes and the diagram's forwarder label.
 - The diagram was rendered offline with mermaid 11.17.2 (a copy already on this host) in headless Chrome, at 2x, with docs/diagrams/mermaid-config.json; the image was checked by eye.
-- Not run here: the harness against a window build (no WebKitGTK dev files on this host) and anything on Windows.
+- Not run on this host: the harness against a window build (no WebKitGTK dev files here). Windows CI ran it (above).
 
 ### Deviations
 
@@ -103,9 +110,14 @@ Proof (Linux, after the last change):
 - On Linux the closes and crashes don't run and show `not run` (decision note).
 - Also changed, outside Scope: CONTRIBUTING (the Release step's description and an App window cost bullet), ARCHITECTURE §14's S11 exit criterion (it still said < 250 MB), and three comments in app.rs and host.rs that named the probe.
 
+### Surprises
+
+- The WebView2 gone time read 1.09 s on four closes and both crash closes, and 1.05-1.06 s in Release. That is probably polling granularity rather than WebView2 itself: a close is timed only after each scan of the process table, and these scans look to take about 0.5 s on the runner (inferred, not measured). Read the times as upper bounds; the 15 s gate is unaffected.
+- WebView2's crashpad-handler names the `EBWebView` folder but carries no `--webview-exe-name`, so the folder rule is what catches it if it is orphaned.
+
 ### Open items
 
-- Lines 1, 3 and 8: App window cost on PR #218 (Windows gates, Linux reports), then the evidence receipt on astromech-y6d6. The Release build also runs, since release.yml changed: its `one-process checks (installed app)` step.
-- Unverified until Windows CI: whether Tauri's EBWebView follows the scratch LOCALAPPDATA (both folders are matched, and `--webview-exe-name` covers it either way); the renderer and browser `--type` matching under the new ownership code; the 30 s after-close memory reading.
+- Small report wording, not filed: under `--checks-only` the 'memory 30 s after each close' row shows `None MB` marked `reported` where it should be `not run`, and Linux rows say "WebView2" for WebKitGTK.
 - Restart mode runs on no workflow now (finding bnrg; decision note): astromech-fmub by hand and astromech-dl53's job.
-- Independent review is outstanding.
+- Not covered here: frame time next to Elite (astromech-7ck3), a real tray click, and Raw Input (the onboarding smoke's kill-switch runs).
+- Review: 9da11270 had findings zocz (fix now), 9nze and m6f9, all fixed in 55668f02, which was re-reviewed and approved (astromech-swnq). This record and evidence commit is not yet reviewed.
