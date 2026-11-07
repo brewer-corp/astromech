@@ -7,7 +7,7 @@
 import type { CoreStatus } from "./api/types/CoreStatus";
 import type { Failed } from "./api/types/Failed";
 import type { Toast } from "./api/types/Toast";
-import { call, subscribe, type ArgList, type Reply, type WindowCommand } from "./transport";
+import { call, subscribe, type ArgList, type Args, type Reply, type WindowCommand } from "./transport";
 
 export type { Colour } from "./api/types/Colour";
 export type { CoreStatus } from "./api/types/CoreStatus";
@@ -26,6 +26,8 @@ export type { VoiceSettings } from "./api/types/VoiceSettings";
  * gives a failed call as the same reply.
  */
 export type CoreCmd = { [K in WindowCommand]: Reply<K> extends { ok: boolean } ? K : never }[WindowCommand];
+/** The core commands that take no args (`coreCall(cmd)` for any of them). */
+export type BareCoreCmd = { [K in CoreCmd]: [Args<K>] extends [null] ? K : never }[CoreCmd];
 
 /**
  * Toasts newer than `lastSeen`, and the new `lastSeen`. The first poll (`lastSeen` null) shows

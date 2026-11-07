@@ -18,7 +18,7 @@ schema_version: 2
 closed_at: "2026-11-07T10:35:15.431461811+00:00"
 status: "done"
 title: "Type the window's call() and the fake's handlers against the generated commands"
-updated_at: "2026-11-07T10:35:15.431461811+00:00"
+updated_at: "2026-11-07T10:46:11.304497464+00:00"
 ---
 
 ## Goal
@@ -41,6 +41,8 @@ app/src only. No Rust change unless a generated type is wrong. If so, fix it in 
 - 2026-11-07 [note] From astromech-se44's implementer: type-checking the preview fixtures against the generated types shows fields the real core always sends that the fixtures lack: nearby.json query.by_population; plot.json ship.fsd and waypoint jumps; stations*.json filters.max_distance_ly and min_volume; engineering.json and ships.json market_id on ships; exobiology.json genera.analysed; trade.json partial in the cargo plan; voice.json live_from. Typing the fakes here should surface and fix these.
 - 2026-11-07 [note] From finding astromech-34i3 (i8vr review): comments and test names still say the shell resolves the pad or serves commands: app/src/lib/ui/SearchKit.svelte:97 and SearchKit.browser.test.ts:86, app/src/modules/trade/Route.svelte:31 and Route.browser.test.ts:18, docs/ARCHITECTURE.md:576, app/src/preview/shell.ts:2 and :311. Correct them here.
 - 2026-11-07 [note] Decision (implementer): call() is call<K extends WindowCommand>(cmd: K, ...[args]: ArgList<K>): Promise<Reply<K>>, not (cmd, args: Args<K>). ArgList makes args optional only when the command's args admit null (no-arg commands, and set_ptt/set_kill_switch's Button | null), so the 40-odd no-arg calls aren't call("status", null); a command with args still requires them and their type. Also: replies the window can't get from the core are gone from its types. The preview answered engineering_plan/stats/trip and odyssey_shopping with null for inputs it has no sample for; the core never does, so the preview now fails those calls with the text the page showed for the null (stats and plan: identical on screen; trip and shopping: shown as an error now, preview only). And the browser preview's sample labels (source: "Sample journal history") are typed as Sampled<T> = T & {source?: string} in lib/transport.ts, which the core never sends. For the plan owner to accept or change.
+- 2026-11-07 [decision] Accepted the implementer's deviations: call() takes ...[args]: ArgList<K>; the preview fails, as the core does, where it answered null for plans, picks and trips; Sampled<T>.
+  Reason: Reviewer astromech-lzkb found them sound; they change the preview only, not the shipped app
 
 ## Report
 

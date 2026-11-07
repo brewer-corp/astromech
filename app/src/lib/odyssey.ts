@@ -58,8 +58,8 @@ export function samePicks(a: Pick[], b: Pick[]): boolean {
   return a.length === b.length && a.every((p, i) => pickKey(p) === pickKey(b[i]!));
 }
 
-/** The list for `picks`; outside the app only for the sample picks (else null). */
-export async function loadShopping(picks: Pick[]): Promise<Shopping | null> {
+/** The list for `picks`. The browser preview has one only for the sample picks; others fail. */
+export async function loadShopping(picks: Pick[]): Promise<Shopping> {
   return await call("odyssey_shopping", { picks });
 }
 

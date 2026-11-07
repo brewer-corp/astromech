@@ -19,8 +19,9 @@ export type WindowCommand = { [K in keyof Commands]: Commands[K]["exposure"] ext
 export type Args<K extends keyof Commands> = Commands[K]["args"];
 /** Command `K`'s reply (the envelope's `value`). */
 export type Reply<K extends keyof Commands> = Commands[K]["reply"];
-/** `call`'s arguments after the command: none needed for a command that takes none. */
-export type ArgList<K extends keyof Commands> = null extends Args<K> ? [args?: Args<K>] : [args: Args<K>];
+/** `call`'s arguments after the command: left out only for a command that takes none (args
+ * `null`); a command whose args may be null (`set_ptt` clears with `null`) still needs them. */
+export type ArgList<K extends keyof Commands> = [Args<K>] extends [null] ? [args?: null] : [args: Args<K>];
 
 /** A reply as the window shows it: the browser preview labels its samples ("Sample journal
  * history"), which the page shows beside them; the core never sends `source` for these. */

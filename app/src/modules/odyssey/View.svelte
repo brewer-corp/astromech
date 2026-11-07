@@ -160,8 +160,8 @@
     return p.maker ? `${name} (${MAKERS[p.maker] ?? p.maker} weapons)` : name;
   }
 
-  // The cards come from the saved picks when there is no list (it failed, or the preview has
-  // only the sample's), so every pick can still be removed.
+  // The cards come from the saved picks when there is no list for them (it failed, or is still
+  // being worked out), so every pick can still be removed.
   // The list, if it is for the picks as they are now (not a reply from before a change).
   const list = $derived(shop && samePicks(shop.picks.map((r) => r.pick), picks) ? shop : null);
   const cards = $derived<PickResult[]>(
@@ -347,7 +347,7 @@
       {/if}
       <p class="lo note">Assumes a bartender swaps equal barter value and that only assets are traded (the wiki gives barter values for assets only).</p>
       {:else if !shopError}
-        <p class="lo">The shopping list is worked out in the app (the preview only has the sample picks).</p>
+        <p class="lo">Working out the shopping list…</p>
       {/if}
     {/if}
     </div>

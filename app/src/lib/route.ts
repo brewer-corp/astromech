@@ -118,7 +118,8 @@ export function failedNote(what: string, e: unknown, retry: () => void): FollowN
 
 /** Where the commander is and the ship a route would be plotted for. The browser preview
  * answers from app/src/preview/fixtures/plot.json (the routes astromech_galaxy::plot makes from
- * the recorded Spansh jobs, and a local neutron route from the 22 Oct 2026 neutron star file). */
+ * the recorded Spansh jobs, and a short local neutron route over the tests' neutron star sample:
+ * astromech-galaxy's dump-local-route example). */
 export async function plotSetup(): Promise<PlotSetup> {
   return await call("route_plot_ship");
 }

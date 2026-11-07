@@ -347,7 +347,8 @@ async function neutronDownload(progress: (p: unknown) => void): Promise<NeutronF
   return neutron;
 }
 
-/** Plot from fixtures/plot.json: neutron routes "on this PC" once the file is downloaded. */
+/** Plot from fixtures/plot.json: neutron routes "on this PC" once the file is downloaded (the
+ * local route was plotted over the tests' small neutron star sample, so it isn't to Colonia). */
 const routePlot: H<"route_plot"> = async ({ ask }) => {
   const neutronRoute = neutron.file ? plotSample.local : plotSample.neutron;
   const plotted = ask.plotter === "neutron" ? neutronRoute : plotSample.exact;
