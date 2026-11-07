@@ -89,10 +89,35 @@ struct Args {
     relaunch: bool,
     /// Run headless against the scripted world in this folder (tests and the dev bridge): a temp
     /// copy, fake processes, opener, clipboard and Start with Windows, no window or tray. Prints
-    /// the control API's port and token on stdout, then runs until `quit`
-    #[arg(long, value_name = "DIR")]
+    /// the control API's port and token on stdout, then runs until `quit` or its stdin closes.
+    /// It takes no other option but `--dry-run`, `--no-voice` and `--debug-input`
+    #[arg(long, value_name = "DIR", conflicts_with_all = WORLD_CONFLICTS)]
     world: Option<PathBuf>,
 }
+
+/// Every option `--world` can't be given with: those that act on the user's real core or files
+/// (`--quit`, `--apply-update` and its options, `--config`), the installed app's own
+/// (`--background`, `--route`) and the console's, which `--world` would otherwise ignore.
+const WORLD_CONFLICTS: [&str; 18] = [
+    "quit",
+    "apply_update",
+    "from",
+    "install_dir",
+    "wait_pid",
+    "relaunch",
+    "config",
+    "background",
+    "route",
+    "console",
+    "write_config",
+    "health",
+    "listen",
+    "transcribe",
+    "download_models",
+    "list_mics",
+    "calibrate_files",
+    "eval",
+];
 
 impl Args {
     fn console_mode(&self) -> bool {
@@ -474,4 +499,44 @@ fn listen(secs: u64) -> Result<()> {
 #[cfg(not(windows))]
 fn listen(_secs: u64) -> Result<()> {
     bail!("--listen needs Windows")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// `--world` runs only on its own (with the session's test options): with an option that
+    /// acts on the user's real core (`--quit` reads the real app folder) or one it would ignore,
+    /// parsing fails before anything runs.
+    #[test]
+    fn world_mode_refuses_every_other_option() {
+        let with = |extra: &[&str]| Args::try_parse_from([&["astromech-core", "--world", "w"], extra].concat());
+        for extra in [
+            &["--quit"][..],
+            &["--apply-update"],
+            &["--from", "p"],
+            &["--install-dir", "p"],
+            &["--wait-pid", "1"],
+            &["--relaunch"],
+            &["--config", "c.toml"],
+            &["--background"],
+            &["--route", "settings"],
+            &["--console"],
+            &["--write-config"],
+            &["--health"],
+            &["--listen", "5"],
+            &["--transcribe", "a.wav"],
+            &["--download-models"],
+            &["--list-mics"],
+            &["--calibrate-files", "a.wav", "b.wav"],
+            &["--eval", "d"],
+        ] {
+            let e = with(extra).map(|_| ()).unwrap_err();
+            assert_eq!(e.kind(), clap::error::ErrorKind::ArgumentConflict, "--world {extra:?}: {e}");
+        }
+        for extra in [&[][..], &["--dry-run", "--no-voice", "--debug-input"]] {
+            let a = with(extra).unwrap();
+            assert_eq!(a.world.as_deref(), Some(Path::new("w")), "{extra:?}");
+        }
+    }
 }

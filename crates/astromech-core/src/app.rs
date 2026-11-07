@@ -93,6 +93,8 @@ pub type ProcessList = Arc<dyn Fn() -> Vec<String> + Send + Sync>;
 pub type Clipboard = Arc<dyn Fn(&str) -> Result<(), String> + Send + Sync>;
 /// Makes the process's one remote-data client, its cache in the data folder it is given.
 pub type RemoteClient = Arc<dyn Fn(&Path) -> Arc<astromech_data::Client> + Send + Sync>;
+/// Opens (or focuses) the app window at a page.
+pub type AppWindow = Arc<dyn Fn(Option<&str>) -> Result<(), String> + Send + Sync>;
 /// Registers a mode's own commands beside the core's ([`Core::commands`]).
 pub type MoreCommands = Arc<dyn Fn(&Arc<Core>, &mut Registry) + Send + Sync>;
 
@@ -116,6 +118,8 @@ pub struct Boundaries {
     pub autostart: Arc<dyn crate::autostart::Autostart>,
     /// The remote-data client for the data folder the config names.
     pub remote: RemoteClient,
+    /// The app window, for the tray, a second start and `open_window`.
+    pub window: AppWindow,
     /// Commands only this mode has: world mode's `world_*` ([`crate::world`]). None for the
     /// installed app.
     pub more_commands: Option<MoreCommands>,
@@ -123,8 +127,9 @@ pub struct Boundaries {
 
 impl Boundaries {
     /// The installed app's: the real processes, Explorer, the clipboard, toasts, the OS keyring,
-    /// the Run key and HTTP, over `paths`.
+    /// the Run key, HTTP and the shell's window, over `paths`.
     pub fn real(paths: Paths) -> Self {
+        let exe_dir = paths.exe_dir().to_path_buf();
         Self {
             paths,
             processes: Arc::new(gamewatch::process_names),
@@ -134,6 +139,7 @@ impl Boundaries {
             secrets: Arc::new(astromech_store::secrets::OsKeyring::new()),
             autostart: Arc::new(crate::autostart::RunKey),
             remote: Arc::new(remote_client),
+            window: Arc::new(move |route: Option<&str>| open_shell(&exe_dir, route)),
             more_commands: None,
         }
     }
@@ -214,6 +220,7 @@ pub struct Core {
     pub opener: Arc<dyn Opener>,
     pub notifier: Arc<dyn crate::callouts::Notifier>,
     pub autostart: Arc<dyn crate::autostart::Autostart>,
+    window: AppWindow,
     more_commands: Option<MoreCommands>,
     /// The route being followed (docs/PLOTTING.md). The core owns it, not a session, so the
     /// window can set one while Elite isn't running.
@@ -685,31 +692,9 @@ impl Core {
         }
     }
 
-    /// Launch (or focus) the app window at `route`.
+    /// Launch (or focus) the app window at `route` ([`Boundaries::window`]).
     pub fn open_window(&self, route: Option<&str>) -> Result<(), String> {
-        let exe = std::env::var_os("ASTROMECH_SHELL")
-            .map(PathBuf::from)
-            .unwrap_or_else(|| self.paths.exe_dir().join(SHELL_EXE));
-        if !exe.is_file() {
-            let m = format!("the app window ({}) isn't installed next to the core", exe.display());
-            log(&m);
-            return Err(m);
-        }
-        let mut c = std::process::Command::new(&exe);
-        if let Some(r) = route {
-            c.arg("--route").arg(r);
-        }
-        match c.spawn() {
-            Ok(_) => {
-                log(&format!("opened the app window{}", route.map(|r| format!(" at {r}")).unwrap_or_default()));
-                Ok(())
-            }
-            Err(e) => {
-                let m = format!("couldn't open the app window: {e}");
-                log(&m);
-                Err(m)
-            }
-        }
+        (self.window)(route)
     }
 
     /// Setup edits from the window: write `astromech.toml`, then use it. Voice picks the new
@@ -1449,6 +1434,32 @@ mod replies {
 }
 pub use replies::*;
 
+/// The installed app's window: start the shell next to the core (or `ASTROMECH_SHELL`) at
+/// `route`.
+fn open_shell(exe_dir: &Path, route: Option<&str>) -> Result<(), String> {
+    let exe = std::env::var_os("ASTROMECH_SHELL").map(PathBuf::from).unwrap_or_else(|| exe_dir.join(SHELL_EXE));
+    if !exe.is_file() {
+        let m = format!("the app window ({}) isn't installed next to the core", exe.display());
+        log(&m);
+        return Err(m);
+    }
+    let mut c = std::process::Command::new(&exe);
+    if let Some(r) = route {
+        c.arg("--route").arg(r);
+    }
+    match c.spawn() {
+        Ok(_) => {
+            log(&format!("opened the app window{}", route.map(|r| format!(" at {r}")).unwrap_or_default()));
+            Ok(())
+        }
+        Err(e) => {
+            let m = format!("couldn't open the app window: {e}");
+            log(&m);
+            Err(m)
+        }
+    }
+}
+
 /// Write the sample config if there is no config yet. The sample changes no setting: its
 /// examples are comments, so a fresh install gets the same defaults as with no file.
 fn write_sample_config(path: &Path) {
@@ -1679,6 +1690,7 @@ pub(crate) fn assemble_with(
         opener,
         notifier: b.notifier,
         autostart: b.autostart,
+        window: b.window,
         more_commands: b.more_commands,
         route,
     });
@@ -1910,6 +1922,7 @@ mod tests {
             secrets: Arc::new(astromech_store::secrets::MemorySecrets::default()),
             autostart: Arc::new(NoAutostart),
             remote: Arc::new(move |_: &Path| remote.clone()),
+            window: Arc::new(|_: Option<&str>| Err("no app window in this test".into())),
             more_commands: None,
         }
     }

@@ -251,7 +251,11 @@ there with fakes for the processes, opener, clipboard, notifications, Start with
 secrets, and prints its control port and token on stdout. The format and the `world_observed`
 and `world_wait` commands are in `crates/astromech-core/src/world.rs`; the worlds are in
 `worlds/`. `crates/astromech-core/tests/support/` starts one (`WorldCore`) and calls it over the
-control API. Each world core is its own process, because the core keeps process-wide state.
+control API. Each world core is its own process, because the core keeps process-wide state. The
+helper points every home variable (`HOME`, the `XDG_*` folders, `LOCALAPPDATA`, `APPDATA`,
+`USERPROFILE`) at an empty folder that `quit()` checks is still empty, and holds the core's
+stdin: world mode quits when its stdin closes, so a killed test leaves no core running. Started
+by hand, keep its stdin open: `sleep infinity | astromech-core --world worlds/minimal`.
 
 ## Releasing
 

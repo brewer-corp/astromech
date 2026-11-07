@@ -27,16 +27,21 @@
 //!   `core.json`) is `local/astromech/data` and its logs are under it. There is no user profile,
 //!   so nothing falls back to the user's own folders.
 //!
+//! The config also turns EDDN and EDSM uploading off, whatever the world says, until the
+//! recorded network answers them (astromech-xk0n): their uploaders send over real HTTP.
+//!
 //! The fakes: the process list is the world's (empty until a step starts the game); the opener,
-//! clipboard, notifier and Start with Windows record what reaches them and touch nothing; the
-//! secrets are in memory, seeded from `secrets.json`; every remote-data lookup is refused and
-//! recorded as unrecorded. Then it calls [`app::assemble`] and [`app::start`], as the installed
+//! clipboard, notifier, Start with Windows and the app window record what reaches them and touch
+//! nothing; the secrets are in memory, seeded from `secrets.json`; every remote-data lookup is
+//! refused and recorded as unrecorded. Then it calls [`app::assemble`] and [`app::start`], as the installed
 //! app does, but none of what only [`app::run`] adds: no instance lock, no Start with Windows
 //! default, no update thread, no window and no tray.
 //!
 //! Once the control API is up, the binary prints one line on stdout,
 //! `{"control": {"port": …, "token": …}, "app_dir": "…"}`, its callers' only way to find it
-//! ([`astromech_api::control::call_to`]). It runs until `quit`, then removes the temp directory and exits 0.
+//! ([`astromech_api::control::call_to`]). It runs until `quit`, or until its stdin reaches end of
+//! file (the process that started it has gone, even if killed outright), then removes the temp
+//! directory and exits 0. A caller keeps its stdin open: a pipe it holds.
 //!
 //! # Observations
 //!
@@ -48,6 +53,7 @@
 //! - `clipboard {text}`; `notify {text}`;
 //! - `autostart {on, command}`: Start with Windows set, with the command line it would run
 //!   (null when off);
+//! - `window {route}`: the app window opened (`open_window`), at a page or null;
 //! - `http {url, path, unrecorded}`: a remote-data request.
 //!
 //! Two `local` commands read them, registered only in world mode (decision astromech-unh9: the
@@ -259,7 +265,7 @@ impl World {
         let mut doc: toml_edit::DocumentMut = text.parse().context("the world's astromech.toml")?;
         let path = |p: PathBuf| toml_edit::value(p.display().to_string());
         doc["data_dir"] = path(self.root().join("data"));
-        for t in ["game", "voice"] {
+        for t in ["game", "voice", "eddn", "edsm"] {
             if !doc.contains_key(t) {
                 doc[t] = toml_edit::table();
             }
@@ -268,6 +274,8 @@ impl World {
         doc["game"]["bindings_dir"] = path(self.world().join("bindings"));
         doc["game"]["game_dir"] = path(self.root().join("elite"));
         doc["voice"]["models_dir"] = path(self.root().join("models"));
+        doc["eddn"]["enabled"] = toml_edit::value(false);
+        doc["edsm"]["enabled"] = toml_edit::value(false);
         std::fs::write(&p, doc.to_string()).context("writing the world's config")
     }
 
@@ -299,7 +307,11 @@ impl World {
             }),
             notifier: Arc::new(WorldNotifier(o.clone())),
             secrets: Arc::new(secrets),
-            autostart: Arc::new(WorldAutostart { observed: o, run: Mutex::new(None) }),
+            autostart: Arc::new(WorldAutostart { observed: o.clone(), run: Mutex::new(None) }),
+            window: Arc::new(move |route: Option<&str>| {
+                o.record("window", json!({ "route": route }));
+                Ok(())
+            }),
             remote: Arc::new(move |_: &Path| remote.clone()),
             more_commands: Some(Arc::new(move |_, reg| register(&commands, reg))),
         }
@@ -372,6 +384,13 @@ fn serve(src: &Path, session: crate::session::Opts) -> Result<()> {
         writeln!(out, "{line}")?;
         out.flush()?;
     }
+    // Quit when the starter goes: its end of stdin closes, even when it is killed.
+    let ui_tx = core.ui.lock().recover().clone();
+    std::thread::Builder::new().name("world-stdin".into()).spawn(move || {
+        let _ = std::io::copy(&mut std::io::stdin().lock(), &mut std::io::sink());
+        log("world mode: stdin closed");
+        let _ = ui_tx.send(app::Ui::Quit);
+    })?;
     app::headless(&ui);
     log("world mode: quitting");
     core.deactivate("quit");
@@ -446,8 +465,11 @@ mod tests {
     #[test]
     fn a_loaded_world_names_only_its_temp_folders_and_leaves_the_world_alone() {
         let src = tempfile::tempdir().unwrap();
-        std::fs::write(src.path().join("astromech.toml"), "data_dir = '/elsewhere'\n[eddn]\nenabled = false\n")
-            .unwrap();
+        std::fs::write(
+            src.path().join("astromech.toml"),
+            "data_dir = '/elsewhere'\n[eddn]\nenabled = true\n[voice]\ntts = false\n",
+        )
+        .unwrap();
         std::fs::create_dir(src.path().join("game")).unwrap();
         std::fs::write(src.path().join("game").join("Journal.2026-11-07T120000.01.log"), "{}\n").unwrap();
         std::fs::write(src.path().join("secrets.json"), r#"{"edsm-api-key": "k3y"}"#).unwrap();
@@ -460,14 +482,15 @@ mod tests {
         assert_eq!(cfg.bindings_dir(), Some(root.join("world").join("bindings")));
         assert_eq!(cfg.game_dir(), Some(root.join("elite")));
         assert_eq!(cfg.models_dir(&b.paths), root.join("models"));
-        assert!(!cfg.eddn.enabled, "the world's other settings stay");
+        assert!(!cfg.eddn.enabled && !cfg.edsm.enabled, "uploading is off whatever the world says");
+        assert!(!cfg.voice.tts, "the world's other settings stay");
         assert!(b.paths.app_dir().starts_with(&root) && b.paths.log_dir().starts_with(&root));
         assert!(b.paths.exe_dir().starts_with(&root) && !b.paths.portable());
         assert!(root.join("world/game/Journal.2026-11-07T120000.01.log").is_file());
         assert_eq!(b.secrets.get(astromech_eddn::edsm::KEY_SECRET), Ok(Some("k3y".into())));
         // The world itself is as it was.
         let src_cfg = std::fs::read_to_string(src.path().join("astromech.toml")).unwrap();
-        assert_eq!(src_cfg, "data_dir = '/elsewhere'\n[eddn]\nenabled = false\n");
+        assert_eq!(src_cfg, "data_dir = '/elsewhere'\n[eddn]\nenabled = true\n[voice]\ntts = false\n");
         assert!(!src.path().join("bindings").exists());
         drop(b);
         drop(w);
@@ -488,14 +511,19 @@ mod tests {
         b.autostart.set(true, Path::new("astromech-core")).unwrap();
         assert_eq!(b.autostart.get(), Some(crate::autostart::command_line(Path::new("astromech-core"))));
         b.autostart.set(false, Path::new("astromech-core")).unwrap();
+        (b.window)(Some("settings")).unwrap();
         assert!((b.processes)().is_empty());
         let client = (b.remote)(Path::new("unused"));
         assert!(client.send(astromech_data::Service::Spansh, &astromech_data::Request::get("/api/x")).is_err());
         let kinds: Vec<Value> = w.observed.since(0).0.iter().map(|o| o["kind"].clone()).collect();
-        assert_eq!(kinds, ["open", "reveal", "edit", "clipboard", "notify", "autostart", "autostart", "http"]);
+        assert_eq!(
+            kinds,
+            ["open", "reveal", "edit", "clipboard", "notify", "autostart", "autostart", "window", "http"]
+        );
         let (all, _) = w.observed.since(0);
         assert_eq!(all[5]["on"], true);
         assert_eq!(all[6], json!({"seq": 6, "kind": "autostart", "on": false, "command": null}));
-        assert_eq!(all[7]["unrecorded"], true);
+        assert_eq!(all[7]["route"], "settings");
+        assert_eq!(all[8]["unrecorded"], true);
     }
 }

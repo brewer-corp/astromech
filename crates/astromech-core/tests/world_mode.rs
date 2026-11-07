@@ -4,15 +4,14 @@
 mod support;
 
 use serde_json::{json, Value};
-use support::{world, WorldCore};
+use std::io::{BufRead, BufReader, Read};
+use support::{files_in, world, WorldCore};
 
-/// Every variable the core's folders could fall back to points at one empty folder, which must
-/// still be empty after the run.
+/// Every variable the core's folders could fall back to points at the helper's empty home,
+/// which is still empty after the run ([`WorldCore::quit`] checks it once the core has exited).
 #[test]
 fn the_minimal_world_runs_headless_and_leaves_the_users_folders_alone() {
-    let home = tempfile::tempdir().unwrap();
-    let env = ["HOME", "XDG_DATA_HOME", "LOCALAPPDATA", "APPDATA", "USERPROFILE"].map(|k| (k, home.path()));
-    let core = WorldCore::start(&world("minimal"), &env);
+    let core = WorldCore::start(&world("minimal"));
 
     let status = core.call_window("status", None).unwrap();
     assert_eq!(status["app_dir"], json!(core.app_dir), "{status}");
@@ -31,12 +30,17 @@ fn the_minimal_world_runs_headless_and_leaves_the_users_folders_alone() {
     assert!(on["command"].as_str().unwrap().ends_with("--background"), "{on}");
     assert_eq!(core.call_window("status", None).unwrap()["autostart"], true, "status reads the world's Run value");
 
+    // A second start's or the tray's "open the window" is recorded, never started.
+    core.call("open_window", None).unwrap();
+    let window = core.call("world_wait", Some(json!({"match": {"kind": "window"}}))).unwrap();
+    assert_eq!(window["route"], Value::Null, "{window}");
+
     let seen = core.call("world_observed", None).unwrap();
     let kinds: Vec<&Value> = seen["observed"].as_array().unwrap().iter().map(|o| &o["kind"]).collect();
-    assert_eq!(kinds, [&json!("edit"), &json!("autostart")], "{seen}");
-    assert_eq!(seen["next"], 2);
+    assert_eq!(kinds, [&json!("edit"), &json!("autostart"), &json!("window")], "{seen}");
+    assert_eq!(seen["next"], 3);
     let later = core.call("world_observed", Some(json!({"since": 1}))).unwrap();
-    assert_eq!(later["observed"], json!([on]));
+    assert_eq!(later["observed"], json!([on, window]));
 
     // The world's commands are local: the window's origin is refused.
     for cmd in ["world_observed", "world_wait"] {
@@ -44,13 +48,86 @@ fn the_minimal_world_runs_headless_and_leaves_the_users_folders_alone() {
         assert!(e.starts_with("not allowed"), "{cmd}: {e}");
     }
 
+    assert!(files_in(core.home()).is_empty(), "the run wrote into the user's folders: {:?}", files_in(core.home()));
     let app_dir = core.app_dir.clone();
     let exit = core.quit();
     assert!(exit.success(), "{exit:?}");
-    let left: Vec<_> = std::fs::read_dir(home.path()).unwrap().map(|e| e.unwrap().path()).collect();
-    assert!(left.is_empty(), "the run wrote into the user's folders: {left:?}");
     // On Windows the core's open files can keep its temp folder; elsewhere it is removed.
     if cfg!(not(windows)) {
         assert!(!app_dir.exists(), "the world's temp folder is removed on quit: {}", app_dir.display());
+    }
+}
+
+/// A world that switches EDDN and EDSM on, with a commander and a key, uploads to neither:
+/// world mode turns both off until the recorded network answers them (astromech-xk0n).
+#[test]
+fn a_world_never_switches_on_the_uploads() {
+    let w = tempfile::tempdir().unwrap();
+    std::fs::write(
+        w.path().join("astromech.toml"),
+        "[eddn]\nenabled = true\n[edsm]\nenabled = true\ncommander = \"Jameson\"\n",
+    )
+    .unwrap();
+    std::fs::write(w.path().join("secrets.json"), r#"{"edsm-api-key": "k3y"}"#).unwrap();
+    let core = WorldCore::start(w.path());
+    let eddn = core.call_window("eddn_log", None).unwrap();
+    assert_eq!(eddn["enabled"], false, "{eddn}");
+    let edsm = core.call_window("edsm_status", None).unwrap();
+    assert_eq!((&edsm["enabled"], &edsm["uploading"]), (&json!(false), &json!(false)), "{edsm}");
+    assert_eq!((&edsm["commander"], &edsm["has_key"]), (&json!("Jameson"), &json!(true)), "the rest is the world's");
+    assert!(core.quit().success());
+}
+
+/// Set by [`a_killed_test_process_ends_its_world_core`] for the copy of this test binary it
+/// starts and kills.
+const KILLED_PARENT: &str = "ASTROMECH_TEST_KILLED_PARENT";
+
+/// The parent the kill test starts: a world core, its app folder and home on stdout, then
+/// nothing until it is killed.
+#[test]
+#[ignore = "started by a_killed_test_process_ends_its_world_core"]
+fn parent_for_the_kill_test() {
+    if std::env::var_os(KILLED_PARENT).is_none() {
+        return;
+    }
+    let core = WorldCore::start(&world("minimal"));
+    println!("world-core {} {}", core.app_dir.display(), core.home().display());
+    let _ = std::io::stdin().read_line(&mut String::new());
+}
+
+/// A test process killed outright (a CI cancel) can't drop its [`WorldCore`]; the core sees its
+/// stdin close and quits, removing its temp world. The parent's stderr is a pipe the core
+/// inherits too, so reading it to its end returns once both have exited: no wait on time.
+#[test]
+fn a_killed_test_process_ends_its_world_core() {
+    let mut parent = std::process::Command::new(std::env::current_exe().unwrap())
+        .args(["parent_for_the_kill_test", "--exact", "--ignored", "--nocapture", "--test-threads=1"])
+        .env(KILLED_PARENT, "1")
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    let mut out = BufReader::new(parent.stdout.take().unwrap());
+    let mut stderr = parent.stderr.take().unwrap();
+    let line = loop {
+        let mut l = String::new();
+        assert_ne!(out.read_line(&mut l).unwrap(), 0, "the parent exited before starting its world core");
+        // libtest's "test … " may come first on the line.
+        if let Some((_, rest)) = l.trim_end().split_once("world-core ") {
+            break rest.to_string();
+        }
+    };
+    let (app_dir, home) = line.split_once(' ').unwrap();
+    parent.kill().unwrap();
+    parent.wait().unwrap();
+    let mut err = String::new();
+    stderr.read_to_string(&mut err).unwrap();
+    // The killed parent couldn't remove its (empty) home.
+    let home = std::path::Path::new(home);
+    assert!(files_in(home).is_empty(), "the world core wrote into its home: {:?}", files_in(home));
+    std::fs::remove_dir(home).unwrap();
+    if cfg!(not(windows)) {
+        assert!(!std::path::Path::new(app_dir).exists(), "the world core left its temp world {app_dir}: {err}");
     }
 }
