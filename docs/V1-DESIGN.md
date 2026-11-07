@@ -775,8 +775,9 @@ skip the guide. A new rule's lines go in that test.
 - **HKCU `Run` key** (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, value
   `astromech` → `"…\astromech-core.exe" --background`), set by the app the first time it runs
   from an install (on by default) and toggled in settings. The app keeps the path current if
-  the program moves; upgrades by either route leave the value as it was (the uninstaller deletes
-  it, except when an upgrade runs it with `/UPDATE`). No admin; it's what the Tauri autostart plugin uses. Task Scheduler would only add
+  the program moves. The in-app updater and a silent `setup.exe /S` leave the value as it was;
+  an interactive `setup.exe` upgrade runs the old uninstaller without `/UPDATE`, which deletes it,
+  and nothing sets it again (astromech-y2m1). The uninstaller deletes it. No admin; it's what the Tauri autostart plugin uses. Task Scheduler would only add
   a start delay and restart-on-failure, at the cost of complexity (and some options need admin).
 - `--background`: tray only, no window, low priority until the game starts.
 
@@ -818,8 +819,9 @@ On a `v*` tag:
 2. Run the test suite and the Windows e2e.
 3. Create the GitHub Release with the installer, SHA-256 checksums and NOTICE files.
 4. Smoke test: download the release on a clean runner, install per-user, start, check the version.
-5. Upgrade test (the `upgrade` job, `scripts/upgrade_smoke.py`): the newest release installed and
-   running as a player has it, upgraded by its own update helper and by `setup.exe /S`.
+5. Upgrade test (the `upgrade` job, `scripts/upgrade_smoke.py`): v1.0.0-alpha.4, the last
+   two-process release, installed and running as a player has it, upgraded by its own update
+   helper and by `setup.exe /S` (between one-process releases: astromech-7pl5).
 
 ### 7.9 GPL caveat
 `astromech-voice-worker.exe` links sherpa-onnx with espeak-ng (GPL-3.0), so that binary is

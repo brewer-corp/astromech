@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Upgrade smoke test (Windows runner): a two-process install of the newest release upgraded
+"""Upgrade smoke test (Windows runner): a two-process install (v1.0.0-alpha.4) upgraded
 to this build by both routes a player has (astromech-9lh3; decision astromech-nade).
 
     python scripts/upgrade_smoke.py --old-setup old/astromech_1.0.0-alpha.4_x64-setup.exe \
         --setup dist-release/astromech_0.0.0-dev_x64-setup.exe \
         --zip dist-release/astromech-0.0.0-dev-windows-x64.zip --version 0.0.0-dev --out upgrade-report
 
+The old release must be a two-process one: v1.0.0-alpha.4, the last (release.yml pins it).
 Each route starts from the old release installed silently and running as a player has it: the
 core with `--background` (Start with Windows), then the old window (`astromech-shell.exe`).
 
@@ -96,7 +97,8 @@ def start_menu_lnk() -> Path:
 
 
 def call(cmd: str, timeout: float = 5.0):
-    """One control-API request: (ok, value or error)."""
+    """One control-API request: (ok, value or error). The one app wraps a reply's value in
+    `value`; a two-process release (v1.0.0-alpha.4) sends it bare (`{"ok": true, "pid": …}`)."""
     try:
         ep = json.loads(endpoint().read_text(encoding="utf-8"))
         with socket.create_connection(("127.0.0.1", ep["port"]), timeout=timeout) as s:
@@ -105,7 +107,7 @@ def call(cmd: str, timeout: float = 5.0):
                 r = json.loads(line)
                 if "progress" in r:
                     continue
-                return (True, r.get("value")) if r.get("ok") else (False, r.get("error"))
+                return (True, r["value"] if "value" in r else r) if r.get("ok") else (False, r.get("error"))
     except (OSError, ValueError, KeyError) as e:
         return False, f"{cmd}: {e}"
     return False, f"{cmd}: no reply"
@@ -361,7 +363,7 @@ class Run:
 
 
 def report_md(r: dict) -> str:
-    out = ["# Upgrade smoke test: the newest two-process release to this build", "",
+    out = ["# Upgrade smoke test: the last two-process release to this build", "",
            f"Result: **{'PASS' if r['pass'] else 'FAIL'}**. Old release: {r['old']}; this build: {r['version']}.", "",
            "| Route | Check | | Detail |", "|---|---|---|---|"]
     out += [f"| {c['route']} | {c['check']} | {'ok' if c['ok'] else 'FAIL'} | {c['detail'].replace('|', '/')[:300]} |"
@@ -375,7 +377,7 @@ def report_md(r: dict) -> str:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    p.add_argument("--old-setup", type=Path, required=True, help="the newest release's NSIS installer")
+    p.add_argument("--old-setup", type=Path, required=True, help="the last two-process release's NSIS installer (v1.0.0-alpha.4)")
     p.add_argument("--old", default="", help="the old release's tag, for the report")
     p.add_argument("--setup", type=Path, required=True, help="this build's NSIS installer")
     p.add_argument("--zip", type=Path, required=True, help="this build's update zip")

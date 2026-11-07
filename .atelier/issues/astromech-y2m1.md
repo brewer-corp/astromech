@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "An interactive setup.exe upgrade turns Start with Windows off"
-updated_at: "2026-11-07T19:36:31.297883100+00:00"
+updated_at: "2026-11-07T19:48:53.597847230+00:00"
 ---
 
 ## Goal
@@ -29,3 +29,7 @@ Found reading Tauri 2.12.2's NSIS template (the installer.nsi embedded in @tauri
 
 - [ ] An interactive upgrade with the default choice keeps the Run value, or puts it back, shown on Windows.
 - [ ] Uninstalling still removes it.
+
+## Notes
+
+- 2026-11-07 [observation] From finding astromech-ilwv: V1-DESIGN §7.5 said upgrades by either route leave the Run value as it was, which holds for the updater and setup.exe /S but not an interactive setup.exe upgrade until this item is fixed. The sentence now says so and names this item; when this is fixed, change §7.5 back to: every upgrade route leaves the value as it was.

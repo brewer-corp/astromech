@@ -165,7 +165,9 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   After it, `scripts/one_process_probe.py` (spike astromech-wgtr's probe) runs against a fresh
   install: the app windowless with its tray, a second start opening the window, five closes that
   must free every WebView2 process, the window's renderer and browser process killed, and quit.
-  Its `upgrade` job (`scripts/upgrade_smoke.py`) installs the newest `v*` release, starts it as
+  Its `upgrade` job (`scripts/upgrade_smoke.py`) installs v1.0.0-alpha.4, the last two-process
+  release (pinned: the script starts its two processes; between one-process releases is
+  astromech-7pl5), starts it as
   a player has it (the core with `--background`, then its window) and upgrades it to this build
   twice: with that release's own update helper overlaying this build's zip, and with this
   build's `setup.exe /S`. After each, one `astromech-core.exe` of this build must run, the old
@@ -266,5 +268,5 @@ browser, so never add one.
    no CI runs for it.
 3. Tag `main` (`git tag -a vX.Y.Z[-pre]`) and push the tag. The **Release build** stamps the
    tag's version into the version files (`scripts/set-version.py`), builds and smoke-tests the
-   installer, tests the upgrade from the newest release, and publishes the release with the signed update. It fails before publishing if
+   installer, tests the upgrade from the last two-process release, and publishes the release with the signed update. It fails before publishing if
    the notes file is missing or any step fails.

@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Installer, updater and Start with Windows on the one executable; upgrade from the last two-process release on Windows CI"
-updated_at: "2026-11-07T19:40:17.586788423+00:00"
+updated_at: "2026-11-07T19:49:28.563769733+00:00"
 ---
 
 ## Goal
@@ -94,6 +94,7 @@ app/src-tauri (hooks, conf), the forwarder crate, crates/astromech-core (update.
 - 2026-11-07 [decision] The NSIS route's clean-quit check is the old core's quitting line plus core.json removed; its exit code is reported, not required
   Reason: core.json goes after shutdown releases held keys, so its absence proves the clean quit finished; the hook's fallback taskkill can still hit a core between removing core.json and exiting (exit code 1, harmless), so requiring 0 would flake. On the updater route the helper waits for the old core to exit, so code 0 is required there
 - 2026-11-07 [handoff] Built at f6a048be; see ## Report. Ticked: update.rs, log prune, V1-DESIGN. Waiting on Windows CI (Release build installer smoke and the new upgrade job): lines 1, 2, 4, 6, 7. Independent review outstanding.
+- 2026-11-07 [resolution] Findings kfub and s3rq fixed: upgrade_smoke.py's call() takes a bare reply (alpha.4's control server sends {ok, pid, version} with no value wrapper), which is every reply from the old core the script reads (status in old_running); the upgrade job pins v1.0.0-alpha.4, the last two-process release, and astromech-7pl5 covers upgrades between one-process releases. Also: V1-DESIGN §7.5 no longer claims every route keeps the Run value (finding ilwv, note on y2m1); the LOCKED_EXES comment names the /T kill of the helper (finding 81t0, backlog astromech-mqqa)
 
 ## Report
 
@@ -103,7 +104,7 @@ Outcome against Done when. Ticked, proven locally: update.rs (`install_update` a
 
 NSIS kill order (the v3u4 review's question), from the template embedded in @tauri-apps/cli 2.12.2 (the version app/pnpm-lock.yaml pins, and the one v1.0.0-alpha.4 was built with): `Section Install` runs `NSIS_HOOK_PREINSTALL` first, then `CheckIfAppIsRunning` on `$INSTDIR\astromech-core.exe`, which is the Restart Manager's `RmShutdown(RmForceShutdown)`; `Section Uninstall` has the same order around `NSIS_HOOK_PREUNINSTALL`. Nothing before them kills the app: `.onInit` and the WebView2 section don't, and under `/S` the reinstall page (which would run the old uninstaller) is skipped. So the hook's `--quit` is always first. `--quit` returns once `core.json` is gone, which the app removes only after `shutdown` (`deactivate`, whose `policy.kill()` releases held keys first); only a core that takes over 5 s to shut down can still meet the hook's own `taskkill /F`, after its keys were released. The upgrade job's NSIS route shows it on Windows: the old core must log `quitting` and remove `core.json` during `setup.exe /S`. Nothing needed changing for held keys.
 
-Proof (Linux, after the last change): `cargo test --workspace --locked` 1323 passed, 0 failed; `cargo clippy --workspace --all-targets --locked -D warnings` clean; Windows-target clippy (fake cl, lib, llvm-rc) clean for the workspace and for `astromech-app --features window` (a planted type error in host.rs's `state` fails it); `cargo fmt --all --check`; `scripts/check-deps.py` (33 crates); `pnpm check` 0 errors; bindings test passes after regenerating UiState.ts; actionlint 1.7.7 and PyYAML on release.yml and ci.yml clean; py_compile and pyflakes on scripts/upgrade_smoke.py clean; `stage-sidecars.sh` with `PLACEHOLDER=1` stages both files; the job's `gh release list … --jq` picks v1.0.0-alpha.4 against the real repository, whose release has `astromech_1.0.0-alpha.4_x64-setup.exe`. Not run: makensis (not on this host), and nothing of the installer, the forwarder or the upgrade script on Windows.
+Proof (Linux, after the last change): `cargo test --workspace --locked` 1323 passed, 0 failed; `cargo clippy --workspace --all-targets --locked -D warnings` clean; Windows-target clippy (fake cl, lib, llvm-rc) clean for the workspace and for `astromech-app --features window` (a planted type error in host.rs's `state` fails it); `cargo fmt --all --check`; `scripts/check-deps.py` (33 crates); `pnpm check` 0 errors; bindings test passes after regenerating UiState.ts; actionlint 1.7.7 and PyYAML on release.yml and ci.yml clean; py_compile and pyflakes on scripts/upgrade_smoke.py clean; `stage-sidecars.sh` with `PLACEHOLDER=1` stages both files; the job's old release is pinned to v1.0.0-alpha.4 (finding astromech-s3rq), whose release has `astromech_1.0.0-alpha.4_x64-setup.exe`. Not run: makensis (not on this host), and nothing of the installer, the forwarder or the upgrade script on Windows.
 
 ### Deviations
 

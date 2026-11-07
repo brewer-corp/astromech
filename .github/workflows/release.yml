@@ -303,11 +303,15 @@ jobs:
           path: one-process-report/
           if-no-files-found: warn
 
-  # An existing two-process install (the newest v* release) upgraded to this build by both routes
-  # a player has: the old release's own update helper overlaying this build's zip, and this
-  # build's setup.exe /S over the running install (astromech-9lh3; scripts/upgrade_smoke.py).
+  # An existing two-process install upgraded to this build by both routes a player has: the old
+  # release's own update helper overlaying this build's zip, and this build's setup.exe /S over
+  # the running install (astromech-9lh3; scripts/upgrade_smoke.py). The old release is pinned to
+  # v1.0.0-alpha.4, the last two-process release: the script starts the old core and the old
+  # window (astromech-shell.exe), which a one-process release doesn't have, so "the newest v*"
+  # would break every release after the first one-process one. Upgrades between one-process
+  # releases are another test (astromech-7pl5).
   upgrade:
-    name: Upgrade from the newest release (updater and installer)
+    name: Upgrade from the last two-process release (updater and installer)
     needs: installer
     runs-on: windows-latest
     timeout-minutes: 30
@@ -319,16 +323,14 @@ jobs:
         with:
           name: astromech-installer-windows-x64
           path: dist-release
-      - name: the newest release's installer
+      - name: the last two-process release's installer (v1.0.0-alpha.4)
         id: old
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --limit 100 --json tagName,publishedAt \
-            --jq '[.[] | select(.tagName | startswith("v"))] | sort_by(.publishedAt) | last | .tagName')
-          [ -n "$tag" ] && [ "$tag" != null ] || { echo "::error::no v* release to upgrade from"; exit 1; }
+          tag=v1.0.0-alpha.4
           gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern '*-setup.exe' --dir old-release
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "setup=$(ls old-release/*-setup.exe | head -n 1)" >> "$GITHUB_OUTPUT"

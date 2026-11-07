@@ -485,7 +485,9 @@ pub fn spawn_apply(payload: &Path, install_dir: &Path, after: After) -> Result<(
 /// The payload's executables, which the helper ends before copying so none is locked: the app,
 /// its voice worker, and the `astromech-shell.exe` forwarder (decision astromech-nade; it exits
 /// as soon as it has started the app). By name, with `/T`, so the app's WebView2 and worker go
-/// too. The helper runs as `astromech-apply-<pid>.exe` ([`spawn_apply`]), so this never ends it.
+/// too. The helper runs as `astromech-apply-<pid>.exe` ([`spawn_apply`]), so no name here
+/// matches it, but it is the core's child: if the core is still running when `wait_pid`'s 45 s
+/// run out, `/T` on `astromech-core.exe` ends the helper too (astromech-mqqa).
 pub const LOCKED_EXES: [&str; 3] = ["astromech-shell.exe", "astromech-voice-worker.exe", "astromech-core.exe"];
 
 fn stop_locked_exes() {
