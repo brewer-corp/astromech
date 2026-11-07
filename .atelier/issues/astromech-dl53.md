@@ -16,9 +16,6 @@ relationships:
   - kind: "issue"
     id: "astromech-lkwj"
     type: "blocked_by"
-  - kind: "issue"
-    id: "astromech-v3u4"
-    type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"

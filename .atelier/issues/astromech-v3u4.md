@@ -14,13 +14,7 @@ relationships:
     id: "astromech-7149"
     type: "blocked_by"
   - kind: "issue"
-    id: "astromech-7i2k"
-    type: "blocked_by"
-  - kind: "issue"
     id: "astromech-nade"
-    type: "blocked_by"
-  - kind: "issue"
-    id: "astromech-wgtr"
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
