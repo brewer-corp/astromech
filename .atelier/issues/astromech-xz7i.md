@@ -15,9 +15,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "webview_cost.py measures the one app windowless, open and closed again, and fails on a WebView2 process left behind"
-updated_at: "2026-11-07T14:07:02.086680561+00:00"
+updated_at: "2026-11-07T21:50:52.057045591+00:00"
 ---
 
 ## Goal
