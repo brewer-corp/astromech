@@ -44,7 +44,7 @@ updated_at: "2026-11-07T13:59:42.356736799+00:00"
   - `autostart_on` appears as Start with Windows set;
   - after `quit` the process exits 0, and the empty folder is still empty.
   It runs in `cargo test --workspace` on Linux and on Windows CI.
-- [ ] The no-spawn proof for world mode: every opener, Start with Windows and notifier effect appears in `world_observed`, and the real ones are not reachable from `Boundaries` in world mode. This is checked in review against the world's `Boundaries` construction. The speaker and platform are added by the devices child.
+- [x] The no-spawn proof for world mode: every opener, Start with Windows and notifier effect appears in `world_observed`, and the real ones are not reachable from `Boundaries` in world mode. This is checked in review against the world's `Boundaries` construction. The speaker and platform are added by the devices child.
 
 ## Scope
 

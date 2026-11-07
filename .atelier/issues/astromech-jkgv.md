@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Dev bridge from pnpm dev to the headless core, and preview fixtures dumped from it"
-updated_at: "2026-11-07T11:57:01.792266735+00:00"
+updated_at: "2026-11-07T14:06:43.308764563+00:00"
 ---
 
 ## Goal
@@ -40,3 +40,7 @@ The plugin, the bridge transport, the Node client, the fixture table and test, `
 ## Context
 
 The existing dumpers (crates/astromech-galaxy/examples/dump-local-route.rs, dump-sites.rs, crates/astromech-market/examples/dump-trade.rs, crates/astromech-odyssey/examples/dump-odyssey-fixture.rs, crates/astromech-ship/examples/dump-ships-fixture.rs, crates/astromech-keybinds/examples/fixture.rs) dump once and have no drift check. The pattern to copy is `core_replies_keep_their_json` (crates/astromech-core/src/app.rs:2592) and the bindings update flag (CONTRIBUTING.md, `ASTROMECH_UPDATE_BINDINGS`). Journals in worlds are synthetic, and never personal logs (AGENTS.md, Constraints).
+
+## Notes
+
+- 2026-11-07 [note] From finding astromech-1uyn (d2nq review): world mode quits when its stdin closes, so the Vite plugin must pipe the world core's stdin and hold it open for the dev server's life; state it in this child's Done when. Optional: give world_mode.rs's kill test a hang guard.
