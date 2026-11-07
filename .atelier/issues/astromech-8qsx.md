@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Journey harness: node --test drives the page with Playwright against a world core, and a lookup fails with TRY AGAIN"
-updated_at: "2026-11-07T22:55:23.421878444+00:00"
+updated_at: "2026-11-07T22:56:46.866757686+00:00"
 ---
 
 ## Goal

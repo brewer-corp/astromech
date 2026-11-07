@@ -4,6 +4,9 @@ id: "astromech-yis2"
 issue_type: "feature"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: astromech-yis2
 priority: "P1"
 relationships:
   blocks: []
@@ -26,7 +29,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "User journeys end to end in CI"
-updated_at: "2026-11-07T22:55:38.900133054+00:00"
+updated_at: "2026-11-07T22:56:46.866750944+00:00"
 ---
 
 ## Goal
