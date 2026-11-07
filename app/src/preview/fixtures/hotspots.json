@@ -13,7 +13,7 @@
   "least": null,
   "name": "Painite",
   "radius_ly": 100,
-  "range": 30.0,
+  "range": 31.5,
   "reach_ly": null,
   "rings": [
     {
@@ -65,7 +65,7 @@
       "arrival_ls": 722.154248,
       "body": "LB 3303 B 2",
       "count": 9,
-      "exact": false,
+      "exact": true,
       "jumps": 2,
       "ly": 33.095682781142315,
       "reserve": "Common",
@@ -252,7 +252,7 @@
       "body": "LTT 7421 A 6",
       "count": 7,
       "exact": false,
-      "jumps": 3,
+      "jumps": 2,
       "ly": 61.54049416339618,
       "reserve": "Common",
       "ring": "LTT 7421 A 6 A Ring",

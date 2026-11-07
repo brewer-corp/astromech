@@ -17,7 +17,7 @@
         "detail": "Roseum Brain Tree · Selenium 3.6%, Yttrium 1.0%, Niobium 1.1%",
         "exact": false,
         "id64": 5359582071664,
-        "jumps": 4,
+        "jumps": 3,
         "ly": 91.88829091789933,
         "system": "Ch'i Lingo",
         "updated_at": "2026-09-06T15:50:21Z"
@@ -28,7 +28,7 @@
         "detail": "Viride Brain Tree · first at -19.8, 37.7 · Selenium 3.2%, Polonium 0.5%, Cadmium 1.4%",
         "exact": false,
         "id64": 525957319011,
-        "jumps": 13,
+        "jumps": 12,
         "ly": 368.1761490887378,
         "system": "Synuefe XR-H d11-15",
         "updated_at": "2026-10-15T22:43:45Z"
@@ -39,7 +39,7 @@
         "detail": "Roseum Brain Tree · first at -45.4, -17.4 · Tellurium 1.3%, Niobium 1.3%, Tin 1.2%",
         "exact": false,
         "id64": 22997939014448,
-        "jumps": 13,
+        "jumps": 12,
         "ly": 368.4285900640211,
         "system": "Synuefe QB-A a96-1",
         "updated_at": "2026-10-09T08:46:28Z"
@@ -50,7 +50,7 @@
         "detail": "Roseum Brain Tree · first at 34.0, 146.0 · Yttrium 1.2%, Cadmium 1.5%, Molybdenum 1.3%",
         "exact": false,
         "id64": 13869925672329,
-        "jumps": 13,
+        "jumps": 12,
         "ly": 369.9972167864071,
         "system": "Synuefe PJ-D b46-6",
         "updated_at": "2026-10-16T17:56:19Z"
@@ -61,7 +61,7 @@
         "detail": "Roseum Brain Tree · first at -48.7, -36.8 · Ruthenium 1.3%, Cadmium 1.6%, Tin 1.3%",
         "exact": false,
         "id64": 13869925672329,
-        "jumps": 13,
+        "jumps": 12,
         "ly": 369.9972167864071,
         "system": "Synuefe PJ-D b46-6",
         "updated_at": "2026-10-16T17:54:08Z"
@@ -72,7 +72,7 @@
         "detail": "Roseum Brain Tree · first at 44.0, 88.0 · Selenium 2.8%, Antimony 1.1%, Niobium 1.3%",
         "exact": false,
         "id64": 13869925672329,
-        "jumps": 13,
+        "jumps": 12,
         "ly": 369.9972167864071,
         "system": "Synuefe PJ-D b46-6",
         "updated_at": "2026-10-16T17:54:23Z"
@@ -84,7 +84,7 @@
       "noun": "brain trees",
       "yields": "Grade 4 raw. Shoot them (turrets or flak), then collect with the SRV."
     },
-    "range": 30.0,
+    "range": 31.5,
     "source": "Spansh"
   },
   "crashed_ships": {
@@ -172,7 +172,7 @@
       "noun": "crashed ship",
       "yields": "Encoded data points and salvage. Scan the data points from the SRV."
     },
-    "range": 30.0,
+    "range": 31.5,
     "source": "Spansh"
   },
   "crystalline_shards": {
@@ -193,7 +193,7 @@
         "detail": "Crystalline Shards · first at -4.0, -141.0 · Technetium 0.7%, Niobium 1.3%, Tin 1.1%",
         "exact": false,
         "id64": 182276016347,
-        "jumps": 48,
+        "jumps": 46,
         "ly": 1426.151960710731,
         "system": "Oochorrs SB-J d10-5",
         "updated_at": "2026-10-13T22:29:33Z"
@@ -204,7 +204,7 @@
         "detail": "Crystalline Shards · first at -38.0, -89.0 · Polonium 0.3%, Tin 0.7%, Mercury 0.5%",
         "exact": false,
         "id64": 633541202354,
-        "jumps": 48,
+        "jumps": 46,
         "ly": 1429.937157505204,
         "system": "Oochorrs AC-T c20-2",
         "updated_at": "2026-10-14T04:12:06Z"
@@ -215,7 +215,7 @@
         "detail": "Crystalline Shards · first at -61.5, 175.3 · Tellurium 1.3%, Molybdenum 1.6%, Tungsten 1.3%",
         "exact": false,
         "id64": 633608343986,
-        "jumps": 48,
+        "jumps": 46,
         "ly": 1430.4495015089444,
         "system": "Outotz LF-N c20-2",
         "updated_at": "2026-10-14T00:04:00Z"
@@ -226,7 +226,7 @@
         "detail": "Crystalline Shards · first at 4.0, 36.9 · Ruthenium 0.8%, Cadmium 1.0%, Niobium 0.8%",
         "exact": false,
         "id64": 634279530938,
-        "jumps": 49,
+        "jumps": 47,
         "ly": 1468.9936383695856,
         "system": "Outotz TA-M c21-2",
         "updated_at": "2026-10-16T01:18:11Z"
@@ -237,7 +237,7 @@
         "detail": "Crystalline Shards · first at 17.2, 171.4 · Yttrium 0.7%, Niobium 0.8%, Tin 0.7%",
         "exact": false,
         "id64": 634279530938,
-        "jumps": 49,
+        "jumps": 47,
         "ly": 1468.9936383695856,
         "system": "Outotz TA-M c21-2",
         "updated_at": "2026-10-15T22:55:02Z"
@@ -248,7 +248,7 @@
         "detail": "Crystalline Shards · first at -14.0, 148.6 · Selenium 4.2%, Ruthenium 0.7%, Molybdenum 0.8%",
         "exact": false,
         "id64": 634279530938,
-        "jumps": 49,
+        "jumps": 47,
         "ly": 1468.9936383695856,
         "system": "Outotz TA-M c21-2",
         "updated_at": "2026-10-15T20:26:39Z"
@@ -260,7 +260,7 @@
       "noun": "crystalline shards",
       "yields": "Grade 4 raw (polonium, ruthenium, tellurium, technetium, yttrium, antimony and more). Shoot the shards from the SRV and collect the fragments."
     },
-    "range": 30.0,
+    "range": 31.5,
     "source": "Spansh"
   },
   "geological": {
@@ -348,7 +348,7 @@
       "noun": "geological sites",
       "yields": "Grade 1 to 3 raw from the outcrops around geysers, fumaroles and vents."
     },
-    "range": 30.0,
+    "range": 31.5,
     "source": "Spansh"
   },
   "raw_farms": {
@@ -382,7 +382,7 @@
         "exact": false,
         "farm": "selenium from brain trees",
         "id64": 182359951707,
-        "jumps": 15,
+        "jumps": 14,
         "ly": 423.0222837381767,
         "system": "HR 3230",
         "updated_at": "2026-10-16T00:00:00Z"
@@ -394,7 +394,7 @@
         "exact": false,
         "farm": "polonium from crystalline shards",
         "id64": 84456968626,
-        "jumps": 54,
+        "jumps": 51,
         "ly": 1598.8619383945804,
         "system": "HIP 36601",
         "updated_at": "2026-10-16T00:00:00Z"
@@ -406,7 +406,7 @@
         "exact": false,
         "farm": "ruthenium from crystalline shards",
         "id64": 84456968626,
-        "jumps": 54,
+        "jumps": 51,
         "ly": 1598.8619383945804,
         "system": "HIP 36601",
         "updated_at": "2026-10-16T00:00:00Z"
@@ -418,7 +418,7 @@
         "exact": false,
         "farm": "tellurium from crystalline shards",
         "id64": 84456968626,
-        "jumps": 54,
+        "jumps": 51,
         "ly": 1598.8619383945804,
         "system": "HIP 36601",
         "updated_at": "2026-10-16T00:00:00Z"
@@ -430,7 +430,7 @@
         "exact": false,
         "farm": "technetium from crystalline shards",
         "id64": 84456968626,
-        "jumps": 54,
+        "jumps": 51,
         "ly": 1598.8619383945804,
         "system": "HIP 36601",
         "updated_at": "2026-10-16T00:00:00Z"
@@ -442,7 +442,7 @@
         "exact": false,
         "farm": "ruthenium from crystalline shards",
         "id64": 113674078411,
-        "jumps": 58,
+        "jumps": 55,
         "ly": 1714.077377157406,
         "system": "Outotz LS-K d8-3",
         "updated_at": "2026-10-16T00:00:00Z"
@@ -454,7 +454,7 @@
         "exact": false,
         "farm": "yttrium from crystalline shards",
         "id64": 113674078411,
-        "jumps": 58,
+        "jumps": 55,
         "ly": 1714.077377157406,
         "system": "Outotz LS-K d8-3",
         "updated_at": "2026-10-16T00:00:00Z"
@@ -466,7 +466,7 @@
       "noun": "raw material farm",
       "yields": "The well-known grade 4 farms: one body for each element."
     },
-    "range": 30.0,
+    "range": 31.5,
     "source": "astromech"
   }
 }

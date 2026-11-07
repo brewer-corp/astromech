@@ -196,6 +196,89 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
         "sites.json",
         SITES.iter().map(|(key, kind)| Part { key, from: core("sol", None, "galaxy_sites", json!({ "kind": kind })) }).collect(),
     );
+    // Trade around Sol: the sol world's commander has 10 MCr, 200 t of space and the mined
+    // hold (Cargo.json), and Ardent Insight's and Spansh's answers are recorded.
+    let within = |ly: u32| {
+        json!({"pad": null, "pad_set": false, "exclude_carriers": false, "exclude_odyssey": false, "max_age_days": null,
+               "max_arrival_ls": null, "max_distance_ly": ly, "min_volume": null})
+    };
+    let sol = |cmd, args| core("sol", None, cmd, args);
+    let picked = |cmd, args, pick| From::Core { world: "sol", at: None, cmd, args, pick, keep: &[] };
+    t.insert(
+        "trade.json",
+        vec![
+            Part { key: "/sell", from: sol("trade_search", json!({"side": "sell", "commodities": ["painite"], "filters": within(40)})) },
+            Part { key: "/buy", from: sol("trade_search", json!({"side": "buy", "commodities": ["tritium"], "filters": within(40)})) },
+            Part { key: "/anywhere/sell", from: sol("trade_anywhere", json!({"side": "sell", "commodity": "painite"})) },
+            // Stations only: the preview applies the filters to its sample, so it holds the
+            // answer that still has offers with fleet carriers left out.
+            Part {
+                key: "/anywhere/buy",
+                from: sol(
+                    "trade_anywhere",
+                    json!({"side": "buy", "commodity": "tritium", "filters": {"pad": null, "pad_set": false, "exclude_carriers": true,
+                        "exclude_odyssey": false, "max_age_days": null, "max_arrival_ls": null, "max_distance_ly": null, "min_volume": null}}),
+                ),
+            },
+            Part { key: "/cargo", from: picked("trade_cargo", json!({"filters": within(40)}), "/plan") },
+            Part { key: "/hold", from: picked("trade_cargo", json!({"filters": within(40)}), "/hold") },
+            Part {
+                key: "/list",
+                from: picked(
+                    "colonisation_buy",
+                    json!({"filters": within(20), "needs": [
+                        {"symbol": "steel", "name": "Steel", "tonnes": 4912},
+                        {"symbol": "cmmcomposite", "name": "CMM Composite", "tonnes": 3820},
+                        {"symbol": "ceramiccomposites", "name": "Ceramic Composites", "tonnes": 512},
+                        {"symbol": "insulatingmembrane", "name": "Insulating Membrane", "tonnes": 310}]}),
+                    "/plan",
+                ),
+            },
+            Part { key: "/route/defaults", from: sol("trade_route_defaults", Value::Null) },
+            Part {
+                key: "/route/single",
+                from: picked(
+                    "trade_route",
+                    json!({"ask": {"kind": "single", "station": "Abraham Lincoln", "capacity": 200, "credits": 10_000_000, "max_hop_ly": 31.5}}),
+                    "/route",
+                ),
+            },
+            Part {
+                key: "/route/loop",
+                from: From::Not("no recorded Spansh answer to a loop search: spansh-trade-result.json is a single hop"),
+            },
+        ],
+    );
+    // The Route page: the ship, and routes plotted from Sol by Spansh's recorded answers.
+    t.insert(
+        "plot.json",
+        vec![
+            Part { key: "/ship", from: sol("route_plot_ship", Value::Null) },
+            Part {
+                key: "/exact",
+                from: picked(
+                    "route_plot",
+                    json!({"ask": {"plotter": "exact", "to": "Maia", "efficiency": 60, "refuel_every_scoopable": true}}),
+                    "/plotted",
+                ),
+            },
+            Part {
+                key: "/neutron",
+                from: picked(
+                    "route_plot",
+                    json!({"ask": {"plotter": "neutron", "to": "Colonia", "efficiency": 60, "refuel_every_scoopable": false}}),
+                    "/plotted",
+                ),
+            },
+            Part {
+                key: "/local",
+                from: From::Not(
+                    "a neutron route plotted on this PC needs the neutron star file installed, which a world doesn't \
+                     seed: astromech-galaxy's dump-local-route example plots it over tests/fixtures/neutron-sample.bin",
+                ),
+            },
+        ],
+    );
     t.insert(
         "odyssey.json",
         vec![

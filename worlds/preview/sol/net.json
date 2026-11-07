@@ -75,6 +75,112 @@
    "method": "POST",
    "sent": "\"count\":[5,5]",
    "from": "spansh-hotspots-painite-5.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/painite/nearby/imports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-sell-painite-sol.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/platinum/nearby/imports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-sell-platinum-sol.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/lowtemperaturediamond/nearby/imports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-sell-lowtemperaturediamond-sol.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/tritium/nearby/exports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-buy-tritium-sol.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/steel/nearby/exports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-buy-steel-sol.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/cmmcomposite/nearby/exports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-buy-cmmcomposite-sol.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/ceramiccomposites/nearby/exports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-buy-ceramiccomposites-sol.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/insulatingmembrane/nearby/exports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-buy-insulatingmembrane-sol.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/commodity/name/painite/imports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-galaxy-sell-painite.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/commodity/name/tritium/exports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-galaxy-buy-tritium.json"
+  },
+  {
+   "url": "fleetCarriers=false",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-galaxy-buy-tritium-nocarriers.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/Sol/commodities",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-markets-sol.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/LP%2071-165/commodities",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-markets-lp-71-165.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/trade/route",
+   "method": "POST",
+   "status": 202,
+   "from": "../../../crates/astromech-data/tests/fixtures/spansh-trade-submit.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/results/00000000-0000-0000-0000-000000000002",
+   "in_turn": [
+    {
+     "status": 202,
+     "from": "../../../crates/astromech-data/tests/fixtures/spansh-trade-queued.json"
+    },
+    {
+     "from": "../../../crates/astromech-data/tests/fixtures/spansh-trade-result.json"
+    }
+   ]
+  },
+  {
+   "url": "https://spansh.co.uk/api/generic/route",
+   "method": "POST",
+   "status": 202,
+   "from": "../../../crates/astromech-data/tests/fixtures/spansh-exact-submit.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/results/00000000-0000-0000-0000-000000000003",
+   "in_turn": [
+    {
+     "status": 202,
+     "from": "../../../crates/astromech-data/tests/fixtures/spansh-exact-pending.json"
+    },
+    {
+     "from": "../../../crates/astromech-data/tests/fixtures/spansh-exact-result.json"
+    }
+   ]
+  },
+  {
+   "url": "https://spansh.co.uk/api/route",
+   "method": "POST",
+   "status": 202,
+   "from": "../../../crates/astromech-data/tests/fixtures/spansh-route-queued.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/results/00000000-0000-0000-0000-000000000001",
+   "in_turn": [
+    {
+     "status": 202,
+     "from": "../../../crates/astromech-data/tests/fixtures/spansh-route-pending.json"
+    },
+    {
+     "from": "../../../crates/astromech-data/tests/fixtures/spansh-route-result.json"
+    }
+   ]
   }
  ]
 }
