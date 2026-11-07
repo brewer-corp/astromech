@@ -4,6 +4,7 @@
 //! mouse input or controller output of any kind, never touches game files, and only reads
 //! Status.json. Downloads come from the official sherpa-onnx GitHub releases and are
 //! SHA-256 checked. Results stay on this PC.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 #![cfg_attr(not(windows), allow(dead_code))]
 

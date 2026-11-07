@@ -1,6 +1,7 @@
 //! s7-input-listener: listens read-only to controllers, keyboard and mouse in the background
 //! for a fixed time, then reports what it saw and whether capture works while Elite has focus.
 //! It never sends input and never writes anything except its own report.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 #[allow(dead_code)]
 mod binds;

@@ -4,6 +4,7 @@
 //! Every key event it receives is appended to keys.log next to Status.json.
 //!
 //! Usage: mockgame <journal_dir> <scancode_hex> <extended 0|1> <bit> <delay_ms> <run_seconds>
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 #[cfg(not(windows))]
 fn main() {

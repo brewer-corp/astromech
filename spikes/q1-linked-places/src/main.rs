@@ -9,6 +9,7 @@
 //! q1 probe bodies Sol '{"ring_signals":[{"name":["Platinum"]}]}' [size]
 //! q1 edsm-factions "Some System"
 //! ```
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 mod disk;
 mod join;

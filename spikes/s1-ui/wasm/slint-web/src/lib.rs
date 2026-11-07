@@ -1,4 +1,5 @@
 //! The SAME .slint HUD (slint-demo/ui/hud.slint), compiled to wasm (winit web backend, FemtoVG/WebGL).
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 slint::include_modules!();
 use slint::{Model, VecModel};
 use std::rc::Rc;
