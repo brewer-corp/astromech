@@ -11,6 +11,9 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-fmub"
+    type: "related"
+  - kind: "issue"
     id: "astromech-lkwj"
     type: "blocked_by"
   - kind: "issue"
@@ -20,7 +23,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Crash restart for the one app through Windows restart registration"
-updated_at: "2026-11-07T14:01:03.786032023+00:00"
+updated_at: "2026-11-07T14:07:01.291052660+00:00"
 ---
 
 ## Goal
@@ -59,7 +62,7 @@ When the one app crashes, it comes back tray-only, with no shell and no watchdog
   - **The restarted start, faked:** the job starts `astromech-core.exe --background --restarted` itself, as WER would. Without a marker it writes one, the tray's crash line is there, it answers `status` with no window, and exactly one app process runs.
   - **The restored state, faked the same way:** with the mock game (crates/astromech-mockgame, copied as `EliteDangerous64.exe` as scripts/onboarding_smoke.py does) running, the job waits for the session (`status.active`), turns the kill switch on (`kill_switch`, `status.killed`), ends the app with TerminateProcess, starts it with `--restarted` in the same Elite run, waits for the new session and reads `status.killed`. It must show the state decision astromech-lkwj chose.
   - **Records, not asserted:** each crash kind (`abort`, `access_violation`) after 65 s, and whether a `--restarted` process appeared within 90 s, so a runner where WER works shows up.
-- [ ] After merge (needs-human: Sumeet's PC): on his install, each crash kind (`abort`, `access_violation`) after 65 s of uptime comes back within 90 s as one `astromech-core.exe --background --restarted`, tray-only; a TerminateProcess (`taskkill /F`) stays off for 90 s; and a crash before 60 s isn't restarted (recorded). Run as scripts/one_process_probe.py's `--restart` mode does, with `ASTROMECH_CRASH_TEST=1`. Stand-in: the CI job above (registration read back, and the `--restarted` start handled). If Windows restarts neither kind there with WER on, the stop rule applies: the watchdog question goes to Sumeet.
+- [ ] After merge (needs-human: Sumeet's PC): on his install, each crash kind (`abort`, `access_violation`) after 65 s of uptime comes back within 90 s as one `astromech-core.exe --background --restarted`, tray-only; a TerminateProcess (`taskkill /F`) stays off or comes back as decision astromech-lkwj says; and a crash before 60 s isn't restarted (recorded). Run as scripts/one_process_probe.py's `--restart` mode does, with `ASTROMECH_CRASH_TEST=1`. Stand-in: the CI job above (registration read back, and the `--restarted` start handled). If Windows restarts neither kind there with WER on, the stop rule applies: the watchdog question goes to Sumeet.
 - [ ] V1-DESIGN §7.7's crash restart paragraph and ARCHITECTURE §18.1 describe this.
 
 ## Scope
@@ -77,3 +80,4 @@ crates/astromech-core (crash.rs, app.rs startup, session.rs for the saved state,
 ## Notes
 
 - 2026-11-07 [note] From spike astromech-wgtr (evidence astromech-fqw9): restart registration couldn't be shown on Windows CI. RegisterApplicationRestart returned 0, but no crash was restarted in 15 cases (abort, access_violation and main_thread_panic after 65 s, TerminateProcess, abort after 10 s) across three configurations: the runner's WER (WerSvc stopped, DontShowUI=1), WER on, and WER on with the app launched with the default error mode. The runner hands its children error mode 0x3 (SEM_NOGPFAULTERRORBOX), and it refuses CREATE_BREAKAWAY_FROM_JOB. Even with error mode 0, no WER report, WerFault or dialog appeared, so WER never engaged there. Its CI job therefore can't prove a restart: Done when now has the job assert registration and a faked --restarted start, and the real restart moves to an after-merge needs-human check at Sumeet's PC. If Windows restarts neither abort nor access_violation there with WER on, the watchdog question goes to Sumeet (stop rule). Also, main_thread_panic exits 0x65 with no WER, so the main-thread abort line applies (its condition is met).
+- 2026-11-07 [note] From finding astromech-1vi3 (wgtr review): word the runner result as 'no restart, WER report or WerFault was observed' (WerSvc went from stopped to running during the runner-WER configuration, so 'WER never engages' overstates it), and have the records step log AeDebug, LocalDumps and the WerSvc state before and after each crash.
