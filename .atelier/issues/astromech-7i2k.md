@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "One Raw Input registration per process, shared by push-to-talk and the window's press listener"
-updated_at: "2026-11-07T14:01:02.739585882+00:00"
+updated_at: "2026-11-07T14:49:44.490066253+00:00"
 ---
 
 ## Goal
