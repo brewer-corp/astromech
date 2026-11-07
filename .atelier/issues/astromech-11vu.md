@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Journeys: the kill switch shown on and re-armed in the page; the voice tester runs gear down live and shows it confirmed"
-updated_at: "2026-11-07T22:55:23.422386221+00:00"
+updated_at: "2026-11-07T23:56:02.925224932+00:00"
 ---
 
 ## Goal
