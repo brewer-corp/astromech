@@ -54,7 +54,8 @@ under `.atelier/`, committed with the code they describe. There is no separate b
 The rules are in [CONTRIBUTING.md](CONTRIBUTING.md#tests) (decision astromech-1zhg); in short:
 
 - Doubles only at true boundaries (game files, network, clock, input, audio, clipboard); the
-  core runs for real. Fixtures are recorded raw inputs, never invented replies.
+  core runs for real. Fixtures are recorded raw inputs, never invented replies; a reply written
+  in a test only sets up a failure, an empty state or a fault the fixtures lack.
 - One case, at the lowest layer that fails. Don't test copy text, static markup, callback wiring
   or what the types guarantee.
 - A logic bug gets a failing test first; a visual change gets before-and-after captures, not a test.
