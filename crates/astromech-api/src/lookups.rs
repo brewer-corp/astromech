@@ -415,8 +415,8 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     let s = state.clone();
     reg.add_typed("colonisation_buy", Window, move |x: Near<NeedsArg>, _| {
         let (g, here, range, filters) = near(&s, &x)?;
-        let plan =
-            astromech_market::list::plan_search(&g, &here, range, &x.what.needs, &filters, 12, now(&s)).map_err(text)?;
+        let plan = astromech_market::list::plan_search(&g, &here, range, &x.what.needs, &filters, 12, now(&s))
+            .map_err(text)?;
         Ok(ShoppingPlan { here, range, plan })
     });
 

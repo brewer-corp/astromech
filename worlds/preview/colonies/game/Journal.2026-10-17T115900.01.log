@@ -1,0 +1,4 @@
+{"timestamp":"2026-10-17T11:59:00Z","event":"Fileheader","part":1,"language":"English/UK","Odyssey":true,"gameversion":"4.2.1.0","build":"synthetic"}
+{"timestamp":"2026-10-17T11:59:05Z","event":"Commander","FID":"F0000001","Name":"Jameson"}
+{"timestamp":"2026-10-17T11:59:07Z","event":"Loadout","Ship":"asp","ShipID":1,"ShipName":"","ShipIdent":"","CargoCapacity":64,"FuelCapacity":{"Main":32.0,"Reserve":0.63},"UnladenMass":400.63,"MaxJumpRange":20.0,"Modules":[]}
+{"timestamp":"2026-10-17T11:59:10Z","event":"Location","Docked":false,"StarSystem":"Greae Phoea EM-K d9-675","SystemAddress":23204307324883,"StarPos":[4758.5,-367.21875,16423.46875],"Body":"Greae Phoea EM-K d9-675","BodyType":"Star"}

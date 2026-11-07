@@ -1,0 +1,22 @@
+{
+ "exchanges": [
+  {
+   "url": "https://spansh.co.uk/api/systems/search",
+   "method": "POST",
+   "sent": "\"controlling_power\":{\"value\":[\"Li Yong-Rui\"]}",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-powerplay-reinforcement.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/systems/search",
+   "method": "POST",
+   "sent": "Unoccupied",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-powerplay-acquisition.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/systems/search",
+   "method": "POST",
+   "sent": "Stronghold",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-powerplay-undermining.json"
+  }
+ ]
+}

@@ -27,7 +27,14 @@ enum From {
     /// "" is all of it). A string `"$/<pointer>"` in `args` stands for the file's value there (the
     /// sample's own input, such as the plan it asks for). `keep`: pointers into the part whose
     /// value is volatile (a path in the world's temp folder, a label); the file's is kept.
-    Core { world: &'static str, at: Option<&'static str>, cmd: &'static str, args: Value, pick: &'static str, keep: &'static [&'static str] },
+    Core {
+        world: &'static str,
+        at: Option<&'static str>,
+        cmd: &'static str,
+        args: Value,
+        pick: &'static str,
+        keep: &'static [&'static str],
+    },
     /// Not a reply but the sample's own input to one (`"$/…"` above), kept as written.
     Input(&'static str),
     /// Not produced by the core, and why.
@@ -80,18 +87,29 @@ const SITES: [(&str, &str); 5] = [
 /// Every fixture file, by name, and where each part of it comes from.
 fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
     let mut t = BTreeMap::new();
-    t.insert(
-        "logbook.json",
-        whole(core("history", Some("imported"), "logbook", json!({"query": "", "cmdr": null}))),
-    );
+    t.insert("logbook.json", whole(core("history", Some("imported"), "logbook", json!({"query": "", "cmdr": null}))));
     t.insert("session.json", whole(core("history", Some("imported"), "session_summary", Value::Null)));
     t.insert(
         "mining.json",
-        whole(From::Core { world: "mining", at: Some("mined"), cmd: "status", args: Value::Null, pick: "/mining", keep: &[] }),
+        whole(From::Core {
+            world: "mining",
+            at: Some("mined"),
+            cmd: "status",
+            args: Value::Null,
+            pick: "/mining",
+            keep: &[],
+        }),
     );
     t.insert(
         "materials.json",
-        whole(From::Core { world: "materials", at: None, cmd: "materials_inventory", args: Value::Null, pick: "", keep: &["/source"] }),
+        whole(From::Core {
+            world: "materials",
+            at: None,
+            cmd: "materials_inventory",
+            args: Value::Null,
+            pick: "",
+            keep: &["/source"],
+        }),
     );
     t.insert("unlocks.json", whole(core("unlocks", None, "engineering_unlocks", Value::Null)));
     t.insert(
@@ -99,7 +117,14 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
         vec![
             Part {
                 key: "/fleet",
-                from: From::Core { world: "engineering", at: None, cmd: "engineering_fleet", args: Value::Null, pick: "", keep: &["/source"] },
+                from: From::Core {
+                    world: "engineering",
+                    at: None,
+                    cmd: "engineering_fleet",
+                    args: Value::Null,
+                    pick: "",
+                    keep: &["/source"],
+                },
             },
             Part { key: "/plan_input", from: From::Input("the plan the sample's numbers are for") },
             Part { key: "/plan", from: core("engineering", None, "engineering_plan", json!({"plan": "$/plan_input"})) },
@@ -112,15 +137,55 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
     let mut ships = vec![
         Part {
             key: "/fleet",
-            from: From::Core { world: "krait", at: None, cmd: "engineering_fleet", args: Value::Null, pick: "", keep: &["/source"] },
+            from: From::Core {
+                world: "krait",
+                at: None,
+                cmd: "engineering_fleet",
+                args: Value::Null,
+                pick: "",
+                keep: &["/source"],
+            },
         },
-        Part { key: "/headlines/1", from: From::Core { world: "krait", at: None, cmd: "engineering_headlines", args: Value::Null, pick: "/1", keep: &[] } },
-        Part { key: "/headlines/3", from: From::Core { world: "engineering", at: None, cmd: "engineering_headlines", args: Value::Null, pick: "/3", keep: &[] } },
-        Part { key: "/headlines/7", from: From::Core { world: "engineering", at: None, cmd: "engineering_headlines", args: Value::Null, pick: "/7", keep: &[] } },
+        Part {
+            key: "/headlines/1",
+            from: From::Core {
+                world: "krait",
+                at: None,
+                cmd: "engineering_headlines",
+                args: Value::Null,
+                pick: "/1",
+                keep: &[],
+            },
+        },
+        Part {
+            key: "/headlines/3",
+            from: From::Core {
+                world: "engineering",
+                at: None,
+                cmd: "engineering_headlines",
+                args: Value::Null,
+                pick: "/3",
+                keep: &[],
+            },
+        },
+        Part {
+            key: "/headlines/7",
+            from: From::Core {
+                world: "engineering",
+                at: None,
+                cmd: "engineering_headlines",
+                args: Value::Null,
+                pick: "/7",
+                keep: &[],
+            },
+        },
     ];
     for (plan, stats) in CASES {
         ships.push(Part { key: plan, from: From::Input("a build plan the Ships page's sample has stats for") });
-        ships.push(Part { key: stats, from: core("krait", None, "engineering_stats", json!({ "plan": format!("${plan}") })) });
+        ships.push(Part {
+            key: stats,
+            from: core("krait", None, "engineering_stats", json!({ "plan": format!("${plan}") })),
+        });
     }
     t.insert("ships.json", ships);
     // The voice tester's dry runs, by phrase: Elite running, the gear up (flags: in the ship),
@@ -131,7 +196,14 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
             .iter()
             .map(|(key, said)| Part {
                 key,
-                from: From::Core { world: "voice", at: Some("running"), cmd: "voice_test", args: json!(said), pick: "/result", keep: &[] },
+                from: From::Core {
+                    world: "voice",
+                    at: Some("running"),
+                    cmd: "voice_test",
+                    args: json!(said),
+                    pick: "/result",
+                    keep: &[],
+                },
             })
             .collect(),
     );
@@ -144,12 +216,16 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
         vec![
             Part {
                 key: "/state",
-                from: From::Core { world: "binds", at: None, cmd: "binds_state", args: Value::Null, pick: "", keep: &["/backups/*/created", "/presets/*/files/*/modified"] },
+                from: From::Core {
+                    world: "binds",
+                    at: None,
+                    cmd: "binds_state",
+                    args: Value::Null,
+                    pick: "",
+                    keep: &["/backups/*/created", "/presets/*/files/*/modified"],
+                },
             },
-            Part {
-                key: "/view",
-                from: core("binds", None, "binds_view", json!({"path": "$/view/path"})),
-            },
+            Part { key: "/view", from: core("binds", None, "binds_view", json!({"path": "$/view/path"})) },
         ],
     );
     t.insert(
@@ -173,7 +249,12 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
     );
     t.insert(
         "hotspots.json",
-        whole(core("sol", None, "mining_hotspots", json!({"want": {"ore": "painite", "ring_type": null, "reserve": null}}))),
+        whole(core(
+            "sol",
+            None,
+            "mining_hotspots",
+            json!({"want": {"ore": "painite", "ring_type": null, "reserve": null}}),
+        )),
     );
     t.insert(
         "stations.json",
@@ -194,7 +275,10 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
     );
     t.insert(
         "sites.json",
-        SITES.iter().map(|(key, kind)| Part { key, from: core("sol", None, "galaxy_sites", json!({ "kind": kind })) }).collect(),
+        SITES
+            .iter()
+            .map(|(key, kind)| Part { key, from: core("sol", None, "galaxy_sites", json!({ "kind": kind })) })
+            .collect(),
     );
     // Trade around Sol: the sol world's commander has 10 MCr, 200 t of space and the mined
     // hold (Cargo.json), and Ardent Insight's and Spansh's answers are recorded.
@@ -279,12 +363,93 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
             },
         ],
     );
+    // Colony candidates around Greae Phoea EM-K d9-675, where the colonies world's commander is,
+    // from Spansh's answers recorded there on 17 Oct 2026.
+    t.insert(
+        "colonies.json",
+        ["any", "earth_like", "landable", "rings"]
+            .into_iter()
+            .zip(["/any", "/earth_like", "/landable", "/rings"])
+            .map(|(interest, key)| Part {
+                key,
+                from: core("colonies", None, "colony_candidates", json!({ "interest": interest })),
+            })
+            .collect(),
+    );
+    // Powerplay: the powerplay world's commander, pledged to Li Yong-Rui, at Lembava (the
+    // targets, from Spansh's recorded answers) and then at Piscium Sector EB-X b1-3. The week's
+    // merits and its end are counted to the wall clock's week (astromech-powerplay
+    // `Standing::view`), so the file's are kept.
+    t.insert(
+        "powerplay-targets.json",
+        [("/acquire", "acquire"), ("/reinforce", "reinforce"), ("/undermine", "undermine")]
+            .into_iter()
+            .map(|(key, target)| Part {
+                key,
+                from: core(
+                    "powerplay",
+                    Some("lembava"),
+                    "powerplay_targets",
+                    json!({"target": target, "within_ly": 40.0}),
+                ),
+            })
+            .collect(),
+    );
+    t.insert(
+        "powerplay.json",
+        whole(From::Core {
+            world: "powerplay",
+            at: Some("piscium"),
+            cmd: "powerplay_overview",
+            args: Value::Null,
+            pick: "",
+            keep: &["/standing/week_merits", "/standing/week_ends"],
+        }),
+    );
+    // Two colonisation projects in Wolf 359, one built, from the colonisation world's synthetic
+    // depot visits, with 90 t of Insulating Membrane aboard a 784 t Type-9.
+    t.insert("colonisation.json", whole(core("colonisation", None, "colonisation_projects", Value::Null)));
+    t.insert(
+        "exobiology.json",
+        whole(From::Not(
+            "the sample's other players' reports come from Spansh's known-biology search, which the session \
+             makes in the background on arrival and which is recorded only for Luhman 16 \
+             (spansh-bodies-biology.json), not for the sample's synthetic system; with its sampling in \
+             progress it stays hand-assembled from the exploration crate's synthetic biology lines",
+        )),
+    );
+    // The explorer world's commander, in game, scans a whole unexplored system, Synuefe AB-C
+    // d1-2 (the exploration crate's synthetic lines); the history counts the unsold data.
+    t.insert(
+        "exploration.json",
+        vec![
+            Part { key: "/system", from: core("explorer", Some("explored"), "exploration_system", Value::Null) },
+            Part { key: "/unsold", from: core("explorer", Some("explored"), "exploration_unsold", Value::Null) },
+        ],
+    );
+    // Docked at Test Gateway in LHS 2435 (the market world: the market crate's Market.json and
+    // Cargo.json), its prices against Ardent Insight's recorded nearby ones.
+    t.insert(
+        "eddn-log.json",
+        whole(From::Not(
+            "the EDDN outbox stamps its entries and schedules its retries on the wall clock (astromech-eddn \
+             worker.rs), off the world's clock, so a world can't settle its log; the sample shows each outcome",
+        )),
+    );
+    t.insert("market-compare.json", whole(core("market", None, "market_compare", Value::Null)));
     t.insert(
         "odyssey.json",
         vec![
             Part {
                 key: "/view",
-                from: From::Core { world: "odyssey", at: None, cmd: "odyssey_view", args: Value::Null, pick: "", keep: &["/source"] },
+                from: From::Core {
+                    world: "odyssey",
+                    at: None,
+                    cmd: "odyssey_view",
+                    args: Value::Null,
+                    pick: "",
+                    keep: &["/source"],
+                },
             },
             Part { key: "/picks", from: From::Input("the picks the sample's shopping list is for") },
             Part { key: "/shopping", from: core("odyssey", None, "odyssey_shopping", json!({"picks": "$/picks"})) },
@@ -461,13 +626,23 @@ fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
     }
 
     let table: BTreeMap<_, _> = table.into_iter().filter(|(n, _)| files.contains_key(n)).collect();
-    // A composite file's parts cover its top-level keys, each once.
+    // A part the core doesn't produce says why; a composite file's parts cover its top-level
+    // keys.
     for (name, parts) in &table {
+        for part in parts {
+            if let From::Not(why) | From::Input(why) = &part.from {
+                if why.trim().is_empty() {
+                    problems.push(format!("{name}{}: no reason why the core doesn't produce it", part.key));
+                }
+                eprintln!("{name}{}: kept as written: {why}", part.key);
+            }
+        }
         if parts.iter().any(|p| p.key.is_empty()) {
             assert_eq!(parts.len(), 1, "{name}: a whole-file part must be its only one");
             continue;
         }
-        let tops: BTreeSet<String> = parts.iter().map(|p| p.key.split('/').nth(1).unwrap_or_default().to_string()).collect();
+        let tops: BTreeSet<String> =
+            parts.iter().map(|p| p.key.split('/').nth(1).unwrap_or_default().to_string()).collect();
         let keys: BTreeSet<String> = files[name].as_object().map(|o| o.keys().cloned().collect()).unwrap_or_default();
         if tops != keys {
             problems.push(format!("{name}: the table's parts cover {tops:?}, the file has {keys:?}"));
@@ -483,12 +658,16 @@ fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
             let (core, reached, root) = cores.entry(w).or_insert_with(|| {
                 let core = WorldCore::start(&world(&format!("preview/{w}")));
                 // The temp root: the config is `<root>/world/astromech.toml`.
-                let config = core.call_window("status", None).expect("status")["config"].as_str().expect("a config path").to_string();
+                let config = core.call_window("status", None).expect("status")["config"]
+                    .as_str()
+                    .expect("a config path")
+                    .to_string();
                 let root = config.trim_end_matches("/world/astromech.toml").to_string();
                 (core, None, root)
             });
             if at != reached {
-                let to = at.unwrap_or_else(|| panic!("{name}{}: a part before any step after one at {reached:?}", part.key));
+                let to =
+                    at.unwrap_or_else(|| panic!("{name}{}: a part before any step after one at {reached:?}", part.key));
                 core.step(to).unwrap_or_else(|e| panic!("{w}: world_step to {to}: {e}"));
                 *reached = Some(to);
             }
@@ -497,7 +676,10 @@ fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
             in_the_world(&mut args, root);
             let args = if args.is_null() { None } else { Some(args) };
             let reply = core.call_window(cmd, args).unwrap_or_else(|e| panic!("{name}{}: {cmd}: {e}", part.key));
-            let mut got = reply.pointer(pick).unwrap_or_else(|| panic!("{name}{}: {cmd}'s reply has no {pick}", part.key)).clone();
+            let mut got = reply
+                .pointer(pick)
+                .unwrap_or_else(|| panic!("{name}{}: {cmd}'s reply has no {pick}", part.key))
+                .clone();
             on_a_pc(&mut got, root);
             let had = file.pointer(part.key).cloned();
             if let Some(had) = &had {
@@ -514,7 +696,11 @@ fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
             } else {
                 let mut d = vec![];
                 differences(had.as_ref().unwrap_or(&Value::Null), &got, String::new(), &mut d);
-                problems.push(format!("{name}{} is not {w}'s {cmd} reply (fixture ≠ core):\n    {}", part.key, d.join("\n    ")));
+                problems.push(format!(
+                    "{name}{} is not {w}'s {cmd} reply (fixture ≠ core):\n    {}",
+                    part.key,
+                    d.join("\n    ")
+                ));
             }
         }
     }

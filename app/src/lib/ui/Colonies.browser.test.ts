@@ -19,7 +19,8 @@ describe("Colonies", () => {
     expect(asked).toHaveBeenLastCalledWith({ interest: "any", origin: null, filters: DEFAULT_FILTERS });
     expect(rows()).toHaveLength(10);
     expect(heads()).toEqual(["Jumps", "System", "Bodies", "Distance", "Updated", ""]);
-    expect(rows()[0]).toMatch(/^\s*1\s+Greae Phoea VS-M b39-29/);
+    // An estimate (~): the world has no star map around the colony.
+    expect(rows()[0]).toMatch(/^\s*~1\s+Greae Phoea VS-M b39-29/);
     expect(rows()[0]).toContain("9.5ly");
     expect(rows()[0]).toContain("M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM-K d9-675");
     // Measured from the colony that puts it in range; no bodies scanned yet.

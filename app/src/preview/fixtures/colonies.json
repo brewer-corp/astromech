@@ -1,6 +1,6 @@
 {
   "any": {
-    "fetched": "2026-10-17T02:35:00Z",
+    "fetched": "2026-10-17T12:00:00Z",
     "here": {
       "id64": 23204307324883,
       "pos": [
@@ -23,7 +23,7 @@
           "water_worlds": 0
         },
         "detail": "M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM-K d9-675",
-        "exact": true,
+        "exact": false,
         "id64": 64506515308369,
         "jumps": 1,
         "ly": 9.514072636100694,
@@ -47,7 +47,7 @@
           "water_worlds": 0
         },
         "detail": "T (Brown dwarf) star · 12.1 ly from Greae Phoea EM-K d9-675",
-        "exact": true,
+        "exact": false,
         "id64": 5878195060376,
         "jumps": 1,
         "ly": 12.120730562758995,
@@ -71,7 +71,7 @@
           "water_worlds": 0
         },
         "detail": "bodies not on Spansh · 13.7 ly from Greae Phoea US-M b39-3",
-        "exact": true,
+        "exact": false,
         "id64": 56441809117098,
         "jumps": 1,
         "ly": 13.998221148149502,
@@ -95,7 +95,7 @@
           "water_worlds": 0
         },
         "detail": "bodies not on Spansh · 9.4 ly from Greae Phoea US-M b39-3",
-        "exact": true,
+        "exact": false,
         "id64": 51219128885162,
         "jumps": 1,
         "ly": 16.92726281956123,
@@ -119,7 +119,7 @@
           "water_worlds": 0
         },
         "detail": "M (Red dwarf) star · 4.3 ly from Greae Phoea US-M b39-3",
-        "exact": true,
+        "exact": false,
         "id64": 11729957175121,
         "jumps": 1,
         "ly": 17.766140328937514,
@@ -143,7 +143,7 @@
           "water_worlds": 0
         },
         "detail": "bodies not on Spansh · 6.9 ly from Greae Phoea GD-V c18-74",
-        "exact": true,
+        "exact": false,
         "id64": 19390376366035,
         "jumps": 1,
         "ly": 19.204364534852488,
@@ -258,7 +258,7 @@
     "unchecked": 0
   },
   "earth_like": {
-    "fetched": "2026-10-17T02:35:00Z",
+    "fetched": "2026-10-17T12:00:00Z",
     "here": {
       "id64": 23204307324883,
       "pos": [
@@ -275,7 +275,7 @@
     "unchecked": 0
   },
   "landable": {
-    "fetched": "2026-10-17T02:35:00Z",
+    "fetched": "2026-10-17T12:00:00Z",
     "here": {
       "id64": 23204307324883,
       "pos": [
@@ -298,7 +298,7 @@
           "water_worlds": 0
         },
         "detail": "M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM-K d9-675",
-        "exact": true,
+        "exact": false,
         "id64": 64506515308369,
         "jumps": 1,
         "ly": 9.514072636100694,
@@ -341,7 +341,7 @@
     "unchecked": 0
   },
   "rings": {
-    "fetched": "2026-10-17T02:35:00Z",
+    "fetched": "2026-10-17T12:00:00Z",
     "here": {
       "id64": 23204307324883,
       "pos": [
