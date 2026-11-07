@@ -18,9 +18,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "One shell proxy for every window call; forwarders, core_call and core_status gone"
-updated_at: "2026-11-07T07:43:29.499142502+00:00"
+updated_at: "2026-11-07T09:21:40.548247277+00:00"
 ---
 
 ## Goal
