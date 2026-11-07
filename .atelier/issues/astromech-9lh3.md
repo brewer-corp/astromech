@@ -31,7 +31,7 @@ The installer, the updater and Start with Windows work with the one executable. 
 
 ## Done when
 
-- [ ] The forwarder, kept as the executable decision says, is a tiny bin crate without Tauri, built as `astromech-shell.exe`. It starts `astromech-core.exe` from its own folder with its own arguments and exits.
+- [ ] The forwarder, kept as decision astromech-nade says, is a tiny bin crate without Tauri, built as `astromech-shell.exe`. It starts `astromech-core.exe` from its own folder with its own arguments and exits.
   - It is GUI-subsystem (`windows_subsystem = "windows"`), so it flashes no console window.
   - It ships through `externalBin` (scripts/stage-sidecars.sh) and in the update zip (scripts/pack-update.py's list in release.yml).
   - A unit test covers how the command line is built.

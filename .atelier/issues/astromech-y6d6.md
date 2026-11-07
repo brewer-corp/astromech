@@ -60,6 +60,6 @@ astromech ships as one Tauri process holding the tray, pipeline, voice, input an
 What the code settles, and what the spike (astromech-wgtr) settles:
 - **tao and the tray with no window.** From the code: Tauri's tray uses the same `tray-icon` and `muda` crates. tao registers keyboard and mouse Raw Input when it builds the loop, so the input source starts after `build`. The spike settles, on Windows, that the tray works windowless, through window crashes and after a close, and whether an app-owned Raw Input listener survives.
 - **Idle cost.** The spike measures it against a plain-tray baseline: reported, not gated (astromech-01ft).
-- **`core.json`.** It stays as the control API's endpoint, and the window stops using it. This is settled by the executable decision in this bundle; the spike is not needed for it.
+- **`core.json`.** It stays as the control API's endpoint, and the window stops using it. This is settled by decision astromech-nade; the spike is not needed for it.
 - **Restart registration.** The spike settles which crash kinds Windows restarts on the runner.
 

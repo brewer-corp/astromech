@@ -37,7 +37,7 @@ updated_at: "2026-11-07T11:57:35.951474903+00:00"
 
 ## Done when
 
-- [ ] One binary, as the executable decision says.
+- [ ] One binary, as decision astromech-nade says.
   - app/src-tauri's package builds the `astromech-core` binary. Its `main` is the core's command line, moved into the library (`astromech_core::cli`) with every option unchanged; `--webview-debug-port` is added from window.rs:154-157. Console mode and `--apply-update` still run before any Tauri setup (main.rs:144-184).
   - The Tauri host is built on astromech-vucf's headless assembly function, the one that builds the core from its boundaries and a `Paths`. The host adds the tray and the window around it, instead of reshaping `app::run` (app.rs:1490-1673) a second time. Only the Tauri host, not the headless build, gets a tray and a window.
   - crates/astromech-core keeps only its `sign-update` binary.

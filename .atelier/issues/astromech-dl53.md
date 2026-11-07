@@ -27,7 +27,7 @@ updated_at: "2026-11-07T11:57:35.951761517+00:00"
 
 When the one app crashes, it comes back tray-only, with no shell and no watchdog process. It uses Windows' restart registration (strategy Shape). Today a crashed core is restarted only while the window is open, by the shell's watchdog (app/src-tauri/src/window.rs:57-79). With the window closed, as in most play, a crash leaves astromech off.
 
-**In-game behaviour:** after a crash in play, astromech now comes back by itself: voice reloads because Elite is running, and the tray offers Save diagnostics. What it restores, and what an End task does, are Sumeet's (the restart-state decision in this bundle, which blocks this child).
+**In-game behaviour:** after a crash in play, astromech now comes back by itself: voice reloads because Elite is running, and the tray offers Save diagnostics. What it restores, and what an End task does, are Sumeet's (decision astromech-lkwj, which blocks this child).
 
 ## Done when
 
@@ -40,7 +40,7 @@ When the one app crashes, it comes back tray-only, with no shell and no watchdog
 
   A test panics inside one of them and shows the process still runs.
 - [ ] A start with `--restarted` and no crash marker writes one ("astromech stopped unexpectedly and was restarted"). The tray's existing crash line (tray.rs:91, 105-107) then offers diagnostics after a native crash too.
-- [ ] The kill switch and Pause voice after a restart follow the restart-state decision. Under its recommended option, 1a:
+- [ ] The kill switch and Pause voice after a restart follow decision astromech-lkwj. Under its recommended option, 1a:
   - The kill state lives in each session's `Policy` (session.rs:303), and `Core::kill_switch` does nothing without a session (app.rs:342-353). So a fresh Elite run already starts armed.
   - A small state file holds the kill switch, `VOICE_PAUSED` (session.rs:27) and the Elite run it belongs to: the game process's id. The game watcher reads only names today (crates/astromech-core/src/gamewatch.rs:87-120, `process_names`), so it also records `th32ProcessID` for `EliteDangerous64.exe`.
   - The file is written when either changes and cleared when a session ends.
