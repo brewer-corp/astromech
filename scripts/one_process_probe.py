@@ -431,8 +431,7 @@ class Probe:
                 time.sleep(2)
             c = self.close_window()
             cycles.append({"cycle": i + 1, **c})
-            if i == 0:
-                self.sink_check("after the window closes", after_build)
+            self.sink_check(f"after the window closes ({i + 1} of 5)", after_build)
             self.cost[f"after close {i + 1}"] = measure(app, a.idle_seconds)
         self.check("5", "close", all(c["pass"] for c in cycles), cycles)
 
@@ -442,7 +441,7 @@ class Probe:
         self.check("3", "tray churn", ok and after is not None, {"reply": val, "ui_state_after": after})
         self.sink_check("after tray_churn", after_build)
         self.check("2", "Raw Input survives Tauri (listener after build)",
-                   all(s["pass"] for s in after_build) and len(after_build) == 4, after_build)
+                   all(s["pass"] for s in after_build) and len(after_build) == 8, after_build)
 
         # 6. Window crash: the renderer, then the browser process.
         crashes = []
@@ -753,6 +752,8 @@ def main(argv=None) -> int:
     p.add_argument("--idle-seconds", type=float, default=30.0)
     p.add_argument("--restart", action="store_true", help="report restart registration instead")
     a = p.parse_args(argv)
+    # The Windows console is cp1252; the reports aren't.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     if os.name != "nt":
         print("one_process_probe.py runs on Windows only", file=sys.stderr)
         return 2
