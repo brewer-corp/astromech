@@ -183,7 +183,9 @@ pub fn call_short(app_dir: &Path, cmd: &str, route: Option<&str>) -> Result<Valu
 
 /// The window's call, as the shell's one proxy sends it: stamped `origin: "app_window"`, so the
 /// registry refuses the `local` commands, and with no read timeout (a plot polls Spansh for
-/// minutes; a dropped connection means the core died). A string `args` is the request's `text`
+/// minutes; a dropped connection means the core died), except `status`: the window polls it
+/// every few seconds, so it keeps the [`SHORT`] bound and a core that stopped answering reads as
+/// not running instead of leaving each poll waiting forever. A string `args` is the request's `text`
 /// (the voice tester's phrase or command id, a JSON change such as `prospector_set`'s), the
 /// commands whose args type is `string` in the generated map. Progress values go to
 /// `on_progress`.
@@ -198,7 +200,8 @@ pub fn call_window(
         a => (None, a),
     };
     let req = Request { args, text, origin: Some(Origin::AppWindow), ..Request::new(cmd) };
-    call(app_dir, req, None, on_progress)
+    let timeout = (cmd == "status").then_some(SHORT);
+    call(app_dir, req, timeout, on_progress)
 }
 
 #[cfg(test)]
@@ -345,5 +348,27 @@ mod tests {
         assert!(e.starts_with("not allowed"), "{e}");
         let e = call_window(d.path(), "nope", None, &mut no_progress).unwrap_err();
         assert!(e.contains("unknown command"), "{e}");
+    }
+
+    #[test]
+    fn the_windows_status_call_gives_up_on_a_core_that_never_answers() {
+        let d = tempfile::tempdir().unwrap();
+        // A core that accepts the connection and reads the request but never answers.
+        let l = TcpListener::bind(("127.0.0.1", 0)).unwrap();
+        let ep = Endpoint { port: l.local_addr().unwrap().port(), token: "t".into(), pid: 1, version: "x".into() };
+        std::fs::write(d.path().join(FILE), serde_json::to_string(&ep).unwrap()).unwrap();
+        std::thread::spawn(move || {
+            for s in l.incoming().flatten() {
+                // Held open until the client hangs up.
+                let _ = std::io::copy(&mut &s, &mut std::io::sink());
+            }
+        });
+        let (tx, rx) = channel();
+        let dir = d.path().to_path_buf();
+        std::thread::spawn(move || tx.send(call_window(&dir, "status", None, &mut no_progress)));
+        // The client's own bound ends the call; this wait only stops the test hanging without it.
+        let r = rx.recv_timeout(SHORT + Duration::from_secs(20)).expect("the status call never gave up");
+        let e = r.unwrap_err();
+        assert!(e.starts_with("waiting for the core's reply to status"), "{e}");
     }
 }

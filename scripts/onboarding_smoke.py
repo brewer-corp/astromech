@@ -413,7 +413,9 @@ def star_map_preload(inst: Path, run: Run) -> None:
     """Open the star map (it opens on first use) and find the core's line naming its preload."""
     try:
         core_call("galaxy_systems", args={"prefix": "Sol"})
-    except ValueError as e:  # Spansh's suggestions may fail; the star map opened before they were asked
+    # Spansh's suggestions may fail or outlast core_call's 5 s socket timeout (an OSError); the star
+    # map opened before they were asked.
+    except (ValueError, OSError) as e:
         run.notes.append(f"galaxy_systems: {e}")
     log = Path(os.environ["LOCALAPPDATA"]) / "astromech" / "data" / "logs" / "astromech-core.log"
     want = f"preload {redacted(inst / 'starmap.db')}".lower()

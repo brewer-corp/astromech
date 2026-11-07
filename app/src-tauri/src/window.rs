@@ -76,9 +76,9 @@ fn watchdog(app: tauri::AppHandle) {
 }
 
 /// The page's one way to the core: any command, forwarded with `origin: "app_window"` and no
-/// read timeout (`control::call_window`). It resolves with the command's value and rejects with
-/// its error, or why the core couldn't be reached; the command's progress values go to
-/// `progress`. Off the main thread: a voice tester live run waits for Elite to come to the
+/// read timeout, except `status`'s 10 s bound for the window's poll (`control::call_window`). It
+/// resolves with the command's value and rejects with its error, or why the core couldn't be
+/// reached; the command's progress values go to `progress`. Off the main thread: a voice tester live run waits for Elite to come to the
 /// front, calibration and the mic check record for a few seconds, a plot polls Spansh.
 #[tauri::command]
 async fn call(cmd: String, args: Option<Value>, progress: tauri::ipc::Channel<Value>) -> Result<Value, String> {
