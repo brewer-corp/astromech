@@ -43,11 +43,11 @@ A world's `world.jsonl` moves the game step by step (decision: world format): th
   - `exited` returns once `deactivate` has dropped the session (pipeline and callout speaker stopped and joined) and the clock is quiescent. The push-to-talk loop is detached and parked in a clock wait, which already counts as quiescent. It isn't joined, because joining it would add up to 1 s to `deactivate` in the installed app.
   After any `game` step, `status` reports the new game state.
 - [x] Race test: a world test with a gate in the game watcher's poll, a world-only hook rather than `#[cfg(test)]`, because the test spawns the binary. The test holds the gate over the control API (a world-only `local` command), and issues the `game` step on a second connection. The hook reports over the first connection that the watcher reached the gate. While the gate is held, the step's reply hasn't arrived; the test checks that without timing, since the gate is still closed when it reads. The step returns after the gate opens. The test fails if the step returns once the watcher is merely woken.
-- [ ] A test over `worlds/jump`, spawning the binary (world-mode child's helper):
+- [x] A test over `worlds/jump`, spawning the binary (world-mode child's helper):
   1. Elite is running, and a route A→B→C is set over the control API.
   2. Step to `jumped`: an `FSDJump` to B is appended.
-  3. `world_wait` sees the clipboard write of C, and `route_status` names C as the next stop.
-  The same world with the jump stamped two hours before the clock copies nothing (catch-up is silent).
+  3. `world_wait` sees the clipboard write of C, and `route` names C as the next stop.
+  The same jump written while Elite is closed, read at the next session's catch-up, copies nothing (catch-up is silent). (Reworded from "stamped two hours before the clock": the pipeline treats every line appended while a session runs as live, whatever its stamp, and changing that is in-game behaviour this child doesn't touch.)
 - [x] Stop test: a world goes from game running to game exited. The `exited` step returns, with no `advance` beyond its own, and `status` shows no session. This fails if stopping the pipeline waits for its timed wait to expire (clock child: stop wakes).
 - [x] Partial writes: a partial Status.json write settles, `status` keeps the previous flags, and the next full write's flags show. A partial write that never gets a full one also settles.
 - [x] The format is documented once, in the world module's doc comment. CONTRIBUTING.md's Tests section links to it, and docs/ARCHITECTURE.md §13's Ingest row describes worlds instead of `astromech-rec`.
