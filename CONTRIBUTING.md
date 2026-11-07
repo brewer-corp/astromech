@@ -91,14 +91,16 @@ Two loops for working on the window:
 
 `app/dev/core.ts` is the Node control client the bridge uses: `startWorld(<dir>)` spawns a world
 core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`world_step`),
-`wait` (`world_wait`) and `observed` speak the control API. Scripts and journey tests can import
-it as it is (`node` runs it).
+`wait` (`world_wait`) and `observed` speak the control API. Scripts and the journeys
+([Tests](#tests)) import it as it is (`node` runs it).
 
 ## Before a PR
 
 - Run `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`,
   `cargo test --workspace`, `python3 scripts/check-deps.py`, `python3 scripts/check-guide.py` (guide links), `cargo deny check`, and in `app/`:
-  `pnpm lint && pnpm check && pnpm build && pnpm test`, then `python3 scripts/check-dist.py` (the build carries no browser preview).
+  `pnpm lint && pnpm check && pnpm build && pnpm test`, then `python3 scripts/check-dist.py` (the build carries no browser preview),
+  then `pnpm exec tsc -p journeys` and the journeys, `node --test 'journeys/*.journey.ts'` (after `cargo test` or
+  `cargo build -p astromech-core` has built the core).
   `pnpm test` runs the UI tests in headless Chromium: install it once with
   `pnpm exec playwright install --only-shell chromium` (see [Tests](#tests)).
 - Tracker records: the **Atelier** workflow (`.github/workflows/atelier.yml`) runs
@@ -294,6 +296,44 @@ The preview's own tests (`app/src/preview/`) and the two tests of the app's side
 stale-data and callout announcement tests, and `lib/mining.test.ts`); move one behind `answer`
 when you change it. `vi.mock` of a module the preview imports deadlocks in the
 browser, so never add one.
+
+**Journeys** (`app/journeys/`). A journey is a user outcome that crosses the page, the real
+core and a boundary: a lookup that fails and recovers, a route plotted and followed. It is never
+a case a lower layer already tests: a parser, a plotter or a page's own states stay in Rust or in
+a UI test. A journey is a `*.journey.ts` file that calls `journey(name, { world }, fn)` from
+`app/journeys/harness.ts` on a committed world under `worlds/journeys/`. For each journey the
+harness starts one world core, a Vite dev server on `app/vite.config.ts` whose dev bridge sends
+the page's calls to that core (`astromechBridge({ core })`), and a fresh Chromium context at the
+app window's 1200×800. `fn` gets:
+
+- `open(route)`: past onboarding (the window's `onboarding_done`, what Skip setup sends), then
+  the page loaded once at `#/<route>`;
+- `page`, Playwright's page;
+- `core`: the world core's `step` (`world_step`), `wait` (`world_wait`), `observed` and
+  `callWindow`;
+- `runFor(ms)`: the page's clock, which `open` installs at the world header's `start` and pauses
+  there, so every timer in the page (the 2 s status and route polls, a toast's dismissal, the
+  plot bar's and the searches' debounces) fires only on `runFor`. A journey that types into a
+  debounced box calls `runFor` before it waits for the lookup;
+- `calls(cmd)`, the window's calls of `cmd` posted to the dev bridge, and `settled()`, which
+  resolves once every request the page made before it has reached the harness;
+- `world`, the core's temp world folder.
+
+The harness then closes the page and the server and quits the core, which must exit 0 with its
+home empty and its temp world gone, or the journey fails. A page that loads a second time (the
+dev server has no dependency pre-bundling, so nothing should reload it) or throws an error fails
+the journey too. Run them in `app/` with `node --test 'journeys/*.journey.ts'`, or one with
+`node --test journeys/lookup.journey.ts`, after building the core (`cargo build -p
+astromech-core`; `ASTROMECH_CORE` names another binary); the glob is quoted so Node expands it,
+and `journeys/harness.journey.ts`, the harness's own test, fails when the glob finds no
+journey. A failed journey leaves its Playwright trace (`pnpm exec playwright show-trace`), a
+screenshot and the core's log in `app/journeys/results/<journey>/`, which CI uploads. The
+Determinism rules hold, and lint enforces them in `app/journeys/` (the two rules above, and
+`astromech/no-playwright-time`: no `waitForTimeout`, and no `polling` but `"mutation"`). A
+journey waits on what the core observed (`wait`, whose `world_wait` has its own hang guard) or
+on the page (a locator, or `waitForFunction` with `polling: "mutation"`), and nothing retries:
+the harness's timeouts and node:test's only stop a hang. `pnpm exec tsc -p journeys` typechecks
+them (`app/journeys/tsconfig.json`). `scripts/ui` stays the tool for captures and agent checks.
 
 **The core in a world.** A Rust test that needs the whole core starts it headless in a world:
 `astromech-core --world <dir>` copies the world directory to a temp folder, runs the real core

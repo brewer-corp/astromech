@@ -14,6 +14,11 @@
  * The core's only endpoint source is the line it prints on stdout. Its stdin is a pipe held for
  * the dev server's life: the core quits when the server closes, or when the server's process
  * goes, even killed outright (finding astromech-1uyn).
+ *
+ * The journey harness (app/journeys/harness.ts) passes a core it started itself instead
+ * (`astromechBridge({ core })`, added to the config's plugins when it creates the server): the
+ * plugin then applies with no `ASTROMECH_WORLD`, sends the page's calls to that core, and never
+ * starts or quits one. Its owner quits it.
  */
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { resolve } from "node:path";
@@ -94,23 +99,34 @@ export async function answer(core: Promise<WorldCore>, req: IncomingMessage, res
   }
 }
 
-export function astromechBridge(): Plugin {
+export interface BridgeOptions {
+  /** A world core the caller started and quits (the journey harness); the plugin starts none. */
+  core?: WorldCore;
+}
+
+export function astromechBridge(opts: BridgeOptions = {}): Plugin {
+  const given = opts.core;
   const world = process.env.ASTROMECH_WORLD;
   return {
     name: "astromech-bridge",
-    apply: (_, env) => Boolean(world) && env.command === "serve" && !env.isPreview && !process.env.VITEST,
+    apply: (_, env) => Boolean(given ?? world) && env.command === "serve" && !env.isPreview && !process.env.VITEST,
     config: () => ({ define: { "import.meta.env.VITE_ASTROMECH_BRIDGE": JSON.stringify(CALL_PATH) } }),
     configureServer(server) {
-      const dir = resolve(world!);
       const log = server.config.logger;
-      const core = startWorld(dir, { core: coreBinary() });
-      core.then(
-        (c) => log.info(`astromech bridge: ${dir} on the headless core at 127.0.0.1:${c.contact.port}`),
-        (e: Error) => log.error(`astromech bridge: ${e.message}`),
-      );
-      // Unhandled otherwise: each call reports a core that didn't start.
-      core.catch(() => {});
-      server.httpServer?.once("close", () => void core.then((c) => c.quit()).catch(() => {}));
+      let core: Promise<WorldCore>;
+      if (given) {
+        core = Promise.resolve(given);
+      } else {
+        const dir = resolve(world!);
+        core = startWorld(dir, { core: coreBinary() });
+        core.then(
+          (c) => log.info(`astromech bridge: ${dir} on the headless core at 127.0.0.1:${c.contact.port}`),
+          (e: Error) => log.error(`astromech bridge: ${e.message}`),
+        );
+        // Unhandled otherwise: each call reports a core that didn't start.
+        core.catch(() => {});
+        server.httpServer?.once("close", () => void core.then((c) => c.quit()).catch(() => {}));
+      }
       server.middlewares.use(CALL_PATH, (req, res) => {
         const address = server.httpServer?.address();
         void answer(core, req, res, address && typeof address === "object" ? address.port : -1);

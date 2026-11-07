@@ -51,4 +51,35 @@ const noWallClock = {
   },
 };
 
-export default { rules: { "no-timer-wait": noTimerWait, "no-wall-clock": noWallClock } };
+/** Playwright's `waitForTimeout` (a sleep) and any `polling` but `"mutation"`: a number polls the
+ * page on a timer (`waitForFunction(fn, arg, { polling: 100 })`), and so does `"raf"`, once a
+ * frame. A journey waits on the page with a locator or `polling: "mutation"`, and on the core
+ * with its observations. */
+const noPlaywrightTime = {
+  meta: {
+    type: "problem",
+    docs: { description: "disallow Playwright's timed waits in journeys" },
+    messages: {
+      sleep: "Don't sleep in a journey: wait for what the page shows (a locator) or what the core observed (wait).",
+      polling: 'Don\'t poll the page on a timer: use a locator, or polling: "mutation".',
+    },
+    schema: [],
+  },
+  create(context) {
+    return {
+      CallExpression(node) {
+        const c = node.callee;
+        const named = c.type === "Identifier" ? c.name : c.type === "MemberExpression" && !c.computed ? c.property.name : null;
+        if (named === "waitForTimeout") context.report({ node, messageId: "sleep" });
+      },
+      Property(node) {
+        const key = node.key.type === "Identifier" ? node.key.name : node.key.type === "Literal" ? node.key.value : null;
+        if (key !== "polling" || node.computed) return;
+        const v = node.value;
+        if (!(v.type === "Literal" && v.value === "mutation")) context.report({ node, messageId: "polling" });
+      },
+    };
+  },
+};
+
+export default { rules: { "no-timer-wait": noTimerWait, "no-wall-clock": noWallClock, "no-playwright-time": noPlaywrightTime } };

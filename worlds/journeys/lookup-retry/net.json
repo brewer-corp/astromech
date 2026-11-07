@@ -1,0 +1,24 @@
+{
+  "exchanges": [
+    {
+      "url": "https://www.edsm.net/api-v1/sphere-systems",
+      "method": "GET",
+      "status": 503,
+      "json": {}
+    },
+    {
+      "url": "https://spansh.co.uk/api/stations/search",
+      "method": "POST",
+      "sent": "Black Market",
+      "in_turn": [
+        {
+          "status": 503,
+          "text": "<html>Service Unavailable</html>"
+        },
+        {
+          "from": "../../preview/sol-nov/spansh-black-market.json"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+# The lookup journey (app/journeys/lookup.journey.ts): Jameson docked at Abraham Lincoln in Sol,
+# the game folder of worlds/preview/sol-nov. The Services finder's Black Market search is first
+# answered with a 503, as Spansh sends when it is down, then with the page Spansh sent on 7 Nov
+# 2026 (worlds/preview/sol-nov/spansh-black-market.json, provenance in that world's config).
+[eddn]
+enabled = false

@@ -1,0 +1,6 @@
+# The journey harness's own test (app/journeys/harness.journey.ts): Jameson in Sol (the game
+# folder of worlds/jump), Elite starts, and a docking request is denied for want of a pad, which
+# the core says and shows as a toast. The journal lines are hand-built in the shape the game
+# writes.
+[eddn]
+enabled = false

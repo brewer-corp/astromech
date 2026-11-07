@@ -1,0 +1,5 @@
+{"start": "2026-11-07T12:00:00Z"}
+{"game": "running"}
+{"mark": "running"}
+{"journal": {"timestamp": "2026-11-07T12:00:10Z", "event": "DockingDenied", "Reason": "NoSpace", "MarketID": 128016640, "StationName": "Abraham Lincoln", "StationType": "Coriolis"}}
+{"mark": "denied"}
