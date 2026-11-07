@@ -2339,4 +2339,89 @@ mod tests {
         }
         assert_eq!(std::fs::read_to_string(&core.config_path).unwrap(), before);
     }
+
+    /// Typed replies keep the JSON the window reads (astromech-se44): a scripted run of the core's
+    /// own commands, with the temporary folder, the pid, the version and the log folder masked,
+    /// equals `tests/fixtures/core-replies.json`, recorded from the `json!` replies before they
+    /// were typed. Refresh it after a deliberate change with
+    /// `ASTROMECH_UPDATE_REPLIES=1 cargo test -p astromech-core --lib replies_keep`.
+    #[test]
+    fn core_replies_keep_their_json() {
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let journals = d.path().join("journals");
+        std::fs::create_dir_all(&journals).unwrap();
+        let core = core(
+            d.path(),
+            &format!("data_dir = '{}'\n[game]\njournal_dir = '{}'\n", d.path().display(), journals.display()),
+        );
+        let ask = |cmd: &str, args: Option<Value>, text: Option<&str>| {
+            core.handle(&Request { args, text: text.map(str::to_string), ..Request::new(cmd) })
+        };
+        let script: Vec<(&str, Option<Value>, Option<&str>)> = vec![
+            ("status", None, None),
+            ("callouts", None, None),
+            ("set_callout", Some(json!({"id": "scan", "enabled": false})), None),
+            ("set_callout", Some(json!({"id": "nope", "enabled": false})), None),
+            ("set_mic", Some(json!({"mic": "USB"})), None),
+            ("set_ptt", Some(json!({"device": "", "key": ""})), None),
+            ("prospector_thresholds", None, None),
+            ("prospector_set", None, Some(r#"{"ore":"platinum","threshold":35}"#)),
+            ("prospector_set", None, Some("not json")),
+            ("shopping_set", None, Some("[]")),
+            ("voice_settings", None, None),
+            ("voice_preview", None, None),
+            ("learned_phrases", None, None),
+            ("learned_forget", None, Some("nothing")),
+            ("find_elite", None, None),
+            ("mic_list", None, None),
+            ("calibrate_start", None, None),
+            ("calibrate_finish", None, None),
+            ("calibrate_cancel", None, None),
+            ("mic_check", None, None),
+            ("eddn_log", None, None),
+            ("set_eddn", Some(json!({"enabled": "yes"})), None),
+            ("edsm_status", None, None),
+            ("edsm_flight_log", None, None),
+            ("set_edsm", Some(json!({})), None),
+            ("exobiology", None, None),
+            ("voice_test", None, Some("deploy hardpoints")),
+            ("voice_test_live", None, Some("hardpoints.deploy")),
+            ("install_update", None, None),
+            ("kill_switch", None, None),
+            ("ack_crash", None, None),
+            ("onboarding_done", None, None),
+            ("route", None, None),
+            ("route_set", Some(json!({"name": "Trip", "source": "search", "waypoints": [{"system": "Sol"}, {"system": "Colonia", "label": "x", "jumps": 3}]})), None),
+            ("route_add", Some(json!({"system": "Deciat", "label": "Farseer", "source": "engineer trip"})), None),
+            ("route_skip", None, None),
+            ("route_back", None, None),
+            ("route_set", Some(json!({"text": " "})), None),
+            ("route_clear", None, None),
+            ("route_resume", Some(json!({})), None),
+        ];
+        let dir = d.path().display().to_string();
+        let mut got = vec![];
+        for (cmd, args, text) in script {
+            let mut v = ask(cmd, args.clone(), text);
+            for k in ["pid", "version", "log_dir"] {
+                if v.get(k).is_some() {
+                    v[k] = json!("<masked>");
+                }
+            }
+            let v: Value = serde_json::from_str(&v.to_string().replace(&dir, "<dir>")).unwrap();
+            got.push(json!({"cmd": cmd, "args": args, "text": text, "reply": v}));
+        }
+        let got = Value::Array(got);
+        let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/core-replies.json");
+        if std::env::var_os("ASTROMECH_UPDATE_REPLIES").is_some() {
+            std::fs::create_dir_all(file.parent().unwrap()).unwrap();
+            std::fs::write(&file, serde_json::to_string_pretty(&got).unwrap() + "\n").unwrap();
+        }
+        let want: Value = serde_json::from_str(&std::fs::read_to_string(&file).unwrap()).unwrap();
+        for (g, w) in got.as_array().unwrap().iter().zip(want.as_array().unwrap()) {
+            assert_eq!(g, w, "a reply's JSON changed");
+        }
+        assert_eq!(got, want);
+    }
 }
