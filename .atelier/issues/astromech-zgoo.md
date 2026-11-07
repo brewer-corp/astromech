@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Clippy rejects direct time reads and sleeps; the remaining reads move to the clock"
-updated_at: "2026-11-07T18:49:02.374002522+00:00"
+updated_at: "2026-11-07T21:13:06.972883127+00:00"
 ---
 
 ## Goal
