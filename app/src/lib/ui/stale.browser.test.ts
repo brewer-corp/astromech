@@ -54,7 +54,7 @@ const PAGES: Page[] = [
   { name: "On foot", view: OnFoot as unknown as Component, data: /Sample ShipLocker/, call: "odyssey_view", every: 2000 },
   { name: "Logbook", view: Logbook as unknown as Component, data: /CMDR Fixture/, call: "logbook", every: 5000 },
   { name: "Session", view: Session as unknown as Component, data: /CMDR Fixture/, call: "session_summary", every: 5000 },
-  { name: "Mining", view: Mining as unknown as Component, data: /Platinum/, call: "core_status", every: 3000, core: "core=ready&", failed: /the core did not answer/ },
+  { name: "Mining", view: Mining as unknown as Component, data: /Platinum/, call: "status", every: 3000, core: "core=ready&", failed: /the core did not answer/ },
   { name: "Station", view: Station as unknown as Component, data: /Test Orbital/, call: "docked_here", every: 5000 },
   { name: "Colonisation", view: Colonisation as unknown as Component, data: /Test Hub/, call: "colonisation_projects", every: 2000 },
   { name: "Exploration", view: Exploration as unknown as Component, data: /bodies scanned/, call: "exploration_system", every: 15000 },

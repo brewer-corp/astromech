@@ -16,7 +16,9 @@
     "exclude_carriers": false,
     "exclude_odyssey": false,
     "max_age_days": null,
-    "max_arrival_ls": null
+    "max_arrival_ls": null,
+    "max_distance_ly": null,
+    "min_volume": null
   },
   "fetched": "2026-10-16T19:30:00Z",
   "hits": [

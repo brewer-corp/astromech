@@ -759,6 +759,7 @@
           "edsy": "https://edsy.org/#/I=H4sIAAAAAAAA_4VRXU_CMBT9K-Y-F9INAd0bgeAwoGYYHzRmubIrLHbr0rWLSPbfbbeBMfGjL23Ovfecc08PMEW1lVMscJPqPQT-cMRgbkh8QQdYYZpDMPD7nEFEJamKIPD6fFwzCI0QIaHQuwZqgQcUxrWc8_YwS_F-bbIiwnzrCheucyUTI6iE4OkA3ygWmjIIYJLjRuYJxhOVSaPiK4UJecDg1rrRyhCDO5VK1bj0GKyF1G6s6Yaa_cy6yHUc7gtSiUoritfpB43iqcCyHP5CzU_Uc4UZrXfpq5654T81mmAj3Lw1EuNW4n_37uJeOwP18ymlLlJ_eEw0ohfjJv0jYH0VlgC71KBFFjP7c90zodxJhMseH3TlG7uQgwir_dnSLkbKVqhqO5cSE2m0RXSaUakxcwo-90c9j1uSe34ZcB7w4SPUn-cntxZLAgAA"
         },
         "loadout_ts": "2026-10-03T09:00:05Z",
+        "market_id": null,
         "max_jump_range": 18.0,
         "modules": [
           {
@@ -800,6 +801,7 @@
           "edsy": "https://edsy.org/#/I=H4sIAAAAAAAA_5VU227aQBD9FbTPDlpDgMRvTQiXFFoKaSO1iqwFD2TFetfaCw1F_HtnbQONRIDygj3Xc45nZkPumV6oe5axGbdrEtGAdByIg2FDhoxLEtVrVfSNwYBeAcZVm_VtQHpOiB4wYV9JFPoAb_jBhMOQ62ua_wKs8Pbo0mzM5ALySg20qcQJMCT6tSHvKvQtpCQinzXjNh4u-_34k06V03FXswRCEpCvCMdqBwEZaa50DjMMyEQoi4lFNNkGG_IgF1wCaC4XnsgdwsrwxfbbmFC7abbqrSZC2du_sBTxkZH6DXokmLTxnVLGQoJNd7XQ3wHBvTiVDtPGmw5eX7lOaehZD2AFgkQFVz7noD3bl4B8c0wUoKvUa3iEfR975zCyHMaE_4FWfC-YMY2zAhzgnxShJFu44zbXWOUdzZFWczBG6coI8UrvfMuwTgrSMvEwn8PMtzMZzDgTMRSF1Aq0UPilkqMJ8UDNsJpBd0Tami0qbc1XOAd7veof60WrjRN6lUy8Vs3TWtG9Vn62izxziVidSRsJyEUxyeeG4hJCtVOMemuUL_H65Kwal7LqaIQ7eeVzm4ubMzvWo5fhlDlhYMBwreMuT6f4IYeQcJeely4P6zGdZAoVCk92QTAgkmKbdE6GXkrmicv1BV28XkWXLkjQzCr9f6Pg_2hY5HzYZYTzYh_VNP7nPLVhzpywMT1_m3bpZPuyv4Dltbylu2s5hqnDrGarfEdWGeYu847pknNS2PytaZWPCa4Yxgyer2irdJcj68e18szWlbFy0u_kdylwO-UQRcEbfUM9OxzUIh8XVzmLURa31liW-s41Wmte0durGn0KbyJKI9r4SbZ_ASfKjH87BgAA"
         },
         "loadout_ts": "2026-09-20T18:00:05Z",
+        "market_id": 128666762,
         "max_jump_range": 32.5,
         "modules": [
           {
@@ -892,6 +894,7 @@
         "ident": null,
         "in_transit": false,
         "loadout_ts": null,
+        "market_id": 128016640,
         "max_jump_range": null,
         "modules": [],
         "name": null,

@@ -102,7 +102,7 @@ fn rig(journal: &str, history: bool) -> Rig {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
-        galaxy: None,
+        stars: Arc::new(astromech_api::GalaxyHolder::new(|| anyhow::bail!("no star map in this test"))),
         remote: Arc::new(Client::with_transport(Cache::in_memory().unwrap(), Arc::new(Offline))),
     });
     let assistant = Assistant::new(runner).with_journals(journals.path().to_path_buf()).with_history(db);

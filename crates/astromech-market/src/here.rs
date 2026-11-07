@@ -76,7 +76,8 @@ pub fn plan(market: &MarketSnap, load: &[Load], max: usize) -> Lookups {
 }
 
 /// One commodity here against the best nearby price.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "MarketLine")]
 pub struct Line {
     pub commodity: String,
     pub name: String,
@@ -98,7 +99,8 @@ pub struct Line {
 }
 
 /// This market against nearby prices.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "MarketComparison")]
 pub struct Comparison {
     pub market_id: Option<i64>,
     pub station: String,

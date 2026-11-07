@@ -12,7 +12,7 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 
 /// Some of one surplus asset given in a swap.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Give {
     pub id: String,
     pub name: String,
@@ -22,7 +22,7 @@ pub struct Give {
 }
 
 /// One short asset covered (wholly or partly) from surplus.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Swap {
     pub get_id: String,
     pub get_name: String,
@@ -35,7 +35,7 @@ pub struct Swap {
 }
 
 /// What is still short after the swaps.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Left {
     pub id: String,
     pub name: String,
@@ -43,7 +43,7 @@ pub struct Left {
     pub short: i64,
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, ts_rs::TS)]
 pub struct BarterPlan {
     pub swaps: Vec<Swap>,
     /// Everything still short after the swaps, the assets no surplus covered and any goods or

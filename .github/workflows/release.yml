@@ -51,11 +51,14 @@ on:
       - scripts/pack-update.py
       - scripts/gen-starmap.py
       - scripts/onboarding_smoke.py
-      # What the onboarding smoke test drives: the wizard and the voice tester (the mock game,
+      # What the onboarding smoke test drives: the wizard, the voice tester and the window's half
+      # of the shell's proxy, which every page it opens calls through (the mock game,
       # crates/astromech-mockgame, is under crates/**)
       - app/src/lib/onboarding/**
       - app/src/modules/voicetester/**
       - app/src/App.svelte
+      - app/src/lib/transport.ts
+      - app/src/lib/core.ts
   workflow_dispatch:
 
 permissions:
@@ -196,8 +199,9 @@ jobs:
           $s = $c.GetStream(); $w = [IO.StreamWriter]::new($s); $r = [IO.StreamReader]::new($s)
           $w.WriteLine((@{ token = $e.token; cmd = "status" } | ConvertTo-Json -Compress)); $w.Flush()
           $status = $r.ReadLine() | ConvertFrom-Json; $c.Close()
-          Write-Host "status: $($status.status_line)"
-          if (-not $status.ok) { throw "status not ok" }
+          if (-not $status.ok) { throw "status not ok: $($status.error)" }
+          Write-Host "status: $($status.value.status_line)"
+          if (-not $status.value.status_line) { throw "status has no status_line" }
           # A second start must not run a second core.
           Start-Process "$inst\astromech-core.exe" -ArgumentList "--background" -Wait
           if ((Get-Process astromech-core -ErrorAction SilentlyContinue).Count -ne 1) { throw "single instance failed" }

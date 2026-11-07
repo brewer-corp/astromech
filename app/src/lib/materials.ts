@@ -1,70 +1,17 @@
 /**
  * Engineering materials: trader-style inventory from the journal.
  */
+import type { Inventory } from "./api/types/Inventory";
 import { call } from "./transport";
 
-export interface SourceNote {
-  kind: "hge" | "not_hge" | string;
-  summary: string;
-  hint: string;
-  /** Live nearest-systems lookup id (lib/galaxy.ts), if one applies. */
-  query?: string;
-}
-
-export interface Cell {
-  id: string;
-  name: string;
-  kind: "raw" | "manufactured" | "encoded";
-  group: string;
-  grade: number;
-  rarity: string;
-  count: number;
-  capacity: number;
-  trader: boolean;
-  sources?: SourceNote[];
-}
-
-export interface Here {
-  system: string;
-  allegiance: string;
-  population: number;
-  hge_signal: boolean;
-  pool: { id: string; name: string }[];
-  line: string;
-}
-
-export interface FarmLine {
-  id: string;
-  name: string;
-  count: number;
-  capacity: number;
-  summary: string;
-}
-
-export interface GroupView {
-  name: string;
-  cells: Cell[];
-}
-
-export interface KindView {
-  id: string;
-  title: string;
-  trader: string;
-  grades: number[];
-  groups: GroupView[];
-  held: number;
-  capacity: number;
-}
-
-export interface Inventory {
-  source: string;
-  snapshot_ts: string | null;
-  kinds: KindView[];
-  other: Cell[];
-  here?: Here | null;
-  farm?: FarmLine[];
-}
+export type { Cell } from "./api/types/Cell";
+export type { FarmLine } from "./api/types/FarmLine";
+export type { GroupView } from "./api/types/GroupView";
+export type { HgeHere as Here } from "./api/types/HgeHere";
+export type { Inventory } from "./api/types/Inventory";
+export type { KindView } from "./api/types/KindView";
+export type { SourceNote } from "./api/types/SourceNote";
 
 export async function loadMaterials(): Promise<Inventory> {
-  return await call<Inventory>("materials_inventory");
+  return await call("materials_inventory");
 }

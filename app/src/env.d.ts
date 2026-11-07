@@ -7,3 +7,6 @@ interface ImportMetaEnv {
   /** A preview build's start page, e.g. "route". */
   readonly VITE_PREVIEW_PAGE?: string;
 }
+
+/** app/package.json's version, built in by vite.config.ts (lib/core.ts WINDOW_VERSION). */
+declare const __APP_VERSION__: string;

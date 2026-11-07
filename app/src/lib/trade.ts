@@ -1,14 +1,39 @@
 /**
  * Trade lookups (astromech-market): where to sell or buy a commodity near a system or anywhere
- * in the galaxy, best price first, and where to sell the cargo in the hold, from Ardent Insight through the shell. The
+ * in the galaxy, best price first, and where to sell the cargo in the hold, from Ardent Insight, asked by the core. The
  * browser preview answers from recorded searches and a fixture hold (app/src/preview/fixtures/trade.json) with
  * the filters applied roughly.
  */
 import catalog from "../../../data/catalog/commodities.json";
-import type { Filters, Origin, Pad, Results } from "./search";
+import type { CargoSale as CargoSearch } from "./api/types/CargoSale";
+import type { Defaults as RouteDefaults } from "./api/types/Defaults";
+import type { MarketComparison as MarketCompare } from "./api/types/MarketComparison";
+import type { Search as TradeSearch } from "./api/types/Search";
+import type { TradeRoute as RouteSearch } from "./api/types/TradeRoute";
+import type { TradeRouteAsk as RouteAsk } from "./api/types/TradeRouteAsk";
+import type { TradeSide as Side } from "./api/types/TradeSide";
+import type { Filters, Origin, Results } from "./search";
 import { call } from "./transport";
 
-export type Side = "sell" | "buy";
+export type { TradeSide as Side } from "./api/types/TradeSide";
+export type { Offer } from "./api/types/Offer";
+export type { Prices } from "./api/types/Prices";
+export type { Search as TradeSearch } from "./api/types/Search";
+export type { SaleLine } from "./api/types/SaleLine";
+export type { StationSale } from "./api/types/StationSale";
+export type { CargoPlan } from "./api/types/CargoPlan";
+export type { CargoSale as CargoSearch } from "./api/types/CargoSale";
+export type { MarketLine } from "./api/types/MarketLine";
+export type { MarketComparison as MarketCompare } from "./api/types/MarketComparison";
+export type { TradeRouteKind as RouteKind } from "./api/types/TradeRouteKind";
+/** What a trade route is asked for (astromech_market::route::Ask). */
+export type { TradeRouteAsk as RouteAsk } from "./api/types/TradeRouteAsk";
+export type { Defaults as RouteDefaults } from "./api/types/Defaults";
+export type { TradeRouteStop as RouteStop } from "./api/types/TradeRouteStop";
+export type { Cargo as RouteCargo } from "./api/types/Cargo";
+export type { Leg as RouteLeg } from "./api/types/Leg";
+export type { TradeRouteResult as TradeRoute } from "./api/types/TradeRouteResult";
+export type { TradeRoute as RouteSearch } from "./api/types/TradeRoute";
 
 export interface Commodity {
   /** Journal and Ardent symbol: "lowtemperaturediamond". */
@@ -16,43 +41,6 @@ export interface Commodity {
   name: string;
   category: string;
   aliases?: string[];
-}
-
-/** One market for one commodity (astromech_market::Offer). */
-export interface Offer {
-  commodity: string;
-  market_id: number;
-  station: string;
-  station_type: string | null;
-  system: string;
-  ly: number;
-  jumps: number;
-  exact: boolean;
-  /** Credits per tonne: paid (selling) or asked (buying). */
-  price: number;
-  /** Tonnes of demand (selling) or stock (buying). */
-  volume: number;
-  pad: Pad | null;
-  arrival_ls: number | null;
-  fleet_carrier: boolean;
-  odyssey: boolean;
-  updated_at: string;
-}
-
-export interface Prices {
-  commodity: string;
-  side: Side;
-  /** Unix seconds. */
-  fetched_at: number;
-  truncated: boolean;
-  offers: Offer[];
-}
-
-export interface TradeSearch {
-  side: Side;
-  here: { system: string; pos: [number, number, number] };
-  range: number;
-  results: Prices[];
 }
 
 /** The market commodities, by category (data/catalog/commodities.json). */
@@ -89,12 +77,12 @@ export const DEFAULT_MAX_AGE_DAYS = 30;
 
 /** Where to sell or buy each of `symbols` near `origin` (or the commander), best first. */
 export async function tradeSearch(side: Side, symbols: string[], origin: Origin = null, filters: Filters | null = null): Promise<TradeSearch> {
-  return await call<TradeSearch>("trade_search", { side, commodities: symbols, origin, filters });
+  return await call("trade_search", { side, commodities: symbols, origin, filters });
 }
 
 /** Where to sell or buy `symbol` anywhere in the galaxy (Ardent's best 100), distances from `origin` or the commander. */
 export async function tradeAnywhere(side: Side, symbol: string, origin: Origin = null, filters: Filters | null = null): Promise<TradeSearch> {
-  return await call<TradeSearch>("trade_anywhere", { side, commodity: symbol, origin, filters });
+  return await call("trade_anywhere", { side, commodity: symbol, origin, filters });
 }
 
 /**
@@ -130,52 +118,9 @@ export function toResults(s: TradeSearch, anywhere = false): Results {
   };
 }
 
-/** One commodity sold at a station (astromech_market::cargo::SaleLine). */
-export interface SaleLine {
-  commodity: string;
-  name: string;
-  carried: number;
-  /** Tonnes the station takes: what is carried, capped by its demand. */
-  sold: number;
-  price: number;
-  proceeds: number;
-}
-
-/** A station's offer for the whole load. */
-export interface StationSale {
-  market_id: number;
-  station: string;
-  system: string;
-  ly: number;
-  jumps: number;
-  exact: boolean;
-  pad: Pad | null;
-  arrival_ls: number | null;
-  fleet_carrier: boolean;
-  odyssey: boolean;
-  updated_at: string;
-  total: number;
-  sold: number;
-  lines: SaleLine[];
-}
-
-export interface CargoPlan {
-  load: { symbol: string; name: string; tonnes: number }[];
-  kept: { name: string; tonnes: number; reason: string }[];
-  stations: StationSale[];
-  per_commodity: { commodity: string; name: string; carried: number; best: Offer | null; partial?: Offer | null }[];
-  fetched_at: number;
-}
-
-export interface CargoSearch {
-  here: { system: string; pos: [number, number, number] };
-  range: number;
-  plan: CargoPlan;
-}
-
 /** Where to sell the hold (Cargo.json) near `origin` or the commander. */
 export async function tradeCargo(origin: Origin = null, filters: Filters | null = null): Promise<CargoSearch> {
-  return await call<CargoSearch>("trade_cargo", { origin, filters });
+  return await call("trade_cargo", { origin, filters });
 }
 
 /** The whole-load stations as the search kit's rows: what each pays for the load, and how much of it it takes. */
@@ -206,45 +151,10 @@ export function cargoResults(s: CargoSearch): Results {
   };
 }
 
-/** One commodity at the docked market against the best nearby price (astromech_market::here::Line). */
-export interface MarketLine {
-  commodity: string;
-  name: string;
-  /** Tonnes carried that can be sold (0 for goods for sale here). */
-  carried: number;
-  /** Whether nearby prices were asked for (carried goods past the dozen per dock aren't). */
-  checked: boolean;
-  /** What this station pays; null: it doesn't buy it. */
-  sell_here: number | null;
-  /** What this station asks; null: not for sale here. */
-  buy_here: number | null;
-  stock: number;
-  /** The best price a nearby station pays (for the carried, one with demand for all of it). */
-  best: Offer | null;
-  /** Credits per tonne more than here (paid here for the carried, asked here for the goods for sale). */
-  gain: number | null;
-}
-
-/** The docked market and the hold against nearby prices (astromech_market::here::Comparison). */
-export interface MarketCompare {
-  market_id: number | null;
-  station: string;
-  system: string;
-  /** When the game wrote Market.json. */
-  seen: string;
-  carried: MarketLine[];
-  /** The biggest gain first. */
-  for_sale: MarketLine[];
-  /** Goods for sale here that weren't looked up. */
-  unchecked: string[];
-  kept: { name: string; tonnes: number; reason: string }[];
-  fetched_at: number;
-}
-
 /** The docked market (Market.json) and the hold against the best nearby prices, with the sell
  *  lookup's filters; null when not docked. The preview answers from a recorded comparison. */
 export async function compareMarket(): Promise<MarketCompare | null> {
-  return await call<MarketCompare | null>("market_compare");
+  return await call("market_compare");
 }
 
 /** "+3,921" or "−120": credits per tonne against here. */
@@ -252,89 +162,15 @@ export function gainText(n: number): string {
   return `${n < 0 ? "−" : "+"}${credits(Math.abs(n))}`;
 }
 
-export type RouteKind = "single" | "loop";
-
-/** What a trade route is asked for (astromech_market::route::Ask). */
-export interface RouteAsk {
-  kind: RouteKind;
-  /** The station to start from; null: the docked one, else the one nearest the star. */
-  station: string | null;
-  capacity: number;
-  credits: number;
-  max_hop_ly: number;
-}
-
-/** The current ship's and commander's numbers (astromech_market::route::Defaults). */
-export interface RouteDefaults {
-  capacity: number | null;
-  credits: number | null;
-  range: number | null;
-  /** The station docked at. */
-  station: string | null;
-  system: string | null;
-}
-
-export interface RouteStop {
-  station: string;
-  system: string;
-  market_id: number;
-  arrival_ls: number | null;
-  /** The largest landing pad (Ardent Insight); null: not known. */
-  pad: Pad | null;
-}
-
-export interface RouteCargo {
-  name: string;
-  tonnes: number;
-  buy: number;
-  sell: number;
-  profit_per_t: number;
-  profit: number;
-}
-
-export interface RouteLeg {
-  from: RouteStop;
-  to: RouteStop;
-  ly: number;
-  jumps: number;
-  /** Empty: nothing worth carrying (a loop's way back). */
-  cargo: RouteCargo[];
-  profit: number;
-  profit_per_t: number;
-  /** "Spansh" or "Ardent Insight". */
-  source: string;
-  seconds: number;
-}
-
-export interface TradeRoute {
-  kind: RouteKind;
-  /** Empty: nothing profitable within the limits. */
-  legs: RouteLeg[];
-  profit: number;
-  /** One run back to the start (a single hop flies back empty), estimated. */
-  minutes: number;
-  /** Estimated: Spansh gives no figure per hour. */
-  per_hour: number;
-  /** A stop the ship can't land at. */
-  warning: string | null;
-  range: number;
-  fetched_at: number;
-}
-
-export interface RouteSearch {
-  here: { system: string; pos: [number, number, number] };
-  route: TradeRoute;
-}
-
 /** The time model behind the per-hour estimate (astromech_market::route). */
 export const ROUTE_ESTIMATE = "50 s a jump, 2 min to dock and trade, supercruise by distance from the star";
 
 /** The current ship's capacity and range, the commander's credits and the station docked at. */
 export async function tradeRouteDefaults(): Promise<RouteDefaults> {
-  return await call<RouteDefaults>("trade_route_defaults");
+  return await call("trade_route_defaults");
 }
 
 /** A single-hop or loop route from `origin` or the commander (Spansh; can take a minute). */
 export async function tradeRoute(ask: RouteAsk, origin: Origin = null, filters: Filters | null = null): Promise<RouteSearch> {
-  return await call<RouteSearch>("trade_route", { ask, origin, filters });
+  return await call("trade_route", { ask, origin, filters });
 }

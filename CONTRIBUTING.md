@@ -104,6 +104,25 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   `call`, `subscribe` and `previewOption` (lint enforces it); a new command or topic needs a fake
   handler (`app/src/preview/coverage.test.ts`), and a release build must carry none of the fake
   (`scripts/check-dist.py app/dist` after `pnpm build`, run in CI).
+- Every command's args, reply and progress types are exported to TypeScript from the Rust
+  command layer (ts-rs): `app/src/lib/api/types/` (generated, so lint skips it) and
+  `app/src/lib/api/commands.ts`, which maps each command name to `{ args, reply, exposure,
+  progress? }`. After changing a command or a type it returns, update them with
+  `ASTROMECH_UPDATE_BINDINGS=1 cargo test -p astromech-core --lib bindings` and commit the result.
+  `cargo test -p astromech-core` fails while the checked-in files differ, and
+  `cargo test -p astromech-api` while the command layer's own part does. A `serde_json::Value`
+  (ts-rs's `JsonValue`) in a command's args or reply needs an entry with a reason in
+  `JSON_VALUES` (crates/astromech-core/src/app.rs). Two types with one name need a
+  `#[ts(rename = "…")]`; the test names them. The window's `call` and the browser preview's
+  handlers are typed by the map, and each preview fixture is read through `recorded<ReplyType>()`
+  (`app/src/preview/recorded.ts`), so `pnpm check` fails on a fixture missing a field the core
+  sends. Take the field from the fixture's recorded input (or the example that dumps it).
+- A new `window` command needs an entry in the table in
+  `crates/astromech-core/src/app/every_window_command.rs`: example args and what the call gives
+  (ok, or the handler's own error). The test calls each one through a core's control API, as the
+  shell sends it, and fails for a `window` command with no entry. It has no network and starts no
+  program: a command whose effect has no seam yet is called with state that stops it first, or not
+  called, and is named in `NOT_RUN_FOR_REAL` with the missing seam.
 - To show a UI change to someone off this machine, work on the real page on its branch against the
   browser preview (add a fixture under `app/src/preview/fixtures/` when the change needs data the
   preview lacks), then `scripts/preview-publish --page route --query route=exact`. It builds the
@@ -158,7 +177,7 @@ change; [AGENTS.md](AGENTS.md) has the short form.
 clock, input devices, audio and the clipboard. The core's behaviour always runs for real.
 Fixtures are recorded raw inputs (journals, Spansh and Ardent responses), dumped or recorded
 from the real thing, never invented replies. A reply written in a test is fine only to set up a
-failure, an empty or absent state, or a fault the fixtures don't hold (`answer("core_status", () =>
+failure, an empty or absent state, or a fault the fixtures don't hold (`answer("status", () =>
 null)`, a rejected call); data the page shows comes from the recorded fixtures.
 
 **Where a case goes.** Test each case once, at the lowest layer that fails without the fix.

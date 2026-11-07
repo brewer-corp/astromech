@@ -12,7 +12,8 @@ use serde::{Deserialize, Serialize};
 pub const MISMATCH_WARNING: &str = "Spansh returned systems that do not fit the search; its filters may have changed.";
 
 /// What kind of work to look for.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+#[ts(rename = "PowerplayTarget")]
 #[serde(rename_all = "snake_case")]
 pub enum Target {
     Acquire,
@@ -64,7 +65,7 @@ impl Target {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct TargetHit {
     pub name: String,
     pub id64: i64,
@@ -83,7 +84,7 @@ pub struct TargetHit {
     pub updated_at: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Targets {
     pub target: Target,
     pub power: String,
@@ -94,6 +95,7 @@ pub struct Targets {
     pub fetched: String,
     pub hits: Vec<TargetHit>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub warning: Option<String>,
 }
 

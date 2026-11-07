@@ -30,7 +30,7 @@ Research sources (read 15 Oct 2026): COVAS:NEXT `Plotter.py`, Directive 47 (d47)
 | Paste button: `controls.paste = { device, key }`, read with the same Raw Input listener as push-to-talk | `controls.rs`, `config.rs` |
 | Voice: "next waypoint", "skip waypoint", "previous waypoint", "clear route", "paste" | `astromech-intent` MVP grammar, `Assistant::route_command` |
 | Galaxy-map routes: a live new `NavRoute.json` (the engine's `Input::Route`) and a live `NavRouteClear` go to the same rule, which hands them to the follower (`Follower::plotted`, `cleared`) | `astromech_announce::route_follow`, `Desk::plotted`, `Desk::cleared_in_game` |
-| Control API: `route`, `route_set`, `route_add` (`{system, label, source}`), `route_skip`, `route_back`, `route_clear`, `route_copy`, `route_resume` | `Core::route_cmd`; the shell's `core_call` allows them |
+| Control API: `route`, `route_set`, `route_add` (`{system, label, source}`), `route_skip`, `route_back`, `route_clear`, `route_copy`, `route_resume` | `Core::route_cmd`; `window` commands in the registry, so the window may send them |
 | UI: the header's **Find or plot** box (every page: Plot, Add stop and Set destination on a system); the route strip under the header on every page (Resume once the route followed has ended) and the Route page with Resume; **Follow** on the engineer trip; **Add stop** and **Set destination** on every search-kit result; "Replaced *name*" with Resume under each of them and the plot panel | `app/src/modules/route` (`PlotBar.svelte`, `Plot.svelte`, `Strip.svelte`, `View.svelte`), `lib/route.ts`, `lib/ui/SearchKit.svelte`, `lib/ui/FollowNote.svelte` |
 
 Behaviour:

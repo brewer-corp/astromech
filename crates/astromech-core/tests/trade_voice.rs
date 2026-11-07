@@ -97,11 +97,12 @@ struct Rig {
 fn rig(offline: bool) -> Rig {
     let rec = Arc::new(Recorded { offline, ..Recorded::default() });
     let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
-    rig_with(rec, Arc::new(client), None)
+    let no_star_map = astromech_api::GalaxyHolder::new(|| anyhow::bail!("no star map in this test"));
+    rig_with(rec, Arc::new(client), Arc::new(no_star_map))
 }
 
-/// [`rig`] with the lookups going through `remote`, and `galaxy` as the star map.
-fn rig_with(rec: Arc<Recorded>, remote: Arc<Client>, galaxy: Option<Arc<astromech_galaxy::Galaxy>>) -> Rig {
+/// [`rig`] with the lookups going through `remote`, and `stars` as the star map.
+fn rig_with(rec: Arc<Recorded>, remote: Arc<Client>, stars: Arc<astromech_api::GalaxyHolder>) -> Rig {
     let hub = Arc::new(StateHub::new());
     hub.update(|g| {
         g.system = Some("Sol".into());
@@ -117,7 +118,7 @@ fn rig_with(rec: Arc<Recorded>, remote: Arc<Client>, galaxy: Option<Arc<astromec
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
         remote,
-        galaxy,
+        stars,
     });
     let store = Arc::new(Mutex::new(astromech_store::Store::in_memory().unwrap()));
     let assistant = Assistant::new(runner).with_store(store.clone()).with_clock(Arc::new(Evening));
@@ -342,17 +343,18 @@ fn page_search(remote: &Client, r: &Rig, commodity: &str) -> Vec<astromech_marke
     .unwrap()
 }
 
-/// Done when: the core's one client, made the way the session makes it, serves the voice
-/// lookups and the star map: one 1 request/s limit and one cache, in the file the app window
-/// opens too, so a voice lookup then the Trade page make one Ardent request.
+/// Done when: the core's one client and star map, the command layer's (which the session is
+/// given), serve the voice lookups and the window's: one 1 request/s limit and one cache, in the
+/// data folder's file, so a voice lookup then the Trade page make one Ardent request.
 #[test]
 fn the_sessions_voice_lookups_and_star_map_share_one_client() {
     let dir = tempfile::tempdir().unwrap();
     let rec = Arc::new(Recorded::default());
-    let (remote, galaxy) = astromech_core::session::remote_data(dir.path(), rec.clone());
-    let galaxy = galaxy.expect("the star map opens");
-    assert!(std::ptr::eq(galaxy.remote(), &*remote), "the star map uses the process's client");
-    let r = rig_with(rec.clone(), remote, Some(galaxy.clone()));
+    let remote = Client::shared_with_transport(dir.path(), rec.clone(), Arc::new(|_: &str| {}));
+    let api = astromech_api::State::new(dir.path().to_path_buf(), remote, None, astromech_api::Folders::default);
+    let galaxy = api.galaxy().expect("the star map opens");
+    assert!(std::ptr::eq(galaxy.remote(), &**api.remote()), "the star map uses the process's client");
+    let r = rig_with(rec.clone(), api.remote().clone(), api.galaxy_holder().clone());
 
     let voice = spoken(r.assistant.handle("Where can I sell painite?", Origin::Voice));
     assert_eq!(rec.log.lock().unwrap().len(), 1, "the voice lookup asked Ardent once");
@@ -370,9 +372,9 @@ fn the_sessions_voice_lookups_and_star_map_share_one_client() {
     let gap = sent[1] - sent[0];
     assert!(gap >= Duration::from_millis(950), "Ardent asked twice within {gap:?}");
 
-    // The app window's client on the same data dir is served from the file.
-    let window = Client::shared_with_transport(dir.path(), rec.clone(), Arc::new(|_: &str| {}));
-    assert_eq!(page_search(&window, &r, "painite")[0].offers[0].station, "Good Landing");
-    assert_eq!(rec.log.lock().unwrap().len(), 2, "the app window asked nothing");
+    // The cache is the data folder's file, so the next run is served from it too.
+    let next_run = Client::shared_with_transport(dir.path(), rec.clone(), Arc::new(|_: &str| {}));
+    assert_eq!(page_search(&next_run, &r, "painite")[0].offers[0].station, "Good Landing");
+    assert_eq!(rec.log.lock().unwrap().len(), 2, "the next run asked nothing");
     assert_eq!(Cache::open(&dir.path().join(astromech_data::CACHE_FILE)).unwrap().len().unwrap(), 2);
 }

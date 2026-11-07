@@ -18,7 +18,7 @@ use serde_json::Value;
 use std::collections::{BTreeMap, HashMap};
 use std::path::Path;
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Fleet {
     pub source: String,
     pub ships: Vec<Ship>,
@@ -28,7 +28,7 @@ pub struct Fleet {
     pub groups: BTreeMap<String, GroupOptions>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Ship {
     pub id: i64,
     pub ship_type: String,
@@ -57,11 +57,12 @@ pub struct Ship {
     /// Builder links for this loadout. `None` when the raw `Loadout` was not kept, or an
     /// `EngineerCraft` since then means it no longer matches the ship.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub links: Option<ShipLinks>,
 }
 
 /// A module in storage.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Stored {
     pub item: String,
     pub name: String,
@@ -74,13 +75,13 @@ pub struct Stored {
 }
 
 /// Where to open a ship's build in the community outfitting tools.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct ShipLinks {
     pub coriolis: String,
     pub edsy: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Fitted {
     pub slot: String,
     pub slot_name: String,
@@ -89,10 +90,11 @@ pub struct Fitted {
     /// Module group id in [`Fleet::groups`]; `None` if the module cannot be engineered.
     pub group: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub engineering: Option<Applied>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Applied {
     pub blueprint: String,
     pub blueprint_name: String,
@@ -103,18 +105,19 @@ pub struct Applied {
     pub engineer: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct GroupOptions {
     pub name: String,
     pub blueprints: Vec<Choice>,
     pub experimentals: Vec<Choice>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Choice {
     pub id: String,
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub max_grade: Option<u8>,
 }
 

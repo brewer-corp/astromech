@@ -29,7 +29,7 @@ const BODY_PAGES: usize = 3;
 const MAX_POPULATION: i64 = 100_000_000_000;
 
 /// What the commander wants in the system.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum Interest {
     #[default]
@@ -54,7 +54,7 @@ impl Interest {
 }
 
 /// The populated system that puts a candidate in range.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Populated {
     /// `None` when only Spansh's precomputed distance is known.
     pub name: Option<String>,
@@ -63,7 +63,7 @@ pub struct Populated {
 }
 
 /// What a system's bodies offer, as far as Spansh knows them.
-#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, ts_rs::TS)]
 pub struct Bodies {
     /// Bodies Spansh knows (0: the system hasn't been scanned).
     pub known: u32,
@@ -129,7 +129,7 @@ impl Bodies {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct CandidateHit {
     pub name: String,
     pub id64: i64,
@@ -142,7 +142,7 @@ pub struct CandidateHit {
     pub detail: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Candidates {
     pub interest: Interest,
     pub here: Here,
@@ -155,6 +155,7 @@ pub struct Candidates {
     /// Unclaimed systems that couldn't be checked against every populated system nearby.
     pub unchecked: usize,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub warning: Option<String>,
 }
 

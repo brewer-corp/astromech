@@ -58,7 +58,7 @@ pub fn offers(engineer: &str, blueprint: &str, group: &str) -> u8 {
         .unwrap_or(0)
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct EngineerView {
     pub id: i64,
     pub name: String,

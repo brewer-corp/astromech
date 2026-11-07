@@ -1,15 +1,17 @@
 /**
  * The browser preview's transport (lib/transport.ts picks it outside Tauri in `pnpm dev`, the
  * tests and a preview build): every command the window sends and every topic it subscribes to,
- * answered without Tauri, a core or the network. The fake core is fakecore.ts, the shell's
- * commands are shell.ts and binds.ts, and the URL's options are query.ts.
+ * answered without Tauri, a core or the network. The fake core is fakecore.ts, the command
+ * layer's own commands (astromech-api's) are shell.ts and binds.ts, and the URL's options are
+ * query.ts. The handlers are typed against the generated command map (recorded.ts).
  */
-import { CORE_COMMANDS, type Args, type CoreCmd, type Transport } from "../lib/transport";
+import { usePreview, type Transport } from "../lib/transport";
 import { bindsCommands, onPreviewPress } from "./binds";
-import { coreReply, fakeCoreStatus, fakeScenario } from "./fakecore";
+import { coreCommands, fakeScenario } from "./fakecore";
 import engineeringSample from "./fixtures/engineering.json";
 import odysseySample from "./fixtures/odyssey.json";
 import { previewQuery } from "./query";
+import type { Handlers } from "./recorded";
 import { shellCommands } from "./shell";
 
 const local = new Map<string, Set<(payload: unknown) => void>>();
@@ -24,12 +26,14 @@ const pushed = (topic: string) => (handler: (payload: unknown) => void) => {
 /** A topic the preview never pushes on. */
 const quiet = () => () => {};
 
-/** The shell's commands by name (core commands go to the fake core). */
-export const commands: Record<string, (args: Record<string, unknown>) => unknown> = {
-  core_status: () => fakeCoreStatus(),
-  ...shellCommands(publish),
-  ...bindsCommands,
-};
+let handlers: Handlers | null = null;
+
+/** Every command the window may send (the generated command map's `window` ones): the command
+ * layer's (shell.ts, binds.ts) and the core's own, which the fake core answers (fakecore.ts).
+ * Made on first use, so a release build, which never picks this transport, drops the fake. */
+export function previewCommands(): Handlers {
+  return (handlers ??= { ...shellCommands(publish), ...bindsCommands, ...coreCommands() });
+}
 
 /** The topics the window subscribes to. */
 export const topics: Record<string, (handler: (payload: unknown) => void) => () => void> = {
@@ -37,7 +41,7 @@ export const topics: Record<string, (handler: (payload: unknown) => void) => () 
   // The tray's page requests and the shell restarting the core don't happen in a browser.
   route: quiet,
   "core-restarted": quiet,
-  neutron_progress: pushed("neutron_progress"),
+  neutron_download: pushed("neutron_download"),
 };
 
 /** What a remembered choice starts as in the preview, by its localStorage key. */
@@ -48,13 +52,12 @@ function storedDefault(name: string): string | null {
 }
 
 export const previewTransport: Transport = {
-  call(cmd: string, args?: Args) {
-    // Not a set made at load: this module and lib/transport.ts import each other.
-    if ((CORE_COMMANDS as readonly string[]).includes(cmd)) return coreReply(cmd as CoreCmd, args);
-    const f = commands[cmd];
-    if (!f) return Promise.reject(new Error(`preview: no fake for shell command ${cmd}`));
+  call(cmd, args) {
+    // The wire's command name and args, unchecked: an unknown name is rejected as the core rejects it.
+    const f = (previewCommands() as Partial<Record<string, (args: unknown) => unknown>>)[cmd];
+    if (!f) return Promise.reject(new Error(`preview: no fake for command ${cmd}`));
     try {
-      return Promise.resolve(f((args ?? {}) as Record<string, unknown>));
+      return Promise.resolve(f(args ?? null));
     } catch (e) {
       return Promise.reject(e);
     }
@@ -66,3 +69,5 @@ export const previewTransport: Transport = {
   },
   option: (name) => previewQuery().get(name) ?? storedDefault(name),
 };
+
+usePreview(previewTransport);

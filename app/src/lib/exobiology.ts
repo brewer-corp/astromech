@@ -4,75 +4,23 @@
  * sampling in progress. From the core's `exobiology` command (crates/astromech-core/src/biology.rs),
  * live while Elite runs. The browser preview shows a synthetic sample.
  */
+import type { Biology } from "./api/types/Biology";
 import { coreCall } from "./core";
+import type { Sampled } from "./transport";
 
-export interface Candidate {
-  genus: string;
-  species: string;
-  value: number;
-  fit: number;
-}
-
-export interface GenusBio {
-  genus: string;
-  /** The DSS or a sample says it's there; false: predicted from the body's conditions. */
-  known: boolean;
-  species: Candidate[];
-  value: [number, number];
-  colony_range_m: number | null;
-}
-
-export interface BodyBio {
-  body_id: number;
-  name: string;
-  signals: number | null;
-  /** The genus list came from the DSS. */
-  mapped: boolean;
-  genera: GenusBio[];
-  value: [number, number];
-}
-
-export interface KnownBody {
-  name: string;
-  body_id: number | null;
-  signals: number;
-  genera: string[];
-  species: { name: string; value: number }[];
-  value: [number, number];
-}
-
-export interface Clearance {
-  next: number;
-  nearest_m: number;
-  bearing_deg: number;
-  colony_range_m: number;
-  far_enough: boolean;
-}
-
-export interface Sampling {
-  genus: string;
-  species: string;
-  count: number;
-  complete: boolean;
-  colony_range_m: number | null;
-  body_id: number | null;
-  clearance: Clearance | null;
-}
-
-export interface BiologyView {
-  system: string | null;
-  bodies: BodyBio[];
-  /** Reported by other players; null until the lookup answers. */
-  known: KnownBody[] | null;
-  sampling: Sampling | null;
-  /** Set for the sample shown outside the app. */
-  source?: string;
-}
+export type { BodyBio } from "./api/types/BodyBio";
+export type { Candidate } from "./api/types/Candidate";
+export type { Clearance } from "./api/types/Clearance";
+export type { GenusBio } from "./api/types/GenusBio";
+export type { KnownView as KnownBody } from "./api/types/KnownView";
+export type { SamplingView as Sampling } from "./api/types/SamplingView";
+/** The system's biology; null `known` until the lookup answers. */
+export type BiologyView = Sampled<Biology>;
 
 export async function loadBiology(): Promise<BiologyView> {
   const r = await coreCall("exobiology");
   if (!r.ok) throw new Error(r.error ?? "the core didn't answer");
-  return r as unknown as BiologyView;
+  return r;
 }
 
 /** "19 M", "1.4 M": credits in millions. */

@@ -76,3 +76,7 @@ The browser preview can use it through a dev bridge, and `tauri dev` is the docu
 ## Background
 
 The Unknowns are resolved in the children. Which Windows-only parts lacked Linux fakes is answered in the assembly, world-mode and devices children; the world script format is decision astromech-e1a5.
+
+## Notes
+
+- 2026-11-07 [note] From finding astromech-nq3c (ro7a review): the command-list test's example args are not checked against their arg types, and no arg struct uses deny_unknown_fields, so for all-optional structs (set_folders, set_voice, set_edsm, set_callout's options, binds_set_override's joy) a misspelt field parses to None and answers ok as a no-op; Want::Ok reads only the envelope. When this increment runs the test for real, read back one effect per setter, or round-trip each example through its arg type.

@@ -4,6 +4,7 @@
 use crate::health::Shared;
 use crate::hub::StateHub;
 use crate::speech::Speaker;
+use astromech_api::Recover;
 use astromech_policy::{Denial, Policy, PressError};
 use astromech_proto::{Origin, Tier};
 use astromech_tools::{authorize_plan, plan_with, tool_name, Plan, ToolCall, Verify};
@@ -60,12 +61,62 @@ pub struct Runner {
     /// The process's one remote-data client (Spansh, Ardent, EDSM): every lookup goes through
     /// it, and the star map holds the same one, so they share its rate limit and cache.
     pub remote: Arc<astromech_data::Client>,
-    /// Star map and remote lookups for "nearest crystalline shards" and friends; `None` when
-    /// the galaxy store couldn't be opened.
-    pub galaxy: Option<Arc<astromech_galaxy::Galaxy>>,
+    /// Star map and remote lookups for "nearest crystalline shards" and friends (the window's
+    /// lookups share it). The session opens it off the speech thread when it starts, since
+    /// opening it can seed it from the preload; the speech thread only peeks ([`Runner::stars_now`]).
+    pub stars: Arc<astromech_api::GalaxyHolder>,
+}
+
+/// The star map as a voice lookup finds it on the speech thread ([`Runner::stars_now`]).
+pub enum Stars {
+    Open(Arc<astromech_galaxy::Galaxy>),
+    /// Not open yet: the session's first open is still running.
+    Opening,
 }
 
 impl Runner {
+    /// The star map for a voice lookup, without opening it on this thread (the speech thread):
+    /// open, or still opening, or `None` when its last open failed (the holder logged why). Then
+    /// lookups are off for this one, and the star map is opened again on another thread for the
+    /// next.
+    pub fn stars_now(&self) -> Option<Stars> {
+        match self.stars.peek() {
+            astromech_api::Peek::Open(g) => Some(Stars::Open(g)),
+            astromech_api::Peek::NotTried => Some(Stars::Opening),
+            astromech_api::Peek::Failed => {
+                let stars = self.stars.clone();
+                std::thread::spawn(move || {
+                    let _ = stars.get();
+                });
+                None
+            }
+        }
+    }
+
+    /// Start a lookup off the caller's thread: "Looking that up." is said now, then `answer`
+    /// runs on its own thread with the star map and its answer is said. A star map still opening
+    /// is waited for there; if that open fails, the answer is that lookups are off.
+    pub fn look_up(
+        &self,
+        stars: Stars,
+        answer: impl FnOnce(&astromech_galaxy::Galaxy) -> String + Send + 'static,
+    ) -> Outcome {
+        self.speaker.say("Looking that up.");
+        let (holder, speaker) = (self.stars.clone(), self.speaker.clone());
+        Outcome::LookingUp(std::thread::spawn(move || {
+            let galaxy = match stars {
+                Stars::Open(g) => Ok(g),
+                Stars::Opening => holder.get(),
+            };
+            let m = match galaxy {
+                Ok(g) => answer(&g),
+                Err(_) => astromech_tools::lookup::NO_STAR_MAP.to_string(),
+            };
+            speaker.say(&m);
+            m
+        }))
+    }
+
     /// Start the nearest-site lookup for `kind`, near the commander or the system named in
     /// `from` ([`crate::lookups::named_origin`]). Spansh and EDSM can take many seconds, so the
     /// lookup runs on its own thread and speaks its answer when it arrives: the speech thread is
@@ -78,19 +129,12 @@ impl Runner {
             self.speaker.say(&m);
             return Outcome::Spoken(m);
         }
-        let Some(galaxy) = self.galaxy.clone() else {
+        let Some(stars) = self.stars_now() else {
             let m = astromech_tools::lookup::NO_STAR_MAP.to_string();
             self.speaker.say(&m);
             return Outcome::Spoken(m);
         };
-        self.speaker.say("Looking that up.");
-        let speaker = self.speaker.clone();
-        let h = std::thread::spawn(move || {
-            let m = crate::lookups::sites_answer(&galaxy, kind, &g, from.as_deref());
-            speaker.say(&m);
-            m
-        });
-        Outcome::LookingUp(h)
+        self.look_up(stars, move |galaxy| crate::lookups::sites_answer(galaxy, kind, &g, from.as_deref()))
     }
 
     /// Paste the clipboard into the galaxy map's search box: Ctrl+V, then Enter to search.
@@ -168,7 +212,7 @@ impl Runner {
         };
         let noun = astromech_tools::action_noun(call);
         let combo = {
-            let b = self.binds.read().unwrap();
+            let b = self.binds.read().recover();
             match b.keyboard(action) {
                 Some(k) => k,
                 None => {

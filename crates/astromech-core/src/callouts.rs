@@ -10,8 +10,9 @@ use crate::speech::Speaker;
 use astromech_announce::arrival::{ShoppingList, Want};
 use astromech_announce::prospector::{self, Thresholds};
 use astromech_announce::{Engine, Reaction, SpeechQueue};
+use astromech_api::reply::{Answer, Done};
+use astromech_api::Recover;
 use serde::Serialize;
-use serde_json::{json, Value};
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
@@ -44,11 +45,8 @@ fn open_store(data: &std::path::Path) -> Result<astromech_store::Store, String> 
 
 /// The prospector thresholds for Settings, as [`thresholds_json`]: the defaults on a machine
 /// whose data folder does not exist yet.
-pub fn thresholds_view(data: &std::path::Path) -> Value {
-    match open_store(data) {
-        Ok(st) => thresholds_json(&load_thresholds(&st)),
-        Err(e) => json!({"ok": false, "error": e}),
-    }
+pub fn thresholds_view(data: &std::path::Path) -> Answer<Ores> {
+    open_store(data).map(|st| thresholds_json(&load_thresholds(&st))).into()
 }
 
 /// What the callout rules share, with the thresholds and shopping list read from the database in
@@ -67,33 +65,65 @@ pub fn shared_from_store(data: &std::path::Path, log: &dyn Fn(&str)) -> astromec
     }
 }
 
-/// Every ore with its default and current threshold (`null`: not called out), for Settings.
-pub fn thresholds_json(t: &Thresholds) -> Value {
-    let ores: Vec<Value> = prospector::ORES
-        .iter()
-        .map(|o| json!({"ore": o.symbol, "name": o.name, "default": o.default, "threshold": t.get(o.symbol)}))
-        .collect();
-    json!({"ok": true, "ores": ores})
+/// The prospector thresholds Settings shows (`prospector_thresholds`, `prospector_set`).
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct Ores {
+    pub ores: Vec<OreThreshold>,
 }
 
-/// Every callout with what is in effect, for Settings → Callouts: `enabled` and `cooldown_s`
-/// are the configured values or the callout's own; `default_*` are the callout's own.
-pub fn callouts_json(settings: &astromech_announce::Settings) -> Value {
-    let list: Vec<Value> = astromech_announce::catalog()
+/// One ore's default and current threshold, percent (`null`: not called out).
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct OreThreshold {
+    pub ore: &'static str,
+    pub name: &'static str,
+    pub default: Option<f64>,
+    pub threshold: Option<f64>,
+}
+
+/// Every ore with its default and current threshold (`null`: not called out), for Settings.
+pub fn thresholds_json(t: &Thresholds) -> Ores {
+    let ores = prospector::ORES
+        .iter()
+        .map(|o| OreThreshold { ore: o.symbol, name: o.name, default: o.default, threshold: t.get(o.symbol) })
+        .collect();
+    Ores { ores }
+}
+
+/// Settings → Callouts (`callouts`).
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct CalloutList {
+    pub callouts: Vec<CalloutSetting>,
+}
+
+/// One callout: `enabled` and `cooldown_s` are the configured values or the callout's own;
+/// `default_*` are the callout's own.
+#[derive(Debug, Serialize, ts_rs::TS)]
+pub struct CalloutSetting {
+    pub id: &'static str,
+    pub title: &'static str,
+    pub enabled: bool,
+    pub cooldown_s: f64,
+    pub default_enabled: bool,
+    pub default_cooldown_s: f64,
+}
+
+/// Every callout with what is in effect, for Settings → Callouts.
+pub fn callouts_json(settings: &astromech_announce::Settings) -> Done<CalloutList> {
+    let callouts = astromech_announce::catalog()
         .iter()
         .map(|i| {
             let s = settings.0.get(i.id).cloned().unwrap_or_default();
-            json!({
-                "id": i.id,
-                "title": i.title,
-                "enabled": s.enabled.unwrap_or(i.default_enabled),
-                "cooldown_s": s.cooldown_s.unwrap_or(i.default_cooldown_s),
-                "default_enabled": i.default_enabled,
-                "default_cooldown_s": i.default_cooldown_s,
-            })
+            CalloutSetting {
+                id: i.id,
+                title: i.title,
+                enabled: s.enabled.unwrap_or(i.default_enabled),
+                cooldown_s: s.cooldown_s.unwrap_or(i.default_cooldown_s),
+                default_enabled: i.default_enabled,
+                default_cooldown_s: i.default_cooldown_s,
+            }
         })
         .collect();
-    json!({"ok": true, "callouts": list})
+    Done::new(CalloutList { callouts })
 }
 
 /// A change from Settings: `{"ore": "platinum", "threshold": 25}` (`null` turns it off) or
@@ -195,7 +225,7 @@ pub struct Callouts {
 }
 
 /// One toast for the app window.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Toast {
     /// Increases by one per toast; the window shows the ones newer than it has seen.
     pub id: u64,
@@ -215,7 +245,7 @@ const TOASTS_KEPT: usize = 20;
 
 impl Toasts {
     pub fn push(&self, rule: &str, text: &str) {
-        let mut g = self.inner.lock().unwrap();
+        let mut g = self.inner.lock().recover();
         g.0 += 1;
         let t = Toast {
             id: g.0,
@@ -230,7 +260,7 @@ impl Toasts {
     }
 
     pub fn recent(&self) -> Vec<Toast> {
-        self.inner.lock().unwrap().1.iter().cloned().collect()
+        self.inner.lock().recover().1.iter().cloned().collect()
     }
 }
 
@@ -313,7 +343,7 @@ impl Background {
 
 impl Notifier for Background {
     fn notify(&self, text: &str) {
-        if let Err(e) = self.tx.lock().unwrap().try_send(text.into()) {
+        if let Err(e) = self.tx.lock().recover().try_send(text.into()) {
             log(&format!(
                 "notification dropped ({}): {text}",
                 if matches!(e, std::sync::mpsc::TrySendError::Full(_)) {
@@ -358,7 +388,7 @@ pub fn router(
                 notifier.notify(&r.text);
             }
             if r.channels.speech {
-                pending.q.lock().unwrap().push(r);
+                pending.q.lock().recover().push(r);
                 pending.cv.notify_all();
             }
         }
@@ -408,31 +438,31 @@ impl VoiceTurn {
     }
 
     pub fn ptt_down(&self, now: Instant) {
-        self.inner.lock().unwrap().held_since = Some(now);
+        self.inner.lock().recover().held_since = Some(now);
     }
 
     /// Call after the clip (if any) was queued with [`job_queued`](Self::job_queued).
     pub fn ptt_up(&self) {
-        self.inner.lock().unwrap().held_since = None;
+        self.inner.lock().recover().held_since = None;
     }
 
     /// A clip went to speech-to-text. The job lasts until the returned guard is dropped: keep it
     /// with the clip, so a reply, a failed send, a discarded clip or a panic all end it.
     #[must_use]
     pub fn job_queued(&self, now: Instant) -> TurnJob<'_> {
-        let mut t = self.inner.lock().unwrap();
+        let mut t = self.inner.lock().recover();
         t.jobs += 1;
         t.job_since = Some(now);
         TurnJob(self)
     }
 
     fn job_done(&self) {
-        let mut t = self.inner.lock().unwrap();
+        let mut t = self.inner.lock().recover();
         t.jobs = t.jobs.saturating_sub(1);
     }
 
     pub fn active(&self, now: Instant) -> bool {
-        let t = self.inner.lock().unwrap();
+        let t = self.inner.lock().recover();
         let recent = |since: Option<Instant>| since.is_some_and(|s| now.saturating_duration_since(s) < MAX_TURN);
         recent(t.held_since) || (t.jobs > 0 && recent(t.job_since))
     }
@@ -453,7 +483,7 @@ impl SpeechOut {
         let (stop2, p) = (stop.clone(), pending.clone());
         let thread = std::thread::Builder::new().name("callouts".into()).spawn(move || loop {
             let next = {
-                let mut q = p.q.lock().unwrap();
+                let mut q = p.q.lock().recover();
                 loop {
                     if stop2.load(Ordering::SeqCst) {
                         return;
@@ -464,7 +494,7 @@ impl SpeechOut {
                         }
                     }
                     let wait = if q.is_empty() { Duration::from_millis(250) } else { Duration::from_millis(50) };
-                    q = p.cv.wait_timeout(q, wait).unwrap().0;
+                    q = p.cv.wait_timeout(q, wait).recover().0;
                 }
             };
             speaker.say(&next.text);
@@ -496,7 +526,7 @@ mod tests {
     struct Recorded(Mutex<Vec<String>>);
     impl Notifier for Recorded {
         fn notify(&self, text: &str) {
-            self.0.lock().unwrap().push(text.into());
+            self.0.lock().recover().push(text.into());
         }
     }
 
@@ -513,11 +543,11 @@ mod tests {
             reaction("c", "High line.", Priority::High, Channels::SPEECH | Channels::NOTIFICATION),
         ]);
         assert_eq!(toasts.recent().iter().map(|t| (t.id, t.text.as_str())).collect::<Vec<_>>(), [(1, "Toast only.")]);
-        assert_eq!(*notes.0.lock().unwrap(), ["High line."]);
+        assert_eq!(*notes.0.lock().recover(), ["High line."]);
         let speaker = Arc::new(RecordingSpeaker::default());
         let out = SpeechOut::start(pending, speaker.clone(), Box::leak(Box::default())).unwrap();
         let end = Instant::now() + Duration::from_secs(5);
-        while speaker.said.lock().unwrap().len() < 2 && Instant::now() < end {
+        while speaker.said.lock().recover().len() < 2 && Instant::now() < end {
             std::thread::sleep(Duration::from_millis(10));
         }
         drop(out);
@@ -532,7 +562,7 @@ mod tests {
     }
     impl Speaker for BusySpeaker {
         fn say(&self, text: &str) {
-            self.said.lock().unwrap().push(text.into());
+            self.said.lock().recover().push(text.into());
         }
         fn busy(&self) -> bool {
             self.busy.load(Ordering::SeqCst)
@@ -541,10 +571,10 @@ mod tests {
 
     fn said_within(s: &BusySpeaker, n: usize, wait: Duration) -> Vec<String> {
         let end = Instant::now() + wait;
-        while s.said.lock().unwrap().len() < n && Instant::now() < end {
+        while s.said.lock().recover().len() < n && Instant::now() < end {
             std::thread::sleep(Duration::from_millis(10));
         }
-        s.said.lock().unwrap().clone()
+        s.said.lock().recover().clone()
     }
 
     fn queue_one(pending: &Arc<Pending>) {
@@ -630,7 +660,7 @@ mod tests {
             Arc::new(Self(Mutex::new(vec![])))
         }
         fn texts(&self) -> Vec<String> {
-            self.0.lock().unwrap().iter().map(|(t, _)| t.clone()).collect()
+            self.0.lock().recover().iter().map(|(t, _)| t.clone()).collect()
         }
         /// Polls until `want` is delivered, or fails after a generous deadline so a loaded
         /// runner can't flake the test.
@@ -645,7 +675,7 @@ mod tests {
     impl Notifier for Slow {
         fn notify(&self, text: &str) {
             std::thread::sleep(Duration::from_millis(200));
-            self.0.lock().unwrap().push((text.into(), Instant::now()));
+            self.0.lock().recover().push((text.into(), Instant::now()));
         }
     }
 
@@ -671,7 +701,7 @@ mod tests {
         let n = Background::start(fast.clone(), gap).unwrap();
         n.notify("A.");
         fast.wait_for(&["A."]);
-        let a_at = fast.0.lock().unwrap()[0].1;
+        let a_at = fast.0.lock().recover()[0].1;
         while a_at.elapsed() < gap {
             std::thread::sleep(Duration::from_millis(10));
         }
@@ -689,7 +719,7 @@ mod tests {
         change_thresholds(&store, r#"{"ore":"painite","threshold":null}"#).unwrap();
         let t = load_thresholds(&store);
         assert_eq!((t.get("platinum"), t.get("painite")), (Some(35.0), None));
-        let v = thresholds_json(&t);
+        let v = serde_json::to_value(thresholds_json(&t)).unwrap();
         let plat = v["ores"].as_array().unwrap().iter().find(|o| o["ore"] == "platinum").unwrap().clone();
         assert_eq!((plat["default"].as_f64(), plat["threshold"].as_f64()), (Some(20.0), Some(35.0)));
         change_thresholds(&store, r#"{"ore":"platinum","reset":true}"#).unwrap();
@@ -707,7 +737,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         // No data folder yet: Settings gets the defaults, not "opening the database".
         let data = d.path().join("not").join("yet");
-        let v = thresholds_view(&data);
+        let v = serde_json::to_value(thresholds_view(&data)).unwrap();
         assert_eq!(v["ok"], true, "{v}");
         let plat = v["ores"].as_array().unwrap().iter().find(|o| o["ore"] == "platinum").unwrap().clone();
         assert_eq!(plat["threshold"].as_f64(), Some(20.0));
@@ -716,14 +746,14 @@ mod tests {
         let blocked = d.path().join("file");
         std::fs::write(&blocked, "x").unwrap();
         let logged = std::sync::Mutex::new(vec![]);
-        let shared = shared_from_store(&blocked.join("data"), &|m: &str| logged.lock().unwrap().push(m.to_string()));
-        assert_eq!(*shared.prospector.read().unwrap(), Thresholds::default());
+        let shared = shared_from_store(&blocked.join("data"), &|m: &str| logged.lock().recover().push(m.to_string()));
+        assert_eq!(*shared.prospector.read().recover(), Thresholds::default());
         let logged = logged.into_inner().unwrap();
         assert!(logged.len() == 1 && logged[0].contains("default prospector thresholds"), "{logged:?}");
         // One that opens logs nothing and reads what Settings stored.
         change_thresholds(&open_store(&data).unwrap(), r#"{"ore":"platinum","threshold":35}"#).unwrap();
         let shared = shared_from_store(&data, &|m: &str| panic!("{m}"));
-        assert_eq!(shared.prospector.read().unwrap().get("platinum"), Some(35.0));
+        assert_eq!(shared.prospector.read().recover().get("platinum"), Some(35.0));
     }
 
     #[test]

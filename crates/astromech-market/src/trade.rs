@@ -33,7 +33,8 @@ pub fn with_defaults(filters: &Filters) -> Filters {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+#[ts(rename = "TradeSide")]
 #[serde(rename_all = "lowercase")]
 pub enum Side {
     /// Where the commander can sell: stations that import the commodity.
@@ -73,7 +74,7 @@ impl From<&Here> for Origin {
 }
 
 /// One market for one commodity.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Offer {
     /// Symbol, e.g. "painite".
     pub commodity: String,
@@ -99,7 +100,7 @@ pub struct Offer {
 }
 
 /// One commodity's markets, best first.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Prices {
     pub commodity: String,
     pub side: Side,
@@ -249,7 +250,7 @@ pub fn prices(
 
 /// A search for the app: [`prices`] from a located system, keeping the best `limit` markets
 /// per commodity, with jumps counted on the star map at `range`.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Search {
     pub side: Side,
     pub here: Here,

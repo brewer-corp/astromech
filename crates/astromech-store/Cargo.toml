@@ -14,12 +14,9 @@ workspace = true
 [dependencies]
 rusqlite = { version = "0.40", features = ["bundled"] }
 keyring-core = "1"
-serde.workspace = true
-toml = "0.9"
 
 [target.'cfg(windows)'.dependencies]
 windows-native-keyring-store = { version = "1.1", default-features = false }
-windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_Threading"] }
 
 [dev-dependencies]
 astromech-log.workspace = true

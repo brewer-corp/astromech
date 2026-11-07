@@ -2,6 +2,7 @@
 //! (`astromech-voice-worker`, sherpa-onnx); tests and model-less runs use fakes.
 
 use anyhow::{anyhow, Result};
+use astromech_api::Recover;
 use astromech_voice::client::Worker;
 use astromech_voice::proto::Request;
 use std::collections::VecDeque;
@@ -59,7 +60,7 @@ impl VoiceParams {
 }
 
 /// One voice the Settings picker offers: English Kokoro voices, British first.
-#[derive(Debug, Clone, serde::Serialize, PartialEq)]
+#[derive(Debug, Clone, serde::Serialize, PartialEq, ts_rs::TS)]
 pub struct VoiceChoice {
     pub name: &'static str,
     /// "Emma"
@@ -111,7 +112,7 @@ impl PreviewSlot {
         route: impl FnOnce() -> Option<Result<()>>,
         start: impl FnOnce() -> Result<Arc<dyn Speaker>>,
     ) -> Result<()> {
-        let mut g = self.inner.lock().unwrap();
+        let mut g = self.inner.lock().recover();
         if let Some(r) = route() {
             return r;
         }
@@ -128,19 +129,19 @@ impl PreviewSlot {
     }
 
     pub fn set_voice(&self, v: &VoiceParams) {
-        if let Some((sp, _)) = self.inner.lock().unwrap().as_ref() {
+        if let Some((sp, _)) = self.inner.lock().recover().as_ref() {
             sp.set_voice(v);
         }
     }
 
     /// Release the preview speaker; true if there was one.
     pub fn take(&self) -> bool {
-        self.inner.lock().unwrap().take().is_some()
+        self.inner.lock().recover().take().is_some()
     }
 
     /// Release it if nothing was said for `idle`; true if released.
     pub fn release_idle(&self, now: std::time::Instant, idle: Duration) -> bool {
-        let mut g = self.inner.lock().unwrap();
+        let mut g = self.inner.lock().recover();
         if g.as_ref().is_some_and(|(_, t)| now.saturating_duration_since(*t) >= idle) {
             *g = None;
             return true;
@@ -149,7 +150,7 @@ impl PreviewSlot {
     }
 
     pub fn loaded(&self) -> bool {
-        self.inner.lock().unwrap().is_some()
+        self.inner.lock().recover().is_some()
     }
 }
 
@@ -171,12 +172,12 @@ pub struct RecordingSpeaker {
 }
 impl Speaker for RecordingSpeaker {
     fn say(&self, text: &str) {
-        self.said.lock().unwrap().push(text.to_string());
+        self.said.lock().recover().push(text.to_string());
     }
 }
 impl RecordingSpeaker {
     pub fn take(&self) -> Vec<String> {
-        std::mem::take(&mut *self.said.lock().unwrap())
+        std::mem::take(&mut *self.said.lock().recover())
     }
 }
 
@@ -303,19 +304,19 @@ impl Activity {
 
     /// A line of `len` started playing outside the mixer at `now`.
     pub fn playing(&self, now: Instant, len: Duration) {
-        *self.ends.lock().unwrap() = Some(now + len);
+        *self.ends.lock().recover() = Some(now + len);
     }
 
     /// Playback was cut.
     pub fn cut(&self) {
-        *self.ends.lock().unwrap() = None;
+        *self.ends.lock().recover() = None;
     }
 
     /// `mixer_queued`: samples still in the mixer.
     pub fn busy(&self, now: Instant, mixer_queued: usize) -> bool {
         self.rendering.load(Ordering::SeqCst) > 0
             || mixer_queued > 0
-            || self.ends.lock().unwrap().is_some_and(|t| now < t)
+            || self.ends.lock().recover().is_some_and(|t| now < t)
     }
 }
 
@@ -429,7 +430,7 @@ impl TtsSpeaker {
             loop {
                 let job = {
                     let (m, cv) = &*q;
-                    let mut g = m.lock().unwrap();
+                    let mut g = m.lock().recover();
                     loop {
                         if g.closed {
                             break None;
@@ -440,14 +441,14 @@ impl TtsSpeaker {
                         if let Some(j) = g.warm.pop_front() {
                             break Some((None, j));
                         }
-                        g = cv.wait(g).unwrap();
+                        g = cv.wait(g).recover();
                     }
                 };
                 let Some((line, (t, v))) = job else { break };
                 match line {
                     None => {
                         // A warm-up for a voice that's no longer selected would never be played.
-                        if *cur.lock().unwrap() == v {
+                        if *cur.lock().recover() == v {
                             let _ = render(&t, &v);
                         }
                     }
@@ -492,7 +493,7 @@ impl TtsSpeaker {
     /// Queue a reply for the render thread; once the queue is closed it is dropped (and `line`
     /// with it), even if the thread died after `line` began.
     fn queue_reply(&self, text: &str, line: Line) {
-        let v = self.voice.lock().unwrap().clone();
+        let v = self.voice.lock().recover().clone();
         self.push(|q| {
             if !q.closed {
                 q.speak.push_back((text.to_string(), v, line));
@@ -502,7 +503,7 @@ impl TtsSpeaker {
 
     /// Render the fixed phrases in the current voice, in the background.
     fn warm_up(&self) {
-        let v = self.voice.lock().unwrap().clone();
+        let v = self.voice.lock().recover().clone();
         self.push(|q| q.warm.extend(self.prerender.iter().map(|p| (p.clone(), v.clone()))));
     }
 }
@@ -547,7 +548,7 @@ impl Speaker for TtsSpeaker {
         astromech_voice::player::stop();
     }
     fn set_voice(&self, voice: &VoiceParams) {
-        *self.voice.lock().unwrap() = voice.clone();
+        *self.voice.lock().recover() = voice.clone();
         // Render the fixed phrases in the new voice in the background, as at startup; earlier
         // voices' warm-ups still queued are dropped.
         self.push(|q| q.warm.retain(|(_, v)| v == voice));
@@ -590,7 +591,7 @@ impl LazySpeaker {
 
 impl Speaker for LazySpeaker {
     fn say(&self, text: &str) {
-        let mut g = self.state.lock().unwrap();
+        let mut g = self.state.lock().recover();
         match &mut *g {
             Lazy::Running(s) => s.say(text),
             Lazy::Starting { lines, .. } => lines.push(text.to_string()),
@@ -601,7 +602,7 @@ impl Speaker for LazySpeaker {
                 let (state, start) = (self.state.clone(), self.start.clone());
                 let r = std::thread::Builder::new().name("tts-start".into()).spawn(move || {
                     let r = start();
-                    let mut g = state.lock().unwrap();
+                    let mut g = state.lock().recover();
                     let Lazy::Starting { lines, voice } = std::mem::replace(&mut *g, Lazy::Failed) else {
                         return;
                     };
@@ -628,21 +629,21 @@ impl Speaker for LazySpeaker {
         }
     }
     fn interrupt(&self) {
-        match &mut *self.state.lock().unwrap() {
+        match &mut *self.state.lock().recover() {
             Lazy::Running(s) => s.interrupt(),
             Lazy::Starting { lines, .. } => lines.clear(),
             _ => {}
         }
     }
     fn set_voice(&self, v: &VoiceParams) {
-        match &mut *self.state.lock().unwrap() {
+        match &mut *self.state.lock().recover() {
             Lazy::Running(s) => s.set_voice(v),
             Lazy::Starting { voice, .. } | Lazy::Waiting { voice } => *voice = Some(v.clone()),
             Lazy::Failed => {}
         }
     }
     fn speaks_aloud(&self) -> bool {
-        match &*self.state.lock().unwrap() {
+        match &*self.state.lock().recover() {
             Lazy::Running(s) => s.speaks_aloud(),
             Lazy::Starting { .. } => true,
             Lazy::Waiting { .. } => (self.ready)(),
@@ -828,7 +829,7 @@ mod tests {
             let _ = go.send(());
         }
         assert!(wait_until(|| dropped.load(Ordering::SeqCst)), "the render thread did not exit");
-        let got = log.lock().unwrap().clone();
+        let got = log.lock().recover().clone();
         assert!(got.len() <= 1, "rendered after close: {got:?}");
     }
 
@@ -836,7 +837,7 @@ mod tests {
     struct FakeSynth(Arc<Mutex<Vec<(String, String)>>>);
     impl Synth for FakeSynth {
         fn tts(&mut self, text: &str, voice: &VoiceParams, out_wav: &Path) -> Result<()> {
-            self.0.lock().unwrap().push((text.to_string(), voice.speaker.clone()));
+            self.0.lock().recover().push((text.to_string(), voice.speaker.clone()));
             let tone: Vec<f32> = (0..2400).map(|i| 0.2 * (i as f32 * 0.1).sin()).collect();
             astromech_voice::wav::write_mono_i16(out_wav, 24000, &tone)
         }
@@ -844,10 +845,10 @@ mod tests {
 
     fn wait_for(log: &Mutex<Vec<(String, String)>>, n: usize) -> Vec<(String, String)> {
         let t0 = std::time::Instant::now();
-        while log.lock().unwrap().len() < n && t0.elapsed() < Duration::from_secs(5) {
+        while log.lock().recover().len() < n && t0.elapsed() < Duration::from_secs(5) {
             std::thread::sleep(Duration::from_millis(5));
         }
-        log.lock().unwrap().clone()
+        log.lock().recover().clone()
     }
 
     /// astromech-orel: changing the speaker changes the voice of the next reply; a line already
@@ -918,12 +919,12 @@ mod tests {
         s.say(PREVIEW_LINE);
         // Wait for George's twelve warm-ups and the reply (plus at most one stale line).
         let t0 = std::time::Instant::now();
-        while log.lock().unwrap().iter().filter(|(_, v)| v == "bm_george").count() < 13
+        while log.lock().recover().iter().filter(|(_, v)| v == "bm_george").count() < 13
             && t0.elapsed() < Duration::from_secs(5)
         {
             std::thread::sleep(Duration::from_millis(5));
         }
-        let got = log.lock().unwrap().clone();
+        let got = log.lock().recover().clone();
         let at = got.iter().position(|(t, _)| t == PREVIEW_LINE).unwrap();
         // Only a warm-up already rendering (and, on a loaded machine, one picked up between the
         // last voice change and the reply) can go before it; not the backlog of twelve.
@@ -964,7 +965,7 @@ mod tests {
         assert!(!s.speaks_aloud());
         std::thread::sleep(Duration::from_millis(20));
         assert_eq!(starts.load(Ordering::SeqCst), 0);
-        assert!(log.lock().unwrap().is_empty());
+        assert!(log.lock().recover().is_empty());
         // The download finishes.
         ready.store(true, Ordering::SeqCst);
         assert!(s.speaks_aloud());

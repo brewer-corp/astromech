@@ -2,16 +2,12 @@
  * Prospector callout thresholds (Settings → Callouts). The core keeps them; see
  * `crates/astromech-core/src/callouts.rs` (`prospector_thresholds`, `prospector_set`).
  */
+import type { Answer } from "./api/types/Answer";
+import type { OreThreshold } from "./api/types/OreThreshold";
+import type { Ores } from "./api/types/Ores";
 import { coreCall } from "./core";
 
-export interface OreThreshold {
-  ore: string;
-  name: string;
-  /** Default percentage, or null when the ore is only called out as a motherlode. */
-  default: number | null;
-  /** Percentage in force, or null when it isn't called out. */
-  threshold: number | null;
-}
+export type { OreThreshold } from "./api/types/OreThreshold";
 
 /** What the commander typed in a threshold box: a percentage, off (empty), or invalid. */
 export function parseThreshold(input: string): number | null | "invalid" {
@@ -21,11 +17,11 @@ export function parseThreshold(input: string): number | null | "invalid" {
   return Number.isFinite(n) && n >= 0 && n <= 100 ? n : "invalid";
 }
 
-async function reply(r: Promise<Record<string, unknown>>): Promise<OreThreshold[]> {
+async function reply(r: Promise<Answer<Ores>>): Promise<OreThreshold[]> {
   const v = await r;
-  if (!v.ok) throw new Error(String(v.error ?? "the core didn't answer"));
+  if (!v.ok) throw new Error(v.error ?? "the core didn't answer");
   if (!Array.isArray(v.ores)) throw new Error("the core's reply has no thresholds (is it an older version?)");
-  return v.ores as OreThreshold[];
+  return v.ores;
 }
 
 export function loadThresholds(): Promise<OreThreshold[]> {

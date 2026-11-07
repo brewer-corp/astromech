@@ -4,6 +4,9 @@ id: "astromech-bp23"
 issue_type: "feature"
 labels:
 - "size-l"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-bp23
 priority: "P1"
 relationships:
   blocks: []
@@ -13,6 +16,8 @@ relationships:
   - kind: "issue"
     id: "astromech-8s6k"
   - kind: "issue"
+    id: "astromech-96ci"
+  - kind: "issue"
     id: "astromech-96dv"
   - kind: "issue"
     id: "astromech-i8vr"
@@ -20,6 +25,8 @@ relationships:
     id: "astromech-k6da"
   - kind: "issue"
     id: "astromech-ndzx"
+  - kind: "issue"
+    id: "astromech-ravn"
   - kind: "issue"
     id: "astromech-ro7a"
   - kind: "issue"
@@ -31,9 +38,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-11-07T12:30:31.120094435+00:00"
+status: "done"
 title: "One command layer that every way in calls"
-updated_at: "2026-11-07T06:33:38.862168745+00:00"
+updated_at: "2026-11-07T12:30:31.120094435+00:00"
 ---
 
 ## Goal
@@ -42,12 +50,12 @@ Every command the window uses is registered in one command layer, the registry i
 
 ## Done when
 
-- [ ] Every child is done.
-- [ ] The shell's 52 commands are gone from `generate_handler` except one proxy. The 48 shell commands, `open_external` and `shell_info` are command-layer handlers. `core_call` and `core_status` are replaced by the proxy. The core's control commands are registry entries. Every command runs behind `catch_unwind` on a worker thread.
-- [ ] Every command's request and reply types are exported to TypeScript with ts-rs, and the window's transport and fake handlers are typed against them.
-- [ ] A test lists the window's commands and calls each through a running core's control API. This advances success criterion one-command-list, which astromech-vucf completes by running the same test against the headless core and its scripted world. The typed `call()` (astromech-96dv) limits the window to the registry's `window` entries this test calls.
-- [ ] The neutron star file and the scan caches have one owner, the command layer's state in the core. They load on first use and drop when idle.
-- [ ] The Release workflow's onboarding smoke on the bp23 PR opens every top-level page of the installed app against the real core with no "not allowed", unknown-command or internal error.
+- [x] Every child is done.
+- [x] The shell's 52 commands are gone from `generate_handler` except one proxy. The 48 shell commands, `open_external` and `shell_info` are command-layer handlers. `core_call` and `core_status` are replaced by the proxy. The core's control commands are registry entries. Every command runs behind `catch_unwind` on a worker thread.
+- [x] Every command's request and reply types are exported to TypeScript with ts-rs, and the window's transport and fake handlers are typed against them.
+- [x] A test lists the window's commands and calls each through a running core's control API. This advances success criterion one-command-list, which astromech-vucf completes by running the same test against the headless core and its scripted world. The typed `call()` (astromech-96dv) limits the window to the registry's `window` entries this test calls.
+- [x] The neutron star file and the scan caches have one owner, the command layer's state in the core. They load on first use and drop when idle.
+- [x] The Release workflow's onboarding smoke on the bp23 PR opens every top-level page of the installed app against the real core with no "not allowed", unknown-command or internal error.
 
 ## Background
 
@@ -57,3 +65,11 @@ The three Unknowns this increment was filed with are resolved as follows.
 - Exposure and policy (Unknown 2): decision record astromech-unh9.
 - Crate and wire (Unknown 3): the registry and the control API live in `astromech-api`, which never depends on astromech-core, -input or -policy. The core's Core-bound handlers stay in astromech-core and are registered into it. The control API stays JSON lines over TCP: request `{token, cmd, args?, text?, route?, origin?}`, reply zero or more `{"progress": V}` lines then `{"ok": true, "value": V}` or `{"ok": false, "error": "…"}`. The window's calls have no read timeout, because plots poll Spansh for up to 180 s; a dropped connection is the failure. A WebSocket API waits for a browser client that connects directly, and none is in this mission.
 - Migration: expand and contract on bp23's branch. The registry comes first, then two groups of moves, each leaving a one-line forwarder in the shell so the window is unchanged. After astromech-7rcn (the transport) merges, one proxy replaces the forwarders, `core_call` and `core_status`. Every child leaves the branch green.
+
+## Report
+
+All ten children are done and independently reviewed: 8s6k (registry and control API in crates/astromech-api), 6siv and ndzx (50 window commands moved into the command layer, one remote-data client, one lazy star map), k6da (neutron file and caches drop after 10 idle minutes), 96ci (a caught panic leaves the core working and writes no crash marker), ravn (leftovers), se44 (ts-rs types and a drift test), i8vr (one shell `call` proxy; `status` keeps its 10 s bound; the window's own version in Diagnostics), 96dv (typed `call()` and fakes, fixtures re-recorded), ro7a (every window command answers over a running core's control API; 11 commands on the not-run-for-real list that astromech-vucf completes).
+
+Proof: `cargo test --workspace` 1302 passed; clippy, fmt, check-deps and deny clean; `pnpm check/lint/test` 532 passed. PR #216's Windows CI passed the shell build and clippy, and the Release onboarding smoke opened all 24 pages with none refusing a call and found the star map opened with the installed preload.
+
+Deviations: se44's full drift test lives in astromech-core (check-deps forbids api→core); ro7a's test is an astromech-core lib module. Follow-ups filed: astromech-x6hc (ts-rs export code only in tests), astromech-8nuc (preview neutron jump total), astromech-akos (unpin the Linux runner). CI's Atelier pin moved to 12efdfd9 for the Report section.

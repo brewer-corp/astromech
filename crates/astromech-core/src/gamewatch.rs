@@ -13,7 +13,7 @@ pub const POLL: Duration = Duration::from_secs(3);
 /// Polls in a row without the game before going idle.
 pub const MISSES_TO_IDLE: u32 = 2;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum Game {
     NotRunning,

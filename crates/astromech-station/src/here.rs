@@ -9,7 +9,7 @@ use std::path::Path;
 
 /// Everything the docked panel shows. Without a dock (`docked: false`) only the system the
 /// commander is in is set, and the rest is empty.
-#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, ts_rs::TS)]
 pub struct DockedHere {
     pub docked: bool,
     pub station: Option<String>,
@@ -26,7 +26,7 @@ pub struct DockedHere {
     pub outfitting: Option<OutfittingHere>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct OutfittingHere {
     /// When the game wrote the file this is from.
     pub seen: String,
@@ -37,7 +37,7 @@ pub struct OutfittingHere {
 }
 
 /// A module on sale that beats one fitted.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Upgrade {
     pub slot: String,
     pub slot_name: String,

@@ -42,7 +42,7 @@ pub struct Progress {
 }
 
 /// How far the commander is from the samples taken so far.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, ts_rs::TS)]
 pub struct Clearance {
     /// The next sample's number (2 or 3).
     pub next: u8,

@@ -37,7 +37,7 @@ pub enum Source {
 }
 
 /// One kind of site the lookup offers.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct SiteKind {
     pub id: &'static str,
     pub label: &'static str,
@@ -169,7 +169,7 @@ fn rare_raw(b: &Body) -> String {
     found.iter().take(3).map(|(s, share)| format!("{} {share:.1}%", s.name)).collect::<Vec<_>>().join(", ")
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct SiteHit {
     pub system: String,
     pub id64: i64,
@@ -184,10 +184,11 @@ pub struct SiteHit {
     /// Known farms: what the body is farmed for, spoken after its name ("polonium from
     /// crystalline shards"), so the four HIP 36601 farms sound different.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub farm: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Sites {
     pub kind: SiteKind,
     pub here: Here,
@@ -198,6 +199,7 @@ pub struct Sites {
     pub fetched: String,
     pub hits: Vec<SiteHit>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub warning: Option<String>,
 }
 

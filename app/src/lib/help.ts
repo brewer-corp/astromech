@@ -1,6 +1,6 @@
 /**
  * Help links: every page has a page in the user guide (docs/guide/), opened on GitHub in the
- * browser through the shell's `open_external` (which allows the project's GitHub pages).
+ * browser through the core's `open_external` (which allows the project's GitHub pages).
  * `help.test.ts` checks that each target file and heading exists.
  */
 import { openUrl } from "./core";

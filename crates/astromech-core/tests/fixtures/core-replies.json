@@ -1,0 +1,1120 @@
+[
+  {
+    "args": null,
+    "cmd": "status",
+    "reply": {
+      "active": false,
+      "app_dir": "<dir>",
+      "autostart": "<masked>",
+      "config": "<dir>/astromech.toml",
+      "config_note": null,
+      "crash_pending": false,
+      "game": "not_running",
+      "history": null,
+      "kill_switch": null,
+      "killed": false,
+      "log_dir": "<masked>",
+      "mic": "",
+      "mining": null,
+      "models_dir": "<dir>/models",
+      "models_missing": true,
+      "models_progress": null,
+      "ok": true,
+      "onboarded": false,
+      "pid": "<masked>",
+      "ptt": null,
+      "setup_needed": [
+        "push-to-talk not set",
+        "speech models not downloaded"
+      ],
+      "starting": false,
+      "status_line": "Waiting for Elite",
+      "toasts": [],
+      "update": {
+        "apply_error": null,
+        "error": null,
+        "installed": "0.0.0-dev",
+        "last_check": null,
+        "latest": null,
+        "notes": "",
+        "ready": false,
+        "status": "idle"
+      },
+      "version": "<masked>",
+      "voice": "",
+      "voice_paused": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "callouts",
+    "reply": {
+      "callouts": [
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "prospector",
+          "title": "Prospector"
+        },
+        {
+          "cooldown_s": 30.0,
+          "default_cooldown_s": 30.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "scan",
+          "title": "Scans"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "arrival",
+          "title": "Arrival briefing"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": false,
+          "enabled": false,
+          "id": "powerplay_arrival",
+          "title": "Powerplay arrival"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "biology",
+          "title": "Known biology"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "known_bodies",
+          "title": "Bodies known to EDSM"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "docking",
+          "title": "Docking"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "scoopable",
+          "title": "Next scoopable star"
+        },
+        {
+          "cooldown_s": 600.0,
+          "default_cooldown_s": 600.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "fuel_range",
+          "title": "Fuel range"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "route",
+          "title": "Route summary"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "route_follow",
+          "title": "Route follower"
+        },
+        {
+          "cooldown_s": 30.0,
+          "default_cooldown_s": 30.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "hge",
+          "title": "High Grade Emissions"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "materials_cap",
+          "title": "Materials at the cap"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "missions",
+          "title": "Mission reminders"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "project_market",
+          "title": "Colonisation shopping"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "signals",
+          "title": "Signals"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "sampling",
+          "title": "Exobiology sampling"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "discovery",
+          "title": "Discoveries"
+        },
+        {
+          "cooldown_s": 0.0,
+          "default_cooldown_s": 0.0,
+          "default_enabled": true,
+          "enabled": true,
+          "id": "session_summary",
+          "title": "Session summary"
+        }
+      ],
+      "ok": true
+    },
+    "text": null
+  },
+  {
+    "args": {
+      "enabled": false,
+      "id": "scan"
+    },
+    "cmd": "set_callout",
+    "reply": {
+      "applies_next_session": false,
+      "ok": true
+    },
+    "text": null
+  },
+  {
+    "args": {
+      "enabled": false,
+      "id": "nope"
+    },
+    "cmd": "set_callout",
+    "reply": {
+      "error": "unknown callout \"nope\"",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": {
+      "mic": "USB"
+    },
+    "cmd": "set_mic",
+    "reply": {
+      "applies_next_session": false,
+      "ok": true
+    },
+    "text": null
+  },
+  {
+    "args": {
+      "device": "",
+      "key": ""
+    },
+    "cmd": "set_ptt",
+    "reply": {
+      "error": "expected {device, key}",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "prospector_thresholds",
+    "reply": {
+      "ok": true,
+      "ores": [
+        {
+          "default": null,
+          "name": "Void Opals",
+          "ore": "opal",
+          "threshold": null
+        },
+        {
+          "default": 25.0,
+          "name": "Low Temperature Diamonds",
+          "ore": "lowtemperaturediamond",
+          "threshold": 25.0
+        },
+        {
+          "default": 25.0,
+          "name": "Painite",
+          "ore": "painite",
+          "threshold": 25.0
+        },
+        {
+          "default": 20.0,
+          "name": "Platinum",
+          "ore": "platinum",
+          "threshold": 20.0
+        },
+        {
+          "default": null,
+          "name": "Musgravite",
+          "ore": "musgravite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Grandidierite",
+          "ore": "grandidierite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Alexandrite",
+          "ore": "alexandrite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Benitoite",
+          "ore": "benitoite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Monazite",
+          "ore": "monazite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Rhodplumsite",
+          "ore": "rhodplumsite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Serendibite",
+          "ore": "serendibite",
+          "threshold": null
+        },
+        {
+          "default": 25.0,
+          "name": "Osmium",
+          "ore": "osmium",
+          "threshold": 25.0
+        },
+        {
+          "default": 30.0,
+          "name": "Palladium",
+          "ore": "palladium",
+          "threshold": 30.0
+        },
+        {
+          "default": 30.0,
+          "name": "Bromellite",
+          "ore": "bromellite",
+          "threshold": 30.0
+        },
+        {
+          "default": 30.0,
+          "name": "Tritium",
+          "ore": "tritium",
+          "threshold": 30.0
+        }
+      ]
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "prospector_set",
+    "reply": {
+      "ok": true,
+      "ores": [
+        {
+          "default": null,
+          "name": "Void Opals",
+          "ore": "opal",
+          "threshold": null
+        },
+        {
+          "default": 25.0,
+          "name": "Low Temperature Diamonds",
+          "ore": "lowtemperaturediamond",
+          "threshold": 25.0
+        },
+        {
+          "default": 25.0,
+          "name": "Painite",
+          "ore": "painite",
+          "threshold": 25.0
+        },
+        {
+          "default": 20.0,
+          "name": "Platinum",
+          "ore": "platinum",
+          "threshold": 35.0
+        },
+        {
+          "default": null,
+          "name": "Musgravite",
+          "ore": "musgravite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Grandidierite",
+          "ore": "grandidierite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Alexandrite",
+          "ore": "alexandrite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Benitoite",
+          "ore": "benitoite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Monazite",
+          "ore": "monazite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Rhodplumsite",
+          "ore": "rhodplumsite",
+          "threshold": null
+        },
+        {
+          "default": null,
+          "name": "Serendibite",
+          "ore": "serendibite",
+          "threshold": null
+        },
+        {
+          "default": 25.0,
+          "name": "Osmium",
+          "ore": "osmium",
+          "threshold": 25.0
+        },
+        {
+          "default": 30.0,
+          "name": "Palladium",
+          "ore": "palladium",
+          "threshold": 30.0
+        },
+        {
+          "default": 30.0,
+          "name": "Bromellite",
+          "ore": "bromellite",
+          "threshold": 30.0
+        },
+        {
+          "default": 30.0,
+          "name": "Tritium",
+          "ore": "tritium",
+          "threshold": 30.0
+        }
+      ]
+    },
+    "text": "{\"ore\":\"platinum\",\"threshold\":35}"
+  },
+  {
+    "args": null,
+    "cmd": "prospector_set",
+    "reply": {
+      "error": "bad threshold change: expected ident at line 1 column 2",
+      "ok": false
+    },
+    "text": "not json"
+  },
+  {
+    "args": null,
+    "cmd": "shopping_set",
+    "reply": {
+      "error": "bad shopping list: invalid length 0, expected struct Change with 2 elements at line 1 column 2",
+      "ok": false
+    },
+    "text": "[]"
+  },
+  {
+    "args": null,
+    "cmd": "voice_settings",
+    "reply": {
+      "colour": "cockpit",
+      "ok": true,
+      "speaker": "bf_emma",
+      "speed": 1.0,
+      "speeds": [
+        0.699999988079071,
+        1.2999999523162842
+      ],
+      "voices": [
+        {
+          "accent": "British",
+          "gender": "female",
+          "label": "Alice",
+          "name": "bf_alice"
+        },
+        {
+          "accent": "British",
+          "gender": "female",
+          "label": "Emma",
+          "name": "bf_emma"
+        },
+        {
+          "accent": "British",
+          "gender": "female",
+          "label": "Isabella",
+          "name": "bf_isabella"
+        },
+        {
+          "accent": "British",
+          "gender": "female",
+          "label": "Lily",
+          "name": "bf_lily"
+        },
+        {
+          "accent": "British",
+          "gender": "male",
+          "label": "Daniel",
+          "name": "bm_daniel"
+        },
+        {
+          "accent": "British",
+          "gender": "male",
+          "label": "Fable",
+          "name": "bm_fable"
+        },
+        {
+          "accent": "British",
+          "gender": "male",
+          "label": "George",
+          "name": "bm_george"
+        },
+        {
+          "accent": "British",
+          "gender": "male",
+          "label": "Lewis",
+          "name": "bm_lewis"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "Alloy",
+          "name": "af_alloy"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "Aoede",
+          "name": "af_aoede"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "Bella",
+          "name": "af_bella"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "Heart",
+          "name": "af_heart"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "Jessica",
+          "name": "af_jessica"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "Kore",
+          "name": "af_kore"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "Nicole",
+          "name": "af_nicole"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "Nova",
+          "name": "af_nova"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "River",
+          "name": "af_river"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "Sarah",
+          "name": "af_sarah"
+        },
+        {
+          "accent": "American",
+          "gender": "female",
+          "label": "Sky",
+          "name": "af_sky"
+        },
+        {
+          "accent": "American",
+          "gender": "male",
+          "label": "Adam",
+          "name": "am_adam"
+        },
+        {
+          "accent": "American",
+          "gender": "male",
+          "label": "Echo",
+          "name": "am_echo"
+        },
+        {
+          "accent": "American",
+          "gender": "male",
+          "label": "Eric",
+          "name": "am_eric"
+        },
+        {
+          "accent": "American",
+          "gender": "male",
+          "label": "Fenrir",
+          "name": "am_fenrir"
+        },
+        {
+          "accent": "American",
+          "gender": "male",
+          "label": "Liam",
+          "name": "am_liam"
+        },
+        {
+          "accent": "American",
+          "gender": "male",
+          "label": "Michael",
+          "name": "am_michael"
+        },
+        {
+          "accent": "American",
+          "gender": "male",
+          "label": "Onyx",
+          "name": "am_onyx"
+        },
+        {
+          "accent": "American",
+          "gender": "male",
+          "label": "Puck",
+          "name": "am_puck"
+        },
+        {
+          "accent": "American",
+          "gender": "male",
+          "label": "Santa",
+          "name": "am_santa"
+        }
+      ]
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "voice_preview",
+    "reply": {
+      "error": "download the speech models first (Speech models, above)",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "learned_phrases",
+    "reply": {
+      "ok": true,
+      "phrases": []
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "learned_forget",
+    "reply": {
+      "ok": true,
+      "phrases": []
+    },
+    "text": "nothing"
+  },
+  {
+    "args": null,
+    "cmd": "find_elite",
+    "reply": {
+      "found": {
+        "bindings_dir": "<dir>/bindings",
+        "bindings_found": false,
+        "install": "<masked>",
+        "install_source": "<masked>",
+        "journal_dir": "<dir>/journals",
+        "journal_found": true,
+        "ok": true
+      },
+      "ok": true
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "mic_list",
+    "reply": {
+      "calibration": {
+        "device": "USB",
+        "min_level_dbfs": null
+      },
+      "chosen": null,
+      "default": null,
+      "names": [],
+      "ok": true,
+      "setting": "USB"
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "calibrate_start",
+    "reply": {
+      "next": {
+        "ms": 2000,
+        "phrase": "",
+        "step": 0,
+        "steps": 4
+      },
+      "ok": true,
+      "phrases": [
+        "gear down",
+        "deploy hardpoints",
+        "request docking"
+      ]
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "calibrate_finish",
+    "reply": {
+      "error": "calibration needs silence and all 3 phrases first",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "calibrate_cancel",
+    "reply": {
+      "ok": true
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "mic_check",
+    "reply": {
+      "error": "recording needs Windows",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "eddn_log",
+    "reply": {
+      "enabled": false,
+      "last_error": null,
+      "last_sent": null,
+      "log": [],
+      "ok": true,
+      "pending": 0,
+      "skipped": [],
+      "test": true
+    },
+    "text": null
+  },
+  {
+    "args": {
+      "enabled": "yes"
+    },
+    "cmd": "set_eddn",
+    "reply": {
+      "error": "expected {enabled: true|false}",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "edsm_status",
+    "reply": {
+      "commander": "",
+      "enabled": false,
+      "has_key": false,
+      "key_error": null,
+      "last_error": null,
+      "last_sent": null,
+      "log": [],
+      "ok": true,
+      "pending": 0,
+      "skipped": [],
+      "uploading": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "edsm_flight_log",
+    "reply": {
+      "error": "set your EDSM commander name and API key first",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": {},
+    "cmd": "set_edsm",
+    "reply": {
+      "error": "expected {enabled}, {commander} or {api_key}",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "exobiology",
+    "reply": {
+      "error": "Elite isn't running.",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "voice_test",
+    "reply": {
+      "ok": true,
+      "result": {
+        "action": "DeployHardpointToggle",
+        "intent": {
+          "command": "hardpoints.deploy",
+          "decision": "execute",
+          "phrase": "deploy hardpoints",
+          "score": 1.0
+        },
+        "keys": null,
+        "live": "hardpoints.deploy",
+        "live_from": null,
+        "message": "No game state yet. Is Elite running?",
+        "source": "typed",
+        "transcript": "deploy hardpoints",
+        "would": "refused"
+      }
+    },
+    "text": "deploy hardpoints"
+  },
+  {
+    "args": null,
+    "cmd": "voice_test_live",
+    "reply": {
+      "error": "Elite isn't running, so there's nothing to send keys to.",
+      "ok": false
+    },
+    "text": "hardpoints.deploy"
+  },
+  {
+    "args": null,
+    "cmd": "install_update",
+    "reply": {
+      "error": "no update ready",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "kill_switch",
+    "reply": {
+      "ok": true
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "ack_crash",
+    "reply": {
+      "ok": true
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "onboarding_done",
+    "reply": {
+      "ok": true
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "route",
+    "reply": {
+      "ok": true,
+      "view": {
+        "clipboard_error": null,
+        "here": null,
+        "jumps_left": null,
+        "next": null,
+        "parked": null,
+        "remaining": 0,
+        "route": null
+      }
+    },
+    "text": null
+  },
+  {
+    "args": {
+      "name": "Trip",
+      "source": "search",
+      "waypoints": [
+        {
+          "system": "Sol"
+        },
+        {
+          "jumps": 3,
+          "label": "x",
+          "system": "Colonia"
+        }
+      ]
+    },
+    "cmd": "route_set",
+    "reply": {
+      "ok": true,
+      "view": {
+        "clipboard_error": null,
+        "here": null,
+        "jumps_left": null,
+        "next": {
+          "system": "Sol"
+        },
+        "parked": null,
+        "remaining": 2,
+        "route": {
+          "name": "Trip",
+          "next": 0,
+          "source": "search",
+          "waypoints": [
+            {
+              "system": "Sol"
+            },
+            {
+              "jumps": 3,
+              "label": "x",
+              "system": "Colonia"
+            }
+          ]
+        }
+      }
+    },
+    "text": null
+  },
+  {
+    "args": {
+      "label": "Farseer",
+      "source": "engineer trip",
+      "system": "Deciat"
+    },
+    "cmd": "route_add",
+    "reply": {
+      "ok": true,
+      "view": {
+        "clipboard_error": null,
+        "here": null,
+        "jumps_left": null,
+        "next": {
+          "label": "Farseer",
+          "system": "Deciat"
+        },
+        "parked": null,
+        "remaining": 3,
+        "route": {
+          "name": "Trip",
+          "next": 0,
+          "source": "search",
+          "waypoints": [
+            {
+              "label": "Farseer",
+              "system": "Deciat"
+            },
+            {
+              "system": "Sol"
+            },
+            {
+              "jumps": 3,
+              "label": "x",
+              "system": "Colonia"
+            }
+          ]
+        }
+      }
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "route_skip",
+    "reply": {
+      "ok": true,
+      "view": {
+        "clipboard_error": null,
+        "here": null,
+        "jumps_left": null,
+        "next": {
+          "system": "Sol"
+        },
+        "parked": null,
+        "remaining": 2,
+        "route": {
+          "name": "Trip",
+          "next": 1,
+          "source": "search",
+          "waypoints": [
+            {
+              "label": "Farseer",
+              "system": "Deciat"
+            },
+            {
+              "system": "Sol"
+            },
+            {
+              "jumps": 3,
+              "label": "x",
+              "system": "Colonia"
+            }
+          ]
+        }
+      }
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "route_back",
+    "reply": {
+      "ok": true,
+      "view": {
+        "clipboard_error": null,
+        "here": null,
+        "jumps_left": null,
+        "next": {
+          "label": "Farseer",
+          "system": "Deciat"
+        },
+        "parked": null,
+        "remaining": 3,
+        "route": {
+          "name": "Trip",
+          "next": 0,
+          "source": "search",
+          "waypoints": [
+            {
+              "label": "Farseer",
+              "system": "Deciat"
+            },
+            {
+              "system": "Sol"
+            },
+            {
+              "jumps": 3,
+              "label": "x",
+              "system": "Colonia"
+            }
+          ]
+        }
+      }
+    },
+    "text": null
+  },
+  {
+    "args": {
+      "text": " "
+    },
+    "cmd": "route_set",
+    "reply": {
+      "error": "the route has no systems",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": null,
+    "cmd": "route_clear",
+    "reply": {
+      "ok": true,
+      "view": {
+        "clipboard_error": null,
+        "here": null,
+        "jumps_left": null,
+        "next": null,
+        "parked": null,
+        "remaining": 0,
+        "route": null
+      }
+    },
+    "text": null
+  },
+  {
+    "args": {},
+    "cmd": "route_resume",
+    "reply": {
+      "error": "there is no route to resume",
+      "ok": false
+    },
+    "text": null
+  }
+]

@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 /// Estimated rolls to complete grades 1–5.
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Rolls(pub [u32; 5]);
 
 impl Default for Rolls {
@@ -29,7 +29,7 @@ impl Rolls {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Plan {
     pub ship_id: i64,
     pub targets: Vec<Target>,
@@ -37,7 +37,8 @@ pub struct Plan {
     pub rolls: Rolls,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
+#[ts(rename = "PlanTarget")]
 pub struct Target {
     pub slot: String,
     pub blueprint: String,
@@ -46,7 +47,7 @@ pub struct Target {
     pub experimental: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct PlanResult {
     pub ship_id: i64,
     pub rolls: Rolls,
@@ -59,7 +60,7 @@ pub struct PlanResult {
     pub snapshot_ts: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct TargetCost {
     pub slot: String,
     pub slot_name: String,
@@ -81,7 +82,7 @@ pub struct TargetCost {
     pub note: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct MatLine {
     pub id: String,
     pub name: String,
@@ -101,7 +102,7 @@ pub struct MatLine {
 /// Collect `collect` of one material, then make the `then` trades with it. Raw shortfalls are
 /// farmed as the grade 4 of their category, most encoded ones as Adaptive Encryptors Capture
 /// (`astromech_materials::farm::anchor`).
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct FarmStep {
     pub id: String,
     pub name: String,
@@ -119,7 +120,7 @@ pub struct FarmStep {
     pub then: Vec<Trade>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Trade {
     pub give_id: String,
     pub give_name: String,

@@ -8,7 +8,7 @@ import { modules } from "./lib/modules";
 import { FINDERS } from "./lib/places";
 import { answer, idle } from "./test/transport";
 
-answer("core_status", () => null);
+answer("status", () => null);
 
 /**
  * Rows that read as tabs: two or more sibling buttons or links of one kind, one marked current

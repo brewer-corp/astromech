@@ -59,7 +59,7 @@ enum Login {
 }
 
 /// The rank after the current one and what it takes.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct NextRank {
     pub rank: i64,
     /// Lifetime merits the rank needs.
@@ -72,7 +72,7 @@ pub struct NextRank {
 }
 
 /// What the app shows: the standing as of `now`.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct StandingView {
     pub power: Option<String>,
     pub rank: Option<i64>,

@@ -42,6 +42,6 @@ export const SUIT_SPECIALTIES: Record<string, string[]> = {
   "Yi Shen": ["Audio Masking", "Headshot Damage"],
 };
 
-export function specialties(name: string, kind: "ship" | "suit"): string[] {
+export function specialties(name: string, kind: string): string[] {
   return (kind === "suit" ? SUIT_SPECIALTIES : SHIP_SPECIALTIES)[name] ?? [];
 }

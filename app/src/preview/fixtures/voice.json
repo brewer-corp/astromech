@@ -9,6 +9,7 @@
     },
     "keys": null,
     "live": null,
+    "live_from": null,
     "message": "Say again.",
     "source": "typed",
     "transcript": "banana bread",
@@ -24,6 +25,7 @@
     },
     "keys": null,
     "live": null,
+    "live_from": null,
     "message": "Supercruise is not available yet. Flight commands come later.",
     "source": "typed",
     "transcript": "engage supercruise",
@@ -43,6 +45,7 @@
       "slot": "Secondary"
     },
     "live": "landing_gear.down",
+    "live_from": null,
     "message": "Landing gear deployed.",
     "source": "typed",
     "transcript": "gear down",
@@ -58,6 +61,7 @@
     },
     "keys": null,
     "live": "status.fuel",
+    "live_from": null,
     "message": "Fuel: 24.5 tonnes main. Tank 77 percent.",
     "source": "typed",
     "transcript": "how much fuel",
@@ -79,6 +83,7 @@
       "slot": "Primary"
     },
     "live": "lights.on",
+    "live_from": null,
     "message": "Lights on.",
     "source": "typed",
     "transcript": "lights on",
@@ -98,6 +103,7 @@
       "slot": "Secondary"
     },
     "live": "landing_gear.down",
+    "live_from": null,
     "message": "Did you mean gear down?",
     "source": "typed",
     "transcript": "you're down",

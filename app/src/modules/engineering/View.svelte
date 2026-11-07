@@ -95,7 +95,7 @@
       .then((r) => {
         if (mine !== statsSeq) return;
         compared = r;
-        statsNote = r ? null : "Ship stats are worked out in the app. Outside it, only the sample Krait's sample plans have them.";
+        statsNote = null;
       })
       .catch((e: unknown) => {
         if (mine !== statsSeq) return;

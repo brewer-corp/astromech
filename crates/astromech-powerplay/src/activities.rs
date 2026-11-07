@@ -70,7 +70,7 @@ struct ActivitiesFile {
 }
 
 /// One thing to do here for merits.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Suggestion {
     /// Stable id from the rules table, e.g. `bounty-hunting`.
     pub activity: String,
@@ -88,7 +88,7 @@ pub struct Suggestion {
 }
 
 /// The rules table's version and fetch date, shown with the suggestions.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct RulesVersion {
     pub version: u32,
     pub fetched: String,

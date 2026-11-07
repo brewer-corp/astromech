@@ -31,7 +31,7 @@ pub const EVENTS: &[&str] = &[
 /// Above this, losing the data hurts: the page reminds the commander to sell it.
 pub const RISKY: i64 = 50_000_000;
 
-#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, ts_rs::TS)]
 pub struct Unsold {
     pub cartographic: i64,
     pub systems: usize,

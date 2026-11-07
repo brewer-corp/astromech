@@ -87,7 +87,10 @@ fn rig_with(at_sol: bool, transport: Arc<Recorded>) -> (Assistant, Arc<Recording
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
-        galaxy: Some(Arc::new(Galaxy::with_remote(Store::in_memory().unwrap(), client.clone()))),
+        stars: Arc::new(astromech_api::GalaxyHolder::opened(Galaxy::with_remote(
+            Store::in_memory().unwrap(),
+            client.clone(),
+        ))),
         remote: client,
     });
     (Assistant::new(runner), speaker, exec)

@@ -14,11 +14,12 @@ const asked: Plan[] = [];
 /** Answer every plan with this instead of the fixture. */
 let override: Compared | null = null;
 
-// The shell's engineering_stats, answered from the fixture: a plan it doesn't have fails.
-answer("engineering_stats", ({ plan }: { plan: Plan }): Compared | null => {
+// engineering_stats answered from the fixture: a plan it doesn't have fails. Another ship's plan
+// gets the preview's own answer, which has no stats for it and says so.
+answer("engineering_stats", ({ plan }: { plan: Plan }): Compared | Promise<Compared> => {
   asked.push(plan);
   if (override) return override;
-  if (plan.ship_id !== ships.fleet.ships[0]!.id) return null;
+  if (plan.ship_id !== ships.fleet.ships[0]!.id) return previewAnswer<Compared>("engineering_stats", { plan });
   const c = ships.cases.find((c) => samePlan(c.plan as unknown as Plan, plan));
   if (!c) throw new Error(`no fixture stats for ${JSON.stringify(plan.targets)}`);
   return c.stats as unknown as StatsComparison;

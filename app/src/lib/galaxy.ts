@@ -1,44 +1,18 @@
 /**
  * Live "nearest systems" lookups (Spansh faction states) with jump counts from the local star
- * map. The shell does the network and the maths.
+ * map. The core does the network and the maths.
  */
+import type { Nearby } from "./api/types/Nearby";
+import type { NearbyHit } from "./api/types/NearbyHit";
 import { call } from "./transport";
 import { figure, type Filters, type Origin, type Results } from "./search";
 
-export interface Faction {
-  name: string;
-  allegiance: string;
-  state: string | null;
-  active_states: string[];
-  influence: number;
-}
-
-export interface NearbyHit {
-  name: string;
-  id64: number;
-  ly: number;
-  jumps: number;
-  exact: boolean;
-  population: number;
-  updated_at: string | null;
-  factions: Faction[];
-  /** The factions and `updated_at` come from the commander's own arrival (journal), newer than Spansh's. */
-  seen_on_visit?: boolean;
-  /** High Grade Emissions lookups: population and distance score, 0 to about 150 (100 = a billion people here). */
-  score?: number;
-}
-
-export interface Nearby {
-  query: { id: string; label: string };
-  here: { system: string; pos: [number, number, number] };
-  range: number;
-  fetched: string;
-  hits: NearbyHit[];
-  warning?: string;
-}
+export type { Faction } from "./api/types/Faction";
+export type { NearbyHit } from "./api/types/NearbyHit";
+export type { Nearby } from "./api/types/Nearby";
 
 /**
- * The faction-state lookups the shell offers (astromech_galaxy::remote::QUERIES, same ids): the
+ * The faction-state lookups the core offers (astromech_galaxy::remote::QUERIES, same ids): the
  * High Grade Emissions pools, then wake scanning (Famine). `name` is the Faction states finder's
  * pick, `about` the line under it.
  */
@@ -54,7 +28,7 @@ export const FACTION_STATES = [
 
 /** Systems matching `query` and `filters` near `origin` (a typed system name), or near the commander. */
 export async function nearby(query: string, origin: Origin = null, filters: Filters | null = null): Promise<Nearby> {
-  return await call<Nearby>("galaxy_nearby", { query, origin, filters });
+  return await call("galaxy_nearby", { query, origin, filters });
 }
 
 /** The matching faction, its allegiance and states, and whether the commander's own visit said so. */

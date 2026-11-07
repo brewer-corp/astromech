@@ -3,49 +3,38 @@
  * clipboard, ready to paste into the galaxy map's search box; arriving in it copies the one
  * after. The core owns the route, so it is followed with the window shut. The browser preview
  * (`?core=ready`) keeps one in memory (app/src/preview/fakecore.ts). Routes can be plotted from the top bar for
- * the current ship, from its system (the shell's `route_plot`): neutron routes on this PC from
+ * the current ship, from its system (the core's `route_plot`): neutron routes on this PC from
  * the neutron star file when it is downloaded, else by Spansh, and exact routes by Spansh. A
  * route plotted in the galaxy map is followed too (core: route.rs).
  */
-import { coreCall, type CoreCmd } from "./core";
-import { call } from "./transport";
+import type { FollowedRoute } from "./api/types/FollowedRoute";
+import type { Plotted } from "./api/types/Plotted";
+import type { PlotAsk } from "./api/types/PlotAsk";
+import type { PlotShip } from "./api/types/PlotShip";
+import type { RouteView } from "./api/types/RouteView";
+import type { Waypoint } from "./api/types/Waypoint";
+import { coreCall } from "./core";
+import { call, type ArgList } from "./transport";
 
-export interface Waypoint {
-  system: string;
-  /** What is there, e.g. the engineer's name, or a plotter's "neutron boost" and "fuel". */
-  label?: string;
-  /** Jumps from the waypoint before: plotted routes and the galaxy map's know them; imports
-   * and a lookup's stops don't. */
-  jumps?: number;
-}
-
-export interface Route {
-  name: string;
-  /** Where it came from: "engineer trip", a lookup's id, "import". */
-  source: string;
-  waypoints: Waypoint[];
-  /** Index of the next waypoint; waypoints.length once finished. */
-  next: number;
-}
-
-export interface RouteView {
-  route: Route | null;
-  /** The last system the journal put the commander in. */
-  here: string | null;
-  next: Waypoint | null;
-  /** Waypoints still to reach, the next one included. */
-  remaining: number;
-  /** Jumps to the end, when every waypoint still to reach knows its jumps. */
-  jumps_left: number | null;
-  /** Why the last clipboard write failed, if it did. */
-  clipboard_error: string | null;
-  /** The route a galaxy-map plot or a newly followed route replaced, to resume. */
-  parked: Route | null;
-}
+/** A waypoint: the system, what is there (an engineer's name, a plotter's "neutron boost" and
+ * "fuel") and the jumps from the one before (plotted routes and the galaxy map's know them;
+ * imports and a lookup's stops don't). */
+export type { Waypoint } from "./api/types/Waypoint";
+/** The route followed: where it came from ("engineer trip", a lookup's id, "import") and the
+ * index of the next waypoint (waypoints.length once finished). */
+export type Route = FollowedRoute;
+export type { RouteView } from "./api/types/RouteView";
+export type { Plotted } from "./api/types/Plotted";
+export type { PlotAsk } from "./api/types/PlotAsk";
+export type { Plotter } from "./api/types/Plotter";
+/** The current ship as the plotters see it. */
+export type { PlotterShip as PlotShip } from "./api/types/PlotterShip";
+/** Where the commander is and the ship a route would be plotted for. */
+export type PlotSetup = PlotShip;
 
 /** What is at a stop, one badge each: "neutron boost and fuel" (astromech_galaxy::plot) is two,
  * and stops merged in one system ("Felicity Farseer, Professor Palin") are one each. */
-export function stopFlags(label: string | undefined): string[] {
+export function stopFlags(label: string | null | undefined): string[] {
   if (!label) return [];
   return label.split(", ").flatMap((l) => (l === "neutron boost and fuel" ? ["neutron boost", "fuel"] : [l]));
 }
@@ -60,34 +49,37 @@ export function watchRoute(fn: () => void): () => void {
   return () => watchers.delete(fn);
 }
 
-async function routeCall(cmd: CoreCmd, args?: Record<string, unknown>, mutate = false): Promise<RouteView> {
-  const r = await coreCall(cmd, args ?? null);
-  if (!r.ok || !r.view) throw new Error(r.error ?? "the core didn't answer");
+/** The route commands; each replies with the route's view. */
+type RouteCmd = "route" | "route_set" | "route_add" | "route_skip" | "route_back" | "route_clear" | "route_copy" | "route_resume";
+
+async function routeCall<K extends RouteCmd>(mutate: boolean, cmd: K, ...args: ArgList<K>): Promise<RouteView> {
+  const r = await coreCall(cmd, ...args);
+  if (!r.ok || !r.view) throw new Error((!r.ok && r.error) || "the core didn't answer");
   if (mutate) for (const f of watchers) f();
-  return r.view as RouteView;
+  return r.view;
 }
 
-export const getRoute = () => routeCall("route");
-export const skipWaypoint = () => routeCall("route_skip", undefined, true);
-export const backWaypoint = () => routeCall("route_back", undefined, true);
-export const clearRoute = () => routeCall("route_clear", undefined, true);
-export const copyNext = () => routeCall("route_copy", undefined, true);
-export const resumeRoute = () => routeCall("route_resume", undefined, true);
+export const getRoute = () => routeCall(false, "route");
+export const skipWaypoint = () => routeCall(true, "route_skip");
+export const backWaypoint = () => routeCall(true, "route_back");
+export const clearRoute = () => routeCall(true, "route_clear");
+export const copyNext = () => routeCall(true, "route_copy");
+export const resumeRoute = () => routeCall(true, "route_resume");
 
 /** Follow these stops. The first is copied straight away. */
 export function followRoute(name: string, source: string, waypoints: Waypoint[]): Promise<RouteView> {
-  return routeCall("route_set", { name, source, waypoints }, true);
+  return routeCall(true, "route_set", { name, source, waypoints });
 }
 
 /** Follow pasted text: a Spansh CSV export, or one system name per line (parsed by the core). */
 export function importRoute(name: string, text: string): Promise<RouteView> {
-  return routeCall("route_set", { name, source: "import", text }, true);
+  return routeCall(true, "route_set", { name, source: "import", text });
 }
 
 /** Make this stop the next one on the route followed (merged with a stop in the same system),
  * or, with no route of our own to add to, follow it on its own. It is copied straight away. */
 export function addStop(stop: Waypoint, source: string): Promise<RouteView> {
-  return routeCall("route_add", { ...stop, source }, true);
+  return routeCall(true, "route_add", { ...stop, source });
 }
 
 /** What following or adding a stop did, for the line under the button. */
@@ -124,65 +116,20 @@ export function failedNote(what: string, e: unknown, retry: () => void): FollowN
   return { text: `${what}: ${e instanceof Error ? e.message : String(e)}`, replaced: null, retry };
 }
 
-/** The plotters (astromech_galaxy::plot). */
-export type Plotter = "neutron" | "exact";
-
-/** A route from the commander's system. */
-export interface PlotAsk {
-  plotter: Plotter;
-  to: string;
-  /** Neutron routes plotted by Spansh, 1–100: how far it may stray to use neutron stars. */
-  efficiency: number;
-  /** Exact routes: fill up at every scoopable star, not only when the tank needs it. */
-  refuel_every_scoopable: boolean;
-}
-
-/** The current ship as the plotters see it. */
-export interface PlotShip {
-  name: string;
-  /** One jump with a full tank and the cargo aboard now, ly. */
-  range: number;
-  cargo: number;
-  /** Modules the calculations left out: the range may be off. */
-  unresolved: string[];
-}
-
-export interface PlotSetup {
-  here: string | null;
-  ship: PlotShip | null;
-  /** Why there is no ship to plot for. */
-  ship_error: string | null;
-}
-
-export interface Plotted {
-  name: string;
-  source: string;
-  waypoints: Waypoint[];
-  /** Jumps in all (a neutron route has more jumps than stops). */
-  jumps: number;
-  ly: number;
-  neutrons: number;
-  refuels: number;
-  range: number;
-  /** Worked out on this PC (the neutron star file), not by Spansh. */
-  local: boolean;
-  /** Local routes: false when it is near the fewest jumps but not proven the fewest. */
-  fewest?: boolean;
-  /** Why Spansh plotted a neutron route although the neutron star file is there. */
-  fallback?: string;
-}
-
 /** Where the commander is and the ship a route would be plotted for. The browser preview
  * answers from app/src/preview/fixtures/plot.json (the routes astromech_galaxy::plot makes from
- * the recorded Spansh jobs, and a local neutron route from the 22 Oct 2026 neutron star file). */
+ * the recorded Spansh jobs, and a short local neutron route over the tests' neutron star sample:
+ * astromech-galaxy's dump-local-route example). */
 export async function plotSetup(): Promise<PlotSetup> {
-  return await call<PlotSetup>("route_plot_ship");
+  return await call("route_plot_ship");
 }
 
 /** Plot (on this PC in seconds, or by Spansh in up to a minute) and follow the route straight
  * away. */
 export async function plotRoute(ask: PlotAsk): Promise<{ plotted: Plotted; view: RouteView }> {
-  const r = await call<{ plotted: Plotted; view: RouteView }>("route_plot", { ask });
+  const r = await call("route_plot", { ask });
   for (const f of watchers) f();
-  return r;
+  // `view` is route_set's reply, which the command layer can't name (astromech-se44's JsonValue
+  // allow-list).
+  return { plotted: r.plotted, view: r.view as RouteView };
 }

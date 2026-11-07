@@ -339,7 +339,7 @@ pub struct ReferenceSystem {
     pub z: f64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Faction {
     pub name: String,
     #[serde(default)]
@@ -546,7 +546,7 @@ impl Station {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Signal {
     pub name: String,
     pub count: u32,

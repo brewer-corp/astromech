@@ -19,8 +19,8 @@
   let picked = $state<number | null>(null);
 
   // Polled like the other journal pages, so deliveries and purchases show within seconds (the
-  // shell replays the journals only when they or Cargo.json change). The picked project stays.
-  /** A poll is waiting for the shell: the next tick skips, so answers never overlap or race
+  // core replays the journals only when they or Cargo.json change). The picked project stays.
+  /** A poll is waiting for the core: the next tick skips, so answers never overlap or race
    *  (a cold replay of a long history can take longer than the interval). */
   let inFlight = false;
   $effect(() => {

@@ -59,7 +59,8 @@ pub struct Manifest {
     pub url: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, ts_rs::TS)]
+#[ts(rename = "UpdateStatus")]
 #[serde(rename_all = "snake_case")]
 pub enum Status {
     #[default]
@@ -89,7 +90,7 @@ impl Status {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Default, Serialize, ts_rs::TS)]
 pub struct Snapshot {
     pub status: Status,
     pub installed: String,

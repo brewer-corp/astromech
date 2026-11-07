@@ -2,7 +2,7 @@
   // Settings (docs/V1-DESIGN.md §2.3): one list, label left, value right, actions on the row.
   // Everything the tray used to carry lives here now. Push-to-talk, the kill switch and the mic
   // are picked in setup (onboarding); calibration's "Run again" opens just that step.
-  import { coreCall, coreStatus, openUrl, type CoreStatus, type CoreCmd, type MicList, type VoiceSettings, type Colour } from "../../lib/core";
+  import { coreCall, coreStatus, openUrl, type BareCoreCmd, type CoreStatus, type MicList, type VoiceSettings, type Colour } from "../../lib/core";
   import { control } from "../../lib/format";
   import Button from "../../lib/ui/Button.svelte";
   import Calibration from "../../lib/ui/Calibration.svelte";
@@ -85,7 +85,7 @@
     return () => clearInterval(t);
   });
 
-  async function run(cmd: CoreCmd, doing = "") {
+  async function run(cmd: BareCoreCmd, doing = "") {
     note = doing;
     const r = await coreCall(cmd);
     note = r.ok ? "" : String(r.error);

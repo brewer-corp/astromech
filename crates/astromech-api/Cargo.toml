@@ -1,0 +1,40 @@
+[package]
+name = "astromech-api"
+description = "astromech command layer: the command registry and the local control API that serves it"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+astromech-proto.workspace = true
+astromech-log.workspace = true
+serde = { workspace = true, features = ["rc"] }
+astromech-journal.workspace = true
+astromech-keybinds.workspace = true
+astromech-materials.workspace = true
+astromech-odyssey.workspace = true
+astromech-powerplay.workspace = true
+astromech-engineering.workspace = true
+astromech-exploration.workspace = true
+astromech-colonisation.workspace = true
+astromech-history.workspace = true
+astromech-station.workspace = true
+astromech-market.workspace = true
+astromech-galaxy.workspace = true
+astromech-ship.workspace = true
+astromech-data.workspace = true
+astromech-store.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+ts-rs.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+flate2 = "1"
+sha2.workspace = true

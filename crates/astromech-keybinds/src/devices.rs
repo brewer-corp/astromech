@@ -3,7 +3,7 @@
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, ts_rs::TS)]
 pub struct Controller {
     pub vid: String,
     pub pid: String,
@@ -22,14 +22,15 @@ pub struct Controller {
     pub other_values: Vec<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default, ts_rs::TS)]
 pub struct SimpleDevice {
     pub vid: String,
     pub pid: String,
     pub product: String,
 }
 
-#[derive(Debug, Clone, Serialize, Default)]
+#[derive(Debug, Clone, Serialize, Default, ts_rs::TS)]
+#[ts(rename = "DeviceInventory")]
 pub struct Inventory {
     /// "live" or "fake: <file>".
     pub source: String,

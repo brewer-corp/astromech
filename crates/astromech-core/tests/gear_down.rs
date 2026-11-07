@@ -127,7 +127,7 @@ fn rig(flags: u64, delays: &[u64]) -> Rig {
         verify_timeout: Duration::from_millis(2000),
         log: Arc::new(move |s: &str| l2.lock().unwrap().push(s.into())),
         remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
-        galaxy: None,
+        stars: Arc::new(astromech_api::GalaxyHolder::new(|| anyhow::bail!("no star map in this test"))),
     });
     assert!(hub.wait_flag(FLAG_IN_MAIN_SHIP, true, Duration::from_secs(2), &|| false), "initial Status.json read");
     Rig { _dir: dir, game, speaker, runner, hub, logs, _pipe: pipe }

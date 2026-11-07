@@ -3,23 +3,27 @@
  * (fixtures/sample.json, astromech-keybinds' `fixture` example) with edits kept in memory, and
  * presses from the keyboard plus one simulated `?press=DEV:KEY` on load.
  */
-import { CONTEXTS, type Press, type Slot, type State, type View } from "../lib/binds";
+import type { SlotEdit } from "../lib/api/types/SlotEdit";
+import { CONTEXTS, type Press, type State, type View } from "../lib/binds";
+import type { WindowCommand } from "../lib/transport";
 import { fakeScenario, previewGate } from "./fakecore";
 import fixture from "./fixtures/sample.json";
 import { previewQuery } from "./query";
+import { recorded, type Handler, type Handlers } from "./recorded";
 
+const sample = recorded<{ state: State; view: View }>(fixture);
 let mem: { state: State; view: View } | null = null;
 let memViews: Record<string, View> = {};
 
 function m(): { state: State; view: View } {
   if (!mem) {
-    mem = structuredClone(fixture) as unknown as { state: State; view: View };
+    mem = structuredClone(sample);
     memViews = { [mem.view.path]: mem.view };
   }
   return mem;
 }
 
-function memSetSlot(e: { path: string; action: string; slot: string; binding: Slot | null }) {
+function memSetSlot(e: SlotEdit) {
   const v = memViews[e.path];
   if (!v) throw new Error("no such preset");
   for (const g of v.groups)
@@ -44,7 +48,8 @@ function emptyState(): State {
     presets: [],
     active: [],
     backups: [],
-    inventory: { controllers: [] },
+    // No sticks: the keyboard and mouse are still there.
+    inventory: { ...structuredClone(m().state.inventory), controllers: [], xinput_slots: [] },
     overrides: {},
     notes: ["Game install not found: built-in presets aren't listed."],
   };
@@ -53,48 +58,47 @@ function emptyState(): State {
 const state = () => (fakeScenario() === "empty" ? emptyState() : structuredClone(m().state));
 
 /** Each keybinds command, waiting or failing as `?slow=` and `?fail=` ask. */
-function gated(cmd: string, f: (args: Record<string, unknown>) => unknown) {
-  return async (args: Record<string, unknown>) => {
+function gated<K extends WindowCommand>(cmd: K, f: Handler<K>): Handler<K> {
+  return async (args) => {
     await previewGate(cmd);
     return f(args);
   };
 }
 
-export const bindsCommands: Record<string, (args: Record<string, unknown>) => unknown> = {
+export const bindsCommands = {
   binds_state: gated("binds_state", state),
   binds_refresh_devices: gated("binds_refresh_devices", state),
   binds_reset: gated("binds_reset", state),
-  binds_view: gated("binds_view", (args) => {
+  binds_view: gated("binds_view", ({ path: p }) => {
     const { state: st, view } = m();
-    const p = String(args.path);
     const v = memViews[p] ?? (memViews[p] = { ...structuredClone(view), path: p, name: st.presets.find((x) => x.path === p)?.name ?? "" });
     return structuredClone(v);
   }),
-  binds_set_slot: gated("binds_set_slot", (args) => memSetSlot(args.edit as never)),
-  binds_copy: gated("binds_copy", (args) => {
+  binds_set_slot: gated("binds_set_slot", ({ edit }) => memSetSlot(edit)),
+  binds_copy: gated("binds_copy", ({ src, name }) => {
     const { state: st, view } = m();
-    const name = String(args.name);
     const path = `${st.bindings_dir}\\${name}.4.2.binds`;
     st.presets.push({ name, source: "yours", editable: true, path, files: [], active_for: [], devices: [], problems: [] });
-    memViews[path] = { ...structuredClone(memViews[String(args.src)] ?? view), path, name, editable: true };
+    memViews[path] = { ...structuredClone(memViews[src] ?? view), path, name, editable: true };
     return path;
   }),
-  binds_set_active: gated("binds_set_active", (args) => {
+  // The core writes the start preset, after backing it up.
+  binds_set_active: gated("binds_set_active", ({ name, contexts }) => {
     const st = m().state;
-    for (const c of args.contexts as number[]) st.active[c] = String(args.name);
+    for (const c of contexts) st.active[c] = name;
     for (const p of st.presets) p.active_for = CONTEXTS.filter((_, i) => st.active[i] === p.name);
-    return {};
+    const path = `${st.bindings_dir}\\StartPreset.4.start`;
+    return { path, backup: `${path}.bak` };
   }),
   binds_restore: gated("binds_restore", () => ""),
-  binds_set_override: gated("binds_set_override", (args) => {
+  binds_set_override: gated("binds_set_override", ({ device, control, joy }) => {
     const st = m().state;
-    const { device, control, joy } = args as { device: string; control: string; joy: string | null };
     const o = (st.overrides[device] ??= {});
     if (joy) o[control] = joy;
     else delete o[control];
     return structuredClone(st.overrides);
   }),
-};
+} satisfies Partial<Handlers>;
 
 // ---- Presses: the keyboard, and `?press=231D3201:Joy_4` once on load (screenshots).
 const KEYS: Record<string, string> = {

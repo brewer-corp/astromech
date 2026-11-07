@@ -1,75 +1,26 @@
 /**
- * The station you are docked at, and where you saw a module before: the shell's `docked_here`
+ * The station you are docked at, and where you saw a module before: the core's `docked_here`
  * and `outfitting_search` commands (crates/astromech-station; the core keeps every
  * `Outfitting.json` in `outfitting.sqlite`).
  */
-import { call } from "./transport";
+import type { DockedHere as Docked } from "./api/types/DockedHere";
+import type { Outfitting } from "./api/types/Outfitting";
+import { call, type Sampled } from "./transport";
 
-export interface Economy {
-  name: string;
-  name_localised: string | null;
-  /** Share of the station's economy, 0 to 1. */
-  proportion: number;
-}
-
-/** A module on sale that beats one fitted. */
-export interface Upgrade {
-  slot: string;
-  slot_name: string;
-  fitted: string;
-  item: string;
-  name: string;
-  price: number;
-}
-
-export interface DockedHere {
-  docked: boolean;
-  station: string | null;
-  system: string | null;
-  market_id: number | null;
-  station_type: string | null;
-  services: string[];
-  economies: Economy[];
-  faction: { name: string; state: string | null } | null;
-  government: string | null;
-  allegiance: string | null;
-  landing_pads: { small: number; medium: number; large: number } | null;
-  dist_from_star_ls: number | null;
-  max_pad: "Large" | "Medium" | "Small" | null;
-  /** The ship being flown. */
-  ship: string | null;
-  /** `null`: no outfitting seen at this station yet. */
-  outfitting: { seen: string; items: number; upgrades: Upgrade[] } | null;
-  /** Where it came from, when not the live journal. */
-  source?: string;
-}
-
-/** One station that sold a module that was searched for. */
-export interface Seen {
-  market_id: number;
-  station_name: string;
-  star_system: string;
-  seen: string;
-  item: string;
-  name: string;
-  price: number;
-  distance_ly: number | null;
-}
-
-export interface OutfittingSearch {
-  /** Stations and `Outfitting.json` files kept so far. */
-  stations: number;
-  snapshots: number;
-  found: Seen[];
-  source?: string;
-}
+export type { StationEconomy as Economy } from "./api/types/StationEconomy";
+export type { Upgrade } from "./api/types/Upgrade";
+export type { Seen } from "./api/types/Seen";
+/** Where the commander is docked; `outfitting` null when none was seen at this station yet. */
+export type DockedHere = Sampled<Docked>;
+/** The outfitting history searched: stations and `Outfitting.json` files kept so far, and the matches. */
+export type OutfittingSearch = Sampled<Outfitting>;
 
 export async function loadHere(): Promise<DockedHere> {
-  return await call<DockedHere>("docked_here");
+  return await call("docked_here");
 }
 
 export async function searchOutfitting(query: string): Promise<OutfittingSearch> {
-  return await call<OutfittingSearch>("outfitting_search", { query });
+  return await call("outfitting_search", { query });
 }
 
 /** How the game's service names read. */

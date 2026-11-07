@@ -3,39 +3,25 @@
  * the gateway's answers and, apart, the messages that were never queued. The browser preview
  * shows a synthetic sample, or the fake core's with `?core=<scenario>`.
  */
-import { coreCall, type Reply } from "./core";
+import type { EddnHead } from "./api/types/EddnHead";
+import type { LogEntry } from "./api/types/LogEntry";
+import type { Outbox } from "./api/types/Outbox";
+import { coreCall } from "./core";
 
-export interface EddnLogEntry {
-  /** Unix seconds. */
-  at: number;
-  schema_ref: string;
-  outcome: "sent" | "rejected" | "retry" | "gave_up" | "discarded" | "dropped";
-  detail: string;
-}
-
-export interface EddnLog {
-  /** The user's switch (`[eddn] enabled`). */
-  enabled: boolean;
-  /** Messages go to the /test schemas (debug builds, or `[eddn] test`). */
-  test: boolean;
-  pending: number;
-  last_sent: EddnLogEntry | null;
-  /** The newest rejected, retried or given-up message (not one discarded here: switched off, outbox full). */
-  last_error: EddnLogEntry | null;
-  /** The gateway's answers (and give-ups and discards), newest first. */
-  log: EddnLogEntry[];
-  /** Messages never queued (beta client, location mismatch, ...), newest first. */
-  skipped: EddnLogEntry[];
-}
+/** One send, give-up, discard or skip (`at` in Unix seconds). */
+export type EddnLogEntry = LogEntry;
+/** The switch and the outbox: queue depth, last send and last error, the gateway's answers
+ * (newest first) and the messages never queued. */
+export type EddnLog = Outbox<EddnHead>;
 
 /** The sharing log; rejects (with the core's reason) when the core did not answer. */
 export async function eddnLog(): Promise<EddnLog> {
   const r = await coreCall("eddn_log");
   if (!r.ok) throw new Error(r.error ?? "the core did not answer");
-  return r as unknown as EddnLog;
+  return r;
 }
 
-export async function setEddn(enabled: boolean): Promise<Reply> {
+export async function setEddn(enabled: boolean) {
   return coreCall("set_eddn", { enabled });
 }
 

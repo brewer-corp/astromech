@@ -98,7 +98,10 @@ fn rig_with_journals(at_sol: bool, journals: Option<&std::path::Path>) -> Rig {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
-        galaxy: Some(Arc::new(Galaxy::with_remote(astromech_galaxy::Store::in_memory().unwrap(), client.clone()))),
+        stars: Arc::new(astromech_api::GalaxyHolder::opened(Galaxy::with_remote(
+            astromech_galaxy::Store::in_memory().unwrap(),
+            client.clone(),
+        ))),
         remote: client,
     });
     let store = Arc::new(Mutex::new(astromech_store::Store::in_memory().unwrap()));

@@ -1,14 +1,18 @@
 /**
  * Colonisation candidates near a system (astromech_galaxy::colonies): unpopulated systems nobody
  * has claimed within 15 ly of a populated one, where a claim can be made, with what their
- * bodies offer. The shell asks Spansh's systems and bodies searches. The browser preview
+ * bodies offer. The core asks Spansh's systems and bodies searches. The browser preview
  * answers from a recorded search around Greae Phoea EM-K d9-675 (app/src/preview/fixtures/colonies.json).
  */
 import type { Filters, Origin, Results } from "./search";
+import type { Candidates } from "./api/types/Candidates";
+import type { Interest } from "./api/types/Interest";
 import { call } from "./transport";
 
-/** What the commander wants in the system (astromech_galaxy::Interest). */
-export type Interest = "any" | "rings" | "earth_like" | "landable";
+export type { Bodies } from "./api/types/Bodies";
+export type { CandidateHit } from "./api/types/CandidateHit";
+export type { Candidates } from "./api/types/Candidates";
+export type { Interest } from "./api/types/Interest";
 
 export const INTERESTS: { id: Interest; label: string }[] = [
   { id: "any", label: "Any" },
@@ -23,46 +27,9 @@ export const DEFAULT_RADIUS_LY = 30;
 /** The id the search kit remembers this lookup's filters under. */
 export const LOOKUP = "colonisation.candidates";
 
-export interface Bodies {
-  /** Bodies Spansh knows (0: not scanned). */
-  known: number;
-  main_star: string | null;
-  earth_like: number;
-  water_worlds: number;
-  ammonia_worlds: number;
-  ringed: number;
-  landable: number;
-  terraformable: number;
-}
-
-export interface CandidateHit {
-  name: string;
-  id64: number;
-  ly: number;
-  jumps: number;
-  exact: boolean;
-  /** The populated system that puts it in range; no name when only Spansh's distance is known. */
-  populated: { name: string | null; id64: number | null; ly: number };
-  bodies: Bodies;
-  updated_at: string | null;
-  detail: string;
-}
-
-export interface Candidates {
-  interest: Interest;
-  here: { system: string; pos: [number, number, number] };
-  range: number;
-  radius_ly: number;
-  fetched: string;
-  hits: CandidateHit[];
-  /** Unclaimed systems that couldn't be checked against every populated system nearby. */
-  unchecked: number;
-  warning?: string;
-}
-
 /** Candidates with a body of `interest` near `origin` (a typed system name), or near the commander. */
 export async function candidates(interest: Interest, origin: Origin = null, filters: Filters | null = null): Promise<Candidates> {
-  return await call<Candidates>("colony_candidates", { interest, origin, filters });
+  return await call("colony_candidates", { interest, origin, filters });
 }
 
 /** The search kit's rows for a candidates answer. */

@@ -48,14 +48,14 @@ pub const FILL_RADIUS: f64 = 50.0;
 /// How long a faction-state search is reused.
 pub const STATE_TTL_S: i64 = 3600;
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Here {
     pub system: String,
     pub id64: Option<i64>,
     pub pos: [f64; 3],
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct NearbyHit {
     pub name: String,
     pub id64: i64,
@@ -70,10 +70,11 @@ pub struct NearbyHit {
     pub seen_on_visit: bool,
     /// [`hge_score`] × 100 (100 = a billion people in this system), for lookups ranked by population.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub score: Option<u32>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Nearby {
     pub query: Query,
     pub here: Here,
@@ -82,11 +83,12 @@ pub struct Nearby {
     pub fetched: String,
     pub hits: Vec<NearbyHit>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub warning: Option<String>,
 }
 
 /// A station from a station lookup, with jumps at the search's range.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct StationNearby {
     #[serde(flatten)]
     pub station: stations::StationHit,
@@ -95,7 +97,7 @@ pub struct StationNearby {
     pub exact: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct StationsNearby {
     /// What was looked for ("Interstellar Factors").
     pub want: String,
@@ -108,6 +110,7 @@ pub struct StationsNearby {
     /// Nearest first.
     pub hits: Vec<StationNearby>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub warning: Option<String>,
 }
 
@@ -189,6 +192,12 @@ impl Galaxy {
 
     fn invalidate(&self) {
         *self.map.write().unwrap_or_else(|e| e.into_inner()) = None;
+    }
+
+    /// Drop the in-memory star map (the next [`Galaxy::map`] reads it from the store again);
+    /// true if one was loaded.
+    pub fn unload_map(&self) -> bool {
+        self.map.write().unwrap_or_else(|e| e.into_inner()).take().is_some()
     }
 
     pub fn summary(&self) -> Result<(i64, Option<String>)> {

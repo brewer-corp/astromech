@@ -4,6 +4,7 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 use anyhow::{bail, Context, Result};
+use astromech_api::Recover;
 use astromech_core::config::{Config, SAMPLE};
 use astromech_core::logging::log;
 use astromech_core::session::{self, Session};
@@ -127,8 +128,8 @@ fn attach_console() -> bool {
 /// `--quit` (used by the installer): 0 if no core runs any more.
 fn quit_running() -> i32 {
     let dir = Paths::current().app_dir().to_path_buf();
-    let file = dir.join(astromech_core::control::FILE);
-    if astromech_core::control::call(&dir, "quit", None).is_err() {
+    let file = dir.join(astromech_api::control::FILE);
+    if astromech_api::control::call_short(&dir, "quit", None).is_err() {
         return 0;
     }
     for _ in 0..50 {
@@ -320,7 +321,15 @@ fn run_console(args: Args) -> Result<()> {
     astromech_core::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, std::sync::atomic::Ordering::SeqCst);
     astromech_core::app::apply_edsm_switch(&cfg, &astromech_store::secrets::OsKeyring::new());
     let route = std::sync::Arc::new(astromech_core::route::Desk::in_dir(&cfg.data_dir()));
-    let mut s = Session::start(&cfg, &opts, route)?;
+    // The command layer's state, for its one remote-data client and star map; the folders are
+    // this run's config, fixed.
+    let preload = std::env::current_exe().ok().and_then(|exe| astromech_api::preload_beside(&exe));
+    let (journal, bindings, game) = (cfg.journal_dir().unwrap_or_default(), cfg.bindings_dir(), cfg.game_dir());
+    let folders =
+        move || astromech_api::Folders { journal: journal.clone(), bindings: bindings.clone(), game: game.clone() };
+    let remote = astromech_core::app::remote_client(&cfg.data_dir());
+    let api = astromech_api::State::new(cfg.data_dir(), remote, preload, folders);
+    let mut s = Session::start(&cfg, &opts, route, &api)?;
     log(&s.voice);
 
     if let Some(wav) = &args.transcribe {
@@ -364,7 +373,7 @@ fn run_console(args: Args) -> Result<()> {
                 let g = hub.snapshot();
                 println!("  {g:?}");
             }
-            "!health" => print!("{}", runner.binds.read().unwrap().summary()),
+            "!health" => print!("{}", runner.binds.read().recover().summary()),
             _ => {
                 let h = assistant.handle(t, Origin::AppWindow);
                 log(&format!("typed {t:?} -> {}", session::short(&h)));

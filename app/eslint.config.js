@@ -20,7 +20,18 @@ const BACKDOORS = [
 ];
 
 export default ts.config(
-  { ignores: ["dist/", "dist-preview/", "dist-shots/", "src-tauri/", "node_modules/"] },
+  {
+    ignores: [
+      "dist/",
+      "dist-preview/",
+      "dist-shots/",
+      "src-tauri/",
+      "node_modules/",
+      // ts-rs's output (astromech-se44): generated from the Rust command layer, not hand-written.
+      // src/lib/api/commands.ts, generated beside it, is linted.
+      "src/lib/api/types/",
+    ],
+  },
   js.configs.recommended,
   ...ts.configs.recommended,
   ...svelte.configs.recommended,
@@ -33,7 +44,8 @@ export default ts.config(
     // The window reaches its backend only through lib/transport.ts: the browser preview's fake
     // (src/preview/) and Tauri's API stay behind it, so a release build carries none of the fake.
     files: ["src/**/*.ts", "src/**/*.svelte"],
-    ignores: ["src/preview/**", "src/lib/transport.ts", "src/test/**", "src/**/*.test.ts"],
+    // main.ts loads the preview outside Tauri in `pnpm dev` and a preview build.
+    ignores: ["src/preview/**", "src/lib/transport.ts", "src/main.ts", "src/test/**", "src/**/*.test.ts"],
     rules: {
       "no-restricted-imports": ["error", { patterns: [PREVIEW, TAURI] }],
       "no-restricted-syntax": ["error", ...BACKDOORS],
@@ -43,10 +55,17 @@ export default ts.config(
     // Tests reach the fake through src/test/transport.ts too (answer, watch, previewAnswer,
     // startPreview). They may read its fixtures (recorded inputs, as data) and drive the fake
     // world's own events: a jump in game, a galaxy-map plot, a refused clipboard, the voice
-    // previews played. The preview's own tests (src/preview/) and the two that fake Tauri's
-    // invoke to test the app's side of the transport are exempt.
+    // previews played. The preview's own tests (src/preview/) and the three that fake Tauri's
+    // invoke to test the app's side of the transport (the shell's proxy) are exempt, and so is
+    // lib/transport.test.ts, which loads the preview and lib/transport together.
     files: ["src/**/*.test.ts"],
-    ignores: ["src/preview/**", "src/lib/ui/staleTauri.browser.test.ts", "src/lib/ui/tauriFailure.browser.test.ts"],
+    ignores: [
+      "src/preview/**",
+      "src/lib/proxy.browser.test.ts",
+      "src/lib/transport.test.ts",
+      "src/lib/ui/staleTauri.browser.test.ts",
+      "src/lib/ui/tauriFailure.browser.test.ts",
+    ],
     rules: {
       "no-restricted-imports": [
         "error",

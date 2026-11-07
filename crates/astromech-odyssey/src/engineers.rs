@@ -20,7 +20,8 @@ pub fn apply(progress: &mut Progress, ev: &JournalEvent) {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "EngineerModRef")]
 pub struct ModRef {
     pub id: String,
     pub name: String,
@@ -30,7 +31,7 @@ pub struct ModRef {
     pub unconfirmed: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct EngineerLine {
     pub id: i64,
     pub name: String,

@@ -41,7 +41,8 @@ pub const DOCK_S: f64 = 120.0;
 pub const SUPERCRUISE_S: f64 = 40.0;
 pub const SUPERCRUISE_S_PER_LS: f64 = 0.03;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+#[ts(rename = "TradeRouteKind")]
 #[serde(rename_all = "lowercase")]
 pub enum Kind {
     /// Buy here, sell at the best station within reach.
@@ -52,7 +53,8 @@ pub enum Kind {
 
 /// What the commander asks for. The app fills the numbers from the current ship and the
 /// journal ([`Defaults`]); all can be changed.
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, ts_rs::TS)]
+#[ts(rename = "TradeRouteAsk")]
 pub struct Ask {
     pub kind: Kind,
     /// The station to start from; `None`: the station in the origin system nearest its star
@@ -66,7 +68,7 @@ pub struct Ask {
 }
 
 /// The current ship's and commander's numbers for an [`Ask`].
-#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, ts_rs::TS)]
 pub struct Defaults {
     /// Cargo capacity from the latest `Loadout`.
     pub capacity: Option<i64>,
@@ -81,7 +83,8 @@ pub struct Defaults {
 }
 
 /// A station on a route.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "TradeRouteStop")]
 pub struct Stop {
     pub station: String,
     pub system: String,
@@ -93,7 +96,7 @@ pub struct Stop {
 }
 
 /// One commodity carried on a leg.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Cargo {
     pub name: String,
     pub tonnes: i64,
@@ -106,7 +109,7 @@ pub struct Cargo {
 }
 
 /// One leg: buy at `from`, sell at `to`.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Leg {
     pub from: Stop,
     pub to: Stop,
@@ -124,7 +127,8 @@ pub struct Leg {
     pub seconds: f64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "TradeRouteResult")]
 pub struct Route {
     pub kind: Kind,
     /// No legs: nothing profitable within the limits.

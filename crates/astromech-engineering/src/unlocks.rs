@@ -50,7 +50,8 @@ pub fn catalog() -> &'static [UnlockInfo] {
 }
 
 /// Where the commander stands with an engineer.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, ts_rs::TS)]
+#[ts(rename = "EngineerStatus")]
 #[serde(rename_all = "snake_case")]
 pub enum Status {
     Unlocked,
@@ -63,7 +64,7 @@ pub enum Status {
     Barred,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Node {
     pub name: String,
     pub kind: String,
@@ -81,7 +82,7 @@ pub struct Node {
     pub next: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Tree {
     pub nodes: Vec<Node>,
 }

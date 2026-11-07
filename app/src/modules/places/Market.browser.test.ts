@@ -19,7 +19,7 @@ const cutting = (cmd: string) => async (args: { side: Side }) => {
 };
 answer("trade_search", cutting("trade_search"));
 answer("trade_anywhere", cutting("trade_anywhere"));
-answer("trade_cargo", async (args: Args) => {
+answer("trade_cargo", async (args: Args<"trade_cargo">) => {
   const r = await previewAnswer<CargoSearch>("trade_cargo", args);
   if (!extraMission) return r;
   return { ...r, plan: { ...r.plan, kept: [...r.plan.kept, { name: "Gold", reason: "mission cargo", tonnes: 4 }] } };

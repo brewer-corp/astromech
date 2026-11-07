@@ -22,6 +22,7 @@ path = "src/bin/astromech-voice-worker.rs"
 required-features = ["sherpa"]
 
 [dependencies]
+ts-rs.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true

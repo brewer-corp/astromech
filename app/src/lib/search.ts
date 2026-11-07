@@ -1,15 +1,18 @@
 /**
  * The "search near me" kit's model (docs/ARCHITECTURE.md §18): where a search starts (the
  * current system or a typed one), the rows every lookup shows, system-name autocomplete
- * (Spansh, through the shell), and each lookup's remembered filters (the shell keeps them in
+ * (Spansh, asked by the core), and each lookup's remembered filters (the core keeps them in
  * astromech-store settings). Lookups adapt their own answers into {@link Results}.
  */
+import type { Filters } from "./api/types/Filters";
+import type { Pad } from "./api/types/Pad";
 import { call } from "./transport";
 
 /** Where a search measures from: the commander's system (`null`) or a typed system name. */
 export type Origin = string | null;
 
-export type Pad = "S" | "M" | "L";
+export type { Pad } from "./api/types/Pad";
+export type { Filters } from "./api/types/Filters";
 
 /** One result line. Station fields are absent for system lookups (faction states). */
 export interface Row {
@@ -79,22 +82,6 @@ export interface Results {
   reach?: number;
 }
 
-/** One lookup's filters (astromech_galaxy::Filters). */
-export interface Filters {
-  /** Hide stations without a pad at least this big; null: any pad. */
-  pad: Pad | null;
-  /** The commander picked `pad`; otherwise it follows the current ship. */
-  pad_set: boolean;
-  exclude_carriers: boolean;
-  exclude_odyssey: boolean;
-  max_age_days: number | null;
-  max_arrival_ls: number | null;
-  /** Search radius in ly; null: the lookup's default. */
-  max_distance_ly: number | null;
-  /** Hide markets with less demand (selling) or stock (buying) than this, in tonnes. */
-  min_volume: number | null;
-}
-
 /**
  * Which filters a lookup offers: system lookups only have an age; station lookups add pad,
  * carriers, Odyssey and arrival; market lookups add the search radius and a demand or stock.
@@ -124,7 +111,7 @@ export const DEFAULT_FILTERS: Filters = {
 
 /** `lookup`'s remembered filters, the pad following the current ship unless the commander set it. */
 export async function loadFilters(lookup: string): Promise<Filters> {
-  return await call<Filters>("search_filters", { lookup });
+  return await call("search_filters", { lookup });
 }
 
 export async function saveFilters(lookup: string, filters: Filters): Promise<void> {
@@ -138,7 +125,7 @@ export async function saveFilters(lookup: string, filters: Filters): Promise<voi
 export async function systemNames(prefix: string): Promise<string[]> {
   const p = prefix.trim();
   if (!p) return [];
-  return await call<string[]>("galaxy_systems", { prefix: p });
+  return await call("galaxy_systems", { prefix: p });
 }
 
 /**

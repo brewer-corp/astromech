@@ -26,7 +26,7 @@ use std::path::Path;
 const G: f64 = 9.80665;
 
 /// One scanned body as the view shows it.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct BodyView {
     pub name: String,
     /// The name without the system's (`A 2` in `Sol A 2`); the whole name when it isn't prefixed.
@@ -64,7 +64,7 @@ pub struct BodyView {
 }
 
 /// The current system and its bodies.
-#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, ts_rs::TS)]
 pub struct SystemView {
     pub system: Option<String>,
     pub system_address: Option<i64>,

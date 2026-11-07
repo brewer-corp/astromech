@@ -10,7 +10,7 @@ use astromech_journal::{JournalEvent, PowerProgress, SystemPowerplay};
 use serde::{Deserialize, Serialize};
 
 /// What the system is for the commander's power.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "snake_case")]
 pub enum Work {
     /// Controlled by my power.
@@ -21,13 +21,13 @@ pub enum Work {
     Acquire,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct PowerShare {
     pub power: String,
     pub progress: f64,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct SystemPower {
     pub system: String,
     pub controlling_power: Option<String>,

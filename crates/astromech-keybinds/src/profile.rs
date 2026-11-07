@@ -16,7 +16,7 @@ pub const MAX_JOY: u32 = 32;
 const PASTE_KEYS: &[&str] = &["Key_V", "Key_Enter"];
 pub const VKB_VID: &str = "231D";
 
-#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, PartialEq, Eq, ts_rs::TS)]
 pub struct ProfileFile {
     pub path: PathBuf,
     pub file_name: String,
@@ -24,7 +24,7 @@ pub struct ProfileFile {
     pub modified: String,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
 pub struct ProfileSummary {
     pub name: String,
     /// "yours" (Bindings folder) or "built-in" (game install, read-only).
@@ -198,13 +198,13 @@ pub fn pid_mismatch(devices: &[String], inv: &Inventory) -> Option<String> {
     ))
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord, ts_rs::TS)]
 pub struct Modifier {
     pub device: String,
     pub key: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, ts_rs::TS)]
 pub struct Slot {
     /// "Primary", "Secondary" or "Binding" (axes)
     pub slot: String,
@@ -220,7 +220,7 @@ impl Slot {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
 pub struct Issue {
     /// "no_keyboard", "joy_over_32", "device_missing", "conflict"
     pub code: String,
@@ -229,7 +229,7 @@ pub struct Issue {
     pub text: String,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
 pub struct Row {
     pub id: String,
     pub name: String,
@@ -242,14 +242,15 @@ pub struct Row {
     pub in_file: bool,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
 pub struct Group {
     pub name: String,
     pub context: String,
     pub rows: Vec<Row>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ts_rs::TS)]
+#[ts(rename = "BindsView")]
 pub struct View {
     pub name: String,
     pub path: PathBuf,

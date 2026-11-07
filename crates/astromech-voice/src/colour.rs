@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
 
 /// Playback colour. Default **Cockpit**.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize, ts_rs::TS)]
 #[serde(rename_all = "lowercase")]
 pub enum Colour {
     Natural,

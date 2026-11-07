@@ -13,7 +13,7 @@ const CELL: f32 = 16.0;
 /// Node expansions before an A* search falls back to the estimate.
 const MAX_EXPANSIONS: usize = 60_000;
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, ts_rs::TS)]
 pub struct Hop {
     pub ly: f64,
     pub jumps: u32,

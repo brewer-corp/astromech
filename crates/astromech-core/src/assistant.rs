@@ -2,6 +2,7 @@
 
 use crate::actions::{Outcome, Runner};
 use crate::route::{self, Desk};
+use astromech_api::Recover;
 use astromech_galaxy::stations::Want;
 use astromech_intent::{Decision, Grammar};
 use astromech_proto::Origin;
@@ -176,15 +177,15 @@ impl Assistant {
     }
 
     pub fn with_store(self, store: Arc<Mutex<Store>>) -> Self {
-        add_aliases(&mut self.grammar.lock().unwrap(), &store.lock().unwrap());
+        add_aliases(&mut self.grammar.lock().recover(), &store.lock().recover());
         Self { store: Some(store), ..self }
     }
 
     /// What `transcript` would do now, without doing it (the voice command tester). Reads the
     /// grammar, the game state and the binds check; never calls the runner.
     pub fn dry_run(&self, transcript: &str, source: crate::tester::Source) -> crate::tester::DryRun {
-        let g = self.grammar.lock().unwrap();
-        let binds = self.runner.binds.read().unwrap();
+        let g = self.grammar.lock().recover();
+        let binds = self.runner.binds.read().recover();
         crate::tester::dry_run(&g, transcript, &self.runner.hub.snapshot(), &binds, source)
     }
 
@@ -201,14 +202,14 @@ impl Assistant {
             || command == "confirm"
             || command == "cancel"
             || astromech_intent::is_ask_only(heard)
-            || self.grammar.lock().unwrap().names_origin(heard, command)
+            || self.grammar.lock().recover().names_origin(heard, command)
         {
             return;
         }
         let count = match &self.store {
-            Some(st) => st.lock().unwrap().learn_alias(heard, command).unwrap_or(0),
+            Some(st) => st.lock().recover().learn_alias(heard, command).unwrap_or(0),
             None => {
-                let mut c = self.confirmations.lock().unwrap();
+                let mut c = self.confirmations.lock().recover();
                 let e = c.entry(heard.to_string()).or_insert((command, 0));
                 if e.0 != command {
                     *e = (command, 0);
@@ -219,16 +220,16 @@ impl Assistant {
         };
         // Added once, on the yes that makes it run (after that it no longer asks).
         if count == confirmations_needed(command) {
-            self.grammar.lock().unwrap().add_alias(heard, command);
+            self.grammar.lock().recover().add_alias(heard, command);
         }
     }
 
     /// Forget a learned phrase: it asks again next time (and is dropped from the saved list).
     /// True if it was one.
     pub fn forget(&self, heard: &str) -> bool {
-        let in_grammar = self.grammar.lock().unwrap().remove_alias(heard);
-        self.confirmations.lock().unwrap().remove(heard.trim());
-        let in_store = self.store.as_ref().is_some_and(|st| st.lock().unwrap().forget_alias(heard).unwrap_or(false));
+        let in_grammar = self.grammar.lock().recover().remove_alias(heard);
+        self.confirmations.lock().recover().remove(heard.trim());
+        let in_store = self.store.as_ref().is_some_and(|st| st.lock().recover().forget_alias(heard).unwrap_or(false));
         in_grammar || in_store
     }
 
@@ -258,10 +259,10 @@ impl Assistant {
             self.say(m);
             Outcome::Spoken(m.into())
         };
-        let galaxy = match (&game.powerplay.power, self.runner.galaxy.clone()) {
+        let stars = match (&game.powerplay.power, self.runner.stars_now()) {
             (None, _) => return said(targets::NOT_PLEDGED),
             (_, None) => return said(lookup::NO_STAR_MAP),
-            (Some(_), Some(g)) => g,
+            (Some(_), Some(s)) => s,
         };
         if from.is_none() && (game.system.is_none() || game.star_pos.is_none()) {
             return said(lookup::NO_POSITION);
@@ -270,13 +271,10 @@ impl Assistant {
             let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
             crate::lookups::filters_for(st.as_deref(), targets::lookup(target), &game)
         };
-        self.say("Looking that up.");
-        let (speaker, from) = (self.runner.speaker.clone(), from.map(str::to_string));
-        Outcome::LookingUp(std::thread::spawn(move || {
-            let m = crate::lookups::targets_answer(&galaxy, &filters, target, &game, from.as_deref());
-            speaker.say(&m);
-            m
-        }))
+        let from = from.map(str::to_string);
+        self.runner.look_up(stars, move |galaxy| {
+            crate::lookups::targets_answer(galaxy, &filters, target, &game, from.as_deref())
+        })
     }
 
     /// Look up the faction-state systems for `q` near the commander (or the system named in
@@ -289,7 +287,7 @@ impl Assistant {
         from: Option<&str>,
     ) -> Outcome {
         let game = self.runner.hub.snapshot();
-        let Some(galaxy) = self.runner.galaxy.clone() else {
+        let Some(stars) = self.runner.stars_now() else {
             self.say(lookup::NO_STAR_MAP);
             return Outcome::Spoken(lookup::NO_STAR_MAP.into());
         };
@@ -301,22 +299,18 @@ impl Assistant {
             let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
             crate::lookups::filters_for(st.as_deref(), command, &game)
         };
-        self.say("Looking that up.");
-        let (speaker, now, from) = (self.runner.speaker.clone(), self.clock.now_s(), from.map(str::to_string));
+        let (now, from) = (self.clock.now_s(), from.map(str::to_string));
         let journals = self.projects.dir().map(std::path::Path::to_path_buf);
-        Outcome::LookingUp(std::thread::spawn(move || {
-            let m =
-                crate::lookups::faction_answer(&galaxy, &filters, q, &game, from.as_deref(), journals.as_deref(), now);
-            speaker.say(&m);
-            m
-        }))
+        self.runner.look_up(stars, move |galaxy| {
+            crate::lookups::faction_answer(galaxy, &filters, q, &game, from.as_deref(), journals.as_deref(), now)
+        })
     }
 
     /// Look up the nearest ring with a hotspot of `want`'s ore near the commander (or the system
     /// named in `from`), and say the answer when it arrives (off this thread).
     fn hotspot_lookup(&self, want: astromech_market::mining::Want, from: Option<&str>) -> Outcome {
         let game = self.runner.hub.snapshot();
-        let Some(galaxy) = self.runner.galaxy.clone() else {
+        let Some(stars) = self.runner.stars_now() else {
             self.say(lookup::NO_STAR_MAP);
             return Outcome::Spoken(lookup::NO_STAR_MAP.into());
         };
@@ -324,13 +318,8 @@ impl Assistant {
             self.say(lookup::NO_POSITION);
             return Outcome::Spoken(lookup::NO_POSITION.into());
         }
-        self.say("Looking that up.");
-        let (speaker, from) = (self.runner.speaker.clone(), from.map(str::to_string));
-        Outcome::LookingUp(std::thread::spawn(move || {
-            let m = crate::lookups::hotspots_answer(&galaxy, &want, &game, from.as_deref());
-            speaker.say(&m);
-            m
-        }))
+        let from = from.map(str::to_string);
+        self.runner.look_up(stars, move |galaxy| crate::lookups::hotspots_answer(galaxy, &want, &game, from.as_deref()))
     }
 
     /// Route following and paste (docs/PLOTTING.md). None: not one of these.
@@ -419,7 +408,7 @@ impl Assistant {
                 let outcome =
                     if confirmed { self.runner.run_confirmed(call, origin) } else { self.runner.run(call, origin) };
                 if matches!(outcome, Outcome::NeedsConfirm(_)) {
-                    *self.pending.lock().unwrap() = Some(Pending::Act { command, at: Instant::now() });
+                    *self.pending.lock().recover() = Some(Pending::Act { command, at: Instant::now() });
                     return Handled::Asked { command, phrase: "silent running".into() };
                 }
                 Handled::Ran { command, outcome }
@@ -432,7 +421,7 @@ impl Assistant {
     }
 
     fn take_pending(&self) -> Option<Pending> {
-        let mut p = self.pending.lock().unwrap();
+        let mut p = self.pending.lock().recover();
         match p.as_ref() {
             Some(Pending::Mean { at, .. } | Pending::Act { at, .. }) if at.elapsed() < CONFIRM_WINDOW => p.take(),
             _ => {
@@ -458,10 +447,11 @@ impl Assistant {
         };
         // Every question can replay the journals (they grow all through play), as well as search.
         self.say("Looking that up.");
-        let (projects, galaxy, speaker) =
-            (self.projects.clone(), self.runner.galaxy.clone(), self.runner.speaker.clone());
+        let (projects, stars, speaker) =
+            (self.projects.clone(), self.runner.stars.clone(), self.runner.speaker.clone());
         let (commodity, from, now) = (commodity.map(str::to_string), from.map(str::to_string), self.clock.now_s());
         Outcome::LookingUp(std::thread::spawn(move || {
+            let galaxy = stars.get().ok();
             let lookup = galaxy.as_deref().map(|g| (g, &filters));
             let (commodity, from) = (commodity.as_deref(), from.as_deref());
             let m = crate::colonisation::answer(ask, &projects.get(), commodity, from, lookup, &game, now);
@@ -493,7 +483,7 @@ impl Assistant {
             }
             return Handled::Ignored;
         }
-        let m = self.grammar.lock().unwrap().best(transcript);
+        let m = self.grammar.lock().recover().best(transcript);
         if let Some(pend) = self.take_pending() {
             if m.decision != Decision::NoMatch && m.command == "confirm" {
                 return self.resolve_yes(pend, origin);
@@ -516,7 +506,7 @@ impl Assistant {
                 false,
             ),
             Decision::Ask if m.command != "confirm" && m.command != "cancel" => {
-                *self.pending.lock().unwrap() = Some(Pending::Mean {
+                *self.pending.lock().recover() = Some(Pending::Mean {
                     command: m.command,
                     slot: m.slot.clone(),
                     slot_text: m.slot_text.clone(),

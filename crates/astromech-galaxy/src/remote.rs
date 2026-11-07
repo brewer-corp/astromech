@@ -10,7 +10,7 @@ pub use astromech_data::spansh::{Faction, System as Hit};
 
 /// What to look for: systems with one faction matching an allegiance (any if empty) and a
 /// state (any if empty).
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Query {
     pub id: &'static str,
     pub label: &'static str,

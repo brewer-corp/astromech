@@ -1,13 +1,24 @@
 /**
  * The Mining hotspots finder's lookup (astromech_market::mining): rings with a hotspot of a
  * mineral, of a ring type and with a reserve level, within the finder's radius of the commander,
- * the route's next stop or a typed system, most hotspots first. The shell asks Spansh's bodies
+ * the route's next stop or a typed system, most hotspots first. The core asks Spansh's bodies
  * search (`mining_hotspots`, highest hotspot counts first, at most four requests); the browser
  * preview answers from a recorded Painite search within 100 ly of Sol (app/src/preview/fixtures/hotspots.json,
- * the shell's own answer, 30 rings). Adapted into the search kit's rows by {@link hotspotResults}.
+ * the core's own answer, 30 rings). Adapted into the search kit's rows by {@link hotspotResults}.
  */
 import { figure, type Filters, type Origin, type Results } from "./search";
+import type { Hotspots } from "./api/types/Hotspots";
+import type { MiningWant } from "./api/types/MiningWant";
+import type { Signal } from "./api/types/Signal";
 import { call } from "./transport";
+
+export type { Hotspot } from "./api/types/Hotspot";
+export type { Hotspots } from "./api/types/Hotspots";
+export type { Reserve } from "./api/types/Reserve";
+export type { Signal } from "./api/types/Signal";
+/** What a hotspot search asks for (astromech_market::mining::Want), with the ores and ring types
+ * the window offers; null: any. */
+export type Want = MiningWant & { ore: Ore; ring_type: RingType | null };
 
 /** The ores the hotspot lookups offer, most valuable first (astromech_journal::ore::VALUE_ORDER),
  * by journal symbol with the name the rings list them under. */
@@ -35,61 +46,7 @@ export type Ore = (typeof ORES)[number]["symbol"];
 export const RING_TYPES = ["Metallic", "Metal Rich", "Rocky", "Icy"] as const;
 export type RingType = (typeof RING_TYPES)[number];
 
-/** The least reserve level (astromech_market::mining::Reserve): "major" is Major or Pristine. */
-export type Reserve = "pristine" | "major";
-
-/** What a hotspot search asks for (astromech_market::mining::Want); null: any. */
-export interface Want {
-  ore: Ore;
-  ring_type: RingType | null;
-  reserve: Reserve | null;
-}
-
-export interface Signal {
-  name: string;
-  count: number;
-}
-
-/** One ring (astromech_market::mining::Hotspot). */
-export interface Hotspot {
-  system: string;
-  body: string;
-  /** "Barnard's Star 5 A Ring". */
-  ring: string;
-  ring_type: string;
-  /** Hotspots of the ore in the ring. */
-  count: number;
-  /** The ring's hotspots of other ores, most first. */
-  also: Signal[];
-  /** "Pristine", "Major", "Common", "Low" or "Depleted". */
-  reserve: string | null;
-  ly: number;
-  jumps: number;
-  exact: boolean;
-  arrival_ls: number | null;
-  updated_at: string | null;
-}
-
-/** One search's answer (astromech_market::mining::Hotspots). */
-export interface Hotspots {
-  want: Want;
-  /** The ore's name: "Painite". */
-  name: string;
-  here: { system: string };
-  range: number;
-  radius_ly: number | null;
-  /** Bodies within the radius with the mineral in a ring and the reserve asked for (Spansh's count, which stops at 10000). */
-  bodies: number;
-  /** The requests ran out before every ring could be ranked: `rings` are every ring with at least this many hotspots. */
-  least: number | null;
-  /** The requests ran out before any count was known in full: `rings` are the most hotspots within this many ly only. */
-  reach_ly: number | null;
-  rings: Hotspot[];
-  /** When Spansh was asked, in unix seconds. */
-  fetched_at: number;
-}
-
-/** The shell's answer size. */
+/** The core's answer size. */
 export const LIMIT = 10;
 
 export function oreNamed(symbol: string): (typeof ORES)[number] | undefined {
@@ -98,7 +55,7 @@ export function oreNamed(symbol: string): (typeof ORES)[number] | undefined {
 
 /** Rings with a hotspot of `want` within the finder's radius of `origin` (or the commander). */
 export async function hotspots(want: Want, origin: Origin, filters: Filters): Promise<Hotspots> {
-  return await call<Hotspots>("mining_hotspots", { want, origin, filters });
+  return await call("mining_hotspots", { want, origin, filters });
 }
 
 /** "5 A Ring" for a ring named after its system, else the whole name. */

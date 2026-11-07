@@ -5,7 +5,7 @@
   import { untrack } from "svelte";
   import {
     DEFAULT_ROLLS, dropShoppingList, evaluatePlan, fittedLine, groupFitted, loadEngineers, planTrip, savePlan, savedPlan, shareShoppingList, shipStats, shipTitle,
-    type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type StatsComparison, type Target, type Trip,
+    type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Rolls, type StatsComparison, type Target, type Trip,
   } from "../../lib/engineering";
   import Button from "../../lib/ui/Button.svelte";
   import Dropdown from "../../lib/ui/Dropdown.svelte";
@@ -104,8 +104,8 @@
       .then((r) => {
         if (mine !== seq) return; // a newer request (e.g. another ship) is in flight
         result = r;
-        if (r) shareShoppingList(r);
-        failed = r ? null : "Plan maths runs in the app. Outside it, only the sample plan has numbers.";
+        shareShoppingList(r);
+        failed = null;
       })
       .catch((e: unknown) => {
         if (mine !== seq) return;
@@ -125,9 +125,9 @@
     shipStats($state.snapshot(p) as Plan)
       .then((r) => {
         if (mine !== statsSeq) return;
-        unknownHull = r && "unknown_hull" in r ? r.unknown_hull : null;
-        stats = r && "current" in r ? r : null;
-        statsNote = r ? null : "Ship stats are worked out in the app. Outside it, only the sample Krait's sample plans have them.";
+        unknownHull = "unknown_hull" in r ? r.unknown_hull : null;
+        stats = "current" in r ? r : null;
+        statsNote = null;
       })
       .catch((e: unknown) => {
         if (mine !== statsSeq) return;
@@ -196,7 +196,7 @@
 
   function setRolls(i: number, v: number) {
     if (!plan || !Number.isFinite(v)) return;
-    const rolls = [...plan.rolls];
+    const rolls: Rolls = [...plan.rolls];
     rolls[i] = Math.max(1, Math.min(20, Math.round(v)));
     plan = { ...plan, rolls };
     savePlan(plan);

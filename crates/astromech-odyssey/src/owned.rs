@@ -24,7 +24,7 @@ use std::sync::Mutex;
 pub type Log<'a> = &'a dyn Fn(&str);
 
 /// One owned suit or weapon.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct OwnedGear {
     /// Catalogue suit or weapon id (`maverick`, `karmaar50`).
     pub gear: String,

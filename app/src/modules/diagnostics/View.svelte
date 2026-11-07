@@ -2,14 +2,13 @@
   // Diagnostics (docs/V1-DESIGN.md §2.2): what astromech sees right now, and Save diagnostics for
   // a bug report. Settings live in Settings; the key tester is under Controls.
   import Button from "../../lib/ui/Button.svelte";
-  import { coreCall, coreStatus, openUrl, shellInfo, type CoreStatus } from "../../lib/core";
+  import { coreCall, coreStatus, openUrl, WINDOW_VERSION as shell, type CoreStatus } from "../../lib/core";
   import { pollFailure } from "../../lib/ui/errors";
   import Failure from "../../lib/ui/Failure.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
   import { eddnLog, schemaName, when, type EddnLog, type EddnLogEntry } from "../../lib/eddn";
 
   let status = $state<CoreStatus | null>(null);
-  let shell = $state("…");
   let note = $state("");
   let noteErr = $state(false);
   let eddn = $state<EddnLog | null>(null);
@@ -26,7 +25,6 @@
   }
   $effect(() => {
     void refresh();
-    void shellInfo().then((s) => (shell = s.version));
     const t = setInterval(() => void refresh(), 2000);
     return () => clearInterval(t);
   });

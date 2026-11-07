@@ -6,7 +6,8 @@
     "states": [
       "Famine"
     ],
-    "min_population": 0
+    "min_population": 0,
+    "by_population": false
   },
   "here": {
     "system": "Sol",

@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 /// A button on any device, in Elite's naming.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
 pub struct Button {
     /// "Keyboard", "Mouse", "GamePad", or an Elite device ID such as "231D3201".
     pub device: String,

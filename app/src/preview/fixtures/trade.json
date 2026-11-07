@@ -671,7 +671,8 @@
         },
         "carried": 300,
         "commodity": "lowtemperaturediamond",
-        "name": "Low Temperature Diamonds"
+        "name": "Low Temperature Diamonds",
+        "partial": null
       },
       {
         "best": {
@@ -693,7 +694,8 @@
         },
         "carried": 200,
         "commodity": "painite",
-        "name": "Painite"
+        "name": "Painite",
+        "partial": null
       },
       {
         "best": null,

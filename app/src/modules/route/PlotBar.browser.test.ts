@@ -188,7 +188,8 @@ describe("Find or plot", () => {
     expect(await screen.findByText(/Neutron star file: 5,045,154 neutron stars/)).toBeTruthy();
     expect(screen.queryByLabelText("Efficiency"), "local routes have no setting").toBeNull();
     await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
-    expect(await screen.findByText(/Plotted on this PC, near the fewest jumps\./)).toBeTruthy();
+    // The local plotter's route over the tests' neutron star sample (fixtures/plot.json `local`).
+    expect(await screen.findByText(/^Following Sol to HR 3230: 9 jumps · 423 ly · 1 neutron boost, at 39\.87 ly a jump\. Plotted on this PC\./)).toBeTruthy();
     expect((await previewAnswer("route")).view.route.source).toBe("neutron plotter (this PC)");
   });
 });

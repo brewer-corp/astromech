@@ -29,6 +29,7 @@ const heard: DryRun = {
   action: "ShipSpotLightToggle",
   keys: { key: "Key_K", modifiers: ["Key_LeftShift"], slot: "Primary" },
   live: "lights.on",
+  live_from: null,
 };
 
 async function typePhrase(text: string) {

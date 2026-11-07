@@ -129,7 +129,7 @@ pub struct Slot {
 }
 
 /// A keyboard binding ready to press: modifiers first, then the key.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, ts_rs::TS)]
 pub struct KeyCombo {
     pub key: String,
     pub modifiers: Vec<String>,

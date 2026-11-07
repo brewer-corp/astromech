@@ -12,6 +12,7 @@ publish.workspace = true
 workspace = true
 
 [dependencies]
+ts-rs.workspace = true
 rusqlite = { version = "0.40", features = ["bundled"] }
 astromech-store.workspace = true
 serde.workspace = true

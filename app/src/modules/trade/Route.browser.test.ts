@@ -9,13 +9,13 @@ import Route from "./Route.svelte";
 // The preview's recorded route (fixtures/trade.json: Spansh's one-hop answer from Abraham
 // Lincoln in Sol, and the way back from Ardent's markets), behind spies.
 const recorded = sample as unknown as { route: { defaults: RouteDefaults } & Record<RouteKind, TradeRoute> };
-const here: RouteSearch["here"] = { system: "Sol", pos: [0, 0, 0] };
+const here = (sample as unknown as { sell: RouteSearch }).sell.here;
 const route = vi.fn<(ask: RouteAsk, origin: Origin, filters: Filters | null) => Promise<RouteSearch>>();
 const defaults = vi.fn<() => Promise<RouteDefaults>>();
 answer("trade_route", ({ ask, origin, filters }: { ask: RouteAsk; origin: Origin; filters: Filters | null }) => route(ask, origin, filters));
 answer("trade_route_defaults", () => defaults());
 
-// The shell resolves the pad for the ship flown now when it loads the filters.
+// The core resolves the pad for the ship flown now when it loads the filters.
 let shipPad: Filters["pad"] = "M";
 answer("search_filters", () => ({ ...DEFAULT_FILTERS, pad: shipPad }));
 answer("set_search_filters", () => {});

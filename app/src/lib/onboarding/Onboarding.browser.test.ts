@@ -7,7 +7,7 @@ import { binds } from "../store.svelte";
 import { previewAnswer, startPreview } from "../../test/transport";
 
 /** What the fake core holds now. */
-const coreStatus = async () => (await previewAnswer<CoreStatus>("core_status"))!;
+const coreStatus = async () => (await previewAnswer<CoreStatus>("status"))!;
 
 // Every step runs against a recorded core (app/src/preview/fakecore.ts): `empty` is a PC with no Elite install,
 // no controllers and no microphone; `new` is a fresh install on a PC that has them.
@@ -196,7 +196,7 @@ describe("onboarding: a status read failing after a good one (astromech-cvxf)", 
     step("buttons");
     await screen.findAllByRole("button", { name: "Change" });
     expect(screen.queryByText("Not set")).toBeNull();
-    history.replaceState(null, "", "/?core=ready&fail=core_status");
+    history.replaceState(null, "", "/?core=ready&fail=status");
     await vi.advanceTimersByTimeAsync(1000);
     expect(await screen.findByText("Could not refresh: the core did not answer.")).toBeTruthy();
     expect(screen.queryByText("Not set")).toBeNull();
@@ -208,14 +208,14 @@ describe("onboarding: a status read failing after a good one (astromech-cvxf)", 
 
 describe("onboarding: no good status read yet (astromech-9kp2)", () => {
   it("says the buttons are being checked, not 'Not set', before the first read answers", async () => {
-    startPreview("/?core=ready&slow=never:core_status");
+    startPreview("/?core=ready&slow=never:status");
     step("buttons");
     expect(await screen.findAllByText("Checking…")).toHaveLength(2);
     expect(screen.queryByText("Not set")).toBeNull();
   });
 
   it("says the buttons could not be read when every read so far failed, then shows them", async () => {
-    startPreview("/?core=ready&fail=core_status");
+    startPreview("/?core=ready&fail=status");
     vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] }); // the status poll; the test moves its clock
     step("buttons");
     expect(await screen.findAllByText("Could not read")).toHaveLength(2);

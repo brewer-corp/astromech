@@ -9,6 +9,7 @@ use crate::app::{self, Core, Ui};
 use crate::logging::log;
 use crate::session::VOICE_PAUSED;
 use anyhow::{Context, Result};
+use astromech_api::Recover;
 use std::sync::atomic::Ordering;
 use std::sync::mpsc::Receiver;
 use std::sync::Arc;
@@ -63,10 +64,10 @@ struct Shape {
 
 fn shape(core: &Core) -> Shape {
     Shape {
-        crash: core.crash.lock().unwrap().is_some(),
+        crash: core.crash.lock().recover().is_some(),
         setup: !core.setup_needed().is_empty(),
         active: core.active(),
-        update: core.update.lock().unwrap().snap.ready,
+        update: core.update.lock().recover().snap.ready,
     }
 }
 
@@ -78,7 +79,7 @@ fn setup_text(core: &Core) -> String {
 }
 
 fn update_text(core: &Core) -> String {
-    match &core.update.lock().unwrap().snap.latest {
+    match &core.update.lock().recover().snap.latest {
         Some(v) => format!("Restart to update to {v}"),
         None => "Restart to update".into(),
     }
@@ -93,7 +94,7 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
     let pause = CheckMenuItem::new("Pause voice", true, VOICE_PAUSED.load(Ordering::SeqCst), None);
     let kill = MenuItem::new("Kill switch (stop all actions)", true, None);
     let install = MenuItem::new(update_text(&core), true, None);
-    let (check_text, check_on) = core.update.lock().unwrap().snap.status.tray_check_item();
+    let (check_text, check_on) = core.update.lock().recover().snap.status.tray_check_item();
     let check = MenuItem::new(check_text, check_on, None);
     let quit = MenuItem::new("Quit astromech", true, None);
     let sep = PredefinedMenuItem::separator;
@@ -133,12 +134,12 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
         let line = core.status_line();
         status.set_text(&line);
         let _ = tray.set_tooltip(Some(format!("astromech\n{line}")));
-        let killed = core.session.lock().unwrap().as_ref().map(|s| s.runner.policy.is_killed()).unwrap_or(false);
+        let killed = core.session.lock().recover().as_ref().map(|s| s.runner.policy.is_killed()).unwrap_or(false);
         kill.set_text(if killed { "Re-arm (kill switch is on)" } else { "Kill switch (stop all actions)" });
         pause.set_checked(VOICE_PAUSED.load(Ordering::SeqCst));
         setup.set_text(setup_text(&core));
         install.set_text(update_text(&core));
-        let (check_text, check_on) = core.update.lock().unwrap().snap.status.tray_check_item();
+        let (check_text, check_on) = core.update.lock().recover().snap.status.tray_check_item();
         check.set_text(check_text);
         check.set_enabled(check_on);
         let now = shape(&core);
