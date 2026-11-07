@@ -15,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-07T01:10:56.348574473+00:00"
+status: "done"
 title: "Faster release builds: one workspace, a mock game crate, the version from the tag"
-updated_at: "2026-11-07T00:34:42.576591033+00:00"
+updated_at: "2026-11-07T01:10:56.348574473+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,11 @@ A release takes about 20 minutes from tag to published, 17 of them compiling on 
 ## Context
 
 Discussion on 2026-11-06 after shipping alpha.4 (astromech-ja5a). Rejected: separate repo for the mock game; one runner per binary (more moving parts than it saves at about one release a week).
+
+## Notes
+
+- 2026-11-06 [note] Release build time, both without a cache: PR run 42320563253 at 2a5cad4b took 14.4 min (core+mock game+sign-update 4.0, voice worker 1.5, tauri build 6.8) against the alpha.4 tag run 42316659846's 19.5 min (core 5.2, mock game 2.3, voice worker 1.9, tauri build 7.5). astromech-shell.exe grew 16.6 -> 21.7 MB (its dependencies now build at the workspace's opt-level 3; no_action, astromech-sxey); core and voice worker unchanged. NSIS accepted 0.0.0-dev. Tag builds still start cold: astromech-5skm.
+
+## Close Reason
+
+Window in the root workspace behind a window feature, mock game crate, sign-update bin, one cargo build for core+mock+sign-update, version stamped from the tag (0.0.0-dev in the repo). All 8 PR checks pass; release build 14.4 vs 19.5 min cold; approved (astromech-x1mw).
