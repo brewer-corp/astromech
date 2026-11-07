@@ -10,6 +10,12 @@ created_at: 2026-11-07T03:07:32.447269687Z
 event:
   event: finding
   recommendation: defer
+  disposition:
+    decision: fix_now
+    identity: claude-author
+    commit: 527c5618e564ed847c24642d0622391ef6b2bb01
+    recorded_at: 2026-11-07T03:09:25.055096207Z
+    reason: 'Fixed in 527c5618: --core validated, a flag without a value exits 2 with a message, a missing <title> fails the build, and the DOCTYPE regex handles an internal subset.'
 ---
 
 low: scripts/preview-publish:25-43 fails quietly or unclearly on edge inputs: --core isn't validated (a typo gives a build where fakeScenario() returns null with no error); a flag missing its value dies with bash 'unbound variable'; the title replace silently does nothing if index.html's <title> changes; the DOCTYPE regex would leave junk on an SVG DOCTYPE with an internal subset. A change in Vite's <head>/<body> shape fails loudly (Python AttributeError under set -e), which is acceptable. Fix: validate --core against empty|new|ready, check $# before shift 2, and assert the title was replaced.
