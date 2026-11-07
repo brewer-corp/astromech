@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Clippy rejects direct time reads and sleeps; the remaining reads move to the clock"
-updated_at: "2026-11-07T11:57:01.793391661+00:00"
+updated_at: "2026-11-07T13:50:45.418234520+00:00"
 ---
 
 ## Goal
@@ -54,3 +54,7 @@ clippy.toml, the remaining reads, the allow attributes and the follow-up issue. 
 ## Context
 
 The site counts at planning: about 116 production reads and 40 waits across the core process's crates. CONTRIBUTING.md's Tests section ("Lint rejects `setTimeout` and wall-clock reads in test files") gets a matching Rust line.
+
+## Notes
+
+- 2026-11-07 [note] From finding astromech-4k6h (d2nq review): world_wait's 30 s guard (world.rs:437-458) uses Instant::now and Condvar::wait_timeout on real time; add it to the list of waits that stay real, with an #[allow] and the reason (it only fails a stuck call and decides nothing).
