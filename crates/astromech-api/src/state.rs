@@ -132,6 +132,8 @@ struct Binds {
 pub struct State {
     data_dir: PathBuf,
     folders: Box<dyn Fn() -> Folders + Send + Sync>,
+    /// The connected controllers, keyboards and mice, read afresh for each `binds_state`.
+    devices: Box<dyn Fn() -> astromech_keybinds::devices::Inventory + Send + Sync>,
     binds: Mutex<Option<Binds>>,
     materials: ForDir<Versioned<JournalVersion, astromech_materials::Inventory>>,
     odyssey: ForDir<Versioned<JournalVersion, astromech_odyssey::JournalState>>,
@@ -149,6 +151,7 @@ impl State {
         Self {
             data_dir,
             folders: Box::new(folders),
+            devices: Box::new(astromech_keybinds::devices::enumerate_live),
             binds: Mutex::new(None),
             materials: ForDir::new(|_| Mutex::new(None)),
             odyssey: ForDir::new(|_| Mutex::new(None)),
@@ -158,6 +161,26 @@ impl State {
             unsold: Mutex::new(Default::default()),
             colonisation: ForDir::new(|_| Mutex::new(None)),
         }
+    }
+
+    /// Devices from `devices` instead of the live ones (a test's controllers).
+    #[cfg(test)]
+    pub(crate) fn with_devices(
+        mut self,
+        devices: impl Fn() -> astromech_keybinds::devices::Inventory + Send + Sync + 'static,
+    ) -> Self {
+        self.devices = Box::new(devices);
+        self
+    }
+
+    /// The keybinds state with the devices connected now. The core runs from login for days,
+    /// so the devices the `Api` was built with go stale; the window asks for this when a page
+    /// loads, as it used to when the window opened.
+    pub fn binds_state(&self) -> Result<astromech_keybinds::api::State, String> {
+        self.binds(false, |a| {
+            a.inventory = (self.devices)();
+            Ok(a.state())
+        })
     }
 
     pub fn data_dir(&self) -> &Path {

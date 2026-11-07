@@ -65,14 +65,10 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     // Keybinds (M1): presets are read and edited through astromech-keybinds (every write backs up
     // first); the core reloads on its own Bindings-folder watch.
     let s = state.clone();
-    reg.add_typed("binds_state", Window, move |(), _| s.binds(false, |a| Ok(a.state())));
+    reg.add_typed("binds_state", Window, move |(), _| s.binds_state());
     let s = state.clone();
-    reg.add_typed("binds_refresh_devices", Window, move |(), _| {
-        s.binds(false, |a| {
-            a.refresh_devices();
-            Ok(a.state())
-        })
-    });
+    // Onboarding's name for the same thing: `binds_state` reads the devices afresh too.
+    reg.add_typed("binds_refresh_devices", Window, move |(), _| s.binds_state());
     // Forget the discovered folders and devices, e.g. after onboarding set the Bindings folder.
     let s = state.clone();
     reg.add_typed("binds_reset", Window, move |(), _| s.binds(true, |a| Ok(a.state())));
@@ -255,5 +251,79 @@ mod tests {
         assert_eq!(reset["backups"].as_array().unwrap().len(), 1, "{reset}");
         assert!(night(&ask(window, "binds_view", Some(json!({ "path": path })))));
         assert_eq!(ask(window, "binds_state", None)["backups"], reset["backups"]);
+    }
+
+    fn bindings(d: &std::path::Path) -> PathBuf {
+        let b = d.join("Bindings");
+        std::fs::create_dir_all(&b).unwrap();
+        std::fs::write(b.join("Mine.4.2.binds"), PRESET).unwrap();
+        b
+    }
+
+    fn binds_state(reg: &Registry) -> Value {
+        reg.dispatch(&Request::new("binds_state"), &|_| {}).unwrap()
+    }
+
+    /// The core outlives the window: a controller plugged in after the keybinds were first read
+    /// shows on the next `binds_state` (astromech-3cg8).
+    #[test]
+    fn binds_state_sees_a_controller_connected_since_the_last_read() {
+        use astromech_keybinds::devices::{Controller, Inventory};
+        use std::sync::atomic::{AtomicBool, Ordering};
+        let d = tempfile::tempdir().unwrap();
+        let b = bindings(d.path());
+        let plugged = Arc::new(AtomicBool::new(false));
+        let p = plugged.clone();
+        let devices = move || Inventory {
+            controllers: if p.load(Ordering::SeqCst) {
+                vec![Controller {
+                    vid: "231D".into(),
+                    pid: "0200".into(),
+                    elite_id: "231D0200".into(),
+                    product: "VKB-Sim Gladiator EVO R".into(),
+                    manufacturer: "VKB-Sim".into(),
+                    usage: 4,
+                    kind: "joystick".into(),
+                    buttons: 32,
+                    axes: vec!["X".into(), "Y".into()],
+                    hats: 1,
+                    other_values: vec![],
+                }]
+            } else {
+                vec![]
+            },
+            ..Inventory::default()
+        };
+        let state =
+            State::new(d.path().join("data"), move || Folders { bindings: Some(b.clone()), ..Folders::default() })
+                .with_devices(devices);
+        let mut reg = Registry::new();
+        register(&Arc::new(state), &mut reg);
+        let ids = |v: Value| {
+            v["inventory"]["controllers"].as_array().unwrap().iter().map(|c| c["elite_id"].clone()).collect::<Vec<_>>()
+        };
+        assert!(ids(binds_state(&reg)).is_empty());
+        plugged.store(true, Ordering::SeqCst);
+        assert_eq!(ids(binds_state(&reg)), vec![json!("231D0200")]);
+    }
+
+    /// A game folder set after the keybinds were first read rebuilds them, so its built-in
+    /// presets are listed.
+    #[test]
+    fn a_changed_game_folder_lists_its_built_in_presets() {
+        let d = tempfile::tempdir().unwrap();
+        let b = bindings(d.path());
+        let game = d.path().join("Elite Dangerous").join("Products").join("elite-dangerous-odyssey-64");
+        std::fs::create_dir_all(game.join("ControlSchemes")).unwrap();
+        std::fs::write(game.join("ControlSchemes").join("Keyboard.binds"), PRESET.replace("Mine", "Keyboard")).unwrap();
+        let folders = Arc::new(std::sync::Mutex::new(Folders { bindings: Some(b), ..Folders::default() }));
+        let f = folders.clone();
+        let state = State::new(d.path().join("data"), move || crate::lock(&f).clone());
+        let mut reg = Registry::new();
+        register(&Arc::new(state), &mut reg);
+        let names = |v: Value| v["presets"].as_array().unwrap().iter().map(|p| p["name"].clone()).collect::<Vec<_>>();
+        assert!(!names(binds_state(&reg)).contains(&json!("Keyboard")));
+        crate::lock(&folders).game = Some(d.path().join("Elite Dangerous"));
+        assert!(names(binds_state(&reg)).contains(&json!("Keyboard")), "{}", binds_state(&reg));
     }
 }
