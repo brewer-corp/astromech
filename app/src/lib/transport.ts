@@ -9,6 +9,13 @@
  * (`usePreview`). This module never imports it: the preview imports the app's lib modules, so
  * that would be an import cycle, and a module imported while the cycle loaded could be handed
  * this one half-loaded. A plain `pnpm build` loads no preview, so the fake is dropped.
+ *
+ * `ASTROMECH_WORLD=<dir> pnpm dev` turns on the dev bridge instead (app/dev/bridge.ts, a Vite
+ * plugin that defines `VITE_ASTROMECH_BRIDGE`): every call goes to the real core, headless on
+ * that world, through the dev server (lib/bridge.ts), and a command's progress is published on
+ * its name as here. The shell's own pushes ("input" from its raw-input listener, "route" from the
+ * tray, "core-restarted") don't come through the bridge: a subscription to them never fires. Only
+ * the dev server has the bridge, so `pnpm build` drops it too (scripts/check-dist.py).
  */
 import type { Commands } from "./api/commands";
 
@@ -75,9 +82,30 @@ const tauri: Transport = {
 /** The window runs in the app (Tauri), not the browser preview. */
 export const inTauri = (): boolean => typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
+/** The dev bridge, when the dev server has it on (the plugin defines the call's path). */
+const bridge: Transport | null =
+  import.meta.env.DEV && import.meta.env.VITE_ASTROMECH_BRIDGE && !inTauri()
+    ? {
+        call(cmd, args) {
+          const path = import.meta.env.VITE_ASTROMECH_BRIDGE!;
+          return import("./bridge").then((b) => b.bridgeCall(path, cmd, args, (p) => publish(cmd, p)));
+        },
+        subscribe(topic, handler) {
+          // A command's progress (published above); the shell's events never come.
+          const set = local.get(topic) ?? new Set();
+          local.set(topic, set.add(handler));
+          return () => void set.delete(handler);
+        },
+        option: () => null,
+      }
+    : null;
+
+/** The page talks to the real core through the dev bridge (`ASTROMECH_WORLD=<dir> pnpm dev`). */
+export const bridged = (): boolean => bridge !== null;
+
 let current: Transport | null = null;
 let preview: Transport | null = null;
-const transport = () => current ?? (!inTauri() && preview ? preview : tauri);
+const transport = () => current ?? bridge ?? (!inTauri() && preview ? preview : tauri);
 
 /** The browser preview's fake answers outside Tauri (app/src/preview/transport.ts, when it loads). */
 export function usePreview(t: Transport): void {

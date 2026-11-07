@@ -2,11 +2,13 @@ import { defineConfig } from "vitest/config";
 import { playwright } from "@vitest/browser-playwright";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { svelteTesting } from "@testing-library/svelte/vite";
+import { astromechBridge } from "./dev/bridge.ts";
 import pkg from "./package.json" with { type: "json" };
 
-// The Tauri shell loads dist/ (production) or this dev server (tauri dev).
+// The Tauri shell loads dist/ (production) or this dev server (tauri dev). `ASTROMECH_WORLD=<dir>
+// pnpm dev` adds the dev bridge to the headless core (dev/bridge.ts).
 export default defineConfig({
-  plugins: [svelte(), svelteTesting({ resolveBrowser: false })],
+  plugins: [svelte(), svelteTesting({ resolveBrowser: false }), astromechBridge()],
   // The window's own version (lib/core.ts WINDOW_VERSION): the bundle ships inside the shell's
   // exe, so Diagnostics can tell a window and a core from different releases apart.
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
