@@ -84,15 +84,19 @@ pub fn ensure(base: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Res
 
 /// Make sure `a` is downloaded (into `dl_dir`), verified and extracted into `dest`.
 pub fn ensure_in(dest: &Path, dl_dir: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Result<()> {
-    ensure_in_from(dest, dl_dir, a, &a.url(), progress)
+    ensure_in_from(dest, dl_dir, a, &a.url(), true, progress)
 }
 
 /// [`ensure_in`], fetching `a` from `url` instead of [`Asset::url`] (a world's replay server).
+/// `proxy_from_env`: take a proxy from `ALL_PROXY`, `HTTPS_PROXY` or `HTTP_PROXY`, as
+/// [`ensure_in`] does; a world's downloads never do (its server is on 127.0.0.1, and ureq 2
+/// ignores `NO_PROXY`).
 pub fn ensure_in_from(
     dest: &Path,
     dl_dir: &Path,
     a: &Asset,
     url: &str,
+    proxy_from_env: bool,
     progress: &mut dyn FnMut(Progress),
 ) -> Result<()> {
     if is_installed_in(dest, a) {
@@ -100,7 +104,7 @@ pub fn ensure_in_from(
     }
     if let Some(m) = a.zip_member {
         fs::create_dir_all(dest)?;
-        fetch_zip_member(url, m, &dest.join(a.file), a, progress)?;
+        fetch_zip_member(url, proxy_from_env, m, &dest.join(a.file), a, progress)?;
         fs::write(marker_in(dest, a), a.sha256)?;
         return Ok(());
     }
@@ -121,7 +125,7 @@ pub fn ensure_in_from(
         }
     }
     if !have_verified {
-        fetch(url, &archive, a, progress)?;
+        fetch(url, proxy_from_env, &archive, a, progress)?;
     }
     extract(&archive, dest, a, progress)?;
     fs::write(marker_in(dest, a), a.sha256)?;
@@ -130,9 +134,9 @@ pub fn ensure_in_from(
 }
 
 #[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
-fn agent() -> ureq::Agent {
+fn agent(proxy_from_env: bool) -> ureq::Agent {
     ureq::AgentBuilder::new()
-        .try_proxy_from_env(true)
+        .try_proxy_from_env(proxy_from_env)
         .timeout_connect(Duration::from_secs(20))
         .timeout_read(Duration::from_secs(60))
         .user_agent(concat!("s7-s9-input-voice/", env!("CARGO_PKG_VERSION")))
@@ -217,12 +221,13 @@ fn zip_find(cd: &[u8], name: &str) -> Result<ZipEntry> {
 /// then write it to `out` (via a .part file).
 fn fetch_zip_member(
     url: &str,
+    proxy_from_env: bool,
     m: crate::catalog::ZipMember,
     out: &Path,
     a: &Asset,
     progress: &mut dyn FnMut(Progress),
 ) -> Result<()> {
-    let agent = agent();
+    let agent = agent(proxy_from_env);
     let t0 = Instant::now();
     let (tail, total) = get_range(&agent, url, "bytes=-65557", |_| {})?;
     let tail_start = total - tail.len() as u64;
@@ -285,9 +290,9 @@ fn fetch_zip_member(
     Ok(())
 }
 
-fn fetch(url: &str, archive: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Result<()> {
+fn fetch(url: &str, proxy_from_env: bool, archive: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Result<()> {
     let part = archive.with_extension("part");
-    let agent = agent();
+    let agent = agent(proxy_from_env);
     let resp = agent.get(url).call().with_context(|| format!("download {url}"))?;
     let total = resp.header("Content-Length").and_then(|v| v.parse().ok()).unwrap_or(a.size);
     let mut reader = resp.into_reader();

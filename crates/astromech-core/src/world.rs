@@ -684,12 +684,12 @@ mod tests {
         assert_eq!(logs.unwrap().status, 503);
         let base = (b.http.downloads)(astromech_galaxy::neutron::RELEASE_URL);
         assert!(base.starts_with("http://127.0.0.1:"), "{base}");
-        let neutron = astromech_data::download::text(&format!("{base}/x.sha256")).unwrap_err();
+        let neutron = astromech_data::download::text(&format!("{base}/x.sha256"), false).unwrap_err();
         assert!(matches!(neutron, astromech_data::download::DownloadError::Offline(_)), "{neutron:?}");
         let feed = (b.http.downloads)(crate::update::DEFAULT_FEED);
-        assert!(format!("{:#}", crate::update::http_get(&feed).unwrap_err()).contains("404"));
+        assert!(format!("{:#}", crate::update::http_get(&feed, false).unwrap_err()).contains("404"));
         let dir = w.root().join("models");
-        let e = models::download_from(&dir, &models::STT, &(b.http.downloads)(&models::STT.url()), &mut |_| {});
+        let e = models::download_from(&dir, &models::STT, &(b.http.downloads)(&models::STT.url()), false, &mut |_| {});
         assert!(format!("{:#}", e.unwrap_err()).contains("503"));
         assert!(client.send(astromech_data::Service::Edsm, &astromech_data::Request::get("/api-v1/system")).is_err());
         let seen: Vec<(String, String, bool)> = w

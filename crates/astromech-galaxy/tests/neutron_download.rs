@@ -63,20 +63,20 @@ fn downloads_checks_and_unpacks_the_file() {
     let base = serve(vec![("/neutron.bin.gz.sha256", sum.into_bytes()), ("/neutron.bin.gz", gz.clone())]);
     let dir = tempfile::tempdir().unwrap();
     assert_eq!(installed(dir.path()).unwrap(), None);
-    assert!(newer_available(dir.path(), &base).unwrap(), "no file yet: the published one is newer");
+    assert!(newer_available(dir.path(), &base, true).unwrap(), "no file yet: the published one is newer");
 
     let mut seen = vec![];
-    let h = download(dir.path(), &base, |done, total| seen.push((done, total))).unwrap();
+    let h = download(dir.path(), &base, true, |done, total| seen.push((done, total))).unwrap();
     assert_eq!(h.stars, 35);
     assert_eq!(seen.last(), Some(&(gz.len() as u64, Some(gz.len() as u64))));
     assert_eq!(std::fs::read(dir.path().join(FILE_NAME)).unwrap(), fixture());
     assert_eq!(installed(dir.path()).unwrap(), Some(h));
     assert_eq!(files_in(dir.path()), ["neutron.bin", "neutron.bin.sha256"]);
-    assert!(!newer_available(dir.path(), &base).unwrap(), "the file just downloaded is the latest");
+    assert!(!newer_available(dir.path(), &base, true).unwrap(), "the file just downloaded is the latest");
 
     // A rebuilt file is published: its checksum differs.
     let other = serve(vec![("/neutron.bin.gz.sha256", format!("{}\n", "ab".repeat(32)).into_bytes())]);
-    assert!(newer_available(dir.path(), &other).unwrap());
+    assert!(newer_available(dir.path(), &other, true).unwrap());
 }
 
 #[test]
@@ -87,7 +87,7 @@ fn a_wrong_checksum_leaves_no_file() {
         ("/neutron.bin.gz", gz),
     ]);
     let dir = tempfile::tempdir().unwrap();
-    let err = download(dir.path(), &base, |_, _| {}).unwrap_err().to_string();
+    let err = download(dir.path(), &base, true, |_, _| {}).unwrap_err().to_string();
     assert!(err.contains("checksum doesn't match"), "{err}");
     assert!(files_in(dir.path()).is_empty(), "left {:?}", files_in(dir.path()));
 }
@@ -102,13 +102,13 @@ fn a_failed_download_keeps_the_old_file() {
     let mid = gz.len() / 2;
     gz[mid..mid + 16].fill(0xff);
     let base = serve(vec![("/neutron.bin.gz.sha256", format!("{}\n", sha(&gz)).into_bytes()), ("/neutron.bin.gz", gz)]);
-    assert!(download(dir.path(), &base, |_, _| {}).is_err());
+    assert!(download(dir.path(), &base, true, |_, _| {}).is_err());
     assert_eq!(files_in(dir.path()), ["neutron.bin"]);
     assert_eq!(std::fs::read(dir.path().join(FILE_NAME)).unwrap(), fixture());
 
     // Not published.
     let none = serve(vec![]);
-    let err = download(dir.path(), &none, |_, _| {}).unwrap_err().to_string();
+    let err = download(dir.path(), &none, true, |_, _| {}).unwrap_err().to_string();
     assert!(err.contains("HTTP 404"), "{err}");
     assert_eq!(files_in(dir.path()), ["neutron.bin"]);
 }
@@ -125,7 +125,7 @@ fn a_failed_rename_says_why_and_what_to_do() {
     let held = dir.path().join(FILE_NAME);
     std::fs::create_dir(&held).unwrap();
     std::fs::write(held.join("x"), b"x").unwrap();
-    let err = format!("{:#}", download(dir.path(), &published(), |_, _| {}).unwrap_err());
+    let err = format!("{:#}", download(dir.path(), &published(), true, |_, _| {}).unwrap_err());
     assert!(err.starts_with(&format!("Couldn't replace {}: ", held.display())), "{err}");
     assert!(err.contains("(os error"), "the reason is missing: {err}");
     assert!(err.ends_with("Wait a minute, then press Download again."), "{err}");
@@ -142,7 +142,7 @@ fn a_partial_file_left_by_a_cut_off_download_is_removed() {
 
     // ...and when a download starts, even one that fails straight away.
     std::fs::write(dir.path().join("neutron.bin.part"), b"half a file").unwrap();
-    assert!(download(dir.path(), &serve(vec![]), |_, _| {}).is_err());
+    assert!(download(dir.path(), &serve(vec![]), true, |_, _| {}).is_err());
     assert!(files_in(dir.path()).is_empty(), "left {:?}", files_in(dir.path()));
 }
 
@@ -151,14 +151,14 @@ fn a_running_download_keeps_its_partial_file_and_turns_down_a_second() {
     let dir = tempfile::tempdir().unwrap();
     let base = published();
     let mut checked = false;
-    download(dir.path(), &base, |_, _| {
+    download(dir.path(), &base, true, |_, _| {
         if checked {
             return;
         }
         checked = true;
         assert_eq!(installed(dir.path()).unwrap(), None);
         assert!(dir.path().join("neutron.bin.part").exists(), "the running download's file was removed");
-        let err = download(dir.path(), &base, |_, _| {}).unwrap_err().to_string();
+        let err = download(dir.path(), &base, true, |_, _| {}).unwrap_err().to_string();
         assert_eq!(err, "The neutron star file is already downloading.");
     })
     .unwrap();

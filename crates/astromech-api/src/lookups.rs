@@ -287,7 +287,9 @@ fn neutron_download(s: &State, call: &Call) -> Result<NeutronFile, String> {
             call.progress(serde_json::to_value(NeutronProgress { done, total }).unwrap_or_default());
         }
     };
-    if let Err(e) = astromech_galaxy::neutron::download(s.data_dir(), &s.neutron_url, progress) {
+    if let Err(e) =
+        astromech_galaxy::neutron::download(s.data_dir(), &s.neutron_url, s.neutron_proxy_from_env, progress)
+    {
         astromech_log::log(&format!("neutron star file: download failed: {e:#}{}", download_detail(&e)));
         return Err(format!("{e:#}"));
     }
@@ -530,10 +532,11 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     // Whether the published file differs from the one downloaded (a small checksum file).
     let s = state.clone();
     reg.add_typed("neutron_check", Window, move |(), _| {
-        let newer = astromech_galaxy::neutron::newer_available(s.data_dir(), &s.neutron_url).map_err(|e| {
-            astromech_log::log(&format!("neutron star file: check failed: {e:#}{}", download_detail(&e)));
-            format!("{e:#}")
-        })?;
+        let newer = astromech_galaxy::neutron::newer_available(s.data_dir(), &s.neutron_url, s.neutron_proxy_from_env)
+            .map_err(|e| {
+                astromech_log::log(&format!("neutron star file: check failed: {e:#}{}", download_detail(&e)));
+                format!("{e:#}")
+            })?;
         Ok(NeutronCheck { newer })
     });
 

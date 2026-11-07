@@ -115,6 +115,10 @@ pub struct Http {
     /// Where each download is fetched from (the update feed and zip, the speech models, the
     /// neutron star file): its own URL in the installed app, a world's replay server in a world.
     pub downloads: Downloads,
+    /// Whether the downloads take a proxy from `ALL_PROXY`, `HTTPS_PROXY` or `HTTP_PROXY`: yes
+    /// in the installed app; never in a world, whose replay server is on 127.0.0.1 (ureq 2
+    /// ignores `NO_PROXY`, so a proxy would carry the request off the machine).
+    pub proxy_from_env: bool,
 }
 
 impl Http {
@@ -126,6 +130,7 @@ impl Http {
             eddn: Arc::new(move || Box::new(astromech_eddn::HttpTransport::new(astromech_eddn::UPLOAD_URL, &ua))),
             edsm: Arc::new(move |t| Box::new(astromech_eddn::edsm::api::HttpApi::with_timeout(&edsm_ua, t))),
             downloads: Arc::new(|url: &str| url.to_string()),
+            proxy_from_env: true,
         }
     }
 }
@@ -291,14 +296,15 @@ fn api_state(
     data_dir: PathBuf,
     remote: Arc<astromech_data::Client>,
     opener: Arc<dyn Opener>,
-    downloads: &Downloads,
+    http: &Http,
 ) -> astromech_api::State {
     let preload = std::env::current_exe().ok().and_then(|exe| astromech_api::preload_beside(&exe));
     let folders = move || core.upgrade().map(|c| api_folders(&c.cfg(), &c.paths)).unwrap_or_default();
     astromech_api::State::new(data_dir, remote, preload, folders)
         .openable(vec![paths.app_dir().to_path_buf(), paths.log_dir()])
         .with_opener(move |t| opener.open(t))
-        .with_neutron_url(&downloads(astromech_galaxy::neutron::RELEASE_URL))
+        .with_neutron_url(&(http.downloads)(astromech_galaxy::neutron::RELEASE_URL))
+        .neutron_proxy_from_env(http.proxy_from_env)
 }
 
 /// The process's one remote-data client, its cache in `data_dir`.
@@ -642,7 +648,7 @@ impl Core {
         log(if manual { "update: checking (requested)" } else { "update: checking" });
         let mut settings = self.cfg().update;
         settings.feed = (self.http.downloads)(&update::feed_url(&settings));
-        match update::fetch_and_verify(&settings, &pk) {
+        match update::fetch_and_verify(&settings, &pk, self.http.proxy_from_env) {
             Ok((m, _)) => {
                 let installed = update::installed_version();
                 self.set_update(|h| {
@@ -671,7 +677,7 @@ impl Core {
                 self.set_update(|h| h.snap.status = UpStatus::Downloading);
                 let work = self.paths.app_dir().join("updates");
                 let zip = (self.http.downloads)(&update::zip_url(&m));
-                match update::stage(&m, &work, &zip, |p| log(&format!("update: {p}"))) {
+                match update::stage(&m, &work, &zip, self.http.proxy_from_env, |p| log(&format!("update: {p}"))) {
                     Ok(payload) => {
                         self.set_update(|h| {
                             h.payload = Some(payload);
@@ -1572,7 +1578,7 @@ pub fn download_models(core: &Arc<Core>) {
         let mut err = None;
         for a in models::missing(&base) {
             let mut last = u64::MAX;
-            let r = models::download_from(&base, &a, &(c.http.downloads)(&a.url()), &mut |p| {
+            let r = models::download_from(&base, &a, &(c.http.downloads)(&a.url()), c.http.proxy_from_env, &mut |p| {
                 let pct = (p.done * 100).checked_div(p.total).unwrap_or(0);
                 if pct != last {
                     last = pct;
@@ -1756,7 +1762,7 @@ pub(crate) fn assemble_with(
         .unwrap_or(false);
     let opener = b.opener;
     let core = Arc::new_cyclic(|me| Core {
-        api: Arc::new(state(api_state(me.clone(), &paths, data_dir, remote, opener.clone(), &b.http.downloads))),
+        api: Arc::new(state(api_state(me.clone(), &paths, data_dir, remote, opener.clone(), &b.http))),
         paths,
         config_path,
         onboarded: AtomicBool::new(onboarded),

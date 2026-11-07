@@ -60,3 +60,25 @@ fn downloads_and_the_flight_log_are_answered_from_the_recording() {
     assert_eq!(flight["url"], "https://www.edsm.net/api-logs-v1/get-logs?commanderName=<redacted>&apiKey=<redacted>");
     assert!(core.quit().success());
 }
+
+/// With every proxy variable pointing at an unroutable address (TEST-NET-1), world mode's
+/// downloads still go straight to its replay server and are answered from the recording: ureq 2
+/// ignores `NO_PROXY`, so a download that took the proxy would leave the machine (finding
+/// astromech-3dj9).
+#[test]
+fn downloads_ignore_the_proxy_variables() {
+    let proxy = "http://192.0.2.1:9";
+    let env: Vec<(&str, &str)> = support::PROXY_VARS.iter().map(|k| (*k, proxy)).collect();
+    let core = WorldCore::start_with_env(&world("network"), &env);
+    let wait = |url: &str| core.call("world_wait", Some(json!({ "match": { "kind": "http", "url": url } }))).unwrap();
+    core.call_window("check_update", None).unwrap();
+    assert_eq!(
+        wait("https://github.com/brewer-corp/astromech/releases/latest/download/latest.json")["unrecorded"],
+        false
+    );
+    core.call_window("download_models", None).unwrap();
+    assert_eq!(wait(&astromech_voice::models::STT.url())["unrecorded"], false);
+    let e = core.call_window("neutron_check", None).unwrap_err();
+    assert!(e.contains("HTTP 503"), "answered from the recording, not the proxy: {e}");
+    assert!(core.quit().success());
+}

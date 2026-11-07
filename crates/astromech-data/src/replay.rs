@@ -769,14 +769,14 @@ mod tests {
             base.starts_with("http://127.0.0.1:") && base.ends_with("/github.com/a/releases/download/neutron"),
             "{base}"
         );
-        assert_eq!(crate::download::text(&format!("{base}/x.sha256")).unwrap(), "abc123  x\n");
+        assert_eq!(crate::download::text(&format!("{base}/x.sha256"), false).unwrap(), "abc123  x\n");
         use crate::download::{text, DownloadError};
-        assert!(matches!(text(&server.url("https://h/down.sha256")), Err(DownloadError::Status(503))));
-        assert!(matches!(text(&server.url("https://h/gone.sha256")), Err(DownloadError::Offline(_))));
-        assert!(matches!(text(&server.url("https://h/slow.sha256")), Err(DownloadError::Offline(_))));
-        assert!(matches!(text(&server.url("https://h/none.sha256")), Err(DownloadError::Offline(_))));
+        assert!(matches!(text(&server.url("https://h/down.sha256"), false), Err(DownloadError::Status(503))));
+        assert!(matches!(text(&server.url("https://h/gone.sha256"), false), Err(DownloadError::Offline(_))));
+        assert!(matches!(text(&server.url("https://h/slow.sha256"), false), Err(DownloadError::Offline(_))));
+        assert!(matches!(text(&server.url("https://h/none.sha256"), false), Err(DownloadError::Offline(_))));
         let mut out = vec![];
-        crate::download::stream(&server.url("https://h/junk.bin"), &mut out, |_, _| {}).unwrap();
+        crate::download::stream(&server.url("https://h/junk.bin"), false, &mut out, |_, _| {}).unwrap();
         assert_eq!(out, GARBAGE);
         let seen = seen.lock().unwrap().clone();
         let urls: Vec<(&str, bool)> = seen.iter().map(|s| (s.url.as_str(), s.unrecorded)).collect();

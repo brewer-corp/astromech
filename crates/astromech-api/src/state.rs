@@ -340,6 +340,8 @@ pub struct State {
     pub(crate) neutron: astromech_galaxy::neutron::Kept,
     /// Where the neutron star file is published.
     pub(crate) neutron_url: String,
+    /// Whether the neutron star file's download takes a proxy from the environment.
+    pub(crate) neutron_proxy_from_env: bool,
     /// A trade route search is running (one Spansh job at a time, even if the page is left and
     /// opened again while the first still polls).
     pub(crate) route_busy: AtomicBool,
@@ -366,6 +368,7 @@ impl State {
         Self {
             neutron: astromech_galaxy::neutron::Kept::new(&data_dir),
             neutron_url: astromech_galaxy::neutron::RELEASE_URL.into(),
+            neutron_proxy_from_env: true,
             route_busy: AtomicBool::new(false),
             plot_busy: AtomicBool::new(false),
             plot_polling: Default::default(),
@@ -410,6 +413,13 @@ impl State {
     /// server).
     pub fn with_neutron_url(mut self, url: &str) -> Self {
         self.neutron_url = url.into();
+        self
+    }
+
+    /// Whether the neutron star file's download takes a proxy from `ALL_PROXY`, `HTTPS_PROXY`
+    /// or `HTTP_PROXY` (yes by default; never in a world, see [`astromech_data::download`]).
+    pub fn neutron_proxy_from_env(mut self, from_env: bool) -> Self {
+        self.neutron_proxy_from_env = from_env;
         self
     }
 

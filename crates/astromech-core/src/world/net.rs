@@ -105,6 +105,7 @@ impl Net {
                 }),
             }),
             downloads: Arc::new(move |url: &str| server.url(url)),
+            proxy_from_env: false,
         }
     }
 }

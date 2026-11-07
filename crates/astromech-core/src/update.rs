@@ -261,11 +261,12 @@ pub fn verifying_hex_from_secret(secret_hex: &str) -> Result<String> {
     Ok(hex(sk.verifying_key().as_bytes()))
 }
 
-/// HTTP GET as bytes. `User-Agent` is required by GitHub.
+/// HTTP GET as bytes. `User-Agent` is required by GitHub. `proxy_from_env`: the installed app
+/// takes a proxy from the environment; a world never does (`app::Http::proxy_from_env`).
 #[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
-pub fn http_get(url: &str) -> Result<Vec<u8>> {
+pub fn http_get(url: &str, proxy_from_env: bool) -> Result<Vec<u8>> {
     let resp = ureq::AgentBuilder::new()
-        .try_proxy_from_env(true)
+        .try_proxy_from_env(proxy_from_env)
         .timeout_connect(Duration::from_secs(20))
         .timeout_read(Duration::from_secs(120))
         .user_agent(concat!("astromech/", env!("CARGO_PKG_VERSION")))
@@ -279,9 +280,9 @@ pub fn http_get(url: &str) -> Result<Vec<u8>> {
 }
 
 #[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
-pub fn http_download(url: &str, dest: &Path, mut progress: impl FnMut(u64, u64)) -> Result<()> {
+pub fn http_download(url: &str, dest: &Path, proxy_from_env: bool, mut progress: impl FnMut(u64, u64)) -> Result<()> {
     let resp = ureq::AgentBuilder::new()
-        .try_proxy_from_env(true)
+        .try_proxy_from_env(proxy_from_env)
         .timeout_connect(Duration::from_secs(20))
         .timeout_read(Duration::from_secs(120))
         .user_agent(concat!("astromech/", env!("CARGO_PKG_VERSION")))
@@ -556,10 +557,10 @@ pub fn apply_cli(from: &Path, install_dir: &Path, wait: Option<u32>, after: Afte
     code
 }
 
-pub fn fetch_and_verify(settings: &Settings, pk: &VerifyingKey) -> Result<(Manifest, Vec<u8>)> {
+pub fn fetch_and_verify(settings: &Settings, pk: &VerifyingKey, proxy_from_env: bool) -> Result<(Manifest, Vec<u8>)> {
     let url = feed_url(settings);
-    let json = http_get(&url)?;
-    let sig = http_get(&format!("{url}.sig"))?;
+    let json = http_get(&url, proxy_from_env)?;
+    let sig = http_get(&format!("{url}.sig"), proxy_from_env)?;
     let sig_hex = String::from_utf8_lossy(&sig);
     verify_manifest_bytes(pk, &json, &sig_hex)?;
     let m = parse_manifest(&json)?;
@@ -568,7 +569,13 @@ pub fn fetch_and_verify(settings: &Settings, pk: &VerifyingKey) -> Result<(Manif
 
 /// Download `m`'s zip from `zip` (its [`zip_url`], or where the core's downloads send it), and
 /// extract it. Returns the payload directory.
-pub fn stage(m: &Manifest, work: &Path, zip: &str, mut progress: impl FnMut(&str)) -> Result<PathBuf> {
+pub fn stage(
+    m: &Manifest,
+    work: &Path,
+    zip: &str,
+    proxy_from_env: bool,
+    mut progress: impl FnMut(&str),
+) -> Result<PathBuf> {
     let dir = work.join(&m.version);
     let payload = dir.join("payload");
     let marker = dir.join("ok");
@@ -578,7 +585,7 @@ pub fn stage(m: &Manifest, work: &Path, zip: &str, mut progress: impl FnMut(&str
     fs::create_dir_all(&dir)?;
     let zip_path = dir.join(&m.zip);
     progress("downloading");
-    http_download(zip, &zip_path, |_, _| {})?;
+    http_download(zip, &zip_path, proxy_from_env, |_, _| {})?;
     progress("verifying");
     let sum = sha256_file(&zip_path)?;
     if sum != m.sha256.to_ascii_lowercase() {

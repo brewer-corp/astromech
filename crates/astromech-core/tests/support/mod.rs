@@ -5,7 +5,9 @@
 //! The child never sees the user's folders: every variable a folder could fall back to points
 //! at an empty home the helper owns, and [`WorldCore::quit`] fails if anything was written there.
 //! Its stdin is a pipe the helper holds, so if the test process dies, even killed outright, the
-//! core reads end of file and quits.
+//! core reads end of file and quits. The proxy variables are cleared for it too, a second guard
+//! beside world mode's own (its downloads never take a proxy), so nothing it asks can leave the
+//! machine through one.
 
 // Each test binary that includes this module uses part of it.
 #![allow(dead_code)]
@@ -28,6 +30,9 @@ pub const HOME_VARS: [&str; 8] = [
     "APPDATA",
     "USERPROFILE",
 ];
+
+/// The variables ureq takes a proxy from.
+pub const PROXY_VARS: [&str; 6] = ["ALL_PROXY", "all_proxy", "HTTPS_PROXY", "https_proxy", "HTTP_PROXY", "http_proxy"];
 
 /// The committed world `name`, in the repository's `worlds/`.
 pub fn world(name: &str) -> PathBuf {
@@ -80,13 +85,24 @@ pub fn files_in(dir: &Path) -> Vec<PathBuf> {
 }
 
 impl WorldCore {
-    /// Start the core on `world`, with its own empty home.
+    /// Start the core on `world`, with its own empty home and no proxy variables.
     pub fn start(world: &Path) -> Self {
+        Self::start_with_env(world, &[])
+    }
+
+    /// [`WorldCore::start`], with `env` set for the core after the helper's own variables (a
+    /// test that sets the proxy variables to check world mode ignores them).
+    pub fn start_with_env(world: &Path, env: &[(&str, &str)]) -> Self {
         let home = tempfile::Builder::new().prefix("astromech-test-home-").tempdir().expect("an empty home");
-        let mut child = Command::new(env!("CARGO_BIN_EXE_astromech-core"))
+        let mut cmd = Command::new(env!("CARGO_BIN_EXE_astromech-core"));
+        for k in PROXY_VARS {
+            cmd.env_remove(k);
+        }
+        let mut child = cmd
             .arg("--world")
             .arg(world)
             .envs(HOME_VARS.map(|k| (k, home.path())))
+            .envs(env.iter().copied())
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit())

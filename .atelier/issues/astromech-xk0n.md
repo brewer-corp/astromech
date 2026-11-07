@@ -128,6 +128,14 @@ Where things are:
 - `cargo fmt --all --check`, `scripts/check-deps.py`, `scripts/check-guide.py` and `cargo deny check`: pass.
 - Loops: world_net, world_mode, world_steps and the core lib's `world::` tests together ran 50 times from the built binaries, 50 passed and no temp worlds were left. The data `recorded` and `replay` tests also ran 50 times, 0 failures. The real HOME has no astromech folders.
 
+### Review fixes
+- **astromech-3dj9.** World mode's downloads went through a proxy whenever a proxy variable was set: ureq 2 ignores `NO_PROXY`, so a rewritten 127.0.0.1 URL could leave the machine.
+  - The fix: `Http::proxy_from_env` is `true` in `Http::real()`, which is today's `try_proxy_from_env(true)` unchanged, and `false` in world mode. It is passed down to `astromech_data::download::{text, stream}`, `neutron::{latest_sha256, newer_available, download}` (through `State::neutron_proxy_from_env`), `update::{http_get, http_download, fetch_and_verify, stage}` and `models::download_from`/`download::ensure_in_from`.
+  - Second guard: `WorldCore` clears all six proxy variables ureq reads for its child.
+  - Test: `world_net::downloads_ignore_the_proxy_variables` sets all six to `http://192.0.2.1:9`, and the feed, the STT model and the neutron checksum are still answered from the recording.
+  - Without the fix (world `proxy_from_env: true`), inside `bwrap --dev-bind / / --unshare-net` it fails with "world_wait: nothing matching … latest.json … (0 observed)". With the fix, all 3 world_net tests pass in the same sandbox.
+  - world_net and world_mode then ran 15 times with 0 failures. Clippy `-D warnings` and fmt are clean, and the data, galaxy, api, voice and core tests give 585 passed, 0 failed.
+
 ### Decisions
 Six decision notes are above:
 - EDDN and EDSM come back on;

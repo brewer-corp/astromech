@@ -102,14 +102,21 @@ pub fn missing(models_dir: &Path) -> Vec<Asset> {
 /// Download, verify and extract `a` into `models_dir` (the archive goes to a `downloads`
 /// folder next to it, where a manually downloaded archive is also picked up).
 pub fn download(models_dir: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Result<()> {
-    download_from(models_dir, a, &a.url(), progress)
+    download_from(models_dir, a, &a.url(), true, progress)
 }
 
 /// [`download`], fetching from `url` instead of [`Asset::url`] (the core passes it through its
-/// download rewrite, which in a world is the replay server).
-pub fn download_from(models_dir: &Path, a: &Asset, url: &str, progress: &mut dyn FnMut(Progress)) -> Result<()> {
+/// download rewrite, which in a world is the replay server), with a proxy from the environment
+/// only if `proxy_from_env` ([`download::ensure_in_from`]).
+pub fn download_from(
+    models_dir: &Path,
+    a: &Asset,
+    url: &str,
+    proxy_from_env: bool,
+    progress: &mut dyn FnMut(Progress),
+) -> Result<()> {
     let dl = models_dir.parent().unwrap_or(models_dir).join("downloads");
-    download::ensure_in_from(models_dir, &dl, a, url, progress)
+    download::ensure_in_from(models_dir, &dl, a, url, proxy_from_env, progress)
 }
 
 /// Is a replaced model (Kokoro v0.19) still in `models_dir`?
