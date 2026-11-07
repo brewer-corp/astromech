@@ -18,8 +18,8 @@ export interface DeviceMap {
 }
 
 export const maps: DeviceMap[] = [
-  { ...left, side: "L", title: "Left · Gladiator EVO OT L", image: "/devices/vkb/VKB-Gladiator-SCG-OTA-LH-v1.0.png", controls: left.controls as MapControl[] },
-  { ...right, side: "R", title: "Right · Gladiator EVO R", image: "/devices/vkb/VKB-Gladiator-SCG-RH-v1.0.png", controls: right.controls as MapControl[] },
+  { ...left, side: "L", title: "Left · Gladiator EVO OT L", image: `${import.meta.env.BASE_URL}devices/vkb/VKB-Gladiator-SCG-OTA-LH-v1.0.png`, controls: left.controls as MapControl[] },
+  { ...right, side: "R", title: "Right · Gladiator EVO R", image: `${import.meta.env.BASE_URL}devices/vkb/VKB-Gladiator-SCG-RH-v1.0.png`, controls: right.controls as MapControl[] },
 ];
 
 export function mapFor(device: string): DeviceMap | undefined {

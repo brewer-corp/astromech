@@ -60,8 +60,8 @@
     <span class="sp"></span><span class="hint">Press any control to find it</span>
   </div>
   <div class="sheets">
-    <div><div class="cap">Left · Gladiator EVO OT L</div><Sheet image="/devices/vkb/VKB-Gladiator-SCG-OTA-LH-v1.0.png" controls={left.controls} cells={L} width={W} dimOthers /></div>
-    <div><div class="cap">Right · Gladiator EVO R</div><Sheet image="/devices/vkb/VKB-Gladiator-SCG-RH-v1.0.png" controls={right.controls} cells={R} width={W} dimOthers /></div>
+    <div><div class="cap">Left · Gladiator EVO OT L</div><Sheet image={`${import.meta.env.BASE_URL}devices/vkb/VKB-Gladiator-SCG-OTA-LH-v1.0.png`} controls={left.controls} cells={L} width={W} dimOthers /></div>
+    <div><div class="cap">Right · Gladiator EVO R</div><Sheet image={`${import.meta.env.BASE_URL}devices/vkb/VKB-Gladiator-SCG-RH-v1.0.png`} controls={right.controls} cells={R} width={W} dimOthers /></div>
   </div>
   <div class="band">
     <section>

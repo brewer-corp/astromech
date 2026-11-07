@@ -18,6 +18,13 @@ test("with no query, a preview build's baked-in one answers", () => {
   expect(previewQuery().get("route")).toBe("exact");
 });
 
+test("the page's own query adds to a preview build's, key by key", () => {
+  vi.stubEnv("VITE_PREVIEW_QUERY", "core=ready&route=exact");
+  history.replaceState(null, "", "/?fail=all");
+  expect(previewQuery().get("core")).toBe("ready");
+  expect(previewQuery().get("fail")).toBe("all");
+});
+
 test("with neither, nothing is set", () => {
   expect(previewQuery().get("core")).toBeNull();
 });

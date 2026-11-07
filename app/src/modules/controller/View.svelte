@@ -17,12 +17,13 @@
   import About from "../../lib/ui/About.svelte";
   import BindDialog from "../../lib/ui/BindDialog.svelte";
   import PresetPicker from "../../lib/ui/PresetPicker.svelte";
+  import { previewQuery } from "../../lib/previewquery";
 
   type Act = { id: string; title: string; actions: { id: string; important: boolean; alternatives: string[] }[] };
   const acts = catalog.activities as Act[];
 
   binds.start();
-  let dev = $state(new URLSearchParams(location.search).get("device") ?? maps[0]!.device_id);
+  let dev = $state(previewQuery().get("device") ?? maps[0]!.device_id);
   const m = $derived(maps.find((x) => x.device_id === dev) ?? maps[0]!);
   const ov = $derived(binds.state?.overrides ?? {});
   const controls = $derived(controlsWithOverrides(m, ov));
@@ -32,7 +33,7 @@
   let w = $state(1600);
   /** "all" or an activity id. */
   const ACTIVITY_KEY = "astromech.activity";
-  let actId = $state(new URLSearchParams(location.search).get("activity") ?? localStorage.getItem(ACTIVITY_KEY) ?? "all");
+  let actId = $state(previewQuery().get("activity") ?? localStorage.getItem(ACTIVITY_KEY) ?? "all");
   const act = $derived(acts.find((a) => a.id === actId));
   let bind = $state<{ row: Row; slot: string } | null>(null);
   /** The action whose detail is open. */

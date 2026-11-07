@@ -42,5 +42,5 @@ const FILES: Record<string, string> = {
 
 export function shipIcon(shipType: string): string | null {
   const file = FILES[shipType];
-  return file ? `/ships/${file}.png` : null;
+  return file ? `${import.meta.env.BASE_URL}ships/${file}.png` : null;
 }

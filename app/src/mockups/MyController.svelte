@@ -27,7 +27,7 @@
   <div class="cols">
     <section>
       <div class="devices"><span class="on">Left · Gladiator EVO OT L · 231D3201</span><span>Right · Gladiator EVO R · 231D0200</span></div>
-      <Sheet image="/devices/vkb/VKB-Gladiator-SCG-OTA-LH-v1.0.png" controls={left.controls} cells={cells} width={980} />
+      <Sheet image={`${import.meta.env.BASE_URL}devices/vkb/VKB-Gladiator-SCG-OTA-LH-v1.0.png`} controls={left.controls} cells={cells} width={980} />
     </section>
     <About label="You pressed" title="A3 centre hat, push">
       <p>Button 10 on the left stick. astromech uses it for push-to-talk. Nothing in Elite is bound to it.</p>
