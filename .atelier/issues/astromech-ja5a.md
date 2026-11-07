@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-07T00:10:51.363624590+00:00"
+status: "done"
 title: "Ship v1.0.0-alpha.4 with the galaxy rework"
-updated_at: "2026-11-07T00:02:02.660829776+00:00"
+updated_at: "2026-11-07T00:10:51.363624590+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ Sumeet is still on alpha.3 (23 Oct), so the galaxy rework, the Find or plot box 
 ## Context
 
 Same steps as alpha.3 (astromech-rcui). Sumeet approved cutting it on 2026-11-06.
+
+## Close Reason
+
+Version 1.0.0-alpha.4 and its release notes, reviewed (astromech-9gl8); tagged after merge so release.yml publishes it.
