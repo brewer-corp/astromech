@@ -25,6 +25,6 @@ astromech's Atelier CI job pins `ATELIER_REV` 523a6502, older than the binary ev
 
 ## Done when
 
-- [ ] `.github/workflows/atelier.yml` pins `ATELIER_REV` to 12efdfd9ce899e5a768a82163e0758e227b686f6, and nothing else changes.
+- [x] `.github/workflows/atelier.yml` pins `ATELIER_REV` to 12efdfd9ce899e5a768a82163e0758e227b686f6, and nothing else changes.
 - [ ] The Atelier workflow passes on this branch's pull request with the new pin, its log showing 12efdfd9 being built.
-- [ ] `atelier check` and `atelier doctor` pass locally with a binary built from that commit.
+- [x] `atelier check` and `atelier doctor` pass locally with a binary built from that commit.
