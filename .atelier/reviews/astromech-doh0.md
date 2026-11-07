@@ -13,9 +13,10 @@ event:
   disposition:
     decision: fix_now
     identity: claude-author
-    commit: 527c5618e564ed847c24642d0622391ef6b2bb01
-    recorded_at: 2026-11-07T03:09:23.947455399Z
-    reason: 'Fixed in 527c5618: shipIcon, devices and the mockups build image URLs on import.meta.env.BASE_URL; served below the root, #/controller and #/route make no asset 404s.'
+    commit: 70741a5022d016af9dedcc169d66945f887cbeff
+    recorded_at: 2026-11-07T03:10:47.345401479Z
+    resolution_commit: 527c5618e564ed847c24642d0622391ef6b2bb01
+    reason: Fixed in 527c5618; the reviewer confirmed it in approval astromech-dgn0.
 ---
 
 medium: app/src/lib/shipIcon.ts:45, app/src/lib/devices.ts:21-22 (and mockups/ActivityView.svelte:63-64, MyController.svelte:30) build public-asset URLs as absolute string literals ('/ships/x.png', '/devices/vkb/...png'). Vite's --base ./ rewrites CSS url() (unlocks' access.svg becomes ../engineers/access.svg) but not JS strings, so the preview build is not fully relative as Done-when 1 claims. Served below the origin root these 404: serving app/dist-preview at /sub/ and opening #/controller in headless Chrome requested GET /devices/vkb/VKB-Gladiator-SCG-OTA-LH-v1.0.png -> 404. Whether the artifact host serves index.html at its origin root is unknown, and the artifact contract asks for relative paths. Fix: prefix with import.meta.env.BASE_URL (stays '/' for dev and Tauri, './' in the preview build), and spot-check the Controller page and a ship icon in the published artifact.
