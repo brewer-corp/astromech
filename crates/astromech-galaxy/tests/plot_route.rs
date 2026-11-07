@@ -2,6 +2,7 @@
 //! this PC when the neutron star file is there and readable, else by Spansh (a recorded job),
 //! and a file that can't be read is said. The kept file is loaded again when a download replaces
 //! it. No test here touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::spansh::Polling;
 use astromech_data::{Cache, Client, Limiter, Request, Response, Transport, TransportError};
@@ -299,8 +300,8 @@ impl Transport for Exact {
 fn a_downloaded_file_replaces_the_kept_one() {
     let dir = data_dir(Some("neutron-sample.bin"));
     let kept = Kept::new(dir.path());
-    let first = kept.get().unwrap().unwrap();
-    assert!(Arc::ptr_eq(&first, &kept.get().unwrap().unwrap()), "kept, not loaded again");
+    let first = kept.get(&astromech_data::SystemClock).unwrap().unwrap();
+    assert!(Arc::ptr_eq(&first, &kept.get(&astromech_data::SystemClock).unwrap().unwrap()), "kept, not loaded again");
     assert_eq!(first.stars().len(), 35);
 
     // What neutron::download does: unpack into a partial file, then rename it over the old one.
@@ -310,7 +311,7 @@ fn a_downloaded_file_replaces_the_kept_one() {
     assert!(!first.is_current());
     assert!(first.names(&[0]).unwrap_err().to_string().contains("Plot the route again"));
 
-    let now = kept.get().unwrap().unwrap();
+    let now = kept.get(&astromech_data::SystemClock).unwrap().unwrap();
     assert!(!Arc::ptr_eq(&first, &now));
     assert!(now.is_current());
     let synthetic = astromech_galaxy::neutron::read_header(&fixture("neutron-synthetic.bin")).unwrap();
@@ -319,5 +320,5 @@ fn a_downloaded_file_replaces_the_kept_one() {
 
     // Deleted: no file, so Spansh plots.
     std::fs::remove_file(dir.path().join(FILE_NAME)).unwrap();
-    assert!(kept.get().unwrap().is_none());
+    assert!(kept.get(&astromech_data::SystemClock).unwrap().is_none());
 }

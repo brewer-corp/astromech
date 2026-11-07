@@ -1,4 +1,5 @@
 //! Print the best match for each argument: `cargo run -p astromech-intent --example rank -- "gear down"`.
+#![allow(clippy::disallowed_methods)] // a developer tool, not the core
 fn main() {
     let g = astromech_intent::Grammar::mvp(&["Sol", "Colonia", "Shinrarta Dezhra", "Achenar"]);
     for t in std::env::args().skip(1) {

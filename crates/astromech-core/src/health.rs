@@ -7,12 +7,14 @@ use astromech_api::Recover;
 use astromech_keybinds::active::{self, ActionIndex, KeyCombo};
 use astromech_keybinds::doctor::{self, Confidence};
 use astromech_keybinds::{devices, game};
+use astromech_proto::{Clock, ClockSender};
 use astromech_tools::Toggle;
 use notify::{RecursiveMode, Watcher};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Issue {
@@ -97,22 +99,34 @@ impl BindsState {
     }
 }
 
-/// Run the whole check once.
-pub fn run_check(bindings_dir: &Path, game_dir: Option<&Path>, live_devices: bool) -> BindsState {
+/// Run the whole check once, with the live devices (Windows) or none.
+/// `clock` stamps it (`checked_at` and the report's).
+pub fn run_check(bindings_dir: &Path, game_dir: Option<&Path>, live_devices: bool, clock: &dyn Clock) -> BindsState {
+    let inventory = if live_devices { devices::enumerate_live() } else { devices::Inventory::default() };
+    run_check_with(bindings_dir, game_dir, inventory, clock)
+}
+
+/// Run the whole check once, with the controllers in `inventory`.
+pub fn run_check_with(
+    bindings_dir: &Path,
+    game_dir: Option<&Path>,
+    inventory: devices::Inventory,
+    clock: &dyn Clock,
+) -> BindsState {
     let mut st = BindsState {
-        checked_at: chrono::Local::now().format("%H:%M:%S").to_string(),
+        checked_at: chrono::DateTime::<chrono::Local>::from(clock.utc()).format("%H:%M:%S").to_string(),
         bindings_dir: bindings_dir.display().to_string(),
         ..Default::default()
     };
     let mut notes = vec![];
     let installs = game::locate_installs(game_dir, &mut notes);
-    let inventory = if live_devices { devices::enumerate_live() } else { devices::Inventory::default() };
     let rep = doctor::run(doctor::Inputs {
         bindings_dir,
         installs,
         inventory,
         extra_log_dirs: game::default_logs_dir().into_iter().collect(),
         notes,
+        clock,
     });
     for f in &rep.files {
         for r in f.reasons.iter().filter(|r| r.confidence <= Confidence::Medium) {
@@ -176,38 +190,61 @@ pub fn run_check(bindings_dir: &Path, game_dir: Option<&Path>, live_devices: boo
 
 pub type Shared = Arc<RwLock<BindsState>>;
 
-/// Watch the Bindings folder and re-run the check (debounced 500 ms) on any change.
+/// Watch the Bindings folder and re-run the check (debounced 500 ms) on any change. Dropping it
+/// stops the thread: a stop and a wake, since under a manual clock its channel never
+/// disconnects (the clock's rules).
 pub struct HealthWatch {
     _watcher: notify::RecommendedWatcher,
+    stop: Arc<AtomicBool>,
+    wake: ClockSender<notify::Result<notify::Event>>,
 }
 
+impl Drop for HealthWatch {
+    fn drop(&mut self) {
+        self.stop.store(true, Ordering::SeqCst);
+        self.wake.wake();
+    }
+}
+
+/// The thread is registered with `clock` and waits on it. Each check reads the controllers
+/// from `devices`.
 pub fn watch(
     bindings_dir: PathBuf,
     game_dir: Option<PathBuf>,
-    live_devices: bool,
+    devices: crate::session::Devices,
     shared: Shared,
     on_change: impl Fn(&BindsState) + Send + 'static,
+    clock: Arc<dyn Clock>,
 ) -> Result<HealthWatch> {
-    let (tx, rx) = std::sync::mpsc::channel::<notify::Result<notify::Event>>();
-    let mut w = notify::recommended_watcher(tx).context("creating Bindings watcher")?;
+    let (tx, rx) = clock.channel::<notify::Result<notify::Event>>();
+    let wake = tx.clone();
+    let mut w = crate::watch::watcher(tx, Some).context("creating Bindings watcher")?;
     w.watch(&bindings_dir, RecursiveMode::Recursive).with_context(|| format!("watching {}", bindings_dir.display()))?;
-    std::thread::Builder::new().name("health".into()).spawn(move || {
+    let stop = Arc::new(AtomicBool::new(false));
+    let (stop2, c) = (stop.clone(), clock.clone());
+    clock.spawn(std::thread::Builder::new().name("health".into()), move || {
         while let Ok(first) = rx.recv() {
+            if stop2.load(Ordering::SeqCst) {
+                return;
+            }
             if first.is_err() {
                 continue;
             }
-            let until = Instant::now() + Duration::from_millis(500);
-            while let Some(left) = until.checked_duration_since(Instant::now()) {
+            let until = c.now() + Duration::from_millis(500);
+            while let Some(left) = until.checked_duration_since(c.now()) {
                 if rx.recv_timeout(left).is_err() {
                     break;
                 }
             }
-            let st = run_check(&bindings_dir, game_dir.as_deref(), live_devices);
+            if stop2.load(Ordering::SeqCst) {
+                return;
+            }
+            let st = run_check_with(&bindings_dir, game_dir.as_deref(), devices(), &*c);
             on_change(&st);
             *shared.write().recover() = st;
         }
     })?;
-    Ok(HealthWatch { _watcher: w })
+    Ok(HealthWatch { _watcher: w, stop, wake })
 }
 
 /// Elite's controls-screen label for an action (for spoken hints).
@@ -236,6 +273,7 @@ pub fn elite_ui_name(action: &str) -> &str {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 
@@ -252,7 +290,7 @@ mod tests {
         )
         .unwrap();
         std::fs::write(d.path().join("StartPreset.4.start"), "Pads\nPads\nPads\nPads\n").unwrap();
-        let st = run_check(d.path(), Some(&d.path().join("nogame")), false);
+        let st = run_check(d.path(), Some(&d.path().join("nogame")), false, &astromech_proto::SystemClock);
         assert_eq!(st.preset.as_deref(), Some("Pads"));
         assert!(st.keyboard("LandingGearToggle").is_none());
         assert_eq!(st.keyboard("ShipSpotLightToggle").unwrap().key, "Key_L");

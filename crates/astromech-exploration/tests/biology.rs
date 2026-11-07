@@ -1,5 +1,6 @@
 //! The system's biology (the biology view over the system fold) from synthetic journal lines: FSS counts, the prediction from the
 //! detailed scan, the DSS genus list, a sample pinning the species, and a jump starting again.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_exploration::biology::ranked;
 use astromech_exploration::SystemFold;

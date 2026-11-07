@@ -2,6 +2,7 @@
 //! best route is known, the neutron routes Spansh plotted on 22 Oct 2026 (Sol to Colonia at
 //! 50 ly, Sol to Beagle Point at 60 ly ×4 and 80 ly ×6, efficiency 60), and, ignored unless
 //! the real neutron star file is given, the same routes and the timings in the module docs.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_galaxy::neutron::{NeutronStars, Stars};
 use astromech_galaxy::neutron_plot::{leg_jumps, plot, route, Route, SOURCE};

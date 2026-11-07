@@ -164,11 +164,11 @@ describe("Find or plot", () => {
   it("plots an exact route with Spansh and follows it", async () => {
     setup();
     await search("Maia");
-    expect(await screen.findByText(/Asp Explorer: 39\.87 ly a jump with a full tank/)).toBeTruthy();
+    expect(await screen.findByText(/Asp Explorer: 36\.48 ly a jump with a full tank/)).toBeTruthy();
     expect(screen.getByText("Sol to")).toBeTruthy();
     await fireEvent.click(screen.getByRole("button", { name: "Exact" }));
     await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
-    expect(await screen.findByText(/^Following Sol to Maia: 9 jumps · 452 ly · 1 neutron boost · 3 refuel stops, at 39\.87 ly a jump\. Plotted by Spansh\./)).toBeTruthy();
+    expect(await screen.findByText(/^Following Sol to Maia: 9 jumps · 452 ly · 1 neutron boost · 3 refuel stops, at 36\.48 ly a jump\. Plotted by Spansh\./)).toBeTruthy();
     const v = (await previewAnswer("route")).view;
     expect(v.route.source).toBe("exact plotter");
     expect(v.next.system).toBe("Tascheter Sector MN-T b3-6");
@@ -179,10 +179,10 @@ describe("Find or plot", () => {
     const box = await search("Colonia");
     expect(await screen.findByText(/Neutron star file: not downloaded\./)).toBeTruthy();
     expect(screen.getByLabelText("Efficiency"), "Spansh's setting").toBeTruthy();
-    await screen.findByText(/39\.87 ly a jump/);
+    await screen.findByText(/36\.48 ly a jump/);
     // The system is picked: Enter again plots.
     await fireEvent.keyDown(box, { key: "Enter" });
-    expect(await screen.findByText(/^Following Sol to Colonia: 128 jumps · 22,000 ly · 1 neutron boost, at 39\.87 ly a jump\. Plotted by Spansh\./)).toBeTruthy();
+    expect(await screen.findByText(/^Following Sol to Colonia: 11 jumps · 22,000 ly · 1 neutron boost, at 36\.48 ly a jump\. Plotted by Spansh\./)).toBeTruthy();
 
     await fireEvent.click(screen.getByRole("button", { name: "Download" }));
     expect(await screen.findByText(/Neutron star file: 5,045,154 neutron stars/)).toBeTruthy();

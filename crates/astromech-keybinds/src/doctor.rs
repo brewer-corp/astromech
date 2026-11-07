@@ -124,6 +124,8 @@ pub struct Inputs<'a> {
     pub inventory: Inventory,
     pub extra_log_dirs: Vec<PathBuf>,
     pub notes: Vec<String>,
+    /// Stamps the report (`generated_at`).
+    pub clock: &'a dyn astromech_proto::Clock,
 }
 
 struct Scanned {
@@ -727,7 +729,7 @@ pub fn run(inp: Inputs) -> Report {
     }
     Report {
         tool: format!("k0-binds-doctor {}", env!("CARGO_PKG_VERSION")),
-        generated_at: chrono::Local::now().format("%Y-%m-%d %H:%M:%S %z").to_string(),
+        generated_at: chrono::DateTime::<chrono::Local>::from(inp.clock.utc()).format("%Y-%m-%d %H:%M:%S %z").to_string(),
         disclaimer: "Read-only. Frontier doesn't document how the game decides which presets to list, so every reason here is a hypothesis drawn from community reports; this run tests them against your files. Confidence: high = widely reported cause, medium = plausible, low = probably harmless.".into(),
         bindings_dir: bdir.display().to_string(),
         bindings_dir_found: found,
@@ -747,6 +749,7 @@ pub fn run(inp: Inputs) -> Report {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::devices::{elite_id, Controller};
@@ -824,6 +827,7 @@ mod tests {
             inventory: inv,
             extra_log_dirs: vec![],
             notes: vec![],
+            clock: &astromech_proto::SystemClock,
         });
         assert_eq!(r.current_version.as_deref(), Some("4.2"));
         assert!(codes(&r, "Good.4.2.binds").is_empty());

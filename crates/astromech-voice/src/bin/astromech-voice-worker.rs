@@ -4,6 +4,8 @@
 //! On Windows sherpa-onnx and onnxruntime are linked statically into this exe (the
 //! static-MT prebuilt libraries), so it needs no DLLs besides Windows' own. The main tool
 //! starts it from the folder it was unpacked to. It never touches input devices or the game.
+// The speech worker is its own process, which times its own work on real time.
+#![allow(clippy::disallowed_methods)]
 
 use astromech_voice::proto::{Request, Response};
 use sherpa_onnx::{

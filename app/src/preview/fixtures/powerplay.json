@@ -1,38 +1,34 @@
 {
+  "here": "Piscium Sector EB-X b1-3",
   "standing": {
+    "merits": 47129,
+    "next": {
+      "merits": 55000,
+      "note": null,
+      "rank": 10,
+      "reward": "Care package",
+      "to_go": 7871
+    },
     "power": "Li Yong-Rui",
     "rank": 9,
-    "merits": 47129,
+    "session_merits": 0,
     "time_pledged_secs": 22680000,
-    "session_merits": 1329,
-    "week_merits": 1829,
     "week_ends": "2026-10-22T07:00:00+00:00",
-    "next": {
-      "rank": 10,
-      "merits": 55000,
-      "to_go": 7871,
-      "reward": "Care package",
-      "note": null
-    }
+    "week_merits": 1829
   },
-  "here": "Piscium Sector EB-X b1-3",
   "system": {
-    "system": "Piscium Sector EB-X b1-3",
-    "controlling_power": "Pranav Antal",
-    "state": "Exploited",
-    "control_progress": 0.076543,
-    "reinforcement": 0,
-    "undermining": 9,
-    "contesting": [
-      "Li Yong-Rui"
-    ],
     "acquisition": [],
-    "work": "undermine",
-    "summary": "Pranav Antal exploited, 8% · reinforcement 0, undermining 9 · also Li Yong-Rui",
     "activity_rules": {
       "fetched": "2026-10-16",
       "version": 1
     },
+    "contesting": [
+      "Li Yong-Rui"
+    ],
+    "control_progress": 0.076543,
+    "controlling_power": "Pranav Antal",
+    "reinforcement": 0,
+    "state": "Exploited",
     "suggestions": [
       {
         "activity": "commit-crimes",
@@ -160,6 +156,10 @@
         "uncertain": null,
         "weak_spot": false
       }
-    ]
+    ],
+    "summary": "Pranav Antal exploited, 8% · reinforcement 0, undermining 9 · also Li Yong-Rui",
+    "system": "Piscium Sector EB-X b1-3",
+    "undermining": 9,
+    "work": "undermine"
   }
 }

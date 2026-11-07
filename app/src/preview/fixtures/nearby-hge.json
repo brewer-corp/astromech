@@ -1,98 +1,331 @@
 {
-  "query": {
-    "id": "fed_composites",
-    "label": "Federation faction",
-    "allegiances": [
-      "Federation"
-    ],
-    "states": [],
-    "min_population": 1000000,
-    "by_population": true
-  },
+  "fetched": "2026-11-07T21:00:00Z",
   "here": {
-    "system": "Sol",
     "id64": 10477373803,
     "pos": [
       0.0,
       0.0,
       0.0
-    ]
+    ],
+    "system": "Sol"
   },
-  "range": 32.5,
-  "fetched": "2026-10-16T22:01:33Z",
   "hits": [
     {
-      "name": "Tau Ceti",
-      "id64": 3107509506770,
-      "ly": 11.937050056965498,
-      "jumps": 1,
       "exact": false,
-      "population": 5000152143,
-      "updated_at": "2026-10-14T17:55:17Z",
       "factions": [
         {
-          "name": "Independents of Tau Ceti",
+          "active_states": [
+            "Expansion"
+          ],
           "allegiance": "Federation",
-          "state": "None",
-          "active_states": [],
-          "influence": 0.128257
+          "influence": 0.179462,
+          "name": "Federal Congress",
+          "state": "Expansion"
         },
         {
-          "name": "South Haven",
+          "active_states": [
+            "Civil Liberty",
+            "Expansion"
+          ],
           "allegiance": "Federation",
-          "state": "None",
-          "active_states": [],
-          "influence": 0.125251
+          "influence": 0.3001,
+          "name": "Mother Gaia",
+          "state": "Expansion"
         },
         {
-          "name": "Tau Ceti Crimson Legal Solutions",
-          "allegiance": "Federation",
-          "state": "None",
           "active_states": [],
-          "influence": 0.126253
+          "allegiance": "Federation",
+          "influence": 0.140578,
+          "name": "Sol Constitution Party",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.159521,
+          "name": "Sol Nationalists",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.210369,
+          "name": "Sol Workers' Party",
+          "state": "None"
         }
       ],
+      "id64": 10477373803,
+      "jumps": 0,
+      "ly": 0.0,
+      "name": "Sol",
+      "population": 18320926115,
+      "score": 150,
       "seen_on_visit": false,
-      "score": 109
+      "updated_at": "2026-11-07T20:27:49Z"
     },
     {
-      "name": "Ross 154",
-      "id64": 7268024264105,
-      "ly": 9.688961583291576,
-      "jumps": 1,
       "exact": false,
-      "population": 2006272,
-      "updated_at": "2026-10-14T16:32:04Z",
       "factions": [
         {
-          "name": "Barnard's Star Advanced Corp.",
-          "allegiance": "Federation",
-          "state": "None",
           "active_states": [],
-          "influence": 0.151
+          "allegiance": "Federation",
+          "influence": 0.368368,
+          "name": "Duamta Gold Creative Corp.",
+          "state": "None"
         },
         {
-          "name": "Independents of Ross 154",
+          "active_states": [],
           "allegiance": "Federation",
-          "state": "Civil War",
-          "active_states": [
-            "Outbreak",
-            "Civil War"
-          ],
-          "influence": 0.072
+          "influence": 0.093093,
+          "name": "Duamta Jet Power Commodities",
+          "state": "None"
         },
         {
-          "name": "Ross 154 Vision Partners",
+          "active_states": [],
           "allegiance": "Federation",
-          "state": "Civil War",
-          "active_states": [
-            "Civil War"
-          ],
-          "influence": 0.072
+          "influence": 0.102102,
+          "name": "Independents of Duamta",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.172172,
+          "name": "Mars Congressional Republic Navy",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.094094,
+          "name": "The Order of The Smiling Moose",
+          "state": "None"
         }
       ],
+      "id64": 4339804408171,
+      "jumps": 1,
+      "ly": 9.88310585038934,
+      "name": "Duamta",
+      "population": 13327723347,
+      "score": 125,
       "seen_on_visit": false,
-      "score": 0
+      "updated_at": "2026-11-07T18:24:18Z"
+    },
+    {
+      "exact": false,
+      "factions": [
+        {
+          "active_states": [
+            "Civil Unrest",
+            "Bust"
+          ],
+          "allegiance": "Federation",
+          "influence": 0.058468,
+          "name": "G 41-14 Purple Travel Solutions",
+          "state": "Civil Unrest"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.092742,
+          "name": "G 89-32 Gold Power Incorporated",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.114919,
+          "name": "People's Procyon Values Party",
+          "state": "None"
+        },
+        {
+          "active_states": [
+            "Infrastructure Failure"
+          ],
+          "allegiance": "Federation",
+          "influence": 0.084677,
+          "name": "Procyon Incorporated",
+          "state": "Infrastructure Failure"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.082661,
+          "name": "Red Corporation",
+          "state": "None"
+        }
+      ],
+      "id64": 800751356267,
+      "jumps": 1,
+      "ly": 11.407833794152157,
+      "name": "Procyon",
+      "population": 18561357265,
+      "score": 122,
+      "seen_on_visit": false,
+      "updated_at": "2026-11-07T20:19:48Z"
+    },
+    {
+      "exact": false,
+      "factions": [
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.129,
+          "name": "Independents of Tau Ceti",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.125,
+          "name": "South Haven",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.127,
+          "name": "Tau Ceti Crimson Legal Solutions",
+          "state": "None"
+        }
+      ],
+      "id64": 3107509506770,
+      "jumps": 1,
+      "ly": 11.937050056965498,
+      "name": "Tau Ceti",
+      "population": 5000152143,
+      "score": 109,
+      "seen_on_visit": false,
+      "updated_at": "2026-11-07T19:39:17Z"
+    },
+    {
+      "exact": false,
+      "factions": [
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.152626,
+          "name": "Epsilon Indi Jet Allied Industry",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.133796,
+          "name": "Epsilon Indi Purple Central",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.111001,
+          "name": "Lacaille 8760 Allied Corp.",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.121903,
+          "name": "People's Epsilon Indi Progressive Party",
+          "state": "None"
+        }
+      ],
+      "id64": 908486251218,
+      "jumps": 1,
+      "ly": 11.80240971158009,
+      "name": "Epsilon Indi",
+      "population": 4000005459,
+      "score": 105,
+      "seen_on_visit": false,
+      "updated_at": "2026-11-07T19:10:59Z"
+    },
+    {
+      "exact": false,
+      "factions": [
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.193193,
+          "name": "A Different Kind",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.116116,
+          "name": "Groombridge 1618 Inc",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.166166,
+          "name": "Groombridge 1618 Silver Galactic",
+          "state": "None"
+        }
+      ],
+      "id64": 4481899041490,
+      "jumps": 1,
+      "ly": 15.880473957820024,
+      "name": "Groombridge 1618",
+      "population": 5914893483,
+      "score": 105,
+      "seen_on_visit": false,
+      "updated_at": "2026-11-07T19:26:56Z"
+    },
+    {
+      "exact": false,
+      "factions": [
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.101079,
+          "name": "10th Fleet",
+          "state": "None"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.052993,
+          "name": "Barnard's Star Advanced Corp.",
+          "state": "None"
+        },
+        {
+          "active_states": [
+            "Civil Unrest"
+          ],
+          "allegiance": "Federation",
+          "influence": 0.139352,
+          "name": "Barnard's Star Alliance",
+          "state": "Civil Unrest"
+        },
+        {
+          "active_states": [],
+          "allegiance": "Federation",
+          "influence": 0.201178,
+          "name": "Sol Workers' Party",
+          "state": "None"
+        }
+      ],
+      "id64": 18263140541865,
+      "jumps": 1,
+      "ly": 5.954662695107087,
+      "name": "Barnard's Star",
+      "population": 1256069,
+      "score": 0,
+      "seen_on_visit": false,
+      "updated_at": "2026-11-07T20:27:00Z"
     }
-  ]
+  ],
+  "query": {
+    "allegiances": [
+      "Federation"
+    ],
+    "by_population": true,
+    "id": "fed_composites",
+    "label": "Federation faction",
+    "min_population": 1000000,
+    "states": []
+  },
+  "range": 31.5
 }

@@ -50,6 +50,7 @@ pub struct HttpTransport {
 }
 
 impl HttpTransport {
+    #[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
     pub fn new(url: &str, user_agent: &str) -> Self {
         let agent = ureq::AgentBuilder::new().timeout(Duration::from_secs(30)).build();
         Self { agent, url: url.into(), user_agent: user_agent.into() }
@@ -77,6 +78,7 @@ impl Transport for HttpTransport {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use std::io::{BufRead, BufReader, Read, Write};

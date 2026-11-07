@@ -95,6 +95,7 @@ pub fn visits_from_journal_dir(dir: &Path, max_files: usize) -> Vec<Visit> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

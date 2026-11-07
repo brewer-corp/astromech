@@ -8,6 +8,7 @@
 use crate::binds;
 use crate::profile::{Modifier, Slot};
 use anyhow::{bail, Context, Result};
+use astromech_proto::Clock;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
@@ -22,20 +23,20 @@ pub struct Backup {
     pub created: String,
 }
 
-fn stamp() -> String {
-    chrono::Local::now().format("%Y%m%d-%H%M%S-%3f").to_string()
+fn stamp(clock: &dyn Clock) -> String {
+    chrono::DateTime::<chrono::Local>::from(clock.utc()).format("%Y%m%d-%H%M%S-%3f").to_string()
 }
 
-/// Copy `file` into `<its folder>/astromech-backups/<name>.<stamp>.bak`.
-pub fn backup(file: &Path) -> Result<PathBuf> {
+/// Copy `file` into `<its folder>/astromech-backups/<name>.<stamp>.bak`, stamped on `clock`.
+pub fn backup(file: &Path, clock: &dyn Clock) -> Result<PathBuf> {
     let dir = file.parent().context("file has no folder")?.join(BACKUP_DIR);
     std::fs::create_dir_all(&dir).with_context(|| format!("creating {}", dir.display()))?;
     let name = file.file_name().context("no file name")?.to_string_lossy().to_string();
-    let mut to = dir.join(format!("{name}.{}.bak", stamp()));
+    let mut to = dir.join(format!("{name}.{}.bak", stamp(clock)));
     let mut n = 1;
     while to.exists() {
         n += 1;
-        to = dir.join(format!("{name}.{}{n}.bak", stamp()));
+        to = dir.join(format!("{name}.{}{n}.bak", stamp(clock)));
     }
     std::fs::copy(file, &to).with_context(|| format!("backing up {}", file.display()))?;
     Ok(to)
@@ -72,14 +73,14 @@ pub fn list_backups(bindings_dir: &Path) -> Vec<Backup> {
 }
 
 /// Put a backup back (the current file is backed up first).
-pub fn restore(bindings_dir: &Path, backup_file: &Path) -> Result<PathBuf> {
+pub fn restore(bindings_dir: &Path, backup_file: &Path, clock: &dyn Clock) -> Result<PathBuf> {
     let b = list_backups(bindings_dir)
         .into_iter()
         .find(|b| b.path == backup_file)
         .context("not one of astromech's backups")?;
     let target = bindings_dir.join(&b.original);
     if target.exists() {
-        backup(&target)?;
+        backup(&target, clock)?;
     }
     let bytes = std::fs::read(&b.path)?;
     write_atomic(&target, &bytes)?;
@@ -177,6 +178,7 @@ pub fn set_slot(
     slot: &str,
     binding: Option<&Slot>,
     analogue: bool,
+    clock: &dyn Clock,
 ) -> Result<EditResult> {
     let canon_dir = bindings_dir.canonicalize().context("Bindings folder")?;
     let canon = file.canonicalize().context("preset file")?;
@@ -190,7 +192,7 @@ pub fn set_slot(
     }
     let new = set_slot_text(&text, action, slot, binding, analogue)?;
     roxmltree::Document::parse(new.trim_start_matches('\u{feff}')).context("edit produced invalid XML; not written")?;
-    let backup = backup(file)?;
+    let backup = backup(file, clock)?;
     let mut out = Vec::new();
     if bytes.starts_with(&[0xEF, 0xBB, 0xBF]) && !new.starts_with('\u{feff}') {
         out.extend_from_slice(&[0xEF, 0xBB, 0xBF]);
@@ -247,7 +249,7 @@ pub fn copy_preset(bindings_dir: &Path, src: &Path, name: &str) -> Result<PathBu
 /// Make `name` the active preset for the given contexts (indexes 0 General, 1 Ship, 2 SRV,
 /// 3 On foot) in the newest StartPreset file (backed up first). Creates `StartPreset.4.start`
 /// if there is none.
-pub fn set_active(bindings_dir: &Path, name: &str, contexts: &[usize]) -> Result<EditResult> {
+pub fn set_active(bindings_dir: &Path, name: &str, contexts: &[usize], clock: &dyn Clock) -> Result<EditResult> {
     let sp = crate::profile::start_preset(bindings_dir);
     let mut names = if sp.names.len() == 4 { sp.names.clone() } else { vec![name.to_string(); 4] };
     for &c in contexts {
@@ -256,17 +258,19 @@ pub fn set_active(bindings_dir: &Path, name: &str, contexts: &[usize]) -> Result
         }
     }
     let path = sp.path.clone().unwrap_or_else(|| bindings_dir.join("StartPreset.4.start"));
-    let backup = if path.exists() { backup(&path)? } else { PathBuf::new() };
+    let backup = if path.exists() { backup(&path, clock)? } else { PathBuf::new() };
     let nl = std::fs::read_to_string(&path).ok().filter(|t| t.contains("\r\n")).map(|_| "\r\n").unwrap_or("\n");
     write_atomic(&path, names.join(nl).as_bytes())?;
     Ok(EditResult { path, backup })
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::profile::tests::X;
     use crate::profile::{parse_actions, view};
+    use astromech_proto::SystemClock;
 
     fn b(dev: &str, key: &str) -> Slot {
         Slot { slot: "Primary".into(), device: dev.into(), key: key.into(), modifiers: vec![] }
@@ -320,7 +324,16 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let p = d.path().join("DualVKB.4.2.binds");
         std::fs::write(&p, X).unwrap();
-        let r = set_slot(d.path(), &p, "NightVisionToggle", "Secondary", Some(&b("Keyboard", "Key_N")), false).unwrap();
+        let r = set_slot(
+            d.path(),
+            &p,
+            "NightVisionToggle",
+            "Secondary",
+            Some(&b("Keyboard", "Key_N")),
+            false,
+            &SystemClock,
+        )
+        .unwrap();
         assert_eq!(std::fs::read_to_string(&r.backup).unwrap(), X);
         let v = view(&p, true, None).unwrap();
         let nv = v.groups.iter().flat_map(|g| &g.rows).find(|r| r.id == "NightVisionToggle").unwrap();
@@ -328,7 +341,7 @@ mod tests {
         let bs = list_backups(d.path());
         assert_eq!(bs.len(), 1);
         assert_eq!(bs[0].original, "DualVKB.4.2.binds");
-        restore(d.path(), &bs[0].path).unwrap();
+        restore(d.path(), &bs[0].path, &SystemClock).unwrap();
         assert_eq!(std::fs::read_to_string(&p).unwrap(), X);
         assert_eq!(list_backups(d.path()).len(), 2, "restoring backs up the current file first");
 
@@ -343,10 +356,10 @@ mod tests {
         let other = tempfile::tempdir().unwrap();
         let q = other.path().join("X.4.2.binds");
         std::fs::write(&q, X).unwrap();
-        assert!(set_slot(d.path(), &q, "LandingGearToggle", "Primary", None, false).is_err());
+        assert!(set_slot(d.path(), &q, "LandingGearToggle", "Primary", None, false, &SystemClock).is_err());
 
         std::fs::write(d.path().join("StartPreset.4.start"), "DualVKB\r\nDualVKB\r\nDualVKB\r\nDualVKB").unwrap();
-        set_active(d.path(), "DualVKB astromech", &[1, 2]).unwrap();
+        set_active(d.path(), "DualVKB astromech", &[1, 2], &SystemClock).unwrap();
         assert_eq!(
             std::fs::read_to_string(d.path().join("StartPreset.4.start")).unwrap(),
             "DualVKB\r\nDualVKB astromech\r\nDualVKB astromech\r\nDualVKB"

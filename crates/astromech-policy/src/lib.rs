@@ -12,7 +12,7 @@
 
 use astromech_input::exec::keys::{self, KeyLookup, ScanKey};
 use astromech_input::exec::platform::Platform;
-use astromech_proto::{Origin, Tier};
+use astromech_proto::{Clock, Origin, SystemClock, Tier};
 use std::collections::{HashMap, VecDeque};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
@@ -114,6 +114,8 @@ struct State {
 struct Inner {
     cfg: Config,
     platform: Arc<dyn Platform>,
+    /// The focus wait's time and its sleeps. The key pacing (modifier gap, hold) stays real.
+    clock: Arc<dyn Clock>,
     killed: AtomicBool,
     generation: AtomicU64,
     state: Mutex<State>,
@@ -136,10 +138,16 @@ pub struct Ticket {
 
 impl Policy {
     pub fn new(platform: Arc<dyn Platform>, cfg: Config) -> Self {
+        Self::with_clock(platform, cfg, Arc::new(SystemClock))
+    }
+
+    /// [`Policy::new`] on `clock`.
+    pub fn with_clock(platform: Arc<dyn Platform>, cfg: Config, clock: Arc<dyn Clock>) -> Self {
         Self {
             inner: Arc::new(Inner {
                 cfg,
                 platform,
+                clock,
                 killed: AtomicBool::new(false),
                 generation: AtomicU64::new(0),
                 state: Mutex::new(State { in_flight: HashMap::new(), recent: HashMap::new(), starts: VecDeque::new() }),
@@ -150,6 +158,11 @@ impl Policy {
 
     pub fn config(&self) -> &Config {
         &self.inner.cfg
+    }
+
+    /// The clock its callers read `authorize`'s `now` from.
+    pub fn clock(&self) -> &Arc<dyn Clock> {
+        &self.inner.clock
     }
 
     pub fn is_killed(&self) -> bool {
@@ -216,7 +229,7 @@ impl Policy {
         let i = &self.inner;
         let generation = i.generation.load(Ordering::SeqCst);
         let killed = || self.is_killed() || i.generation.load(Ordering::SeqCst) != generation;
-        let end = Instant::now() + timeout;
+        let end = i.clock.now() + timeout;
         loop {
             if killed() {
                 return Wait::Killed;
@@ -224,16 +237,17 @@ impl Policy {
             if i.cfg.skip_window_checks || i.platform.foreground_title().as_deref() == Some(TARGET_WINDOW) {
                 return Wait::Front;
             }
-            if Instant::now() >= end {
+            let now = i.clock.now();
+            if now >= end {
                 return Wait::TimedOut;
             }
-            std::thread::sleep(Duration::from_millis(50));
+            i.clock.sleep_from(now, Duration::from_millis(50));
         }
     }
 
     /// Back-compat helper: decide without keeping a ticket.
     pub fn check(&self, name: &str, tier: Tier, origin: Origin) -> Result<(), Denial> {
-        self.authorize(name, tier, origin, Instant::now()).map(|_| ())
+        self.authorize(name, tier, origin, self.inner.clock.now()).map(|_| ())
     }
 }
 
@@ -293,13 +307,18 @@ impl Ticket {
         };
         i.platform.begin_precise_timing();
         let r = (|| {
+            // The modifier gap and the hold stay on real time: they pace key events to the game,
+            // finish on their own, and decide nothing in a world (the clock's rules).
             for m in &mods {
                 down(*m)?;
+                #[allow(clippy::disallowed_methods)]
                 std::thread::sleep(i.cfg.gap);
             }
             down(k)?;
             // Sleep in small slices so the kill switch can cut a hold short.
+            #[allow(clippy::disallowed_methods)]
             let end = Instant::now() + i.cfg.hold;
+            #[allow(clippy::disallowed_methods)]
             while Instant::now() < end {
                 if self.is_cancelled() {
                     break;
@@ -308,6 +327,7 @@ impl Ticket {
             }
             up(k);
             for m in mods.iter().rev() {
+                #[allow(clippy::disallowed_methods)]
                 std::thread::sleep(i.cfg.gap);
                 up(*m);
             }
@@ -328,6 +348,7 @@ impl Drop for Ticket {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_input::exec::platform::{GameIntegrity, IntegrityReport};

@@ -1,6 +1,7 @@
 //! astromech-ldiz: the lines the ledger replay reads and the lines a page watches for are one
 //! list, `LEDGER_EVENTS`. These tests fail when an event the ledger reacts to is missing from it,
 //! and when the replay reads lines the list doesn't name.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_materials::{ledger::events_from_last_snapshot, replay_lines, LEDGER_EVENTS};
 

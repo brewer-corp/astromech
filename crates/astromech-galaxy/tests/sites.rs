@@ -1,5 +1,6 @@
 //! Raw-material site lookups from fixed positions, on Spansh bodies searches recorded on
 //! 16 Oct 2026 from Sol (trimmed to six bodies and three landmarks each).
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::{Body, Cache, Client, Limiter, Request, Response, Transport, TransportError};
 use astromech_galaxy::{sites, Filters, Galaxy, Here, Sphere, Store};

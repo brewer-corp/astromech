@@ -1,3 +1,5 @@
+#![allow(clippy::disallowed_methods)] // a spike, not the core
+
 use anyhow::{bail, Context, Result};
 use clap::{Parser, ValueEnum};
 use s5_status_latency::binds::{self, BindsDoc, Chord};

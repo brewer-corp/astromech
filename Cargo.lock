@@ -305,6 +305,7 @@ dependencies = [
 name = "astromech-eddn"
 version = "0.0.0-dev"
 dependencies = [
+ "astromech-proto",
  "astromech-store",
  "flate2",
  "jsonschema",
@@ -439,6 +440,7 @@ name = "astromech-keybinds"
 version = "0.0.0-dev"
 dependencies = [
  "anyhow",
+ "astromech-proto",
  "chrono",
  "roxmltree",
  "serde",
@@ -618,6 +620,7 @@ name = "astromech-voice"
 version = "0.0.0-dev"
 dependencies = [
  "anyhow",
+ "astromech-proto",
  "bzip2 0.5.2",
  "cpal",
  "flate2",

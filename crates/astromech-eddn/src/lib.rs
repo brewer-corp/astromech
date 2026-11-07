@@ -38,6 +38,7 @@ pub mod transport;
 pub mod worker;
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 pub(crate) mod testutil;
 
 pub use context::{GameContext, SystemFix};
@@ -97,6 +98,7 @@ impl Sender {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::outbox::tests::{status, FakeTransport};

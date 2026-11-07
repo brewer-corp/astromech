@@ -10,6 +10,7 @@
 //! hole) and every planet value class (metal-rich, high metal content and terraformable,
 //! rocky and terraformable, icy, rocky ice, Earth-like, water world and terraformable, ammonia
 //! world, gas giants of class I, II, III, V and with life).
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_exploration::value::{body_value, Terms};
 use astromech_journal::ScanBody;

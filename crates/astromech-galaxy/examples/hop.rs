@@ -1,4 +1,5 @@
 //! Jump counts on a star map: `cargo run --release -p astromech-galaxy --example hop -- <galaxy.db> <range> <from> <to>...`
+#![allow(clippy::disallowed_methods)] // a developer tool, not the core
 fn main() -> anyhow::Result<()> {
     let a: Vec<String> = std::env::args().skip(1).collect();
     let [db, range, from, to @ ..] = a.as_slice() else {

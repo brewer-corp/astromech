@@ -2,6 +2,7 @@
 //! anywhere (`/v2/commodity/name/{c}/imports|exports?maxDaysAgo=30`, tritium also with
 //! `fleetCarriers=false`) asked on 17 Oct 2026, trimmed from 100 markets to a handful each
 //! (tests/fixtures; fleet carrier names and ids replaced). No test here touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::{Cache, Client, Limiter, Request, Response, Transport, TransportError};
 use astromech_galaxy::{Filters, Here, Pad};

@@ -191,6 +191,7 @@ pub fn save(store: &astromech_store::Store, lookup: &str, filters: &Filters) -> 
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

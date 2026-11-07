@@ -106,9 +106,11 @@ pub const PREVIEW_IDLE: Duration = Duration::from_secs(60);
 impl PreviewSlot {
     /// Say `line`. Under the slot's lock: `route` may answer instead (an error, or speaking through
     /// a running session); otherwise the preview speaker is started if needed with `start`.
+    /// `clock` times the line, for [`PreviewSlot::release_idle`].
     pub fn say(
         &self,
         line: &str,
+        clock: &dyn astromech_proto::Clock,
         route: impl FnOnce() -> Option<Result<()>>,
         start: impl FnOnce() -> Result<Arc<dyn Speaker>>,
     ) -> Result<()> {
@@ -124,7 +126,7 @@ impl PreviewSlot {
             return Err(anyhow!("speech output is off"));
         }
         sp.say(line);
-        *g = Some((sp, std::time::Instant::now()));
+        *g = Some((sp, clock.now()));
         Ok(())
     }
 
@@ -160,6 +162,7 @@ pub const PREVIEW_LINE: &str = "Landing gear deployed.";
 /// Prints instead of speaking.
 pub struct ConsoleSpeaker;
 impl Speaker for ConsoleSpeaker {
+    #[allow(clippy::disallowed_methods, reason = "a printed line's stamp, like astromech-log's line stamps")]
     fn say(&self, text: &str) {
         println!("{}  astromech: {text}", chrono::Local::now().format("%H:%M:%S"));
     }
@@ -223,6 +226,58 @@ impl Stt for WorkerStt {
         astromech_voice::wav::write_mono_i16(&self.tmp, rate, samples)?;
         let r = self.worker.call_ok(&Request::Stt { wav: self.tmp.display().to_string() }, Duration::from_secs(20))?;
         Ok(r.text.unwrap_or_default().trim().to_string())
+    }
+}
+
+/// The speech worker (`astromech-voice-worker`) behind a boundary ([`crate::app::Boundaries`]):
+/// whether it and its models are installed, and starting speech-to-text and a Kokoro speaker.
+/// The installed app's is [`WorkerSpeech`]; a world's answers with its script's transcripts
+/// and records what is said.
+pub trait Speech: Send + Sync {
+    /// Is the worker at `exe` there to start?
+    fn worker_found(&self, exe: &Path) -> bool;
+    /// Is speech-to-text's model completely downloaded into `models`?
+    fn stt_found(&self, models: &Path) -> bool;
+    /// Is text-to-speech's model completely downloaded into `models`?
+    fn tts_found(&self, models: &Path) -> bool;
+    /// Start speech-to-text (Parakeet) for a session.
+    fn stt(&self, exe: &Path, models: &Path, threads: i32, data: &Path) -> Result<Box<dyn Stt>>;
+    /// Start a speaker in `v`'s voice, pre-rendering `phrases`.
+    fn speaker(
+        &self,
+        exe: &Path,
+        models: &Path,
+        data: &Path,
+        v: &crate::config::Voice,
+        phrases: Vec<String>,
+    ) -> Result<Arc<dyn Speaker>>;
+}
+
+/// The voice worker and its models on disk: [`WorkerStt`] and [`TtsSpeaker`].
+pub struct WorkerSpeech;
+
+impl Speech for WorkerSpeech {
+    fn worker_found(&self, exe: &Path) -> bool {
+        exe.is_file()
+    }
+    fn stt_found(&self, models: &Path) -> bool {
+        astromech_voice::models::find_stt(models).is_ok()
+    }
+    fn tts_found(&self, models: &Path) -> bool {
+        astromech_voice::models::find_tts(models).is_ok()
+    }
+    fn stt(&self, exe: &Path, models: &Path, threads: i32, data: &Path) -> Result<Box<dyn Stt>> {
+        Ok(Box::new(WorkerStt::start(exe, models, threads, data)?))
+    }
+    fn speaker(
+        &self,
+        exe: &Path,
+        models: &Path,
+        data: &Path,
+        v: &crate::config::Voice,
+        phrases: Vec<String>,
+    ) -> Result<Arc<dyn Speaker>> {
+        Ok(Arc::new(TtsSpeaker::start(exe, models, v.threads, data, &v.speaker, v.speed, v.colour, phrases)?))
     }
 }
 
@@ -462,6 +517,8 @@ impl TtsSpeaker {
                                 #[cfg(windows)]
                                 match astromech_voice::player::play_wav_async(&f) {
                                     // PlaySoundW gives no end signal: busy for the line's length.
+                                    // Real time: the line plays on the audio device for that long.
+                                    #[allow(clippy::disallowed_methods)]
                                     Ok(()) => act.playing(
                                         Instant::now(),
                                         Duration::from_secs_f64(samples.len() as f64 / sr.max(1) as f64),
@@ -538,6 +595,9 @@ impl Speaker for TtsSpeaker {
         };
         self.queue_reply(text, line);
     }
+    // Real time: a line played without the mixer ends when the audio device has played it
+    // (`Activity::playing`, Windows' PlaySoundW).
+    #[allow(clippy::disallowed_methods)]
     fn busy(&self) -> bool {
         self.activity.busy(Instant::now(), self.mixer.queued())
     }
@@ -689,6 +749,7 @@ pub fn fixed_phrases() -> Vec<String> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 
@@ -998,23 +1059,32 @@ mod tests {
             starts.set(starts.get() + 1);
             Ok(loud.clone() as Arc<dyn Speaker>)
         };
-        slot.say(PREVIEW_LINE, || None, start).unwrap();
-        slot.say(PREVIEW_LINE, || None, start).unwrap();
+        slot.say(PREVIEW_LINE, &astromech_proto::SystemClock, || None, start).unwrap();
+        slot.say(PREVIEW_LINE, &astromech_proto::SystemClock, || None, start).unwrap();
         assert_eq!(starts.get(), 1);
         assert_eq!(loud.0.take().len(), 2);
         // While a session starts, previews are refused without loading anything.
         assert!(slot.take());
-        let e = slot.say(PREVIEW_LINE, || Some(Err(anyhow!("voice is starting"))), start).unwrap_err();
+        let e = slot
+            .say(PREVIEW_LINE, &astromech_proto::SystemClock, || Some(Err(anyhow!("voice is starting"))), start)
+            .unwrap_err();
         assert_eq!(e.to_string(), "voice is starting");
         assert!(!slot.loaded() && starts.get() == 1);
         // Idle release.
-        slot.say(PREVIEW_LINE, || None, start).unwrap();
+        slot.say(PREVIEW_LINE, &astromech_proto::SystemClock, || None, start).unwrap();
         let now = std::time::Instant::now();
         assert!(!slot.release_idle(now, PREVIEW_IDLE));
         assert!(slot.release_idle(now + PREVIEW_IDLE, PREVIEW_IDLE));
         assert!(!slot.loaded());
         // Speech output off: a speaker that only prints.
-        let e = slot.say(PREVIEW_LINE, || None, || Ok(Arc::new(ConsoleSpeaker) as Arc<dyn Speaker>)).unwrap_err();
+        let e = slot
+            .say(
+                PREVIEW_LINE,
+                &astromech_proto::SystemClock,
+                || None,
+                || Ok(Arc::new(ConsoleSpeaker) as Arc<dyn Speaker>),
+            )
+            .unwrap_err();
         assert_eq!(e.to_string(), "speech output is off");
         assert!(!slot.loaded());
     }
@@ -1106,6 +1176,7 @@ pub fn gate(held_ms: u64, st: &ClipStats, min_hold_ms: u64, min_level_dbfs: f32)
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod gate_tests {
     use super::*;
 

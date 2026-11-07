@@ -1,0 +1,21 @@
+{
+ "exchanges": [
+  {
+   "url": "https://spansh.co.uk/api/systems/search",
+   "method": "POST",
+   "sent": "\"population\"",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-colony-populated.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/systems/search",
+   "method": "POST",
+   "sent": "\"value\":[\"0\",\"0\"]",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-colony-candidates.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/bodies/search",
+   "method": "POST",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-colony-bodies.json"
+  }
+ ]
+}

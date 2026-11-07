@@ -363,10 +363,11 @@ impl Kept {
 
     /// The loaded file, loading it first if it isn't loaded or has changed on disk. `None` if
     /// there is no file; an error (a sentence) if it can't be read.
-    pub fn get(&self) -> Result<Option<std::sync::Arc<NeutronStars>>> {
+    /// `clock` times its use, for [`Kept::release_idle`].
+    pub fn get(&self, clock: &dyn astromech_data::Clock) -> Result<Option<std::sync::Arc<NeutronStars>>> {
         let mut s = self.lock();
         if let Some(f) = s.file.clone().filter(|f| f.is_current()) {
-            s.used = Some(std::time::Instant::now());
+            s.used = Some(clock.now());
             return Ok(Some(f));
         }
         s.file = None; // free the old one before loading the new
@@ -384,7 +385,7 @@ impl Kept {
                 s.failed = None;
                 let f = std::sync::Arc::new(f);
                 s.file = Some(f.clone());
-                s.used = Some(std::time::Instant::now());
+                s.used = Some(clock.now());
                 Ok(Some(f))
             }
             Err(e) => {
@@ -441,17 +442,18 @@ pub fn installed(dir: &Path) -> Result<Option<Header>> {
     read_header(&path).map(Some)
 }
 
-/// The SHA-256 (lowercase hex) of the gzip published at `base`.
-pub fn latest_sha256(base: &str) -> Result<String> {
-    let text = astromech_data::download::text(&format!("{base}/{GZ_NAME}.sha256"))?;
+/// The SHA-256 (lowercase hex) of the gzip published at `base`. `proxy_from_env`: as
+/// [`astromech_data::download`] says.
+pub fn latest_sha256(base: &str, proxy_from_env: bool) -> Result<String> {
+    let text = astromech_data::download::text(&format!("{base}/{GZ_NAME}.sha256"), proxy_from_env)?;
     let sum = text.split_whitespace().next().unwrap_or_default().to_ascii_lowercase();
     ensure!(sum.len() == 64 && sum.bytes().all(|b| b.is_ascii_hexdigit()), "The published checksum isn't readable.");
     Ok(sum)
 }
 
 /// Whether the file published at `base` differs from the one in `dir` (true if there is none).
-pub fn newer_available(dir: &Path, base: &str) -> Result<bool> {
-    let latest = latest_sha256(base)?;
+pub fn newer_available(dir: &Path, base: &str, proxy_from_env: bool) -> Result<bool> {
+    let latest = latest_sha256(base, proxy_from_env)?;
     let have = std::fs::read_to_string(dir.join(SUM_NAME)).unwrap_or_default();
     Ok(!dir.join(FILE_NAME).exists() || have.trim() != latest)
 }
@@ -513,18 +515,23 @@ impl std::io::Write for Unpack {
 /// `progress(bytes, total)` as the gzip comes in. The old file stays until the new one is
 /// complete and its checksum matches. Errors are sentences for the Route page, with the cause
 /// and what to do.
-pub fn download(dir: &Path, base: &str, progress: impl FnMut(u64, Option<u64>)) -> Result<Header> {
+pub fn download(
+    dir: &Path,
+    base: &str,
+    proxy_from_env: bool,
+    progress: impl FnMut(u64, Option<u64>),
+) -> Result<Header> {
     use std::io::Write;
     let _running = Downloading::start(dir)?;
     let part = dir.join(PART_NAME);
     let _cleanup = Part(&part);
-    let sum = latest_sha256(base)?;
+    let sum = latest_sha256(base, proxy_from_env)?;
     const SPACE: &str = "Check there is about 200 MB free in the data folder, then press Download again.";
     std::fs::create_dir_all(dir)
         .map_err(|e| anyhow!("Couldn't create the data folder {}: {e}. {SPACE}", dir.display()))?;
     let file = File::create(&part).map_err(|e| anyhow!("Couldn't write {}: {e}. {SPACE}", part.display()))?;
     let mut w = Unpack { sha: sha2::Digest::new(), gz: flate2::write::GzDecoder::new(std::io::BufWriter::new(file)) };
-    match astromech_data::download::stream(&format!("{base}/{GZ_NAME}"), &mut w, progress) {
+    match astromech_data::download::stream(&format!("{base}/{GZ_NAME}"), proxy_from_env, &mut w, progress) {
         Ok(_) => {}
         Err(astromech_data::download::DownloadError::Write(e)) => {
             bail!("The download couldn't be written or unpacked: {e}. {SPACE}")

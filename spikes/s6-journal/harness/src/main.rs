@@ -1,5 +1,6 @@
 //! S6: parse journal lines with ed-journals 0.13.0 and report failures per event.
 //! Usage: s6-harness <file-or-dir>... ; also accepts .json arrays of {"line": "..."} (independent samples).
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 use ed_journals::logs::{LogEvent, LogEventContent};
 use std::collections::BTreeMap;
 use std::path::Path;

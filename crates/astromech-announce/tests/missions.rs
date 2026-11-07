@@ -1,5 +1,6 @@
 //! Journal replay tests for the mission reminders: expiry warnings at 1 h and 10 min (time
 //! injected through `Engine::tick`), and the target-in-this-system line on a jump.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

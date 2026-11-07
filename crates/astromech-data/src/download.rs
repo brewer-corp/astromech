@@ -2,6 +2,9 @@
 //! don't go through [`crate::Client`]: its answers are text held in memory and cached, and these
 //! are published files on GitHub, not a game-data service. Requests carry the shared
 //! [`USER_AGENT`] and follow redirects (GitHub's release links redirect to its file host).
+//! `proxy_from_env`: the installed app takes a proxy from `ALL_PROXY`, `HTTPS_PROXY` or
+//! `HTTP_PROXY`; a world's downloads never do, since they go to its replay server on 127.0.0.1
+//! and ureq 2 ignores `NO_PROXY`.
 
 use crate::USER_AGENT;
 use std::io::{Read, Write};
@@ -33,17 +36,18 @@ impl DownloadError {
     }
 }
 
-fn agent() -> ureq::Agent {
+#[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
+fn agent(proxy_from_env: bool) -> ureq::Agent {
     ureq::AgentBuilder::new()
-        .try_proxy_from_env(true)
+        .try_proxy_from_env(proxy_from_env)
         .timeout_connect(Duration::from_secs(20))
         .timeout_read(Duration::from_secs(60))
         .user_agent(USER_AGENT)
         .build()
 }
 
-fn open(url: &str) -> Result<ureq::Response, DownloadError> {
-    match agent().get(url).call() {
+fn open(url: &str, proxy_from_env: bool) -> Result<ureq::Response, DownloadError> {
+    match agent(proxy_from_env).get(url).call() {
         Ok(r) => Ok(r),
         Err(ureq::Error::Status(s, _)) => Err(DownloadError::Status(s)),
         Err(ureq::Error::Transport(t)) => {
@@ -64,9 +68,9 @@ fn read_error(e: std::io::Error) -> DownloadError {
 }
 
 /// A small text file (a checksum).
-pub fn text(url: &str) -> Result<String, DownloadError> {
+pub fn text(url: &str, proxy_from_env: bool) -> Result<String, DownloadError> {
     let mut s = String::new();
-    open(url)?.into_reader().take(1 << 20).read_to_string(&mut s).map_err(read_error)?;
+    open(url, proxy_from_env)?.into_reader().take(1 << 20).read_to_string(&mut s).map_err(read_error)?;
     Ok(s)
 }
 
@@ -74,10 +78,11 @@ pub fn text(url: &str) -> Result<String, DownloadError> {
 /// each chunk. Returns the byte count.
 pub fn stream(
     url: &str,
+    proxy_from_env: bool,
     out: &mut dyn Write,
     mut progress: impl FnMut(u64, Option<u64>),
 ) -> Result<u64, DownloadError> {
-    let resp = open(url)?;
+    let resp = open(url, proxy_from_env)?;
     let total = resp.header("Content-Length").and_then(|s| s.parse().ok());
     let mut r = resp.into_reader();
     let mut buf = vec![0u8; 64 * 1024];
@@ -100,6 +105,7 @@ pub fn stream(
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 
@@ -108,7 +114,7 @@ mod tests {
     fn a_refused_connection_keeps_its_reason() {
         // Nothing listens on a port just bound and dropped.
         let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
-        let e = text(&format!("http://127.0.0.1:{port}/x.sha256")).unwrap_err();
+        let e = text(&format!("http://127.0.0.1:{port}/x.sha256"), true).unwrap_err();
         let why = e.detail().unwrap_or_else(|| panic!("{e:?}"));
         assert!(why.to_ascii_lowercase().contains("refused"), "{why}");
         assert_eq!(e.to_string(), "Cannot reach the download. Check your internet connection.");

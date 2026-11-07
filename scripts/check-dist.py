@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Check that a release build of the window carries none of the browser preview (app/src/preview/):
-no fixture and none of the fake's own strings in app/dist. The preview is loaded only when
-import.meta.env.DEV or VITE_PREVIEW is set (app/src/lib/transport.ts), so a plain `pnpm build`
-must drop it. Usage: scripts/check-dist.py [dist dir, default app/dist]. Exits 1 on a find."""
+"""Check that a release build of the window carries none of the browser preview (app/src/preview/)
+and none of the dev bridge (app/src/lib/bridge.ts, app/dev/): no fixture and none of their own
+strings in app/dist. The preview is loaded only when import.meta.env.DEV or VITE_PREVIEW is set,
+and the bridge only in the dev server with its plugin on (app/src/lib/transport.ts), so a plain
+`pnpm build` must drop both. Usage: scripts/check-dist.py [dist dir, default app/dist]. Exits 1 on
+a find."""
 import sys
 from pathlib import Path
 
@@ -12,6 +14,8 @@ MARKERS = [
     "Arietis Sector LD-H a11-1",  # preview/fixtures/plot.json, the sample route
     "failed on purpose",  # preview/fakecore.ts, ?fail=
     "preview: no fake for",  # preview/transport.ts
+    "/__astromech/call",  # dev/bridge.ts, the bridge's path
+    "the dev bridge closed before",  # lib/bridge.ts
 ]
 
 
@@ -23,11 +27,11 @@ def main() -> int:
         return 1
     found = [(p, m) for p in files for m in MARKERS if m in p.read_text(encoding="utf-8", errors="replace")]
     for p, m in found:
-        print(f"check-dist: {p.relative_to(dist)} contains the browser preview's {m!r}")
+        print(f"check-dist: {p.relative_to(dist)} contains the browser preview's or the dev bridge's {m!r}")
     if found:
-        print("check-dist: the release build must not carry app/src/preview/; reach it only through lib/transport.ts")
+        print("check-dist: the release build must not carry app/src/preview/ or the dev bridge; reach them only through lib/transport.ts")
         return 1
-    print(f"check-dist: {len(files)} files in {dist}, no browser preview")
+    print(f"check-dist: {len(files)} files in {dist}, no browser preview or dev bridge")
     return 0
 
 

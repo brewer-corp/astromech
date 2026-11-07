@@ -5,6 +5,7 @@
 //!                                        headless: iced's Headless renderer (wgpu 27, own device; or tiny-skia)
 //!
 //! Standalone demo: reads nothing, writes nothing (except --png), never touches the game.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 mod hud;
 

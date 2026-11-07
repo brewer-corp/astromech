@@ -54,6 +54,8 @@ fn start_core() -> Result<(), String> {
 
 /// While the window is open: if the core's endpoint file is there but the core doesn't answer
 /// twice in a row, it crashed: start it again. (A clean Quit removes the file, so it stays off.)
+// Real time: the window process's own watch on the core's process, not the core's behaviour.
+#[allow(clippy::disallowed_methods)]
 fn watchdog(app: tauri::AppHandle) {
     let mut misses = 0;
     loop {
@@ -94,6 +96,7 @@ async fn call(cmd: String, args: Option<Value>, progress: tauri::ipc::Channel<Va
 /// Presses from every stick, pad and key, for "press a control to find it", the key tester
 /// and press-to-bind. Read-only (Raw Input with INPUTSINK + XInput polling, like the core).
 #[cfg(windows)]
+#[allow(clippy::disallowed_methods, reason = "raw-input and XInput sample timing")]
 fn start_input(app: tauri::AppHandle) {
     use astromech_input::listen::{tracker::Processor, win};
     std::thread::spawn(move || {
@@ -159,6 +162,9 @@ fn debug_port_arg(args: &[String]) -> Option<u16> {
 /// When this process started, for the cold-start line (the WebView2 cost harness reads it).
 static STARTED: std::sync::OnceLock<std::time::Instant> = std::sync::OnceLock::new();
 
+// Real time: the cold-start line measures the window process's own start
+// (scripts/webview_cost.py reads it).
+#[allow(clippy::disallowed_methods)]
 pub fn main() {
     STARTED.get_or_init(std::time::Instant::now);
     // Release builds have no console, so the window's problems go to its own log in the core's

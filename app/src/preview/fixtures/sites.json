@@ -1,6 +1,6 @@
 {
   "brain_trees": {
-    "fetched": "2026-10-16T22:36:54Z",
+    "fetched": "2026-10-16T22:00:00Z",
     "here": {
       "id64": 10477373803,
       "pos": [
@@ -65,6 +65,17 @@
         "ly": 369.9972167864071,
         "system": "Synuefe PJ-D b46-6",
         "updated_at": "2026-10-16T17:54:08Z"
+      },
+      {
+        "arrival_ls": 1484.610296,
+        "body": "Synuefe PJ-D b46-6 B 1 a",
+        "detail": "Roseum Brain Tree · first at 44.0, 88.0 · Selenium 2.8%, Antimony 1.1%, Niobium 1.3%",
+        "exact": false,
+        "id64": 13869925672329,
+        "jumps": 12,
+        "ly": 369.9972167864071,
+        "system": "Synuefe PJ-D b46-6",
+        "updated_at": "2026-10-16T17:54:23Z"
       }
     ],
     "kind": {
@@ -73,11 +84,11 @@
       "noun": "brain trees",
       "yields": "Grade 4 raw. Shoot them (turrets or flak), then collect with the SRV."
     },
-    "range": 32.5,
+    "range": 31.5,
     "source": "Spansh"
   },
   "crashed_ships": {
-    "fetched": "2026-10-16T22:36:54Z",
+    "fetched": "2026-10-16T22:00:00Z",
     "here": {
       "id64": 10477373803,
       "pos": [
@@ -92,7 +103,7 @@
         "arrival_ls": 226.322086,
         "body": "Mercury",
         "detail": "Wrecked Ship · first at 32.5, 53.6 · Ruthenium 1.5%, Tin 1.6%, Mercury 1.0%",
-        "exact": false,
+        "exact": true,
         "id64": 10477373803,
         "jumps": 0,
         "ly": 0.0,
@@ -103,7 +114,7 @@
         "arrival_ls": 20454.241655,
         "body": "Charon",
         "detail": "Wrecked Ship · first at -45.8, -80.7 · Antimony 1.1%, Cadmium 1.6%, Mercury 0.9%",
-        "exact": false,
+        "exact": true,
         "id64": 10477373803,
         "jumps": 0,
         "ly": 0.0,
@@ -114,7 +125,7 @@
         "arrival_ls": 4329.870221,
         "body": "2042 L1",
         "detail": "Wrecked Ship · first at 69.2, -127.3 · Technetium 0.7%, Tin 1.3%, Tungsten 1.2%",
-        "exact": false,
+        "exact": true,
         "id64": 1178708478315,
         "jumps": 1,
         "ly": 4.377120022057882,
@@ -125,7 +136,7 @@
         "arrival_ls": 483.03696,
         "body": "Major's Mine",
         "detail": "Crashed Ship · first at -76.1, -118.2 · Technetium 0.7%, Molybdenum 1.3%, Tungsten 1.1%",
-        "exact": false,
+        "exact": true,
         "id64": 3657265320658,
         "jumps": 1,
         "ly": 10.519188196457938,
@@ -136,12 +147,23 @@
         "arrival_ls": 260.529171,
         "body": "Mitterand Hollow",
         "detail": "Wrecked Ship · first at -1.2, -169.1 · Tellurium 1.3%, Cadmium 1.6%, Niobium 1.4%",
-        "exact": false,
+        "exact": true,
         "id64": 908486251218,
         "jumps": 1,
         "ly": 11.80240971158009,
         "system": "Epsilon Indi",
         "updated_at": "2026-10-16T15:17:06Z"
+      },
+      {
+        "arrival_ls": 683.637045,
+        "body": "Alisonworld",
+        "detail": "Wrecked Ship · first at -69.6, -72.2 · Selenium 2.6%, Technetium 0.7%, Molybdenum 1.3%",
+        "exact": true,
+        "id64": 908486251218,
+        "jumps": 1,
+        "ly": 11.80240971158009,
+        "system": "Epsilon Indi",
+        "updated_at": "2026-10-13T18:53:45Z"
       }
     ],
     "kind": {
@@ -150,11 +172,11 @@
       "noun": "crashed ship",
       "yields": "Encoded data points and salvage. Scan the data points from the SRV."
     },
-    "range": 32.5,
+    "range": 31.5,
     "source": "Spansh"
   },
   "crystalline_shards": {
-    "fetched": "2026-10-16T22:36:54Z",
+    "fetched": "2026-10-16T22:00:00Z",
     "here": {
       "id64": 10477373803,
       "pos": [
@@ -171,7 +193,7 @@
         "detail": "Crystalline Shards · first at -4.0, -141.0 · Technetium 0.7%, Niobium 1.3%, Tin 1.1%",
         "exact": false,
         "id64": 182276016347,
-        "jumps": 44,
+        "jumps": 46,
         "ly": 1426.151960710731,
         "system": "Oochorrs SB-J d10-5",
         "updated_at": "2026-10-13T22:29:33Z"
@@ -182,7 +204,7 @@
         "detail": "Crystalline Shards · first at -38.0, -89.0 · Polonium 0.3%, Tin 0.7%, Mercury 0.5%",
         "exact": false,
         "id64": 633541202354,
-        "jumps": 44,
+        "jumps": 46,
         "ly": 1429.937157505204,
         "system": "Oochorrs AC-T c20-2",
         "updated_at": "2026-10-14T04:12:06Z"
@@ -193,7 +215,7 @@
         "detail": "Crystalline Shards · first at -61.5, 175.3 · Tellurium 1.3%, Molybdenum 1.6%, Tungsten 1.3%",
         "exact": false,
         "id64": 633608343986,
-        "jumps": 45,
+        "jumps": 46,
         "ly": 1430.4495015089444,
         "system": "Outotz LF-N c20-2",
         "updated_at": "2026-10-14T00:04:00Z"
@@ -204,7 +226,7 @@
         "detail": "Crystalline Shards · first at 4.0, 36.9 · Ruthenium 0.8%, Cadmium 1.0%, Niobium 0.8%",
         "exact": false,
         "id64": 634279530938,
-        "jumps": 46,
+        "jumps": 47,
         "ly": 1468.9936383695856,
         "system": "Outotz TA-M c21-2",
         "updated_at": "2026-10-16T01:18:11Z"
@@ -215,10 +237,21 @@
         "detail": "Crystalline Shards · first at 17.2, 171.4 · Yttrium 0.7%, Niobium 0.8%, Tin 0.7%",
         "exact": false,
         "id64": 634279530938,
-        "jumps": 46,
+        "jumps": 47,
         "ly": 1468.9936383695856,
         "system": "Outotz TA-M c21-2",
         "updated_at": "2026-10-15T22:55:02Z"
+      },
+      {
+        "arrival_ls": 158518.121036,
+        "body": "Outotz TA-M c21-2 B 3 e",
+        "detail": "Crystalline Shards · first at -14.0, 148.6 · Selenium 4.2%, Ruthenium 0.7%, Molybdenum 0.8%",
+        "exact": false,
+        "id64": 634279530938,
+        "jumps": 47,
+        "ly": 1468.9936383695856,
+        "system": "Outotz TA-M c21-2",
+        "updated_at": "2026-10-15T20:26:39Z"
       }
     ],
     "kind": {
@@ -227,11 +260,11 @@
       "noun": "crystalline shards",
       "yields": "Grade 4 raw (polonium, ruthenium, tellurium, technetium, yttrium, antimony and more). Shoot the shards from the SRV and collect the fragments."
     },
-    "range": 32.5,
+    "range": 31.5,
     "source": "Spansh"
   },
   "geological": {
-    "fetched": "2026-10-16T22:36:54Z",
+    "fetched": "2026-10-16T22:00:00Z",
     "here": {
       "id64": 10477373803,
       "pos": [
@@ -246,7 +279,7 @@
         "arrival_ls": 2611.940942,
         "body": "Europa",
         "detail": "2 geological signals · Water Ice Fumarole · first at 29.0, 169.0 · Antimony 0.8%, Cadmium 1.3%, Molybdenum 1.1%",
-        "exact": false,
+        "exact": true,
         "id64": 10477373803,
         "jumps": 0,
         "ly": 0.0,
@@ -257,7 +290,7 @@
         "arrival_ls": 4717.270498,
         "body": "Enceladus",
         "detail": "2 geological signals · Water Ice Fumarole · first at -17.0, -178.0 · Ruthenium 1.0%, Tin 1.0%, Tungsten 0.9%",
-        "exact": false,
+        "exact": true,
         "id64": 10477373803,
         "jumps": 0,
         "ly": 0.0,
@@ -268,7 +301,7 @@
         "arrival_ls": 4717.712824,
         "body": "Dione",
         "detail": "2 geological signals · Water Ice Fumarole · first at -12.0, -163.0 · Technetium 0.6%, Niobium 1.1%, Mercury 0.7%",
-        "exact": false,
+        "exact": true,
         "id64": 10477373803,
         "jumps": 0,
         "ly": 0.0,
@@ -279,7 +312,7 @@
         "arrival_ls": 4717.743569,
         "body": "Tethys",
         "detail": "2 geological signals · Water Ice Fumarole · first at 8.1, 41.7 · Selenium 3.8%, Tellurium 1.0%, Niobium 1.2%",
-        "exact": false,
+        "exact": true,
         "id64": 10477373803,
         "jumps": 0,
         "ly": 0.0,
@@ -290,7 +323,18 @@
         "arrival_ls": 18614.587547,
         "body": "Actaea",
         "detail": "3 geological signals · Water Ice Fumarole · first at -17.0, -77.0 · Yttrium 1.0%, Molybdenum 1.1%, Tungsten 1.0%",
-        "exact": false,
+        "exact": true,
+        "id64": 10477373803,
+        "jumps": 0,
+        "ly": 0.0,
+        "system": "Sol",
+        "updated_at": "2026-10-16T00:31:24Z"
+      },
+      {
+        "arrival_ls": 484213.204461,
+        "body": "Persephone",
+        "detail": "2 geological signals · Water Ice Fumarole · first at -28.0, 174.0 · Selenium 3.5%, Yttrium 1.0%, Cadmium 1.3%",
+        "exact": true,
         "id64": 10477373803,
         "jumps": 0,
         "ly": 0.0,
@@ -304,11 +348,11 @@
       "noun": "geological sites",
       "yields": "Grade 1 to 3 raw from the outcrops around geysers, fumaroles and vents."
     },
-    "range": 32.5,
+    "range": 31.5,
     "source": "Spansh"
   },
   "raw_farms": {
-    "fetched": "2026-10-16T22:36:54Z",
+    "fetched": "2026-10-16T22:00:00Z",
     "here": {
       "id64": 10477373803,
       "pos": [
@@ -326,7 +370,7 @@
         "exact": false,
         "farm": "polonium from brain trees",
         "id64": 1350591039851,
-        "jumps": 12,
+        "jumps": 13,
         "ly": 388.01430587350774,
         "system": "Synuefe BY-F d12-39",
         "updated_at": "2026-10-16T00:00:00Z"
@@ -350,7 +394,7 @@
         "exact": false,
         "farm": "polonium from crystalline shards",
         "id64": 84456968626,
-        "jumps": 50,
+        "jumps": 51,
         "ly": 1598.8619383945804,
         "system": "HIP 36601",
         "updated_at": "2026-10-16T00:00:00Z"
@@ -362,7 +406,7 @@
         "exact": false,
         "farm": "ruthenium from crystalline shards",
         "id64": 84456968626,
-        "jumps": 50,
+        "jumps": 51,
         "ly": 1598.8619383945804,
         "system": "HIP 36601",
         "updated_at": "2026-10-16T00:00:00Z"
@@ -374,9 +418,45 @@
         "exact": false,
         "farm": "tellurium from crystalline shards",
         "id64": 84456968626,
-        "jumps": 50,
+        "jumps": 51,
         "ly": 1598.8619383945804,
         "system": "HIP 36601",
+        "updated_at": "2026-10-16T00:00:00Z"
+      },
+      {
+        "arrival_ls": 153416.0,
+        "body": "HIP 36601 C 5 a",
+        "detail": "Technetium · crystalline shards",
+        "exact": false,
+        "farm": "technetium from crystalline shards",
+        "id64": 84456968626,
+        "jumps": 51,
+        "ly": 1598.8619383945804,
+        "system": "HIP 36601",
+        "updated_at": "2026-10-16T00:00:00Z"
+      },
+      {
+        "arrival_ls": 309093.0,
+        "body": "Outotz LS-K d8-3 B 7 b",
+        "detail": "Ruthenium · crystalline shards",
+        "exact": false,
+        "farm": "ruthenium from crystalline shards",
+        "id64": 113674078411,
+        "jumps": 55,
+        "ly": 1714.077377157406,
+        "system": "Outotz LS-K d8-3",
+        "updated_at": "2026-10-16T00:00:00Z"
+      },
+      {
+        "arrival_ls": 310470.0,
+        "body": "Outotz LS-K d8-3 B 5 a",
+        "detail": "Yttrium · crystalline shards",
+        "exact": false,
+        "farm": "yttrium from crystalline shards",
+        "id64": 113674078411,
+        "jumps": 55,
+        "ly": 1714.077377157406,
+        "system": "Outotz LS-K d8-3",
         "updated_at": "2026-10-16T00:00:00Z"
       }
     ],
@@ -386,7 +466,7 @@
       "noun": "raw material farm",
       "yields": "The well-known grade 4 farms: one body for each element."
     },
-    "range": 32.5,
+    "range": 31.5,
     "source": "astromech"
   }
 }

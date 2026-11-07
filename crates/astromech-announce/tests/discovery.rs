@@ -1,4 +1,5 @@
 //! Journal replay tests for the high-value discovery callout.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

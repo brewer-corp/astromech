@@ -251,13 +251,19 @@ fn judge(mut r: DryRun, m: &astromech_intent::Match, game: &GameState, binds: &B
 
 /// A typed phrase while Elite isn't running (no session): the binds check is run on demand
 /// and there is no game state, so ship actions read as "not available" but still show their keys.
-pub fn dry_run_idle(cfg: &Config, data: &std::path::Path, transcript: &str) -> DryRun {
+/// `clock` stamps the binds check.
+pub fn dry_run_idle(
+    cfg: &Config,
+    data: &std::path::Path,
+    transcript: &str,
+    clock: &dyn astromech_proto::Clock,
+) -> DryRun {
     let mut grammar = crate::assistant::grammar();
     if let Ok(st) = astromech_store::Store::open(&data.join("astromech.sqlite")) {
         crate::assistant::add_aliases(&mut grammar, &st);
     }
     let binds = match cfg.bindings_dir() {
-        Some(b) => crate::health::run_check(&b, cfg.game_dir().as_deref(), false),
+        Some(b) => crate::health::run_check(&b, cfg.game_dir().as_deref(), false, clock),
         None => BindsState::default(),
     };
     dry_run(&grammar, transcript, &GameState::default(), &binds, Source::Typed)
@@ -384,6 +390,7 @@ pub fn on_heard(tester: &Tester, assistant: &Assistant, transcript: &str, testin
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_status::{FLAG_GEAR, FLAG_IN_MAIN_SHIP};

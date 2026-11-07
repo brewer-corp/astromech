@@ -1,1869 +1,66 @@
 {
-  "source": "Sample journal",
-  "snapshot_ts": "2026-10-02T12:00:00Z",
-  "kinds": [
+  "farm": [
     {
-      "id": "raw",
-      "title": "Raw",
-      "trader": "Raw material trader",
-      "grades": [
-        1,
-        2,
-        3,
-        4
-      ],
-      "groups": [
-        {
-          "name": "Category 1",
-          "cells": [
-            {
-              "id": "carbon",
-              "name": "Carbon",
-              "kind": "raw",
-              "group": "Category 1",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 89,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Yttrium (1 → 27 at a raw trader).",
-                  "hint": "Fill Yttrium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "vanadium",
-              "name": "Vanadium",
-              "kind": "raw",
-              "group": "Category 1",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 9,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Yttrium (1 → 9 at a raw trader).",
-                  "hint": "Fill Yttrium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "niobium",
-              "name": "Niobium",
-              "kind": "raw",
-              "group": "Category 1",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Yttrium (1 → 3 at a raw trader).",
-                  "hint": "Fill Yttrium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "yttrium",
-              "name": "Yttrium",
-              "kind": "raw",
-              "group": "Category 1",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "brain_tree",
-                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
-                  "hint": "Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Category 2",
-          "cells": [
-            {
-              "id": "phosphorus",
-              "name": "Phosphorus",
-              "kind": "raw",
-              "group": "Category 2",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 4,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Technetium (1 → 27 at a raw trader).",
-                  "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "chromium",
-              "name": "Chromium",
-              "kind": "raw",
-              "group": "Category 2",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Technetium (1 → 9 at a raw trader).",
-                  "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "molybdenum",
-              "name": "Molybdenum",
-              "kind": "raw",
-              "group": "Category 2",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Technetium (1 → 3 at a raw trader).",
-                  "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "technetium",
-              "name": "Technetium",
-              "kind": "raw",
-              "group": "Category 2",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "brain_tree",
-                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
-                  "hint": "Reported: HIP 36601 C 5 a (shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Category 3",
-          "cells": [
-            {
-              "id": "sulphur",
-              "name": "Sulphur",
-              "kind": "raw",
-              "group": "Category 3",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Ruthenium (1 → 27 at a raw trader).",
-                  "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "manganese",
-              "name": "Manganese",
-              "kind": "raw",
-              "group": "Category 3",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 4,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Ruthenium (1 → 9 at a raw trader).",
-                  "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "cadmium",
-              "name": "Cadmium",
-              "kind": "raw",
-              "group": "Category 3",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Ruthenium (1 → 3 at a raw trader).",
-                  "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "ruthenium",
-              "name": "Ruthenium",
-              "kind": "raw",
-              "group": "Category 3",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "brain_tree",
-                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
-                  "hint": "Reported: HIP 36601 C 1 d (shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Category 4",
-          "cells": [
-            {
-              "id": "iron",
-              "name": "Iron",
-              "kind": "raw",
-              "group": "Category 4",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 22,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Selenium (1 → 27 at a raw trader).",
-                  "hint": "Fill Selenium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "zinc",
-              "name": "Zinc",
-              "kind": "raw",
-              "group": "Category 4",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Selenium (1 → 9 at a raw trader).",
-                  "hint": "Fill Selenium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "tin",
-              "name": "Tin",
-              "kind": "raw",
-              "group": "Category 4",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Selenium (1 → 3 at a raw trader).",
-                  "hint": "Fill Selenium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "selenium",
-              "name": "Selenium",
-              "kind": "raw",
-              "group": "Category 4",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "brain_tree",
-                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
-                  "hint": "Reported: HR 3230 3 a a. Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Category 5",
-          "cells": [
-            {
-              "id": "nickel",
-              "name": "Nickel",
-              "kind": "raw",
-              "group": "Category 5",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Tellurium (1 → 27 at a raw trader).",
-                  "hint": "Fill Tellurium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "germanium",
-              "name": "Germanium",
-              "kind": "raw",
-              "group": "Category 5",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 4,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Tellurium (1 → 9 at a raw trader).",
-                  "hint": "Fill Tellurium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "tungsten",
-              "name": "Tungsten",
-              "kind": "raw",
-              "group": "Category 5",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Tellurium (1 → 3 at a raw trader).",
-                  "hint": "Fill Tellurium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "tellurium",
-              "name": "Tellurium",
-              "kind": "raw",
-              "group": "Category 5",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "brain_tree",
-                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
-                  "hint": "Reported: HIP 36601 C 3 b (shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Category 6",
-          "cells": [
-            {
-              "id": "rhenium",
-              "name": "Rhenium",
-              "kind": "raw",
-              "group": "Category 6",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Polonium (1 → 27 at a raw trader).",
-                  "hint": "Fill Polonium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "arsenic",
-              "name": "Arsenic",
-              "kind": "raw",
-              "group": "Category 6",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Polonium (1 → 9 at a raw trader).",
-                  "hint": "Fill Polonium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "mercury",
-              "name": "Mercury",
-              "kind": "raw",
-              "group": "Category 6",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Polonium (1 → 3 at a raw trader).",
-                  "hint": "Fill Polonium at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "polonium",
-              "name": "Polonium",
-              "kind": "raw",
-              "group": "Category 6",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "brain_tree",
-                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
-                  "hint": "Reported: Synuefe BY-F d12-39 A 2 (brain trees); HIP 36601 C 1 a (shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Category 7",
-          "cells": [
-            {
-              "id": "lead",
-              "name": "Lead",
-              "kind": "raw",
-              "group": "Category 7",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Antimony (1 → 27 at a raw trader).",
-                  "hint": "Fill Antimony at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "zirconium",
-              "name": "Zirconium",
-              "kind": "raw",
-              "group": "Category 7",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Antimony (1 → 9 at a raw trader).",
-                  "hint": "Fill Antimony at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "boron",
-              "name": "Boron",
-              "kind": "raw",
-              "group": "Category 7",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade down from Antimony (1 → 3 at a raw trader).",
-                  "hint": "Fill Antimony at brain trees or crystalline shards. Also from surface prospecting and mining."
-                }
-              ]
-            },
-            {
-              "id": "antimony",
-              "name": "Antimony",
-              "kind": "raw",
-              "group": "Category 7",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "brain_tree",
-                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
-                  "hint": "Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "held": 132,
-      "capacity": 6300
+      "capacity": 100,
+      "count": 0,
+      "id": "fedcorecomposites",
+      "name": "Core Dynamics Composites",
+      "summary": "High Grade Emissions spawned by a Federation faction."
     },
     {
-      "id": "manufactured",
-      "title": "Manufactured",
-      "trader": "Manufactured material trader",
-      "grades": [
-        1,
-        2,
-        3,
-        4,
-        5
-      ],
-      "groups": [
-        {
-          "name": "Chemical",
-          "cells": [
-            {
-              "id": "chemicalstorageunits",
-              "name": "Chemical Storage Units",
-              "kind": "manufactured",
-              "group": "Chemical",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 40,
-              "capacity": 300,
-              "trader": true
-            },
-            {
-              "id": "chemicalprocessors",
-              "name": "Chemical Processors",
-              "kind": "manufactured",
-              "group": "Chemical",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true
-            },
-            {
-              "id": "chemicaldistillery",
-              "name": "Chemical Distillery",
-              "kind": "manufactured",
-              "group": "Chemical",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true
-            },
-            {
-              "id": "chemicalmanipulators",
-              "name": "Chemical Manipulators",
-              "kind": "manufactured",
-              "group": "Chemical",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true
-            },
-            {
-              "id": "pharmaceuticalisolators",
-              "name": "Pharmaceutical Isolators",
-              "kind": "manufactured",
-              "group": "Chemical",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "hge",
-                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak.",
-                  "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
-                  "query": "pharma"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Thermic",
-          "cells": [
-            {
-              "id": "temperedalloys",
-              "name": "Tempered Alloys",
-              "kind": "manufactured",
-              "group": "Thermic",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true
-            },
-            {
-              "id": "heatresistantceramics",
-              "name": "Heat Resistant Ceramics",
-              "kind": "manufactured",
-              "group": "Thermic",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true
-            },
-            {
-              "id": "precipitatedalloys",
-              "name": "Precipitated Alloys",
-              "kind": "manufactured",
-              "group": "Thermic",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true
-            },
-            {
-              "id": "thermicalloys",
-              "name": "Thermic Alloys",
-              "kind": "manufactured",
-              "group": "Thermic",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true
-            },
-            {
-              "id": "militarygradealloys",
-              "name": "Military Grade Alloys",
-              "kind": "manufactured",
-              "group": "Thermic",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "hge",
-                  "summary": "High Grade Emissions spawned by a faction in War or Civil War.",
-                  "hint": "Any allegiance. War / Civil War on the spawning faction. Check Contacts → INFO.",
-                  "query": "military"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Heat",
-          "cells": [
-            {
-              "id": "heatconductionwiring",
-              "name": "Heat Conduction Wiring",
-              "kind": "manufactured",
-              "group": "Heat",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true
-            },
-            {
-              "id": "heatdispersionplate",
-              "name": "Heat Dispersion Plate",
-              "kind": "manufactured",
-              "group": "Heat",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true
-            },
-            {
-              "id": "heatexchangers",
-              "name": "Heat Exchangers",
-              "kind": "manufactured",
-              "group": "Heat",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true
-            },
-            {
-              "id": "heatvanes",
-              "name": "Heat Vanes",
-              "kind": "manufactured",
-              "group": "Heat",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true
-            },
-            {
-              "id": "protoheatradiators",
-              "name": "Proto Heat Radiators",
-              "kind": "manufactured",
-              "group": "Heat",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "hge",
-                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom.",
-                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO.",
-                  "query": "proto"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Conductive",
-          "cells": [
-            {
-              "id": "basicconductors",
-              "name": "Basic Conductors",
-              "kind": "manufactured",
-              "group": "Conductive",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true
-            },
-            {
-              "id": "conductivecomponents",
-              "name": "Conductive Components",
-              "kind": "manufactured",
-              "group": "Conductive",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true
-            },
-            {
-              "id": "conductiveceramics",
-              "name": "Conductive Ceramics",
-              "kind": "manufactured",
-              "group": "Conductive",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true
-            },
-            {
-              "id": "conductivepolymers",
-              "name": "Conductive Polymers",
-              "kind": "manufactured",
-              "group": "Conductive",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true
-            },
-            {
-              "id": "biotechconductors",
-              "name": "Biotech Conductors",
-              "kind": "manufactured",
-              "group": "Conductive",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "not_hge",
-                  "summary": "Not at High Grade Emissions. Missions or a manufactured trader.",
-                  "hint": "Trade up at a manufactured trader, or look at mission rewards."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Mechanical Components",
-          "cells": [
-            {
-              "id": "mechanicalscrap",
-              "name": "Mechanical Scrap",
-              "kind": "manufactured",
-              "group": "Mechanical Components",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true
-            },
-            {
-              "id": "mechanicalequipment",
-              "name": "Mechanical Equipment",
-              "kind": "manufactured",
-              "group": "Mechanical Components",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true
-            },
-            {
-              "id": "mechanicalcomponents",
-              "name": "Mechanical Components",
-              "kind": "manufactured",
-              "group": "Mechanical Components",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true
-            },
-            {
-              "id": "configurablecomponents",
-              "name": "Configurable Components",
-              "kind": "manufactured",
-              "group": "Mechanical Components",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true
-            },
-            {
-              "id": "improvisedcomponents",
-              "name": "Improvised Components",
-              "kind": "manufactured",
-              "group": "Mechanical Components",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "hge",
-                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Civil Unrest.",
-                  "hint": "Independent or Alliance systems in Civil Unrest. Check Contacts → INFO.",
-                  "query": "improvised"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Capacitors",
-          "cells": [
-            {
-              "id": "gridresistors",
-              "name": "Grid Resistors",
-              "kind": "manufactured",
-              "group": "Capacitors",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true
-            },
-            {
-              "id": "hybridcapacitors",
-              "name": "Hybrid Capacitors",
-              "kind": "manufactured",
-              "group": "Capacitors",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true
-            },
-            {
-              "id": "electrochemicalarrays",
-              "name": "Electrochemical Arrays",
-              "kind": "manufactured",
-              "group": "Capacitors",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true
-            },
-            {
-              "id": "polymercapacitors",
-              "name": "Polymer Capacitors",
-              "kind": "manufactured",
-              "group": "Capacitors",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true
-            },
-            {
-              "id": "militarysupercapacitors",
-              "name": "Military Supercapacitors",
-              "kind": "manufactured",
-              "group": "Capacitors",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "hge",
-                  "summary": "High Grade Emissions spawned by a faction in War or Civil War.",
-                  "hint": "Any allegiance. War / Civil War on the spawning faction. Check Contacts → INFO.",
-                  "query": "military"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Shielding",
-          "cells": [
-            {
-              "id": "wornshieldemitters",
-              "name": "Worn Shield Emitters",
-              "kind": "manufactured",
-              "group": "Shielding",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true
-            },
-            {
-              "id": "shieldemitters",
-              "name": "Shield Emitters",
-              "kind": "manufactured",
-              "group": "Shielding",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true
-            },
-            {
-              "id": "shieldingsensors",
-              "name": "Shielding Sensors",
-              "kind": "manufactured",
-              "group": "Shielding",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true
-            },
-            {
-              "id": "compoundshielding",
-              "name": "Compound Shielding",
-              "kind": "manufactured",
-              "group": "Shielding",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true
-            },
-            {
-              "id": "imperialshielding",
-              "name": "Imperial Shielding",
-              "kind": "manufactured",
-              "group": "Shielding",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "hge",
-                  "summary": "High Grade Emissions spawned by an Empire faction.",
-                  "hint": "Empire systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
-                  "query": "empire_shielding"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Composite",
-          "cells": [
-            {
-              "id": "compactcomposites",
-              "name": "Compact Composites",
-              "kind": "manufactured",
-              "group": "Composite",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true
-            },
-            {
-              "id": "filamentcomposites",
-              "name": "Filament Composites",
-              "kind": "manufactured",
-              "group": "Composite",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true
-            },
-            {
-              "id": "highdensitycomposites",
-              "name": "High Density Composites",
-              "kind": "manufactured",
-              "group": "Composite",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true
-            },
-            {
-              "id": "fedproprietarycomposites",
-              "name": "Proprietary Composites",
-              "kind": "manufactured",
-              "group": "Composite",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "hge",
-                  "summary": "High Grade Emissions spawned by a Federation faction.",
-                  "hint": "Federation systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
-                  "query": "fed_composites"
-                }
-              ]
-            },
-            {
-              "id": "fedcorecomposites",
-              "name": "Core Dynamics Composites",
-              "kind": "manufactured",
-              "group": "Composite",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "hge",
-                  "summary": "High Grade Emissions spawned by a Federation faction.",
-                  "hint": "Federation systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
-                  "query": "fed_composites"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Crystals",
-          "cells": [
-            {
-              "id": "crystalshards",
-              "name": "Crystal Shards",
-              "kind": "manufactured",
-              "group": "Crystals",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true
-            },
-            {
-              "id": "uncutfocuscrystals",
-              "name": "Flawed Focus Crystals",
-              "kind": "manufactured",
-              "group": "Crystals",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true
-            },
-            {
-              "id": "focuscrystals",
-              "name": "Focus Crystals",
-              "kind": "manufactured",
-              "group": "Crystals",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true
-            },
-            {
-              "id": "refinedfocuscrystals",
-              "name": "Refined Focus Crystals",
-              "kind": "manufactured",
-              "group": "Crystals",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true
-            },
-            {
-              "id": "exquisitefocuscrystals",
-              "name": "Exquisite Focus Crystals",
-              "kind": "manufactured",
-              "group": "Crystals",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "not_hge",
-                  "summary": "Not at High Grade Emissions. Missions or a manufactured trader.",
-                  "hint": "Trade up at a manufactured trader, or look at mission rewards."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Alloys",
-          "cells": [
-            {
-              "id": "salvagedalloys",
-              "name": "Salvaged Alloys",
-              "kind": "manufactured",
-              "group": "Alloys",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true
-            },
-            {
-              "id": "galvanisingalloys",
-              "name": "Galvanising Alloys",
-              "kind": "manufactured",
-              "group": "Alloys",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true
-            },
-            {
-              "id": "phasealloys",
-              "name": "Phase Alloys",
-              "kind": "manufactured",
-              "group": "Alloys",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true
-            },
-            {
-              "id": "protolightalloys",
-              "name": "Proto Light Alloys",
-              "kind": "manufactured",
-              "group": "Alloys",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "hge",
-                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom.",
-                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO.",
-                  "query": "proto"
-                }
-              ]
-            },
-            {
-              "id": "protoradiolicalloys",
-              "name": "Proto Radiolic Alloys",
-              "kind": "manufactured",
-              "group": "Alloys",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "hge",
-                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom.",
-                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO.",
-                  "query": "proto"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "held": 40,
-      "capacity": 10000
+      "capacity": 100,
+      "count": 0,
+      "id": "imperialshielding",
+      "name": "Imperial Shielding",
+      "summary": "High Grade Emissions spawned by an Empire faction."
     },
     {
-      "id": "encoded",
-      "title": "Encoded",
-      "trader": "Encoded material trader",
-      "grades": [
-        1,
-        2,
-        3,
-        4,
-        5
-      ],
-      "groups": [
-        {
-          "name": "Emission Data",
-          "cells": [
-            {
-              "id": "scrambledemissiondata",
-              "name": "Exceptional Scrambled Emission Data",
-              "kind": "encoded",
-              "group": "Emission Data",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "archivedemissiondata",
-              "name": "Irregular Emission Data",
-              "kind": "encoded",
-              "group": "Emission Data",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "emissiondata",
-              "name": "Unexpected Emission Data",
-              "kind": "encoded",
-              "group": "Emission Data",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 32,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "decodedemissiondata",
-              "name": "Decoded Emission Data",
-              "kind": "encoded",
-              "group": "Emission Data",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "compactemissionsdata",
-              "name": "Abnormal Compact Emissions Data",
-              "kind": "encoded",
-              "group": "Emission Data",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Wake Scans",
-          "cells": [
-            {
-              "id": "disruptedwakeechoes",
-              "name": "Atypical Disrupted Wake Echoes",
-              "kind": "encoded",
-              "group": "Wake Scans",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 4,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "wake_scan",
-                  "summary": "Wake scanning where traffic never stops.",
-                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
-                  "query": "famine"
-                }
-              ]
-            },
-            {
-              "id": "fsdtelemetry",
-              "name": "Anomalous FSD Telemetry",
-              "kind": "encoded",
-              "group": "Wake Scans",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "wake_scan",
-                  "summary": "Wake scanning where traffic never stops.",
-                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
-                  "query": "famine"
-                }
-              ]
-            },
-            {
-              "id": "wakesolutions",
-              "name": "Strange Wake Solutions",
-              "kind": "encoded",
-              "group": "Wake Scans",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "wake_scan",
-                  "summary": "Wake scanning where traffic never stops.",
-                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
-                  "query": "famine"
-                }
-              ]
-            },
-            {
-              "id": "hyperspacetrajectories",
-              "name": "Eccentric Hyperspace Trajectories",
-              "kind": "encoded",
-              "group": "Wake Scans",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "wake_scan",
-                  "summary": "Wake scanning where traffic never stops.",
-                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
-                  "query": "famine"
-                }
-              ]
-            },
-            {
-              "id": "dataminedwake",
-              "name": "Datamined Wake Exceptions",
-              "kind": "encoded",
-              "group": "Wake Scans",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "wake_scan",
-                  "summary": "Wake scanning where traffic never stops.",
-                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
-                  "query": "famine"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Shield Data",
-          "cells": [
-            {
-              "id": "shieldcyclerecordings",
-              "name": "Distorted Shield Cycle Recordings",
-              "kind": "encoded",
-              "group": "Shield Data",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "shieldsoakanalysis",
-              "name": "Inconsistent Shield Soak Analysis",
-              "kind": "encoded",
-              "group": "Shield Data",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "shielddensityreports",
-              "name": "Untypical Shield Scans",
-              "kind": "encoded",
-              "group": "Shield Data",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "shieldpatternanalysis",
-              "name": "Aberrant Shield Pattern Analysis",
-              "kind": "encoded",
-              "group": "Shield Data",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "shieldfrequencydata",
-              "name": "Peculiar Shield Frequency Data",
-              "kind": "encoded",
-              "group": "Shield Data",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Encryption Files",
-          "cells": [
-            {
-              "id": "encryptedfiles",
-              "name": "Unusual Encrypted Files",
-              "kind": "encoded",
-              "group": "Encryption Files",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "encryptioncodes",
-              "name": "Tagged Encryption Codes",
-              "kind": "encoded",
-              "group": "Encryption Files",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "symmetrickeys",
-              "name": "Open Symmetric Keys",
-              "kind": "encoded",
-              "group": "Encryption Files",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "encryptionarchives",
-              "name": "Atypical Encryption Archives",
-              "kind": "encoded",
-              "group": "Encryption Files",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "adaptiveencryptors",
-              "name": "Adaptive Encryptors Capture",
-              "kind": "encoded",
-              "group": "Encryption Files",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "jameson",
-                  "summary": "Jameson Crash Site data points.",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Data Archives",
-          "cells": [
-            {
-              "id": "bulkscandata",
-              "name": "Anomalous Bulk Scan Data",
-              "kind": "encoded",
-              "group": "Data Archives",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "scanarchives",
-              "name": "Unidentified Scan Archives",
-              "kind": "encoded",
-              "group": "Data Archives",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "scandatabanks",
-              "name": "Classified Scan Databanks",
-              "kind": "encoded",
-              "group": "Data Archives",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "encodedscandata",
-              "name": "Divergent Scan Data",
-              "kind": "encoded",
-              "group": "Data Archives",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "classifiedscandata",
-              "name": "Classified Scan Fragment",
-              "kind": "encoded",
-              "group": "Data Archives",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "Encoded Firmware",
-          "cells": [
-            {
-              "id": "legacyfirmware",
-              "name": "Specialised Legacy Firmware",
-              "kind": "encoded",
-              "group": "Encoded Firmware",
-              "grade": 1,
-              "rarity": "Very common",
-              "count": 0,
-              "capacity": 300,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "consumerfirmware",
-              "name": "Modified Consumer Firmware",
-              "kind": "encoded",
-              "group": "Encoded Firmware",
-              "grade": 2,
-              "rarity": "Common",
-              "count": 0,
-              "capacity": 250,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "jameson",
-                  "summary": "Jameson Crash Site data points.",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri."
-                }
-              ]
-            },
-            {
-              "id": "industrialfirmware",
-              "name": "Cracked Industrial Firmware",
-              "kind": "encoded",
-              "group": "Encoded Firmware",
-              "grade": 3,
-              "rarity": "Standard",
-              "count": 0,
-              "capacity": 200,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "jameson",
-                  "summary": "Jameson Crash Site data points.",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri."
-                }
-              ]
-            },
-            {
-              "id": "securityfirmware",
-              "name": "Security Firmware Patch",
-              "kind": "encoded",
-              "group": "Encoded Firmware",
-              "grade": 4,
-              "rarity": "Rare",
-              "count": 0,
-              "capacity": 150,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            },
-            {
-              "id": "embeddedfirmware",
-              "name": "Modified Embedded Firmware",
-              "kind": "encoded",
-              "group": "Encoded Firmware",
-              "grade": 5,
-              "rarity": "Very rare",
-              "count": 0,
-              "capacity": 100,
-              "trader": true,
-              "sources": [
-                {
-                  "kind": "trade_down",
-                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
-                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "held": 36,
-      "capacity": 6000
+      "capacity": 100,
+      "count": 0,
+      "id": "improvisedcomponents",
+      "name": "Improvised Components",
+      "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Civil Unrest."
+    },
+    {
+      "capacity": 100,
+      "count": 0,
+      "id": "militarygradealloys",
+      "name": "Military Grade Alloys",
+      "summary": "High Grade Emissions spawned by a faction in War or Civil War."
+    },
+    {
+      "capacity": 100,
+      "count": 0,
+      "id": "militarysupercapacitors",
+      "name": "Military Supercapacitors",
+      "summary": "High Grade Emissions spawned by a faction in War or Civil War."
+    },
+    {
+      "capacity": 100,
+      "count": 0,
+      "id": "pharmaceuticalisolators",
+      "name": "Pharmaceutical Isolators",
+      "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak."
+    },
+    {
+      "capacity": 150,
+      "count": 0,
+      "id": "fedproprietarycomposites",
+      "name": "Proprietary Composites",
+      "summary": "High Grade Emissions spawned by a Federation faction."
+    },
+    {
+      "capacity": 100,
+      "count": 0,
+      "id": "protoheatradiators",
+      "name": "Proto Heat Radiators",
+      "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom."
     }
   ],
-  "other": [],
   "here": {
-    "system": "Shinrarta Dezhra",
     "allegiance": "Federation",
-    "population": 85262351,
     "hge_signal": true,
+    "line": "Shinrarta Dezhra · Federation · pop 85M · HGEs here: Proprietary Composites / Core Dynamics Composites (rare under a billion people) · High Grade Emissions on the scanner",
     "pool": [
       {
         "id": "fedproprietarycomposites",
@@ -1874,64 +71,1867 @@
         "name": "Core Dynamics Composites"
       }
     ],
-    "line": "Shinrarta Dezhra · Federation · pop 85M · HGEs here: Proprietary Composites / Core Dynamics Composites (rare under a billion people) · High Grade Emissions on the scanner"
+    "population": 85262351,
+    "system": "Shinrarta Dezhra"
   },
-  "farm": [
+  "kinds": [
     {
-      "id": "fedcorecomposites",
-      "name": "Core Dynamics Composites",
-      "count": 0,
-      "capacity": 100,
-      "summary": "High Grade Emissions spawned by a Federation faction."
+      "capacity": 6300,
+      "grades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "groups": [
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 89,
+              "grade": 1,
+              "group": "Category 1",
+              "id": "carbon",
+              "kind": "raw",
+              "name": "Carbon",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "Fill Yttrium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Yttrium (1 → 27 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 9,
+              "grade": 2,
+              "group": "Category 1",
+              "id": "vanadium",
+              "kind": "raw",
+              "name": "Vanadium",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "Fill Yttrium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Yttrium (1 → 9 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Category 1",
+              "id": "niobium",
+              "kind": "raw",
+              "name": "Niobium",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "Fill Yttrium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Yttrium (1 → 3 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Category 1",
+              "id": "yttrium",
+              "kind": "raw",
+              "name": "Yttrium",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "Reported: Outotz LS-K d8-3 B 5 a (crystalline shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Category 1"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 4,
+              "grade": 1,
+              "group": "Category 2",
+              "id": "phosphorus",
+              "kind": "raw",
+              "name": "Phosphorus",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Technetium (1 → 27 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Category 2",
+              "id": "chromium",
+              "kind": "raw",
+              "name": "Chromium",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Technetium (1 → 9 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Category 2",
+              "id": "molybdenum",
+              "kind": "raw",
+              "name": "Molybdenum",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Technetium (1 → 3 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Category 2",
+              "id": "technetium",
+              "kind": "raw",
+              "name": "Technetium",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "Reported: HIP 36601 C 5 a (crystalline shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Category 2"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Category 3",
+              "id": "sulphur",
+              "kind": "raw",
+              "name": "Sulphur",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Ruthenium (1 → 27 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 4,
+              "grade": 2,
+              "group": "Category 3",
+              "id": "manganese",
+              "kind": "raw",
+              "name": "Manganese",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Ruthenium (1 → 9 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Category 3",
+              "id": "cadmium",
+              "kind": "raw",
+              "name": "Cadmium",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Ruthenium (1 → 3 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Category 3",
+              "id": "ruthenium",
+              "kind": "raw",
+              "name": "Ruthenium",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "Reported: HIP 36601 C 1 d (crystalline shards); Outotz LS-K d8-3 B 7 b (crystalline shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Category 3"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 22,
+              "grade": 1,
+              "group": "Category 4",
+              "id": "iron",
+              "kind": "raw",
+              "name": "Iron",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "Fill Selenium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Selenium (1 → 27 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Category 4",
+              "id": "zinc",
+              "kind": "raw",
+              "name": "Zinc",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "Fill Selenium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Selenium (1 → 9 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Category 4",
+              "id": "tin",
+              "kind": "raw",
+              "name": "Tin",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "Fill Selenium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Selenium (1 → 3 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Category 4",
+              "id": "selenium",
+              "kind": "raw",
+              "name": "Selenium",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "Reported: HR 3230 3 a a (brain trees). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Category 4"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Category 5",
+              "id": "nickel",
+              "kind": "raw",
+              "name": "Nickel",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "Fill Tellurium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Tellurium (1 → 27 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 4,
+              "grade": 2,
+              "group": "Category 5",
+              "id": "germanium",
+              "kind": "raw",
+              "name": "Germanium",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "Fill Tellurium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Tellurium (1 → 9 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Category 5",
+              "id": "tungsten",
+              "kind": "raw",
+              "name": "Tungsten",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "Fill Tellurium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Tellurium (1 → 3 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Category 5",
+              "id": "tellurium",
+              "kind": "raw",
+              "name": "Tellurium",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "Reported: HIP 36601 C 3 b (crystalline shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Category 5"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Category 6",
+              "id": "rhenium",
+              "kind": "raw",
+              "name": "Rhenium",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "Fill Polonium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Polonium (1 → 27 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Category 6",
+              "id": "arsenic",
+              "kind": "raw",
+              "name": "Arsenic",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "Fill Polonium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Polonium (1 → 9 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Category 6",
+              "id": "mercury",
+              "kind": "raw",
+              "name": "Mercury",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "Fill Polonium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Polonium (1 → 3 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Category 6",
+              "id": "polonium",
+              "kind": "raw",
+              "name": "Polonium",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "Reported: HIP 36601 C 1 a (crystalline shards); Synuefe BY-F d12-39 A 2 (brain trees). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Category 6"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Category 7",
+              "id": "lead",
+              "kind": "raw",
+              "name": "Lead",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "Fill Antimony at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Antimony (1 → 27 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Category 7",
+              "id": "zirconium",
+              "kind": "raw",
+              "name": "Zirconium",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "Fill Antimony at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Antimony (1 → 9 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Category 7",
+              "id": "boron",
+              "kind": "raw",
+              "name": "Boron",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "Fill Antimony at brain trees or crystalline shards. Also from surface prospecting and mining.",
+                  "kind": "trade_down",
+                  "summary": "Trade down from Antimony (1 → 3 at a raw trader)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Category 7",
+              "id": "antimony",
+              "kind": "raw",
+              "name": "Antimony",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "Reported: Outotz LS-K d8-3 B 5 c (crystalline shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Category 7"
+        }
+      ],
+      "held": 132,
+      "id": "raw",
+      "title": "Raw",
+      "trader": "Raw material trader"
     },
     {
-      "id": "imperialshielding",
-      "name": "Imperial Shielding",
-      "count": 0,
-      "capacity": 100,
-      "summary": "High Grade Emissions spawned by an Empire faction."
+      "capacity": 10000,
+      "grades": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "groups": [
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 40,
+              "grade": 1,
+              "group": "Chemical",
+              "id": "chemicalstorageunits",
+              "kind": "manufactured",
+              "name": "Chemical Storage Units",
+              "rarity": "Very common",
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Chemical",
+              "id": "chemicalprocessors",
+              "kind": "manufactured",
+              "name": "Chemical Processors",
+              "rarity": "Common",
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Chemical",
+              "id": "chemicaldistillery",
+              "kind": "manufactured",
+              "name": "Chemical Distillery",
+              "rarity": "Standard",
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Chemical",
+              "id": "chemicalmanipulators",
+              "kind": "manufactured",
+              "name": "Chemical Manipulators",
+              "rarity": "Rare",
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Chemical",
+              "id": "pharmaceuticalisolators",
+              "kind": "manufactured",
+              "name": "Pharmaceutical Isolators",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
+                  "kind": "hge",
+                  "query": "pharma",
+                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Chemical"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Thermic",
+              "id": "temperedalloys",
+              "kind": "manufactured",
+              "name": "Tempered Alloys",
+              "rarity": "Very common",
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Thermic",
+              "id": "heatresistantceramics",
+              "kind": "manufactured",
+              "name": "Heat Resistant Ceramics",
+              "rarity": "Common",
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Thermic",
+              "id": "precipitatedalloys",
+              "kind": "manufactured",
+              "name": "Precipitated Alloys",
+              "rarity": "Standard",
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Thermic",
+              "id": "thermicalloys",
+              "kind": "manufactured",
+              "name": "Thermic Alloys",
+              "rarity": "Rare",
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Thermic",
+              "id": "militarygradealloys",
+              "kind": "manufactured",
+              "name": "Military Grade Alloys",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "Any allegiance. War / Civil War on the spawning faction. Check Contacts → INFO.",
+                  "kind": "hge",
+                  "query": "military",
+                  "summary": "High Grade Emissions spawned by a faction in War or Civil War."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Thermic"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Heat",
+              "id": "heatconductionwiring",
+              "kind": "manufactured",
+              "name": "Heat Conduction Wiring",
+              "rarity": "Very common",
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Heat",
+              "id": "heatdispersionplate",
+              "kind": "manufactured",
+              "name": "Heat Dispersion Plate",
+              "rarity": "Common",
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Heat",
+              "id": "heatexchangers",
+              "kind": "manufactured",
+              "name": "Heat Exchangers",
+              "rarity": "Standard",
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Heat",
+              "id": "heatvanes",
+              "kind": "manufactured",
+              "name": "Heat Vanes",
+              "rarity": "Rare",
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Heat",
+              "id": "protoheatradiators",
+              "kind": "manufactured",
+              "name": "Proto Heat Radiators",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO.",
+                  "kind": "hge",
+                  "query": "proto",
+                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Heat"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Conductive",
+              "id": "basicconductors",
+              "kind": "manufactured",
+              "name": "Basic Conductors",
+              "rarity": "Very common",
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Conductive",
+              "id": "conductivecomponents",
+              "kind": "manufactured",
+              "name": "Conductive Components",
+              "rarity": "Common",
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Conductive",
+              "id": "conductiveceramics",
+              "kind": "manufactured",
+              "name": "Conductive Ceramics",
+              "rarity": "Standard",
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Conductive",
+              "id": "conductivepolymers",
+              "kind": "manufactured",
+              "name": "Conductive Polymers",
+              "rarity": "Rare",
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Conductive",
+              "id": "biotechconductors",
+              "kind": "manufactured",
+              "name": "Biotech Conductors",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "Trade up at a manufactured trader, or look at mission rewards.",
+                  "kind": "not_hge",
+                  "summary": "Not at High Grade Emissions. Missions or a manufactured trader."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Conductive"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Mechanical Components",
+              "id": "mechanicalscrap",
+              "kind": "manufactured",
+              "name": "Mechanical Scrap",
+              "rarity": "Very common",
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Mechanical Components",
+              "id": "mechanicalequipment",
+              "kind": "manufactured",
+              "name": "Mechanical Equipment",
+              "rarity": "Common",
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Mechanical Components",
+              "id": "mechanicalcomponents",
+              "kind": "manufactured",
+              "name": "Mechanical Components",
+              "rarity": "Standard",
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Mechanical Components",
+              "id": "configurablecomponents",
+              "kind": "manufactured",
+              "name": "Configurable Components",
+              "rarity": "Rare",
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Mechanical Components",
+              "id": "improvisedcomponents",
+              "kind": "manufactured",
+              "name": "Improvised Components",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "Independent or Alliance systems in Civil Unrest. Check Contacts → INFO.",
+                  "kind": "hge",
+                  "query": "improvised",
+                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Civil Unrest."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Mechanical Components"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Capacitors",
+              "id": "gridresistors",
+              "kind": "manufactured",
+              "name": "Grid Resistors",
+              "rarity": "Very common",
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Capacitors",
+              "id": "hybridcapacitors",
+              "kind": "manufactured",
+              "name": "Hybrid Capacitors",
+              "rarity": "Common",
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Capacitors",
+              "id": "electrochemicalarrays",
+              "kind": "manufactured",
+              "name": "Electrochemical Arrays",
+              "rarity": "Standard",
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Capacitors",
+              "id": "polymercapacitors",
+              "kind": "manufactured",
+              "name": "Polymer Capacitors",
+              "rarity": "Rare",
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Capacitors",
+              "id": "militarysupercapacitors",
+              "kind": "manufactured",
+              "name": "Military Supercapacitors",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "Any allegiance. War / Civil War on the spawning faction. Check Contacts → INFO.",
+                  "kind": "hge",
+                  "query": "military",
+                  "summary": "High Grade Emissions spawned by a faction in War or Civil War."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Capacitors"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Shielding",
+              "id": "wornshieldemitters",
+              "kind": "manufactured",
+              "name": "Worn Shield Emitters",
+              "rarity": "Very common",
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Shielding",
+              "id": "shieldemitters",
+              "kind": "manufactured",
+              "name": "Shield Emitters",
+              "rarity": "Common",
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Shielding",
+              "id": "shieldingsensors",
+              "kind": "manufactured",
+              "name": "Shielding Sensors",
+              "rarity": "Standard",
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Shielding",
+              "id": "compoundshielding",
+              "kind": "manufactured",
+              "name": "Compound Shielding",
+              "rarity": "Rare",
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Shielding",
+              "id": "imperialshielding",
+              "kind": "manufactured",
+              "name": "Imperial Shielding",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "Empire systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+                  "kind": "hge",
+                  "query": "empire_shielding",
+                  "summary": "High Grade Emissions spawned by an Empire faction."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Shielding"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Composite",
+              "id": "compactcomposites",
+              "kind": "manufactured",
+              "name": "Compact Composites",
+              "rarity": "Very common",
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Composite",
+              "id": "filamentcomposites",
+              "kind": "manufactured",
+              "name": "Filament Composites",
+              "rarity": "Common",
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Composite",
+              "id": "highdensitycomposites",
+              "kind": "manufactured",
+              "name": "High Density Composites",
+              "rarity": "Standard",
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Composite",
+              "id": "fedproprietarycomposites",
+              "kind": "manufactured",
+              "name": "Proprietary Composites",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "Federation systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+                  "kind": "hge",
+                  "query": "fed_composites",
+                  "summary": "High Grade Emissions spawned by a Federation faction."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Composite",
+              "id": "fedcorecomposites",
+              "kind": "manufactured",
+              "name": "Core Dynamics Composites",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "Federation systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+                  "kind": "hge",
+                  "query": "fed_composites",
+                  "summary": "High Grade Emissions spawned by a Federation faction."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Composite"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Crystals",
+              "id": "crystalshards",
+              "kind": "manufactured",
+              "name": "Crystal Shards",
+              "rarity": "Very common",
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Crystals",
+              "id": "uncutfocuscrystals",
+              "kind": "manufactured",
+              "name": "Flawed Focus Crystals",
+              "rarity": "Common",
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Crystals",
+              "id": "focuscrystals",
+              "kind": "manufactured",
+              "name": "Focus Crystals",
+              "rarity": "Standard",
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Crystals",
+              "id": "refinedfocuscrystals",
+              "kind": "manufactured",
+              "name": "Refined Focus Crystals",
+              "rarity": "Rare",
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Crystals",
+              "id": "exquisitefocuscrystals",
+              "kind": "manufactured",
+              "name": "Exquisite Focus Crystals",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "Trade up at a manufactured trader, or look at mission rewards.",
+                  "kind": "not_hge",
+                  "summary": "Not at High Grade Emissions. Missions or a manufactured trader."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Crystals"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Alloys",
+              "id": "salvagedalloys",
+              "kind": "manufactured",
+              "name": "Salvaged Alloys",
+              "rarity": "Very common",
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Alloys",
+              "id": "galvanisingalloys",
+              "kind": "manufactured",
+              "name": "Galvanising Alloys",
+              "rarity": "Common",
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Alloys",
+              "id": "phasealloys",
+              "kind": "manufactured",
+              "name": "Phase Alloys",
+              "rarity": "Standard",
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Alloys",
+              "id": "protolightalloys",
+              "kind": "manufactured",
+              "name": "Proto Light Alloys",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO.",
+                  "kind": "hge",
+                  "query": "proto",
+                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Alloys",
+              "id": "protoradiolicalloys",
+              "kind": "manufactured",
+              "name": "Proto Radiolic Alloys",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO.",
+                  "kind": "hge",
+                  "query": "proto",
+                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Alloys"
+        }
+      ],
+      "held": 40,
+      "id": "manufactured",
+      "title": "Manufactured",
+      "trader": "Manufactured material trader"
     },
     {
-      "id": "improvisedcomponents",
-      "name": "Improvised Components",
-      "count": 0,
-      "capacity": 100,
-      "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Civil Unrest."
-    },
-    {
-      "id": "militarygradealloys",
-      "name": "Military Grade Alloys",
-      "count": 0,
-      "capacity": 100,
-      "summary": "High Grade Emissions spawned by a faction in War or Civil War."
-    },
-    {
-      "id": "militarysupercapacitors",
-      "name": "Military Supercapacitors",
-      "count": 0,
-      "capacity": 100,
-      "summary": "High Grade Emissions spawned by a faction in War or Civil War."
-    },
-    {
-      "id": "pharmaceuticalisolators",
-      "name": "Pharmaceutical Isolators",
-      "count": 0,
-      "capacity": 100,
-      "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak."
-    },
-    {
-      "id": "fedproprietarycomposites",
-      "name": "Proprietary Composites",
-      "count": 0,
-      "capacity": 150,
-      "summary": "High Grade Emissions spawned by a Federation faction."
-    },
-    {
-      "id": "protoheatradiators",
-      "name": "Proto Heat Radiators",
-      "count": 0,
-      "capacity": 100,
-      "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom."
+      "capacity": 6000,
+      "grades": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "groups": [
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Emission Data",
+              "id": "scrambledemissiondata",
+              "kind": "encoded",
+              "name": "Exceptional Scrambled Emission Data",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Emission Data",
+              "id": "archivedemissiondata",
+              "kind": "encoded",
+              "name": "Irregular Emission Data",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 32,
+              "grade": 3,
+              "group": "Emission Data",
+              "id": "emissiondata",
+              "kind": "encoded",
+              "name": "Unexpected Emission Data",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Emission Data",
+              "id": "decodedemissiondata",
+              "kind": "encoded",
+              "name": "Decoded Emission Data",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Emission Data",
+              "id": "compactemissionsdata",
+              "kind": "encoded",
+              "name": "Abnormal Compact Emissions Data",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Emission Data"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 4,
+              "grade": 1,
+              "group": "Wake Scans",
+              "id": "disruptedwakeechoes",
+              "kind": "encoded",
+              "name": "Atypical Disrupted Wake Echoes",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+                  "kind": "wake_scan",
+                  "query": "famine",
+                  "summary": "Wake scanning where traffic never stops."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Wake Scans",
+              "id": "fsdtelemetry",
+              "kind": "encoded",
+              "name": "Anomalous FSD Telemetry",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+                  "kind": "wake_scan",
+                  "query": "famine",
+                  "summary": "Wake scanning where traffic never stops."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Wake Scans",
+              "id": "wakesolutions",
+              "kind": "encoded",
+              "name": "Strange Wake Solutions",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+                  "kind": "wake_scan",
+                  "query": "famine",
+                  "summary": "Wake scanning where traffic never stops."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Wake Scans",
+              "id": "hyperspacetrajectories",
+              "kind": "encoded",
+              "name": "Eccentric Hyperspace Trajectories",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+                  "kind": "wake_scan",
+                  "query": "famine",
+                  "summary": "Wake scanning where traffic never stops."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Wake Scans",
+              "id": "dataminedwake",
+              "kind": "encoded",
+              "name": "Datamined Wake Exceptions",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+                  "kind": "wake_scan",
+                  "query": "famine",
+                  "summary": "Wake scanning where traffic never stops."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Wake Scans"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Shield Data",
+              "id": "shieldcyclerecordings",
+              "kind": "encoded",
+              "name": "Distorted Shield Cycle Recordings",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Shield Data",
+              "id": "shieldsoakanalysis",
+              "kind": "encoded",
+              "name": "Inconsistent Shield Soak Analysis",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Shield Data",
+              "id": "shielddensityreports",
+              "kind": "encoded",
+              "name": "Untypical Shield Scans",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Shield Data",
+              "id": "shieldpatternanalysis",
+              "kind": "encoded",
+              "name": "Aberrant Shield Pattern Analysis",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Shield Data",
+              "id": "shieldfrequencydata",
+              "kind": "encoded",
+              "name": "Peculiar Shield Frequency Data",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Shield Data"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Encryption Files",
+              "id": "encryptedfiles",
+              "kind": "encoded",
+              "name": "Unusual Encrypted Files",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Encryption Files",
+              "id": "encryptioncodes",
+              "kind": "encoded",
+              "name": "Tagged Encryption Codes",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Encryption Files",
+              "id": "symmetrickeys",
+              "kind": "encoded",
+              "name": "Open Symmetric Keys",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Encryption Files",
+              "id": "encryptionarchives",
+              "kind": "encoded",
+              "name": "Atypical Encryption Archives",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Encryption Files",
+              "id": "adaptiveencryptors",
+              "kind": "encoded",
+              "name": "Adaptive Encryptors Capture",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri.",
+                  "kind": "jameson",
+                  "summary": "Jameson Crash Site data points."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Encryption Files"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Data Archives",
+              "id": "bulkscandata",
+              "kind": "encoded",
+              "name": "Anomalous Bulk Scan Data",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Data Archives",
+              "id": "scanarchives",
+              "kind": "encoded",
+              "name": "Unidentified Scan Archives",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Data Archives",
+              "id": "scandatabanks",
+              "kind": "encoded",
+              "name": "Classified Scan Databanks",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Data Archives",
+              "id": "encodedscandata",
+              "kind": "encoded",
+              "name": "Divergent Scan Data",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Data Archives",
+              "id": "classifiedscandata",
+              "kind": "encoded",
+              "name": "Classified Scan Fragment",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Data Archives"
+        },
+        {
+          "cells": [
+            {
+              "capacity": 300,
+              "count": 0,
+              "grade": 1,
+              "group": "Encoded Firmware",
+              "id": "legacyfirmware",
+              "kind": "encoded",
+              "name": "Specialised Legacy Firmware",
+              "rarity": "Very common",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 250,
+              "count": 0,
+              "grade": 2,
+              "group": "Encoded Firmware",
+              "id": "consumerfirmware",
+              "kind": "encoded",
+              "name": "Modified Consumer Firmware",
+              "rarity": "Common",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri.",
+                  "kind": "jameson",
+                  "summary": "Jameson Crash Site data points."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 200,
+              "count": 0,
+              "grade": 3,
+              "group": "Encoded Firmware",
+              "id": "industrialfirmware",
+              "kind": "encoded",
+              "name": "Cracked Industrial Firmware",
+              "rarity": "Standard",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri.",
+                  "kind": "jameson",
+                  "summary": "Jameson Crash Site data points."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 150,
+              "count": 0,
+              "grade": 4,
+              "group": "Encoded Firmware",
+              "id": "securityfirmware",
+              "kind": "encoded",
+              "name": "Security Firmware Patch",
+              "rarity": "Rare",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            },
+            {
+              "capacity": 100,
+              "count": 0,
+              "grade": 5,
+              "group": "Encoded Firmware",
+              "id": "embeddedfirmware",
+              "kind": "encoded",
+              "name": "Modified Embedded Firmware",
+              "rarity": "Very rare",
+              "sources": [
+                {
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+                }
+              ],
+              "trader": true
+            }
+          ],
+          "name": "Encoded Firmware"
+        }
+      ],
+      "held": 36,
+      "id": "encoded",
+      "title": "Encoded",
+      "trader": "Encoded material trader"
     }
-  ]
+  ],
+  "other": [],
+  "snapshot_ts": "2026-10-02T12:00:00Z",
+  "source": "Sample journal"
 }

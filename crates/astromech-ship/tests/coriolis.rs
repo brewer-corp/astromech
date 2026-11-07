@@ -24,6 +24,7 @@
 //! A value matches when it is within half a unit of Coriolis's last displayed digit: speeds,
 //! masses, shields and armour to the unit, jump ranges and power to 0.01, resistances to 0.1 %,
 //! DPS to 0.1, distributor values to 0.1 and time to drain to the second.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_engineering::{planned_modules, FleetBuilder, Target};
 use astromech_journal::{parse_line, JournalEvent, ModuleSnap};

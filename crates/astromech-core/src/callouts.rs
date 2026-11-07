@@ -12,6 +12,7 @@ use astromech_announce::prospector::{self, Thresholds};
 use astromech_announce::{Engine, Reaction, SpeechQueue};
 use astromech_api::reply::{Answer, Done};
 use astromech_api::Recover;
+use astromech_proto::{Clock, SystemClock};
 use serde::Serialize;
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -235,15 +236,25 @@ pub struct Toast {
     pub time: String,
 }
 
-/// The last few toasts.
-#[derive(Default)]
+/// The last few toasts, each stamped on `clock`.
 pub struct Toasts {
     inner: Mutex<(u64, VecDeque<Toast>)>,
+    clock: Arc<dyn Clock>,
+}
+
+impl Default for Toasts {
+    fn default() -> Self {
+        Self::new(Arc::new(SystemClock))
+    }
 }
 
 const TOASTS_KEPT: usize = 20;
 
 impl Toasts {
+    pub fn new(clock: Arc<dyn Clock>) -> Self {
+        Self { inner: Mutex::default(), clock }
+    }
+
     pub fn push(&self, rule: &str, text: &str) {
         let mut g = self.inner.lock().recover();
         g.0 += 1;
@@ -251,7 +262,8 @@ impl Toasts {
             id: g.0,
             rule: rule.into(),
             text: text.into(),
-            time: chrono::Local::now().to_rfc3339_opts(chrono::SecondsFormat::Secs, false),
+            time: chrono::DateTime::<chrono::Local>::from(self.clock.utc())
+                .to_rfc3339_opts(chrono::SecondsFormat::Secs, false),
         };
         g.1.push_back(t);
         while g.1.len() > TOASTS_KEPT {
@@ -323,12 +335,13 @@ pub struct Background {
 }
 
 impl Background {
-    pub fn start(inner: Arc<dyn Notifier>, gap: Duration) -> std::io::Result<Self> {
+    /// `gap` is measured on `clock`.
+    pub fn start(inner: Arc<dyn Notifier>, gap: Duration, clock: Arc<dyn Clock>) -> std::io::Result<Self> {
         let (tx, rx) = std::sync::mpsc::sync_channel::<String>(4);
         std::thread::Builder::new().name("notify".into()).spawn(move || {
             let mut last: Option<Instant> = None;
             while let Ok(text) = rx.recv() {
-                let now = Instant::now();
+                let now = clock.now();
                 if last.is_some_and(|l| now.saturating_duration_since(l) < gap) {
                     log(&format!("notification skipped (one per {} s): {text}", gap.as_secs()));
                     continue;
@@ -367,10 +380,23 @@ pub fn platform_notifier() -> Arc<dyn Notifier> {
 }
 
 /// Spoken callouts waiting for the speaker, shared by the pipeline (push) and [`SpeechOut`].
-#[derive(Default)]
 pub struct Pending {
-    q: Mutex<SpeechQueue>,
-    cv: Condvar,
+    q: Arc<Mutex<SpeechQueue>>,
+    cv: Arc<Condvar>,
+    /// What [`SpeechOut`] waits on and reads the time from, and what a push notifies through.
+    clock: Arc<dyn Clock>,
+}
+
+impl Default for Pending {
+    fn default() -> Self {
+        Self::new(Arc::new(SystemClock))
+    }
+}
+
+impl Pending {
+    pub fn new(clock: Arc<dyn Clock>) -> Self {
+        Self { q: Default::default(), cv: Default::default(), clock }
+    }
 }
 
 /// Where reactions go: speech to `pending`, toasts to `toasts`, notifications to `notifier`.
@@ -390,7 +416,7 @@ pub fn router(
             }
             if r.channels.speech {
                 pending.q.lock().recover().push(r);
-                pending.cv.notify_all();
+                pending.clock.notify_all(&pending.q, &pending.cv);
             }
         }
     }
@@ -471,7 +497,7 @@ impl VoiceTurn {
 
 /// The thread that speaks queued callouts, one at a time: it waits while the speaker is still
 /// talking so a callout doesn't cut off the one before it, and during a [`VoiceTurn`]. Stops
-/// when dropped.
+/// when dropped. It runs on its [`Pending`]'s clock, registered with it.
 pub struct SpeechOut {
     stop: Arc<AtomicBool>,
     pending: Arc<Pending>,
@@ -482,20 +508,21 @@ impl SpeechOut {
     pub fn start(pending: Arc<Pending>, speaker: Arc<dyn Speaker>, turn: &'static VoiceTurn) -> std::io::Result<Self> {
         let stop = Arc::new(AtomicBool::new(false));
         let (stop2, p) = (stop.clone(), pending.clone());
-        let thread = std::thread::Builder::new().name("callouts".into()).spawn(move || loop {
+        let clock = &pending.clock;
+        let thread = clock.spawn(std::thread::Builder::new().name("callouts".into()), move || loop {
             let next = {
                 let mut q = p.q.lock().recover();
                 loop {
                     if stop2.load(Ordering::SeqCst) {
                         return;
                     }
-                    if !q.is_empty() && !speaker.busy() && !turn.active(Instant::now()) {
-                        if let Some(r) = q.pop(Instant::now()) {
+                    if !q.is_empty() && !speaker.busy() && !turn.active(p.clock.now()) {
+                        if let Some(r) = q.pop(p.clock.now()) {
                             break r;
                         }
                     }
                     let wait = if q.is_empty() { Duration::from_millis(250) } else { Duration::from_millis(50) };
-                    q = p.cv.wait_timeout(q, wait).recover().0;
+                    q = p.clock.wait_timeout(&p.q, &p.cv, q, wait).0;
                 }
             };
             speaker.say(&next.text);
@@ -507,7 +534,7 @@ impl SpeechOut {
 impl Drop for SpeechOut {
     fn drop(&mut self) {
         self.stop.store(true, Ordering::SeqCst);
-        self.pending.cv.notify_all();
+        self.pending.clock.notify_all(&self.pending.q, &self.pending.cv);
         if let Some(t) = self.thread.take() {
             let _ = t.join();
         }
@@ -515,6 +542,7 @@ impl Drop for SpeechOut {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::speech::RecordingSpeaker;
@@ -684,7 +712,7 @@ mod tests {
     fn notifications_run_in_the_background_at_most_one_per_gap() {
         // notify never blocks the caller, and the rest inside the gap are dropped.
         let slow = Slow::new();
-        let n = Background::start(slow.clone(), Duration::from_secs(60)).unwrap();
+        let n = Background::start(slow.clone(), Duration::from_secs(60), Arc::new(SystemClock)).unwrap();
         let t0 = Instant::now();
         n.notify("First.");
         n.notify("Second.");
@@ -699,7 +727,7 @@ mod tests {
         // earlier than the start of A that the notifier measures from.
         let gap = Duration::from_millis(300);
         let fast = Slow::new();
-        let n = Background::start(fast.clone(), gap).unwrap();
+        let n = Background::start(fast.clone(), gap, Arc::new(SystemClock)).unwrap();
         n.notify("A.");
         fast.wait_for(&["A."]);
         let a_at = fast.0.lock().recover()[0].1;

@@ -1,4 +1,5 @@
 //! The sampling tracker: counts, positions and clearance from synthetic journal and Status.json.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_exobiology::sampling::Sampling;
 use astromech_journal::parse_line;

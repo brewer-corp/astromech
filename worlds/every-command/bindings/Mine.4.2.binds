@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Root PresetName="Mine" MajorVersion="4" MinorVersion="2">
+ <KeyboardLayout>en-US</KeyboardLayout>
+ <NightVisionToggle><Primary Device="Keyboard" Key="Key_V" /><Secondary Device="{NoDevice}" Key="" /></NightVisionToggle>
+ <ShipSpotLightToggle><Primary Device="Keyboard" Key="Key_Insert" /><Secondary Device="{NoDevice}" Key="" /></ShipSpotLightToggle>
+</Root>

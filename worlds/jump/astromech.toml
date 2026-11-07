@@ -1,0 +1,3 @@
+# A jump along a route (crates/astromech-core/src/world.rs): the commander is in Sol, Elite
+# starts, and the next step jumps to Alpha Centauri. World mode points every folder at its temp
+# copy. The journal lines are hand-built in the shape the game writes.

@@ -1,4 +1,5 @@
 //! Journal replay of exploration and its sale into the unsold-data total.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_exploration::unsold::{from_json_lines, RISKY};
 use astromech_exploration::value::{planet_value, star_value, Terms};

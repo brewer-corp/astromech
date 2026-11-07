@@ -1,5 +1,6 @@
 //! Live lookup against a star map: `cargo run -p astromech-galaxy --example nearby -- <galaxy.db> <system> <query> [range]`
 //! (system must be in the store; queries: famine, fed_composites, empire_shielding, proto, military, improvised, pharma)
+#![allow(clippy::disallowed_methods)] // a developer tool, not the core
 fn main() -> anyhow::Result<()> {
     let a: Vec<String> = std::env::args().skip(1).collect();
     let [db, system, query, rest @ ..] = a.as_slice() else {

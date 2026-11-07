@@ -2,6 +2,7 @@
 //! Sol, submitted, polled while queued, then done; astromech-data's fixtures) and the two
 //! stations' Ardent markets from the same evening, trimmed to a few commodities
 //! (tests/fixtures). No test here touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::spansh::Polling;
 use astromech_data::{Body, Cache, Client, Error, Limiter, Request, Response, Transport, TransportError};

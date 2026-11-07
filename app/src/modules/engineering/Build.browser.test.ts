@@ -1,5 +1,5 @@
-// Ship detail component tests. The stats come from the fixture astromech-ship's dump-ships-fixture
-// example writes (preview/fixtures/ships.json): the synthetic Krait MkII combat build and its stats
+// Ship detail component tests. The stats come from the fixture the real core dumps in the world
+// worlds/preview/krait (preview/fixtures/ships.json): the synthetic Krait MkII combat build and its stats
 // for each build plan. The expected numbers are what Coriolis shows for those builds, the same
 // values crates/astromech-ship/tests/coriolis.rs checks (krait_mkii_combat and plan_*); a change
 // is the planned value minus the current one, both as shown.

@@ -10,6 +10,7 @@
 //! measures model time only. Feature extraction, the TDT decoder/joiner loop and the
 //! phonemiser are cheap on the CPU and are not part of it. The main tool runs it and reads
 //! the single result line prefixed with `@@GPU@@ `.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 use anyhow::{anyhow, bail, Context, Result};
 use ort::session::{builder::GraphOptimizationLevel, Session};

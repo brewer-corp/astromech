@@ -171,6 +171,7 @@ pub fn edsm_sphere(client: &Client, p: [f64; 3], radius: f64) -> Result<Vec<(i64
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

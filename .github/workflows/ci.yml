@@ -93,6 +93,10 @@ jobs:
       - name: frontend tests (node and browser projects)
         working-directory: app
         run: pnpm test
+      # The dev bridge (app/dev/bridge.ts) on worlds/minimal, with the core `cargo test` built.
+      - name: dev bridge answers with the real core
+        working-directory: app
+        run: pnpm bridge-check
 
   windows:
     name: Windows (MSVC build + tests, app shell)

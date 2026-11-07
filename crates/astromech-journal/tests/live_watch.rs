@@ -1,6 +1,7 @@
 //! astromech-ztrb: a page that caches what it reads from the journals must see an event appended
 //! to the journal the game still holds open, without relying on directory metadata or file
 //! notifications, and must not re-read when the game only appended events nothing models.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_journal::JournalWatch;
 use std::io::Write;

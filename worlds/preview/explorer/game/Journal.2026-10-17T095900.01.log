@@ -1,0 +1,4 @@
+{"timestamp":"2026-10-17T09:59:00Z","event":"Fileheader","part":1,"language":"English/UK","Odyssey":true,"gameversion":"4.2.1.0","build":"synthetic"}
+{"timestamp":"2026-10-17T09:59:05Z","event":"Commander","FID":"F0000001","Name":"Jameson"}
+{"timestamp":"2026-10-17T09:59:06Z","event":"LoadGame","FID":"F0000001","Commander":"Jameson","Horizons":true,"Odyssey":true,"Ship":"DiamondBackXL","ShipID":2,"ShipName":"","ShipIdent":"","FuelLevel":32.0,"FuelCapacity":32.0,"GameMode":"Solo","Credits":1000000,"Loan":0}
+{"timestamp":"2026-10-17T09:59:10Z","event":"Location","Docked":false,"StarSystem":"Shinrarta Dezhra","SystemAddress":3932277478106,"StarPos":[55.71875,17.59375,27.15625],"Body":"Shinrarta Dezhra","BodyType":"Star"}

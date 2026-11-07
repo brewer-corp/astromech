@@ -2,6 +2,7 @@
 //! Nearby search (`Galaxy::nearby`) with the lookup's remembered filters, on Spansh's recorded
 //! famine search from Sol (astromech-galaxy's fixture) → spoken answer. Nothing is pressed and
 //! no test touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::actions::{Outcome, Runner};
 use astromech_core::assistant::{Assistant, Handled};
@@ -47,6 +48,16 @@ struct Later;
 impl Clock for Later {
     fn now_s(&self) -> i64 {
         chrono::DateTime::parse_from_rfc3339("2026-10-16T21:00:00Z").unwrap().timestamp()
+    }
+    // A wall clock the test sets; the monotonic time and sleeps stay real.
+    fn now(&self) -> std::time::Instant {
+        std::time::Instant::now()
+    }
+    fn utc(&self) -> std::time::SystemTime {
+        std::time::UNIX_EPOCH + std::time::Duration::from_secs(self.now_s() as u64)
+    }
+    fn sleep(&self, d: std::time::Duration) {
+        std::thread::sleep(d)
     }
 }
 

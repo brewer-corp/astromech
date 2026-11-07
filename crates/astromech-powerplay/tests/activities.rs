@@ -1,6 +1,7 @@
 //! What earns merits here: replays a synthetic session (`fixtures/activities`, pledged to Li
 //! Yong-Rui) with one system per state in the rules table and checks the suggestions the page
 //! shows at each stop, in order (the power's ethos and the controller's weak spots first).
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_journal::{parse_line, JournalEvent};
 use astromech_powerplay::{Journal, Suggestion};
@@ -15,7 +16,7 @@ fn stops() -> Vec<(String, Vec<Suggestion>)> {
     for l in std::fs::read_to_string(p).unwrap().lines().map(|l| parse_line(l).unwrap()) {
         j.apply(&l);
         if matches!(l.event, JournalEvent::FsdJump { .. } | JournalEvent::Location { .. }) {
-            let o = j.overview();
+            let o = j.overview(chrono::Utc::now());
             out.push((o.here.unwrap(), o.system.map(|s| s.suggestions).unwrap_or_default()));
         }
     }
@@ -207,7 +208,7 @@ fn nothing_is_suggested_before_pledging() {
     let mut j = Journal::default();
     let line = r#"{ "timestamp":"2026-10-16T20:10:00Z", "event":"FSDJump", "StarSystem":"Test Own Fortified", "JumpDist":5.0, "ControllingPower":"Li Yong-Rui", "Powers":["Li Yong-Rui"], "PowerplayState":"Fortified", "PowerplayStateControlProgress":0.28 }"#;
     j.apply(&parse_line(line).unwrap());
-    let s = j.overview().system.unwrap();
+    let s = j.overview(chrono::Utc::now()).system.unwrap();
     assert!(s.suggestions.is_empty());
     assert_eq!(s.activity_rules.fetched, "2026-10-16");
 }

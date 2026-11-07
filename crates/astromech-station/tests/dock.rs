@@ -1,5 +1,6 @@
 //! Replay a docking (journal + `Outfitting.json`) the way the core does, then ask what is here
 //! and, from a book reopened later, where a module was seen.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_gamestate::GameState;
 use astromech_journal::companion::{load, triggers, CompanionFile, OutfittingSnap};

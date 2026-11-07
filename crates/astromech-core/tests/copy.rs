@@ -1,6 +1,7 @@
 //! The callout copy guide (docs/V1-DESIGN.md §6.5), checked over every line astromech speaks
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_announce::{
     arrival, biology, builtin, discovery, docking, fuel, hge, known_bodies, missions, powerplay_arrival,
@@ -1133,7 +1134,7 @@ fn the_missing_key_help_lines_keep_to_the_copy_guide() {
     )
     .unwrap();
     std::fs::write(d.path().join("StartPreset.4.start"), "Pads\nPads\nPads\nPads\n").unwrap();
-    let read = run_check(d.path(), Some(&d.path().join("nogame")), false);
+    let read = run_check(d.path(), Some(&d.path().join("nogame")), false, &astromech_proto::SystemClock);
     let mut lines = vec![];
     for action in astromech_keybinds::catalog::VOICE_ACTIONS {
         let noun = astromech_core::health::elite_ui_name(action);

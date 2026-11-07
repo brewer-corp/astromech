@@ -8,6 +8,7 @@
 //!                                or Slint's CPU software renderer straight into a pixel buffer
 //!
 //! Standalone demo: reads nothing, writes nothing (except --png), never touches the game.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 slint::include_modules!();
 

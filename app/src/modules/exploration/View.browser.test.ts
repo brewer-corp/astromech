@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/svelte";
+import { answer, previewAnswer } from "../../test/transport";
 import View from "./View.svelte";
 
-// Outside the app the view is the sample system (the Rust replay test's journal, folded).
+// Outside the app the view is the sample system (worlds/preview/explorer: the Rust replay test's
+// journal, with two landings and two samples on A 4 a), dumped from the core.
 describe("Exploration system view", () => {
   it("shows every scanned body with its value", async () => {
     render(View);
@@ -22,12 +24,22 @@ describe("Exploration system view", () => {
     expect(screen.getByText("Landed 2 times")).toBeTruthy();
   });
 
-  it("shows the unsold data with a reminder when it is a lot", async () => {
+  it("shows the unsold data, with no reminder while it is under the risky mark", async () => {
     render(View);
-    await screen.findByText("38.4 M cr");
-    expect(screen.getByText("412 bodies in 46 systems")).toBeTruthy();
-    expect(screen.getByText("41.0 M cr")).toBeTruthy();
+    await screen.findByText("33.3 M cr");
+    expect(screen.getAllByText("4.8 M cr").length).toBeGreaterThan(0);
+    expect(screen.getByText("5 bodies in 1 systems")).toBeTruthy();
+    expect(screen.getByText("38.1 M cr")).toBeTruthy();
+    expect(screen.getByText(/unsold since 2026-10-17 11:00 UTC/)).toBeTruthy();
+    // Under the 50 M cr the core calls risky, so no reminder.
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("reminds that dying loses unsold data once it is a lot", async () => {
+    const unsold = await previewAnswer("exploration_unsold");
+    answer("exploration_unsold", () => ({ ...unsold, organic: 74_635_746, total: 79_436_307, risky: true }));
+    render(View);
+    await screen.findByText("79.4 M cr");
     expect(screen.getByRole("alert").textContent).toContain("79.4 M cr aboard. Dying loses all of it");
-    expect(screen.getByText(/unsold since 2026-10-03 18:22 UTC/)).toBeTruthy();
   });
 });

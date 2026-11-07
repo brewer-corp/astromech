@@ -20,6 +20,8 @@ pub fn set_text(text: &str) -> Result<(), String> {
                 opened = true;
                 break;
             }
+            // Real time: it retries a held clipboard, and finishes on its own.
+            #[allow(clippy::disallowed_methods)]
             std::thread::sleep(std::time::Duration::from_millis(20));
         }
         if !opened {

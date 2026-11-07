@@ -45,6 +45,7 @@ impl HttpApi {
     }
 
     /// Every request gives up after `timeout` overall.
+    #[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
     pub fn with_timeout(user_agent: &str, timeout: Duration) -> Self {
         Self { agent: ureq::AgentBuilder::new().timeout(timeout).build(), user_agent: user_agent.into(), timeout }
     }
@@ -156,6 +157,7 @@ pub fn flight_log(api: &dyn Api, c: &Credentials) -> Result<Vec<Visit>, String> 
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 pub(crate) mod tests {
     use super::*;
     use std::sync::{Arc, Mutex};

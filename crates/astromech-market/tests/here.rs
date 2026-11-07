@@ -2,6 +2,7 @@
 //! "Test Gateway" in LHS 2435 and Ardent's nearby imports around LHS 2435 asked with
 //! maxDistance=20 and maxDaysAgo=30 on 16 Oct 2026, trimmed to ten markets each (fleet carrier
 //! names and ids replaced). No test here touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::{Cache, Client, Limiter, Request, Response, Transport, TransportError};
 use astromech_galaxy::Filters;

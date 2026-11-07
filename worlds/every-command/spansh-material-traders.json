@@ -1,0 +1,147 @@
+{
+ "count": 1636,
+ "from": 0,
+ "reference": {
+  "id64": 10477373803,
+  "name": "Sol",
+  "x": 0.0,
+  "y": 0.0,
+  "z": 0.0
+ },
+ "results": [
+  {
+   "name": "Patterson Enterprise",
+   "market_id": 128136952,
+   "type": "Coriolis Starport",
+   "system_name": "Sirius",
+   "system_id64": 121569805492,
+   "system_x": 6.25,
+   "system_y": -1.28125,
+   "system_z": -5.75,
+   "distance": 8.58874854460765,
+   "distance_to_arrival": 952.348348,
+   "has_large_pad": true,
+   "large_pads": 9,
+   "medium_pads": 18,
+   "small_pads": 17,
+   "is_planetary": false,
+   "material_trader": "Manufactured",
+   "updated_at": "2026-10-16T19:10:57Z",
+   "outfitting_updated_at": "2026-10-16T19:10:57Z",
+   "shipyard_updated_at": "2026-10-16T18:17:28Z",
+   "services": [
+    {
+     "name": "Material Trader"
+    }
+   ]
+  },
+  {
+   "name": "Magnus Gateway",
+   "market_id": 3228841728,
+   "type": "Coriolis Starport",
+   "system_name": "EZ Aquarii",
+   "system_id64": 22661186987433,
+   "system_x": -4.4375,
+   "system_y": -9.3125,
+   "system_z": 4.09375,
+   "distance": 11.0983265208093,
+   "distance_to_arrival": 395.244469,
+   "has_large_pad": true,
+   "large_pads": 5,
+   "medium_pads": 11,
+   "small_pads": 9,
+   "is_planetary": false,
+   "material_trader": "Encoded",
+   "technology_broker": "Guardian",
+   "updated_at": "2026-10-16T19:29:00Z",
+   "outfitting_updated_at": "2026-10-16T19:29:00Z",
+   "shipyard_updated_at": "2026-10-16T19:01:26Z",
+   "services": [
+    {
+     "name": "Material Trader"
+    },
+    {
+     "name": "Technology Broker"
+    }
+   ]
+  },
+  {
+   "name": "Broglie Terminal",
+   "market_id": 3228837888,
+   "type": "Ocellus Starport",
+   "system_name": "61 Cygni",
+   "system_id64": 5856288576210,
+   "system_x": -11.21875,
+   "system_y": -1.1875,
+   "system_z": 1.40625,
+   "distance": 11.3687311022383,
+   "distance_to_arrival": 24.04,
+   "has_large_pad": true,
+   "large_pads": 6,
+   "medium_pads": 12,
+   "small_pads": 10,
+   "is_planetary": false,
+   "material_trader": "Raw",
+   "updated_at": "2026-10-16T10:59:51Z",
+   "outfitting_updated_at": "2026-10-16T08:40:18Z",
+   "shipyard_updated_at": "2026-10-16T08:16:35Z",
+   "services": [
+    {
+     "name": "Material Trader"
+    }
+   ]
+  },
+  {
+   "name": "Clement Orbital",
+   "market_id": 3228847616,
+   "type": "Coriolis Starport",
+   "system_name": "YZ Ceti",
+   "system_id64": 2869977687465,
+   "system_x": -1.1875,
+   "system_y": -11.8125,
+   "system_z": -2.15625,
+   "distance": 12.0662639852814,
+   "distance_to_arrival": 1244.462337,
+   "has_large_pad": true,
+   "large_pads": 6,
+   "medium_pads": 13,
+   "small_pads": 7,
+   "is_planetary": false,
+   "material_trader": "Encoded",
+   "updated_at": "2026-10-16T06:32:06Z",
+   "outfitting_updated_at": "2026-10-16T05:41:27Z",
+   "shipyard_updated_at": "2026-10-16T05:41:27Z",
+   "services": [
+    {
+     "name": "Material Trader"
+    }
+   ]
+  },
+  {
+   "name": "Kepler Gateway",
+   "market_id": 3228884736,
+   "type": "Coriolis Starport",
+   "system_name": "Kruger 60",
+   "system_id64": 22660918617513,
+   "system_x": -12.625,
+   "system_y": 0.0,
+   "system_z": -3.40625,
+   "distance": 13.0764354494067,
+   "distance_to_arrival": 3361.756979,
+   "has_large_pad": true,
+   "large_pads": 5,
+   "medium_pads": 12,
+   "small_pads": 11,
+   "is_planetary": false,
+   "material_trader": "Encoded",
+   "updated_at": "2026-10-16T17:40:53Z",
+   "outfitting_updated_at": "2026-10-16T17:13:55Z",
+   "shipyard_updated_at": "2026-10-16T17:13:55Z",
+   "services": [
+    {
+     "name": "Material Trader"
+    }
+   ]
+  }
+ ]
+}

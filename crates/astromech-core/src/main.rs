@@ -1,5 +1,6 @@
-//! astromech-core: the always-running core with the tray icon (default), or the console
-//! preview (`--console`, and the one-shot options such as `--listen` and `--health`).
+//! astromech-core: the always-running core with the tray icon (default), the console
+//! preview (`--console`, and the one-shot options such as `--listen` and `--health`), or world
+//! mode (`--world`, headless against a scripted world).
 
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
@@ -8,7 +9,7 @@ use astromech_api::Recover;
 use astromech_core::config::{Config, SAMPLE};
 use astromech_core::logging::log;
 use astromech_core::session::{self, Session};
-use astromech_proto::Origin;
+use astromech_proto::{Origin, SystemClock};
 use astromech_store::Paths;
 use clap::Parser;
 use std::io::BufRead;
@@ -86,7 +87,41 @@ struct Args {
     /// Start astromech-core again after copying (with --route: open the window at that page)
     #[arg(long)]
     relaunch: bool,
+    /// Run headless against the scripted world in this folder (tests and the dev bridge): a temp
+    /// copy, fake processes, opener, clipboard and Start with Windows, no window or tray. Prints
+    /// the control API's port and token on stdout, then runs until `quit` or its stdin closes.
+    /// It takes no other option but `--record-net`, `--dry-run`, `--no-voice` and `--debug-input`
+    #[arg(long, value_name = "DIR", conflicts_with_all = WORLD_CONFLICTS)]
+    world: Option<PathBuf>,
+    /// With --world: send the lookups and EDSM's reads to the real services, and write their
+    /// answers to this file in the world's net.json form, with keys and commander names redacted
+    #[arg(long, value_name = "FILE", requires = "world")]
+    record_net: Option<PathBuf>,
 }
+
+/// Every option `--world` can't be given with: those that act on the user's real core or files
+/// (`--quit`, `--apply-update` and its options, `--config`), the installed app's own
+/// (`--background`, `--route`) and the console's, which `--world` would otherwise ignore.
+const WORLD_CONFLICTS: [&str; 18] = [
+    "quit",
+    "apply_update",
+    "from",
+    "install_dir",
+    "wait_pid",
+    "relaunch",
+    "config",
+    "background",
+    "route",
+    "console",
+    "write_config",
+    "health",
+    "listen",
+    "transcribe",
+    "download_models",
+    "list_mics",
+    "calibrate_files",
+    "eval",
+];
 
 impl Args {
     fn console_mode(&self) -> bool {
@@ -125,7 +160,9 @@ fn attach_console() -> bool {
     }
 }
 
-/// `--quit` (used by the installer): 0 if no core runs any more.
+/// `--quit` (used by the installer): 0 if no core runs any more. Real time: a console-only
+/// path, which world mode doesn't run.
+#[allow(clippy::disallowed_methods)]
 fn quit_running() -> i32 {
     let dir = Paths::current().app_dir().to_path_buf();
     let file = dir.join(astromech_api::control::FILE);
@@ -159,6 +196,9 @@ fn main() {
     }
     if args.quit {
         std::process::exit(quit_running());
+    }
+    if let Some(world) = &args.world {
+        std::process::exit(astromech_core::world::run(world, args.session_opts(), args.record_net.as_deref()));
     }
     if !args.console_mode() {
         let code = astromech_core::app::run(astromech_core::app::Opts {
@@ -219,6 +259,8 @@ fn download_models(cfg: &Config, paths: &Paths) -> Result<()> {
     Ok(())
 }
 
+/// Real time: a console-only path, which world mode doesn't run.
+#[allow(clippy::disallowed_methods)]
 fn run_console(args: Args) -> Result<()> {
     let paths = Paths::current();
     let cfg_path = args.config.clone().unwrap_or_else(|| paths.config_file());
@@ -312,7 +354,7 @@ fn run_console(args: Args) -> Result<()> {
     if args.health {
         let data = cfg.data_dir(&paths);
         let bindings = cfg.bindings_dir().context("can't find the Bindings folder; set game.bindings_dir")?;
-        let st = astromech_core::health::run_check(&bindings, cfg.game_dir().as_deref(), cfg!(windows));
+        let st = astromech_core::health::run_check(&bindings, cfg.game_dir().as_deref(), cfg!(windows), &SystemClock);
         print!("{}", st.summary());
         session::write_health(&data, &st);
         println!("Full report: {}", data.join("health.html").display());
@@ -321,7 +363,7 @@ fn run_console(args: Args) -> Result<()> {
     let opts = args.session_opts();
     astromech_core::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, std::sync::atomic::Ordering::SeqCst);
     let data = cfg.data_dir(&paths);
-    astromech_core::app::apply_edsm_switch(&cfg, &data, &astromech_store::secrets::OsKeyring::new());
+    astromech_core::app::apply_edsm_switch(&cfg, &data, &astromech_store::secrets::OsKeyring::new(), &SystemClock);
     let route =
         std::sync::Arc::new(astromech_core::route::Desk::in_dir(&data, Box::new(astromech_core::clipboard::set_text)));
     // The command layer's state, for its one remote-data client and star map; the folders are
@@ -332,7 +374,18 @@ fn run_console(args: Args) -> Result<()> {
         move || astromech_api::Folders { journal: journal.clone(), bindings: bindings.clone(), game: game.clone() };
     let remote = astromech_core::app::remote_client(&data);
     let api = astromech_api::State::new(data, remote, preload, folders);
-    let mut s = Session::start(&cfg, &paths, &opts, route, &api, astromech_core::callouts::platform_notifier())?;
+    let mut s = Session::start(
+        &cfg,
+        &paths,
+        &opts,
+        route,
+        &api,
+        astromech_core::callouts::platform_notifier(),
+        std::sync::Arc::new(SystemClock),
+        None,
+        &astromech_core::app::Http::real(),
+        &session::Io::real(),
+    )?;
     log(&s.voice);
 
     if let Some(wav) = &args.transcribe {
@@ -422,7 +475,9 @@ fn calibrate_files(cfg: &Config, data: &Path, files: &[PathBuf]) -> Result<()> {
     Ok(())
 }
 
+/// Real time: a console-only path, which world mode doesn't run.
 #[cfg(windows)]
+#[allow(clippy::disallowed_methods)]
 fn listen(secs: u64) -> Result<()> {
     use astromech_input::listen::{tracker::Processor, win};
     println!("Press buttons for {secs} s; each line shows the device and key to put in astromech.toml.");
@@ -465,4 +520,47 @@ fn listen(secs: u64) -> Result<()> {
 #[cfg(not(windows))]
 fn listen(_secs: u64) -> Result<()> {
     bail!("--listen needs Windows")
+}
+
+#[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
+mod tests {
+    use super::*;
+
+    /// `--world` runs only on its own (with the session's test options): with an option that
+    /// acts on the user's real core (`--quit` reads the real app folder) or one it would ignore,
+    /// parsing fails before anything runs.
+    #[test]
+    fn world_mode_refuses_every_other_option() {
+        let with = |extra: &[&str]| Args::try_parse_from([&["astromech-core", "--world", "w"], extra].concat());
+        for extra in [
+            &["--quit"][..],
+            &["--apply-update"],
+            &["--from", "p"],
+            &["--install-dir", "p"],
+            &["--wait-pid", "1"],
+            &["--relaunch"],
+            &["--config", "c.toml"],
+            &["--background"],
+            &["--route", "settings"],
+            &["--console"],
+            &["--write-config"],
+            &["--health"],
+            &["--listen", "5"],
+            &["--transcribe", "a.wav"],
+            &["--download-models"],
+            &["--list-mics"],
+            &["--calibrate-files", "a.wav", "b.wav"],
+            &["--eval", "d"],
+        ] {
+            let e = with(extra).map(|_| ()).unwrap_err();
+            assert_eq!(e.kind(), clap::error::ErrorKind::ArgumentConflict, "--world {extra:?}: {e}");
+        }
+        for extra in [&[][..], &["--dry-run", "--no-voice", "--debug-input"], &["--record-net", "net.json"]] {
+            let a = with(extra).unwrap();
+            assert_eq!(a.world.as_deref(), Some(Path::new("w")), "{extra:?}");
+        }
+        let e = Args::try_parse_from(["astromech-core", "--record-net", "net.json"]).map(|_| ()).unwrap_err();
+        assert_eq!(e.kind(), clap::error::ErrorKind::MissingRequiredArgument, "--record-net needs --world: {e}");
+    }
 }

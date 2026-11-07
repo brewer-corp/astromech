@@ -1,6 +1,7 @@
 //! Shared code for the S7/S9 spike tool and its voice worker: the worker protocol,
 //! the model catalogue and downloader, sample phrases, scoring and statistics.
 //! Everything here is platform-neutral so it can be unit-tested on Linux.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 pub mod catalog;
 pub mod download;

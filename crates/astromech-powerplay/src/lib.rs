@@ -76,10 +76,11 @@ impl Journal {
         }
     }
 
-    pub fn overview(&self) -> Overview {
+    /// The page at `now` (the standing's time left in the cycle is reckoned from it).
+    pub fn overview(&self, now: chrono::DateTime<chrono::Utc>) -> Overview {
         let pledged = self.standing.power.as_deref();
         Overview {
-            standing: self.standing.view(chrono::Utc::now()),
+            standing: self.standing.view(now),
             here: self.here.clone(),
             system: self.system.as_ref().map(|s| SystemView {
                 work: s.work_for(pledged),

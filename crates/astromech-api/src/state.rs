@@ -18,6 +18,7 @@
 use crate::lock;
 use astromech_journal::{journal_version, JournalCache, JournalVersion};
 use astromech_keybinds::api::Api;
+use astromech_proto::{Clock, SystemClock};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -55,6 +56,8 @@ pub struct GalaxyHolder {
     /// Held while the star map opens (it can seed from the preload), so the slot's lock is not
     /// and [`GalaxyHolder::peek`] never waits.
     opening: Mutex<()>,
+    /// When it was last handed out, for [`GalaxyHolder::release_idle`].
+    clock: Arc<dyn Clock>,
 }
 
 enum Slot {
@@ -76,14 +79,22 @@ pub enum Peek {
 impl GalaxyHolder {
     /// A star map that `open` opens when it is first asked for.
     pub fn new(open: impl Fn() -> anyhow::Result<astromech_galaxy::Galaxy> + Send + Sync + 'static) -> Self {
-        Self { open: Box::new(open), slot: Mutex::new(Slot::NotTried), opening: Mutex::new(()) }
+        Self::on(Arc::new(SystemClock), open)
+    }
+
+    /// [`GalaxyHolder::new`], its uses timed on `clock`.
+    fn on(
+        clock: Arc<dyn Clock>,
+        open: impl Fn() -> anyhow::Result<astromech_galaxy::Galaxy> + Send + Sync + 'static,
+    ) -> Self {
+        Self { open: Box::new(open), slot: Mutex::new(Slot::NotTried), opening: Mutex::new(()), clock }
     }
 
     /// The star map in `db` (seeded once from `preload`, if there is one), answering remote
-    /// requests through `remote`. Opening it logs which database and preload it used, or why
-    /// it couldn't.
+    /// requests through `remote`, on `remote`'s clock. Opening it logs which database and
+    /// preload it used, or why it couldn't.
     pub fn at(db: PathBuf, preload: Option<PathBuf>, remote: Arc<astromech_data::Client>) -> Self {
-        Self::new(move || {
+        Self::on(remote.clock_in_use().clone(), move || {
             let opened = astromech_galaxy::Galaxy::open(&db, preload.as_deref(), remote.clone());
             let from = preload.as_ref().map_or("no preload".into(), |p| format!("preload {}", p.display()));
             match &opened {
@@ -99,10 +110,12 @@ impl GalaxyHolder {
 
     /// A star map that is open already (a test's, over a store in memory).
     pub fn opened(galaxy: astromech_galaxy::Galaxy) -> Self {
+        let clock: Arc<dyn Clock> = Arc::new(SystemClock);
         Self {
             open: Box::new(|| anyhow::bail!("opened already")),
-            slot: Mutex::new(Slot::Open(Arc::new(galaxy), Instant::now())),
+            slot: Mutex::new(Slot::Open(Arc::new(galaxy), clock.now())),
             opening: Mutex::new(()),
+            clock,
         }
     }
 
@@ -111,7 +124,7 @@ impl GalaxyHolder {
     pub fn peek(&self) -> Peek {
         match &mut *lock(&self.slot) {
             Slot::Open(g, used) => {
-                *used = Instant::now();
+                *used = self.clock.now();
                 Peek::Open(g.clone())
             }
             Slot::Failed => Peek::Failed,
@@ -131,7 +144,7 @@ impl GalaxyHolder {
         match (self.open)() {
             Ok(g) => {
                 let g = Arc::new(g);
-                *lock(&self.slot) = Slot::Open(g.clone(), Instant::now());
+                *lock(&self.slot) = Slot::Open(g.clone(), self.clock.now());
                 Ok(g)
             }
             Err(e) => {
@@ -258,13 +271,14 @@ impl<C> ForDir<C> {
         Self { slot: Mutex::new(None), make }
     }
 
-    fn get(&self, dir: &Path) -> Arc<C> {
+    /// The cache for `dir`, used at `now`.
+    fn get(&self, dir: &Path, now: Instant) -> Arc<C> {
         let mut g = lock(&self.slot);
         let c = match g.take() {
             Some((d, c, _)) if d == dir => c,
             _ => Arc::new((self.make)(dir)),
         };
-        *g = Some((dir.to_path_buf(), c.clone(), Instant::now()));
+        *g = Some((dir.to_path_buf(), c.clone(), now));
         c
     }
 
@@ -327,12 +341,14 @@ pub struct State {
     pub(crate) neutron: astromech_galaxy::neutron::Kept,
     /// Where the neutron star file is published.
     pub(crate) neutron_url: String,
+    /// Whether the neutron star file's download takes a proxy from the environment.
+    pub(crate) neutron_proxy_from_env: bool,
     /// A trade route search is running (one Spansh job at a time, even if the page is left and
     /// opened again while the first still polls).
     pub(crate) route_busy: AtomicBool,
     /// A route is being plotted for the follower (one at a time, the same way).
     pub(crate) plot_busy: AtomicBool,
-    /// How a route plot polls Spansh.
+    /// How a route plot and a trade route poll Spansh's jobs.
     pub(crate) plot_polling: astromech_data::spansh::Polling,
     /// Folders `open_external` may open (with what is under them), besides the data folder.
     openable: Vec<PathBuf>,
@@ -353,6 +369,7 @@ impl State {
         Self {
             neutron: astromech_galaxy::neutron::Kept::new(&data_dir),
             neutron_url: astromech_galaxy::neutron::RELEASE_URL.into(),
+            neutron_proxy_from_env: true,
             route_busy: AtomicBool::new(false),
             plot_busy: AtomicBool::new(false),
             plot_polling: Default::default(),
@@ -380,8 +397,8 @@ impl State {
         self
     }
 
-    /// Poll Spansh for a route plot this way instead of every few seconds (a test's recorded
-    /// answers need no wait).
+    /// Poll Spansh's jobs (a route plot, a trade route) this way instead of every few seconds
+    /// (a test's or a world's recorded answers need no wait).
     pub fn plot_polling(mut self, polling: astromech_data::spansh::Polling) -> Self {
         self.plot_polling = polling;
         self
@@ -400,6 +417,13 @@ impl State {
         self
     }
 
+    /// Whether the neutron star file's download takes a proxy from `ALL_PROXY`, `HTTPS_PROXY`
+    /// or `HTTP_PROXY` (yes by default; never in a world, see [`astromech_data::download`]).
+    pub fn neutron_proxy_from_env(mut self, from_env: bool) -> Self {
+        self.neutron_proxy_from_env = from_env;
+        self
+    }
+
     /// The process's one remote-data client.
     pub fn remote(&self) -> &Arc<astromech_data::Client> {
         &self.remote
@@ -411,6 +435,16 @@ impl State {
     }
 
     /// The star map, opened on first use.
+    /// The process's clock: the remote-data client's (a world's in world mode).
+    pub fn clock(&self) -> &Arc<dyn Clock> {
+        self.remote.clock_in_use()
+    }
+
+    /// Now on the process's clock, for the caches' idle times.
+    fn now(&self) -> Instant {
+        self.clock().now()
+    }
+
     pub fn galaxy(&self) -> Result<Arc<astromech_galaxy::Galaxy>, String> {
         self.galaxy.get()
     }
@@ -493,7 +527,7 @@ impl State {
             *g = None;
         }
         if g.is_none() {
-            let api = Api::discover(from.0.clone(), from.1.as_deref(), self.data_dir.clone())
+            let api = Api::discover(from.0.clone(), from.1.as_deref(), self.data_dir.clone(), self.clock().clone())
                 .map_err(|e| format!("{e:#}"))?;
             *g = Some(Binds { from, api });
         }
@@ -505,7 +539,7 @@ impl State {
         let dir = self.journals()?;
         // Not directory metadata: on Windows that misses appends to the open journal (astromech-txzq).
         let version = journal_version(&dir);
-        Ok(versioned(&self.materials.get(&dir), version, || astromech_materials::from_journal_dir(&dir)))
+        Ok(versioned(&self.materials.get(&dir, self.now()), version, || astromech_materials::from_journal_dir(&dir)))
     }
 
     /// The ShipLocker and Backpack (small files, read every call) and the on-foot engineer
@@ -514,8 +548,9 @@ impl State {
         let dir = self.journals()?;
         let holdings = astromech_odyssey::Holdings::from_journal_dir(&dir);
         let version = journal_version(&dir);
-        let state =
-            versioned(&self.odyssey.get(&dir), version, || astromech_odyssey::journal_state(&dir, &astromech_log::log));
+        let state = versioned(&self.odyssey.get(&dir, self.now()), version, || {
+            astromech_odyssey::journal_state(&dir, &astromech_log::log)
+        });
         Ok((holdings, state))
     }
 
@@ -523,7 +558,7 @@ impl State {
     /// (the page polls every 2 s while the game appends).
     pub fn powerplay(&self) -> Result<astromech_powerplay::Journal, String> {
         let dir = self.journals()?;
-        let follower = self.powerplay.get(&dir);
+        let follower = self.powerplay.get(&dir, self.now());
         let mut f = lock(&follower);
         Ok(f.refresh().clone())
     }
@@ -531,7 +566,7 @@ impl State {
     /// The fleet, materials, engineers and position from the journals.
     pub fn engineering(&self) -> Result<Arc<JournalState>, String> {
         let dir = self.journal_dir();
-        JournalState::get(&self.engineering.get(&dir), &dir)
+        JournalState::get(&self.engineering.get(&dir, self.now()), &dir)
     }
 
     /// The current system's bodies as scanned, with their estimated values, from the newest
@@ -539,7 +574,7 @@ impl State {
     /// from the history (when there is one).
     pub fn exploration_system(&self) -> astromech_exploration::SystemView {
         let dir = self.journal_dir();
-        let live = lock(&self.exploration.get(&dir)).fold(&dir);
+        let live = lock(&self.exploration.get(&dir, self.now())).fold(&dir);
         // The history adds the bodies scanned on earlier visits and the landings on every poll
         // (the cache holds only the current visit's fold); without it (best effort) the view is
         // the live one.
@@ -553,7 +588,7 @@ impl State {
     /// before the first commander or without a history yet.
     pub fn exploration_unsold(&self) -> Result<Option<astromech_history::UnsoldData>, String> {
         let history = self.history();
-        lock(&self.unsold.get(&history)).unsold_at(&history, None).map_err(|e| e.to_string())
+        lock(&self.unsold.get(&history, self.now())).unsold_at(&history, None).map_err(|e| e.to_string())
     }
 
     /// Colonisation projects from the journals, being built first, each with what is left to
@@ -561,7 +596,7 @@ impl State {
     pub fn colonisation(&self) -> Result<Arc<Vec<astromech_colonisation::ProjectView>>, String> {
         let dir = self.journals()?;
         let key = (journal_version(&dir), std::fs::read(dir.join("Cargo.json")).ok());
-        Ok(versioned(&self.colonisation.get(&dir), key, || astromech_colonisation::from_journal_dir(&dir)))
+        Ok(versioned(&self.colonisation.get(&dir, self.now()), key, || astromech_colonisation::from_journal_dir(&dir)))
     }
 
     /// The history the core keeps (`history.sqlite`, read only).
@@ -597,7 +632,7 @@ impl State {
     /// How often the Exploration page's journals were parsed (for tests).
     #[cfg(test)]
     fn exploration_parses(&self) -> usize {
-        lock(&self.exploration.get(&self.journal_dir())).parses()
+        lock(&self.exploration.get(&self.journal_dir(), self.now())).parses()
     }
 }
 
@@ -609,6 +644,7 @@ pub struct Engineers {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 pub(crate) mod tests {
     use super::*;
     use std::io::Write;
@@ -842,7 +878,7 @@ pub(crate) mod tests {
             w.state.data_dir().join(astromech_galaxy::neutron::FILE_NAME).display()
         );
         let released = || crate::tests::logged().matches(&line).count();
-        assert!(w.state.neutron.get().unwrap().is_some(), "a plot loads it");
+        assert!(w.state.neutron.get(&**w.state.clock()).unwrap().is_some(), "a plot loads it");
         let now = Instant::now();
         w.state.release_idle(now, IDLE);
         assert_eq!(released(), 0, "used just now: kept");
@@ -850,7 +886,7 @@ pub(crate) mod tests {
         assert_eq!(released(), 1, "unused for IDLE: dropped");
         w.state.release_idle(now + IDLE, IDLE);
         assert_eq!(released(), 1, "dropped already");
-        assert!(w.state.neutron.get().unwrap().is_some());
+        assert!(w.state.neutron.get(&**w.state.clock()).unwrap().is_some());
         w.state.release_idle(Instant::now() + IDLE, IDLE);
         assert_eq!(released(), 2, "the next plot loaded it again");
     }

@@ -1,5 +1,6 @@
 //! The sampling helper replayed: samples and Status.json positions on a 1000 km body; the cue
 //! comes at the genus's colony range from every earlier sample, once per sample.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

@@ -133,6 +133,7 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
     }
 }
 
+#[allow(clippy::disallowed_methods, reason = "raw-input sample timing: each sample's time since the listener started")]
 unsafe fn handle_input(h: HRAWINPUT) {
     let hdr = std::mem::size_of::<RAWINPUTHEADER>() as u32;
     let mut size = 0u32;

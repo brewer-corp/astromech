@@ -306,6 +306,7 @@ pub fn handle(cmd: &str, run: &Mutex<Option<Run>>, rec: RecordFn, store: &dyn Fn
 
 /// Record `ms` of audio from the `[voice] mic` device (Windows).
 #[cfg(windows)]
+#[allow(clippy::disallowed_methods, reason = "mic sample timing: the recording is `ms` of real audio")]
 pub fn record_mic(want: &str, ms: u64) -> Result<Clip> {
     use astromech_voice::mic::Recorder;
     use std::time::{Duration, Instant};
@@ -342,18 +343,16 @@ pub struct MicGate {
     pub min_level_dbfs: Option<f32>,
 }
 
-/// Recording devices for the mic picker, with `calibration`.
-pub fn mic_list(want: &str, calibration: MicGate) -> Done<MicList> {
-    #[cfg(windows)]
-    let (names, default) =
-        (astromech_voice::mic::Recorder::list_names(), astromech_voice::mic::Recorder::default_device_name());
-    #[cfg(not(windows))]
-    let (names, default): (Vec<String>, Option<String>) = (vec![], None);
+/// Recording devices for the mic picker (`devices`: the names and the default's, from
+/// [`crate::mic::Mics::names`]), with `calibration`.
+pub fn mic_list(want: &str, devices: (Vec<String>, Option<String>), calibration: MicGate) -> Done<MicList> {
+    let (names, default) = devices;
     let chosen = gain::pick_name(want, &names);
     Done::new(MicList { names, default, setting: want.trim().to_string(), chosen, calibration })
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

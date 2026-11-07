@@ -1,4 +1,5 @@
 //! Replay tests for the route briefing when a route is plotted (`NavRoute.json`).
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

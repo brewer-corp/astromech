@@ -1,0 +1,15 @@
+# Gear down by voice (crates/astromech-core/tests/world_voice.rs): Elite is running and in front, the
+# commander holds push-to-talk (Joy_4 on the left stick), says "gear down" and lets go. The clip,
+# gear-down.wav, is Kokoro's bm_george saying "Gear down." in the default cockpit colour
+# (examples/render-voices.rs --line 'Gear down.' --voices bm_george), converted from its 24 kHz to
+# the world microphone's 16 kHz mono with ffmpeg -ac 1 -ar 16000. The advances: the hold (at
+# least [voice] min_hold_ms, 300 ms), the release's debounce ([controls] debounce_ms, 150 ms: the
+# PttUp comes from the buttons' tick once it ends), then the rest of the post-roll ([voice]
+# post_roll_ms, 200 ms, less the debounce).
+# Key_L lowers the gear (the header's reaction). Then (marks unfocused and map-open) the same clip is
+# heard as "lights on" with Notepad in front, which is refused, and as "galaxy map" with Elite back
+# in front: Key_M (GalaxyMapOpen) opens the map, GuiFocus 6 (the second reaction).
+[controls]
+ptt = { device = "231D3201", key = "Joy_4" }
+kill_switch = { device = "231D0200", key = "Joy_1" }
+paste = { device = "231D3201", key = "Joy_12" }

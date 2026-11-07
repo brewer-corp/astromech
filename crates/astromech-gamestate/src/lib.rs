@@ -436,6 +436,7 @@ impl GameState {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     fn line(l: &str) -> astromech_journal::JournalLine {

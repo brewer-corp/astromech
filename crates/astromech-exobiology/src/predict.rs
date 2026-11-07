@@ -146,6 +146,7 @@ pub fn value_range(candidates: &[Candidate]) -> (i64, i64) {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

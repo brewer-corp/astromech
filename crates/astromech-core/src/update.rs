@@ -261,10 +261,12 @@ pub fn verifying_hex_from_secret(secret_hex: &str) -> Result<String> {
     Ok(hex(sk.verifying_key().as_bytes()))
 }
 
-/// HTTP GET as bytes. `User-Agent` is required by GitHub.
-pub fn http_get(url: &str) -> Result<Vec<u8>> {
+/// HTTP GET as bytes. `User-Agent` is required by GitHub. `proxy_from_env`: the installed app
+/// takes a proxy from the environment; a world never does (`app::Http::proxy_from_env`).
+#[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
+pub fn http_get(url: &str, proxy_from_env: bool) -> Result<Vec<u8>> {
     let resp = ureq::AgentBuilder::new()
-        .try_proxy_from_env(true)
+        .try_proxy_from_env(proxy_from_env)
         .timeout_connect(Duration::from_secs(20))
         .timeout_read(Duration::from_secs(120))
         .user_agent(concat!("astromech/", env!("CARGO_PKG_VERSION")))
@@ -277,9 +279,10 @@ pub fn http_get(url: &str) -> Result<Vec<u8>> {
     Ok(v)
 }
 
-pub fn http_download(url: &str, dest: &Path, mut progress: impl FnMut(u64, u64)) -> Result<()> {
+#[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
+pub fn http_download(url: &str, dest: &Path, proxy_from_env: bool, mut progress: impl FnMut(u64, u64)) -> Result<()> {
     let resp = ureq::AgentBuilder::new()
-        .try_proxy_from_env(true)
+        .try_proxy_from_env(proxy_from_env)
         .timeout_connect(Duration::from_secs(20))
         .timeout_read(Duration::from_secs(120))
         .user_agent(concat!("astromech/", env!("CARGO_PKG_VERSION")))
@@ -368,6 +371,8 @@ fn copy_dir(from: &Path, to: &Path) -> Result<()> {
     Ok(())
 }
 
+// Real time: the update helper waits for the old process to exit; world mode never runs it.
+#[allow(clippy::disallowed_methods)]
 pub fn wait_pid(pid: u32, timeout: Duration) -> Result<()> {
     if pid == 0 {
         return Ok(());
@@ -502,6 +507,8 @@ pub fn apply_error_file(app_dir: &Path) -> PathBuf {
 
 /// The `--apply-update` helper. Logs every step (it has no window), and relaunches even when
 /// the copy failed so astromech isn't left off; the error is left in [`apply_error_file`].
+// Real time: its retries wait on files another process holds; world mode never runs it.
+#[allow(clippy::disallowed_methods)]
 pub fn apply_cli(from: &Path, install_dir: &Path, wait: Option<u32>, after: After, app_dir: &Path) -> i32 {
     use crate::logging::log;
     log(&format!("update helper: applying {} to {}", from.display(), install_dir.display()));
@@ -550,18 +557,25 @@ pub fn apply_cli(from: &Path, install_dir: &Path, wait: Option<u32>, after: Afte
     code
 }
 
-pub fn fetch_and_verify(settings: &Settings, pk: &VerifyingKey) -> Result<(Manifest, Vec<u8>)> {
+pub fn fetch_and_verify(settings: &Settings, pk: &VerifyingKey, proxy_from_env: bool) -> Result<(Manifest, Vec<u8>)> {
     let url = feed_url(settings);
-    let json = http_get(&url)?;
-    let sig = http_get(&format!("{url}.sig"))?;
+    let json = http_get(&url, proxy_from_env)?;
+    let sig = http_get(&format!("{url}.sig"), proxy_from_env)?;
     let sig_hex = String::from_utf8_lossy(&sig);
     verify_manifest_bytes(pk, &json, &sig_hex)?;
     let m = parse_manifest(&json)?;
     Ok((m, json))
 }
 
-/// Download + extract if `m` is newer. Returns the payload directory.
-pub fn stage(m: &Manifest, work: &Path, mut progress: impl FnMut(&str)) -> Result<PathBuf> {
+/// Download `m`'s zip from `zip` (its [`zip_url`], or where the core's downloads send it), and
+/// extract it. Returns the payload directory.
+pub fn stage(
+    m: &Manifest,
+    work: &Path,
+    zip: &str,
+    proxy_from_env: bool,
+    mut progress: impl FnMut(&str),
+) -> Result<PathBuf> {
     let dir = work.join(&m.version);
     let payload = dir.join("payload");
     let marker = dir.join("ok");
@@ -571,7 +585,7 @@ pub fn stage(m: &Manifest, work: &Path, mut progress: impl FnMut(&str)) -> Resul
     fs::create_dir_all(&dir)?;
     let zip_path = dir.join(&m.zip);
     progress("downloading");
-    http_download(&zip_url(m), &zip_path, |_, _| {})?;
+    http_download(zip, &zip_path, proxy_from_env, |_, _| {})?;
     progress("verifying");
     let sum = sha256_file(&zip_path)?;
     if sum != m.sha256.to_ascii_lowercase() {
@@ -588,6 +602,7 @@ pub fn stage(m: &Manifest, work: &Path, mut progress: impl FnMut(&str)) -> Resul
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     #[test]
     fn the_tray_check_item_follows_the_update_status() {

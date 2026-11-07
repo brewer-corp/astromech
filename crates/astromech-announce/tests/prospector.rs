@@ -1,4 +1,5 @@
 //! Journal replay tests for the prospector callouts.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_announce::prospector::{SharedThresholds, Thresholds};
 use astromech_announce::*;

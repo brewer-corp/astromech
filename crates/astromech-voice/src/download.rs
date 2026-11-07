@@ -16,6 +16,7 @@
 
 use crate::catalog::Asset;
 use anyhow::{bail, Context, Result};
+use astromech_proto::{Clock, SystemClock};
 use sha2::{Digest, Sha256};
 use std::fs::{self, File};
 use std::io::{BufReader, Read, Write};
@@ -84,24 +85,41 @@ pub fn ensure(base: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Res
 
 /// Make sure `a` is downloaded (into `dl_dir`), verified and extracted into `dest`.
 pub fn ensure_in(dest: &Path, dl_dir: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Result<()> {
+    ensure_in_from(dest, dl_dir, a, &a.url(), true, &SystemClock, progress)
+}
+
+/// [`ensure_in`], fetching `a` from `url` instead of [`Asset::url`] (a world's replay server).
+/// `proxy_from_env`: take a proxy from `ALL_PROXY`, `HTTPS_PROXY` or `HTTP_PROXY`, as
+/// [`ensure_in`] does; a world's downloads never do (its server is on 127.0.0.1, and ureq 2
+/// ignores `NO_PROXY`). Progress times (`elapsed`, and a report at most every 200 ms) are on
+/// `clock`.
+pub fn ensure_in_from(
+    dest: &Path,
+    dl_dir: &Path,
+    a: &Asset,
+    url: &str,
+    proxy_from_env: bool,
+    clock: &dyn Clock,
+    progress: &mut dyn FnMut(Progress),
+) -> Result<()> {
     if is_installed_in(dest, a) {
         return Ok(());
     }
     if let Some(m) = a.zip_member {
         fs::create_dir_all(dest)?;
-        fetch_zip_member(&a.url(), m, &dest.join(a.file), a, progress)?;
+        fetch_zip_member(url, proxy_from_env, m, &dest.join(a.file), a, clock, progress)?;
         fs::write(marker_in(dest, a), a.sha256)?;
         return Ok(());
     }
     fs::create_dir_all(dl_dir)?;
     let archive = dl_dir.join(a.file);
-    let t0 = Instant::now();
+    let t0 = clock.now();
 
     let mut have_verified = false;
     if archive.is_file() {
         let total = fs::metadata(&archive)?.len();
         let sum = sha256_file(&archive, |d| {
-            progress(Progress { phase: Phase::Verify, done: d, total, elapsed: t0.elapsed() })
+            progress(Progress { phase: Phase::Verify, done: d, total, elapsed: since(clock, t0) })
         })?;
         if sum == a.sha256 {
             have_verified = true;
@@ -110,17 +128,18 @@ pub fn ensure_in(dest: &Path, dl_dir: &Path, a: &Asset, progress: &mut dyn FnMut
         }
     }
     if !have_verified {
-        fetch(&a.url(), &archive, a, progress)?;
+        fetch(url, proxy_from_env, &archive, a, clock, progress)?;
     }
-    extract(&archive, dest, a, progress)?;
+    extract_on(&archive, dest, a, clock, progress)?;
     fs::write(marker_in(dest, a), a.sha256)?;
     fs::remove_file(&archive).ok();
     Ok(())
 }
 
-fn agent() -> ureq::Agent {
+#[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
+fn agent(proxy_from_env: bool) -> ureq::Agent {
     ureq::AgentBuilder::new()
-        .try_proxy_from_env(true)
+        .try_proxy_from_env(proxy_from_env)
         .timeout_connect(Duration::from_secs(20))
         .timeout_read(Duration::from_secs(60))
         .user_agent(concat!("s7-s9-input-voice/", env!("CARGO_PKG_VERSION")))
@@ -205,13 +224,15 @@ fn zip_find(cd: &[u8], name: &str) -> Result<ZipEntry> {
 /// then write it to `out` (via a .part file).
 fn fetch_zip_member(
     url: &str,
+    proxy_from_env: bool,
     m: crate::catalog::ZipMember,
     out: &Path,
     a: &Asset,
+    clock: &dyn Clock,
     progress: &mut dyn FnMut(Progress),
 ) -> Result<()> {
-    let agent = agent();
-    let t0 = Instant::now();
+    let agent = agent(proxy_from_env);
+    let t0 = clock.now();
     let (tail, total) = get_range(&agent, url, "bytes=-65557", |_| {})?;
     let tail_start = total - tail.len() as u64;
     let (cd_off, cd_size) = zip_eocd(&tail)?;
@@ -233,18 +254,18 @@ fn fetch_zip_member(
     // directory's, so over-fetch a little and parse it.
     let want = 30 + m.path.len() as u64 + 1024 + e.compressed;
     let end = (e.local_header + want).min(total) - 1;
-    let mut last = Instant::now() - Duration::from_secs(1);
+    let mut last = clock.now() - Duration::from_secs(1);
     let (blob, _) = get_range(&agent, url, &format!("bytes={}-{}", e.local_header, end), |d| {
-        if last.elapsed() >= Duration::from_millis(200) {
-            last = Instant::now();
-            progress(Progress { phase: Phase::Download, done: d, total: want, elapsed: t0.elapsed() });
+        if since(clock, last) >= Duration::from_millis(200) {
+            last = clock.now();
+            progress(Progress { phase: Phase::Download, done: d, total: want, elapsed: since(clock, t0) });
         }
     })?;
     progress(Progress {
         phase: Phase::Download,
         done: blob.len() as u64,
         total: blob.len() as u64,
-        elapsed: t0.elapsed(),
+        elapsed: since(clock, t0),
     });
     if blob.len() < 30 || blob[..4] != [0x50, 0x4b, 0x03, 0x04] {
         bail!("bad zip local header for {}", m.path);
@@ -273,9 +294,16 @@ fn fetch_zip_member(
     Ok(())
 }
 
-fn fetch(url: &str, archive: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Result<()> {
+fn fetch(
+    url: &str,
+    proxy_from_env: bool,
+    archive: &Path,
+    a: &Asset,
+    clock: &dyn Clock,
+    progress: &mut dyn FnMut(Progress),
+) -> Result<()> {
     let part = archive.with_extension("part");
-    let agent = agent();
+    let agent = agent(proxy_from_env);
     let resp = agent.get(url).call().with_context(|| format!("download {url}"))?;
     let total = resp.header("Content-Length").and_then(|v| v.parse().ok()).unwrap_or(a.size);
     let mut reader = resp.into_reader();
@@ -283,8 +311,8 @@ fn fetch(url: &str, archive: &Path, a: &Asset, progress: &mut dyn FnMut(Progress
     let mut h = Sha256::new();
     let mut buf = vec![0u8; 256 * 1024];
     let mut done = 0u64;
-    let t0 = Instant::now();
-    let mut last = Instant::now() - Duration::from_secs(1);
+    let t0 = clock.now();
+    let mut last = clock.now() - Duration::from_secs(1);
     loop {
         let n = reader.read(&mut buf).with_context(|| format!("reading {url}"))?;
         if n == 0 {
@@ -293,14 +321,14 @@ fn fetch(url: &str, archive: &Path, a: &Asset, progress: &mut dyn FnMut(Progress
         out.write_all(&buf[..n])?;
         h.update(&buf[..n]);
         done += n as u64;
-        if last.elapsed() >= Duration::from_millis(200) {
-            last = Instant::now();
-            progress(Progress { phase: Phase::Download, done, total, elapsed: t0.elapsed() });
+        if since(clock, last) >= Duration::from_millis(200) {
+            last = clock.now();
+            progress(Progress { phase: Phase::Download, done, total, elapsed: since(clock, t0) });
         }
     }
     out.flush()?;
     drop(out);
-    progress(Progress { phase: Phase::Download, done, total, elapsed: t0.elapsed() });
+    progress(Progress { phase: Phase::Download, done, total, elapsed: since(clock, t0) });
     let sum = hex(&h.finalize());
     if sum != a.sha256 {
         fs::remove_file(&part).ok();
@@ -324,13 +352,24 @@ impl<R: Read> Read for Counting<R> {
 }
 
 pub fn extract(archive: &Path, dest: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Result<()> {
+    extract_on(archive, dest, a, &SystemClock, progress)
+}
+
+/// [`extract`], with its progress times on `clock`.
+fn extract_on(
+    archive: &Path,
+    dest: &Path,
+    a: &Asset,
+    clock: &dyn Clock,
+    progress: &mut dyn FnMut(Progress),
+) -> Result<()> {
     fs::create_dir_all(dest)?;
     let total = fs::metadata(archive)?.len();
     let counter = std::rc::Rc::new(std::cell::Cell::new(0u64));
     let f = Counting { inner: BufReader::with_capacity(1 << 20, File::open(archive)?), n: counter.clone() };
     let mut ar = tar::Archive::new(bzip2::read::BzDecoder::new(f));
-    let t0 = Instant::now();
-    let mut last = Instant::now() - Duration::from_secs(1);
+    let t0 = clock.now();
+    let mut last = clock.now() - Duration::from_secs(1);
     for entry in ar.entries()? {
         let mut entry = entry?;
         let path = entry.path()?.to_string_lossy().replace('\\', "/");
@@ -339,13 +378,18 @@ pub fn extract(archive: &Path, dest: &Path, a: &Asset, progress: &mut dyn FnMut(
         }
         // unpack_in refuses paths that escape `dest`.
         entry.unpack_in(dest).with_context(|| format!("extract {path}"))?;
-        if last.elapsed() >= Duration::from_millis(200) {
-            last = Instant::now();
-            progress(Progress { phase: Phase::Extract, done: counter.get(), total, elapsed: t0.elapsed() });
+        if since(clock, last) >= Duration::from_millis(200) {
+            last = clock.now();
+            progress(Progress { phase: Phase::Extract, done: counter.get(), total, elapsed: since(clock, t0) });
         }
     }
-    progress(Progress { phase: Phase::Extract, done: total, total, elapsed: t0.elapsed() });
+    progress(Progress { phase: Phase::Extract, done: total, total, elapsed: since(clock, t0) });
     Ok(())
+}
+
+/// `t.elapsed()` on `clock`: `Instant::elapsed` is `now().saturating_duration_since(t)` too.
+fn since(clock: &dyn Clock, t: Instant) -> Duration {
+    clock.now().saturating_duration_since(t)
 }
 
 /// Recursively find the first file whose name satisfies `pred` (breadth-first, sorted).
@@ -369,6 +413,7 @@ pub fn find_file(root: &Path, pred: &dyn Fn(&str) -> bool) -> Option<PathBuf> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::catalog::{Kind, BLANK};

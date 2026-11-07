@@ -4,3 +4,6 @@
 *.png binary
 *.ico binary
 *.icns binary
+# Recorded signed bytes: the signature is over them exactly.
+worlds/*/latest.json -text
+worlds/*/latest.json.sig -text

@@ -26,8 +26,8 @@ describe("Biology", () => {
     const tiles = await screen.findByLabelText("Sampling");
     expect(tiles.textContent).toContain("Stratum Tectonicas");
     expect(tiles.textContent).toContain("1 of 3");
-    expect(tiles.textContent).toContain("231 m of 500 m");
-    expect(tiles.textContent).toContain("270 m to go");
+    expect(tiles.textContent).toContain("209 m of 500 m");
+    expect(tiles.textContent).toContain("291 m to go");
   });
 
   it("lists what other players reported", async () => {

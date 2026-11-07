@@ -4,6 +4,7 @@
 //! (`astromech_exploration::biology`), and the unsold data from the history imported from the
 //! same folder (`History::unsold`) → the spoken answer. Nothing is pressed and no test touches
 //! the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::actions::{Outcome, Runner};
 use astromech_core::assistant::{Assistant, Handled};
