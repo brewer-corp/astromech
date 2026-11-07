@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "A scripted world for the real core: headless mode, clock, game folder, recorded network"
-updated_at: "2026-11-07T04:51:23.220788707+00:00"
+updated_at: "2026-11-07T11:16:41.492883634+00:00"
 ---
 
 ## Goal
@@ -40,3 +40,7 @@ The real core runs headless on Linux against a scripted world: a game folder wri
 
 - Which Windows-only parts (sending keys, the keyboard hook, WASAPI audio) still lack Linux fakes.
 - The world script format: reuse astromech-mockgame and the replay tests' formats, or a new one.
+
+## Notes
+
+- 2026-11-07 [note] From finding astromech-nq3c (ro7a review): the command-list test's example args are not checked against their arg types, and no arg struct uses deny_unknown_fields, so for all-optional structs (set_folders, set_voice, set_edsm, set_callout's options, binds_set_override's joy) a misspelt field parses to None and answers ok as a no-op; Want::Ok reads only the envelope. When this increment runs the test for real, read back one effect per setter, or round-trip each example through its arg type.
