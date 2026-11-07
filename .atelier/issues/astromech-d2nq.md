@@ -18,9 +18,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Headless world mode: astromech-core --world, fakes for the assembly's boundaries, observations"
-updated_at: "2026-11-07T12:59:46.293918836+00:00"
+updated_at: "2026-11-07T13:31:26.760576809+00:00"
 ---
 
 ## Goal
