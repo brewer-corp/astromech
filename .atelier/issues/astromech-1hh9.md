@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Fake keys, focus, raw input, mic, speech-to-text and speech out in world mode on every OS"
-updated_at: "2026-11-07T14:53:28.338450333+00:00"
+updated_at: "2026-11-07T17:59:42.084075834+00:00"
 ---
 
 ## Goal
