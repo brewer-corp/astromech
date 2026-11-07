@@ -387,16 +387,14 @@ impl State {
     }
 
     /// Open URLs and folders with `opener` instead of the system's (a test's).
-    #[cfg(test)]
-    pub(crate) fn with_opener(mut self, opener: impl Fn(&str) -> Result<(), String> + Send + Sync + 'static) -> Self {
+    pub fn with_opener(mut self, opener: impl Fn(&str) -> Result<(), String> + Send + Sync + 'static) -> Self {
         self.opener = Box::new(opener);
         self
     }
 
     /// Fetch the neutron star file from `url` instead of the `neutron` pre-release (a test's
     /// server).
-    #[cfg(test)]
-    pub(crate) fn with_neutron_url(mut self, url: &str) -> Self {
+    pub fn with_neutron_url(mut self, url: &str) -> Self {
         self.neutron_url = url.into();
         self
     }
@@ -444,8 +442,7 @@ impl State {
     }
 
     /// Devices from `devices` instead of the live ones (a test's controllers).
-    #[cfg(test)]
-    pub(crate) fn with_devices(
+    pub fn with_devices(
         mut self,
         devices: impl Fn() -> astromech_keybinds::devices::Inventory + Send + Sync + 'static,
     ) -> Self {

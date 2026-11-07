@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Test: every window command answers over a running core's control API"
-updated_at: "2026-11-07T10:55:20.189883749+00:00"
+updated_at: "2026-11-07T11:08:37.493744436+00:00"
 ---
 
 ## Goal
@@ -38,3 +38,7 @@ A test, plus the example args table. Do not build a headless binary or a world s
 ## Context
 
 "The window's commands" is the registry's `window` entries. astromech-96dv makes `call()` accept only those names, so the window can't call a command outside them. Together the two children prove one-command-list: everything the window can call is in this list, and everything in this list answers over the control API. The headless half of that criterion comes with astromech-vucf (its Done when runs this test against the headless core).
+
+## Notes
+
+- 2026-11-07 [note] Decision (implementer): the test is a module of astromech-core's lib tests (crates/astromech-core/src/app/every_window_command.rs), not a file under crates/astromech-core/tests/. Reason: a Core with the test's seams (in-memory secrets, refusing remote client, test opener and devices, no clipboard) is built only by app.rs's test helper over the private api_state; a public constructor belongs with astromech-vucf's headless mode, which will start the core this test then talks to. The test still goes through the real control API (serve, core.json, token, TCP, control::call_window). Also (implementer): the neutron check and download run for real against a local server answering 503 (State::with_neutron_url made public), so they are off the not-run-for-real list; astromech-vucf's Done when line now names the exact list. For the plan owner to accept or change.

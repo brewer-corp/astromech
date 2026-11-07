@@ -1698,13 +1698,17 @@ fn headless(rx: &Receiver<Ui>) -> i32 {
 }
 
 #[cfg(test)]
+mod every_window_command;
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use astromech_voice::{catalog, download, models};
 
     /// Held by tests that edit the config through a core: every edit sets the process-wide
-    /// EDDN switch.
-    static CONFIG_EDITS: Mutex<()> = Mutex::new(());
+    /// EDDN switch. Also held by tests that set the process-wide voice pause or voice tester,
+    /// which `status` reports.
+    pub(super) static CONFIG_EDITS: Mutex<()> = Mutex::new(());
 
     /// A core as `run` builds it, on the config file `text` in `dir`, without its threads.
     fn core(dir: &Path, text: &str) -> Arc<Core> {
@@ -1712,7 +1716,7 @@ mod tests {
     }
 
     /// A client whose every request fails, for tests that look nothing up.
-    fn offline() -> Arc<astromech_data::Client> {
+    pub(super) fn offline() -> Arc<astromech_data::Client> {
         struct Offline;
         impl astromech_data::Transport for Offline {
             fn send(
@@ -1723,7 +1727,10 @@ mod tests {
                 Err(astromech_data::TransportError::Offline(format!("no network in this test: {url}")))
             }
         }
-        Arc::new(astromech_data::Client::with_transport(astromech_data::Cache::in_memory().unwrap(), Arc::new(Offline)))
+        // With no spacing between requests: a refused one is sent at once, not after a wait.
+        let client =
+            astromech_data::Client::with_transport(astromech_data::Cache::in_memory().unwrap(), Arc::new(Offline));
+        Arc::new(client.limiter(astromech_data::Limiter::none()))
     }
 
     const NO_WAIT: astromech_data::spansh::Polling =
@@ -1731,12 +1738,23 @@ mod tests {
 
     /// [`core`] with its lookups going through `remote`.
     fn core_with(dir: &Path, text: &str, remote: Arc<astromech_data::Client>) -> Arc<Core> {
+        core_with_state(dir, text, remote, |s| s)
+    }
+
+    /// [`core_with`], with the command layer's state passed through `state` (a test's opener
+    /// or devices).
+    pub(super) fn core_with_state(
+        dir: &Path,
+        text: &str,
+        remote: Arc<astromech_data::Client>,
+        state: impl FnOnce(astromech_api::State) -> astromech_api::State,
+    ) -> Arc<Core> {
         let config_path = dir.join("astromech.toml");
         std::fs::write(&config_path, text).unwrap();
         let data_dir = Config::load(&config_path).unwrap().data_dir();
         Arc::new_cyclic(|me| Core {
             // Recorded Spansh answers need no wait between polls.
-            api: Arc::new(api_state(me.clone(), data_dir, remote, vec![]).plot_polling(NO_WAIT)),
+            api: Arc::new(state(api_state(me.clone(), data_dir, remote, vec![]).plot_polling(NO_WAIT))),
             app_dir: dir.to_path_buf(),
             cfg: std::sync::RwLock::new(Config::load(&config_path).unwrap()),
             config_path,

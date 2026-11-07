@@ -117,6 +117,12 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   handlers are typed by the map, and each preview fixture is read through `recorded<ReplyType>()`
   (`app/src/preview/recorded.ts`), so `pnpm check` fails on a fixture missing a field the core
   sends. Take the field from the fixture's recorded input (or the example that dumps it).
+- A new `window` command needs an entry in the table in
+  `crates/astromech-core/src/app/every_window_command.rs`: example args and what the call gives
+  (ok, or the handler's own error). The test calls each one through a core's control API, as the
+  shell sends it, and fails for a `window` command with no entry. It has no network and starts no
+  program: a command whose effect has no seam yet is called with state that stops it first, or not
+  called, and is named in `NOT_RUN_FOR_REAL` with the missing seam.
 - To show a UI change to someone off this machine, work on the real page on its branch against the
   browser preview (add a fixture under `app/src/preview/fixtures/` when the change needs data the
   preview lacks), then `scripts/preview-publish --page route --query route=exact`. It builds the
