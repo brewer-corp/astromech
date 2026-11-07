@@ -312,6 +312,7 @@ class Run:
             z.extractall(payload)
         self.check(route, "the update zip carries the app and the forwarder",
                    (payload / APP).is_file() and (payload / SHELL).is_file(), sorted(p.name for p in payload.iterdir()))
+        loads = len(lines(core_log(), "window: page loaded"))
         helper = Path(tempfile.gettempdir()) / f"astromech-apply-{core.pid}.exe"
         shutil.copyfile(inst / APP, helper)
         h = subprocess.Popen([str(helper), "--apply-update", "--from", str(payload), "--install-dir", str(inst),
@@ -329,9 +330,17 @@ class Run:
                    f"exit code {code}; {lines(core_log(), 'update helper:')[-3:]}")
         self.clean_quit(route, old, need_code_0=True)
         st = self.one_app(route)
-        ui = wait(lambda: (lambda r: r[1] if r[0] and r[1].get("window") == "open" else None)(call("ui_state")),
-                  "the window to open")
-        self.check(route, "the window is open at Settings", ui.get("page") == "settings", ui)
+        # The window counts as open once it is built, but its URL (`page`) is WebView2's
+        # about:blank until the first page has loaded: wait for the page-load line first.
+        wait(lambda: len(lines(core_log(), "window: page loaded")) > loads, "the relaunched window's page load")
+        try:
+            ui = wait(lambda: (lambda r: r[1] if r[0] and r[1].get("window") == "open" and r[1].get("page") else None)(
+                call("ui_state")), "the window's page")
+        except Failed:
+            ui = call("ui_state")[1]
+        self.check(route, "the window is open at Settings",
+                   isinstance(ui, dict) and ui.get("window") == "open" and ui.get("page") == "settings",
+                   f"{ui}; {lines(core_log(), 'window: page loaded')[-1:]}")
         self.unchanged_run_value(route, old)
         self.old_shortcut(route, st)
 
@@ -392,23 +401,27 @@ def main(argv=None) -> int:
 
     a.out.mkdir(parents=True, exist_ok=True)
     run = Run(a, psutil)
-    error = None
+    errors = []
     try:
+        # Every route runs, whatever the one before did (each starts from a fresh old install),
+        # so one run reports both; any route's failure fails the run.
         for name in (["updater", "nsis"] if a.route == "both" else [a.route]):
             try:
                 getattr(run, name)()
+            except Exception as e:  # report what got done, then go on to the next route
+                errors.append(f"{name}: {type(e).__name__}: {e}")
+                print(f"{name} route failed: {e}", flush=True)
             finally:  # the next route starts by removing the data folder
                 for log in ("astromech-core.log", "astromech-shell.log"):
                     src = data_dir() / "logs" / log
                     if src.is_file():
                         shutil.copyfile(src, a.out / f"{name}-{log}")
-    except Exception as e:  # report what got done, then fail
-        error = f"{type(e).__name__}: {e}"
     finally:
         try:
             run.finish()
         except Exception as e:  # noqa: BLE001 - cleanup must not hide the run's own error
             print(f"cleanup: {e}", flush=True)
+    error = "; ".join(errors) or None
     r = {"pass": error is None, "old": a.old or a.old_setup.name, "version": a.version, "checks": run.checks,
          "steps": run.steps, "error": error}
     (a.out / "report.json").write_text(json.dumps(r, indent=1), encoding="utf-8")

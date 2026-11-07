@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Installer, updater and Start with Windows on the one executable; upgrade from the last two-process release on Windows CI"
-updated_at: "2026-11-07T19:49:28.563769733+00:00"
+updated_at: "2026-11-07T20:45:48.697973819+00:00"
 ---
 
 ## Goal
@@ -95,6 +95,7 @@ app/src-tauri (hooks, conf), the forwarder crate, crates/astromech-core (update.
   Reason: core.json goes after shutdown releases held keys, so its absence proves the clean quit finished; the hook's fallback taskkill can still hit a core between removing core.json and exiting (exit code 1, harmless), so requiring 0 would flake. On the updater route the helper waits for the old core to exit, so code 0 is required there
 - 2026-11-07 [handoff] Built at f6a048be; see ## Report. Ticked: update.rs, log prune, V1-DESIGN. Waiting on Windows CI (Release build installer smoke and the new upgrade job): lines 1, 2, 4, 6, 7. Independent review outstanding.
 - 2026-11-07 [resolution] Findings kfub and s3rq fixed: upgrade_smoke.py's call() takes a bare reply (alpha.4's control server sends {ok, pid, version} with no value wrapper), which is every reply from the old core the script reads (status in old_running); the upgrade job pins v1.0.0-alpha.4, the last two-process release, and astromech-7pl5 covers upgrades between one-process releases. Also: V1-DESIGN §7.5 no longer claims every route keeps the Run value (finding ilwv, note on y2m1); the LOCKED_EXES comment names the /T kill of the helper (finding 81t0, backlog astromech-mqqa)
+- 2026-11-07 [result] Upgrade job at 0609f29e (run 42410580322): updater route passed every check up to 'the window is open at Settings', which read {page: None, window: open}. Cause: the script read ui_state 0.3 s after the relaunch, before the window's first page load (the route's core log ends at 'opened the app window at settings' with no 'window: page loaded' line); ui_state's page is WebView2's Source, about:blank until the first navigation commits, while window counts as open once the window is built. The route did reach the window (index.html#/settings is what open_window builds, and App.svelte keeps a #/settings start). Fix: the script waits for the page-load line, then for page; page_of now takes the whole URL and is tested on http://tauri.localhost/…#/settings, tauri://localhost/…#/settings and about:blank; UiState documents the wait. The script now runs the NSIS route after an updater-route failure and fails the run if either failed (checked with a stubbed run: updater raises, nsis still runs, exit 1).
 
 ## Report
 

@@ -59,14 +59,18 @@ pub struct UiState {
     /// The tray icon is in the notification area (Tauri's `TrayIcon::rect` has a rectangle).
     pub tray: bool,
     /// The page the window shows (its URL's `#/` route, such as `settings`); none when it is
-    /// closed or on the start page. The upgrade smoke checks an update's `--route settings`.
+    /// closed, on the start page, or before its first page has loaded (WebView2 reports
+    /// `about:blank` until the first navigation commits: wait for the `window: page loaded` log
+    /// line before reading it). The upgrade smoke checks an update's `--route settings`.
     pub page: Option<String>,
 }
 
-/// [`UiState::page`] from the window URL's fragment: `/settings` → `settings`, and nothing for
-/// the start page.
-pub fn page_of(fragment: Option<&str>) -> Option<String> {
-    let page = fragment?.trim_start_matches('/');
+/// [`UiState::page`] from the window's URL (WebView2's `Source`: `http://tauri.localhost/…` on
+/// Windows, `tauri://localhost/…` elsewhere): `…#/settings` → `settings`, and nothing for the
+/// start page or a window that hasn't loaded a page yet (`about:blank`).
+pub fn page_of(url: &str) -> Option<String> {
+    let (_, fragment) = url.split_once('#')?;
+    let page = fragment.trim_start_matches('/');
     let page = page.split('?').next().unwrap_or_default();
     (!page.is_empty()).then(|| page.to_string())
 }
@@ -1923,12 +1927,15 @@ mod tests {
 
     #[test]
     fn the_window_page_is_its_url_route() {
-        assert_eq!(page_of(Some("/settings")).as_deref(), Some("settings"));
-        assert_eq!(page_of(Some("/engineering/7/plan")).as_deref(), Some("engineering/7/plan"));
-        assert_eq!(page_of(Some("/settings?x=1")).as_deref(), Some("settings"));
-        assert_eq!(page_of(Some("/")), None);
-        assert_eq!(page_of(Some("")), None);
-        assert_eq!(page_of(None), None);
+        // Windows (wry's custom-protocol workaround) and elsewhere.
+        assert_eq!(page_of("http://tauri.localhost/index.html#/settings").as_deref(), Some("settings"));
+        assert_eq!(page_of("tauri://localhost/index.html#/settings").as_deref(), Some("settings"));
+        assert_eq!(page_of("http://tauri.localhost/#/engineering/7/plan").as_deref(), Some("engineering/7/plan"));
+        assert_eq!(page_of("http://tauri.localhost/index.html#/settings?x=1").as_deref(), Some("settings"));
+        assert_eq!(page_of("http://tauri.localhost/index.html#/"), None);
+        assert_eq!(page_of("http://tauri.localhost/index.html"), None);
+        // A window whose first navigation hasn't committed (what the upgrade job read).
+        assert_eq!(page_of("about:blank"), None);
     }
     use astromech_voice::{catalog, download, models};
 

@@ -11,6 +11,8 @@ export type UiState = { window: WindowState,
 tray: boolean, 
 /**
  * The page the window shows (its URL's `#/` route, such as `settings`); none when it is
- * closed or on the start page. The upgrade smoke checks an update's `--route settings`.
+ * closed, on the start page, or before its first page has loaded (WebView2 reports
+ * `about:blank` until the first navigation commits: wait for the `window: page loaded` log
+ * line before reading it). The upgrade smoke checks an update's `--route settings`.
  */
 page: string | null, };

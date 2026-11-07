@@ -345,7 +345,7 @@ impl Ui for TauriUi {
         // TrayIcon::rect runs on the main thread, so this is also a main-thread round trip.
         let tray = self.0.tray.get().is_some_and(|t| matches!(t.icon.rect(), Ok(Some(_))));
         let w = self.0.app.get_webview_window(LABEL);
-        let page = w.as_ref().and_then(|w| w.url().ok()).and_then(|u| app::page_of(u.fragment()));
+        let page = w.as_ref().and_then(|w| w.url().ok()).and_then(|u| app::page_of(u.as_str()));
         UiState { window: if w.is_some() { WindowState::Open } else { WindowState::Closed }, tray, page }
     }
 
