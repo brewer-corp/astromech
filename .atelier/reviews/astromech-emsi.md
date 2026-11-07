@@ -10,6 +10,13 @@ created_at: 2026-11-07T06:52:30.847942029Z
 event:
   event: finding
   recommendation: defer
+  disposition:
+    decision: defer
+    identity: claude-orchestrator-kjfs
+    commit: 20e87ecf914670b299c789ca1ca6ee0734cf1558
+    recorded_at: 2026-11-07T06:54:09.629853168Z
+    follow_up: astromech-96ci
+    reason: Pre-existing; fixed in astromech-96ci after state moves into the layer
 ---
 
 medium: crates/astromech-core/src/app.rs:714-980 (Core::commands) The core's own handlers still lock shared state with .lock().unwrap() (49 sites in app.rs: session, crash, ui, game...). catch_unwind now turns a panic into an error reply, but if it happens under c.session's lock every later status/voice_test/exobiology call becomes 'failed with an internal error' until restart, and the session threads that unwrap the same mutex panic too. astromech-api's lib.rs doc ('the next call runs as normal') holds only for state locked via astromech_api::lock. Not a regression (before, the connection dropped). Fix in a later bp23 child or a filed issue: lock state that handlers share with astromech_api::lock, or narrow the lib.rs claim.
