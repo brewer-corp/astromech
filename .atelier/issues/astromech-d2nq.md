@@ -21,7 +21,7 @@ schema_version: 2
 closed_at: "2026-11-07T13:44:21.013851856+00:00"
 status: "done"
 title: "Headless world mode: astromech-core --world, fakes for the assembly's boundaries, observations"
-updated_at: "2026-11-07T13:44:21.013851856+00:00"
+updated_at: "2026-11-07T13:59:42.356736799+00:00"
 ---
 
 ## Goal
@@ -72,6 +72,10 @@ The assembly API comes from the assembly child. On Linux `ui_loop` already runs 
   Rejected: Calling with app_dir and core.json: a second endpoint source
 - 2026-11-07 [decision] On quit, world mode drops the control server and removes its temp folder; a failure is printed on stderr and the exit is still 0
   Reason: Each test run would otherwise leave a world in the temp folder; on Windows the core's open databases and log can keep it, which only leaks a temp folder
+- 2026-11-07 [decision] The app window is a boundary, Boundaries::window (Fn(Option<&str>) -> Result<(), String>): Boundaries::real starts the shell exactly as Core::open_window did (open_shell over the paths' exe folder), and world mode records window {route}
+  Reason: Finding astromech-nzgh: open_window spawned the real shell in world mode when ASTROMECH_SHELL was set; a boundary keeps run unchanged and lets world mode record it like the opener
+  Rejected: Refusing open_window in world mode: the tray and second-start path would then be untestable in a world
+- 2026-11-07 [result] Review fixes in 83cee7e3: 4zdn (the helper owns an empty home for all eight home variables; quit() checks it), q0bw (world config forces [eddn] and [edsm] enabled = false), 3tli (--world conflicts with --quit, --apply-update and its options, --config, --background, --route and every console option), nzgh (Boundaries::window, recorded in world mode), zmth (the helper pipes stdin; world mode quits on stdin EOF). Still open: a local client's set_eddn or set_edsm with enabled true switches uploading back on in a world; no committed world or test does that.
 
 ## Report
 
