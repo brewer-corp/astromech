@@ -47,7 +47,7 @@ A world's `world.jsonl` moves the game step by step (decision: world format): th
   1. Elite is running, and a route A→B→C is set over the control API.
   2. Step to `jumped`: an `FSDJump` to B is appended.
   3. `world_wait` sees the clipboard write of C, and `route` names C as the next stop.
-  The same jump written while Elite is closed, read at the next session's catch-up, copies nothing (catch-up is silent). (Reworded from "stamped two hours before the clock": the pipeline treats every line appended while a session runs as live, whatever its stamp, and changing that is in-game behaviour this child doesn't touch.)
+  The same jump written while Elite is closed, read at the next session's catch-up, copies nothing (catch-up is silent). (Reworded from "stamped two hours before the clock": the pipeline treats every line appended to the game's own journal while a session runs as live, whatever its stamp, and changing that is in-game behaviour this child doesn't touch.)
 - [x] Stop test: a world goes from game running to game exited. The `exited` step returns, with no `advance` beyond its own, and `status` shows no session. This fails if stopping the pipeline waits for its timed wait to expire (clock child: stop wakes).
 - [x] Partial writes: a partial Status.json write settles, `status` keeps the previous flags, and the next full write's flags show. A partial write that never gets a full one also settles.
 - [x] The format is documented once, in the world module's doc comment. CONTRIBUTING.md's Tests section links to it, and docs/ARCHITECTURE.md §13's Ingest row describes worlds instead of `astromech-rec`.
