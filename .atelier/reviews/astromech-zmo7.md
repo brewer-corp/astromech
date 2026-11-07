@@ -10,6 +10,13 @@ created_at: 2026-11-07T07:42:03.652222838Z
 event:
   event: finding
   recommendation: defer
+  disposition:
+    decision: defer
+    identity: claude-orchestrator-kjfs
+    commit: dd3c44e8ea254af9e81bfcdd06c25465a660a076
+    recorded_at: 2026-11-07T07:43:30.147884669Z
+    follow_up: astromech-k6da
+    reason: k6da reworks the holder; noted there
 ---
 
 low: crates/astromech-core/src/actions.rs:87 (also assistant.rs:261, :292, :319, :461) Runner::galaxy() opens the star map on the speech thread before 'Looking that up.', and the open now seeds galaxy.db from the bundled preload (starmap.db, ~10 MB gz) once per preload build, i.e. on the first lookup after an install or update; it also waits on GalaxyHolder's lock while a window lookup is opening it. Voice commands queue behind that for its duration, though actions.rs:77-78 says the speech thread is free at once. Before, the session opened galaxy.db eagerly at session start with no preload. Fix: take the holder inside the spawned lookup thread (speak NO_STAR_MAP from there), or warm the holder off-thread when the session starts. Defer to astromech-k6da, which reworks the holder for idle release.
