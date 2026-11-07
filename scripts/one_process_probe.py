@@ -1,36 +1,23 @@
 #!/usr/bin/env python3
-"""One-process probe (Atelier astromech-wgtr): can one Tauri process hold the tray with no
-window, survive the window crashing, free WebView2 when the window closes, and leave the app's
-own Raw Input listener receiving keys? Windows only; needs psutil (Pillow for screenshots).
+"""Restart registration probe (spike astromech-wgtr): which crashes does Windows' restart
+registration restart? Windows only; needs psutil (Pillow for screenshots).
 
-    python scripts/one_process_probe.py --app <exe> --endpoint <core.json> --out <dir>
-    python scripts/one_process_probe.py --app <exe> --endpoint <core.json> --out <dir> --restart
+    python scripts/one_process_probe.py --restart --app <exe> --endpoint <core.json> --out <dir> --config NAME
 
-It drives any app with this interface (the spike in spikes/o1-one-process, and the installed
-app, `astromech-core.exe`): `--background` starts it with no window; a second start with
-`--route X` hands over to the running one and exits 0; the endpoint file names a localhost port
-that takes one JSON line `{token, cmd, args?}` and answers `{"ok": true, "value": V}` or
-`{"ok": false, "error": E}`, with the commands `ui_state` (`{window, tray, ...}`, and the spike's
-`sink_keys`), `open_window`, `quit`, the spike's `tray_churn` and, with the crash hook on,
-`crash` (`{kind}`); and the log has a `window: page loaded N ms after start` line per window
-(the spike prefixes its lines `[<pid> ...`).
+It reports, without gating, which crash kinds come back under one WER configuration (`--config
+NAME`; `--clean-launch` starts the app with the default error mode and out of the runner's job):
+abort, access_violation and main_thread_panic after 65 s, TerminateProcess after 65 s and an
+abort after 10 s, each waited on for 90 s. Each configuration's run adds to the same
+restart.json and restart.md. It drives any app that takes `--background` and a crash hook
+argument (`--crash-hook-arg`, the spike's `--crash-hook`), publishes its control API in the
+endpoint file (one JSON line `{token, cmd, args?}`, answered `{"ok": true, "value": V}` or
+`{"ok": false, "error": E}`) and answers `ui_state` and `crash` (`{kind}`).
 
-The installed app has no test hooks: `--no-sink` skips check 2 (its Raw Input is checked by the
-onboarding smoke's kill-switch runs) and `--no-churn` skips check 3; `--expect-recovery` makes check 6 require
-the window to recover in place (a reload after a renderer exit, a rebuild after a browser exit)
-before it is closed. Release's installer job runs it so, with `--log`, `--user-data` and
-`--title` naming the app's own.
-
-A WebView2 process belongs to the app when it descends from the app, or its command line has
-`--webview-exe-name=<the app's exe name>`, or it names the app's EBWebView user-data folder, so a
-renderer orphaned by a dead parent still counts.
-
-The default run asserts checks 1-7 of astromech-wgtr (exit status 1 if one fails) and reports,
-without gating, memory and CPU (decision astromech-01ft), the Raw Input answer with the listener
-started before Tauri's build, and what a crashed window showed. `--restart` reports, without
-gating, which crash kinds Windows' restart registration restarts under one WER configuration
-(`--config NAME`; `--clean-launch` starts the app with the default error mode and out of the
-runner's job). Each configuration's run adds to the same restart.json and restart.md.
+Restart mode is all that is left of the spike's probe: its other checks (windowless, open, close,
+window crash, quit) run against the one app in scripts/webview_cost.py (astromech-xz7i). It runs
+on no CI workflow now: astromech-fmub runs it at Sumeet's PC against the spike
+(spikes/o1-one-process), and astromech-dl53's crash-restart job is to run it against the
+installed app. Run it by hand on Windows after changing it.
 """
 
 from __future__ import annotations
@@ -39,101 +26,11 @@ import argparse
 import json
 import os
 import platform
-import shlex
 import socket
-import statistics
 import subprocess
 import sys
 import time
 from pathlib import Path
-
-WEBVIEW = "msedgewebview2.exe"
-SCAN_F13 = 0x64  # Set-1 scan code: a key nothing on the runner reacts to
-ROUTE = "keybinds"
-
-
-# --- Win32 --------------------------------------------------------------------------------------
-
-if os.name == "nt":
-    import ctypes
-    from ctypes import wintypes
-
-    class _KEYBDINPUT(ctypes.Structure):
-        _fields_ = [("wVk", wintypes.WORD), ("wScan", wintypes.WORD), ("dwFlags", wintypes.DWORD),
-                    ("time", wintypes.DWORD), ("dwExtraInfo", ctypes.c_size_t)]
-
-    class _MOUSEINPUT(ctypes.Structure):
-        _fields_ = [("dx", wintypes.LONG), ("dy", wintypes.LONG), ("mouseData", wintypes.DWORD),
-                    ("dwFlags", wintypes.DWORD), ("time", wintypes.DWORD), ("dwExtraInfo", ctypes.c_size_t)]
-
-    class _U(ctypes.Union):
-        _fields_ = [("ki", _KEYBDINPUT), ("mi", _MOUSEINPUT)]
-
-    class _INPUT(ctypes.Structure):
-        _fields_ = [("type", wintypes.DWORD), ("u", _U)]
-
-    user32 = ctypes.WinDLL("user32", use_last_error=True)
-    user32.SendInput.argtypes = [wintypes.UINT, ctypes.c_void_p, ctypes.c_int]
-    user32.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
-    user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
-    user32.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
-    user32.GetWindowTextLengthW.argtypes = [wintypes.HWND]
-    user32.IsWindowVisible.argtypes = [wintypes.HWND]
-    user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
-    user32.SetForegroundWindow.argtypes = [wintypes.HWND]
-    _ENUM = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
-
-
-def tap_key() -> str | None:
-    """Press and release F13 through SendInput; an error string if Windows refused."""
-    for up in (False, True):
-        i = _INPUT(type=1)
-        i.u.ki = _KEYBDINPUT(0, SCAN_F13, 0x8 | (0x2 if up else 0), 0, 0)
-        if user32.SendInput(1, ctypes.byref(i), ctypes.sizeof(_INPUT)) != 1:
-            return f"SendInput failed, error {ctypes.get_last_error()}"
-        time.sleep(0.05)
-    return None
-
-
-def windows_of(pid: int) -> list[tuple[int, str, bool]]:
-    """Top-level windows of `pid`: (hwnd, title, visible)."""
-    out = []
-
-    def cb(h, _):
-        p = wintypes.DWORD()
-        user32.GetWindowThreadProcessId(h, ctypes.byref(p))
-        if p.value == pid:
-            n = user32.GetWindowTextLengthW(h)
-            buf = ctypes.create_unicode_buffer(n + 1)
-            user32.GetWindowTextW(h, buf, n + 1)
-            out.append((h, buf.value, bool(user32.IsWindowVisible(h))))
-        return True
-
-    user32.EnumWindows(_ENUM(cb), 0)
-    return out
-
-
-def find_window(pid: int, title: str) -> int | None:
-    for h, t, _ in windows_of(pid):
-        if t == title:
-            return h
-    return None
-
-
-def screenshot(hwnd: int, path: Path) -> str:
-    try:
-        from PIL import ImageGrab
-    except ImportError:
-        return "no Pillow"
-    try:
-        user32.SetForegroundWindow(hwnd)
-        time.sleep(0.5)
-        r = wintypes.RECT()
-        user32.GetWindowRect(hwnd, ctypes.byref(r))
-        ImageGrab.grab(bbox=(r.left, r.top, r.right, r.bottom), all_screens=True).save(path)
-        return path.name
-    except Exception as e:  # a report, not a check
-        return f"screenshot failed: {e}"
 
 
 # --- The app ------------------------------------------------------------------------------------
@@ -144,12 +41,8 @@ class App:
         self.exe = a.app.resolve()
         self.endpoint = a.endpoint
         self.log = a.log or a.endpoint.parent / "spike.log"
-        self.user_data = str(a.user_data or a.endpoint.parent / "EBWebView").lower().replace("/", "\\")
-        self.title = a.title
         self.ps = psutil
         self.proc: subprocess.Popen | None = None
-
-    # processes
 
     def start(self, args, flags=0) -> subprocess.Popen:
         return subprocess.Popen([str(self.exe), *args], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
@@ -194,42 +87,7 @@ class App:
                 p.kill()
             except self.ps.Error:
                 pass
-        for w in self.webviews(include_orphans=True):
-            try:
-                self.ps.Process(w["pid"]).kill()
-            except self.ps.Error:
-                pass
         time.sleep(1)
-
-    def webviews(self, include_orphans=True) -> list[dict]:
-        """WebView2 processes that belong to the app, and why each does."""
-        kids = set()
-        if self.alive():
-            try:
-                kids = {c.pid for c in self.ps.Process(self.proc.pid).children(recursive=True)}
-            except self.ps.Error:
-                pass
-        flag = f"--webview-exe-name={self.exe.name.lower()}"
-        out = []
-        for p in self.ps.process_iter(["name", "cmdline"]):
-            try:
-                if (p.info["name"] or "").lower() != WEBVIEW:
-                    continue
-                cmd = " ".join(p.info["cmdline"] or []).lower()
-                why = []
-                if p.pid in kids:
-                    why.append("descendant")
-                if include_orphans and flag in cmd:
-                    why.append("webview-exe-name")
-                if include_orphans and self.user_data in cmd.replace("/", "\\"):
-                    why.append("user-data")
-                if why:
-                    kind = next((a.split("=", 1)[1] for a in (p.info["cmdline"] or []) if a.startswith("--type=")),
-                                "browser")
-                    out.append({"pid": p.pid, "type": kind, "why": why})
-            except self.ps.Error:
-                pass
-        return out
 
     # control port
 
@@ -261,10 +119,6 @@ class App:
             return False, f"{cmd}: {e}"
         return (True, r.get("value")) if r.get("ok") else (False, r.get("error"))
 
-    def state(self) -> dict | None:
-        ok, v = self.call("ui_state")
-        return v if ok else None
-
     # log
 
     def lines(self, text: str, pid: int | None = None) -> list[str]:
@@ -275,332 +129,6 @@ class App:
             return []
         # The spike's lines name their pid; the app's don't (one process writes its log).
         return [l for l in ls if text in l and (pid is None or not l.startswith("[") or l.startswith(f"[{pid} "))]
-
-    def page_loads(self) -> int:
-        return len(self.lines("window: page loaded"))
-
-
-def tray_ok(v: dict | None) -> tuple[bool, str]:
-    """The tray is there: TrayIcon::rect() has a rectangle, or (no notification area in the
-    session) the icon was built and the main-thread round trip answered with no rectangle."""
-    if not v:
-        return False, "ui_state didn't answer"
-    if v.get("tray"):
-        return True, "rect"
-    if v.get("tray_built") and "Ok(None)" in str(v.get("tray_rect")):
-        return True, "fallback: icon built and the main thread answered, but no rect"
-    return False, f"tray_rect {v.get('tray_rect')}"
-
-
-def wait(pred, timeout: float, step=0.2):
-    """Poll `pred` until it returns something truthy; that value, or the last one."""
-    t0 = time.time()
-    v = pred()
-    while not v and time.time() - t0 < timeout:
-        time.sleep(step)
-        v = pred()
-    return v
-
-
-def measure(app: App, seconds: float) -> dict:
-    """Private working set (USS) and CPU of the app and its WebView2 processes, sampled each second."""
-    ps = app.ps
-    first, last, mems, counts, seen = {}, {}, [], [], set()
-    t0 = time.time()
-    while True:
-        procs = [app.proc.pid] if app.alive() else []
-        wv = app.webviews()
-        procs += [w["pid"] for w in wv]
-        seen |= {w["pid"] for w in wv}
-        total = 0
-        for pid in procs:
-            try:
-                p = ps.Process(pid)
-                total += p.memory_full_info().uss
-                c = p.cpu_times()
-                cpu = c.user + c.system
-                first.setdefault(pid, cpu)
-                last[pid] = cpu
-            except ps.Error:
-                pass
-        mems.append(total / 2**20)
-        counts.append(len(procs))
-        if time.time() - t0 >= seconds:
-            break
-        time.sleep(1)
-    wall = time.time() - t0
-    used = sum(last[p] - first[p] for p in last)
-    return {
-        "seconds": round(wall, 1),
-        "uss_mb_mean": round(statistics.mean(mems), 1),
-        "uss_mb_max": round(max(mems), 1),
-        "cpu_core_pct": round(100 * used / wall, 2),
-        "cpu_machine_pct": round(100 * used / wall / (os.cpu_count() or 1), 2),
-        "processes_max": max(counts),
-        "webview_pids_seen": sorted(seen),
-    }
-
-
-# --- The checks ---------------------------------------------------------------------------------
-
-
-class Probe:
-    def __init__(self, a, psutil):
-        self.a = a
-        self.app = App(a, psutil)
-        self.checks: dict[str, dict] = {}
-        self.cost: dict[str, dict] = {}
-        self.notes: dict[str, object] = {}
-        self.sink: list[dict] = []
-
-    def check(self, cid: str, name: str, ok: bool, detail) -> bool:
-        self.checks[cid] = {"name": name, "pass": bool(ok), "detail": detail}
-        print(f"{'PASS' if ok else 'FAIL'} {cid} {name}: {json.dumps(detail, default=str)}", flush=True)
-        return ok
-
-    def sink_check(self, label: str, into: list) -> bool:
-        """An F-key through SendInput raises the listener's count (not with `--no-sink`)."""
-        if self.a.no_sink:
-            return True
-        v0 = self.app.state()
-        if v0 is None:
-            into.append({"when": label, "pass": False, "error": "ui_state didn't answer"})
-            return False
-        err = tap_key()
-        v1 = wait(lambda: (v := self.app.state()) and v["sink_keys"] > v0["sink_keys"] and v, 3.0)
-        after = v1["sink_keys"] if v1 else (self.app.state() or {}).get("sink_keys")
-        ok = err is None and bool(v1)
-        into.append({"when": label, "before": v0["sink_keys"], "after": after, "pass": ok, "send_error": err})
-        return ok
-
-    def second_start(self, route: str) -> dict:
-        """A second start with `--route`: it exits 0 and the window loads a page within
-        `--page-load-s` of the start (10 s by default)."""
-        loads = self.app.page_loads()
-        t0 = time.time()
-        q = self.app.start(["--route", route])
-        try:
-            code = q.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            q.kill()
-            code = "timeout"
-        exited_s = round(time.time() - t0, 2)
-        # The bound counts from the second start, not from its exit; a later load (up to twice the
-        # bound, at least 20 s) is still reported.
-        bound = self.a.page_load_s
-        seen = wait(lambda: self.app.page_loads() > loads and max(0.01, round(time.time() - t0, 2)),
-                    t0 + max(20.0, 2 * bound) - time.time())
-        return {"exit_code": code, "page_loaded": bool(seen) and seen <= bound, "page_load_s": seen or None,
-                "s": exited_s}
-
-    def close_window(self) -> dict:
-        """WM_CLOSE to the window found by its title, as a click on X; then the window, WebView2
-        and the tray."""
-        hwnd = find_window(self.app.proc.pid, self.app.title)
-        if not hwnd:
-            return {"pass": False, "error": "no window with the title"}
-        t0 = time.time()
-        user32.PostMessageW(hwnd, 0x0010, 0, 0)
-        closed = wait(lambda: (v := self.app.state()) and v["window"] == "closed", 10.0)
-        t_closed = round(time.time() - t0, 2)
-        gone = wait(lambda: not self.app.webviews(), 15.0, 0.5)
-        left = self.app.webviews()
-        ok_tray, how = tray_ok(self.app.state())
-        r = {"window_closed_s": t_closed if closed else None, "webview_gone_s": round(time.time() - t0, 2) if gone
-             else None, "webview_left": left, "app_alive": self.app.alive(), "tray": how}
-        r["pass"] = bool(closed) and bool(gone) and self.app.alive() and ok_tray
-        return r
-
-    def run(self) -> None:
-        a, app = self.a, self.app
-        start_args = shlex.split(a.start_args)
-        app.kill_all()
-
-        # 1. Windowless.
-        st = app.launch(["--background", *start_args])
-        if not st["ok"]:
-            self.check("1", "windowless", False, st)
-            return
-        tray = wait(lambda: tray_ok(app.state())[0], 10.0)
-        v = app.state()
-        after_build: list = []
-        self.sink_check("at start", after_build)
-        m = measure(app, a.idle_seconds)
-        self.cost["background"] = m
-        self.check("1", "windowless", bool(tray) and (v or {}).get("window") == "closed" and not m["webview_pids_seen"],
-                   {"started_s": st["s"], "tray": tray_ok(v)[1], "window": v and v["window"],
-                    "webview_pids_in_30s": m["webview_pids_seen"]})
-
-        # 4. Open, by a second start.
-        r = self.second_start(ROUTE)
-        wv = wait(lambda: app.webviews(), 10.0)
-        self.check("4", "open", r["exit_code"] == 0 and r["page_loaded"] and bool(wv),
-                   {**r, "webview": wv})
-        self.sink_check("after the window opens", after_build)
-        time.sleep(5)
-        self.cost["window open"] = measure(app, a.idle_seconds)
-
-        # 5. Close, over 5 open and close cycles.
-        cycles = []
-        for i in range(5):
-            if i:
-                o = self.second_start(ROUTE)
-                if not o["page_loaded"]:
-                    cycles.append({"cycle": i + 1, "pass": False, "error": "reopen didn't load", **o})
-                    continue
-                time.sleep(2)
-            c = self.close_window()
-            cycles.append({"cycle": i + 1, **c})
-            self.sink_check(f"after the window closes ({i + 1} of 5)", after_build)
-            self.cost[f"after close {i + 1}"] = measure(app, a.idle_seconds)
-        self.check("5", "close", all(c["pass"] for c in cycles), cycles)
-
-        # 3. Tray churn from a worker thread.
-        if not a.no_churn:
-            ok, val = app.call("tray_churn", timeout=60)
-            after = app.state()
-            self.check("3", "tray churn", ok and after is not None, {"reply": val, "ui_state_after": after})
-            self.sink_check("after tray_churn", after_build)
-        if not a.no_sink:
-            self.check("2", "Raw Input survives Tauri (listener after build)",
-                       all(s["pass"] for s in after_build) and len(after_build) == (8 if not a.no_churn else 7),
-                       after_build)
-
-        # 6. Window crash: the renderer, then the browser process.
-        crashes = []
-        for target in ("renderer", "browser"):
-            crashes.append(self.window_crash(target))
-        self.notes["window crash"] = crashes
-        self.check("6", "window crash", all(c["pass"] for c in crashes),
-                   [{k: c.get(k) for k in ("target", "pass", "app_alive", "tray", "control", "recovered", "reopened")}
-                    for c in crashes])
-
-        # 7. Quit from a worker thread, with the window open.
-        if (app.state() or {}).get("window") == "closed":
-            self.second_start(ROUTE)
-            time.sleep(2)
-        ok, val = app.call("quit")
-        t0 = time.time()
-        try:
-            code = app.proc.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            code = None
-        exited_s = round(time.time() - t0, 2)
-        gone = wait(lambda: not app.webviews(), 5.0, 0.5)
-        self.check("7", "quit", ok and code == 0 and bool(gone),
-                   {"reply": val, "exit_code": code, "exited_s": exited_s, "webview_left": app.webviews()})
-        app.kill_all()
-
-    def window_crash(self, target: str) -> dict:
-        app = self.app
-        r = {"target": target}
-        if (app.state() or {}).get("window") == "closed":
-            r["open"] = self.second_start(ROUTE)
-        time.sleep(3)
-        v0 = app.state() or {}
-        procs = app.webviews()
-        victims = [w for w in procs if (w["type"] == "renderer" if target == "renderer" else w["type"] == "browser")]
-        r["killed"] = victims
-        if not victims:
-            r.update({"pass": False, "error": f"no {target} process belongs to the app", "webview": procs,
-                      "app_alive": app.alive(), "tray": None, "control": None, "reopened": None})
-            return r
-        failed_before = len(app.lines("process failed"))
-        # What the app's ProcessFailed handler logs (app/src-tauri/src/host.rs): a reload after the
-        # renderer exits, a rebuilt window (and its own page load) after the browser process exits.
-        reloads_before = len(app.lines("window: reloading the page"))
-        rebuilds_before = len(app.lines("window: rebuilt"))
-        loads_before = app.page_loads()
-        for w in victims:
-            try:
-                app.ps.Process(w["pid"]).kill()
-            except app.ps.Error:
-                pass
-        time.sleep(6)
-        v1 = app.state()
-        ok_tray, how = tray_ok(v1)
-        r["app_alive"] = app.alive()
-        r["control"] = v1 is not None
-        r["tray"] = how
-        r["window_after_kill"] = v1 and v1["window"]
-        r["page_beats_before"] = v0.get("page_beats")
-        r["page_beats_6s_after"] = v1 and v1.get("page_beats")
-        r["page_alive_after_kill"] = bool(v1 and v0.get("page_beats") is not None
-                                          and v1.get("last_beat_ms_ago") is not None
-                                          and v1["last_beat_ms_ago"] < 2000)
-        r["webview_after_kill"] = app.webviews()
-        r["process_failed_log"] = app.lines("process failed")[failed_before:]
-        if self.a.expect_recovery:
-            # Recovered in place, before anything closes the window: the handler's line, for a
-            # browser exit a new page load too, and the window open.
-            def recovered():
-                v = app.state()
-                if not v or v.get("window") != "open":
-                    return False
-                if target == "renderer":
-                    return len(app.lines("window: reloading the page")) > reloads_before
-                return len(app.lines("window: rebuilt")) > rebuilds_before and app.page_loads() > loads_before
-
-            r["recovered"] = bool(wait(recovered, 15.0, 0.5))
-            r["recovery_log"] = (app.lines("window: reloading the page")[reloads_before:]
-                                 + app.lines("window: rebuilt")[rebuilds_before:])
-        hwnd = find_window(app.proc.pid, app.title) if app.alive() else None
-        if hwnd:
-            r["screenshot"] = screenshot(hwnd, self.a.out / f"dead-window-{target}.png")
-        # Closing and reopening loads the page again.
-        if hwnd:
-            r["close"] = self.close_window()
-        o = self.second_start(ROUTE)
-        time.sleep(3)
-        v2 = app.state() or {}
-        r["reopen"] = o
-        r["reopened"] = o["page_loaded"]
-        r["page_beats_after_reopen"] = v2.get("page_beats")
-        r["pass"] = (r["app_alive"] and ok_tray and r["control"] and r["reopened"]
-                     and (r.get("recovered", False) or not self.a.expect_recovery))
-        return r
-
-    def before_build(self) -> None:
-        """The same Raw Input checks with the listener started before Tauri builds its loop:
-        recorded, not gated."""
-        app = self.app
-        rec: list = []
-        st = app.launch(["--background", *shlex.split(self.a.before_build_args)])
-        if not st["ok"]:
-            self.notes["sink before build"] = {"error": st}
-            return
-        wait(lambda: tray_ok(app.state())[0], 10.0)
-        self.sink_check("at start", rec)
-        self.second_start(ROUTE)
-        self.sink_check("after the window opens", rec)
-        time.sleep(2)
-        self.close_window()
-        self.sink_check("after the window closes", rec)
-        app.call("tray_churn", timeout=60)
-        self.sink_check("after tray_churn", rec)
-        self.notes["sink before build"] = rec
-        app.call("quit")
-        try:
-            app.proc.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            pass
-        app.kill_all()
-
-    def baseline(self) -> None:
-        app = self.app
-        st = app.launch(shlex.split(self.a.baseline_args))
-        if not st["ok"]:
-            self.cost["plain tray"] = {"error": st}
-            return
-        time.sleep(3)
-        self.notes["plain tray ui_state"] = app.state()
-        self.cost["plain tray"] = measure(app, self.a.idle_seconds)
-        app.call("quit")
-        try:
-            app.proc.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            pass
-        app.kill_all()
 
 
 # --- Restart registration -----------------------------------------------------------------------
@@ -785,49 +313,6 @@ def header(title: str) -> list[str]:
             f"commit `{git_commit()}`, {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}.", ""]
 
 
-def probe_markdown(p: Probe) -> str:
-    lines = header(f"One process probe (astromech-wgtr): {p.app.exe.name}")
-    lines += ["| Check | Verdict | Detail |", "|---|---|---|"]
-    for cid in sorted(p.checks):
-        c = p.checks[cid]
-        d = json.dumps(c["detail"], default=str)
-        lines.append(f"| {cid}. {c['name']} | {'PASS' if c['pass'] else '**FAIL**'} | `{d[:600]}` |")
-    skipped = [n for n, off in (("2 (Raw Input, `--no-sink`)", p.a.no_sink), ("3 (tray churn, `--no-churn`)", p.a.no_churn))
-               if off]
-    if skipped:
-        lines += ["", f"Not run: check {' and '.join(skipped)}."]
-    lines += ["", "## Raw Input with the listener started before Tauri's build (recorded, not gated)", ""]
-    rec = p.notes.get("sink before build")
-    if isinstance(rec, list):
-        lines += ["| When | Keys before | after | Seen |", "|---|---|---|---|"]
-        lines += [f"| {s['when']} | {s.get('before')} | {s.get('after')} | {'yes' if s['pass'] else 'no'} |" for s in rec]
-    else:
-        lines.append(f"Not run: {rec}")
-    lines += ["", "## Cost (reported, not gated: decision astromech-01ft)", "",
-              "Private working set (USS) and CPU of the app process plus the WebView2 processes that belong to it.", "",
-              "| State | USS mean MB | USS max MB | CPU % of machine | CPU % of one core | Processes |",
-              "|---|---|---|---|---|---|"]
-    for k, m in p.cost.items():
-        if "error" in m:
-            lines.append(f"| {k} | error: {m['error']} | | | | |")
-        else:
-            lines.append(f"| {k} | {m['uss_mb_mean']} | {m['uss_mb_max']} | {m['cpu_machine_pct']} | "
-                         f"{m['cpu_core_pct']} | {m['processes_max']} |")
-    lines += ["", "## What a crashed window showed", ""]
-    for c in p.notes.get("window crash", []):
-        lines.append(f"- **{c['target']} killed** ({len(c.get('killed', []))} processes): window "
-                     f"`{c.get('window_after_kill')}`, page beating 6 s later: {c.get('page_alive_after_kill')} "
-                     f"(beats {c.get('page_beats_before')} → {c.get('page_beats_6s_after')}), WebView2 left: "
-                     f"{[w['type'] for w in c.get('webview_after_kill', [])]}, ProcessFailed: "
-                     f"{c.get('process_failed_log')}, recovered in place: {c.get('recovered', 'not checked')} "
-                     f"{c.get('recovery_log', '')}, screenshot: {c.get('screenshot')}; reopened: {c.get('reopened')} "
-                     f"(beats after reopen {c.get('page_beats_after_reopen')}).")
-    lines += ["", "The spike only logs WebView2's ProcessFailed event; the app reloads the page after a renderer "
-              "exit and rebuilds the window after a browser-process exit. A dead page that stays dead until the "
-              "window is closed means the app has no ProcessFailed handler that recovers it in place."]
-    return "\n".join(lines) + "\n"
-
-
 def restart_markdown(configs: list[dict]) -> str:
     lines = header("Restart registration (astromech-wgtr, reported, not gated)")
     lines += ["Registered with `RegisterApplicationRestart(\"--background --restarted\", RESTART_NO_PATCH | "
@@ -858,32 +343,16 @@ def restart_markdown(configs: list[dict]) -> str:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    p.add_argument("--restart", action="store_true", required=True,
+                   help="report restart registration (the only mode left; the other checks are webview_cost.py's)")
     p.add_argument("--app", type=Path, required=True, help="the app's exe")
     p.add_argument("--endpoint", type=Path, required=True, help="its core.json")
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--log", type=Path, default=None, help="its log (default: spike.log next to the endpoint)")
-    p.add_argument("--user-data", type=Path, default=None,
-                   help="its WebView2 user-data folder (default: EBWebView next to the endpoint)")
-    p.add_argument("--title", default="astromech spike", help="the window's title")
-    p.add_argument("--start-args", default="--sink-after-build", help="added to the main run's first start")
-    p.add_argument("--before-build-args", default="--sink-before-build",
-                   help="the recorded Raw Input run's extra start arguments; empty to skip it")
-    p.add_argument("--baseline-args", default="--plain-tray", help="the cost baseline's start; empty to skip it")
     p.add_argument("--crash-hook-arg", default="--crash-hook")
-    p.add_argument("--no-sink", action="store_true",
-                   help="skip check 2: the app has no sink_keys (the installed app; the onboarding smoke checks its input)")
-    p.add_argument("--no-churn", action="store_true", help="skip check 3: the app has no tray_churn command")
-    p.add_argument("--page-load-s", type=float, default=10.0,
-                   help="checks 4-6: a second start's page must load within this many seconds of the start")
-    p.add_argument("--expect-recovery", action="store_true",
-                   help="check 6 also requires the window to recover in place before it is closed: the log's "
-                        "'window: reloading the page' after a renderer kill, 'window: rebuilt' and a new page load "
-                        "after a browser kill, and ui_state window open (the installed app; the spike has no handler)")
-    p.add_argument("--idle-seconds", type=float, default=30.0)
-    p.add_argument("--restart", action="store_true", help="report restart registration instead")
-    p.add_argument("--config", default="runner", help="--restart: this WER configuration's name in the report")
+    p.add_argument("--config", default="runner", help="this WER configuration's name in the report")
     p.add_argument("--clean-launch", action="store_true",
-                   help="--restart: start the app with the default error mode, out of the runner's job if allowed")
+                   help="start the app with the default error mode, out of the runner's job if allowed")
     a = p.parse_args(argv)
     # The Windows console is cp1252; the reports aren't.
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -893,36 +362,18 @@ def main(argv=None) -> int:
     import psutil
 
     a.out.mkdir(parents=True, exist_ok=True)
-    if a.restart:
-        # Each configuration's run adds to the same report, so they share one table.
-        path = a.out / "restart.json"
-        try:
-            configs = [c for c in json.loads(path.read_text(encoding="utf-8")) if c["config"] != a.config]
-        except (OSError, ValueError):
-            configs = []
-        configs.append(restart_report(a, psutil))
-        path.write_text(json.dumps(configs, indent=1, default=str), encoding="utf-8")
-        md = restart_markdown(configs)
-        (a.out / "restart.md").write_text(md, encoding="utf-8")
-        print(md)
-        return 0
-    probe = Probe(a, psutil)
+    # Each configuration's run adds to the same report, so they share one table.
+    path = a.out / "restart.json"
     try:
-        probe.run()
-        if a.before_build_args.strip():
-            probe.before_build()
-        if a.baseline_args.strip():
-            probe.baseline()
-    finally:
-        probe.app.kill_all()
-        rep = {"checks": probe.checks, "cost": probe.cost, "notes": probe.notes}
-        (a.out / "report.json").write_text(json.dumps(rep, indent=1, default=str), encoding="utf-8")
-        md = probe_markdown(probe)
-        (a.out / "report.md").write_text(md, encoding="utf-8")
-        print(md)
-    expected = {"1", "4", "5", "6", "7"} | ({"2"} if not a.no_sink else set()) | ({"3"} if not a.no_churn else set())
-    passed = expected <= set(probe.checks) and all(c["pass"] for c in probe.checks.values())
-    return 0 if passed else 1
+        configs = [c for c in json.loads(path.read_text(encoding="utf-8")) if c["config"] != a.config]
+    except (OSError, ValueError):
+        configs = []
+    configs.append(restart_report(a, psutil))
+    path.write_text(json.dumps(configs, indent=1, default=str), encoding="utf-8")
+    md = restart_markdown(configs)
+    (a.out / "restart.md").write_text(md, encoding="utf-8")
+    print(md)
+    return 0
 
 
 if __name__ == "__main__":

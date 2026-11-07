@@ -46,7 +46,7 @@ pub trait Ui: Send + Sync {
     fn open_window(&self, route: Option<&str>) -> Result<(), String>;
     /// Whether the window is open.
     fn window_open(&self) -> bool;
-    /// The window and the tray, for the `ui_state` command (scripts/one_process_probe.py).
+    /// The window and the tray, for the `ui_state` command (scripts/webview_cost.py).
     fn state(&self) -> UiState;
     /// Quit the app: the host ends its loop and then calls [`shutdown`].
     fn quit(&self);
@@ -993,7 +993,7 @@ impl Core {
             c.ui.quit();
             Done::empty()
         });
-        // The window and the tray, for scripts/one_process_probe.py.
+        // The window and the tray, for scripts/webview_cost.py and the upgrade smoke.
         add::<(), _>(&mut reg, self, &["ui_state"], Local, |c, _| c.ui.state());
         add::<(), _>(&mut reg, self, &["check_update"], Window, |c, _| {
             c.check_update_in_background();

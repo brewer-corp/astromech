@@ -162,9 +162,10 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   from the voice tester against the mock game, with each step's time. It opens the window with
   `astromech-core --webview-debug-port <port>`, which turns on WebView2's DevTools port on
   127.0.0.1 so the page can be driven; nothing else uses that flag.
-  After it, `scripts/one_process_probe.py` (spike astromech-wgtr's probe) runs against a fresh
-  install: the app windowless with its tray, a second start opening the window, five closes that
-  must free every WebView2 process, the window's renderer and browser process killed, and quit.
+  After it, `scripts/webview_cost.py --checks-only` runs the one-process checks against a fresh
+  install: the app windowless with no WebView2 process, a second start opening the window, five
+  closes that must each free every WebView2 process within 15 s, the window's renderer and
+  browser process killed (the window must recover, and its close free WebView2), and quit.
   Its `upgrade` job (`scripts/upgrade_smoke.py`) installs v1.0.0-alpha.4, the last two-process
   release (pinned: the script starts its two processes; between one-process releases is
   astromech-7pl5), starts it as
@@ -180,6 +181,12 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   **MVP criteria** workflow runs a 5-minute soak on PRs that change the core; the full 4 h run is
   manual (Actions → MVP criteria → Run workflow). Its analysis tests run anywhere:
   `python3 scripts/test_mvp_criteria.py`.
+- What the one app costs with its window, and that it stays one process, is measured by
+  `scripts/webview_cost.py` (docs/ARCHITECTURE.md §18.1): the app windowless, with its window
+  open, closed again five times and crashed, in a scratch profile. The **App window cost**
+  workflow runs it on PRs that change the app and gates on Windows: no WebView2 process windowless
+  or 15 s after a close, the app alive throughout, cold start, idle CPU. Memory is reported, with
+  no pass mark. Its judging tests run anywhere: `python3 scripts/test_webview_cost.py`.
 - New dependencies must pass `cargo deny` (permissive licences only).
 - Contributions are accepted under the MIT licence.
 

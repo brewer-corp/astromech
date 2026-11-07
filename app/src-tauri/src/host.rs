@@ -23,7 +23,7 @@ use std::time::Instant;
 use tauri::WebviewWindow;
 use tauri::{AppHandle, Emitter, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder, WindowEvent};
 
-/// The window's label and title; scripts/one_process_probe.py and the onboarding smoke find
+/// The window's label and title; scripts/webview_cost.py and the onboarding smoke find
 /// the window by the title, as a click on X would close it.
 const LABEL: &str = "main";
 const TITLE: &str = "astromech";

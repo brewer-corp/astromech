@@ -1,17 +1,30 @@
 name: App window cost
 
-# What the app window costs against the S11 budgets (docs/ARCHITECTURE.md §18.1): memory idle
-# and in use, idle CPU and cold start, measured by scripts/webview_cost.py on the one app
-# (astromech-core: the core, the tray and the window in one process) on WebKitGTK (Linux) and
-# WebView2 (Windows). Runs on PRs that change the app's Tauri package or the harness, and on demand
-# (Actions → App window cost → Run workflow). Frame-time impact next to Elite needs the game
-# (astromech-7ck3). Reports: the job summaries and the webview-cost-* artifacts.
+# The one app as a player uses it, measured by scripts/webview_cost.py: astromech-core is one
+# process holding the core, the tray and, when asked, the window (decision astromech-6i8s), plus
+# its speech worker. It runs the app windowless (--background), opens the window by a second
+# start, closes it again over 5 cycles, kills the window's renderer and browser process, and
+# quits. It fails if a WebView2 process belongs to the app windowless or outlives a close by
+# 15 s, if the app dies with its window, if a crashed window doesn't recover and close, if a page
+# change misses the window, if cold start takes 2 s or more, or if idle CPU is over 1% of the
+# machine (S11, docs/ARCHITECTURE.md §18.1). Memory is reported, not bounded (decision
+# astromech-01ft). This shows success criterion one-process (mission astromech-kjfs).
+# Windows (WebView2) gates; Linux (WebKitGTK) reports only, and has no closes or crashes.
+# Runs on PRs that change the app, its Tauri package, the app's startup, tray and command line
+# or the harness, and on demand (Actions → App window cost → Run workflow). Frame-time impact
+# next to Elite needs the game (astromech-7ck3). Reports: the job summaries and the
+# webview-cost-* artifacts.
 
 on:
   pull_request:
     paths:
       - .github/workflows/webview-cost.yml
       - scripts/webview_cost.py
+      - scripts/test_webview_cost.py
+      # The one app's startup, tray and command line, which the Tauri host runs.
+      - crates/astromech-core/src/app.rs
+      - crates/astromech-core/src/tray.rs
+      - crates/astromech-core/src/cli.rs
       # The window's dependencies are locked in the root workspace's files.
       - Cargo.toml
       - Cargo.lock
@@ -47,7 +60,7 @@ jobs:
             triple: x86_64-unknown-linux-gnu
             exe: ""
             artifact: webview-cost-linux
-            # The budgets are for WebView2 (the product is Windows-only): Linux reports, doesn't gate.
+            # The gates are for WebView2 (the product is Windows-only): Linux reports, doesn't gate.
             gate: false
           - name: WebView2 (Windows)
             os: windows-latest
