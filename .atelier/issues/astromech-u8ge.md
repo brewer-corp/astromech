@@ -34,15 +34,16 @@ The core's behaviour timers read and wait through one clock. In world mode that 
     - a clock-owned channel (`clock.channel()`), whose receiver has `recv_timeout` and an untimed `recv`;
     - a condvar wait, timed and untimed, on an `Arc<Condvar>` handed to the clock, so it can `notify_all`;
   - `register()`, returning a guard.
-  Under `SystemClock` these are exactly today's `std::sync::mpsc` and `Condvar` calls with today's timeouts, so the installed app doesn't change, with two teardown exceptions. Both happen only when Elite exits or the app quits:
+  Under `SystemClock` these are exactly today's `std::sync::mpsc` and `Condvar` calls with today's timeouts, so the installed app doesn't change, with three teardown exceptions. Each only shortens or ends a stop:
   - pipeline stop wakes the pipeline thread at once, instead of after up to 250 ms (`IDLE`);
-  - the binds watch ends on an explicit stop instead of on its notify channel disconnecting.
+  - the binds watch ends on an explicit stop instead of on its notify channel disconnecting;
+  - a history follower stopped during its settle ends at once instead of after the rest of the 2 s settle (finding astromech-r2ar). That happens when the journal folder is re-pointed or the app quits.
   Review checks each converted site against this.
 - [x] `ManualClock::advance(d)` moves time, wakes every clock wait whose deadline passed (sleeps, channel waits by an internal wake message, condvars by `notify_all`), and returns only when every registered thread is parked in a clock wait, timed or untimed. An untimed clock wait counts as parked. Unregistered threads' timed clock waits also block until `advance`, but `advance` doesn't wait for them.
 - [x] Rules, stated in the trait's doc comment:
   - A registered thread blocks only in clock waits. The implementer greps every registered thread's code for `recv(`, `recv_timeout`, `.wait(`, `wait_timeout`, `sleep` and `join`, converts or justifies each, and lists them in the close reason.
   - A thread is registered by its parent before it is spawned: `register()` is taken on the parent and moved into the child, so the child counts from its first instruction.
-  - Whatever stops a clock-waiting thread wakes its wait. `SpeechOut::drop` does this already (stop, then `notify_all`, crates/astromech-core/src/callouts.rs:506-513). `Pipeline::drop` (pipeline.rs:224-230) gets the same: stop, then wake through the clock channel, then join. A loop that ends only when its sender disconnects needs its own stop and wake: the binds watch ends on `rx.recv()` returning an error (crates/astromech-core/src/health.rs:194).
+  - Whatever stops a clock-waiting thread wakes its wait. `SpeechOut::drop` does this already (stop, then `notify_all`, crates/astromech-core/src/callouts.rs:506-513). `Pipeline::drop` (pipeline.rs:224-230) gets the same: stop, then wake through the clock channel, then join. A loop that ends only when its sender disconnects needs its own stop and wake: the binds watch ends on `rx.recv()` returning an error (crates/astromech-core/src/health.rs:194). The history follower's settle waits on its clock channel until the settle deadline, so `Follower::stop`'s poke ends it; a plain clock sleep there deadlocked `advance` on a re-point (finding astromech-r2ar).
   - The `notify` watchers' event handlers send into the clock channel.
 - [x] The registered threads:
   - pipeline loop;
@@ -124,15 +125,16 @@ Built on branch `astromech-vucf`, commits 2dd4dd4d..eaa446ef (5 commits after "S
 
 **Done when: proof.**
 
-1. **The `Clock` API, with SystemClock exactly today's except at two teardowns.** The API is in crates/astromech-proto/src/clock.rs.
+1. **The `Clock` API, with SystemClock exactly today's except at three teardowns.** The API is in crates/astromech-proto/src/clock.rs.
    - Under `SystemClock`, each wait is the `std` call with the caller's own timeout:
      - `recv_timeout` is `mpsc::Receiver::recv_timeout(d)`, and `recv` is `mpsc::Receiver::recv`;
      - `wait_timeout` is `Condvar::wait_timeout(g, d)`, and `wait` is `Condvar::wait`;
      - `notify_all` is `Condvar::notify_all`, and `sleep` is `thread::sleep`;
      - `now` is `Instant::now()`, `utc` is `SystemTime::now()`, and `now_s` gives the same value as the old `SystemClock`.
-   - The channel's messages are `Item | Wake`. Under `SystemClock` only a stop sends a `Wake`, and that gives the two teardown exceptions:
+   - The channel's messages are `Item | Wake`. Under `SystemClock` only a stop sends a `Wake`. The three teardown exceptions:
      - `Pipeline::drop` now stops, wakes the clock channel, then joins. Before, the join waited for up to 250 ms (`IDLE`).
      - `HealthWatch::drop` now sets a stop flag and wakes the channel. Before, the thread ended when the notify sender disconnected. Because the thread checks that flag after the debounce, a change still being debounced when the session drops no longer gets one last `run_check`. That only happens at teardown.
+     - The history follower's settle (history.rs `settle`) now waits on its clock channel with `recv_timeout` until the settle deadline, instead of `sleep(settle)`. Under `SystemClock` it still ends at the same deadline. Notifications that arrive during the settle are taken there, where before they were drained just after it; either way they make one import. The difference is that `Follower::stop`'s flag and poke now end the settle at once. A disconnect still sits out the rest of the settle. Finding astromech-r2ar; test `history::tests::re_pointing_during_the_settle_lets_the_clock_settle`. With the old sleep in place, that test failed at its 30 s guard with "advance never settled".
    - Proof: `system_channel_is_mpsc`, and a live comparison of the installed app before and after this change, described below.
 2. **`ManualClock::advance`.**
    - It fires the waits whose deadline has passed and marks their registered threads busy. It marks busy the condvar waiters that the notify will reach as well.
@@ -156,8 +158,8 @@ Built on branch `astromech-vucf`, commits 2dd4dd4d..eaa446ef (5 commits after "S
    - **Update checker:** `clock.sleep` for `STARTUP_DELAY` and `CHECK_EVERY`. `check_update` does network I/O; it is installed-app only.
    - **Callout speaker:** `clock.wait_timeout`. `speaker.say` queues to the TTS thread; a `LazySpeaker` can start the worker (worker I/O).
    - **History follower:**
-     - `recv_timeout(recheck)`, `clock.sleep(settle)` and `try_recv` are clock waits.
-     - It first joins the previous follower. That join is justified: the previous follower was stopped and poked. See open item 3.
+     - `recv_timeout(recheck)`, the settle's `recv_timeout` and `try_recv` are clock waits.
+     - It first joins the previous follower. That join is justified: the previous follower was stopped and poked, and since astromech-r2ar the poke ends its settle too.
    - **Binds watch:** `recv()` and `recv_timeout(left)` are clock waits. `run_check` is file I/O.
    - **EDDN and EDSM workers:** `recv_timeout(wait)` and `try_recv`. The post is network I/O; world mode switches uploads off.
 4. **Registered threads.** Every thread listed is spawned with `clock.spawn`. The game watch registers each `activate` thread before spawning it. The push-to-talk loop belongs to the devices child.
@@ -171,7 +173,7 @@ Built on branch `astromech-vucf`, commits 2dd4dd4d..eaa446ef (5 commits after "S
    - **Stop wakes:** `pipeline::tests::dropping_a_pipeline_wakes_its_clock_wait`. With `self.wake.wake()` removed, it failed at its 30 s guard with "the pipeline's drop waited for the clock".
 6. **Sites converted, with their SystemClock equivalence.** Each one reads `Instant::now`, `SystemTime::now` or `Utc::now`, or makes the same `std` wait, with the same timeout:
    - **Policy:**
-     - `wait_foreground`: `clock.now()` and `clock.sleep(50 ms)`.
+     - `wait_foreground`: `clock.now()` and `clock.sleep_from(now, 50 ms)`. `sleep_from` is `thread::sleep(50 ms)` under `SystemClock`; under the manual clock it is measured from the `now` the timeout was checked against.
      - `check`: `authorize` with `clock.now()`.
      - `Policy::new` keeps `SystemClock`; `Policy::with_clock` is new.
    - **Hub:**
@@ -189,7 +191,7 @@ Built on branch `astromech-vucf`, commits 2dd4dd4d..eaa446ef (5 commits after "S
      - The watcher's handler is a closure that sends, the same as `notify`'s impl for `mpsc::Sender`.
      - The pipeline runs on its hub's clock.
    - **Health:** the binds watch, with teardown exception 2.
-   - **History:** `recheck` and `settle`, via `Following::new(timing, clock)`.
+   - **History:** `recheck` and `settle`, via `Following::new(timing, clock)`. The settle is teardown exception 3.
    - **App:**
      - The game watch's `POLL`.
      - Its `activate` threads are spawned with `Builder::new().spawn(..).expect("failed to spawn thread")`, which is what `std::thread::spawn` does.
@@ -237,6 +239,12 @@ All were run after the last code change unless noted.
 
   After removing timestamps, pids and ports, the two logs are identical, and so are the files left in HOME. Both exited 0.
 
+**Review fixes.**
+
+- **astromech-r2ar:** the history settle is now teardown exception 3; see Done when 1 and 3.
+- **astromech-p78l:** `Manual::sleep` checked `elapsed >= until` under one lock and registered the wait under another, so an `advance` landing between them lost the wake. `Manual::begin` now checks an absolute deadline and registers the wait under one lock, and returns `None` when the deadline has passed. Test: `clock::tests::an_advance_just_before_a_sleep_registers_still_ends_it`. A test-only hook runs the `advance` inside that gap. With the check moved back out of the lock, the test failed with "the advance before the sleep's wait was lost".
+- **The related late timeout:** an `advance` between a caller's `now()` and its wait made the wait end one advance late. The hub's `wait_flag` and `wait_gui` now call `wait_timeout_from(m, cv, g, now, d)`, and policy's `wait_foreground` calls `sleep_from(now, 50 ms)`. Under the manual clock both measure from the caller's `now`. Under `SystemClock` they are exactly `cv.wait_timeout(g, d)` and `thread::sleep(d)`, with the same single `now()` read as before. Test: `waits_from_an_earlier_now_keep_their_deadline`.
+
 **Deviations.**
 
 - The condvar waits take `&Arc<Mutex<T>>` as well as `&Arc<Condvar>`, and there is a `notify_all(m, cv)`. Decision note.
@@ -253,5 +261,5 @@ All were run after the last code change unless noted.
 
    Separately, `a_killed_test_process_ends_its_world_core` failed once in 330 runs of this code, with "couldn't remove /tmp/astromech-world-…: Directory not empty". In 330 runs of the old code it never failed. One failure isn't enough to tell whether it is new; it looks like a writer racing the temp folder's removal. Both are for the orchestrator to triage.
 2. **Windows.** None of the Windows-only edits were compiled: the `#[allow]` attributes in xinput.rs, `controls::start`, clipboard.rs, update.rs's `wait_pid` and main.rs's `listen`. No changed signature is called from `cfg(windows)` code. The proof is the PR's Windows CI (test and clippy on windows-latest), which hasn't run.
-3. **The history follower's settle sleep is not woken by a stop.** Under `SystemClock` that keeps today's 2 s behaviour. Under the manual clock, a follower re-pointed during its settle ends at the next `advance`. Meanwhile the new follower's `join` keeps it busy, so `advance` still settles and nothing hangs. Making a stop wake the settle would change `SystemClock` behaviour, which isn't mine to decide. For i1ev or Sumeet.
+3. **Fixed after review.** This item said a follower stopped during its settle was harmless under the manual clock. That was wrong, as the reviewer showed: `advance(d)` with `d` shorter than the rest of the settle never returned. Fixed as teardown exception 3 (finding astromech-r2ar).
 4. **Review.** The review should read every converted in-game site (policy, hub, callouts, pipeline, health) against the equivalences above, and the clock's mechanics against Done when 2 and 3.

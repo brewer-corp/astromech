@@ -134,7 +134,10 @@ impl StateHub {
                 return false;
             }
             // In 25 ms slices, so `cancelled` (the kill switch) is looked at while waiting.
-            g = self.clock.wait_timeout(&self.state, &self.cv, g, (end - now).min(Duration::from_millis(25))).0;
+            g = self
+                .clock
+                .wait_timeout_from(&self.state, &self.cv, g, now, (end - now).min(Duration::from_millis(25)))
+                .0;
         }
     }
 
@@ -154,7 +157,10 @@ impl StateHub {
                 return false;
             }
             // In 25 ms slices, so `cancelled` (the kill switch) is looked at while waiting.
-            g = self.clock.wait_timeout(&self.state, &self.cv, g, (end - now).min(Duration::from_millis(25))).0;
+            g = self
+                .clock
+                .wait_timeout_from(&self.state, &self.cv, g, now, (end - now).min(Duration::from_millis(25)))
+                .0;
         }
     }
 }

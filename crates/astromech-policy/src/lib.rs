@@ -237,10 +237,11 @@ impl Policy {
             if i.cfg.skip_window_checks || i.platform.foreground_title().as_deref() == Some(TARGET_WINDOW) {
                 return Wait::Front;
             }
-            if i.clock.now() >= end {
+            let now = i.clock.now();
+            if now >= end {
                 return Wait::TimedOut;
             }
-            i.clock.sleep(Duration::from_millis(50));
+            i.clock.sleep_from(now, Duration::from_millis(50));
         }
     }
 

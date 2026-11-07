@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Fake keys, focus, raw input, mic, speech-to-text and speech out in world mode on every OS"
-updated_at: "2026-11-07T11:57:01.792855843+00:00"
+updated_at: "2026-11-07T14:53:28.338450333+00:00"
 ---
 
 ## Goal
@@ -73,3 +73,7 @@ The seams, `start_voice`'s move out of `cfg(windows)`, the Mapper's injected `no
 ## Context
 
 The kill switch shares this loop, and copilot reliability while playing wins over window features (strategy, Shape): review reads `start_voice`'s diff line by line. The existing fakes to build on are `RecordingSpeaker` and `FakeStt` (speech.rs:170, :190), `mock::MockGame` (crates/astromech-input/src/exec/platform.rs:224) and the replay of raw samples (listen/replay.rs:28).
+
+## Notes
+
+- 2026-11-07 [note] From the u8ge review (astromech-r2ar/p78l round): under the manual clock a kill switch pressed during a verify wait is seen only once an advance passes the hub's 25 ms slice (StateHub::wait_flag/wait_gui check ticket.is_cancelled between slices, and a slice is a clock deadline). The kill-switch world must advance at least 25 ms after the kill before expecting the verify wait to end as cancelled; it can't wait for that with no advance.

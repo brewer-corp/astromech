@@ -221,7 +221,9 @@ fn run(
             match rx.recv_timeout(timing.recheck) {
                 Ok(()) if stop.load(Ordering::SeqCst) => return,
                 Ok(()) => {
-                    clock.sleep(timing.settle);
+                    if settle(rx, timing.settle, stop, clock) {
+                        return;
+                    }
                     while rx.try_recv().is_ok() {}
                     break;
                 }
@@ -233,6 +235,34 @@ fn run(
                 Err(RecvTimeoutError::Disconnected) => return,
             }
         }
+    }
+}
+
+/// Gather notifications for `settle` after the first, on the clock's channel. True if a stop
+/// ended it: [`Follower::stop`] sets the flag and pokes, so a re-pointed follower's thread ends
+/// at once rather than after the settle (under the manual clock, rather than at an `advance`
+/// past it, which the new follower's `join` would otherwise hold up). Otherwise it ends at the
+/// settle's deadline, as a sleep did.
+fn settle(rx: &ClockReceiver<()>, settle: Duration, stop: &AtomicBool, clock: &dyn Clock) -> bool {
+    let now = clock.now();
+    let until = now + settle;
+    let mut left = settle;
+    loop {
+        if stop.load(Ordering::SeqCst) {
+            return true;
+        }
+        if left.is_zero() {
+            return false;
+        }
+        match rx.recv_timeout(left) {
+            Ok(()) | Err(RecvTimeoutError::Timeout) => {}
+            // No poke can come (the follower was dropped): sit out the rest, as the sleep did.
+            Err(RecvTimeoutError::Disconnected) => {
+                clock.sleep(left);
+                return false;
+            }
+        }
+        left = until.saturating_duration_since(clock.now());
     }
 }
 
@@ -416,6 +446,42 @@ pub(crate) mod tests {
         f.poke();
         wait_for("the import once the database is free", || f.progress().ready);
         assert_eq!(f.progress().events, 52);
+    }
+
+    /// astromech-r2ar: under the manual clock, re-pointing a follower that is in its settle
+    /// doesn't hold `advance` up. The stop ends the old thread's settle at once, so the new
+    /// follower's `join` of it returns and the new one parks; with the settle a plain clock
+    /// sleep, the old thread would wait for an `advance` past it while the new one, registered
+    /// and in its `join`, kept every `advance` from returning.
+    #[test]
+    fn re_pointing_during_the_settle_lets_the_clock_settle() {
+        let m = Arc::new(astromech_proto::ManualClock::at_unix(1_800_000_000));
+        let clock: Arc<dyn Clock> = m.clone();
+        let settle = |d: Duration| {
+            let (m, (tx, rx)) = (m.clone(), std::sync::mpsc::channel());
+            std::thread::spawn(move || {
+                m.advance(d);
+                let _ = tx.send(());
+            });
+            // A guard against hanging, never how the test decides.
+            #[allow(clippy::disallowed_methods)]
+            let settled = rx.recv_timeout(Duration::from_secs(30));
+            assert!(settled.is_ok(), "advance never settled");
+        };
+        let (j1, j2, data) = (journal_dir(), journal_dir(), tempfile::tempdir().unwrap());
+        let timing = Timing { settle: Duration::from_secs(2), recheck: Duration::from_secs(2), notify: false };
+        let f = Following::new(timing, clock.clone());
+        f.follow(Some(j1.path().to_path_buf()), data.path(), quiet());
+        // The first import, then the recheck wait.
+        settle(Duration::ZERO);
+        assert!(f.status().unwrap().ready);
+        // A poke: the follower is now in its 2 s settle.
+        f.state.lock().recover().current.as_ref().unwrap().2.poke();
+        settle(Duration::ZERO);
+        f.follow(Some(j2.path().to_path_buf()), data.path(), quiet());
+        // Well short of the settle: the old thread must end on its stop, not on the clock.
+        settle(Duration::from_millis(100));
+        assert!(f.status().unwrap().ready, "the new follower imported");
     }
 
     const JUMP: &[u8] = b"{ \"timestamp\":\"2026-09-03T10:40:00Z\", \"event\":\"FSDJump\", \"StarSystem\":\"Ross 128\", \"SystemAddress\":3, \"JumpDist\":9.1 }\r\n";

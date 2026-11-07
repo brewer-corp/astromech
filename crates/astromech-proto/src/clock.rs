@@ -108,7 +108,7 @@ impl dyn Clock {
         let Some(man) = self.manual() else {
             return cv.wait(guard).unwrap_or_else(|e| e.into_inner());
         };
-        let id = man.begin(Deadline::Never, Key::Cv(cv_key(cv)), Some(cv_waker(m, cv)));
+        let id = man.begin(Deadline::Never, Key::Cv(cv_key(cv)), Some(cv_waker(m, cv))).expect("an untimed wait");
         let g = cv.wait(guard).unwrap_or_else(|e| e.into_inner());
         man.end(id);
         g
@@ -130,9 +130,40 @@ impl dyn Clock {
         if d.is_zero() {
             return (guard, true);
         }
-        let id = man.begin(Deadline::After(d), Key::Cv(cv_key(cv)), Some(cv_waker(m, cv)));
-        let g = cv.wait(guard).unwrap_or_else(|e| e.into_inner());
-        (g, man.end(id))
+        man.cv_wait(m, cv, guard, Deadline::After(d))
+    }
+
+    /// [`wait_timeout`](trait.Clock.html#method.wait_timeout) for `d` measured from `now`, an
+    /// earlier read of this clock: on [`SystemClock`] exactly `cv.wait_timeout(guard, d)`. Under
+    /// the manual clock an `advance` between the caller's `now()` and this wait can't push the
+    /// deadline back; one already past times out at once.
+    pub fn wait_timeout_from<'a, T: Send + 'static>(
+        &self,
+        m: &'a Arc<Mutex<T>>,
+        cv: &Arc<Condvar>,
+        guard: MutexGuard<'a, T>,
+        now: Instant,
+        d: Duration,
+    ) -> (MutexGuard<'a, T>, bool) {
+        let Some(man) = self.manual() else {
+            let (g, r) = cv.wait_timeout(guard, d).unwrap_or_else(|e| e.into_inner());
+            return (g, r.timed_out());
+        };
+        if d.is_zero() {
+            return (guard, true);
+        }
+        man.cv_wait(m, cv, guard, Deadline::At(man.offset(now) + d))
+    }
+
+    /// [`Clock::sleep`] for `d` measured from `now`, an earlier read of this clock: on
+    /// [`SystemClock`] exactly `thread::sleep(d)`. Under the manual clock it ends at `now + d`
+    /// even if an `advance` came between the caller's `now()` and this call.
+    pub fn sleep_from(&self, now: Instant, d: Duration) {
+        match self.manual() {
+            None => self.sleep(d),
+            Some(man) if !d.is_zero() => man.sleep_until(man.offset(now) + d),
+            Some(_) => {}
+        }
     }
 
     /// `cv.notify_all()`. Under the manual clock it first marks the threads waiting on `cv` as
@@ -398,6 +429,9 @@ pub struct Manual {
     /// Told how many registered threads are still busy each time `advance` waits for them.
     #[cfg(test)]
     waiting: Mutex<Option<mpsc::Sender<usize>>>,
+    /// Run once by the next sleep, just before it registers its wait.
+    #[cfg(test)]
+    before_sleep: Mutex<Option<Box<dyn FnOnce() + Send>>>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -470,10 +504,37 @@ impl Manual {
         self.state.lock().unwrap_or_else(|e| e.into_inner())
     }
 
-    fn begin(&self, deadline: Deadline, key: Key, waker: Option<Waker>) -> u64 {
+    /// Start a wait, checking its deadline under the same lock: None when it has passed
+    /// already (an `advance` between the caller's reading and here can't be lost).
+    fn begin(&self, deadline: Deadline, key: Key, waker: Option<Waker>) -> Option<u64> {
         let mut s = self.lock();
+        if let Deadline::At(t) = deadline {
+            if t <= s.elapsed {
+                return None;
+            }
+        }
         let id = s.fresh_id();
-        s.begin(self, id, deadline, key, waker)
+        Some(s.begin(self, id, deadline, key, waker))
+    }
+
+    /// `t` as time since the clock's start.
+    fn offset(&self, t: Instant) -> Duration {
+        t.saturating_duration_since(self.mono)
+    }
+
+    /// A condvar wait to `deadline`; true if the deadline ended it.
+    fn cv_wait<'a, T: Send + 'static>(
+        &self,
+        m: &Arc<Mutex<T>>,
+        cv: &Arc<Condvar>,
+        guard: MutexGuard<'a, T>,
+        deadline: Deadline,
+    ) -> (MutexGuard<'a, T>, bool) {
+        let Some(id) = self.begin(deadline, Key::Cv(cv_key(cv)), Some(cv_waker(m, cv))) else {
+            return (guard, true);
+        };
+        let g = cv.wait(guard).unwrap_or_else(|e| e.into_inner());
+        (g, self.end(id))
     }
 
     /// The wait is over; true if its deadline ended it.
@@ -492,14 +553,23 @@ impl Manual {
         if d.is_zero() {
             return;
         }
-        let (m, cv) = (Arc::new(Mutex::new(())), Arc::new(Condvar::new()));
         let until = self.lock().elapsed + d;
+        self.sleep_until(until);
+    }
+
+    /// Sleep until `until` (time since the clock's start).
+    fn sleep_until(&self, until: Duration) {
+        let (m, cv) = (Arc::new(Mutex::new(())), Arc::new(Condvar::new()));
         let mut g = m.lock().unwrap_or_else(|e| e.into_inner());
         loop {
-            if self.lock().elapsed >= until {
-                return;
+            #[cfg(test)]
+            if let Some(f) = self.before_sleep.lock().unwrap_or_else(|e| e.into_inner()).take() {
+                f();
             }
-            let id = self.begin(Deadline::At(until), Key::Sleep, Some(cv_waker(&m, &cv)));
+            // The deadline is checked and the wait registered under one lock.
+            let Some(id) = self.begin(Deadline::At(until), Key::Sleep, Some(cv_waker(&m, &cv))) else {
+                return;
+            };
             g = cv.wait(g).unwrap_or_else(|e| e.into_inner());
             if self.end(id) {
                 return;
@@ -519,6 +589,8 @@ impl ManualClock {
             settled: Condvar::new(),
             #[cfg(test)]
             waiting: Mutex::new(None),
+            #[cfg(test)]
+            before_sleep: Mutex::new(None),
         }))
     }
 
@@ -806,6 +878,39 @@ mod tests {
         assert_eq!(rx.recv_timeout(S), Err(RecvTimeoutError::Timeout));
         drop(tx);
         assert_eq!(rx.recv(), Err(RecvError));
+    }
+
+    /// astromech-p78l: an `advance` that lands after a sleep has read its deadline but before
+    /// it registers the wait still ends it. The hook runs the `advance` in exactly that gap;
+    /// with the deadline checked under a separate lock from the wait's insert, the wake is
+    /// lost and the sleep waits for another `advance`.
+    #[test]
+    fn an_advance_just_before_a_sleep_registers_still_ends_it() {
+        let (m, c) = manual();
+        let m2 = m.clone();
+        *m.0.before_sleep.lock().unwrap() = Some(Box::new(move || m2.advance(S)));
+        let (tx, rx) = channel();
+        let c2 = c.clone();
+        std::thread::spawn(move || {
+            c2.sleep(S);
+            let _ = tx.send(());
+        });
+        // A guard against hanging, never how the test decides: the sleep should end at once.
+        assert!(rx.recv_timeout(Duration::from_secs(30)).is_ok(), "the advance before the sleep's wait was lost");
+    }
+
+    /// Waits measured from an earlier `now()` keep their deadline across an `advance` made in
+    /// between: past it already, they end at once.
+    #[test]
+    fn waits_from_an_earlier_now_keep_their_deadline() {
+        let (m, c) = manual();
+        let now = c.now();
+        m.advance(S);
+        c.sleep_from(now, S);
+        let (lock, cv) = (Arc::new(Mutex::new(())), Arc::new(Condvar::new()));
+        let g = lock.lock().unwrap();
+        let (_g, timed_out) = c.wait_timeout_from(&lock, &cv, g, now, S);
+        assert!(timed_out);
     }
 
     #[test]
