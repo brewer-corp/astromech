@@ -21,7 +21,9 @@ renderer orphaned by a dead parent still counts.
 The default run asserts checks 1-7 of astromech-wgtr (exit status 1 if one fails) and reports,
 without gating, memory and CPU (decision astromech-01ft), the Raw Input answer with the listener
 started before Tauri's build, and what a crashed window showed. `--restart` reports, without
-gating, which crash kinds Windows' restart registration restarts.
+gating, which crash kinds Windows' restart registration restarts under one WER configuration
+(`--config NAME`; `--clean-launch` starts the app with the default error mode and out of the
+runner's job). Each configuration's run adds to the same restart.json and restart.md.
 """
 
 from __future__ import annotations
@@ -142,16 +144,17 @@ class App:
 
     # processes
 
-    def start(self, args) -> subprocess.Popen:
-        return subprocess.Popen([str(self.exe), *args], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    def start(self, args, flags=0) -> subprocess.Popen:
+        return subprocess.Popen([str(self.exe), *args], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                creationflags=flags)
 
-    def launch(self, args, timeout=15.0) -> dict:
+    def launch(self, args, timeout=15.0, flags=0) -> dict:
         """Start the main instance and wait for its control port."""
         try:
             self.endpoint.unlink()
         except OSError:
             pass
-        self.proc = self.start(args)
+        self.proc = self.start(args, flags)
         t0 = time.time()
         while time.time() - t0 < timeout:
             ep = self.read_endpoint()
@@ -583,7 +586,7 @@ def wer_state(psutil) -> dict:
         vals = {}
         try:
             with winreg.OpenKey(hive, path) as k:
-                for v in ("Disabled", "DontShowUI", "LoggingDisabled", "Consent"):
+                for v in ("Disabled", "DontShowUI", "LoggingDisabled", "Consent", "DefaultConsent"):
                     try:
                         vals[v] = winreg.QueryValueEx(k, v)[0]
                     except OSError:
@@ -617,23 +620,65 @@ def restarted(app: App, crashed_pid: int) -> list:
     return out
 
 
+CREATE_BREAKAWAY_FROM_JOB = 0x01000000
+CREATE_DEFAULT_ERROR_MODE = 0x04000000
+
+
+def wer_processes() -> list[str]:
+    """WER's own processes running now (WerFault shows the crash UI and does the restart)."""
+    import psutil
+
+    out = []
+    for p in psutil.process_iter(["name", "cmdline"]):
+        try:
+            if (p.info["name"] or "").lower() in ("werfault.exe", "wermgr.exe", "werfaultsecure.exe"):
+                out.append(" ".join(p.info["cmdline"] or [p.info["name"]]))
+        except psutil.Error:
+            pass
+    return out
+
+
+def desktop_shot(path: Path) -> str | None:
+    try:
+        from PIL import ImageGrab
+
+        ImageGrab.grab(all_screens=True).save(path)
+        return path.name
+    except Exception as e:  # a report, not a check
+        return f"screenshot failed: {e}"
+
+
 def restart_report(a, psutil) -> dict:
+    """The five crashes under one WER configuration. A clean launch gives the app the default
+    error mode and, if the runner's job allows it, takes it out of the job, as a start from
+    Explorer or Start with Windows would be."""
     app = App(a, psutil)
     cases = [("abort", 65), ("access_violation", 65), ("main_thread_panic", 65), ("terminate", 65), ("abort", 10)]
-    rep = {"wer": wer_state(psutil), "cases": []}
-    print(json.dumps(rep["wer"]), flush=True)
+    rep = {"config": a.config, "wer_before": wer_state(psutil), "cases": []}
+    print(json.dumps(rep), flush=True)
     for kind, up in cases:
         app.kill_all()
         reports0 = wer_reports()
-        st = app.launch(["--background", a.crash_hook_arg])
         case = {"kind": kind, "uptime_s": up}
+        flags = CREATE_DEFAULT_ERROR_MODE | CREATE_BREAKAWAY_FROM_JOB if a.clean_launch else 0
+        try:
+            st = app.launch(["--background", a.crash_hook_arg], flags=flags)
+        except OSError as e:
+            # The job doesn't allow breakaway: keep the default error mode only.
+            case["breakaway_refused"] = str(e)
+            flags = CREATE_DEFAULT_ERROR_MODE
+            st = app.launch(["--background", a.crash_hook_arg], flags=flags)
+        case["launch"] = ("default error mode" if flags & CREATE_DEFAULT_ERROR_MODE else "inherited error mode") + (
+            ", out of the job" if flags & CREATE_BREAKAWAY_FROM_JOB else "")
         if not st["ok"]:
             case["error"] = st
             rep["cases"].append(case)
             continue
+        pid = app.proc.pid
+        env = app.lines("restart: error mode", pid)
+        case["app_saw"] = env[-1].split("restart: ", 1)[1] if env else None
         t_start = time.time() - st["s"]
         time.sleep(max(0.0, up - (time.time() - t_start)))
-        pid = app.proc.pid
         if kind == "terminate":
             psutil.Process(pid).kill()  # TerminateProcess, as taskkill /F does
             case["sent"] = True
@@ -646,7 +691,16 @@ def restart_report(a, psutil) -> dict:
         except subprocess.TimeoutExpired:
             case["exit_code"] = "still running after 30 s"
         t0 = time.time()
-        back = wait(lambda: restarted(app, pid), 90.0, 1.0)
+        wer_seen: set[str] = set()
+        back: list = []
+        while time.time() - t0 < 90:
+            wer_seen |= set(wer_processes())
+            if not case.get("screenshot") and time.time() - t0 >= 5:
+                case["screenshot"] = desktop_shot(a.out / f"restart-{a.config}-{kind}-{up}s.png")
+            back = restarted(app, pid)
+            if back:
+                break
+            time.sleep(1)
         case["restarted"] = bool(back)
         case["restart_after_s"] = round(time.time() - t0, 1) if back else None
         if back:
@@ -654,6 +708,7 @@ def restart_report(a, psutil) -> dict:
                 case["restart_cmdline"] = back[0].cmdline()
             except psutil.Error:
                 pass
+        case["wer_processes_seen"] = sorted(wer_seen)
         case["new_wer_reports"] = sorted(Path(p).name for p in wer_reports() - reports0)
         print(json.dumps(case), flush=True)
         rep["cases"].append(case)
@@ -662,7 +717,15 @@ def restart_report(a, psutil) -> dict:
                 p.kill()
             except psutil.Error:
                 pass
+        # A WER dialog left open for the dead process would hold up the next case.
+        for p in psutil.process_iter(["name", "cmdline"]):
+            try:
+                if (p.info["name"] or "").lower() == "werfault.exe" and str(pid) in (p.info["cmdline"] or []):
+                    p.kill()
+            except psutil.Error:
+                pass
     app.kill_all()
+    rep["wer_after"] = wer_state(psutil)
     return rep
 
 
@@ -719,19 +782,31 @@ def probe_markdown(p: Probe) -> str:
     return "\n".join(lines) + "\n"
 
 
-def restart_markdown(rep: dict) -> str:
+def restart_markdown(configs: list[dict]) -> str:
     lines = header("Restart registration (astromech-wgtr, reported, not gated)")
-    lines += [f"WER on the runner: `{json.dumps(rep['wer'])}`", "",
-              "Registered with `RegisterApplicationRestart(\"--background --restarted\", RESTART_NO_PATCH | "
-              "RESTART_NO_REBOOT)`. A restart counts when a process with `--restarted` appears within 90 s.", "",
-              "| Crash | Uptime | Exit code | Restarted | After | New WER reports |", "|---|---|---|---|---|---|"]
-    for c in rep["cases"]:
-        if "error" in c:
-            lines.append(f"| {c['kind']} | {c['uptime_s']} s | error: {c['error']} | | | |")
-            continue
-        lines.append(f"| {c['kind']} | {c['uptime_s']} s | {c.get('exit_code')} | "
-                     f"{'yes' if c['restarted'] else 'no'} | {c.get('restart_after_s')} | "
-                     f"{', '.join(c.get('new_wer_reports', [])) or 'none'} |")
+    lines += ["Registered with `RegisterApplicationRestart(\"--background --restarted\", RESTART_NO_PATCH | "
+              "RESTART_NO_REBOOT)`. A restart counts when a process with `--restarted` appears within 90 s of the "
+              "crash. Error mode 0x2 (SEM_NOGPFAULTERRORBOX) or job limit 0x400 (DIE_ON_UNHANDLED_EXCEPTION) keeps "
+              "WER away from a crash.", ""]
+    for r in configs:
+        back = sorted({f"{c['kind']} at {c['uptime_s']} s" for c in r["cases"] if c.get("restarted")})
+        verdict = (f"Windows restarted: {', '.join(back)}." if back
+                   else "**Windows restarted none of the crashes.**")
+        lines += [f"**{r['config']}**: {verdict}", "",
+                  f"- WER before: `{json.dumps(r.get('wer_before'))}`",
+                  f"- WER after: `{json.dumps(r.get('wer_after'))}`", ""]
+    lines += ["| Config | Crash | Uptime | Launch | The app saw | Exit code | Restarted | After | WER processes | "
+              "New WER reports |", "|---|---|---|---|---|---|---|---|---|---|"]
+    for r in configs:
+        for c in r["cases"]:
+            if "error" in c:
+                lines.append(f"| {r['config']} | {c['kind']} | {c['uptime_s']} s | {c.get('launch')} | | "
+                             f"error: {c['error']} | | | | |")
+                continue
+            lines.append(f"| {r['config']} | {c['kind']} | {c['uptime_s']} s | {c.get('launch')} | "
+                         f"{c.get('app_saw')} | {c.get('exit_code')} | {'yes' if c['restarted'] else 'no'} | "
+                         f"{c.get('restart_after_s')} | {'; '.join(c.get('wer_processes_seen', [])) or 'none'} | "
+                         f"{', '.join(c.get('new_wer_reports', [])) or 'none'} |")
     return "\n".join(lines) + "\n"
 
 
@@ -751,6 +826,9 @@ def main(argv=None) -> int:
     p.add_argument("--crash-hook-arg", default="--crash-hook")
     p.add_argument("--idle-seconds", type=float, default=30.0)
     p.add_argument("--restart", action="store_true", help="report restart registration instead")
+    p.add_argument("--config", default="runner", help="--restart: this WER configuration's name in the report")
+    p.add_argument("--clean-launch", action="store_true",
+                   help="--restart: start the app with the default error mode, out of the runner's job if allowed")
     a = p.parse_args(argv)
     # The Windows console is cp1252; the reports aren't.
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -761,9 +839,15 @@ def main(argv=None) -> int:
 
     a.out.mkdir(parents=True, exist_ok=True)
     if a.restart:
-        rep = restart_report(a, psutil)
-        (a.out / "restart.json").write_text(json.dumps(rep, indent=1, default=str), encoding="utf-8")
-        md = restart_markdown(rep)
+        # Each configuration's run adds to the same report, so they share one table.
+        path = a.out / "restart.json"
+        try:
+            configs = [c for c in json.loads(path.read_text(encoding="utf-8")) if c["config"] != a.config]
+        except (OSError, ValueError):
+            configs = []
+        configs.append(restart_report(a, psutil))
+        path.write_text(json.dumps(configs, indent=1, default=str), encoding="utf-8")
+        md = restart_markdown(configs)
         (a.out / "restart.md").write_text(md, encoding="utf-8")
         print(md)
         return 0

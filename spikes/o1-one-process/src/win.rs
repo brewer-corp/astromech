@@ -125,6 +125,34 @@ fn register_restart() {
     let args = wide("--background --restarted");
     let hr = unsafe { RegisterApplicationRestart(args.as_ptr(), RESTART_NO_PATCH | RESTART_NO_REBOOT) };
     log(&format!("restart: RegisterApplicationRestart returned 0x{hr:08X}"));
+    log_crash_env();
+}
+
+/// What a parent hands down that can keep WER away from a crash: the error mode
+/// (SEM_NOGPFAULTERRORBOX = 0x2 skips WER) and a job object's limits
+/// (JOB_OBJECT_LIMIT_DIE_ON_UNHANDLED_EXCEPTION = 0x400 ends the process without WER).
+fn log_crash_env() {
+    use windows_sys::Win32::System::Diagnostics::Debug::GetErrorMode;
+    use windows_sys::Win32::System::JobObjects::{
+        IsProcessInJob, JobObjectExtendedLimitInformation, QueryInformationJobObject,
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
+    };
+    use windows_sys::Win32::System::Threading::GetCurrentProcess;
+    unsafe {
+        let mode = GetErrorMode();
+        let mut in_job = 0;
+        IsProcessInJob(GetCurrentProcess(), std::ptr::null_mut(), &mut in_job);
+        let mut info: JOBOBJECT_EXTENDED_LIMIT_INFORMATION = std::mem::zeroed();
+        let ok = QueryInformationJobObject(
+            std::ptr::null_mut(),
+            JobObjectExtendedLimitInformation,
+            &mut info as *mut _ as *mut _,
+            std::mem::size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>() as u32,
+            std::ptr::null_mut(),
+        );
+        let flags = if ok != 0 { format!("0x{:X}", info.BasicLimitInformation.LimitFlags) } else { "none".into() };
+        log(&format!("restart: error mode 0x{mode:X}, in a job: {}, job limit flags {flags}", in_job != 0));
+    }
 }
 
 /// The `crash` command's kinds, other than the main-thread panic (the Tauri mode posts that to
