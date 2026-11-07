@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Move the window's journal and local-file commands into the command layer"
-updated_at: "2026-11-07T06:33:38.679516538+00:00"
+updated_at: "2026-11-07T06:54:25.255405627+00:00"
 ---
 
 ## Goal
