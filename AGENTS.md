@@ -19,7 +19,8 @@ under `.atelier/`, committed with the code they describe. There is no separate b
   branch), implement, tick every Done when line and write the `## Report`, `atelier review
   request <id>`, fix and re-review, approve, then `atelier merge <id>` under the PR rules
   below, which marks the work done. Work has no close step. Only a code change makes an
-  approval stale, though a rewritten Done when line still gets a fresh one. Work that
+  approval stale; a Done when line rewritten after start is shown in the review brief and
+  by `merge --check`, and refuses nothing. Work that
   changes no code and can only happen after a merge or release is a loose end, unless it is
   an independent validation; a change with no issue takes the light path. Agent Factory's
   Atelier reference has the detail and defines check, review, land, done and close.
