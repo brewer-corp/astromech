@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Clippy rejects direct time reads and sleeps; the remaining reads move to the clock"
-updated_at: "2026-11-07T21:35:27.000794365+00:00"
+updated_at: "2026-11-07T21:37:15.358715753+00:00"
 ---
 
 ## Goal
@@ -70,6 +70,7 @@ The site counts at planning: about 116 production reads and 40 waits across the 
   Reason: A new watcher can't skip the filter without an allow a reviewer sees; the three watchers (pipeline, history, health) use it, with what each sends unchanged
 - 2026-11-07 [decision] vucf pre-merge (jkgv): removed the dumper examples the drift test covers (odyssey dump-odyssey-fixture, ship dump-ships-fixture, market dump-trade, galaxy dump-sites and dump-nearby, engineering dump-fixture and dump-unlocks, materials dump-fixture, keybinds fixture) and materials' sample_inventory, which only the materials dumper used; kept galaxy's dump-local-route
   Reason: Each of those files is now a Core part of preview_fixtures.rs. plot.json's /local is a Not part that names dump-local-route as its seed (a world doesn't install the neutron file), so it still has a job
+- 2026-11-07 [handoff] Built and proved on astromech-vucf (f6180249, 835020c8, report 16ea5264); see ## Report, including the 'vucf pre-merge' section. Done when 5 waits for Windows CI. Independent review outstanding.
 
 ## Report
 
