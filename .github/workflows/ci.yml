@@ -29,7 +29,8 @@ env:
 jobs:
   linux:
     name: Linux (fmt, clippy, tests, deny, deps, frontend)
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest is 26.04, where Playwright 1.60 installs no Chromium.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +79,18 @@ jobs:
       - name: frontend build
         working-directory: app
         run: pnpm build
-      - name: frontend tests
+      - name: release build carries no browser preview
+        run: python3 scripts/check-dist.py app/dist
+      # The UI tests run in headless Chromium (app/vite.config.ts, project "browser"); the cache
+      # keeps the download, and the install still adds the system libraries it needs.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('app/pnpm-lock.yaml') }}
+      - name: Playwright Chromium
+        working-directory: app
+        run: pnpm exec playwright install --with-deps --only-shell chromium
+      - name: frontend tests (node and browser projects)
         working-directory: app
         run: pnpm test
 

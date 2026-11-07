@@ -2,7 +2,7 @@
 //! `tests/fixtures` as a fleet ship, and its current and planned stats for the build plans the
 //! Coriolis tests check (`tests/coriolis.rs`, `check_plan`), plus an empty plan; and the ship
 //! card stats for it and for the sample journal's fleet.
-//! `cargo run -q -p astromech-ship --example dump-ships-fixture > app/src/lib/fixtures/ships.json`
+//! `cargo run -q -p astromech-ship --example dump-ships-fixture > app/src/preview/fixtures/ships.json`
 use astromech_engineering::{FleetBuilder, Plan, Rolls, Target};
 
 fn main() {

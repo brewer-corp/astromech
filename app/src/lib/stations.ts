@@ -3,13 +3,8 @@
  * the commander or a typed system, through the shell (Spansh). Adapted into the search kit's
  * rows by {@link toResults}.
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewLookup } from "./fakecore";
-import sample from "./fixtures/stations.json";
-import moduleSample from "./fixtures/stations-module.json";
-import shipSample from "./fixtures/stations-ship.json";
 import { figure, stateLabel, type Column, type Filters, type Origin, type Pad, type Results } from "./search";
+import { call } from "./transport";
 
 /** Service ids (astromech_galaxy::stations::Service) with the names shown for them. */
 export const SERVICES = [
@@ -78,27 +73,9 @@ export interface StationsNearby {
   warning?: string;
 }
 
-const PADS: Pad[] = ["S", "M", "L"];
-
-/** The browser preview: a sample answer, with the filters applied the way the shell does. */
-function preview(want: Want, origin: Origin, f: Filters): StationsNearby {
-  const s = (want.kind === "module" ? moduleSample : want.kind === "ship" ? shipSample : sample) as unknown as StationsNearby;
-  const fetched = Date.parse(s.fetched);
-  const hits = s.hits.filter(
-    (h) =>
-      (f.pad == null || h.pad == null || PADS.indexOf(h.pad) >= PADS.indexOf(f.pad)) &&
-      (f.max_arrival_ls == null || h.arrival_ls == null || h.arrival_ls <= f.max_arrival_ls) &&
-      (f.max_age_days == null || (h.updated_at != null && fetched - Date.parse(h.updated_at) <= f.max_age_days * 86400000)) &&
-      !(f.exclude_carriers && h.station_type === "Drake-Class Carrier") &&
-      !(f.exclude_odyssey && h.station_type === "Settlement"),
-  );
-  return { ...s, filters: f, hits, here: origin ? { system: origin } : s.here };
-}
-
 /** The nearest stations offering `want` near `origin` (or the commander) that pass `filters`. */
 export async function stations(want: Want, origin: Origin, filters: Filters): Promise<StationsNearby> {
-  if (!inTauri) return previewLookup("stations_nearby", origin, () => preview(want, origin, filters));
-  return await invoke<StationsNearby>("stations_nearby", { want, origin, filters });
+  return await call<StationsNearby>("stations_nearby", { want, origin, filters });
 }
 
 /** "Federation · Mother Gaia · Boom": who runs the station and its state, when the source says. */

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_FILTERS } from "./search";
 import { alsoLine, cutNotes, hotspotResults, hotspots, ORES, ringLabel, wantNotes, type Hotspots } from "./hotspots";
-import sample from "./fixtures/hotspots.json";
+import sample from "../preview/fixtures/hotspots.json";
 
 const any = sample as unknown as Hotspots;
 

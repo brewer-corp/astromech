@@ -1,5 +1,5 @@
 //! Print sample raw-material site results from Sol, one per kind, from the recorded Spansh
-//! searches (no network), for the app's browser preview (`app/src/lib/fixtures/sites.json`):
+//! searches (no network), for the app's browser preview (`app/src/preview/fixtures/sites.json`):
 //! `cargo run -q -p astromech-galaxy --example dump-sites`
 use astromech_data::{Body, Cache, Client, Limiter, Request, Response, Transport, TransportError};
 use astromech_galaxy::{Galaxy, Here, Store, SITE_KINDS};

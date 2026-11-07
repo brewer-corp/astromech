@@ -1,12 +1,13 @@
 /**
  * The core's status and commands, through the shell's Tauri commands (which talk to the core's
- * local control API). Outside Tauri (vite dev, mockups) everything reports "not connected",
- * unless `?core=fresh` or `?core=ready` picks a recorded core (fakecore.ts) for the preview.
+ * local control API), over the transport (transport.ts). In the browser preview everything
+ * reports "not connected", unless `?core=new` or `?core=ready` picks a recorded core
+ * (app/src/preview/fakecore.ts).
  */
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
-import { fakeCall, fakeScenario, fakeStatus, previewGate } from "./fakecore";
 import type { MiningRun } from "./mining";
+import { call, subscribe, type CoreCmd } from "./transport";
+
+export type { CoreCmd } from "./transport";
 
 export interface UpdateStatus {
   status: "idle" | "checking" | "available" | "downloading" | "ready" | "applying" | "error";
@@ -92,85 +93,13 @@ export function freshToasts(list: Toast[], lastSeen: number | null): { show: Toa
   return { show: list.filter((t) => t.id > from), last: newest };
 }
 
-export const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
-
 export async function coreStatus(): Promise<CoreStatus | null> {
-  if (!inTauri) {
-    if (!fakeScenario()) return null;
-    try {
-      await previewGate("core_status");
-    } catch {
-      return null;
-    }
-    return fakeStatus();
-  }
   try {
-    return await invoke<CoreStatus | null>("core_status");
+    return await call<CoreStatus | null>("core_status");
   } catch {
     return null;
   }
 }
-
-/** Commands the window may send; the shell's `core_call` allows exactly these. */
-export type CoreCmd =
-  | "save_diagnostics"
-  | "ack_crash"
-  | "check_update"
-  | "install_update"
-  | "autostart_on"
-  | "autostart_off"
-  | "pause_voice"
-  | "resume_voice"
-  | "kill_switch"
-  | "download_models"
-  | "open_config"
-  | "eddn_log"
-  | "set_eddn"
-  | "edsm_status"
-  | "set_edsm"
-  | "edsm_flight_log"
-  | "voice_test"
-  | "voice_test_poll"
-  | "voice_test_stop"
-  | "voice_test_live"
-  | "learned_phrases"
-  | "learned_forget"
-  // Onboarding and Settings → Microphone (core: setup.rs, calibration.rs).
-  | "find_elite"
-  | "set_ptt"
-  | "set_kill_switch"
-  | "set_mic"
-  | "set_folders"
-  | "mic_list"
-  | "mic_check"
-  | "calibrate_start"
-  | "calibrate_record"
-  | "calibrate_finish"
-  | "calibrate_cancel"
-  | "onboarding_done"
-  // Settings → Voice responses.
-  | "set_voice"
-  | "voice_settings"
-  | "voice_preview"
-  // Settings → Callouts: each callout's switch and cooldown (core: callouts.rs, setup.rs).
-  | "callouts"
-  | "set_callout"
-  // Settings → Prospector callouts (core: callouts.rs).
-  | "prospector_thresholds"
-  | "prospector_set"
-  // Engineering → the arrival briefing's shopping list (core: callouts.rs).
-  | "shopping_set"
-  // Exploration → Biology: the system's biology and the sampling in progress (core: biology.rs).
-  | "exobiology"
-  // Galaxy → Route: the route the core follows (core: route.rs, docs/PLOTTING.md).
-  | "route"
-  | "route_set"
-  | "route_add"
-  | "route_skip"
-  | "route_back"
-  | "route_clear"
-  | "route_copy"
-  | "route_resume";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Reply = { ok: boolean; error?: string; [k: string]: any };
@@ -180,11 +109,8 @@ export type Reply = { ok: boolean; error?: string; [k: string]: any };
  * prospector threshold change as JSON ("prospector_set"); an object is a setup command's
  * arguments (e.g. `set_ptt` with `{device, key}`).
  */
-export async function coreCall(cmd: CoreCmd, arg?: string | Record<string, unknown> | null): Promise<Reply> {
-  const text = typeof arg === "string" ? arg : undefined;
-  const args = typeof arg === "string" ? null : (arg ?? null);
-  if (!inTauri) return fakeScenario() ? fakeCall(cmd, text ?? args) : { ok: false, error: "not running inside the app" };
-  return await invoke<Reply>("core_call", { cmd, text, args });
+export function coreCall(cmd: CoreCmd, arg?: string | Record<string, unknown> | null): Promise<Reply> {
+  return call<Reply>(cmd, arg ?? null);
 }
 
 /** A button from the config as the status shows it ("231D3201 Joy_4"). */
@@ -219,22 +145,16 @@ export interface MicList {
 }
 
 export async function shellInfo(): Promise<{ version: string }> {
-  if (!inTauri) return { version: "dev" };
-  return await invoke<{ version: string }>("shell_info");
+  return await call<{ version: string }>("shell_info");
 }
 
 export async function openUrl(url: string): Promise<void> {
-  if (!inTauri) {
-    window.open(url, "_blank");
-    return;
-  }
-  await invoke("open_external", { target: url });
+  await call("open_external", { target: url });
 }
 
 /** The tray (or a second start) asks for a page: the shell emits "route". */
-export function onRoute(cb: (route: string) => void): void {
-  if (!inTauri) return;
-  void listen<string>("route", (e) => cb(e.payload));
+export function onRoute(cb: (route: string) => void): () => void {
+  return subscribe<string>("route", cb);
 }
 
 /** One-line summary for the header. */

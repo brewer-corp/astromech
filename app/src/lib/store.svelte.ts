@@ -2,7 +2,7 @@
  * Shared keybinds state for all screens: the preset list, the preset being shown (the active
  * ship preset unless the user picked another), its rows, and the last control pressed.
  */
-import { api, onPress, simulatedPress, type Press, type Row, type State, type View } from "./binds";
+import { api, onPress, type Press, type Row, type State, type View } from "./binds";
 
 class Binds {
   state = $state<State | null>(null);
@@ -50,8 +50,6 @@ class Binds {
     this.started = true;
     void this.load();
     onPress((p) => this.press(p));
-    const sim = simulatedPress();
-    if (sim) setTimeout(() => this.press(sim), 300);
   }
 
   press(p: Press) {

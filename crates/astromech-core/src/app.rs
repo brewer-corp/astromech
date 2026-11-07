@@ -2056,7 +2056,7 @@ mod tests {
         }
     }
 
-    /// The window's fake core (`app/src/lib/fakecore.ts`) answers the setup and calibration
+    /// The window's fake core (`app/src/preview/fakecore.ts`) answers the setup and calibration
     /// commands with hand-written JSON. This pins the real replies' shape in
     /// `app/src/lib/core-reply-shapes.json`; the app's `fakecore.contract.test.ts` holds the
     /// fake to the same file, so neither can change alone. Refresh the file after a deliberate

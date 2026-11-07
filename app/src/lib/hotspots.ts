@@ -3,14 +3,11 @@
  * mineral, of a ring type and with a reserve level, within the finder's radius of the commander,
  * the route's next stop or a typed system, most hotspots first. The shell asks Spansh's bodies
  * search (`mining_hotspots`, highest hotspot counts first, at most four requests); the browser
- * preview answers from a recorded Painite search within 100 ly of Sol (fixtures/hotspots.json,
+ * preview answers from a recorded Painite search within 100 ly of Sol (app/src/preview/fixtures/hotspots.json,
  * the shell's own answer, 30 rings). Adapted into the search kit's rows by {@link hotspotResults}.
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewLookup } from "./fakecore";
-import sample from "./fixtures/hotspots.json";
 import { figure, type Filters, type Origin, type Results } from "./search";
+import { call } from "./transport";
 
 /** The ores the hotspot lookups offer, most valuable first (astromech_journal::ore::VALUE_ORDER),
  * by journal symbol with the name the rings list them under. */
@@ -93,28 +90,15 @@ export interface Hotspots {
 }
 
 /** The shell's answer size. */
-const LIMIT = 10;
-const RESERVE_LEVELS: Record<Reserve, string[]> = { pristine: ["Pristine"], major: ["Pristine", "Major"] };
+export const LIMIT = 10;
 
 export function oreNamed(symbol: string): (typeof ORES)[number] | undefined {
   return ORES.find((o) => o.symbol === symbol);
 }
 
-/** The browser preview: the recorded Painite answer, with the ring type and reserve applied to
- * its rings (other minerals get the same rings). */
-function preview(want: Want, origin: Origin): Hotspots {
-  const s = sample as unknown as Hotspots;
-  const levels = want.reserve ? RESERVE_LEVELS[want.reserve] : null;
-  const rings = s.rings
-    .filter((r) => (!want.ring_type || r.ring_type === want.ring_type) && (!levels || (r.reserve != null && levels.includes(r.reserve))))
-    .slice(0, LIMIT);
-  return { ...s, want, name: oreNamed(want.ore)?.name ?? want.ore, rings, here: origin ? { system: origin } : s.here };
-}
-
 /** Rings with a hotspot of `want` within the finder's radius of `origin` (or the commander). */
 export async function hotspots(want: Want, origin: Origin, filters: Filters): Promise<Hotspots> {
-  if (!inTauri) return previewLookup("mining_hotspots", origin, () => preview(want, origin));
-  return await invoke<Hotspots>("mining_hotspots", { want, origin, filters });
+  return await call<Hotspots>("mining_hotspots", { want, origin, filters });
 }
 
 /** "5 A Ring" for a ring named after its system, else the whole name. */

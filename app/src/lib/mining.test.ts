@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // The real app (Tauri) path: the core's status carries the run; it is null without a session.
 const status = vi.hoisted(() => vi.fn());
-vi.mock("./core", () => ({ inTauri: true, coreStatus: status }));
+vi.mock("./core", () => ({ coreStatus: status }));
 
 import { loadMining } from "./mining";
 

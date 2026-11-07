@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import sample from "./fixtures/engineering.json";
+import sample from "../preview/fixtures/engineering.json";
 import { fittedLine, groupFitted, shoppingChange, type Fitted, type PlanResult, type Ship } from "./engineering";
 
 describe("groupFitted", () => {

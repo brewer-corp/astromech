@@ -3,10 +3,7 @@
  * (crates/astromech-exploration, through the shell's `exploration_system` command, which reads
  * the newest journals).
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewData } from "./fakecore";
-import sample from "./fixtures/exploration.json";
+import { call } from "./transport";
 
 /** One scanned body (astromech_exploration::system::BodyView). */
 export interface Body {
@@ -59,11 +56,7 @@ export interface SystemView {
 }
 
 export async function loadSystem(): Promise<SystemView> {
-  if (!inTauri) {
-    const none: SystemView = { system: null, system_address: null, population: 0, body_count: null, all_found: false, bodies: [], value: 0, value_if_mapped: 0 };
-    return previewData("exploration_system", () => ({ ...(sample.system as SystemView), source: "Sample system" }), () => none);
-  }
-  return await invoke<SystemView>("exploration_system");
+  return await call<SystemView>("exploration_system");
 }
 
 /** "4.4 M cr", "720 k cr", "3,153 cr". */
@@ -93,6 +86,5 @@ export interface Unsold {
 
 /** `null`: no commander in the history yet. */
 export async function loadUnsold(): Promise<Unsold | null> {
-  if (!inTauri) return previewData("exploration_unsold", () => ({ ...(sample.unsold as Unsold), source: "Sample history" }), () => null);
-  return await invoke<Unsold | null>("exploration_unsold");
+  return await call<Unsold | null>("exploration_unsold");
 }

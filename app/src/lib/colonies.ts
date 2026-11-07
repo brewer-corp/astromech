@@ -2,13 +2,10 @@
  * Colonisation candidates near a system (astromech_galaxy::colonies): unpopulated systems nobody
  * has claimed within 15 ly of a populated one, where a claim can be made, with what their
  * bodies offer. The shell asks Spansh's systems and bodies searches. The browser preview
- * answers from a recorded search around Greae Phoea EM-K d9-675 (fixtures/colonies.json).
+ * answers from a recorded search around Greae Phoea EM-K d9-675 (app/src/preview/fixtures/colonies.json).
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewLookup } from "./fakecore";
-import sample from "./fixtures/colonies.json";
 import type { Filters, Origin, Results } from "./search";
+import { call } from "./transport";
 
 /** What the commander wants in the system (astromech_galaxy::Interest). */
 export type Interest = "any" | "rings" | "earth_like" | "landable";
@@ -63,17 +60,9 @@ export interface Candidates {
   warning?: string;
 }
 
-const samples = sample as unknown as Record<Interest, Candidates>;
-
 /** Candidates with a body of `interest` near `origin` (a typed system name), or near the commander. */
 export async function candidates(interest: Interest, origin: Origin = null, filters: Filters | null = null): Promise<Candidates> {
-  if (!inTauri) {
-    return previewLookup("colony_candidates", origin, () => {
-      const s = samples[interest];
-      return origin ? { ...s, here: { ...s.here, system: origin } } : s;
-    });
-  }
-  return await invoke<Candidates>("colony_candidates", { interest, origin, filters });
+  return await call<Candidates>("colony_candidates", { interest, origin, filters });
 }
 
 /** The search kit's rows for a candidates answer. */

@@ -2,15 +2,11 @@
  * Colonisation (astromech-colonisation, astromech-market::list): construction projects from the
  * journals with what is left to buy for each, and where to buy that list, stations stocking
  * most of it first (Ardent Insight through the shell). The browser preview answers from a
- * synthetic project (fixtures/colonisation.json) and a recorded search (fixtures/trade.json).
+ * synthetic project and a recorded search (app/src/preview/fixtures/colonisation.json, trade.json).
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewData } from "./fakecore";
-import projectsSample from "./fixtures/colonisation.json";
-import tradeSample from "./fixtures/trade.json";
 import type { Filters, Origin, Pad, Results } from "./search";
-import { credits, DEFAULT_DISTANCE_LY, DEFAULT_MAX_AGE_DAYS } from "./trade";
+import { credits } from "./trade";
+import { call } from "./transport";
 
 /** The id the search kit remembers this lookup's filters under (astromech_market::list::LOOKUP). */
 export const LOOKUP = "colonisation.buy";
@@ -95,8 +91,7 @@ export interface BuySearch {
 
 /** Construction projects from the journals, those being built first. */
 export async function loadProjects(): Promise<Project[]> {
-  if (inTauri) return await invoke<Project[]>("colonisation_projects");
-  return previewData("colonisation_projects", () => projectsSample as unknown as Project[], () => []);
+  return await call<Project[]>("colonisation_projects");
 }
 
 /** A project's display name: the station, else its market id. */
@@ -109,30 +104,9 @@ export function needsOf(p: Project): Need[] {
   return p.shopping.lines.filter((l) => l.to_buy > 0).map((l) => ({ symbol: l.symbol, name: l.name_localised ?? l.symbol, tonnes: l.to_buy }));
 }
 
-const PAD_RANK: Record<Pad, number> = { S: 1, M: 2, L: 3 };
-
-function previewKeeps(s: Stockist, f: Filters, now: number): boolean {
-  if (s.ly > (f.max_distance_ly ?? DEFAULT_DISTANCE_LY)) return false;
-  if (f.exclude_carriers && s.fleet_carrier) return false;
-  if (f.exclude_odyssey && s.odyssey) return false;
-  if (f.pad && s.pad && PAD_RANK[s.pad] < PAD_RANK[f.pad]) return false;
-  if (f.max_arrival_ls != null && s.arrival_ls != null && s.arrival_ls > f.max_arrival_ls) return false;
-  if (now - Date.parse(s.updated_at) > (f.max_age_days ?? DEFAULT_MAX_AGE_DAYS) * 86400000) return false;
-  return true;
-}
-
 /** Where to buy `needs` near `origin` (or the commander), stations stocking most of them first. */
 export async function buyList(needs: Need[], origin: Origin = null, filters: Filters | null = null): Promise<BuySearch> {
-  if (inTauri) return await invoke<BuySearch>("colonisation_buy", { needs, origin, filters });
-  const s = tradeSample as unknown as { list: ListPlan; buy: { here: BuySearch["here"]; range: number } };
-  const now = s.list.fetched_at * 1000;
-  const keep = (x: Stockist) => !filters || previewKeeps(x, filters, now);
-  const found = (stations: Stockist[]): BuySearch => ({
-    here: origin ? { ...s.buy.here, system: origin } : s.buy.here,
-    range: s.buy.range,
-    plan: { ...s.list, stations },
-  });
-  return previewData("colonisation_buy", () => found(s.list.stations.filter(keep)), () => found([]));
+  return await call<BuySearch>("colonisation_buy", { needs, origin, filters });
 }
 
 /** The stations as the search kit's rows: how much of the list each sells, and each stock. */

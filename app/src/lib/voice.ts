@@ -1,10 +1,9 @@
 /**
  * The voice command tester's calls to the core (crates/astromech-core/src/tester.rs). A test is
  * a dry run: the core matches the phrase and plans the keys but presses nothing. Only
- * `voiceLive` presses, through the core's policy. Outside Tauri the sample results stand in.
+ * `voiceLive` presses, through the core's policy. The browser preview answers from sample results.
  */
-import { coreCall, inTauri } from "./core";
-import sample from "./fixtures/voice.json";
+import { coreCall } from "./core";
 
 export type Would =
   | "press"
@@ -39,18 +38,7 @@ export interface Poll {
   last: { seq: number; result: DryRun } | null;
 }
 
-const samples = sample as unknown as Record<string, DryRun>;
-const norm = (s: string) => s.toLowerCase().replace(/[^a-z ]/g, "").trim();
-
-/** Browser preview: the sample phrases match, anything else is "Say again". */
-function sampleRun(text: string): DryRun {
-  const hit = samples[norm(text)];
-  if (hit) return { ...hit, transcript: text };
-  return { ...samples["banana bread"]!, transcript: text };
-}
-
 export async function voiceTest(text: string): Promise<DryRun> {
-  if (!inTauri) return sampleRun(text);
   const r = await coreCall("voice_test", text);
   if (!r.ok) throw new Error(String(r.error));
   return r.result as DryRun;
@@ -58,14 +46,13 @@ export async function voiceTest(text: string): Promise<DryRun> {
 
 /** Keeps push-to-talk in test mode for a few seconds; call it every second while the page is open. */
 export async function voicePoll(): Promise<Poll | null> {
-  if (!inTauri) return { listening: false, last: null };
   const r = await coreCall("voice_test_poll");
   return r.ok ? (r as unknown as Poll) : null;
 }
 
 /** Hand push-to-talk back to the assistant now (the page closed). */
 export async function voiceStop(): Promise<void> {
-  if (inTauri) await coreCall("voice_test_stop");
+  await coreCall("voice_test_stop");
 }
 
 /** A phrase astromech learned from a "Did you mean ...?" answered yes. */
@@ -78,11 +65,6 @@ export interface LearnedPhrase {
   does: string;
 }
 
-let previewLearned: LearnedPhrase[] = [
-  { heard: "You're down.", command: "landing_gear.down", does: "gear down" },
-  { heard: "lamps", command: "lights.on", does: "lights on" },
-];
-
 async function learned(r: Promise<Record<string, unknown>>): Promise<LearnedPhrase[]> {
   const v = await r;
   if (!v.ok || !Array.isArray(v.phrases)) throw new Error(String(v.error ?? "the core did not answer"));
@@ -91,12 +73,11 @@ async function learned(r: Promise<Record<string, unknown>>): Promise<LearnedPhra
 
 /** The phrases learned so far, most used first. */
 export async function learnedPhrases(): Promise<LearnedPhrase[]> {
-  return inTauri ? learned(coreCall("learned_phrases")) : previewLearned;
+  return learned(coreCall("learned_phrases"));
 }
 
 /** Forget one learned phrase; it asks again next time. Returns the phrases that are left. */
 export async function forgetPhrase(heard: string): Promise<LearnedPhrase[]> {
-  if (!inTauri) return (previewLearned = previewLearned.filter((p) => p.heard !== heard));
   return learned(coreCall("learned_forget", heard));
 }
 

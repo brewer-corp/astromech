@@ -3,6 +3,7 @@
 node_modules/
 app/dist/
 app/dist-preview/
+app/dist-shots/
 app/src-tauri/gen/
 *.pdb
 # Spike/tool outputs: never commit personal results (device paths, window titles)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the app's browser preview (the real pages, the core answered by lib/fakecore.ts) into a
+# Build the app's browser preview (the real pages, answered by app/src/preview/) into a
 # folder that publishes as one claude.ai artifact: index.html plus its assets, with relative
 # paths, and the page without a document wrapper (the artifact adds one). An artifact link
 # carries no query string and no #/path, so the scenario and the start page are baked in.
@@ -24,7 +24,7 @@ case "$core" in ready | new | empty) ;; *) echo "scripts/preview-publish: --core
 root=$(cd "$(dirname "$0")/.." && pwd)
 out=$(realpath -m "${out:-$root/app/dist-preview}")
 cd "$root/app"
-VITE_PREVIEW_QUERY="core=$core${query:+&$query}" VITE_PREVIEW_PAGE="$page" \
+VITE_PREVIEW=1 VITE_PREVIEW_QUERY="core=$core${query:+&$query}" VITE_PREVIEW_PAGE="$page" \
   pnpm -s exec vite build --base ./ --outDir "$out" --emptyOutDir --logLevel warn
 python3 -I - "$out/index.html" <<'PY'
 import re, sys

@@ -23,7 +23,7 @@ concurrency:
 
 env:
   # spadaval/atelier master; publishes no releases. Move the pin to pick up fixes.
-  ATELIER_REV: 1f5fd1c25a84740a637366832f2bdeb9233b46bb
+  ATELIER_REV: 523a65023c4cf2220d2632fa9794df30763debf0
   # Atelier's own rust-toolchain.toml pin, named explicitly because `cargo install` takes the
   # toolchain from the working directory, not from the crate it builds.
   ATELIER_TOOLCHAIN: 1.95.0

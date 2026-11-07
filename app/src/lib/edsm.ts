@@ -1,11 +1,10 @@
 /**
  * EDSM journal upload (core `edsm_status`, `set_edsm`, `edsm_flight_log`): the switch, the
  * commander name, whether an API key is saved in the OS keyring (never the key itself), the
- * queue and send log, and the commander's EDSM flight log. Outside Tauri (vite dev) it shows a
- * synthetic sample, or the fake core with `?core=<scenario>`.
+ * queue and send log, and the commander's EDSM flight log. The browser preview shows a
+ * synthetic sample, or the fake core's with `?core=<scenario>`.
  */
-import { coreCall, inTauri, type Reply } from "./core";
-import { fakeScenario } from "./fakecore";
+import { coreCall, type Reply } from "./core";
 import type { EddnLogEntry } from "./eddn";
 
 export interface EdsmStatus {
@@ -34,22 +33,8 @@ export interface Visit {
   ship_id: number | null;
 }
 
-export const sampleStatus: EdsmStatus = {
-  enabled: true,
-  commander: "Jameson",
-  has_key: true,
-  key_error: null,
-  uploading: true,
-  pending: 0,
-  last_sent: { at: 1792166460, schema_ref: "journal", outcome: "sent", detail: "12 events" },
-  last_error: null,
-  log: [{ at: 1792166460, schema_ref: "journal", outcome: "sent", detail: "12 events" }],
-  skipped: [],
-};
-
 /** The EDSM status; rejects (with the core's reason) when the core did not answer. */
 export async function edsmStatus(): Promise<EdsmStatus> {
-  if (!inTauri && !fakeScenario()) return sampleStatus;
   const r = await coreCall("edsm_status");
   if (!r.ok) throw new Error(r.error ?? "the core did not answer");
   return r as unknown as EdsmStatus;

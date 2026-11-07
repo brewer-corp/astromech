@@ -3,10 +3,7 @@
  * what picked suit/weapon upgrades and modifications need (astromech-odyssey, via the shell).
  * Picks are kept in localStorage. Outside the app only the sample picks have a shopping list.
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { fakeScenario, previewData } from "./fakecore";
-import sample from "./fixtures/odyssey.json";
+import { call, previewOption } from "./transport";
 
 export type Category = "goods" | "assets" | "data" | "consumables";
 
@@ -171,11 +168,7 @@ export function fromGrades(owned: OwnedGear[], gear: string): number[] {
 }
 
 export async function loadOdyssey(): Promise<OdysseyView> {
-  if (!inTauri) {
-    const bare = (): OdysseyView => ({ ...(sample.view as unknown as OdysseyView), source: "No journal yet", locker_ts: null, backpack_ts: null, items: [], owned: [] });
-    return previewData("odyssey_view", () => sample.view as unknown as OdysseyView, bare);
-  }
-  return await invoke<OdysseyView>("odyssey_view");
+  return await call<OdysseyView>("odyssey_view");
 }
 
 export const pickKey = (p: Pick) => (p.kind === "upgrade" ? `u:${p.gear}:${p.from}:${p.to}` : `m:${p.id}:${p.maker ?? ""}`);
@@ -186,23 +179,23 @@ export function samePicks(a: Pick[], b: Pick[]): boolean {
 
 /** The list for `picks`; outside the app only for the sample picks (else null). */
 export async function loadShopping(picks: Pick[]): Promise<Shopping | null> {
-  if (!inTauri) return previewData("odyssey_shopping", () => (samePicks(picks, sample.picks as Pick[]) ? (sample.shopping as unknown as Shopping) : null), () => null);
-  return await invoke<Shopping>("odyssey_shopping", { picks });
+  return await call<Shopping>("odyssey_shopping", { picks });
 }
 
 const KEY = "astromech.odyssey.picks";
 
-export function savedPicks(): Pick[] {
+function picksFrom(raw: string | null): Pick[] | null {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const p = JSON.parse(raw) as unknown;
-      if (Array.isArray(p)) return p as Pick[];
-    }
+    const p = raw ? (JSON.parse(raw) as unknown) : null;
+    return Array.isArray(p) ? (p as Pick[]) : null;
   } catch {
-    // ignore a damaged entry
+    return null; // a damaged entry
   }
-  return inTauri || fakeScenario() === "empty" ? [] : structuredClone(sample.picks as Pick[]);
+}
+
+/** The picks kept here, else (the browser preview) the sample's. */
+export function savedPicks(): Pick[] {
+  return picksFrom(localStorage.getItem(KEY)) ?? picksFrom(previewOption(KEY)) ?? [];
 }
 
 export function savePicks(picks: Pick[]): void {

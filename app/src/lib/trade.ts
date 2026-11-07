@@ -1,16 +1,12 @@
 /**
  * Trade lookups (astromech-market): where to sell or buy a commodity near a system or anywhere
  * in the galaxy, best price first, and where to sell the cargo in the hold, from Ardent Insight through the shell. The
- * browser preview answers from recorded searches and a fixture hold (fixtures/trade.json) with
+ * browser preview answers from recorded searches and a fixture hold (app/src/preview/fixtures/trade.json) with
  * the filters applied roughly.
  */
-import { invoke } from "@tauri-apps/api/core";
 import catalog from "../../../data/catalog/commodities.json";
-import { inTauri } from "./core";
-import { previewData } from "./fakecore";
-import compareSample from "./fixtures/market-compare.json";
-import sample from "./fixtures/trade.json";
 import type { Filters, Origin, Pad, Results } from "./search";
+import { call } from "./transport";
 
 export type Side = "sell" | "buy";
 
@@ -91,49 +87,14 @@ export const DEFAULT_DISTANCE_LY = 100;
 /** The data age the lookup uses when none is picked (astromech_market::trade::DEFAULT_MAX_AGE_DAYS). */
 export const DEFAULT_MAX_AGE_DAYS = 30;
 
-const PAD_RANK: Record<Pad, number> = { S: 1, M: 2, L: 3 };
-
-type Market = Pick<Offer, "ly" | "fleet_carrier" | "odyssey" | "pad" | "arrival_ls" | "updated_at"> & { volume?: number };
-
-function previewKeeps(o: Market, f: Filters, now: number): boolean {
-  if (f.min_volume != null && o.volume != null && o.volume < f.min_volume) return false;
-  if (o.ly > (f.max_distance_ly ?? DEFAULT_DISTANCE_LY)) return false;
-  if (f.exclude_carriers && o.fleet_carrier) return false;
-  if (f.exclude_odyssey && o.odyssey) return false;
-  if (f.pad && o.pad && PAD_RANK[o.pad] < PAD_RANK[f.pad]) return false;
-  if (f.max_arrival_ls != null && o.arrival_ls != null && o.arrival_ls > f.max_arrival_ls) return false;
-  if (now - Date.parse(o.updated_at) > (f.max_age_days ?? DEFAULT_MAX_AGE_DAYS) * 86400000) return false;
-  return true;
-}
-
 /** Where to sell or buy each of `symbols` near `origin` (or the commander), best first. */
 export async function tradeSearch(side: Side, symbols: string[], origin: Origin = null, filters: Filters | null = null): Promise<TradeSearch> {
-  if (inTauri) return await invoke<TradeSearch>("trade_search", { side, commodities: symbols, origin, filters });
-  const s = (sample as unknown as Record<Side, TradeSearch>)[side];
-  const [p] = s.results;
-  if (!p) return s;
-  const keep = (o: Offer) => !filters || previewKeeps(o, filters, p.fetched_at * 1000);
-  const found = (offers: (o: Offer) => boolean): TradeSearch => ({
-    ...s,
-    here: origin ? { ...s.here, system: origin } : s.here,
-    results: symbols.map((c) => ({ ...p, commodity: c, offers: p.offers.filter(offers).map((o) => ({ ...o, commodity: c })) })),
-  });
-  return previewData("trade_search", () => found(keep), () => found(() => false));
+  return await call<TradeSearch>("trade_search", { side, commodities: symbols, origin, filters });
 }
 
 /** Where to sell or buy `symbol` anywhere in the galaxy (Ardent's best 100), distances from `origin` or the commander. */
 export async function tradeAnywhere(side: Side, symbol: string, origin: Origin = null, filters: Filters | null = null): Promise<TradeSearch> {
-  if (inTauri) return await invoke<TradeSearch>("trade_anywhere", { side, commodity: symbol, origin, filters });
-  const s = (sample as unknown as { anywhere: Record<Side, TradeSearch> }).anywhere[side];
-  const [p] = s.results;
-  if (!p) return s;
-  const keep = (o: Offer) => !filters || previewKeeps(o, { ...filters, max_distance_ly: Infinity }, p.fetched_at * 1000);
-  const found = (offers: (o: Offer) => boolean): TradeSearch => ({
-    ...s,
-    here: origin ? { ...s.here, system: origin } : s.here,
-    results: [{ ...p, commodity: symbol, offers: p.offers.filter(offers).map((o) => ({ ...o, commodity: symbol })) }],
-  });
-  return previewData("trade_anywhere", () => found(keep), () => found(() => false));
+  return await call<TradeSearch>("trade_anywhere", { side, commodity: symbol, origin, filters });
 }
 
 /**
@@ -214,26 +175,7 @@ export interface CargoSearch {
 
 /** Where to sell the hold (Cargo.json) near `origin` or the commander. */
 export async function tradeCargo(origin: Origin = null, filters: Filters | null = null): Promise<CargoSearch> {
-  if (inTauri) return await invoke<CargoSearch>("trade_cargo", { origin, filters });
-  const s = sample as unknown as { cargo: CargoPlan; sell: TradeSearch };
-  const now = s.cargo.fetched_at * 1000;
-  const keep = (m: Market) => !filters || previewKeeps(m, { ...filters, min_volume: null }, now);
-  const found = (): CargoSearch => ({
-    here: origin ? { ...s.sell.here, system: origin } : s.sell.here,
-    range: s.sell.range,
-    plan: {
-      ...s.cargo,
-      stations: s.cargo.stations.filter(keep),
-      per_commodity: s.cargo.per_commodity.map((c) => ({
-        ...c,
-        best: c.best && keep(c.best) ? c.best : null,
-        partial: c.partial && keep(c.partial) ? c.partial : null,
-      })),
-    },
-  });
-  // An empty hold: nothing to sell, so nothing to look up.
-  const emptyHold = (): CargoSearch => ({ ...found(), plan: { ...s.cargo, load: [], stations: [], per_commodity: [], kept: [] } });
-  return previewData("trade_cargo", found, emptyHold);
+  return await call<CargoSearch>("trade_cargo", { origin, filters });
 }
 
 /** The whole-load stations as the search kit's rows: what each pays for the load, and how much of it it takes. */
@@ -302,8 +244,7 @@ export interface MarketCompare {
 /** The docked market (Market.json) and the hold against the best nearby prices, with the sell
  *  lookup's filters; null when not docked. The preview answers from a recorded comparison. */
 export async function compareMarket(): Promise<MarketCompare | null> {
-  if (inTauri) return await invoke<MarketCompare | null>("market_compare");
-  return previewData("market_compare", () => compareSample as unknown as MarketCompare, () => null);
+  return await call<MarketCompare | null>("market_compare");
 }
 
 /** "+3,921" or "−120": credits per tonne against here. */
@@ -388,19 +329,12 @@ export interface RouteSearch {
 /** The time model behind the per-hour estimate (astromech_market::route). */
 export const ROUTE_ESTIMATE = "50 s a jump, 2 min to dock and trade, supercruise by distance from the star";
 
-type RouteSample = { defaults: RouteDefaults } & Record<RouteKind, TradeRoute>;
-const routeSample = () => (sample as unknown as { route: RouteSample; sell: TradeSearch }).route;
-
 /** The current ship's capacity and range, the commander's credits and the station docked at. */
 export async function tradeRouteDefaults(): Promise<RouteDefaults> {
-  if (inTauri) return await invoke<RouteDefaults>("trade_route_defaults");
-  return previewData("trade_route_defaults", () => routeSample().defaults, () => ({ capacity: null, credits: null, range: null, station: null, system: null }));
+  return await call<RouteDefaults>("trade_route_defaults");
 }
 
 /** A single-hop or loop route from `origin` or the commander (Spansh; can take a minute). */
 export async function tradeRoute(ask: RouteAsk, origin: Origin = null, filters: Filters | null = null): Promise<RouteSearch> {
-  if (inTauri) return await invoke<RouteSearch>("trade_route", { ask, origin, filters });
-  const s = sample as unknown as { sell: TradeSearch };
-  const found = (route: TradeRoute): RouteSearch => ({ here: origin ? { ...s.sell.here, system: origin } : s.sell.here, route });
-  return previewData("trade_route", () => found(routeSample()[ask.kind]), () => found({ ...routeSample()[ask.kind], legs: [], profit: 0, minutes: 0, per_hour: 0, warning: null }));
+  return await call<RouteSearch>("trade_route", { ask, origin, filters });
 }
