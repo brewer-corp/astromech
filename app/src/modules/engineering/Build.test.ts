@@ -1,11 +1,11 @@
 // Ship detail component tests. The stats come from the fixture astromech-ship's dump-ships-fixture
-// example writes (lib/fixtures/ships.json): the synthetic Krait MkII combat build and its stats
+// example writes (preview/fixtures/ships.json): the synthetic Krait MkII combat build and its stats
 // for each build plan. The expected numbers are what Coriolis shows for those builds, the same
 // values crates/astromech-ship/tests/coriolis.rs checks (krait_mkii_combat and plan_*); a change
 // is the planned value minus the current one, both as shown.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
-import ships from "../../lib/fixtures/ships.json";
+import ships from "../../preview/fixtures/ships.json";
 import type { Compared, Fleet, Plan, StatsComparison } from "../../lib/engineering";
 import Build from "./Build.svelte";
 
@@ -204,7 +204,7 @@ describe("ship detail panels", () => {
 
   it("hands the engineer trip to the route follower, parking the route it replaces", async () => {
     history.replaceState(null, "", "/?core=ready");
-    const { resetFakeCore, fakeCall } = await import("../../lib/fakecore");
+    const { resetFakeCore, fakeCall } = await import("../../preview/fakecore");
     resetFakeCore();
     const { followRoute } = await import("../../lib/route");
     await followRoute("Colonia run", "import", [{ system: "Colonia" }]);

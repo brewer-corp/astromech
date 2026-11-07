@@ -3,10 +3,7 @@
  * tech tree, the engineers who introduce or refer each one, the commander's progress from the
  * journal's EngineerProgress, and what is left to unlock each.
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewData } from "./fakecore";
-import sample from "./fixtures/unlocks.json";
+import { call } from "./transport";
 
 export type Status = "unlocked" | "invited" | "known" | "locked" | "barred";
 
@@ -31,12 +28,7 @@ export interface UnlockTree {
 }
 
 export async function loadUnlocks(): Promise<UnlockTree> {
-  if (!inTauri) {
-    // Nothing unlocked yet: every engineer locked, none known.
-    const locked = (): UnlockTree => ({ nodes: (sample as UnlockTree).nodes.map((n) => ({ ...n, status: "locked", rank: null, next: false })) });
-    return previewData("engineering_unlocks", () => sample as UnlockTree, locked);
-  }
-  return await invoke<UnlockTree>("engineering_unlocks");
+  return await call<UnlockTree>("engineering_unlocks");
 }
 
 /** The tree's columns for one kind: nodes by depth, next ones first, then by name. */

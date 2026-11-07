@@ -2,11 +2,9 @@
  * Exobiology: the current system's biology (FSS counts, DSS genus lists, the species predicted
  * from each body's scan, ranked by value), what other players reported for it (Spansh), and the
  * sampling in progress. From the core's `exobiology` command (crates/astromech-core/src/biology.rs),
- * live while Elite runs. Outside the app it is a synthetic sample.
+ * live while Elite runs. The browser preview shows a synthetic sample.
  */
-import { coreCall, inTauri } from "./core";
-import { fakeScenario, previewGate } from "./fakecore";
-import sample from "./fixtures/exobiology.json";
+import { coreCall } from "./core";
 
 export interface Candidate {
   genus: string;
@@ -72,10 +70,6 @@ export interface BiologyView {
 }
 
 export async function loadBiology(): Promise<BiologyView> {
-  if (!inTauri && !fakeScenario()) {
-    await previewGate("exobiology");
-    return { ...(sample as unknown as BiologyView), source: "Sample system (synthetic)" };
-  }
   const r = await coreCall("exobiology");
   if (!r.ok) throw new Error(r.error ?? "the core didn't answer");
   return r as unknown as BiologyView;

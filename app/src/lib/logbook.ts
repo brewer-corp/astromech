@@ -2,11 +2,7 @@
  * The logbook: where the commander has been, from the journal history the core keeps
  * (crates/astromech-history, read by the shell's `logbook` command).
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewData } from "./fakecore";
-import sample from "./fixtures/logbook.json";
-import sampleSession from "./fixtures/session.json";
+import { call } from "./transport";
 
 export interface Commander {
   cmdr: string;
@@ -52,31 +48,8 @@ export interface Logbook {
   source?: string;
 }
 
-const matches = (q: string) => (v: { star_system: string; station_name: string | null }) =>
-  !q || v.star_system.toLowerCase().includes(q) || (v.station_name ?? "").toLowerCase().includes(q);
-
-/** The sample history searched the way the core searches (outside the app). */
-export function searchSample(query: string): Logbook {
-  const book = sample as Logbook;
-  const q = query.trim().toLowerCase();
-  const places = book.places.filter(matches(q));
-  return { ...book, query: query.trim(), places, matches: places.length, timeline: book.timeline.filter(matches(q)), source: "Sample journal history" };
-}
-
-/** A history with no commander yet (the preview's `?core=empty`). */
-const NO_HISTORY = (query: string): Logbook => ({
-  commander: null,
-  commanders: [],
-  totals: { systems: 0, stations: 0, system_visits: 0, station_visits: 0 },
-  query: query.trim(),
-  places: [],
-  matches: 0,
-  timeline: [],
-});
-
 export async function loadLogbook(query: string, cmdr?: string): Promise<Logbook> {
-  if (!inTauri) return previewData("logbook", () => searchSample(query), () => NO_HISTORY(query));
-  return await invoke<Logbook>("logbook", { query, cmdr: cmdr ?? null });
+  return await call<Logbook>("logbook", { query, cmdr: cmdr ?? null });
 }
 
 /** "2026-09-03 10:25" from a journal timestamp (UTC, as the game writes it). */
@@ -105,10 +78,9 @@ export interface Session {
   source?: string;
 }
 
-/** The latest session (the sample's first session outside the app). */
+/** The latest session. */
 export async function loadSession(): Promise<Session | null> {
-  if (!inTauri) return previewData("session_summary", () => ({ ...(sampleSession as Session), source: "Sample journal history" }), () => null);
-  return await invoke<Session | null>("session_summary");
+  return await call<Session | null>("session_summary");
 }
 
 /** How the earnings kinds read. */

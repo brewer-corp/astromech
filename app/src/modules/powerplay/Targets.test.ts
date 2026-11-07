@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
-import sample from "../../lib/fixtures/powerplay-targets.json";
+import sample from "../../preview/fixtures/powerplay-targets.json";
 import type { Target, Targets as TargetsResult } from "../../lib/powerplay";
 import Targets from "./Targets.svelte";
 

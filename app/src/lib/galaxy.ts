@@ -2,11 +2,7 @@
  * Live "nearest systems" lookups (Spansh faction states) with jump counts from the local star
  * map. The shell does the network and the maths.
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewLookup } from "./fakecore";
-import sample from "./fixtures/nearby.json";
-import hgeSample from "./fixtures/nearby-hge.json";
+import { call } from "./transport";
 import { figure, type Filters, type Origin, type Results } from "./search";
 
 export interface Faction {
@@ -58,15 +54,7 @@ export const FACTION_STATES = [
 
 /** Systems matching `query` and `filters` near `origin` (a typed system name), or near the commander. */
 export async function nearby(query: string, origin: Origin = null, filters: Filters | null = null): Promise<Nearby> {
-  if (!inTauri) {
-    return previewLookup("galaxy_nearby", origin, () => {
-      const s = (query === "famine" ? sample : hgeSample) as unknown as Nearby;
-      const days = filters?.max_age_days;
-      const hits = days == null ? s.hits : s.hits.filter((h) => h.updated_at && Date.parse(s.fetched) - Date.parse(h.updated_at) <= days * 86400000);
-      return { ...s, hits, query: { id: query, label: s.query.label }, here: origin ? { ...s.here, system: origin } : s.here };
-    });
-  }
-  return await invoke<Nearby>("galaxy_nearby", { query, origin, filters });
+  return await call<Nearby>("galaxy_nearby", { query, origin, filters });
 }
 
 /** The matching faction, its allegiance and states, and whether the commander's own visit said so. */

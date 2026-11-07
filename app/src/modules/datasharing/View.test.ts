@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/svelte";
 import View from "./View.svelte";
-import { fakeCall, resetFakeCore } from "../../lib/fakecore";
+import { fakeCall, resetFakeCore } from "../../preview/fakecore";
 
 function on(hash = "") {
   history.replaceState(null, "", `/?core=ready${hash}`);

@@ -1,9 +1,9 @@
 // On foot page. The view and the sample shopping list come from the fixture astromech-odyssey's
-// dump-odyssey-fixture example writes (lib/fixtures/odyssey.json) from its synthetic ShipLocker,
+// dump-odyssey-fixture example writes (preview/fixtures/odyssey.json) from its synthetic ShipLocker,
 // Backpack and journal; the numbers below are what the crate's tests check.
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
-import sample from "../../lib/fixtures/odyssey.json";
+import sample from "../../preview/fixtures/odyssey.json";
 import type { Pick, Shopping } from "../../lib/odyssey";
 import View from "./View.svelte";
 

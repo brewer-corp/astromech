@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/svelte";
-import sample from "../../lib/fixtures/engineering.json";
+import sample from "../../preview/fixtures/engineering.json";
 import type { Fleet } from "../../lib/engineering";
 import View from "./View.svelte";
 

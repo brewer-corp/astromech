@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { fakeCall, fakeClipboard, fakePlotInGame, resetFakeCore } from "../../lib/fakecore";
+import { fakeCall, fakeClipboard, fakePlotInGame, resetFakeCore } from "../../preview/fakecore";
 import { followRoute } from "../../lib/route";
 import View from "./View.svelte";
 

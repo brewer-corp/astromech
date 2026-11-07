@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
-import { fakeCall, resetFakeCore } from "../../lib/fakecore";
-import { resetPreviewNeutron } from "../../lib/neutron";
+import { fakeCall, resetFakeCore } from "../../preview/fakecore";
+import { resetPreviewNeutron } from "../../preview/shell";
 import type { PaletteItem } from "../../lib/palette";
 import PlotBar from "./PlotBar.svelte";
 

@@ -1,12 +1,11 @@
 /**
  * The neutron star file (astromech_galaxy::neutron): every known neutron star, downloaded once
  * into the data folder from the `neutron` pre-release when the commander presses Download (the
- * shell's `neutron_file`, `neutron_download`, `neutron_check`). The browser preview pretends: no
- * file until Download, then a short fake download.
+ * shell's `neutron_file`, `neutron_download`, `neutron_check`; the download's progress is the
+ * "neutron_progress" topic). The browser preview pretends: no file until Download, then a short
+ * fake download (app/src/preview/shell.ts).
  */
-import { Channel, invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewGate } from "./fakecore";
+import { call, subscribe } from "./transport";
 
 /** The file's header. */
 export interface NeutronHeader {
@@ -33,31 +32,13 @@ export interface NeutronProgress {
 export const DOWNLOAD_MB = 71;
 export const DISK_MB = 184;
 
-const PREVIEW_FILE: NeutronHeader = { cell_ly: 128, stars: 5045154, cells: 1645100, built: 1792627200 };
-let preview: NeutronFile = { file: null, error: null };
-
-/** The browser preview has "downloaded" the file: its neutron routes are plotted "on this PC". */
-export function previewHasNeutronFile(): boolean {
-  return preview.file != null;
-}
-
-/** Back to "not downloaded" (tests). */
-export function resetPreviewNeutron(): void {
-  preview = { file: null, error: null };
-  running = null;
-}
-
 export async function neutronFile(): Promise<NeutronFile> {
-  if (inTauri) return await invoke<NeutronFile>("neutron_file");
-  await previewGate("neutron_file");
-  return preview;
+  return await call<NeutronFile>("neutron_file");
 }
 
 /** Whether a different file has been published since this one was downloaded. */
 export async function checkNeutron(): Promise<{ newer: boolean }> {
-  if (inTauri) return await invoke<{ newer: boolean }>("neutron_check");
-  await previewGate("neutron_check");
-  return { newer: false };
+  return await call<{ newer: boolean }>("neutron_check");
 }
 
 /** The download in flight, shared by every view of it so leaving the page doesn't lose it. */
@@ -75,18 +56,17 @@ function report(p: NeutronProgress) {
 }
 
 async function fetchFile(): Promise<NeutronFile> {
-  if (inTauri) {
-    const onProgress = new Channel<NeutronProgress>(report);
-    return await invoke<NeutronFile>("neutron_download", { onProgress });
+  const stop = subscribe<NeutronProgress>("neutron_progress", report);
+  try {
+    return await call<NeutronFile>("neutron_download");
+  } finally {
+    stop();
   }
-  await previewGate("neutron_download");
-  const total = DOWNLOAD_MB * 1_000_000;
-  for (let i = 1; i <= 4; i++) {
-    await new Promise((r) => setTimeout(r, 40));
-    report({ done: (total * i) / 4, total });
-  }
-  preview = { file: PREVIEW_FILE, error: null };
-  return preview;
+}
+
+/** Forget the download in flight (tests). */
+export function resetNeutronDownload(): void {
+  running = null;
 }
 
 export interface Watch {
@@ -108,7 +88,7 @@ export function watchDownload(onProgress: (p: NeutronProgress) => void): Watch |
 /** Starts the download, or joins the one already running. */
 export function downloadNeutron(onProgress: (p: NeutronProgress) => void): Watch {
   if (!running) {
-    const r: Running = { promise: Promise.resolve(preview), progress: null, listeners: new Set() };
+    const r: Running = { promise: Promise.resolve({ file: null, error: null }), progress: null, listeners: new Set() };
     running = r;
     r.promise = fetchFile().finally(() => {
       if (running === r) running = null;

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
-import { resetFakeCore } from "../../lib/fakecore";
+import { resetFakeCore } from "../../preview/fakecore";
 import { followRoute, type PlotSetup, type Plotted } from "../../lib/route";
 import Plot from "./Plot.svelte";
 

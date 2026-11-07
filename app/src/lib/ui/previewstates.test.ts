@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/svelte";
 import type { Component } from "svelte";
-import { resetFakeCore } from "../fakecore";
+import { resetFakeCore } from "../../preview/fakecore";
 import Ships from "../../modules/engineering/View.svelte";
 import Stored from "../../modules/stored/View.svelte";
 import Materials from "../../modules/materials/View.svelte";
@@ -44,6 +44,8 @@ interface Page {
   loading: RegExp;
   /** What a failed call says. */
   failed: RegExp;
+  /** The scenario the page needs besides the query under test (the run is in the core's status). */
+  core?: string;
 }
 
 const PAGES: Page[] = [
@@ -54,7 +56,7 @@ const PAGES: Page[] = [
   { name: "Engineers", view: Engineers as unknown as Component, empty: /^0 of \d+ unlocked/, loading: /Reading the journal…/, failed: /Could not read the engineer list: / },
   { name: "Logbook", view: Logbook as unknown as Component, empty: /No commander in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the journal history: / },
   { name: "Session", view: Session as unknown as Component, empty: /No game session in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the session: / },
-  { name: "Mining", view: Mining as unknown as Component, empty: /No mining run yet/, loading: /Reading the run…/, failed: /Could not read the mining run: / },
+  { name: "Mining", view: Mining as unknown as Component, core: "core=ready&", empty: /No mining run yet/, loading: /Reading the run…/, failed: /Could not read the mining run: / },
   { name: "Sell", view: Market as unknown as Component, props: { finder: FINDERS.find((f) => f.id === "sell") }, empty: /No buyers within 100 ly\./, loading: /Asking Ardent Insight…/, failed: /trade_search failed on purpose/ },
   { name: "Station", view: Station as unknown as Component, empty: /Not docked/, loading: /Reading the journal…/, failed: /Could not read the docked station: / },
   { name: "Colonisation", view: Colonisation as unknown as Component, empty: /No construction sites in your journals yet/, loading: /Reading the journals…/, failed: /Could not read the construction sites: / },
@@ -73,7 +75,7 @@ describe.each(PAGES)("$name", (p) => {
   });
 
   it("says it is waiting while a call never answers", async () => {
-    at("?slow=never");
+    at(`?${p.core ?? ""}slow=never`);
     render(p.view, p.props);
     expect((await screen.findAllByText(p.loading)).length).toBeGreaterThan(0);
     // Still waiting once the first read has had time to answer (Logbook debounces 200 ms): the call
@@ -85,7 +87,7 @@ describe.each(PAGES)("$name", (p) => {
   });
 
   it("says what failed, with no stuck waiting text", async () => {
-    at("?fail=all");
+    at(`?${p.core ?? ""}fail=all`);
     render(p.view, p.props);
     expect((await screen.findAllByText(p.failed)).length).toBeGreaterThan(0);
     // The failure is the answer: neither the sample nor a waiting line stays on screen.

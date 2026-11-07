@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/svelte";
 import ProspectorThresholds from "./ProspectorThresholds.svelte";
-import { fakeCall, resetFakeCore } from "../../lib/fakecore";
+import { fakeCall, resetFakeCore } from "../../preview/fakecore";
 
 describe("Settings → Prospector callouts", () => {
   it("lists each ore's threshold and saves a change, an off and a reset", async () => {

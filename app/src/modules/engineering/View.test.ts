@@ -1,8 +1,8 @@
 // Ships page: selected ship as the main pane, the rest of the fleet as a bottom rail.
-// Stats come from lib/fixtures/ships.json (astromech-ship dump-ships-fixture).
+// Stats come from preview/fixtures/ships.json (astromech-ship dump-ships-fixture).
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
-import ships from "../../lib/fixtures/ships.json";
+import ships from "../../preview/fixtures/ships.json";
 import type { Compared, Fleet, Headline } from "../../lib/engineering";
 import View from "./View.svelte";
 

@@ -4,8 +4,7 @@
  * (Spansh, through the shell), and each lookup's remembered filters (the shell keeps them in
  * astromech-store settings). Lookups adapt their own answers into {@link Results}.
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
+import { call } from "./transport";
 
 /** Where a search measures from: the commander's system (`null`) or a typed system name. */
 export type Origin = string | null;
@@ -123,30 +122,14 @@ export const DEFAULT_FILTERS: Filters = {
   min_volume: null,
 };
 
-/** The browser preview's pretend ship (a medium-pad ship). */
-const PREVIEW_SHIP_PAD: Pad = "M";
-const previewKey = (lookup: string) => `astromech.search.${lookup}`;
-
 /** `lookup`'s remembered filters, the pad following the current ship unless the commander set it. */
 export async function loadFilters(lookup: string): Promise<Filters> {
-  if (inTauri) return await invoke<Filters>("search_filters", { lookup });
-  let saved: Partial<Filters> = {};
-  try {
-    saved = JSON.parse(localStorage.getItem(previewKey(lookup)) ?? "{}") as Partial<Filters>;
-  } catch {
-    saved = {};
-  }
-  const f = { ...DEFAULT_FILTERS, ...saved };
-  return f.pad_set ? f : { ...f, pad: PREVIEW_SHIP_PAD };
+  return await call<Filters>("search_filters", { lookup });
 }
 
 export async function saveFilters(lookup: string, filters: Filters): Promise<void> {
-  if (inTauri) return await invoke("set_search_filters", { lookup, filters });
-  localStorage.setItem(previewKey(lookup), JSON.stringify(filters));
+  await call("set_search_filters", { lookup, filters });
 }
-
-/** Public system names for the browser preview's autocomplete. */
-const PREVIEW_SYSTEMS = ["Sol", "Shinrarta Dezhra", "Shingon", "Shinigami", "Deciat", "Colonia", "Achenar", "Alioth", "Maia"];
 
 /**
  * System names resembling `prefix`, at most a handful: Spansh's autocomplete is fuzzy, not a
@@ -155,8 +138,7 @@ const PREVIEW_SYSTEMS = ["Sol", "Shinrarta Dezhra", "Shingon", "Shinigami", "Dec
 export async function systemNames(prefix: string): Promise<string[]> {
   const p = prefix.trim();
   if (!p) return [];
-  if (!inTauri) return PREVIEW_SYSTEMS.filter((s) => s.toLowerCase().startsWith(p.toLowerCase()));
-  return await invoke<string[]>("galaxy_systems", { prefix: p });
+  return await call<string[]>("galaxy_systems", { prefix: p });
 }
 
 /**

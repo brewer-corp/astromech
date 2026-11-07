@@ -11,19 +11,26 @@
  * - `?slow=<ms>` or `?slow=never`: every call waits that long, or never answers;
  *   `?slow=never:<name>,<name>` limits it to the named calls.
  * A name is the shell command or core command: `logbook`, `session_summary`, `engineering_fleet`,
- * `materials_inventory`, `eddn_log`, `core_status`, and so on (the `invoke` name in lib/*.ts).
- * `?core=empty` makes the sample-backed pages answer as a commander with no history (previewData),
- * and the network lookups fail for want of a position unless a system is typed (previewLookup).
+ * `materials_inventory`, `eddn_log`, `core_status`, and so on (the `call` name in lib/*.ts).
+ * `?core=empty` makes the sample-backed pages answer as a commander with no history (previewData,
+ * used by shell.ts), and the network lookups fail for want of a position unless a system is typed
+ * (previewLookup). Without `?core=` the core is not running: core commands answer so, except the
+ * few with a sample (NO_CORE below).
  *
  * `?core=ready&route=exact` starts on a route, for the route strip: fixtures/plot.json's exact
  * route, with the commander in its third waypoint. Without it the preview has no route.
  */
-import type { CoreCmd, CoreStatus, Reply } from "./core";
-import type { Route, RouteView, Waypoint } from "./route";
+import type { CoreCmd, CoreStatus, Reply } from "../lib/core";
+import type { EdsmStatus } from "../lib/edsm";
+import type { MiningRun } from "../lib/mining";
+import type { Route, RouteView, Waypoint } from "../lib/route";
+import type { DryRun, LearnedPhrase } from "../lib/voice";
 import eddnSample from "./fixtures/eddn-log.json";
-import plotSample from "./fixtures/plot.json";
 import biologySample from "./fixtures/exobiology.json";
-import { previewQuery } from "./previewquery";
+import miningSample from "./fixtures/mining.json";
+import plotSample from "./fixtures/plot.json";
+import voiceSample from "./fixtures/voice.json";
+import { previewQuery } from "./query";
 
 export type Scenario = "empty" | "new" | "ready";
 
@@ -429,164 +436,260 @@ export function fakePreviews(): string[] {
 
 const NO_MIC = "no recording device found (plug in a microphone or headset)";
 
+type Args = Record<string, string | null>;
+type Handler = (st: State, args: unknown, a: Args, cmd: CoreCmd) => Reply | Promise<Reply>;
+const ok: Handler = () => ({ ok: true });
+const route: Handler = (st, args, _a, cmd) => routeCall(st, cmd, (args ?? {}) as Record<string, unknown>);
+
+/** Every core command the window sends, as the core answers it (or near enough). */
+export const coreHandlers: Record<CoreCmd, Handler> = {
+  save_diagnostics: ok,
+  ack_crash: ok,
+  check_update: ok,
+  install_update: ok,
+  autostart_on: ok,
+  autostart_off: ok,
+  pause_voice: ok,
+  resume_voice: ok,
+  kill_switch: ok,
+  open_config: ok,
+  shopping_set: ok,
+  route,
+  route_set: route,
+  route_add: route,
+  route_skip: route,
+  route_back: route,
+  route_clear: route,
+  route_copy: route,
+  route_resume: route,
+  find_elite: (st) => ({
+    ok: true,
+    found: {
+      bindings_dir: st.bindingsDir,
+      bindings_found: st.elite,
+      journal_dir: JOURNALS,
+      journal_found: st.elite,
+      install: st.elite ? "D:\\SteamLibrary\\steamapps\\common\\Elite Dangerous\\Products\\elite-dangerous-odyssey-64" : null,
+      install_source: st.elite ? "Steam" : null,
+      ok: st.elite,
+    },
+  }),
+  set_folders: (st, _args, a) => {
+    if (a.bindings_dir) {
+      st.bindingsDir = a.bindings_dir;
+      // The preview pretends the folder the user typed exists.
+      st.elite = true;
+    }
+    return { ok: true, applies_next_session: false };
+  },
+  set_ptt: (st, args, a) => {
+    st.ptt = args ? `${a.device} ${a.key}` : null;
+    return { ok: true, applies_next_session: false };
+  },
+  set_kill_switch: (st, args, a) => {
+    st.kill = args ? `${a.device} ${a.key}` : null;
+    return { ok: true, applies_next_session: false };
+  },
+  set_mic: (st, _args, a) => {
+    st.mic = a.mic ?? "";
+    return { ok: true, applies_next_session: false };
+  },
+  mic_list: (st) => {
+    const c = chosen(st);
+    return {
+      ok: true,
+      names: st.mics,
+      default: st.mics[0] ?? null,
+      setting: st.mic,
+      chosen: st.mic ? c : null,
+      calibration: { device: c ?? (st.mic || "default"), min_level_dbfs: c ? (st.gates[c] ?? null) : null },
+    };
+  },
+  mic_check: async (st) => {
+    const c = chosen(st);
+    if (!c) return { ok: false, error: NO_MIC };
+    await sleep(150);
+    return { ok: true, level: level(c, true) };
+  },
+  calibrate_start: (st) => {
+    st.run = 0;
+    return { ok: true, phrases: PHRASES, next: step(0) };
+  },
+  calibrate_record: async (st) => {
+    if (st.run === null) return { ok: false, error: "calibration hasn't started" };
+    const c = chosen(st);
+    if (!c) return { ok: false, error: NO_MIC };
+    if (st.run > PHRASES.length) return { ok: false, error: "calibration already has every clip" };
+    await sleep(150);
+    const lv = level(c, st.run > 0);
+    st.run++;
+    return { ok: true, level: lv, next: step(st.run) };
+  },
+  calibrate_finish: (st) => {
+    const c = chosen(st);
+    if (st.run === null || st.run <= PHRASES.length || !c) return { ok: false, error: `calibration needs silence and all ${PHRASES.length} phrases first` };
+    st.gates[c] = -51;
+    st.run = null;
+    return { ok: true, device: c, noise_dbfs: -64, speech_peak_dbfs: -24.3, min_level_dbfs: -51, gain_db: 18.3 };
+  },
+  calibrate_cancel: (st) => {
+    st.run = null;
+    return { ok: true };
+  },
+  download_models: (st) => {
+    st.modelsProgress = "Parakeet Downloading 0%";
+    setTimeout(() => {
+      st.models = true;
+      st.modelsProgress = null;
+    }, 1500);
+    return { ok: true };
+  },
+  voice_settings: (st) => ({ ok: true, ...st.voice, voices: VOICES, speeds: [0.7, 1.3] }),
+  set_voice: (st, args, a) => {
+    if (a.speaker && !VOICES.some((v) => v.name === a.speaker)) return { ok: false, error: `unknown voice "${a.speaker}"` };
+    const b = (args ?? {}) as Partial<State["voice"]>;
+    st.voice = { ...st.voice, ...Object.fromEntries(Object.entries(b).filter(([, v]) => v != null)) };
+    return { ok: true, applies_next_session: false };
+  },
+  voice_preview: (st) => {
+    if (!st.models) return { ok: false, error: "download the speech models first (Speech models, above)" };
+    st.previews.push(st.voice.speaker);
+    return { ok: true, line: "Landing gear deployed." };
+  },
+  callouts: (st) => calloutsReply(st),
+  set_callout: (st, args) => {
+    const c = (args ?? {}) as { id?: string; enabled?: boolean; cooldown_s?: number | null };
+    if (!CALLOUTS.some((x) => x.id === c.id)) return { ok: false, error: `unknown callout "${c.id}"` };
+    if (typeof c.cooldown_s === "number" && !(c.cooldown_s >= 0 && c.cooldown_s <= 86400)) {
+      return { ok: false, error: "cooldown_s must be between 0 and 86400 seconds" };
+    }
+    const cur = (st.callouts[c.id as string] ??= {});
+    if (typeof c.enabled === "boolean") cur.enabled = c.enabled;
+    if (c.cooldown_s === null) delete cur.cooldown_s;
+    else if (typeof c.cooldown_s === "number") cur.cooldown_s = c.cooldown_s;
+    return { ok: true, applies_next_session: false };
+  },
+  prospector_thresholds: (st) => prospectorReply(st),
+  prospector_set: (st, args) => {
+    const c = JSON.parse(typeof args === "string" ? args : "{}") as { ore: string; threshold?: number | null; reset?: boolean };
+    if (!(c.ore in PROSPECTOR_DEFAULTS)) return { ok: false, error: `unknown ore "${c.ore}"` };
+    st.prospector[c.ore] = c.reset ? (PROSPECTOR_DEFAULTS[c.ore] ?? null) : (c.threshold ?? null);
+    return prospectorReply(st);
+  },
+  eddn_log: (st) => {
+    // Sharing was on earlier (the sample's history); the switch is this PC's setting.
+    if (st.scenario === "empty") return { ok: true, enabled: st.eddn, test: false, pending: 0, last_sent: null, last_error: null, log: [], skipped: [] };
+    return { ok: true, ...eddnSample, enabled: st.eddn, pending: st.eddn ? eddnSample.pending : 0 };
+  },
+  set_eddn: (st, args) => {
+    st.eddn = (args as { enabled?: boolean } | null)?.enabled === true;
+    return { ok: true, applies_next_session: false };
+  },
+  edsm_status: (st) => {
+    const e = st.edsm;
+    const uploading = e.enabled && e.key && e.commander !== "";
+    return { ok: true, enabled: e.enabled, commander: e.commander, has_key: e.key, key_error: null, uploading,
+      pending: 0, last_sent: null, last_error: null, log: [], skipped: [] };
+  },
+  set_edsm: (st, args) => {
+    const ch = (args ?? {}) as { enabled?: boolean; commander?: string; api_key?: string };
+    if (ch.enabled != null) st.edsm.enabled = ch.enabled;
+    if (ch.commander != null) st.edsm.commander = ch.commander.trim();
+    if (ch.api_key != null) st.edsm.key = ch.api_key.trim() !== "";
+    return { ok: true, applies_next_session: false };
+  },
+  edsm_flight_log: (st) => {
+    if (!st.edsm.key || !st.edsm.commander) return { ok: false, error: "set your EDSM commander name and API key first" };
+    return { ok: true, visits: [
+      { system: "Sol", date: "2026-10-16 20:00:00", first_discover: false, ship_id: 7 },
+      { system: "Achenar", date: "2026-10-16 19:10:00", first_discover: true, ship_id: 7 },
+    ] };
+  },
+  onboarding_done: (st) => {
+    st.onboarded = true;
+    return { ok: true };
+  },
+  // Only a session (Elite running) has a system; `ready` is in one.
+  exobiology: (st) => (st.scenario === "ready" ? { ...biologySample } : { ok: false, error: "Elite isn't running." }),
+  // The voice tester answers from sample results in every scenario (see NO_CORE).
+  voice_test: (_st, args) => ({ ok: true, result: sampleRun(typeof args === "string" ? args : "") }),
+  voice_test_poll: () => ({ ok: true, listening: false, last: null }),
+  voice_test_stop: ok,
+  voice_test_live: ok,
+  learned_phrases: () => ({ ok: true, phrases: learned }),
+  learned_forget: (_st, args) => {
+    learned = learned.filter((p) => p.heard !== args);
+    return { ok: true, phrases: learned };
+  },
+};
+
+/** A core command, answered by the fake core in the URL's scenario (any scenario: tests). */
 export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
   await previewGate(cmd);
-  const st = s();
-  const a = (args ?? {}) as Record<string, string | null>;
-  switch (cmd) {
-    case "route":
-    case "route_set":
-    case "route_add":
-    case "route_skip":
-    case "route_back":
-    case "route_clear":
-    case "route_copy":
-    case "route_resume":
-      return routeCall(st, cmd, (args ?? {}) as Record<string, unknown>);
-    case "find_elite":
-      return {
-        ok: true,
-        found: {
-          bindings_dir: st.bindingsDir,
-          bindings_found: st.elite,
-          journal_dir: JOURNALS,
-          journal_found: st.elite,
-          install: st.elite ? "D:\\SteamLibrary\\steamapps\\common\\Elite Dangerous\\Products\\elite-dangerous-odyssey-64" : null,
-          install_source: st.elite ? "Steam" : null,
-          ok: st.elite,
-        },
-      };
-    case "set_folders":
-      if (a.bindings_dir) {
-        st.bindingsDir = a.bindings_dir;
-        // The preview pretends the folder the user typed exists.
-        st.elite = true;
-      }
-      return { ok: true, applies_next_session: false };
-    case "set_ptt":
-    case "set_kill_switch": {
-      const b = args ? `${a.device} ${a.key}` : null;
-      if (cmd === "set_ptt") st.ptt = b;
-      else st.kill = b;
-      return { ok: true, applies_next_session: false };
-    }
-    case "set_mic":
-      st.mic = a.mic ?? "";
-      return { ok: true, applies_next_session: false };
-    case "mic_list": {
-      const c = chosen(st);
-      return {
-        ok: true,
-        names: st.mics,
-        default: st.mics[0] ?? null,
-        setting: st.mic,
-        chosen: st.mic ? c : null,
-        calibration: { device: c ?? (st.mic || "default"), min_level_dbfs: c ? (st.gates[c] ?? null) : null },
-      };
-    }
-    case "mic_check": {
-      const c = chosen(st);
-      if (!c) return { ok: false, error: NO_MIC };
-      await sleep(150);
-      return { ok: true, level: level(c, true) };
-    }
-    case "calibrate_start":
-      st.run = 0;
-      return { ok: true, phrases: PHRASES, next: step(0) };
-    case "calibrate_record": {
-      if (st.run === null) return { ok: false, error: "calibration hasn't started" };
-      const c = chosen(st);
-      if (!c) return { ok: false, error: NO_MIC };
-      if (st.run > PHRASES.length) return { ok: false, error: "calibration already has every clip" };
-      await sleep(150);
-      const lv = level(c, st.run > 0);
-      st.run++;
-      return { ok: true, level: lv, next: step(st.run) };
-    }
-    case "calibrate_finish": {
-      const c = chosen(st);
-      if (st.run === null || st.run <= PHRASES.length || !c) return { ok: false, error: `calibration needs silence and all ${PHRASES.length} phrases first` };
-      st.gates[c] = -51;
-      st.run = null;
-      return { ok: true, device: c, noise_dbfs: -64, speech_peak_dbfs: -24.3, min_level_dbfs: -51, gain_db: 18.3 };
-    }
-    case "calibrate_cancel":
-      st.run = null;
-      return { ok: true };
-    case "download_models":
-      st.modelsProgress = "Parakeet Downloading 0%";
-      setTimeout(() => {
-        st.models = true;
-        st.modelsProgress = null;
-      }, 1500);
-      return { ok: true };
-    case "voice_settings":
-      return { ok: true, ...st.voice, voices: VOICES, speeds: [0.7, 1.3] };
-    case "set_voice": {
-      if (a.speaker && !VOICES.some((v) => v.name === a.speaker)) return { ok: false, error: `unknown voice "${a.speaker}"` };
-      const b = (args ?? {}) as Partial<State["voice"]>;
-      st.voice = { ...st.voice, ...Object.fromEntries(Object.entries(b).filter(([, v]) => v != null)) };
-      return { ok: true, applies_next_session: false };
-    }
-    case "voice_preview":
-      if (!st.models) return { ok: false, error: "download the speech models first (Speech models, above)" };
-      st.previews.push(st.voice.speaker);
-      return { ok: true, line: "Landing gear deployed." };
-    case "callouts":
-      return calloutsReply(st);
-    case "set_callout": {
-      const c = (args ?? {}) as { id?: string; enabled?: boolean; cooldown_s?: number | null };
-      if (!CALLOUTS.some((x) => x.id === c.id)) return { ok: false, error: `unknown callout "${c.id}"` };
-      if (typeof c.cooldown_s === "number" && !(c.cooldown_s >= 0 && c.cooldown_s <= 86400)) {
-        return { ok: false, error: "cooldown_s must be between 0 and 86400 seconds" };
-      }
-      const cur = (st.callouts[c.id as string] ??= {});
-      if (typeof c.enabled === "boolean") cur.enabled = c.enabled;
-      if (c.cooldown_s === null) delete cur.cooldown_s;
-      else if (typeof c.cooldown_s === "number") cur.cooldown_s = c.cooldown_s;
-      return { ok: true, applies_next_session: false };
-    }
-    case "prospector_thresholds":
-      return prospectorReply(st);
-    case "prospector_set": {
-      const c = JSON.parse(typeof args === "string" ? args : "{}") as { ore: string; threshold?: number | null; reset?: boolean };
-      if (!(c.ore in PROSPECTOR_DEFAULTS)) return { ok: false, error: `unknown ore "${c.ore}"` };
-      st.prospector[c.ore] = c.reset ? (PROSPECTOR_DEFAULTS[c.ore] ?? null) : (c.threshold ?? null);
-      return prospectorReply(st);
-    }
-    case "eddn_log":
-      // Sharing was on earlier (the sample's history); the switch is this PC's setting.
-      if (st.scenario === "empty") return { ok: true, enabled: st.eddn, test: false, pending: 0, last_sent: null, last_error: null, log: [], skipped: [] };
-      return { ok: true, ...eddnSample, enabled: st.eddn, pending: st.eddn ? eddnSample.pending : 0 };
-    case "set_eddn":
-      st.eddn = (args as { enabled?: boolean } | null)?.enabled === true;
-      return { ok: true, applies_next_session: false };
-    case "edsm_status": {
-      const e = st.edsm;
-      const uploading = e.enabled && e.key && e.commander !== "";
-      return { ok: true, enabled: e.enabled, commander: e.commander, has_key: e.key, key_error: null, uploading,
-        pending: 0, last_sent: null, last_error: null, log: [], skipped: [] };
-    }
-    case "set_edsm": {
-      const ch = (args ?? {}) as { enabled?: boolean; commander?: string; api_key?: string };
-      if (ch.enabled != null) st.edsm.enabled = ch.enabled;
-      if (ch.commander != null) st.edsm.commander = ch.commander.trim();
-      if (ch.api_key != null) st.edsm.key = ch.api_key.trim() !== "";
-      return { ok: true, applies_next_session: false };
-    }
-    case "edsm_flight_log":
-      if (!st.edsm.key || !st.edsm.commander) return { ok: false, error: "set your EDSM commander name and API key first" };
-      return { ok: true, visits: [
-        { system: "Sol", date: "2026-10-16 20:00:00", first_discover: false, ship_id: 7 },
-        { system: "Achenar", date: "2026-10-16 19:10:00", first_discover: true, ship_id: 7 },
-      ] };
-    case "onboarding_done":
-      st.onboarded = true;
-      return { ok: true };
-    case "exobiology":
-      // Only a session (Elite running) has a system; `ready` is in one.
-      return st.scenario === "ready" ? { ...biologySample } : { ok: false, error: "Elite isn't running." };
-    default:
-      return { ok: true };
-  }
+  const handler = coreHandlers[cmd];
+  if (!handler) throw new Error(`preview: no fake for core command ${cmd}`);
+  return handler(s(), args, (args ?? {}) as Args, cmd);
 }
+
+/** What the preview answers with no core (no `?core=`): samples for some pages, else not running. */
+const NO_CORE: Partial<Record<CoreCmd, (args: unknown) => Reply | Promise<Reply>>> = {
+  eddn_log: async () => {
+    await previewGate("eddn_log");
+    return { ok: true, ...eddnSample };
+  },
+  edsm_status: () => ({ ok: true, ...EDSM_SAMPLE }),
+  exobiology: async () => {
+    await previewGate("exobiology");
+    return { ...biologySample, source: "Sample system (synthetic)" };
+  },
+  voice_test: (args) => fakeCall("voice_test", args),
+  voice_test_poll: () => fakeCall("voice_test_poll"),
+  voice_test_stop: () => fakeCall("voice_test_stop"),
+  learned_phrases: () => fakeCall("learned_phrases"),
+  learned_forget: (args) => fakeCall("learned_forget", args),
+};
+
+/** A core command as the browser preview answers it: the fake core in the URL's scenario, or with
+ * no scenario the samples above. */
+export function coreReply(cmd: CoreCmd, args: unknown): Promise<Reply> {
+  if (fakeScenario()) return fakeCall(cmd, args);
+  const f = NO_CORE[cmd];
+  return Promise.resolve(f ? f(args) : { ok: false, error: "not running inside the app" });
+}
+
+/** The status the core reports: none without a scenario; the sample mining run unless `empty`. */
+export async function fakeCoreStatus(): Promise<CoreStatus | null> {
+  if (!fakeScenario()) return null;
+  await previewGate("core_status");
+  return { ...fakeStatus(), mining: fakeScenario() === "empty" ? null : (miningSample as MiningRun) };
+}
+
+// ---- The voice tester's samples.
+const voiceSamples = voiceSample as unknown as Record<string, DryRun>;
+const norm = (t: string) => t.toLowerCase().replace(/[^a-z ]/g, "").trim();
+
+/** The sample phrases match, anything else is "Say again". */
+function sampleRun(text: string): DryRun {
+  const hit = voiceSamples[norm(text)];
+  if (hit) return { ...hit, transcript: text };
+  return { ...voiceSamples["banana bread"]!, transcript: text };
+}
+
+let learned: LearnedPhrase[] = [
+  { heard: "You're down.", command: "landing_gear.down", does: "gear down" },
+  { heard: "lamps", command: "lights.on", does: "lights on" },
+];
+
+const EDSM_SAMPLE: EdsmStatus = {
+  enabled: true,
+  commander: "Jameson",
+  has_key: true,
+  key_error: null,
+  uploading: true,
+  pending: 0,
+  last_sent: { at: 1792166460, schema_ref: "journal", outcome: "sent", detail: "12 events" },
+  last_error: null,
+  log: [{ at: 1792166460, schema_ref: "journal", outcome: "sent", detail: "12 events" }],
+  skipped: [],
+};
+

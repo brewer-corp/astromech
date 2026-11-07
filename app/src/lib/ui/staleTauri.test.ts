@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/svelte";
 import type { Component } from "svelte";
-import fleet from "../fixtures/engineering.json";
-import materials from "../fixtures/materials.json";
-import eddnSample from "../fixtures/eddn-log.json";
-import miningSample from "../fixtures/mining.json";
+import fleet from "../../preview/fixtures/engineering.json";
+import materials from "../../preview/fixtures/materials.json";
+import eddnSample from "../../preview/fixtures/eddn-log.json";
+import miningSample from "../../preview/fixtures/mining.json";
 import Ships from "../../modules/engineering/View.svelte";
 import Materials from "../../modules/materials/View.svelte";
 import DataSharing from "../../modules/datasharing/View.svelte";
@@ -15,7 +15,7 @@ import Mining from "../../modules/mining/View.svelte";
 // `{ ok: false }` when the core is down), then answering again. The preview's `?fail=` throws from
 // inside the loader, so it cannot show a loader that swallows the failure.
 const shell = vi.hoisted(() => {
-  // Before any import: `inTauri` is read once, when lib/core.ts loads.
+  // Before any import: the transport sees Tauri once, when lib/transport.ts loads.
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   // `only`: the core_call commands that fail (the rest answer); null: every call fails.
   return { mode: "ok" as "ok" | "reject" | "core_down", only: null as Set<string> | null, invoke: vi.fn() };

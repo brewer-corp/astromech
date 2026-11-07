@@ -2,12 +2,9 @@
  * Ship engineering planner: fleet loadouts from the journal, plans per ship (kept in
  * localStorage), and the materials and ship stats a plan gives, computed by the shell.
  */
-import { invoke } from "@tauri-apps/api/core";
-import { coreCall, inTauri } from "./core";
-import { previewData } from "./fakecore";
+import { coreCall } from "./core";
 import type { SourceNote } from "./materials";
-import sample from "./fixtures/engineering.json";
-import shipsSample from "./fixtures/ships.json";
+import { call, previewOption } from "./transport";
 
 export interface Applied {
   blueprint: string;
@@ -288,25 +285,13 @@ export interface Headline {
 
 export const DEFAULT_ROLLS = [1, 2, 3, 4, 5];
 
-const samplePlan = sample.plan as unknown as PlanResult;
-
-/** The sample journal's fleet, with the synthetic combat Krait whose stats the sample has (stored). */
-function sampleFleet(): Fleet {
-  const f = sample.fleet as unknown as Fleet;
-  const s = shipsSample.fleet as unknown as Fleet;
-  const extra = s.ships.map((x) => ({ ...x, current: false }));
-  return { ...f, ships: [...f.ships, ...extra], groups: { ...f.groups, ...s.groups } };
-}
-
 export async function loadFleet(): Promise<Fleet> {
-  if (!inTauri) return previewData("engineering_fleet", sampleFleet, () => ({ source: "No journal yet", ships: [], stored_modules: [], groups: {} }));
-  return await invoke<Fleet>("engineering_fleet");
+  return await call<Fleet>("engineering_fleet");
 }
 
-/** Outside the app there is no planner: only the sample ship's sample plan has a result. */
+/** The browser preview has no planner: only the sample ship's sample plan has a result. */
 export async function evaluatePlan(plan: Plan): Promise<PlanResult | null> {
-  if (!inTauri) return previewData("engineering_plan", () => (plan.ship_id === samplePlan.ship_id ? samplePlan : null), () => null);
-  return await invoke<PlanResult>("engineering_plan", { plan });
+  return await call<PlanResult | null>("engineering_plan", { plan });
 }
 
 /** One material for the core's shopping list: collect it until holding `until`. */
@@ -325,7 +310,6 @@ export function shoppingChange(r: PlanResult): { ship_id: number; materials: Wan
 }
 
 function sendShopping(change: { ship_id: number; materials: Want[] }): void {
-  if (!inTauri) return;
   coreCall("shopping_set", JSON.stringify(change)).catch(() => {});
 }
 
@@ -351,38 +335,31 @@ export function samePlan(a: Plan, b: Plan): boolean {
   return a.ship_id === b.ship_id && ka.length === kb.length && ka.every((k, i) => k === kb[i]);
 }
 
-/** Current and planned stats. Outside the app only the sample's precomputed plans have them. */
+/** Current and planned stats. In the browser preview only the sample's precomputed plans have them. */
 export async function shipStats(plan: Plan): Promise<Compared | null> {
-  if (!inTauri) {
-    const sampled = () => {
-      const c = shipsSample.cases.find((c) => samePlan(c.plan as unknown as Plan, plan));
-      return c ? (c.stats as unknown as StatsComparison) : null;
-    };
-    return previewData("engineering_stats", sampled, () => null);
-  }
-  return await invoke<Compared>("engineering_stats", { plan });
+  return await call<Compared | null>("engineering_stats", { plan });
 }
 
 /** Card stats by ship id, for every ship with a known loadout. */
 export async function loadHeadlines(): Promise<Record<string, Headline>> {
-  if (!inTauri) return previewData("engineering_headlines", () => shipsSample.headlines as unknown as Record<string, Headline>, () => ({}));
-  return await invoke<Record<string, Headline>>("engineering_headlines");
+  return await call<Record<string, Headline>>("engineering_headlines");
 }
 
 const key = (shipId: number) => `astromech.engineering.plan.${shipId}`;
 
-export function savedPlan(shipId: number): Plan {
+function planFrom(shipId: number, raw: string | null): Plan | null {
   try {
-    const raw = localStorage.getItem(key(shipId));
-    if (raw) {
-      const p = JSON.parse(raw) as Plan;
-      if (Array.isArray(p.targets)) return { ship_id: shipId, targets: p.targets, rolls: p.rolls?.length === 5 ? p.rolls : DEFAULT_ROLLS };
-    }
+    const p = raw ? (JSON.parse(raw) as Plan) : null;
+    return p && Array.isArray(p.targets) ? { ship_id: shipId, targets: p.targets, rolls: p.rolls?.length === 5 ? p.rolls : DEFAULT_ROLLS } : null;
   } catch {
-    // ignore a damaged entry
+    return null; // a damaged entry
   }
-  if (!inTauri && shipId === sample.plan_input.ship_id) return structuredClone(sample.plan_input) as Plan;
-  return { ship_id: shipId, targets: [], rolls: DEFAULT_ROLLS };
+}
+
+/** The ship's plan kept here, else (the browser preview) the sample's, else an empty one. */
+export function savedPlan(shipId: number): Plan {
+  const k = key(shipId);
+  return planFrom(shipId, localStorage.getItem(k)) ?? planFrom(shipId, previewOption(k)) ?? { ship_id: shipId, targets: [], rolls: DEFAULT_ROLLS };
 }
 
 export function savePlan(plan: Plan): void {
@@ -390,14 +367,12 @@ export function savePlan(plan: Plan): void {
 }
 
 export async function loadEngineers(): Promise<Engineers> {
-  if (!inTauri) return previewData("engineering_engineers", () => sample.engineers as unknown as Engineers, () => ({ engineers: [], here: null }));
-  return await invoke<Engineers>("engineering_engineers");
+  return await call<Engineers>("engineering_engineers");
 }
 
-/** Outside the app only the sample plan has a trip. */
+/** In the browser preview only the sample plan has a trip. */
 export async function planTrip(plan: Plan): Promise<Trip | null> {
-  if (!inTauri) return previewData("engineering_trip", () => (plan.ship_id === samplePlan.ship_id ? (sample.trip as unknown as Trip) : null), () => null);
-  return await invoke<Trip>("engineering_trip", { plan });
+  return await call<Trip | null>("engineering_trip", { plan });
 }
 
 export function shipTitle(s: Ship): string {

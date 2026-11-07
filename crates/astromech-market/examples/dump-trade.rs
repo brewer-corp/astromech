@@ -1,7 +1,7 @@
 //! Print sample trade searches (near Sol and anywhere), a cargo plan and where to buy a colonisation shopping list from
 //! the recorded Ardent answers and a fixture hold (no network), for the app's
-//! browser preview (`app/src/lib/fixtures/trade.json`):
-//! `cargo run -q -p astromech-market --example dump-trade > app/src/lib/fixtures/trade.json`
+//! browser preview (`app/src/preview/fixtures/trade.json`):
+//! `cargo run -q -p astromech-market --example dump-trade > app/src/preview/fixtures/trade.json`
 use astromech_data::{Cache, Client, Clock, Limiter, Request, Response, Transport, TransportError};
 use astromech_galaxy::{Filters, Galaxy, Here, Store};
 use astromech_market::{anywhere, search, Side};
@@ -63,7 +63,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let buy = search(&g, &here, 20.0, Side::Buy, &["tritium"], &f, 12, EVENING)?;
     let hold = astromech_journal::parse_cargo(include_bytes!("../tests/fixtures/cargo-mined.json")).unwrap_or_default();
     let cargo = astromech_market::cargo::plan_search(&g, &here, 20.0, &hold.inventory, &f, 8, EVENING)?;
-    // The shopping list of the preview's construction site (app/src/lib/fixtures/colonisation.json).
+    // The shopping list of the preview's construction site (app/src/preview/fixtures/colonisation.json).
     let need = |symbol: &str, name: &str, tonnes| astromech_market::list::Need {
         symbol: symbol.into(),
         name: name.into(),

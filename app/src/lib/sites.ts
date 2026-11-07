@@ -3,11 +3,8 @@
  * sites, the known grade 4 farms) with jump counts from the local star map. The shell asks
  * Spansh's bodies search and does the maths (astromech_galaxy::sites).
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewLookup } from "./fakecore";
-import sample from "./fixtures/sites.json";
 import type { Filters, Origin, Results } from "./search";
+import { call } from "./transport";
 
 export interface SiteKind {
   id: string;
@@ -39,36 +36,28 @@ export interface Sites {
   warning?: string;
 }
 
-const samples = sample as unknown as Record<string, Sites | undefined>;
-
-/** The browser preview's answer for `kind` (recorded from Sol). */
-function sampleFor(kind: string): Sites {
-  const s = samples[kind];
-  if (!s) throw new Error(`unknown site kind ${kind}`);
-  return s;
-}
-
 /** The kinds the shell offers, in its order (astromech_galaxy::SITE_KINDS). */
-export const SITE_KINDS: SiteKind[] = ["crystalline_shards", "brain_trees", "crashed_ships", "geological", "raw_farms"].map(
-  (id) => sampleFor(id).kind,
-);
+export const SITE_KINDS: SiteKind[] = [
+  {
+    id: "crystalline_shards",
+    label: "Crystalline shards",
+    noun: "crystalline shards",
+    yields: "Grade 4 raw (polonium, ruthenium, tellurium, technetium, yttrium, antimony and more). Shoot the shards from the SRV and collect the fragments.",
+  },
+  { id: "brain_trees", label: "Brain trees", noun: "brain trees", yields: "Grade 4 raw. Shoot them (turrets or flak), then collect with the SRV." },
+  { id: "crashed_ships", label: "Crashed ships", noun: "crashed ship", yields: "Encoded data points and salvage. Scan the data points from the SRV." },
+  { id: "geological", label: "Geological sites", noun: "geological sites", yields: "Grade 1 to 3 raw from the outcrops around geysers, fumaroles and vents." },
+  { id: "raw_farms", label: "Known raw farms", noun: "raw material farm", yields: "The well-known grade 4 farms: one body for each element." },
+];
 
 /** The kind with this id, else the first (crystalline shards). */
 export function siteKind(id: string): SiteKind {
-  return SITE_KINDS.find((k) => k.id === id) ?? sampleFor("crystalline_shards").kind;
+  return SITE_KINDS.find((k) => k.id === id) ?? SITE_KINDS[0]!;
 }
 
 /** Sites of `kind` matching `filters` near `origin` (a typed system name), or near the commander. */
 export async function sites(kind: string, origin: Origin = null, filters: Filters | null = null): Promise<Sites> {
-  if (!inTauri) {
-    return previewLookup("galaxy_sites", origin, () => {
-      const s = sampleFor(kind);
-      const max = filters?.max_arrival_ls;
-      const hits = max == null ? s.hits : s.hits.filter((h) => h.arrival_ls == null || h.arrival_ls <= max);
-      return { ...s, hits, here: origin ? { ...s.here, system: origin } : s.here };
-    });
-  }
-  return await invoke<Sites>("galaxy_sites", { kind, origin, filters });
+  return await call<Sites>("galaxy_sites", { kind, origin, filters });
 }
 
 /** "B 6 a" for a body named after its system, else the whole name ("Mercury"). */

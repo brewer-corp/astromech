@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
-import projectsSample from "../../lib/fixtures/colonisation.json";
-import tradeSample from "../../lib/fixtures/trade.json";
+import projectsSample from "../../preview/fixtures/colonisation.json";
+import tradeSample from "../../preview/fixtures/trade.json";
 import type { BuySearch, ListPlan, Need, Project } from "../../lib/colonisation";
 import View from "./View.svelte";
 

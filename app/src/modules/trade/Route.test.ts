@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import sample from "../../lib/fixtures/trade.json";
+import sample from "../../preview/fixtures/trade.json";
 import { DEFAULT_FILTERS, type Filters, type Origin } from "../../lib/search";
 import type { RouteAsk, RouteDefaults, RouteKind, RouteSearch, TradeRoute } from "../../lib/trade";
 import Route from "./Route.svelte";

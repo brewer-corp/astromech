@@ -6,10 +6,10 @@ import { loadMaterials } from "../materials";
 import Ships from "../../modules/engineering/View.svelte";
 import Materials from "../../modules/materials/View.svelte";
 
-// The real app (inTauri) with the shell's calls failing the way it fails with no journal folder.
+// The real app (Tauri) with the shell's calls failing the way it fails with no journal folder.
 // The pages must say so, never fall back to the sample fleet or inventory (astromech-32i6).
 const invoke = vi.hoisted(() => {
-  // Before any import: `inTauri` is read once, when lib/core.ts loads.
+  // Before any import: the transport sees Tauri once, when lib/transport.ts loads.
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   return vi.fn();
 });

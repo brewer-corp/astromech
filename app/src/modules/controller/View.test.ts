@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { render, screen, fireEvent, within, cleanup } from "@testing-library/svelte";
 import catalog from "../../../../data/catalog/activities.json";
-import fixture from "../../lib/fixtures/sample.json";
+import fixture from "../../preview/fixtures/sample.json";
 import { maps } from "../../lib/devices";
 import type { Row } from "../../lib/binds";
 import { binds } from "../../lib/store.svelte";

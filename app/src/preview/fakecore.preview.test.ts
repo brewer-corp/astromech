@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { tradeRouteDefaults } from "./trade";
-import { candidates } from "./colonies";
-import { nearby } from "./galaxy";
-import { sites } from "./sites";
-import { stations } from "./stations";
-import { DEFAULT_FILTERS, type Origin } from "./search";
+import { tradeRouteDefaults } from "../lib/trade";
+import { candidates } from "../lib/colonies";
+import { nearby } from "../lib/galaxy";
+import { sites } from "../lib/sites";
+import { stations } from "../lib/stations";
+import { DEFAULT_FILTERS, type Origin } from "../lib/search";
 import { fakeCall, previewData, previewGate, resetFakeCore } from "./fakecore";
 
 // The preview's switches for seeing a page empty, loading or failing (top of fakecore.ts).

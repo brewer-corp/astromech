@@ -1,6 +1,6 @@
-//! Writes the browser-preview fixture (app/src/lib/fixtures/sample.json): the app's State and the
+//! Writes the browser-preview fixture (app/src/preview/fixtures/sample.json): the app's State and the
 //! View of the example preset, as the shell would return them, with a fake VKB pair connected.
-//! `cargo run -p astromech-keybinds --example fixture > app/src/lib/fixtures/sample.json`
+//! `cargo run -p astromech-keybinds --example fixture > app/src/preview/fixtures/sample.json`
 
 use astromech_keybinds::api::Api;
 use astromech_keybinds::devices::{Controller, Inventory};

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { resetFakeCore } from "../../lib/fakecore";
-import { resetPreviewNeutron } from "../../lib/neutron";
+import { resetFakeCore } from "../../preview/fakecore";
+import { resetPreviewNeutron } from "../../preview/shell";
 import NeutronFile from "./NeutronFile.svelte";
 import Plot from "./Plot.svelte";
 

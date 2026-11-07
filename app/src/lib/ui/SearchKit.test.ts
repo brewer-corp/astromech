@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
-import { fakeCall, resetFakeCore } from "../fakecore";
+import { fakeCall, resetFakeCore } from "../../preview/fakecore";
 import { followRoute } from "../route";
 import { DEFAULT_FILTERS, type Filters, type Origin, type Results } from "../search";
 import SearchKit from "./SearchKit.svelte";

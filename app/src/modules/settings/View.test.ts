@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/svelte";
 import View from "./View.svelte";
 import App from "../../App.svelte";
-import { fakeCall, fakePreviews, resetFakeCore, type Scenario } from "../../lib/fakecore";
+import { fakeCall, fakePreviews, resetFakeCore, type Scenario } from "../../preview/fakecore";
 
 function on(scenario: Scenario, hash = "") {
   history.replaceState(null, "", `/?core=${scenario}${hash}`);

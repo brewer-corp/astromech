@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from "vitest";
-import { previewQuery } from "./previewquery";
+import { previewQuery } from "./query";
 
 afterEach(() => {
   vi.unstubAllEnvs();

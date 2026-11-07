@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import shapes from "./core-reply-shapes.json";
+import shapes from "../lib/core-reply-shapes.json";
 import { fakeCall, resetFakeCore } from "./fakecore";
 
 // The core's real replies, pinned in core-reply-shapes.json by a Rust test

@@ -2,12 +2,8 @@
  * Powerplay from the journal (the shell replays it): the commander's standing and the current
  * system's Powerplay state; and the pledged power's nearby targets (Spansh, through the shell).
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewData } from "./fakecore";
-import sample from "./fixtures/powerplay.json";
-import sampleTargets from "./fixtures/powerplay-targets.json";
 import type { Filters, Origin } from "./search";
+import { call } from "./transport";
 
 export interface NextRank {
   rank: number;
@@ -95,12 +91,7 @@ export function pct(f: number | null | undefined): string {
 }
 
 export async function loadOverview(): Promise<Overview> {
-  if (!inTauri) {
-    const o = sample as unknown as Overview;
-    const unpledged: Overview = { standing: { power: null, rank: null, merits: null, time_pledged_secs: null, session_merits: 0, week_merits: 0, week_ends: o.standing.week_ends, next: null }, here: null, system: null };
-    return previewData("powerplay_overview", () => o, () => unpledged);
-  }
-  return await invoke<Overview>("powerplay_overview");
+  return await call<Overview>("powerplay_overview");
 }
 
 /** "12,345". */
@@ -162,12 +153,7 @@ export interface Targets {
 
 /** The pledged power's `target` systems within `withinLy` of `origin` (or the commander). */
 export async function loadTargets(target: Target, origin: Origin, filters: Filters | null, withinLy: number): Promise<Targets> {
-  if (!inTauri) {
-    const s = (sampleTargets as unknown as Record<Target, Targets>)[target];
-    const shown = (hits: TargetHit[]) => ({ ...s, hits, within_ly: withinLy, here: origin ? { ...s.here, system: origin } : s.here });
-    return previewData("powerplay_targets", () => shown(s.hits.filter((h) => h.ly <= withinLy)), () => shown([]));
-  }
-  return await invoke<Targets>("powerplay_targets", { target, origin, filters, withinLy });
+  return await call<Targets>("powerplay_targets", { target, origin, filters, withinLy });
 }
 
 /** The row detail: state and progress, and which other powers are there besides `power`. */

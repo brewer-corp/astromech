@@ -12,11 +12,11 @@
   import About from "../../lib/ui/About.svelte";
   import BindDialog from "../../lib/ui/BindDialog.svelte";
   import PresetPicker from "../../lib/ui/PresetPicker.svelte";
-  import { previewQuery } from "../../lib/previewquery";
+  import { previewOption } from "../../lib/transport";
 
   const CTX = ["All", "Ship", "SRV", "On foot", "General"] as const;
   const STATE = ["All", "Issues", "Unbound"] as const;
-  let q = $state(previewQuery().get("q") ?? "");
+  let q = $state(previewOption("q") ?? "");
   let ctx = $state<(typeof CTX)[number]>("All");
   let only = $state<(typeof STATE)[number]>("All");
   let open = $state<Record<string, boolean>>({});
@@ -81,7 +81,7 @@
   });
 
   // ?bind=Action:Slot (browser preview / screenshots) opens the bind dialog.
-  const want = previewQuery().get("bind");
+  const want = previewOption("bind");
   let opened = false;
   $effect(() => {
     if (!want || opened || !binds.rows.length) return;

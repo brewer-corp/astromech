@@ -861,7 +861,7 @@ Total about **11 weeks**.
 - **Key tester** is on the Diagnostics page (with the connected controllers).
 - **Modifiers.** Press-to-bind writes a single control. Existing modifier combos are shown and kept;
   making a new combo is left to the game's own menu for now.
-- **Browser preview.** Outside Tauri the window serves `app/src/lib/fixtures/sample.json` (made by
+- **Browser preview.** Outside Tauri the window serves `app/src/preview/fixtures/sample.json` (made by
   `cargo run -p astromech-keybinds --example fixture` from `data/samples/Example DualVKB.4.2.binds`,
   generated example data) and keeps edits in memory. `scripts/app-shots.sh` screenshots every screen.
 
@@ -904,7 +904,7 @@ Total about **11 weeks**.
   loads, and when speech output is off). After a voice change the fixed phrases re-render in the
   background, but replies always render first and warm-ups for voices no longer chosen are skipped.
 - **Browser preview.** `?core=empty|new|ready` answers the core's commands from a recorded state
-  (`app/src/lib/fakecore.ts`); `empty` also hides the example preset and controllers.
+  (`app/src/preview/fakecore.ts`); `empty` also hides the example preset and controllers.
   `empty` also makes the journal-backed pages (ships, materials, on foot, engineers, logbook, session,
   mining, station, trade, colonisation, exploration, powerplay, data sharing) answer as a commander with no
   history. `?fail=<call>,<call>` (or `?fail=all`) rejects those calls and `?slow=<ms>` or `?slow=never`

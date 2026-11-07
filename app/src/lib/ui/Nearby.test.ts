@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { fakeCall, resetFakeCore } from "../fakecore";
+import { fakeCall, resetFakeCore } from "../../preview/fakecore";
 import { DEFAULT_FILTERS } from "../search";
 import Nearby from "./Nearby.svelte";
 

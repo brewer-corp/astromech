@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/svelte";
 import Callouts from "./Callouts.svelte";
-import { fakeCall, resetFakeCore } from "../../lib/fakecore";
+import { fakeCall, resetFakeCore } from "../../preview/fakecore";
 
 const find = (r: Record<string, unknown>, id: string) =>
   (r.callouts as { id: string; enabled: boolean; cooldown_s: number }[]).find((c) => c.id === id)!;

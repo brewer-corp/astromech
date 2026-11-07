@@ -1,6 +1,6 @@
 //! Print the Odyssey page's sample: the view of the synthetic fixtures in `tests/fixtures`, and
 //! the shopping list for a sample set of picks (the page's preview outside the app).
-//! `cargo run -q -p astromech-odyssey --example dump-odyssey-fixture > app/src/lib/fixtures/odyssey.json`
+//! `cargo run -q -p astromech-odyssey --example dump-odyssey-fixture > app/src/preview/fixtures/odyssey.json`
 use astromech_odyssey::{sample, shopping, view, Pick};
 
 fn main() {

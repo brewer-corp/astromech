@@ -192,7 +192,7 @@ describe("route strip in the window", () => {
 
   it("is under the header on every page, Galaxy's included, and gone in onboarding", async () => {
     history.replaceState(null, "", "/?core=ready&route=exact");
-    const { resetFakeCore } = await import("./lib/fakecore");
+    const { resetFakeCore } = await import("./preview/fakecore");
     resetFakeCore();
     for (const page of ["settings", "materials", "places", "places/services", "route"]) {
       location.hash = `#/${page}`;

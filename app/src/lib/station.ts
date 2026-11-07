@@ -3,10 +3,7 @@
  * and `outfitting_search` commands (crates/astromech-station; the core keeps every
  * `Outfitting.json` in `outfitting.sqlite`).
  */
-import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
-import { previewData } from "./fakecore";
-import sample from "./fixtures/station.json";
+import { call } from "./transport";
 
 export interface Economy {
   name: string;
@@ -68,29 +65,11 @@ export interface OutfittingSearch {
 }
 
 export async function loadHere(): Promise<DockedHere> {
-  if (!inTauri) {
-    const notDocked: DockedHere = {
-      docked: false, station: null, system: null, market_id: null, station_type: null, services: [], economies: [], faction: null,
-      government: null, allegiance: null, landing_pads: null, dist_from_star_ls: null, max_pad: null, ship: null, outfitting: null,
-    };
-    return previewData("docked_here", () => ({ ...(sample.here as DockedHere), source: "Sample docking" }), () => notDocked);
-  }
-  return await invoke<DockedHere>("docked_here");
-}
-
-/** The sample book searched the way the core searches it (outside the app): every word must be in
- *  the module's symbol or name, and `fsd` stands for `hyperdrive`. */
-export function searchSample(query: string): OutfittingSearch {
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean).map((w) => (w === "fsd" ? "hyperdrive" : w));
-  const found = words.length
-    ? (sample.book.found as Seen[]).filter((s) => words.every((w) => `${s.item} ${s.name}`.toLowerCase().includes(w)))
-    : [];
-  return { stations: sample.book.stations, snapshots: sample.book.snapshots, found, source: "Sample outfitting history" };
+  return await call<DockedHere>("docked_here");
 }
 
 export async function searchOutfitting(query: string): Promise<OutfittingSearch> {
-  if (!inTauri) return previewData("outfitting_search", () => searchSample(query), () => ({ stations: 0, snapshots: 0, found: [] }));
-  return await invoke<OutfittingSearch>("outfitting_search", { query });
+  return await call<OutfittingSearch>("outfitting_search", { query });
 }
 
 /** How the game's service names read. */

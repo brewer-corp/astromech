@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/svelte";
 import Onboarding from "./Onboarding.svelte";
-import { fakeStatus, resetFakeCore, type Scenario } from "../fakecore";
+import { fakeStatus, resetFakeCore, type Scenario } from "../../preview/fakecore";
 import { binds } from "../store.svelte";
 
-// Every step runs against a recorded core (fakecore.ts): `empty` is a PC with no Elite install,
+// Every step runs against a recorded core (app/src/preview/fakecore.ts): `empty` is a PC with no Elite install,
 // no controllers and no microphone; `new` is a fresh install on a PC that has them.
 function on(scenario: Scenario) {
   history.replaceState(null, "", `/?core=${scenario}`);

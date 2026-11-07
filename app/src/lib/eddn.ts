@@ -1,11 +1,9 @@
 /**
  * EDDN (core `eddn_log`, `set_eddn`): the sharing switch, queue depth, last send and last error,
- * the gateway's answers and, apart, the messages that were never queued. Outside Tauri (vite
- * dev) it shows a synthetic sample, or the fake core with `?core=<scenario>`.
+ * the gateway's answers and, apart, the messages that were never queued. The browser preview
+ * shows a synthetic sample, or the fake core's with `?core=<scenario>`.
  */
-import { coreCall, inTauri, type Reply } from "./core";
-import { fakeScenario, previewGate } from "./fakecore";
-import sample from "./fixtures/eddn-log.json";
+import { coreCall, type Reply } from "./core";
 
 export interface EddnLogEntry {
   /** Unix seconds. */
@@ -30,14 +28,8 @@ export interface EddnLog {
   skipped: EddnLogEntry[];
 }
 
-export const sampleLog = sample as EddnLog;
-
 /** The sharing log; rejects (with the core's reason) when the core did not answer. */
 export async function eddnLog(): Promise<EddnLog> {
-  if (!inTauri && !fakeScenario()) {
-    await previewGate("eddn_log");
-    return sampleLog;
-  }
   const r = await coreCall("eddn_log");
   if (!r.ok) throw new Error(r.error ?? "the core did not answer");
   return r as unknown as EddnLog;

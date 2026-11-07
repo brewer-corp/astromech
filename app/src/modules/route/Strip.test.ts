@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
-import { fakeCall, fakeClipboard, fakeJump, fakePlotInGame, resetFakeCore } from "../../lib/fakecore";
+import { fakeCall, fakeClipboard, fakeJump, fakePlotInGame, resetFakeCore } from "../../preview/fakecore";
 import { addStop, followRoute, type Waypoint } from "../../lib/route";
 import PlotBar from "./PlotBar.svelte";
 import Strip from "./Strip.svelte";

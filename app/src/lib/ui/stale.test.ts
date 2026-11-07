@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/svelte";
 import type { Component } from "svelte";
-import { resetFakeCore } from "../fakecore";
+import { resetFakeCore } from "../../preview/fakecore";
 import Ships from "../../modules/engineering/View.svelte";
 import Materials from "../../modules/materials/View.svelte";
 import OnFoot from "../../modules/odyssey/View.svelte";
@@ -44,6 +44,10 @@ interface Page {
   call: string;
   /** The longest poll interval on the page, ms. */
   every: number;
+  /** The scenario the page needs (the run is in the core's status, which a failed call makes null). */
+  core?: string;
+  /** What a failed read says, when not the preview's own "failed on purpose". */
+  failed?: RegExp;
 }
 
 const PAGES: Page[] = [
@@ -52,7 +56,7 @@ const PAGES: Page[] = [
   { name: "On foot", view: OnFoot as unknown as Component, data: /Sample ShipLocker/, call: "odyssey_view", every: 2000 },
   { name: "Logbook", view: Logbook as unknown as Component, data: /CMDR Fixture/, call: "logbook", every: 5000 },
   { name: "Session", view: Session as unknown as Component, data: /CMDR Fixture/, call: "session_summary", every: 5000 },
-  { name: "Mining", view: Mining as unknown as Component, data: /Platinum/, call: "core_status", every: 3000 },
+  { name: "Mining", view: Mining as unknown as Component, data: /Platinum/, call: "core_status", every: 3000, core: "core=ready&", failed: /the core did not answer/ },
   { name: "Station", view: Station as unknown as Component, data: /Test Orbital/, call: "docked_here", every: 5000 },
   { name: "Colonisation", view: Colonisation as unknown as Component, data: /Test Hub/, call: "colonisation_projects", every: 2000 },
   { name: "Exploration", view: Exploration as unknown as Component, data: /bodies scanned/, call: "exploration_system", every: 15000 },
@@ -65,19 +69,20 @@ const PAGES: Page[] = [
 
 describe.each(PAGES)("$name", (p) => {
   it("keeps its data and says the refresh failed, then clears the line on the next good read", async () => {
+    at(`?${p.core ?? ""}`);
     render(p.view);
     await waitFor(() => expect(document.body.textContent).toMatch(p.data));
     expect(screen.queryByText(/Could not/)).toBeNull();
 
-    at(`?fail=${p.call}`);
+    at(`?${p.core ?? ""}fail=${p.call}`);
     await vi.advanceTimersByTimeAsync(p.every);
-    const line = await screen.findByText(/Could not refresh: .*failed on purpose/);
+    const line = await screen.findByText(new RegExp(`Could not refresh: .*(${(p.failed ?? /failed on purpose/).source})`));
     expect(line.textContent).toMatch(/^! Could not refresh: .+\.$/);
     // The last good data is still there, and the page did not fall back to its first-read error.
     expect(document.body.textContent).toMatch(p.data);
     expect(screen.queryByText(/Could not read/)).toBeNull();
 
-    at("");
+    at(`?${p.core ?? ""}`);
     await vi.advanceTimersByTimeAsync(p.every);
     await waitFor(() => expect(screen.queryByText(/Could not/)).toBeNull());
     expect(document.body.textContent).toMatch(p.data);
@@ -87,7 +92,7 @@ describe.each(PAGES)("$name", (p) => {
 // A first read that fails is the full error, not the stale line (the page has nothing to keep).
 describe.each(PAGES.filter((p) => p.name !== "Exploration (unsold)" && p.name !== "Diagnostics"))("$name, first read failing", (p) => {
   it("says it could not read, and never says it could not refresh", async () => {
-    at(`?fail=${p.call}`);
+    at(`?${p.core ?? ""}fail=${p.call}`);
     render(p.view);
     expect((await screen.findAllByText(/Could not read|failed on purpose/)).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Could not refresh/)).toBeNull();
