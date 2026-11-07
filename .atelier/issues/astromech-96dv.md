@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Type the window's call() and the fake's handlers against the generated commands"
-updated_at: "2026-11-07T09:08:04.796667048+00:00"
+updated_at: "2026-11-07T09:48:19.629288112+00:00"
 ---
 
 ## Goal
@@ -38,3 +38,4 @@ app/src only. No Rust change unless a generated type is wrong. If so, fix it in 
 ## Notes
 
 - 2026-11-07 [note] From astromech-se44's implementer: type-checking the preview fixtures against the generated types shows fields the real core always sends that the fixtures lack: nearby.json query.by_population; plot.json ship.fsd and waypoint jumps; stations*.json filters.max_distance_ly and min_volume; engineering.json and ships.json market_id on ships; exobiology.json genera.analysed; trade.json partial in the cargo plan; voice.json live_from. Typing the fakes here should surface and fix these.
+- 2026-11-07 [note] From finding astromech-34i3 (i8vr review): comments and test names still say the shell resolves the pad or serves commands: app/src/lib/ui/SearchKit.svelte:97 and SearchKit.browser.test.ts:86, app/src/modules/trade/Route.svelte:31 and Route.browser.test.ts:18, docs/ARCHITECTURE.md:576, app/src/preview/shell.ts:2 and :311. Correct them here.
