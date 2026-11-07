@@ -91,10 +91,6 @@ jobs:
       - name: Rust toolchain
         run: rustup toolchain install
       - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: |
-            . -> target
-            app/src-tauri -> target
       - name: clippy (Windows-only code paths)
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: build
@@ -108,7 +104,7 @@ jobs:
           RUN: ""
           TARGET_DIR: target/debug
         run: |
-          cargo build -p astromech-core --bin astromech-core --example mockgame --locked
+          cargo build -p astromech-core --bin astromech-core -p astromech-mockgame --locked
           scripts/e2e-gear-down.sh
       - uses: pnpm/action-setup@v4
         with:
@@ -131,9 +127,8 @@ jobs:
       - name: star map placeholder (releases download the published preload)
         shell: bash
         run: python scripts/gen-starmap.py --empty --out app/src-tauri/resources/starmap.db
+      # The workspace steps above build the window as a stub; this builds the real one.
       - name: app shell (Tauri) build
-        working-directory: app/src-tauri
-        run: cargo build --locked
+        run: cargo build -p astromech-shell --features window --locked
       - name: app shell clippy
-        working-directory: app/src-tauri
-        run: cargo clippy --locked -- -D warnings
+        run: cargo clippy -p astromech-shell --features window --all-targets --locked -- -D warnings

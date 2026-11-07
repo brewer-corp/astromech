@@ -3,7 +3,7 @@
 Phase 1) against the mock game window, and writes a report against each threshold.
 
     python scripts/mvp_criteria.py --core target/release/astromech-core.exe \
-        --mock target/release/examples/mockgame.exe --out criteria-report \
+        --mock target/release/mockgame.exe --out criteria-report \
         --soak-minutes 240 --trials-per-tool 200
 
 Windows only for a run (the mock game is a Win32 window that receives the core's SendInput

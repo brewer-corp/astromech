@@ -31,7 +31,7 @@ if echo quit | $RUN "$W/misnamed/astromech-core.exe" --console --no-voice > "$W/
 fi
 grep -q 'astromech.toml.txt' "$W/misnamed.txt" || { cat "$W/misnamed.txt"; echo "E2E FAIL: look-alike not named"; exit 1; }
 # Key_L = scan 0x26; gear = bit 2 (4); delay 0-1000 ms; drop the first press (miss: logged, never re-pressed).
-$RUN "$T/examples/mockgame.exe" "$(winpath "$W/journal")" 26 0 4 0-1000 25 1 &
+$RUN "$T/mockgame.exe" "$(winpath "$W/journal")" 26 0 4 0-1000 25 1 &
 MOCK=$!
 sleep 3
 {

@@ -1,12 +1,12 @@
 [workspace]
 resolver = "3"
-members = ["crates/*"]
-# The Tauri shell has its own workspace (app/src-tauri): it needs webkit2gtk on Linux,
-# so it is built on the Windows CI job only.
-exclude = ["app/src-tauri", "spikes"]
+members = ["crates/*", "app/src-tauri"]
+# The window (app/src-tauri) builds as a stub unless its `window` feature is on, so the
+# workspace's checks need no webkit2gtk on Linux. tauri build turns it on (tauri.conf.json).
+exclude = ["spikes"]
 
 [workspace.package]
-version = "1.0.0-alpha.4"
+version = "0.0.0-dev"
 edition = "2021"
 rust-version = "1.88"
 license = "MIT"

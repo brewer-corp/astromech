@@ -2,7 +2,7 @@
 """WebView cost harness: what the app window costs, against the S11 budgets
 (docs/ARCHITECTURE.md §14 Phase 0 and §18.1).
 
-    python scripts/webview_cost.py --shell app/src-tauri/target/release/astromech-shell.exe --out webview-report
+    python scripts/webview_cost.py --shell target/release/astromech-shell.exe --out webview-report
 
 Runs the app window (WebView2 on Windows, WebKitGTK on Linux) in a scratch profile and measures:
 - cold start: from starting the process to the window's first page load (the shell logs

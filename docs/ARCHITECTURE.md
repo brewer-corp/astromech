@@ -352,7 +352,7 @@ astromech/
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline (feeds EDDN), binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
-  app/src-tauri/         astromech-shell: Tauri v2 window (own workspace; built on Windows CI only, since Linux needs webkit2gtk)
+  app/src-tauri/         astromech-shell: Tauri v2 window (workspace member; Tauri behind its `window` feature, so Linux builds a stub without webkit2gtk)
   scripts/check-deps.py  CI dependency-rule check
   spikes/                source of the spike tools (s1-ui, s5, s6, s7-input-listener, s7-s9, s8, k0)
   docs/                  this file, KEYBINDS.md, REPORT.md, COMPETITORS.md, PLOTTING.md, diagrams/

@@ -635,6 +635,15 @@ mod tests {
     }
 
     #[test]
+    fn a_build_from_a_checkout_is_older_than_every_release() {
+        // The repository's version is a placeholder (scripts/set-version.py stamps a tag's in
+        // release.yml), so a build from a checkout never refuses a published update.
+        assert_eq!(installed_version(), "0.0.0-dev");
+        assert!(newer("0.1.0", installed_version()));
+        assert!(newer("v1.0.0-alpha.5", installed_version()));
+    }
+
+    #[test]
     fn signs_and_verifies_manifest() {
         let (sk, pk) = keypair();
         let json = br#"{"version":"0.1.2","notes":"x","zip":"a.zip","sha256":"ab"}"#;

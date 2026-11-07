@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the in-app update zip and latest.json for a GitHub Release.
 
-Does not sign: CI runs `cargo run -p astromech-core --example sign-update` when
+Does not sign: CI runs `cargo run -p astromech-core --bin sign-update` when
 ASTROMECH_UPDATE_KEY is set.
 """
 from __future__ import annotations

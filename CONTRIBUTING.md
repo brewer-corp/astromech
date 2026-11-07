@@ -19,7 +19,7 @@ the code.
 ```
 crates/         the Rust crates (astromech-core is the tray process; the rest are libraries)
 app/            Svelte 5 + TypeScript + Vite app shell; one folder per page in src/modules/*
-app/src-tauri/  astromech-shell, the Tauri v2 window (its own cargo workspace)
+app/src-tauri/  astromech-shell, the Tauri v2 window (a workspace member; a stub without its `window` feature)
 data/           player-visible game data and the device sheets
 docs/           design documents, and the user guide in docs/guide/
 spikes/         spike tools (own code only)
@@ -39,6 +39,16 @@ cargo deny check                 # licences, advisories, sources
 cd app && pnpm install && pnpm build    # frontend
 pnpm tauri build                        # app window (Windows; Linux needs webkit2gtk-4.1)
 ```
+
+The window is in the workspace, but Tauri is behind its `window` feature, so `cargo build
+--workspace` and `cargo test --workspace` build it as a stub and need no webkit2gtk.
+`pnpm tauri build` and `pnpm tauri dev` turn the feature on (`build.features` in
+`tauri.conf.json`); to build or lint it with cargo, add `-p astromech-shell --features window`.
+Everything builds into the one `target/` folder.
+
+The repository's version is the placeholder `0.0.0-dev`, which sorts below every release, so a
+build from a checkout always accepts a published update. Don't bump it by hand: see
+[Releasing](#releasing).
 
 The local voice worker is behind a feature, because it downloads prebuilt sherpa-onnx libraries
 and makes the binary GPL-3.0 (see NOTICE.md):
@@ -119,9 +129,21 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   127.0.0.1 so the page can be driven; nothing else uses that flag.
 - The game-free MVP criteria (docs/ARCHITECTURE.md §14 Phase 1) are measured on Windows by
   `scripts/mvp_criteria.py`: the release core against the mock game window
-  (`crates/astromech-core/examples/mockgame.rs`), with a report against each threshold. The
+  (`crates/astromech-mockgame`), with a report against each threshold. The
   **MVP criteria** workflow runs a 5-minute soak on PRs that change the core; the full 4 h run is
   manual (Actions → MVP criteria → Run workflow). Its analysis tests run anywhere:
   `python3 scripts/test_mvp_criteria.py`.
 - New dependencies must pass `cargo deny` (permissive licences only).
 - Contributions are accepted under the MIT licence.
+
+## Releasing
+
+1. Write `docs/releases/vX.Y.Z[-pre].md` (the GitHub release body, as published) and point
+   README's release-notes link at it. `python3 scripts/check-release-notes.py <file>` checks
+   that every open `needs-human` issue is a test step once and that guide links resolve.
+2. Get it reviewed and merged like any change (`atelier merge`). It touches only Markdown, so
+   no CI runs for it.
+3. Tag `main` (`git tag -a vX.Y.Z[-pre]`) and push the tag. The **Release build** stamps the
+   tag's version into the version files (`scripts/set-version.py`), builds and smoke-tests the
+   installer, and publishes the release with the signed update. It fails before publishing if
+   the notes file is missing or any step fails.

@@ -5,6 +5,8 @@ name: Release build
 # below) and manual runs upload the
 # installer as a workflow artifact; a `v*` tag also publishes a GitHub Release (body: docs/releases/<tag>.md; SHA-256s as
 # an asset) and a signed zip (`latest.json` + `.sig`) for in-app updates (§7.3).
+# The version comes from the tag: the repository says 0.0.0-dev, and scripts/set-version.py
+# stamps the tag's version before anything builds (PR and manual builds stay 0.0.0-dev).
 # Signing key: repo secret ASTROMECH_UPDATE_KEY (32-byte ed25519 seed hex). Public key is
 # crates/astromech-core/src/update.rs PUBLIC_KEY_HEX.
 
@@ -29,7 +31,6 @@ on:
       - crates/**
       - "!crates/**/tests/**"
       - "!crates/**/examples/**"
-      - crates/astromech-core/examples/sign-update.rs
       - data/catalog/**
       # App shell and frontend build configuration (app/src/** is built by CI)
       - app/src-tauri/**
@@ -46,14 +47,15 @@ on:
       - LICENSE
       - COPYING-GPL-3.0.txt
       - scripts/stage-sidecars.sh
+      - scripts/set-version.py
       - scripts/pack-update.py
       - scripts/gen-starmap.py
       - scripts/onboarding_smoke.py
-      # What the onboarding smoke test drives: the wizard, the voice tester and the mock game
+      # What the onboarding smoke test drives: the wizard and the voice tester (the mock game,
+      # crates/astromech-mockgame, is under crates/**)
       - app/src/lib/onboarding/**
       - app/src/modules/voicetester/**
       - app/src/App.svelte
-      - crates/astromech-core/examples/mockgame.rs
   workflow_dispatch:
 
 permissions:
@@ -74,14 +76,15 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+      - name: version from the tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: python scripts/set-version.py "$GITHUB_REF_NAME"
       - name: Rust toolchain
         run: rustup toolchain install
       - uses: Swatinem/rust-cache@v2
         with:
           key: release
-          workspaces: |
-            . -> target
-            app/src-tauri -> target
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: app/package.json
@@ -90,10 +93,12 @@ jobs:
           node-version: 22
           cache: pnpm
           cache-dependency-path: app/pnpm-lock.yaml
-      - name: core (release)
-        run: cargo build -p astromech-core --bin astromech-core --release --locked
-      - name: mock game (for the onboarding smoke test; not shipped)
-        run: cargo build -p astromech-core --example mockgame --release --locked
+      # One invocation, so Cargo builds them in parallel and shares their dependencies. The mock
+      # game is for the onboarding smoke test and sign-update signs latest.json; neither ships.
+      # The voice worker stays separate: built together, Cargo would unify astromech-voice's
+      # features and link the GPL sherpa build into the core too.
+      - name: core, mock game and sign-update (release)
+        run: cargo build --release --locked -p astromech-core --bin astromech-core --bin sign-update -p astromech-mockgame
       - name: drop a sherpa-onnx prebuilt cache that lost its libraries
         # sherpa-onnx-sys skips its download when target/sherpa-onnx-prebuilt/<ver>/lib exists,
         # and rust-cache can restore that folder without the static libraries in it.
@@ -136,7 +141,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist-release
-          cp app/src-tauri/target/release/bundle/nsis/*-setup.exe dist-release/
+          cp target/release/bundle/nsis/*-setup.exe dist-release/
           cp NOTICE.md LICENSE COPYING-GPL-3.0.txt dist-release/
           cd dist-release
           sha256sum *-setup.exe > SHA256SUMS.txt
@@ -148,23 +153,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          REL=app/src-tauri/target/release
+          # One workspace: the window, the core and the voice worker are all in target/release.
+          REL=target/release
           files=()
           for f in astromech-shell.exe astromech-core.exe astromech-voice-worker.exe \
                    NOTICE.md COPYING-GPL-3.0.txt THIRD_PARTY.md LICENSE.txt LICENSE; do
             if [ -f "$REL/$f" ]; then files+=("$REL/$f"); fi
           done
-          if [ ! -f "$REL/astromech-core.exe" ] && [ -f target/release/astromech-core.exe ]; then
-            files+=(target/release/astromech-core.exe)
-          fi
-          if [ ! -f "$REL/astromech-voice-worker.exe" ] && [ -f target/release/astromech-voice-worker.exe ]; then
-            files+=(target/release/astromech-voice-worker.exe)
-          fi
           # The installer ships it as a Tauri resource; updates must carry it too.
           files+=(app/src-tauri/resources/starmap.db)
           python3 scripts/pack-update.py --out dist-release --notes "See the GitHub release notes." "${files[@]}"
           if [ -n "${ASTROMECH_UPDATE_KEY:-}" ]; then
-            cargo run -p astromech-core --example sign-update --release --locked -- dist-release/latest.json
+            target/release/sign-update.exe dist-release/latest.json
           elif [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             echo "ASTROMECH_UPDATE_KEY is required to publish a signed update on a tag" >&2
             exit 1
@@ -222,7 +222,7 @@ jobs:
         run: |
           python -m pip install --quiet websocket-client
           $setup = Get-ChildItem dist-release/*-setup.exe | Select-Object -First 1
-          python scripts/onboarding_smoke.py --setup $setup.FullName --mock target/release/examples/mockgame.exe --out onboarding-report
+          python scripts/onboarding_smoke.py --setup $setup.FullName --mock target/release/mockgame.exe --out onboarding-report
           if ($LASTEXITCODE -ne 0) { throw "onboarding smoke test failed" }
       - name: onboarding report
         if: always()

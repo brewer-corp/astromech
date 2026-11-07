@@ -1,7 +1,7 @@
 //! Sign `latest.json` (or print a new keypair).
 //!
-//!   cargo run -p astromech-core --example sign-update -- --gen
-//!   cargo run -p astromech-core --example sign-update -- --key $ASTROMECH_UPDATE_KEY latest.json
+//!   cargo run -p astromech-core --bin sign-update -- --gen
+//!   cargo run -p astromech-core --bin sign-update -- --key $ASTROMECH_UPDATE_KEY latest.json
 
 use anyhow::{bail, Result};
 use astromech_core::update;

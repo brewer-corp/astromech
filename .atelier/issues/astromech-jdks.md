@@ -4,6 +4,9 @@ id: "astromech-jdks"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-jdks
 priority: "P2"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Faster release builds: one workspace, a mock game crate, the version from the tag"
-updated_at: "2026-11-07T00:34:42.337772489+00:00"
+updated_at: "2026-11-07T00:34:42.576591033+00:00"
 ---
 
 ## Goal

@@ -63,9 +63,6 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           key: webview-cost
-          workspaces: |
-            . -> target
-            app/src-tauri -> target
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: app/package.json
@@ -88,8 +85,8 @@ jobs:
         shell: bash
         run: |
           pnpm install --frozen-lockfile
+          # One workspace: the shell lands in target/release next to the core it starts.
           pnpm tauri build --ci --no-bundle -- --locked
-          cp ../target/release/astromech-core${{ matrix.exe }} src-tauri/target/release/
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -102,7 +99,7 @@ jobs:
         continue-on-error: ${{ !matrix.gate }}
         shell: bash
         run: |
-          shell=app/src-tauri/target/release/astromech-shell${{ matrix.exe }}
+          shell=target/release/astromech-shell${{ matrix.exe }}
           if [ "$RUNNER_OS" = Linux ]; then
             xvfb-run -a dbus-run-session -- python scripts/webview_cost.py --shell "$shell" --out webview-report
           else

@@ -4,7 +4,7 @@ driven in the real app window, then a verified "gear down" against the mock game
 time each part took.
 
     python scripts/onboarding_smoke.py --setup dist-release/astromech_x.y.z_x64-setup.exe \
-        --mock target/release/examples/mockgame.exe --out onboarding-report
+        --mock target/release/mockgame.exe --out onboarding-report
 
 What it does, in the order a new player would:
 1. Elite has run once on this account: its Bindings folder (a custom preset with a keyboard

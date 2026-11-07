@@ -1,49 +1,48 @@
 [package]
 name = "astromech-shell"
 description = "astromech app window: Tauri v2 shell around the Svelte app (app/)"
-version = "1.0.0-alpha.4"
-edition = "2021"
-rust-version = "1.88"
-license = "MIT"
-repository = "https://github.com/brewer-corp/astromech"
-publish = false
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
 
-# Own workspace: Tauri needs webkit2gtk on Linux, so the root workspace (and Linux CI) skips it.
-[workspace]
+[lints]
+workspace = true
 
 [[bin]]
 name = "astromech-shell"
 path = "src/main.rs"
 
+# Tauri is optional so the root workspace's checks build this crate as a stub, without
+# webkit2gtk on Linux. tauri.conf.json's build.features turns `window` on for tauri build/dev.
+[features]
+window = ["dep:tauri", "dep:tauri-plugin-single-instance", "dep:tauri-build"]
+
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "2", features = [], optional = true }
 
 [dependencies]
-tauri = { version = "2", features = [] }
-tauri-plugin-single-instance = "2"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-anyhow = "1"
-astromech-keybinds = { path = "../../crates/astromech-keybinds" }
-astromech-input = { path = "../../crates/astromech-input" }
-astromech-materials = { path = "../../crates/astromech-materials" }
-astromech-journal = { path = "../../crates/astromech-journal" }
-astromech-engineering = { path = "../../crates/astromech-engineering" }
-astromech-ship = { path = "../../crates/astromech-ship" }
-astromech-data = { path = "../../crates/astromech-data" }
-astromech-galaxy = { path = "../../crates/astromech-galaxy" }
-astromech-market = { path = "../../crates/astromech-market" }
-astromech-colonisation = { path = "../../crates/astromech-colonisation" }
-astromech-history = { path = "../../crates/astromech-history" }
-astromech-odyssey = { path = "../../crates/astromech-odyssey" }
-astromech-station = { path = "../../crates/astromech-station" }
-astromech-store = { path = "../../crates/astromech-store" }
-astromech-powerplay = { path = "../../crates/astromech-powerplay" }
-astromech-exploration = { path = "../../crates/astromech-exploration" }
-astromech-log = { path = "../../crates/astromech-log" }
-
-[profile.release]
-opt-level = "s"
-lto = true
-codegen-units = 1
-strip = true
+tauri = { version = "2", features = [], optional = true }
+tauri-plugin-single-instance = { version = "2", optional = true }
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+astromech-keybinds.workspace = true
+astromech-input.workspace = true
+astromech-materials.workspace = true
+astromech-journal.workspace = true
+astromech-engineering.workspace = true
+astromech-ship.workspace = true
+astromech-data.workspace = true
+astromech-galaxy.workspace = true
+astromech-market.workspace = true
+astromech-colonisation.workspace = true
+astromech-history.workspace = true
+astromech-odyssey.workspace = true
+astromech-station.workspace = true
+astromech-store.workspace = true
+astromech-powerplay.workspace = true
+astromech-exploration.workspace = true
+astromech-log.workspace = true

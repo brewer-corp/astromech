@@ -1,0 +1,25 @@
+[package]
+name = "astromech-mockgame"
+description = "Windows-only mock of Elite's input and Status.json surface, for the smoke and criteria harnesses (not shipped)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+# Its own crate, not an astromech-core example: an example builds every dev-dependency of
+# astromech-core, which took about 2 minutes of each release build.
+[[bin]]
+name = "mockgame"
+path = "src/main.rs"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_System_LibraryLoader", "Win32_UI_WindowsAndMessaging"] }

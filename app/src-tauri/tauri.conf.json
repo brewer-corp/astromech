@@ -1,13 +1,14 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "astromech",
-  "version": "1.0.0-alpha.4",
+  "version": "0.0.0-dev",
   "identifier": "io.github.spadaval.astromech",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "pnpm dev",
-    "beforeBuildCommand": "pnpm build"
+    "beforeBuildCommand": "pnpm build",
+    "features": ["window"]
   },
   "app": {
     "windows": [],

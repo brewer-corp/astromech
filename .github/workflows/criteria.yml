@@ -58,7 +58,7 @@ jobs:
         with:
           key: criteria
       - name: core and mock game (release)
-        run: cargo build -p astromech-core --bin astromech-core --example mockgame --release --locked
+        run: cargo build -p astromech-core --bin astromech-core -p astromech-mockgame --release --locked
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -72,7 +72,7 @@ jobs:
         run: |
           python scripts/mvp_criteria.py \
             --core target/release/astromech-core.exe \
-            --mock target/release/examples/mockgame.exe \
+            --mock target/release/mockgame.exe \
             --out criteria-report \
             --soak-minutes "$SOAK_MINUTES" \
             --trials-per-tool "$TRIALS_PER_TOOL" \

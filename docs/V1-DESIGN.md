@@ -789,7 +789,8 @@ skip the guide. A new rule's lines go in that test.
 
 ### 7.8 Release CI
 On a `v*` tag:
-1. Windows runner: build core, worker (`sherpa` feature) and shell (`tauri build`) with `--locked`.
+1. Windows runner: stamp the tag's version (`scripts/set-version.py`; the repository says `0.0.0-dev`),
+   then build core, worker (`sherpa` feature) and shell (`tauri build`) with `--locked`.
 2. Run the test suite and the Windows e2e.
 3. Create the GitHub Release with the installer, SHA-256 checksums and NOTICE files.
 4. Smoke test: download the release on a clean runner, install per-user, start, check the version.

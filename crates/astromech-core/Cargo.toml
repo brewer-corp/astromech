@@ -69,5 +69,3 @@ jsonschema = { version = "0.58", default-features = false }
 flate2 = "1"
 rusqlite = { version = "0.40", features = ["bundled"] }
 
-[target.'cfg(windows)'.dev-dependencies]
-windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi"] }
