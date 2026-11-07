@@ -7,6 +7,9 @@
 //! Its stdin is a pipe the helper holds, so if the test process dies, even killed outright, the
 //! core reads end of file and quits.
 
+// Each test binary that includes this module uses part of it.
+#![allow(dead_code)]
+
 use astromech_api::control::{self, Contact, Request};
 use serde::Deserialize;
 use serde_json::Value;
@@ -29,6 +32,28 @@ pub const HOME_VARS: [&str; 8] = [
 /// The committed world `name`, in the repository's `worlds/`.
 pub fn world(name: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../worlds").join(name)
+}
+
+/// A copy of the committed world `name` in a temp folder, with its `world.jsonl` replaced by
+/// `steps` (when given): a variant of a world for one test.
+pub fn world_with(name: &str, steps: Option<&str>) -> tempfile::TempDir {
+    fn copy(from: &Path, to: &Path) {
+        std::fs::create_dir_all(to).expect("make the folder");
+        for e in std::fs::read_dir(from).expect("read the world") {
+            let e = e.expect("an entry");
+            if e.file_type().expect("its type").is_dir() {
+                copy(&e.path(), &to.join(e.file_name()));
+            } else {
+                std::fs::copy(e.path(), to.join(e.file_name())).expect("copy a file");
+            }
+        }
+    }
+    let d = tempfile::Builder::new().prefix("astromech-test-world-").tempdir().expect("a temp folder");
+    copy(&world(name), d.path());
+    if let Some(steps) = steps {
+        std::fs::write(d.path().join("world.jsonl"), steps).expect("write world.jsonl");
+    }
+    d
 }
 
 /// The line world mode prints once its control API is up.
@@ -102,6 +127,11 @@ impl WorldCore {
     /// The window's call, as the shell's proxy sends it (`origin: "app_window"`).
     pub fn call_window(&self, cmd: &str, args: Option<Value>) -> Result<Value, String> {
         control::call_window_to(&self.contact, cmd, args, &mut |_| {})
+    }
+
+    /// `world_step` to the mark `to`.
+    pub fn step(&self, to: &str) -> Result<Value, String> {
+        self.call("world_step", Some(serde_json::json!({ "to": to })))
     }
 
     /// Ask it to quit and wait for it to exit; panics if it wrote anything into its home.

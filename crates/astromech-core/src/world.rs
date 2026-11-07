@@ -12,8 +12,76 @@
 //! - `secrets.json`: optional, the secrets the core finds saved, by name, as
 //!   `{"edsm-api-key": "…"}`.
 //!
-//! `net.json` (the network recording) and `world.jsonl` (the steps) are the format's too; their
-//! loaders come with the recorded-network and script children of astromech-vucf.
+//! - `world.jsonl`: optional, the steps (below).
+//! - Payloads that `file` steps name by a path relative to the world.
+//!
+//! `net.json` (the network recording) is the format's too; its loader comes with the
+//! recorded-network child of astromech-vucf (astromech-xk0n).
+//!
+//! # Steps: `world.jsonl`
+//!
+//! One JSON object per line; blank lines are skipped. The first line is the header,
+//! `{"start": "2026-11-07T12:00:00Z"}`: the clock's UTC time before any step (with no
+//! `world.jsonl`, the clock starts at the real time). Every later line is one step, named by its
+//! kind's key:
+//!
+//! - `{"journal": <line>, "file"?: "Journal.<stamp>.<part>.log"}`: append the line to the journal
+//!   `file` (created if new: how the game starts a journal), or to the one the last `journal` step
+//!   wrote, or else to the seed's latest by name. A JSON object is written exactly as it appears
+//!   in the step; a string is the line itself (any text, for a malformed line). A line whose
+//!   `timestamp` is later than the clock first advances the clock to that time and waits for
+//!   quiescence, then is appended: the pipeline takes a line stamped more than a few seconds
+//!   after now for a clock running ahead. One stamped earlier leaves the clock alone.
+//! - `{"file": "Status.json", "json": {…}}`, or `"text": "…"`, or `"from": "<payload>"`: write a
+//!   companion file in the game folder whole (beside it under a name the pipeline ignores, then
+//!   renamed over it); with `"partial": true`, cut off half way, as a reader can catch the game
+//!   writing it.
+//! - `{"game": "running" | "launcher" | "exited"}`: what the world's process list shows (the
+//!   game, the launcher, neither).
+//! - `{"advance": "1.5s"}`: move the clock on (`ms`, `s`, `m` or `h`).
+//! - `{"mark": "jumped"}`: name this point, for `world_step`. Marks are unique.
+//!
+//! Reserved, and refused with "not supported yet" until their child lands: the step kinds
+//! `focus`, `press`, `release`, `audio` and `say` and the header's `devices`, `reactions` and
+//! `foreground` (astromech-1hh9), and `net` (astromech-xk0n). A malformed line, an unknown key or
+//! a step with two kinds fails the load, naming the line.
+//!
+//! # Settling
+//!
+//! `world_step {to?}` runs the steps up to and including the mark `to` (none: to the end), and
+//! returns `{ran, at, next}` once the core has consumed each one. A step consumed is one the
+//! core has finished with, judged by what the core publishes, never by time:
+//!
+//! - a `journal` or `file` step, by generation: the world bumps the file's counter after each
+//!   write, under a lock the pipeline takes to read the counters, so a counter read is never
+//!   behind the file. The pipeline reads the counters of the files it was told of before it
+//!   reads them, and publishes them once it has handled them, whether they parsed or not
+//!   ([`settle::FileGens`]); the step waits until the file's published generation reaches its
+//!   write. A file the pipeline ignores, or a write with no session (no pipeline), settles at
+//!   once;
+//! - an `advance` step, once every thread registered with the clock is parked in a clock wait
+//!   again ([`ManualClock::advance`]);
+//! - a `game` step sets the process list, then advances the clock by the game watch's poll
+//!   (`gamewatch::POLL`) until the watch reports the game so (going from running takes two polls
+//!   without it), then waits until every `activate` the watch started has ended: the session
+//!   started, failed or was already there ([`settle::Sessions`]). The watch's `deactivate` runs
+//!   on its own registered thread, so the advance that let it poll returned only once the
+//!   session was dropped. `status` then reports the new game state.
+//!
+//! Each wait gives up at [`WAIT_GUARD`] (real time, a guard against a stuck core that decides
+//! nothing): the step fails, and no later step runs. Threads that aren't registered with the
+//! clock can still be running when a step returns (speech, a command's own thread); their
+//! effects are awaited with `world_wait`.
+//!
+//! Two more `local` commands: `world_game` (the session's game state, as the pipeline built it;
+//! null with no session) and `world_gate {hold}`, a hold on the game watch for race tests. Held,
+//! the watch stops at the top of its next poll, before it reads the process list, waits there
+//! until the rest of the core is parked on the clock, and the call returns `"reached"` (its
+//! progress line `"held"` says the hold is on). Held again while the watch is stopped there, it
+//! lets that poll go and stops at the next; `{hold: false}` lets it go on.
+//!
+//! The installed app has none of this: `Boundaries::settle` is None, so each hook is an `Option`
+//! check (per game-watch poll, per `activate`, per file notification the pipeline handles).
 //!
 //! # What world mode runs
 //!
@@ -34,7 +102,8 @@
 //! clipboard, notifier, Start with Windows and the app window record what reaches them and touch
 //! nothing; the secrets are in memory, seeded from `secrets.json`; every remote-data lookup is
 //! refused and recorded as unrecorded; the clock is a manual one ([`World::clock`]), started at
-//! the real time and moved only by the script, which the remote-data client shares. Then it calls [`app::assemble`] and [`app::start`], as the installed
+//! the header's time and moved only by the steps, which the remote-data client shares. Then it
+//! calls [`app::assemble`] and [`app::start`], as the installed
 //! app does, but none of what only [`app::run`] adds: no instance lock, no Start with Windows
 //! default, no update thread, no window and no tray.
 //!
@@ -59,7 +128,7 @@
 //! - `window {route}`: the app window opened (`open_window`), at a page or null;
 //! - `http {url, path, unrecorded}`: a remote-data request.
 //!
-//! Two `local` commands read them, registered only in world mode (decision astromech-unh9: the
+//! Two `local` commands read them, registered only in world mode, like every `world_*` command (decision astromech-unh9: the
 //! window's origin is refused):
 //!
 //! - `world_observed {since?}`: `{observed: [...], next}`, the observations from `seq` `since`
@@ -68,7 +137,13 @@
 //!   field of `match` (`{"kind": "edit"}`), waiting for it if there is none yet. The observation
 //!   itself wakes the wait; if none arrives within [`WAIT_GUARD`], the call fails.
 
-use crate::app::{self, Assembled, Boundaries, Opener};
+mod script;
+pub mod settle;
+mod steps;
+
+pub use settle::Settle;
+
+use crate::app::{self, Assembled, Boundaries, Core, Opener};
 use crate::logging::log;
 use anyhow::{Context, Result};
 use astromech_api::{Exposure, Recover, Registry};
@@ -215,20 +290,42 @@ pub struct World {
     /// The running processes' exe names the game watch sees.
     processes: Arc<Mutex<Vec<String>>>,
     secrets: Vec<(String, String)>,
-    /// The core's clock: time moves only when the script advances it (astromech-i1ev).
+    /// The core's clock: time moves only when the script advances it.
     clock: Arc<ManualClock>,
+    /// What the core publishes for the steps to settle on.
+    settle: Arc<Settle>,
+    /// `world.jsonl`'s steps, run by `world_step`.
+    steps: Arc<Mutex<steps::Steps>>,
 }
 
 impl World {
     /// Copy the world in `src` to a fresh temp directory, and point its config's folders there.
     pub fn load(src: &Path) -> Result<Self> {
         anyhow::ensure!(src.is_dir(), "no world folder at {}", src.display());
+        let script = match std::fs::read_to_string(src.join(script::FILE)) {
+            Ok(t) => Some(script::Script::parse(&t, src)?),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => None,
+            Err(e) => return Err(e).context("reading world.jsonl"),
+        };
         let dir =
             tempfile::Builder::new().prefix("astromech-world-").tempdir().context("making the world's temp folder")?;
-        // It starts at the real time, so the world's seed files are as old as they are on disk.
+        // At the header's start; with no steps, at the real time, so the world's seed files are
+        // as old as they are on disk.
         #[allow(clippy::disallowed_methods)]
-        let clock = Arc::new(ManualClock::new(std::time::SystemTime::now()));
-        let w = Self { dir, observed: Default::default(), processes: Default::default(), secrets: vec![], clock };
+        let start = script.as_ref().map_or_else(std::time::SystemTime::now, |s| s.start);
+        let clock = Arc::new(ManualClock::new(start));
+        let (processes, settle) = (Arc::<Mutex<Vec<String>>>::default(), Arc::<Settle>::default());
+        let game_dir = dir.path().join("world").join("game");
+        let steps = steps::Steps::new(script, game_dir, clock.clone(), processes.clone(), settle.clone());
+        let w = Self {
+            dir,
+            observed: Default::default(),
+            processes,
+            secrets: vec![],
+            clock,
+            settle,
+            steps: Arc::new(Mutex::new(steps)),
+        };
         copy_dir(src, &w.world()).with_context(|| format!("copying the world {}", src.display()))?;
         let secrets = match std::fs::read_to_string(w.world().join("secrets.json")) {
             Ok(t) => serde_json::from_str::<std::collections::BTreeMap<String, String>>(&t)
@@ -312,6 +409,7 @@ impl World {
         );
         let processes = self.processes.clone();
         let (clip, commands) = (o.clone(), o.clone());
+        let (steps, settle) = (self.steps.clone(), self.settle.clone());
         Boundaries {
             paths,
             processes: Arc::new(move || processes.lock().recover().clone()),
@@ -328,8 +426,9 @@ impl World {
                 Ok(())
             }),
             remote: Arc::new(move |_: &Path| remote.clone()),
-            more_commands: Some(Arc::new(move |_, reg| register(&commands, reg))),
+            more_commands: Some(Arc::new(move |core, reg| register(&commands, &steps, &settle, core, reg))),
             clock: self.clock.clone(),
+            settle: Some(self.settle.clone()),
         }
     }
 }
@@ -362,8 +461,43 @@ struct WaitFor {
     since: usize,
 }
 
-/// `world_observed` and `world_wait`, both `local`.
-fn register(observed: &Arc<Observed>, reg: &mut Registry) {
+#[derive(Deserialize, TS)]
+struct StepTo {
+    #[serde(default)]
+    to: Option<String>,
+}
+
+#[derive(Deserialize, TS)]
+struct Hold {
+    hold: bool,
+}
+
+/// The world's commands, all `local`.
+fn register(
+    observed: &Arc<Observed>,
+    steps: &Arc<Mutex<steps::Steps>>,
+    settle: &Arc<Settle>,
+    core: &Arc<Core>,
+    reg: &mut Registry,
+) {
+    let (s, c) = (steps.clone(), core.clone());
+    reg.add_typed("world_step", Exposure::Local, move |a: Option<StepTo>, _| {
+        s.lock().recover().run(a.and_then(|a| a.to).as_deref(), &c)
+    });
+    let c = core.clone();
+    reg.add_typed("world_game", Exposure::Local, move |_: (), _| {
+        let state = c.session.lock().recover().as_ref().map(|s| s.hub.snapshot());
+        serde_json::to_value(state).map_err(|e| e.to_string())
+    });
+    let s = settle.clone();
+    reg.add_typed("world_gate", Exposure::Local, move |a: Hold, call| {
+        if !a.hold {
+            s.gate.release();
+            return Ok("released");
+        }
+        s.gate.hold(WAIT_GUARD, || call.progress(json!("held")))?;
+        Ok("reached")
+    });
     let o = observed.clone();
     reg.add_typed("world_observed", Exposure::Local, move |a: Option<Since>, _| {
         let (observed, next) = o.since(a.map_or(0, |a| a.since));
@@ -410,7 +544,9 @@ fn serve(src: &Path, session: crate::session::Opts) -> Result<()> {
     app::headless(&ui);
     log("world mode: quitting");
     // Stop what writes into the temp folder before removing it: the session (and its threads)
-    // and the history follower, whose first open of its database may still be running.
+    // and the history follower, whose first open of its database may still be running. The
+    // control API still answers meanwhile; a `set_folders` after the stop starts no follower
+    // (finding astromech-8t2s).
     core.deactivate("quit");
     core.history.stop();
     drop(started);
@@ -514,6 +650,23 @@ mod tests {
         drop(b);
         drop(w);
         assert!(!root.exists(), "the temp folder goes with the world");
+    }
+
+    #[test]
+    fn the_clock_starts_at_the_headers_time_and_a_bad_step_fails_the_load() {
+        use astromech_proto::Clock;
+        let src = tempfile::tempdir().unwrap();
+        std::fs::write(src.path().join("world.jsonl"), "{\"start\": \"2026-11-07T12:00:00Z\"}\n{\"mark\": \"a\"}\n")
+            .unwrap();
+        let w = World::load(src.path()).unwrap();
+        assert_eq!(w.clock().now_s(), 1_794_052_800, "2026-11-07T12:00:00Z");
+        std::fs::write(
+            src.path().join("world.jsonl"),
+            "{\"start\": \"2026-11-07T12:00:00Z\"}\n{\"focus\": \"Elite\"}\n",
+        )
+        .unwrap();
+        let e = format!("{:#}", World::load(src.path()).err().unwrap());
+        assert_eq!(e, "world.jsonl line 2: the step kind `focus` is not supported yet (astromech-1hh9)");
     }
 
     #[test]

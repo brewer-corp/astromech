@@ -248,9 +248,11 @@ browser, so never add one.
 **The core in a world.** A Rust test that needs the whole core starts it headless in a world:
 `astromech-core --world <dir>` copies the world directory to a temp folder, runs the real core
 there with fakes for the processes, opener, clipboard, notifications, Start with Windows and
-secrets, and prints its control port and token on stdout. The format and the `world_observed`
-and `world_wait` commands are in `crates/astromech-core/src/world.rs`; the worlds are in
-`worlds/`. `crates/astromech-core/tests/support/` starts one (`WorldCore`) and calls it over the
+secrets, and prints its control port and token on stdout. A world's `world.jsonl` moves the
+game step by step (journal lines, companion files, Elite starting and exiting, the clock), and
+`world_step` returns once the core has consumed each step, so a world test needs no sleeps. The
+format, the settle rules and the `world_*` commands are in the [world module's doc
+comment](crates/astromech-core/src/world.rs); the worlds are in `worlds/`. `crates/astromech-core/tests/support/` starts one (`WorldCore`) and calls it over the
 control API. Each world core is its own process, because the core keeps process-wide state. The
 helper points every home variable (`HOME`, the `XDG_*` folders, `LOCALAPPDATA`, `APPDATA`,
 `USERPROFILE`) at an empty folder that `quit()` checks is still empty, and holds the core's

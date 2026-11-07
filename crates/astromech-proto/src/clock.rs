@@ -177,6 +177,26 @@ impl dyn Clock {
         cv.notify_all();
     }
 
+    /// Under the manual clock, block until every registered thread but the caller is parked in
+    /// a clock wait or gone, or `guard` (real time) has passed: false then. True at once on a
+    /// real clock. For a registered thread a world holds still while the rest settles.
+    pub fn wait_others_parked(&self, guard: Duration) -> bool {
+        let Some(man) = self.manual() else { return true };
+        let me = CURRENT.with(|c| c.get()).filter(|(clock, _)| *clock == man.id).map(|(_, r)| r);
+        let deadline = Instant::now() + guard;
+        let mut s = man.lock();
+        loop {
+            if !s.regs.iter().any(|(r, parked)| !parked && Some(*r) != me) {
+                return true;
+            }
+            let left = deadline.saturating_duration_since(Instant::now());
+            if left.is_zero() {
+                return false;
+            }
+            s = man.settled.wait_timeout(s, left).unwrap_or_else(|e| e.into_inner()).0;
+        }
+    }
+
     /// Spawn `f` on a thread registered with this clock: the registration is taken here, on
     /// the parent, and entered first thing on the child.
     pub fn spawn<F, R>(&self, builder: std::thread::Builder, f: F) -> std::io::Result<std::thread::JoinHandle<R>>
@@ -716,6 +736,37 @@ mod tests {
             *m.0.waiting.lock().unwrap() = None;
             let _ = s.send(Seen::AdvanceReturned);
         })
+    }
+
+    /// A registered thread waits for the others: it returns once the busy one parks, and not
+    /// before (the busy one is held at a gate the test opens).
+    #[test]
+    fn a_thread_waits_until_the_others_are_parked() {
+        let (m, c) = manual();
+        let (gate_tx, gate) = channel::<()>();
+        let c2 = c.clone();
+        let busy = c
+            .spawn(std::thread::Builder::new(), move || {
+                let _ = gate.recv();
+                c2.sleep(S);
+            })
+            .unwrap();
+        let (done_tx, done) = channel();
+        let c3 = c.clone();
+        let waiter = c
+            .spawn(std::thread::Builder::new(), move || {
+                done_tx.send(c3.wait_others_parked(Duration::from_secs(600))).unwrap();
+            })
+            .unwrap();
+        assert!(!c.wait_others_parked(Duration::ZERO), "an unregistered caller counts everyone");
+        assert!(done.try_recv().is_err(), "returned while the other was busy");
+        gate_tx.send(()).unwrap();
+        assert!(done.recv().unwrap());
+        waiter.join().unwrap();
+        m.advance(S);
+        busy.join().unwrap();
+        let system: Arc<dyn Clock> = Arc::new(SystemClock);
+        assert!(system.wait_others_parked(Duration::ZERO));
     }
 
     /// The race: a registered thread loops on `sleep(1s)`, says it woke, then waits on a gate

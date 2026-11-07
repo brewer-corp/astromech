@@ -128,7 +128,9 @@ impl Session {
     /// star map serve the voice lookups too, so they share one rate limit and cache with the
     /// window's. `paths` places the folders the config doesn't name, and `notifier` shows the
     /// callouts' notifications (one at a time, behind [`callouts::Background`]). Its timers
-    /// read and wait on `clock`, and its threads are registered with it.
+    /// read and wait on `clock`, and its threads are registered with it. `files`: a world's file
+    /// generations, which the pipeline publishes (None in the installed app).
+    #[allow(clippy::too_many_arguments)]
     pub fn start(
         cfg: &Config,
         paths: &Paths,
@@ -137,6 +139,7 @@ impl Session {
         api: &astromech_api::State,
         notifier: Arc<dyn callouts::Notifier>,
         clock: Arc<dyn astromech_proto::Clock>,
+        files: Option<Arc<crate::world::settle::FileGens>>,
     ) -> Result<Session> {
         let args = opts;
         let data = cfg.data_dir(paths);
@@ -214,6 +217,7 @@ impl Session {
             eddn,
             crate::pipeline::edsm_uploader(&data, clock.clone()),
             Some(Callouts { engine, deliver }),
+            files,
         )
         .with_context(|| format!("journal folder {}", jdir.display()))?;
         let g = hub.snapshot();

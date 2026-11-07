@@ -206,7 +206,9 @@ pub fn watch(
     let (tx, rx) = clock.channel::<notify::Result<notify::Event>>();
     let wake = tx.clone();
     let mut w = notify::recommended_watcher(move |e| {
-        let _ = tx.send(e);
+        if crate::pipeline::may_change(&e) {
+            let _ = tx.send(e);
+        }
     })
     .context("creating Bindings watcher")?;
     w.watch(&bindings_dir, RecursiveMode::Recursive).with_context(|| format!("watching {}", bindings_dir.display()))?;

@@ -107,7 +107,7 @@ impl Follower {
         let tx = poke.clone();
         let watcher = if timing.notify {
             notify::recommended_watcher(move |e: notify::Result<notify::Event>| {
-                if e.is_ok() {
+                if e.is_ok() && crate::pipeline::may_change(&e) {
                     let _ = tx.send(());
                 }
             })
@@ -286,6 +286,8 @@ struct Followed {
     current: Option<(PathBuf, PathBuf, Follower)>,
     /// The thread of a follower stopped with no folder to follow next, still finishing.
     ending: Option<JoinHandle<()>>,
+    /// [`Following::stop`] ran: nothing is followed again.
+    stopped: bool,
 }
 
 impl Default for Following {
@@ -301,10 +303,14 @@ impl Following {
 
     /// Import `dir`'s journals into `history.sqlite` in `data_dir` and keep following them (`None`:
     /// stop). Nothing changes when that is already what happens. Returns at once: a replacement
-    /// waits on its own thread for the old follower's to end.
+    /// waits on its own thread for the old follower's to end. After [`Following::stop`] it does
+    /// nothing.
     pub fn follow(&self, dir: Option<PathBuf>, data_dir: &Path, log: Log) {
         let want = dir.map(|d| (d, data_dir.join(DB_FILE)));
         let mut s = self.state.lock().recover();
+        if s.stopped {
+            return;
+        }
         if s.current.as_ref().map(|(d, db, _)| (d, db)) == want.as_ref().map(|(d, db)| (d, db)) {
             return;
         }
@@ -324,11 +330,13 @@ impl Following {
     }
 
     /// Stop following, and wait until the follower's thread, and one it replaced that is still
-    /// finishing, have ended: after this the history database is no longer written. A running
-    /// import finishes first ([`Follower::stop`]).
+    /// finishing, have ended: after this the history database is no longer written, and a later
+    /// [`Following::follow`] (a `set_folders` the control API still serves) starts nothing. A
+    /// running import finishes first ([`Follower::stop`]).
     pub fn stop(&self) {
         let (current, ending) = {
             let mut s = self.state.lock().recover();
+            s.stopped = true;
             (s.current.take(), s.ending.take())
         };
         for t in current.and_then(|(_, _, f)| f.stop()).into_iter().chain(ending) {
@@ -411,6 +419,22 @@ pub(crate) mod tests {
     /// opens as stop is called. The thread's channel is dropped only when it ends, so a send on
     /// it after stop must fail. A stop that only signals returns while the thread still runs;
     /// repeated, so that one is caught however the threads are scheduled.
+    /// World mode's quit stops the follower while its control API still answers, then removes
+    /// the folders (finding astromech-8t2s): a `set_folders` landing in between must not start
+    /// a follower again.
+    #[test]
+    fn nothing_is_followed_after_stop() {
+        let j = journal_dir();
+        let data = tempfile::tempdir().unwrap();
+        let f = Following::new(fast(false), Arc::new(SystemClock));
+        f.follow(Some(j.path().to_path_buf()), data.path(), quiet());
+        f.stop();
+        let other = tempfile::tempdir().unwrap();
+        f.follow(Some(j.path().to_path_buf()), other.path(), quiet());
+        assert!(f.status().is_none(), "a follow after stop started a follower");
+        assert!(!other.path().join(DB_FILE).exists());
+    }
+
     #[test]
     fn stop_returns_once_the_followers_thread_has_ended() {
         let j = journal_dir();

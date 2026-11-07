@@ -555,6 +555,7 @@ fn catch_up_section(h: &Harness, full: &GameState, o: &mut Out) {
         Some(feed),
         Some(edsm),
         Some(callouts),
+        None,
     )
     .unwrap();
     let took = t.elapsed();

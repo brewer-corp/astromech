@@ -378,6 +378,7 @@ fn run_console(args: Args) -> Result<()> {
         &api,
         astromech_core::callouts::platform_notifier(),
         std::sync::Arc::new(astromech_proto::SystemClock),
+        None,
     )?;
     log(&s.voice);
 

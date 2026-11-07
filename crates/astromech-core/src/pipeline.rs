@@ -58,6 +58,7 @@
 
 use crate::callouts::Callouts;
 use crate::hub::StateHub;
+use crate::world::settle::{FileGens, Watching};
 use anyhow::{Context, Result};
 use astromech_api::Recover;
 use astromech_eddn::worker::wall_now;
@@ -178,6 +179,33 @@ const RECENT_SECS: i64 = 24 * 3600;
 /// How often an idle pipeline looks for a new journal file.
 const SCAN_EVERY: Duration = Duration::from_secs(1);
 
+/// What the pipeline does with a file in the journal folder when it is told of a change.
+enum Watched {
+    /// Status.json, Cargo.json or NavRoute.json: read with the status.
+    Status,
+    /// A companion file an event announces.
+    Companion(CompanionKind),
+    Journal,
+}
+
+/// How the pipeline handles a change to the file `name` in the journal folder; None: it ignores
+/// it.
+fn watched(name: &str) -> Option<Watched> {
+    if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
+        Some(Watched::Status)
+    } else if let Some(k) = CompanionKind::from_file_name(name) {
+        Some(Watched::Companion(k))
+    } else {
+        is_journal(Path::new(name)).then_some(Watched::Journal)
+    }
+}
+
+/// Whether a change to the file `name` in the journal folder is handled (a world's file step
+/// waits for it only then).
+pub fn watches(name: &str) -> bool {
+    watched(name).is_some()
+}
+
 fn is_journal(p: &Path) -> bool {
     p.file_name()
         .map(|n| {
@@ -200,6 +228,17 @@ fn eddn_file(f: &CompanionFile) -> Option<(&'static str, &str)> {
 
 /// A file notification.
 type Event = notify::Result<notify::Event>;
+
+/// Whether a notification may be a change: not a file merely opened, or closed unwritten. Linux
+/// reports those (notify asks inotify for opens), and the watchers' own reads would wake them
+/// again for ever; Windows never does, so there every notification passes.
+pub(crate) fn may_change(e: &Event) -> bool {
+    use notify::event::{AccessKind, AccessMode, EventKind};
+    !matches!(
+        e,
+        Ok(notify::Event { kind: EventKind::Access(AccessKind::Open(_) | AccessKind::Close(AccessMode::Read)), .. })
+    )
+}
 
 /// Counters for logs and tests.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
@@ -225,6 +264,9 @@ pub struct Pipeline {
     wake: ClockSender<Event>,
     thread: Option<std::thread::JoinHandle<()>>,
     pub stats: Arc<std::sync::Mutex<Stats>>,
+    /// A world's: this pipeline watches its game folder until the thread has ended (dropped
+    /// after `drop`'s join, being the last field).
+    _watching: Option<Watching>,
 }
 
 impl Drop for Pipeline {
@@ -934,7 +976,12 @@ impl Tailer {
 }
 
 /// The pipeline thread: react to file notifications, and read the journal when none arrive.
-fn spawn_loop(mut t: Tailer, rx: ClockReceiver<Event>, stop2: Arc<AtomicBool>) -> Result<std::thread::JoinHandle<()>> {
+fn spawn_loop(
+    mut t: Tailer,
+    rx: ClockReceiver<Event>,
+    stop2: Arc<AtomicBool>,
+    files: Option<Arc<FileGens>>,
+) -> Result<std::thread::JoinHandle<()>> {
     let clock = t.clock.clone();
     clock
         .spawn(std::thread::Builder::new().name("pipeline".into()), move || {
@@ -957,18 +1004,26 @@ fn spawn_loop(mut t: Tailer, rx: ClockReceiver<Event>, stop2: Arc<AtomicBool>) -
                 let mut journal = false;
                 let mut companions: Vec<CompanionKind> = vec![];
                 let mut nav_route = false;
+                // The files handled, for a world's settle (none in the installed app).
+                let mut names: Vec<String> = vec![];
                 let mut classify = |paths: &[PathBuf]| {
                     for p in paths {
                         let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
-                        if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
-                            status = true;
-                            nav_route |= name == "NavRoute.json";
-                        } else if let Some(k) = CompanionKind::from_file_name(&name) {
-                            if !companions.contains(&k) {
-                                companions.push(k);
+                        match watched(&name) {
+                            Some(Watched::Status) => {
+                                status = true;
+                                nav_route |= name == "NavRoute.json";
                             }
-                        } else if is_journal(p) {
-                            journal = true;
+                            Some(Watched::Companion(k)) => {
+                                if !companions.contains(&k) {
+                                    companions.push(k);
+                                }
+                            }
+                            Some(Watched::Journal) => journal = true,
+                            None => continue,
+                        }
+                        if files.is_some() && !names.contains(&name) {
+                            names.push(name);
                         }
                     }
                 };
@@ -980,6 +1035,8 @@ fn spawn_loop(mut t: Tailer, rx: ClockReceiver<Event>, stop2: Arc<AtomicBool>) -
                         break;
                     }
                 }
+                // Read before the files are, so a write landing meanwhile isn't counted as read.
+                let seen = files.as_ref().map(|f| f.seen(&names)).unwrap_or_default();
                 if status {
                     t.on_status();
                 }
@@ -991,6 +1048,9 @@ fn spawn_loop(mut t: Tailer, rx: ClockReceiver<Event>, stop2: Arc<AtomicBool>) -
                 }
                 if nav_route {
                     t.eddn_nav_route();
+                }
+                if let Some(f) = &files {
+                    f.handled(seen);
                 }
             }
             t.flush_eddn();
@@ -1007,7 +1067,7 @@ pub fn start(
     log: impl Fn(&str) + Send + 'static,
     callouts: Option<Callouts>,
 ) -> Result<Pipeline> {
-    start_with_eddn(dir, hub, db, log, None, None, callouts)
+    start_with_eddn(dir, hub, db, log, None, None, callouts, None)
 }
 
 /// The user's EDDN switch (`[eddn] enabled`, Settings → Data sharing), read by the feed on every
@@ -1075,7 +1135,9 @@ pub fn edsm_uploader(data_dir: &Path, clock: Arc<dyn Clock>) -> Option<astromech
     }
 }
 
-/// [`start`], also feeding EDDN and EDSM.
+/// [`start`], also feeding EDDN and EDSM. `files`: a world's file generations, published for
+/// each file handled ([`FileGens`]); None in the installed app.
+#[allow(clippy::too_many_arguments)]
 pub fn start_with_eddn(
     dir: &Path,
     hub: Arc<StateHub>,
@@ -1084,12 +1146,15 @@ pub fn start_with_eddn(
     eddn: Option<astromech_eddn::Feed>,
     edsm: Option<astromech_eddn::edsm::Uploader>,
     callouts: Option<Callouts>,
+    files: Option<Arc<FileGens>>,
 ) -> Result<Pipeline> {
     let clock = hub.clock().clone();
     let (tx, rx) = clock.channel::<Event>();
     let wake = tx.clone();
     let mut watcher = notify::recommended_watcher(move |e: Event| {
-        let _ = tx.send(e);
+        if may_change(&e) {
+            let _ = tx.send(e);
+        }
     })
     .context("creating file watcher")?;
     watcher.watch(dir, RecursiveMode::NonRecursive).with_context(|| format!("watching {}", dir.display()))?;
@@ -1132,10 +1197,19 @@ pub fn start_with_eddn(
         not_written: Default::default(),
         header_check: local_header_check(),
     };
+    // The catch-up reads every file: what was written before it is handled.
+    let watching = files.as_ref().map(|f| (f.watch(), f.seen_all()));
     t.catch_up();
+    let watching = match (&files, watching) {
+        (Some(f), Some((w, seen))) => {
+            f.handled(seen);
+            Some(w)
+        }
+        _ => None,
+    };
     let stop = Arc::new(AtomicBool::new(false));
-    let thread = spawn_loop(t, rx, stop.clone())?;
-    Ok(Pipeline { _watcher: watcher, stop, wake, thread: Some(thread), stats })
+    let thread = spawn_loop(t, rx, stop.clone(), files)?;
+    Ok(Pipeline { _watcher: watcher, stop, wake, thread: Some(thread), stats, _watching: watching })
 }
 
 #[cfg(test)]
@@ -1302,6 +1376,84 @@ mod tests {
         assert!(dropped.is_ok(), "the pipeline's drop waited for the clock");
     }
 
+    /// A world's file generations: the catch-up publishes what was written before it, and the
+    /// loop publishes each file it is told of once it has handled it, parsed or not. A file it
+    /// ignores is never published (the world doesn't wait for it). The events here are sent by
+    /// the test; the real watcher sends its own too, which only publish again. While the loop
+    /// is held inside its handling of a write (in the callouts' delivery, which every Status.json
+    /// read reaches), that write isn't published yet.
+    #[test]
+    fn the_pipeline_publishes_the_generation_it_handled() {
+        let (_manual, clock) = evening();
+        let d = tempfile::tempdir().unwrap();
+        let files = Arc::new(FileGens::default());
+        let status = d.path().join("Status.json");
+        let write = |text: &'static str| files.write("Status.json", || std::fs::write(&status, text)).unwrap();
+        let g1 = write(r#"{"timestamp":"t","event":"Status","Flags":4}"#);
+        let hub = Arc::new(StateHub::with_clock(clock));
+        let hold = Arc::new(AtomicBool::new(false));
+        let (entered_tx, entered) = std::sync::mpsc::channel();
+        let (go_tx, go) = std::sync::mpsc::channel::<()>();
+        let h = hold.clone();
+        let callouts = Callouts {
+            engine: astromech_announce::Engine::new(vec![], &Default::default()),
+            deliver: Box::new(move |_| {
+                if h.load(Ordering::SeqCst) {
+                    entered_tx.send(()).unwrap();
+                    go.recv().unwrap();
+                }
+            }),
+        };
+        let pipe =
+            start_with_eddn(d.path(), hub.clone(), None, |_| {}, None, None, Some(callouts), Some(files.clone()))
+                .unwrap();
+        files.wait("Status.json", g1, Duration::ZERO).expect("the catch-up handled it");
+        assert_eq!(hub.snapshot().status_flags, 4);
+        let tell = |name: &str| {
+            let e = notify::Event::new(notify::EventKind::Any).add_path(d.path().join(name));
+            pipe.wake.send(Ok(e)).unwrap();
+        };
+        hold.store(true, Ordering::SeqCst);
+        let g2 = write(r#"{"timestamp":"t","event":"Status","Flags":8}"#);
+        tell("Status.json");
+        entered.recv().unwrap();
+        let early = files.wait("Status.json", g2, Duration::ZERO).is_ok();
+        // Let it go before asserting: a failed test must not leave the loop held.
+        hold.store(false, Ordering::SeqCst);
+        go_tx.send(()).unwrap();
+        assert!(!early, "published before it was handled");
+        files.wait("Status.json", g2, Duration::from_secs(30)).unwrap();
+        assert_eq!(hub.snapshot().status_flags, 8);
+        let g3 = write(r#"{"timestamp":"t","event":"Sta"#);
+        tell("Status.json");
+        files.wait("Status.json", g3, Duration::from_secs(30)).expect("a file that doesn't parse is handled too");
+        assert_eq!(hub.snapshot().status_flags, 8);
+        let ignored = files.write("notes.txt", || Ok(())).unwrap();
+        tell("notes.txt");
+        let g4 = write(r#"{"timestamp":"t","event":"Status","Flags":16}"#);
+        tell("Status.json");
+        files.wait("Status.json", g4, Duration::from_secs(30)).unwrap();
+        assert!(files.wait("notes.txt", ignored, Duration::ZERO).is_err(), "an ignored file isn't published");
+        assert!(!watches("notes.txt") && watches("Status.json") && watches("Market.json"));
+        assert!(watches("Journal.2026-10-16T195000.01.log"));
+        drop(pipe);
+        files.wait("notes.txt", ignored, Duration::ZERO).expect("with no pipeline watching, nothing is waited for");
+    }
+
+    /// Opening a file, or closing it unwritten, isn't a change (Linux reports both; the
+    /// watchers' own reads would wake them for ever). A close after writing is.
+    #[test]
+    fn a_read_is_not_a_change() {
+        use notify::event::{AccessKind, AccessMode, EventKind, ModifyKind};
+        let e = |k| Ok(notify::Event::new(k));
+        assert!(!may_change(&e(EventKind::Access(AccessKind::Open(AccessMode::Any)))));
+        assert!(!may_change(&e(EventKind::Access(AccessKind::Close(AccessMode::Read)))));
+        assert!(may_change(&e(EventKind::Access(AccessKind::Close(AccessMode::Write)))));
+        assert!(may_change(&e(EventKind::Modify(ModifyKind::Any))));
+        assert!(may_change(&e(EventKind::Any)));
+        assert!(may_change(&Err(notify::Error::generic("lost"))));
+    }
+
     #[test]
     fn callouts_are_silent_for_the_startup_catch_up_and_live_after_it() {
         let d = tempfile::tempdir().unwrap();
@@ -1443,7 +1595,7 @@ mod tests {
         t.catch_up();
         let (_silent_watcher, rx) = t.clock.channel();
         let stop = Arc::new(AtomicBool::new(false));
-        let thread = spawn_loop(t, rx, stop.clone()).unwrap();
+        let thread = spawn_loop(t, rx, stop.clone(), None).unwrap();
         append(
             &j,
             r#"{"timestamp":"2026-10-16T11:30:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":8.5}"#,
@@ -1479,7 +1631,7 @@ mod tests {
             }
         });
         let stop = Arc::new(AtomicBool::new(false));
-        let thread = spawn_loop(t, rx, stop.clone()).unwrap();
+        let thread = spawn_loop(t, rx, stop.clone(), None).unwrap();
         append(
             &j,
             r#"{"timestamp":"2026-10-16T11:30:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":8.5}"#,

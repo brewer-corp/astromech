@@ -127,6 +127,10 @@ pub struct Boundaries {
     /// The time and the behaviour timers' waits (`astromech_proto::clock`): the system's for the
     /// installed app, a manual clock in a world. `remote` runs on the same one.
     pub clock: Arc<dyn Clock>,
+    /// What a world waits on to know the core has consumed a step ([`crate::world::Settle`]):
+    /// the pipeline's file generations, the session events and the game watch's gate. None for
+    /// the installed app.
+    pub settle: Option<Arc<crate::world::Settle>>,
 }
 
 impl Boundaries {
@@ -146,6 +150,7 @@ impl Boundaries {
             window: Arc::new(move |route: Option<&str>| open_shell(&exe_dir, route)),
             more_commands: None,
             clock: Arc::new(SystemClock),
+            settle: None,
         }
     }
 }
@@ -234,6 +239,8 @@ pub struct Core {
     pub api: Arc<astromech_api::State>,
     /// [`Boundaries::clock`].
     pub clock: Arc<dyn Clock>,
+    /// [`Boundaries::settle`].
+    pub settle: Option<Arc<crate::world::Settle>>,
 }
 
 /// The command layer's state over `core`'s live config: its folders are read on every call,
@@ -481,7 +488,19 @@ impl Core {
         self.notify();
     }
 
+    /// Start a session (the game watch's thread for it). A world is told when it has ended,
+    /// whether the session started, failed or was already there.
     fn activate(self: &Arc<Self>, why: &str) {
+        if let Some(s) = &self.settle {
+            s.sessions.started();
+        }
+        self.start_session(why);
+        if let Some(s) = &self.settle {
+            s.sessions.ended();
+        }
+    }
+
+    fn start_session(self: &Arc<Self>, why: &str) {
         if self.active() || self.starting.swap(true, Ordering::SeqCst) {
             return;
         }
@@ -500,6 +519,7 @@ impl Core {
             &self.api,
             self.notifier.clone(),
             self.clock.clone(),
+            self.settle.as_ref().map(|s| s.files.clone()),
         )
         .and_then(|mut s| {
             s.start_buttons(&cfg, &self.paths, &self.opts.session)?;
@@ -1569,6 +1589,11 @@ fn watch_game(core: Arc<Core>) {
     let jdir = core.cfg().journal_dir(&core.paths);
     let mut journal_seen = jdir.as_deref().and_then(gamewatch::newest_journal).map(|(_, t)| t);
     loop {
+        // A world can hold the watch here (`world_gate`), before it looks at the processes,
+        // once the rest of the core is parked on the clock.
+        if let Some(s) = &core.settle {
+            s.gate.pass(crate::world::WAIT_GUARD, |g| core.clock.wait_others_parked(g));
+        }
         let names = (core.processes)();
         let change = w.poll(&names);
         *core.game.lock().recover() = w.game;
@@ -1720,6 +1745,7 @@ pub(crate) fn assemble_with(
         more_commands: b.more_commands,
         route,
         clock: b.clock,
+        settle: b.settle,
     });
     Assembled { core, ui: ui_rx }
 }
@@ -1953,6 +1979,7 @@ mod tests {
             window: Arc::new(|_: Option<&str>| Err("no app window in this test".into())),
             more_commands: None,
             clock: Arc::new(SystemClock),
+            settle: None,
         }
     }
 
