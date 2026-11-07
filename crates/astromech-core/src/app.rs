@@ -93,6 +93,8 @@ pub type ProcessList = Arc<dyn Fn() -> Vec<String> + Send + Sync>;
 pub type Clipboard = Arc<dyn Fn(&str) -> Result<(), String> + Send + Sync>;
 /// Makes the process's one remote-data client, its cache in the data folder it is given.
 pub type RemoteClient = Arc<dyn Fn(&Path) -> Arc<astromech_data::Client> + Send + Sync>;
+/// Registers a mode's own commands beside the core's ([`Core::commands`]).
+pub type MoreCommands = Arc<dyn Fn(&Arc<Core>, &mut Registry) + Send + Sync>;
 
 /// What the core reaches outside the process through, given to [`assemble`]: the installed app
 /// passes [`Boundaries::real`], and tests and world mode pass their own.
@@ -114,6 +116,9 @@ pub struct Boundaries {
     pub autostart: Arc<dyn crate::autostart::Autostart>,
     /// The remote-data client for the data folder the config names.
     pub remote: RemoteClient,
+    /// Commands only this mode has: world mode's `world_*` ([`crate::world`]). None for the
+    /// installed app.
+    pub more_commands: Option<MoreCommands>,
 }
 
 impl Boundaries {
@@ -129,6 +134,7 @@ impl Boundaries {
             secrets: Arc::new(astromech_store::secrets::OsKeyring::new()),
             autostart: Arc::new(crate::autostart::RunKey),
             remote: Arc::new(remote_client),
+            more_commands: None,
         }
     }
 }
@@ -208,6 +214,7 @@ pub struct Core {
     pub opener: Arc<dyn Opener>,
     pub notifier: Arc<dyn crate::callouts::Notifier>,
     pub autostart: Arc<dyn crate::autostart::Autostart>,
+    more_commands: Option<MoreCommands>,
     /// The route being followed (docs/PLOTTING.md). The core owns it, not a session, so the
     /// window can set one while Elite isn't running.
     pub route: Arc<crate::route::Desk>,
@@ -501,7 +508,7 @@ impl Core {
         self.notify();
     }
 
-    fn deactivate(&self, why: &str) {
+    pub(crate) fn deactivate(&self, why: &str) {
         if !self.starting.load(Ordering::SeqCst) {
             *self.voice.lock().recover() = "voice not loaded".into();
         }
@@ -1132,6 +1139,9 @@ impl Core {
                 }
             }
         });
+        if let Some(more) = &self.more_commands {
+            more(self, &mut reg);
+        }
         reg
     }
 
@@ -1577,7 +1587,7 @@ pub struct Assembled {
     pub ui: Receiver<Ui>,
 }
 
-/// Build the core on `b`: load the config (`opts.config`, else the paths' config file), set
+/// Build the core on `b`: load the config (`opts.config`, else the paths' config file), then
 /// make the core with its route follower, its command layer and its remote-data client. Starts
 /// no thread and sets no process-wide switch; [`start`] does.
 pub fn assemble(opts: &Opts, b: Boundaries) -> Assembled {
@@ -1669,6 +1679,7 @@ pub(crate) fn assemble_with(
         opener,
         notifier: b.notifier,
         autostart: b.autostart,
+        more_commands: b.more_commands,
         route,
     });
     Assembled { core, ui: ui_rx }
@@ -1819,7 +1830,8 @@ fn ui_loop(_core: Arc<Core>, rx: Receiver<Ui>) -> i32 {
     headless(&rx)
 }
 
-fn headless(rx: &Receiver<Ui>) -> i32 {
+/// Wait for `quit` on the UI thread's messages.
+pub(crate) fn headless(rx: &Receiver<Ui>) -> i32 {
     while let Ok(m) = rx.recv() {
         if m == Ui::Quit {
             break;
@@ -1898,6 +1910,7 @@ mod tests {
             secrets: Arc::new(astromech_store::secrets::MemorySecrets::default()),
             autostart: Arc::new(NoAutostart),
             remote: Arc::new(move |_: &Path| remote.clone()),
+            more_commands: None,
         }
     }
 

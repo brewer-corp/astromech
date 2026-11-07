@@ -36,6 +36,20 @@ pub struct Endpoint {
     pub version: String,
 }
 
+/// Where a core's control API answers: its port on 127.0.0.1 and the run's token. World mode
+/// prints it on stdout (`{"control": Contact, "app_dir": …}`), and its callers use [`call_to`].
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Contact {
+    pub port: u16,
+    pub token: String,
+}
+
+impl Endpoint {
+    pub fn contact(&self) -> Contact {
+        Contact { port: self.port, token: self.token.clone() }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Request {
     /// Filled in by [`call`] from `core.json`.
@@ -147,15 +161,25 @@ pub fn read_endpoint(app_dir: &Path) -> Option<Endpoint> {
 /// the connection drops.
 pub fn call(
     app_dir: &Path,
-    mut req: Request,
+    req: Request,
     timeout: Option<Duration>,
     on_progress: &mut dyn FnMut(Value),
 ) -> Result<Value, String> {
     let ep = read_endpoint(app_dir).ok_or("the core is not running")?;
-    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
+    call_to(&ep.contact(), req, timeout, on_progress)
+}
+
+/// [`call`] to the core at `to`, without reading `core.json`.
+pub fn call_to(
+    to: &Contact,
+    mut req: Request,
+    timeout: Option<Duration>,
+    on_progress: &mut dyn FnMut(Value),
+) -> Result<Value, String> {
+    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], to.port));
     let s = TcpStream::connect_timeout(&addr, CONNECT).map_err(|e| format!("connecting to the core: {e}"))?;
     s.set_read_timeout(timeout).map_err(|e| e.to_string())?;
-    req.token = ep.token;
+    req.token = to.token.clone();
     let line = serde_json::to_string(&req).map_err(|e| e.to_string())?;
     (&s).write_all(format!("{line}\n").as_bytes()).map_err(|e| format!("sending to the core: {e}"))?;
     let mut lines = BufReader::new(s).lines();
@@ -195,13 +219,29 @@ pub fn call_window(
     args: Option<Value>,
     on_progress: &mut dyn FnMut(Value),
 ) -> Result<Value, String> {
+    let (req, timeout) = window_request(cmd, args);
+    call(app_dir, req, timeout, on_progress)
+}
+
+/// [`call_window`] to the core at `to`, without reading `core.json`.
+pub fn call_window_to(
+    to: &Contact,
+    cmd: &str,
+    args: Option<Value>,
+    on_progress: &mut dyn FnMut(Value),
+) -> Result<Value, String> {
+    let (req, timeout) = window_request(cmd, args);
+    call_to(to, req, timeout, on_progress)
+}
+
+/// The window's request for `cmd`, and its read timeout ([`call_window`]).
+fn window_request(cmd: &str, args: Option<Value>) -> (Request, Option<Duration>) {
     let (text, args) = match args {
         Some(Value::String(s)) => (Some(s), None),
         a => (None, a),
     };
     let req = Request { args, text, origin: Some(Origin::AppWindow), ..Request::new(cmd) };
-    let timeout = (cmd == "status").then_some(SHORT);
-    call(app_dir, req, timeout, on_progress)
+    (req, (cmd == "status").then_some(SHORT))
 }
 
 #[cfg(test)]

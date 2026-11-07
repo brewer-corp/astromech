@@ -184,8 +184,9 @@ fn cases(d: &Path) -> Vec<Case> {
         Case::not_called("autostart_off", "start with Windows is run against the world core's fake (astromech-gllh)"),
         Case::not_called("open_config", "opening the config is run against the world core's opener (astromech-gllh)"),
         fails("save_diagnostics", None, "os error").short(
-            "the saved zip is revealed in Explorer (xdg-open elsewhere) with no opener seam; called \
-             with a file where its folder goes, so saving fails first",
+            "the saved zip is revealed through the opener, which this test's core doesn't record; \
+             called with a file where its folder goes, so saving fails first, and run for real \
+             against the world core's opener (astromech-gllh)",
         ),
         // Settings.
         ok("callouts", None),

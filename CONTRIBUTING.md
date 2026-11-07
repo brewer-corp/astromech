@@ -23,6 +23,7 @@ app/src-tauri/  astromech-shell, the Tauri v2 window (a workspace member; a stub
 data/           player-visible game data and the device sheets
 docs/           design documents, and the user guide in docs/guide/
 spikes/         spike tools (own code only)
+worlds/         scripted worlds the headless core runs in (`astromech-core --world`)
 scripts/        CI helpers (dependency-rule check); `scripts/ui` drives the Vite shell in headless Chrome
 ```
 
@@ -243,6 +244,14 @@ The preview's own tests (`app/src/preview/`) and the two tests of the app's side
 stale-data and callout announcement tests, and `lib/mining.test.ts`); move one behind `answer`
 when you change it. `vi.mock` of a module the preview imports deadlocks in the
 browser, so never add one.
+
+**The core in a world.** A Rust test that needs the whole core starts it headless in a world:
+`astromech-core --world <dir>` copies the world directory to a temp folder, runs the real core
+there with fakes for the processes, opener, clipboard, notifications, Start with Windows and
+secrets, and prints its control port and token on stdout. The format and the `world_observed`
+and `world_wait` commands are in `crates/astromech-core/src/world.rs`; the worlds are in
+`worlds/`. `crates/astromech-core/tests/support/` starts one (`WorldCore`) and calls it over the
+control API. Each world core is its own process, because the core keeps process-wide state.
 
 ## Releasing
 

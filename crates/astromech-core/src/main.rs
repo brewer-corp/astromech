@@ -1,5 +1,6 @@
-//! astromech-core: the always-running core with the tray icon (default), or the console
-//! preview (`--console`, and the one-shot options such as `--listen` and `--health`).
+//! astromech-core: the always-running core with the tray icon (default), the console
+//! preview (`--console`, and the one-shot options such as `--listen` and `--health`), or world
+//! mode (`--world`, headless against a scripted world).
 
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
@@ -86,6 +87,11 @@ struct Args {
     /// Start astromech-core again after copying (with --route: open the window at that page)
     #[arg(long)]
     relaunch: bool,
+    /// Run headless against the scripted world in this folder (tests and the dev bridge): a temp
+    /// copy, fake processes, opener, clipboard and Start with Windows, no window or tray. Prints
+    /// the control API's port and token on stdout, then runs until `quit`
+    #[arg(long, value_name = "DIR")]
+    world: Option<PathBuf>,
 }
 
 impl Args {
@@ -159,6 +165,9 @@ fn main() {
     }
     if args.quit {
         std::process::exit(quit_running());
+    }
+    if let Some(world) = &args.world {
+        std::process::exit(astromech_core::world::run(world, args.session_opts()));
     }
     if !args.console_mode() {
         let code = astromech_core::app::run(astromech_core::app::Opts {
