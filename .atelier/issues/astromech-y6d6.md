@@ -37,9 +37,8 @@ astromech ships as one Tauri process holding the tray, pipeline, voice, input an
 - [ ] Crash restart works without the shell (Windows restart registration or a minimal watchdog), shown by a test that kills the process.
 - [ ] Installer, updater and Start with Windows move to the one executable; the release build and its smoke run pass.
 - [ ] An existing two-process install upgrades cleanly: the old Start with Windows entry, a tray core already running, the updater (crates/astromech-core/src/update.rs), the single-instance mutex and the log files; shown on Windows CI from an install of the last release.
-- [ ] `scripts/webview_cost.py` and `.github/workflows/webview-cost.yml` measure the one-process criterion (app process idle with no window against today's core alone; the window's rise plus WebView2 processes with it open), and the job passes.
+- [ ] `scripts/webview_cost.py` and `.github/workflows/webview-cost.yml` run against the one-process app and report its memory with the window closed and open, and that no WebView2 process is left with it closed (decision astromech-01ft: reported, not bounded).
 - [ ] ARCHITECTURE.md (§5.10, §18) and docs/V1-DESIGN.md §7.7 describe one process and link astromech-6i8s; docs/guide pages that mention the background process match; `scripts/stage-sidecars.sh`, `externalBin` and the smoke step in .github/workflows/release.yml fit the new layout.
-- [ ] After merge (Sumeet's PC, with Elite running): `scripts/webview_cost.py` shows the one-process criterion's bounds hold next to the game. Stand-in: the webview-cost job on Windows CI.
 
 ## Unknowns
 
