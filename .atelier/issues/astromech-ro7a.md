@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Test: every window command answers over a running core's control API"
-updated_at: "2026-11-07T06:33:38.679175382+00:00"
+updated_at: "2026-11-07T10:55:20.189883749+00:00"
 ---
 
 ## Goal
