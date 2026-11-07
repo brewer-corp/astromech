@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "One core assembly that takes its boundaries (app::assemble with Boundaries)"
-updated_at: "2026-11-07T11:57:01.791744772+00:00"
+updated_at: "2026-11-07T12:31:21.013834409+00:00"
 ---
 
 ## Goal
