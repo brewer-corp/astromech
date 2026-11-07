@@ -68,7 +68,7 @@ fn rig_with(at_sol: bool, transport: Recorded) -> (Assistant, Arc<RecordingSpeak
 }
 
 /// The threads the star map's opens ran on.
-type OpenedOn = Arc<Mutex<Vec<std::thread::ThreadId>>>;
+type OpenedOn = std::sync::mpsc::Receiver<std::thread::ThreadId>;
 
 /// [`rig_with`] whose star map is opened on the first lookup, and fails to open `failures`
 /// times first; each try records the thread it ran on.
@@ -77,7 +77,7 @@ fn rig_opening(
     transport: Recorded,
     failures: usize,
 ) -> (Assistant, Arc<RecordingSpeaker>, Arc<NoKeys>, OpenedOn) {
-    let opened_on = OpenedOn::default();
+    let (opening, opened_on) = std::sync::mpsc::channel();
     let hub = Arc::new(StateHub::new());
     hub.update(|g| {
         g.status_seen = true;
@@ -100,9 +100,9 @@ fn rig_opening(
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
         stars: Arc::new(astromech_api::GalaxyHolder::new({
-            let (client, left, on) = (client.clone(), Mutex::new(failures), opened_on.clone());
+            let (client, left, on) = (client.clone(), Mutex::new(failures), opening);
             move || {
-                on.lock().unwrap().push(std::thread::current().id());
+                let _ = on.send(std::thread::current().id());
                 let mut left = left.lock().unwrap();
                 if *left > 0 {
                     *left -= 1;
@@ -239,7 +239,7 @@ fn a_lookup_while_the_star_map_opens_waits_for_it_off_the_speech_thread() {
     };
     assert_eq!(h.join().unwrap(), ANSWER);
     assert_eq!(speaker.take(), vec!["Looking that up.".to_string(), ANSWER.to_string()]);
-    assert!(!opened_on.lock().unwrap().contains(&std::thread::current().id()), "not opened on the speech thread");
+    assert_ne!(opened_on.recv().unwrap(), std::thread::current().id(), "not opened on the speech thread");
 }
 
 /// A star map whose last open failed: the lookup says lookups are off, and nothing else, as
@@ -251,10 +251,13 @@ fn a_star_map_that_would_not_open_is_tried_again_on_the_next_lookup() {
     assert!(a.runner.stars.get().is_err(), "the session's open failed");
     let s = spoken_alone(&a, &speaker, "nearest crystalline shards");
     assert_eq!(s, astromech_tools::lookup::NO_STAR_MAP);
-    // The open the lookup started again (waited for here) or this one succeeds.
+    let here = std::thread::current().id();
+    assert_eq!(opened_on.recv(), Ok(here), "the session's open (the test's, here)");
+    // The lookup tried the open again, off the speech thread: wait for that try to start.
+    assert_ne!(opened_on.recv().unwrap(), here, "tried again off the speech thread");
+    // Once that open is done the star map is open: this waits for it and opens nothing.
     a.runner.stars.get().unwrap();
-    assert_eq!(opened_on.lock().unwrap().iter().filter(|t| **t == std::thread::current().id()).count(), 2);
-    assert!(opened_on.lock().unwrap().len() <= 3);
+    assert_eq!(opened_on.try_recv(), Err(std::sync::mpsc::TryRecvError::Empty), "opened once more, not twice");
     let Handled::Ran { outcome: Outcome::LookingUp(h), .. } =
         a.handle("nearest crystalline shards", astromech_proto::Origin::Voice)
     else {

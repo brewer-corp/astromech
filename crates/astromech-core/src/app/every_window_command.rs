@@ -10,10 +10,23 @@
 //! the missing seam. Those are the commands not yet run for real, which the scripted world of
 //! astromech-vucf runs.
 
-use super::tests::{core_with_state, offline, CONFIG_EDITS};
+use super::tests::{assembled, boundaries, offline, CONFIG_EDITS};
 use super::*;
 use std::io::{BufRead, BufReader, Write};
 use std::net::TcpListener;
+
+/// Records what `open_external` opens.
+#[derive(Default)]
+struct Opened(Mutex<Vec<String>>);
+
+impl Opener for Opened {
+    fn open(&self, target: &str) -> Result<(), String> {
+        self.0.lock().recover().push(target.to_string());
+        Ok(())
+    }
+    fn reveal(&self, _: &Path) {}
+    fn edit(&self, _: &Path) {}
+}
 
 /// What a command's call must give.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -167,9 +180,9 @@ fn cases(d: &Path) -> Vec<Case> {
             "the speech models download has no transport seam; called while a download is marked \
              running, so it returns first",
         ),
-        Case::not_called("autostart_on", "start with Windows writes the real HKCU Run key, with no registry seam"),
-        Case::not_called("autostart_off", "start with Windows writes the real HKCU Run key, with no registry seam"),
-        Case::not_called("open_config", "it opens the config in Notepad (xdg-open elsewhere), with no opener seam"),
+        Case::not_called("autostart_on", "start with Windows is run against the world core's fake (astromech-gllh)"),
+        Case::not_called("autostart_off", "start with Windows is run against the world core's fake (astromech-gllh)"),
+        Case::not_called("open_config", "opening the config is run against the world core's opener (astromech-gllh)"),
         fails("save_diagnostics", None, "os error").short(
             "the saved zip is revealed in Explorer (xdg-open elsewhere) with no opener seam; called \
              with a file where its folder goes, so saving fails first",
@@ -334,21 +347,15 @@ fn every_window_command_answers_over_the_control_api() {
         d.path().join("models").display(),
         d.path().join("no-worker").display(),
     );
-    let opened = Arc::new(Mutex::new(Vec::<String>::new()));
-    let o = opened.clone();
+    let opened = Arc::new(Opened::default());
     let neutron = unavailable_server();
-    let core = core_with_state(d.path(), &config, offline(), |s| {
-        s.with_opener(move |t| {
-            o.lock().recover().push(t.to_string());
-            Ok(())
-        })
-        .with_devices(Default::default)
-        .with_neutron_url(&neutron)
-    });
+    let b = Boundaries { opener: opened.clone(), ..boundaries(d.path(), offline()) };
+    let core = assembled(d.path(), &config, b, |s| s.with_devices(Default::default).with_neutron_url(&neutron));
     // The state that stops the commands with no seam before their effect.
     core.update.lock().recover().snap.status = UpStatus::Checking;
     *core.models.lock().recover() = Some("downloading speech models…".into());
-    std::fs::write(core.app_dir.join("diagnostics"), "a file where the diagnostics folder goes").unwrap();
+    std::fs::create_dir_all(core.paths.app_dir()).unwrap();
+    std::fs::write(core.paths.app_dir().join("diagnostics"), "a file where the diagnostics folder goes").unwrap();
 
     let app = d.path().join("app");
     let reg = Arc::new(core.commands());
@@ -391,5 +398,5 @@ fn every_window_command_answers_over_the_control_api() {
         }
     }
     assert!(wrong.is_empty(), "{} of {} calls answered wrongly:\n{}", wrong.len(), cases.len(), wrong.join("\n"));
-    assert_eq!(*opened.lock().recover(), ["https://github.com/brewer-corp/astromech/issues"]);
+    assert_eq!(*opened.0.lock().recover(), ["https://github.com/brewer-corp/astromech/issues"]);
 }

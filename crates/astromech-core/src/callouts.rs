@@ -356,13 +356,14 @@ impl Notifier for Background {
     }
 }
 
-/// The platform's notifier behind [`Background`].
-pub fn default_notifier() -> std::io::Result<Arc<dyn Notifier>> {
+/// The platform's notifier: Windows toasts, or the log elsewhere. Slow, so a session runs it
+/// behind [`Background`].
+pub fn platform_notifier() -> Arc<dyn Notifier> {
     #[cfg(windows)]
     let inner: Arc<dyn Notifier> = Arc::new(WindowsNotifier);
     #[cfg(not(windows))]
     let inner: Arc<dyn Notifier> = Arc::new(LogNotifier);
-    Ok(Arc::new(Background::start(inner, NOTIFY_GAP)?))
+    inner
 }
 
 /// Spoken callouts waiting for the speaker, shared by the pipeline (push) and [`SpeechOut`].

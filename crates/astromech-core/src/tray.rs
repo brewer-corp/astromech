@@ -5,7 +5,7 @@
 //! ready to install). Everything else lives in the window. Left-click opens the window. Runs a
 //! Win32 message loop on the calling (main) thread.
 
-use crate::app::{self, Core, Ui};
+use crate::app::{Core, Ui};
 use crate::logging::log;
 use crate::session::VOICE_PAUSED;
 use anyhow::{Context, Result};
@@ -177,7 +177,7 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
                 let _ = core.install_update();
             } else if id == crash.id() {
                 match core.save_diagnostics() {
-                    Ok(p) => app::reveal(&p),
+                    Ok(p) => core.opener.reveal(&p),
                     Err(e) => log(&format!("couldn't save diagnostics: {e:#}")),
                 }
             } else if id == quit.id() {

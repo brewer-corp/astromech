@@ -323,8 +323,9 @@ impl Config {
         }
     }
 
-    pub fn journal_dir(&self) -> Option<PathBuf> {
-        Paths::current().journal_dir(&self.game.journal_dir)
+    /// The journal folder (`Paths::journal_dir`), with the default under `paths`' user profile.
+    pub fn journal_dir(&self, paths: &Paths) -> Option<PathBuf> {
+        paths.journal_dir(&self.game.journal_dir)
     }
 
     pub fn bindings_dir(&self) -> Option<PathBuf> {
@@ -335,9 +336,8 @@ impl Config {
         opt(&self.game.game_dir)
     }
 
-    pub fn models_dir(&self) -> PathBuf {
+    pub fn models_dir(&self, paths: &Paths) -> PathBuf {
         opt(&self.voice.models_dir).unwrap_or_else(|| {
-            let paths = Paths::current();
             let local = paths.exe_dir().join("models");
             if paths.portable() || local.is_dir() {
                 local
@@ -347,13 +347,13 @@ impl Config {
         })
     }
 
-    pub fn worker_exe(&self) -> PathBuf {
-        opt(&self.voice.worker).unwrap_or_else(|| Paths::current().exe_dir().join(astromech_voice::client::WORKER_EXE))
+    pub fn worker_exe(&self, paths: &Paths) -> PathBuf {
+        opt(&self.voice.worker).unwrap_or_else(|| paths.exe_dir().join(astromech_voice::client::WORKER_EXE))
     }
 
     /// The data folder for this config (`astromech_store::Paths::data_dir`).
-    pub fn data_dir(&self) -> PathBuf {
-        Paths::current().data_dir(&self.data_dir)
+    pub fn data_dir(&self, paths: &Paths) -> PathBuf {
+        paths.data_dir(&self.data_dir)
     }
 }
 

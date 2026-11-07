@@ -183,9 +183,9 @@ fn main() {
     }
 }
 
-fn download_models(cfg: &Config) -> Result<()> {
+fn download_models(cfg: &Config, paths: &Paths) -> Result<()> {
     use astromech_voice::{catalog, models};
-    let base = cfg.models_dir();
+    let base = cfg.models_dir(paths);
     let assets = models::missing(&base);
     if assets.is_empty() {
         println!("The speech models are already in {}.", base.display());
@@ -212,7 +212,7 @@ fn download_models(cfg: &Config) -> Result<()> {
         })?;
         println!();
     }
-    for d in astromech_core::app::remove_retired_models(cfg) {
+    for d in astromech_core::app::remove_retired_models(cfg, paths) {
         println!("Removed the replaced model {}", d.display());
     }
     println!("Done.");
@@ -220,7 +220,8 @@ fn download_models(cfg: &Config) -> Result<()> {
 }
 
 fn run_console(args: Args) -> Result<()> {
-    let cfg_path = args.config.clone().unwrap_or_else(|| Paths::current().config_file());
+    let paths = Paths::current();
+    let cfg_path = args.config.clone().unwrap_or_else(|| paths.config_file());
     if args.write_config {
         if cfg_path.exists() {
             bail!("{} already exists; not overwriting it", cfg_path.display());
@@ -246,7 +247,7 @@ fn run_console(args: Args) -> Result<()> {
         c
     } else {
         let mut alike = astromech_core::config::look_alikes(cfg_path.parent().unwrap_or(Path::new(".")));
-        let exe_dir = Paths::current().exe_dir().to_path_buf();
+        let exe_dir = paths.exe_dir().to_path_buf();
         if cfg_path.parent() != Some(exe_dir.as_path()) {
             alike.extend(astromech_core::config::look_alikes(&exe_dir));
         }
@@ -284,13 +285,13 @@ fn run_console(args: Args) -> Result<()> {
         cfg.actions.dry_run = true;
     }
     if args.download_models {
-        return download_models(&cfg);
+        return download_models(&cfg, &paths);
     }
     if args.list_mics {
         return list_mics();
     }
     if let Some(files) = args.calibrate_files {
-        return calibrate_files(&cfg, &files);
+        return calibrate_files(&cfg, &cfg.data_dir(&paths), &files);
     }
     if let Some(dir) = args.eval {
         let run = astromech_core::eval::run(&dir)?;
@@ -309,7 +310,7 @@ fn run_console(args: Args) -> Result<()> {
         env!("CARGO_PKG_VERSION")
     );
     if args.health {
-        let data = cfg.data_dir();
+        let data = cfg.data_dir(&paths);
         let bindings = cfg.bindings_dir().context("can't find the Bindings folder; set game.bindings_dir")?;
         let st = astromech_core::health::run_check(&bindings, cfg.game_dir().as_deref(), cfg!(windows));
         print!("{}", st.summary());
@@ -319,17 +320,19 @@ fn run_console(args: Args) -> Result<()> {
     }
     let opts = args.session_opts();
     astromech_core::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, std::sync::atomic::Ordering::SeqCst);
-    astromech_core::app::apply_edsm_switch(&cfg, &astromech_store::secrets::OsKeyring::new());
-    let route = std::sync::Arc::new(astromech_core::route::Desk::in_dir(&cfg.data_dir()));
+    let data = cfg.data_dir(&paths);
+    astromech_core::app::apply_edsm_switch(&cfg, &data, &astromech_store::secrets::OsKeyring::new());
+    let route =
+        std::sync::Arc::new(astromech_core::route::Desk::in_dir(&data, Box::new(astromech_core::clipboard::set_text)));
     // The command layer's state, for its one remote-data client and star map; the folders are
     // this run's config, fixed.
     let preload = std::env::current_exe().ok().and_then(|exe| astromech_api::preload_beside(&exe));
-    let (journal, bindings, game) = (cfg.journal_dir().unwrap_or_default(), cfg.bindings_dir(), cfg.game_dir());
+    let (journal, bindings, game) = (cfg.journal_dir(&paths).unwrap_or_default(), cfg.bindings_dir(), cfg.game_dir());
     let folders =
         move || astromech_api::Folders { journal: journal.clone(), bindings: bindings.clone(), game: game.clone() };
-    let remote = astromech_core::app::remote_client(&cfg.data_dir());
-    let api = astromech_api::State::new(cfg.data_dir(), remote, preload, folders);
-    let mut s = Session::start(&cfg, &opts, route, &api)?;
+    let remote = astromech_core::app::remote_client(&data);
+    let api = astromech_api::State::new(data, remote, preload, folders);
+    let mut s = Session::start(&cfg, &paths, &opts, route, &api, astromech_core::callouts::platform_notifier())?;
     log(&s.voice);
 
     if let Some(wav) = &args.transcribe {
@@ -349,7 +352,7 @@ fn run_console(args: Args) -> Result<()> {
         return Ok(());
     }
 
-    s.start_buttons(&cfg, &opts)?;
+    s.start_buttons(&cfg, &paths, &opts)?;
     let (runner, speaker, hub, assistant) = (s.runner.clone(), s.speaker.clone(), s.hub.clone(), s.assistant.clone());
 
     let stdin = std::io::stdin();
@@ -405,12 +408,11 @@ fn list_mics() -> Result<()> {
     }
 }
 
-fn calibrate_files(cfg: &Config, files: &[PathBuf]) -> Result<()> {
+fn calibrate_files(cfg: &Config, data: &Path, files: &[PathBuf]) -> Result<()> {
     use astromech_core::calibration;
     let (rate, noise, speech) = calibration::read_wavs(files)?;
     let device = calibration::configured_device(&cfg.voice.mic);
-    let data = cfg.data_dir();
-    let c = calibration::calibrate_and_store(&calibration::open_store(&data)?, &device, rate, &noise, &speech)?;
+    let c = calibration::calibrate_and_store(&calibration::open_store(data)?, &device, rate, &noise, &speech)?;
     println!(
         "calibration: noise {:.0} dBFS, speech peak {:.0} dBFS, min_level_dbfs {:.0}, suggested gain {:+.0} dB",
         c.noise_dbfs, c.speech_peak_dbfs, c.min_level_dbfs, c.gain_db

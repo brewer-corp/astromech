@@ -1,7 +1,9 @@
 //! The always-running core (M0, docs/V1-DESIGN.md §7): tray icon, single instance, start with
 //! Windows, game detection with idle/active, the app window launched from the tray, crash
 //! marker and diagnostics. [`run`] is what `astromech-core.exe` does when started without a
-//! console option (and with `--background` from the Run key).
+//! console option (and with `--background` from the Run key). The core itself is built by
+//! [`assemble`] from its [`Boundaries`] and started by [`start`]; `run` adds the installed app's
+//! steps around them.
 
 use crate::config::Config;
 use crate::gamewatch::{self, Change, Game};
@@ -39,6 +41,96 @@ pub struct Opts {
 pub enum Ui {
     Refresh,
     Quit,
+}
+
+/// Opens what the commander asked to see: links, folders and files.
+pub trait Opener: Send + Sync {
+    /// Open a URL or folder with its default handler.
+    fn open(&self, target: &str) -> Result<(), String>;
+    /// Show a file in the file manager, selected (off Windows: open its folder).
+    fn reveal(&self, path: &Path);
+    /// Open a text file in the editor (Notepad on Windows).
+    fn edit(&self, path: &Path);
+}
+
+/// The real [`Opener`]: Explorer and Notepad on Windows, `xdg-open` elsewhere. A failure to
+/// start them is logged.
+pub struct SystemOpener;
+
+impl Opener for SystemOpener {
+    fn open(&self, target: &str) -> Result<(), String> {
+        astromech_api::state::open_with_the_system(target)
+    }
+
+    fn reveal(&self, p: &Path) {
+        #[cfg(windows)]
+        {
+            let _ = std::process::Command::new("explorer.exe").arg(format!("/select,{}", p.display())).spawn();
+        }
+        #[cfg(not(windows))]
+        {
+            let target = p.parent().unwrap_or(p).display().to_string();
+            if let Err(e) = self.open(&target) {
+                log(&format!("couldn't open {target}: {e}"));
+            }
+        }
+    }
+
+    fn edit(&self, path: &Path) {
+        #[cfg(windows)]
+        let r = std::process::Command::new("notepad.exe").arg(path).spawn();
+        #[cfg(not(windows))]
+        let r = std::process::Command::new("xdg-open").arg(path).spawn();
+        if let Err(e) = r {
+            log(&format!("couldn't open {}: {e}", path.display()));
+        }
+    }
+}
+
+/// Lists the running processes' exe names.
+pub type ProcessList = Arc<dyn Fn() -> Vec<String> + Send + Sync>;
+/// Puts text on the clipboard.
+pub type Clipboard = Arc<dyn Fn(&str) -> Result<(), String> + Send + Sync>;
+/// Makes the process's one remote-data client, its cache in the data folder it is given.
+pub type RemoteClient = Arc<dyn Fn(&Path) -> Arc<astromech_data::Client> + Send + Sync>;
+
+/// What the core reaches outside the process through, given to [`assemble`]: the installed app
+/// passes [`Boundaries::real`], and tests and world mode pass their own.
+pub struct Boundaries {
+    /// The app, log and exe folders, and the folders the config falls back to (journal, data,
+    /// models). The core reads these, never `Paths::current()`, after startup.
+    pub paths: Paths,
+    /// The running processes, for the game watch and the open window's check.
+    pub processes: ProcessList,
+    /// URLs, folders, the saved diagnostics and the config file.
+    pub opener: Arc<dyn Opener>,
+    /// Where the route follower copies the next stop.
+    pub clipboard: Clipboard,
+    /// The platform's notifications, which a session runs behind [`crate::callouts::Background`].
+    pub notifier: Arc<dyn crate::callouts::Notifier>,
+    /// API keys (EDSM's).
+    pub secrets: Arc<dyn astromech_store::secrets::Secrets>,
+    /// Start with Windows.
+    pub autostart: Arc<dyn crate::autostart::Autostart>,
+    /// The remote-data client for the data folder the config names.
+    pub remote: RemoteClient,
+}
+
+impl Boundaries {
+    /// The installed app's: the real processes, Explorer, the clipboard, toasts, the OS keyring,
+    /// the Run key and HTTP, over `paths`.
+    pub fn real(paths: Paths) -> Self {
+        Self {
+            paths,
+            processes: Arc::new(gamewatch::process_names),
+            opener: Arc::new(SystemOpener),
+            clipboard: Arc::new(crate::clipboard::set_text),
+            notifier: crate::callouts::platform_notifier(),
+            secrets: Arc::new(astromech_store::secrets::OsKeyring::new()),
+            autostart: Arc::new(crate::autostart::RunKey),
+            remote: Arc::new(remote_client),
+        }
+    }
 }
 
 /// What Settings → Files says about the values `astromech.toml` had wrong.
@@ -81,7 +173,8 @@ impl ConfigWatch {
 
 /// Shared state; the tray reads it, the watcher and control API write it.
 pub struct Core {
-    pub app_dir: PathBuf,
+    /// The app, log and exe folders, and the config's fallback folders ([`Boundaries::paths`]).
+    pub paths: Paths,
     pub config_path: PathBuf,
     /// The config; the window's setup edits (push-to-talk, mic, folders) replace it.
     pub cfg: std::sync::RwLock<Config>,
@@ -110,6 +203,11 @@ pub struct Core {
     pub history: crate::history::Following,
     /// API keys (EDSM's): the OS keyring.
     pub secrets: Arc<dyn astromech_store::secrets::Secrets>,
+    /// The boundaries the core reaches through after startup ([`Boundaries`]).
+    pub processes: ProcessList,
+    pub opener: Arc<dyn Opener>,
+    pub notifier: Arc<dyn crate::callouts::Notifier>,
+    pub autostart: Arc<dyn crate::autostart::Autostart>,
     /// The route being followed (docs/PLOTTING.md). The core owns it, not a session, so the
     /// window can set one while Elite isn't running.
     pub route: Arc<crate::route::Desk>,
@@ -120,17 +218,20 @@ pub struct Core {
 /// The command layer's state over `core`'s live config: its folders are read on every call,
 /// so a `set_folders` applies at once. `data_dir` is fixed for the process, and with it the
 /// process's one remote-data client (`remote`, its cache in `data_dir`) and the star map, whose
-/// preload is the bundled `starmap.db` next to this exe. `open_external` may open folders under
-/// `app_dir` and the log folder too.
+/// preload is the bundled `starmap.db` next to this exe. `open_external` opens with `opener`,
+/// and may open folders under the app and log folders too.
 fn api_state(
     core: std::sync::Weak<Core>,
+    paths: &Paths,
     data_dir: PathBuf,
     remote: Arc<astromech_data::Client>,
-    openable: Vec<PathBuf>,
+    opener: Arc<dyn Opener>,
 ) -> astromech_api::State {
     let preload = std::env::current_exe().ok().and_then(|exe| astromech_api::preload_beside(&exe));
-    let folders = move || core.upgrade().map(|c| api_folders(&c.cfg())).unwrap_or_default();
-    astromech_api::State::new(data_dir, remote, preload, folders).openable(openable)
+    let folders = move || core.upgrade().map(|c| api_folders(&c.cfg(), &c.paths)).unwrap_or_default();
+    astromech_api::State::new(data_dir, remote, preload, folders)
+        .openable(vec![paths.app_dir().to_path_buf(), paths.log_dir()])
+        .with_opener(move |t| opener.open(t))
 }
 
 /// The process's one remote-data client, its cache in `data_dir`.
@@ -138,10 +239,10 @@ pub fn remote_client(data_dir: &Path) -> Arc<astromech_data::Client> {
     astromech_data::Client::shared(data_dir, Arc::new(|s: &str| log(s)))
 }
 
-fn api_folders(c: &Config) -> astromech_api::Folders {
+fn api_folders(c: &Config, paths: &Paths) -> astromech_api::Folders {
     let bindings = c.game.bindings_dir.trim();
     astromech_api::Folders {
-        journal: c.journal_dir().unwrap_or_default(),
+        journal: c.journal_dir(paths).unwrap_or_default(),
         bindings: (!bindings.is_empty()).then(|| PathBuf::from(bindings)),
         game: c.game_dir(),
     }
@@ -150,6 +251,11 @@ fn api_folders(c: &Config) -> astromech_api::Folders {
 impl Core {
     pub fn cfg(&self) -> Config {
         self.cfg.read().recover().clone()
+    }
+
+    /// The data folder the config in force names ([`Config::data_dir`]).
+    pub fn data_dir(&self) -> PathBuf {
+        self.cfg().data_dir(&self.paths)
     }
 
     pub fn notify(&self) {
@@ -163,7 +269,7 @@ impl Core {
     /// Keep the journal history on `cfg`'s journal folder: at startup, and after every config
     /// edit (re-points the follower when the folder changed; otherwise nothing changes).
     fn follow_history(&self, cfg: &Config) {
-        self.history.follow(cfg.journal_dir(), &cfg.data_dir(), Arc::new(|m: &str| log(m)));
+        self.history.follow(cfg.journal_dir(&self.paths), &cfg.data_dir(&self.paths), Arc::new(|m: &str| log(m)));
     }
 
     /// Why the config file wasn't used, if it wasn't.
@@ -174,8 +280,9 @@ impl Core {
     /// Make a config the one in force: the window's setup edits and a fixed file both come here.
     fn install_config(&self, mut c: Config) {
         c.actions.dry_run |= self.opts.session.dry_run;
-        apply_eddn_switch(&c);
-        apply_edsm_switch(&c, self.secrets.as_ref());
+        let data_dir = c.data_dir(&self.paths);
+        apply_eddn_switch(&c, &data_dir);
+        apply_edsm_switch(&c, &data_dir, self.secrets.as_ref());
         // Under the config lock, so concurrent edits re-point in the order they saved.
         self.follow_history(&c);
         *self.cfg.write().recover() = c;
@@ -263,7 +370,7 @@ impl Core {
         if cfg.controls.ptt.is_none() {
             v.push("push-to-talk not set");
         }
-        if models_missing(&cfg) {
+        if models_missing(&cfg, &self.paths) {
             v.push("speech models not downloaded");
         }
         v
@@ -294,11 +401,11 @@ impl Core {
             voice,
             voice_paused: session::VOICE_PAUSED.load(Ordering::SeqCst),
             killed,
-            autostart: crate::autostart::is_enabled(),
+            autostart: self.autostart.get().is_some(),
             crash_pending,
             status_line: self.status_line(),
-            app_dir: self.app_dir.display().to_string(),
-            log_dir: crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir()).display().to_string(),
+            app_dir: self.paths.app_dir().display().to_string(),
+            log_dir: crate::logging::dir().unwrap_or_else(|| self.paths.log_dir()).display().to_string(),
             config: self.config_path.display().to_string(),
             config_note: self.config_note(),
             setup_needed: self.setup_needed(),
@@ -306,9 +413,9 @@ impl Core {
             kill_switch: button(&cfg.controls.kill_switch),
             mic: cfg.voice.mic.clone(),
             onboarded: self.onboarded.load(Ordering::SeqCst),
-            models_missing: models_missing(&cfg),
+            models_missing: models_missing(&cfg, &self.paths),
             models_progress,
-            models_dir: cfg.models_dir().display().to_string(),
+            models_dir: cfg.models_dir(&self.paths).display().to_string(),
             update,
             toasts,
             history: self.history.status(),
@@ -322,10 +429,10 @@ impl Core {
     }
 
     pub fn save_diagnostics(&self) -> Result<PathBuf> {
-        let log_dir = crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir());
-        let data = self.cfg().data_dir();
+        let log_dir = crate::logging::dir().unwrap_or_else(|| self.paths.log_dir());
+        let data = self.data_dir();
         let p = crate::diagnostics::save(&crate::diagnostics::Inputs {
-            app_dir: &self.app_dir,
+            app_dir: self.paths.app_dir(),
             data_dir: &data,
             log_dir: &log_dir,
             config: Some(&self.config_path),
@@ -333,7 +440,7 @@ impl Core {
         })?;
         log(&format!("diagnostics saved: {}", p.display()));
         if self.crash.lock().recover().take().is_some() {
-            crate::crash::acknowledge(&self.app_dir);
+            crate::crash::acknowledge(self.paths.app_dir());
         }
         self.notify();
         Ok(p)
@@ -364,10 +471,12 @@ impl Core {
         self.notify();
         let t0 = Instant::now();
         let cfg = self.cfg();
-        let r = Session::start(&cfg, &self.opts.session, self.route.clone(), &self.api).and_then(|mut s| {
-            s.start_buttons(&cfg, &self.opts.session)?;
-            Ok(s)
-        });
+        let r =
+            Session::start(&cfg, &self.paths, &self.opts.session, self.route.clone(), &self.api, self.notifier.clone())
+                .and_then(|mut s| {
+                    s.start_buttons(&cfg, &self.paths, &self.opts.session)?;
+                    Ok(s)
+                });
         match r {
             Ok(s) => {
                 log(&format!("active in {} ms: {}", t0.elapsed().as_millis(), s.voice));
@@ -471,7 +580,7 @@ impl Core {
                     return;
                 }
                 self.set_update(|h| h.snap.status = UpStatus::Downloading);
-                let work = self.app_dir.join("updates");
+                let work = self.paths.app_dir().join("updates");
                 match update::stage(&m, &work, |p| log(&format!("update: {p}"))) {
                     Ok(payload) => {
                         self.set_update(|h| {
@@ -524,9 +633,9 @@ impl Core {
             h.snap.status = UpStatus::Applying;
             (p, before)
         };
-        let install_dir = Paths::current().exe_dir().to_path_buf();
+        let install_dir = self.paths.exe_dir().to_path_buf();
         // Bring the window back afterwards if it is open now (the helper closes it to replace it).
-        let window_open = gamewatch::process_names().iter().any(|n| n.eq_ignore_ascii_case(SHELL_EXE));
+        let window_open = (self.processes)().iter().any(|n| n.eq_ignore_ascii_case(SHELL_EXE));
         let after = if window_open { update::After::RelaunchWithWindow } else { update::After::Relaunch };
         self.deactivate("installing update");
         match update::spawn_apply(&payload, &install_dir, after) {
@@ -563,7 +672,7 @@ impl Core {
         }
         let Some(payload) = h.payload.clone() else { return };
         drop(h);
-        match update::spawn_apply(&payload, Paths::current().exe_dir(), update::After::Exit) {
+        match update::spawn_apply(&payload, self.paths.exe_dir(), update::After::Exit) {
             Ok(()) => log("update: applying on quit"),
             Err(e) => log(&format!("update: apply on quit failed: {e:#}")),
         }
@@ -573,7 +682,7 @@ impl Core {
     pub fn open_window(&self, route: Option<&str>) -> Result<(), String> {
         let exe = std::env::var_os("ASTROMECH_SHELL")
             .map(PathBuf::from)
-            .unwrap_or_else(|| Paths::current().exe_dir().join(SHELL_EXE));
+            .unwrap_or_else(|| self.paths.exe_dir().join(SHELL_EXE));
         if !exe.is_file() {
             let m = format!("the app window ({}) isn't installed next to the core", exe.display());
             log(&m);
@@ -633,7 +742,7 @@ impl Core {
             log(if k.is_empty() { "EDSM: API key removed" } else { "EDSM: API key saved in the OS keyring" });
         }
         if edits.is_empty() {
-            apply_edsm_switch(&self.cfg(), self.secrets.as_ref());
+            apply_edsm_switch(&self.cfg(), &self.data_dir(), self.secrets.as_ref());
             self.notify();
             return Answer::ok(Applies { applies_next_session: false });
         }
@@ -675,7 +784,7 @@ impl Core {
             if !cfg.voice.tts {
                 return Some(Err(anyhow::anyhow!("speech output is off ([voice] tts = false in the config)")));
             }
-            if models_missing(&cfg) {
+            if models_missing(&cfg, &self.paths) {
                 return Some(Err(anyhow::anyhow!("download the speech models first (Speech models, above)")));
             }
             None
@@ -683,10 +792,10 @@ impl Core {
         let start = || -> Result<Arc<dyn crate::speech::Speaker>> {
             let v = &cfg.voice;
             let s = crate::speech::TtsSpeaker::start(
-                &cfg.worker_exe(),
-                &cfg.models_dir(),
+                &cfg.worker_exe(&self.paths),
+                &cfg.models_dir(&self.paths),
                 v.threads,
-                &cfg.data_dir(),
+                &cfg.data_dir(&self.paths),
                 &v.speaker,
                 v.speed,
                 v.colour,
@@ -796,14 +905,14 @@ impl Core {
         });
         add::<(), _>(&mut reg, self, &["save_diagnostics"], Window, |c, _| match c.save_diagnostics() {
             Ok(p) => {
-                reveal(&p);
+                c.opener.reveal(&p);
                 Answer::ok(Saved { path: p.display().to_string() })
             }
             Err(e) => Answer::failed(format!("{e:#}")),
         });
         add::<(), _>(&mut reg, self, &["ack_crash"], Window, |c, _| {
             c.crash.lock().recover().take();
-            crate::crash::acknowledge(&c.app_dir);
+            crate::crash::acknowledge(c.paths.app_dir());
             c.notify();
             Done::empty()
         });
@@ -818,8 +927,7 @@ impl Core {
         add::<(), _>(&mut reg, self, &["install_update"], Window, |c, _| c.install_update());
         add::<(), Answer<Nothing>>(&mut reg, self, &["autostart_on", "autostart_off"], Window, |c, r| {
             let on = r.cmd == "autostart_on";
-            let res =
-                std::env::current_exe().map_err(|e| e.to_string()).and_then(|exe| crate::autostart::set(on, &exe));
+            let res = std::env::current_exe().map_err(|e| e.to_string()).and_then(|exe| c.autostart.set(on, &exe));
             c.notify();
             if res.is_ok() {
                 log(if on { "start with Windows: on" } else { "start with Windows: off" });
@@ -841,19 +949,19 @@ impl Core {
             Done::empty()
         });
         add::<(), _>(&mut reg, self, &["open_config"], Window, |c, _| {
-            open_config(&c.config_path);
+            open_config(&c.config_path, c.opener.as_ref());
             Done::empty()
         });
         add::<(), _>(&mut reg, self, &["prospector_thresholds"], Window, |c, _| {
-            crate::callouts::thresholds_view(&c.cfg().data_dir())
+            crate::callouts::thresholds_view(&c.data_dir())
         });
         // The change as JSON text: `{"ore", "threshold"}` or `{"ore", "reset": true}`.
         add::<String, Answer<crate::callouts::Ores>>(&mut reg, self, &["prospector_set"], Window, |c, r| {
             let text = r.text.clone().unwrap_or_default();
-            let res = std::fs::create_dir_all(c.cfg().data_dir())
+            let res = std::fs::create_dir_all(c.data_dir())
                 .map_err(|e| e.to_string())
                 .and_then(|_| {
-                    astromech_store::Store::open(&c.cfg().data_dir().join("astromech.sqlite"))
+                    astromech_store::Store::open(&c.data_dir().join("astromech.sqlite"))
                         .map_err(|e| format!("opening the database: {e}"))
                 })
                 .and_then(|st| crate::callouts::change_thresholds(&st, &text));
@@ -869,10 +977,10 @@ impl Core {
         // The shopping list change as JSON text.
         add::<String, Answer<ShoppingSet>>(&mut reg, self, &["shopping_set"], Window, |c, r| {
             let text = r.text.clone().unwrap_or_default();
-            let res = std::fs::create_dir_all(c.cfg().data_dir())
+            let res = std::fs::create_dir_all(c.data_dir())
                 .map_err(|e| e.to_string())
                 .and_then(|_| {
-                    astromech_store::Store::open(&c.cfg().data_dir().join("astromech.sqlite"))
+                    astromech_store::Store::open(&c.data_dir().join("astromech.sqlite"))
                         .map_err(|e| format!("opening the database: {e}"))
                 })
                 .and_then(|st| crate::callouts::change_shopping(&st, &text));
@@ -894,10 +1002,10 @@ impl Core {
         });
         add::<(), _>(&mut reg, self, &["eddn_log"], Window, |c, _| {
             let cfg = c.cfg();
-            eddn_log(&cfg.data_dir(), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
+            eddn_log(&cfg.data_dir(&c.paths), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
         });
         add::<(), _>(&mut reg, self, &["find_elite"], Window, |c, _| {
-            Done::new(FindElite { found: crate::setup::find_elite(&c.cfg()) })
+            Done::new(FindElite { found: crate::setup::find_elite(&c.cfg(), &c.paths) })
         });
         add::<Option<crate::config::Button>, _>(&mut reg, self, &["set_ptt", "set_kill_switch"], Window, |c, r| {
             c.edit_config(r)
@@ -910,7 +1018,7 @@ impl Core {
         add::<(), _>(&mut reg, self, &["callouts"], Window, |c, _| crate::callouts::callouts_json(&c.cfg().callouts));
         add::<(), _>(&mut reg, self, &["edsm_status"], Window, |c, _| {
             let cfg = c.cfg();
-            edsm_status(&cfg, c.secrets.as_ref())
+            edsm_status(&cfg, &cfg.data_dir(&c.paths), c.secrets.as_ref())
         });
         add::<crate::setup::args::Edsm, _>(&mut reg, self, &["set_edsm"], Window, |c, r| c.set_edsm(r));
         add::<(), Answer<FlightLog>>(&mut reg, self, &["edsm_flight_log"], Window, |c, _| {
@@ -941,7 +1049,7 @@ impl Core {
         add::<(), _>(&mut reg, self, &["mic_list"], Window, |c, _| {
             let cfg = c.cfg();
             let device = cal::configured_device(&cfg.voice.mic);
-            let gate = cal::open_store(&cfg.data_dir()).ok().and_then(|s| cal::stored_gate(&s, &device));
+            let gate = cal::open_store(&cfg.data_dir(&c.paths)).ok().and_then(|s| cal::stored_gate(&s, &device));
             cal::mic_list(&cfg.voice.mic, cal::MicGate { device, min_level_dbfs: gate })
         });
         add::<(), _>(&mut reg, self, &["calibrate_start"], Window, |c, _| cal::start(&c.calibration));
@@ -950,7 +1058,7 @@ impl Core {
             cal::record(&c.calibration, &|ms| cal::record_mic(&mic, ms))
         });
         add::<(), _>(&mut reg, self, &["calibrate_finish"], Window, |c, _| {
-            let data = c.cfg().data_dir();
+            let data = c.data_dir();
             let v = cal::finish(&c.calibration, &|| cal::open_store(&data));
             if let Answer::Done(d) = &v {
                 log(&format!(
@@ -966,7 +1074,7 @@ impl Core {
             cal::mic_check(&|ms| cal::record_mic(&mic, ms))
         });
         add::<(), _>(&mut reg, self, &["onboarding_done"], Window, |c, _| {
-            let res = cal::open_store(&c.cfg().data_dir()).and_then(|s| crate::setup::mark_onboarded(&s));
+            let res = cal::open_store(&c.data_dir()).and_then(|s| crate::setup::mark_onboarded(&s));
             match res {
                 Ok(()) => {
                     c.onboarded.store(true, Ordering::SeqCst);
@@ -983,7 +1091,7 @@ impl Core {
                 let s = c.session.lock().recover();
                 s.as_ref().map(|s| s.assistant.dry_run(&text, Source::Typed))
             };
-            let result = res.unwrap_or_else(|| tester::dry_run_idle(&c.cfg(), &text));
+            let result = res.unwrap_or_else(|| tester::dry_run_idle(&c.cfg(), &c.data_dir(), &text));
             Done::new(Tried { result })
         });
         add::<(), _>(&mut reg, self, &["voice_test_poll"], Window, |c, _| {
@@ -993,13 +1101,13 @@ impl Core {
             let last = TESTER.last().map(|(seq, result)| Heard { seq, result });
             Done::new(Poll { listening: c.active(), last })
         });
-        add::<(), _>(&mut reg, self, &["learned_phrases"], Window, |c, _| crate::learned::list(&c.cfg().data_dir()));
+        add::<(), _>(&mut reg, self, &["learned_phrases"], Window, |c, _| crate::learned::list(&c.data_dir()));
         // The phrase to forget, as text.
         add::<String, _>(&mut reg, self, &["learned_forget"], Window, |c, r| {
             let assistant = c.session.lock().recover().as_ref().map(|s| s.assistant.clone());
             let heard = r.text.clone().unwrap_or_default();
             log(&format!("learned phrase forgotten: {heard:?}"));
-            crate::learned::forget(&c.cfg().data_dir(), assistant.as_deref(), &heard)
+            crate::learned::forget(&c.data_dir(), assistant.as_deref(), &heard)
         });
         add::<(), _>(&mut reg, self, &["voice_test_stop"], Window, |_, _| {
             if TESTER.armed(Instant::now()) {
@@ -1037,9 +1145,9 @@ impl Core {
 /// The EDDN switch after a config edit: set the flag the feed and its worker read, and when
 /// sharing goes off, empty the queue now. The worker would discard it on its next pass, but it
 /// may be asleep for minutes, and switched back on by then it would send the old messages.
-fn apply_eddn_switch(c: &Config) {
+fn apply_eddn_switch(c: &Config, data_dir: &Path) {
     let was = crate::pipeline::EDDN_SHARING.swap(c.eddn.enabled, Ordering::SeqCst);
-    let p = c.data_dir().join(astromech_eddn::DB_FILE);
+    let p = data_dir.join(astromech_eddn::DB_FILE);
     if was && !c.eddn.enabled && p.is_file() {
         let now = astromech_eddn::worker::wall_now();
         if let Err(e) = astromech_eddn::Outbox::open(&p).and_then(|o| o.discard_all(now)) {
@@ -1066,8 +1174,8 @@ pub fn edsm_credentials(
 
 /// The EDSM switch at start and after an edit: the credentials while uploading is on (switched
 /// on, with a commander name and an API key), and when it goes off, the queue is emptied now
-/// (as for EDDN).
-pub fn apply_edsm_switch(c: &Config, secrets: &dyn astromech_store::secrets::Secrets) {
+/// (as for EDDN), in the outbox under `data_dir`.
+pub fn apply_edsm_switch(c: &Config, data_dir: &Path, secrets: &dyn astromech_store::secrets::Secrets) {
     let creds = if c.edsm.enabled {
         edsm_credentials(&c.edsm, secrets).unwrap_or_else(|e| {
             log(&format!("EDSM: {e}"));
@@ -1078,7 +1186,7 @@ pub fn apply_edsm_switch(c: &Config, secrets: &dyn astromech_store::secrets::Sec
     };
     let on = creds.is_some();
     let was = crate::pipeline::EDSM.set(creds);
-    let p = c.data_dir().join(astromech_eddn::edsm::DB_FILE);
+    let p = data_dir.join(astromech_eddn::edsm::DB_FILE);
     if was && !on && p.is_file() {
         let now = astromech_eddn::worker::wall_now();
         if let Err(e) = astromech_eddn::Outbox::open(&p).and_then(|o| o.with_label("edsm").discard_all(now)) {
@@ -1089,7 +1197,11 @@ pub fn apply_edsm_switch(c: &Config, secrets: &dyn astromech_store::secrets::Sec
 
 /// EDSM status for Settings → Data sharing: the switch, the commander name, whether an API key
 /// is saved (never the key), whether uploading is on, and the queue and send log as for EDDN.
-pub fn edsm_status(c: &Config, secrets: &dyn astromech_store::secrets::Secrets) -> Answer<Outbox<EdsmHead>> {
+pub fn edsm_status(
+    c: &Config,
+    data_dir: &Path,
+    secrets: &dyn astromech_store::secrets::Secrets,
+) -> Answer<Outbox<EdsmHead>> {
     let (has_key, key_error) = match secrets.get(astromech_eddn::edsm::KEY_SECRET) {
         Ok(k) => (k.is_some_and(|k| !k.is_empty()), None),
         Err(e) => (false, Some(e)),
@@ -1101,7 +1213,7 @@ pub fn edsm_status(c: &Config, secrets: &dyn astromech_store::secrets::Secrets) 
         key_error,
         uploading: crate::pipeline::EDSM.get().is_some(),
     };
-    outbox_status(&c.data_dir().join(astromech_eddn::edsm::DB_FILE), head)
+    outbox_status(&data_dir.join(astromech_eddn::edsm::DB_FILE), head)
 }
 
 /// EDDN status for Settings → Data sharing and the send log for Diagnostics: the switch, queue
@@ -1327,27 +1439,6 @@ mod replies {
 }
 pub use replies::*;
 
-/// Open a URL or folder with the default handler.
-pub fn open_path(target: &str) {
-    #[cfg(windows)]
-    let r = std::process::Command::new("explorer.exe").arg(target).spawn();
-    #[cfg(not(windows))]
-    let r = std::process::Command::new("xdg-open").arg(target).spawn();
-    if let Err(e) = r {
-        log(&format!("couldn't open {target}: {e}"));
-    }
-}
-
-/// Show a file in Explorer (selected).
-pub fn reveal(p: &Path) {
-    #[cfg(windows)]
-    {
-        let _ = std::process::Command::new("explorer.exe").arg(format!("/select,{}", p.display())).spawn();
-    }
-    #[cfg(not(windows))]
-    open_path(&p.parent().unwrap_or(p).display().to_string());
-}
-
 /// Write the sample config if there is no config yet. The sample changes no setting: its
 /// examples are comments, so a fresh install gets the same defaults as with no file.
 fn write_sample_config(path: &Path) {
@@ -1361,15 +1452,9 @@ fn write_sample_config(path: &Path) {
 }
 
 /// Create the config from the sample if it doesn't exist, then open it in the editor.
-pub fn open_config(path: &Path) {
+pub fn open_config(path: &Path, opener: &dyn Opener) {
     write_sample_config(path);
-    #[cfg(windows)]
-    let r = std::process::Command::new("notepad.exe").arg(path).spawn();
-    #[cfg(not(windows))]
-    let r = std::process::Command::new("xdg-open").arg(path).spawn();
-    if let Err(e) = r {
-        log(&format!("couldn't open {}: {e}", path.display()));
-    }
+    opener.edit(path);
 }
 
 /// Download the speech models in the background, showing progress in the status line.
@@ -1382,7 +1467,7 @@ pub fn download_models(core: &Arc<Core>) {
     let c = core.clone();
     let _ = std::thread::Builder::new().name("models".into()).spawn(move || {
         use astromech_voice::models;
-        let base = c.cfg().models_dir();
+        let base = c.cfg().models_dir(&c.paths);
         let mut err = None;
         for a in models::missing(&base) {
             let mut last = u64::MAX;
@@ -1402,7 +1487,7 @@ pub fn download_models(core: &Arc<Core>) {
         match err {
             None => {
                 log(&format!("speech models ready in {}", base.display()));
-                remove_retired_models(&c.cfg());
+                remove_retired_models(&c.cfg(), &c.paths);
             }
             Some(e) => log(&format!("speech model download failed: {e}")),
         }
@@ -1414,9 +1499,9 @@ pub fn download_models(core: &Arc<Core>) {
 /// Delete models an update replaced (Kokoro v0.19) once Kokoro v1.0 is completely downloaded,
 /// but only from astromech's own models folder: a folder `models_dir` points at may belong to
 /// another tool (the S9 test still uses v0.19). Returns the folders removed.
-pub fn remove_retired_models(cfg: &Config) -> Vec<PathBuf> {
+pub fn remove_retired_models(cfg: &Config, paths: &Paths) -> Vec<PathBuf> {
     use astromech_voice::models;
-    let dir = cfg.models_dir();
+    let dir = cfg.models_dir(paths);
     if !cfg.voice.models_dir.trim().is_empty() {
         if models::has_retired(&dir) && models::find_tts(&dir).is_ok() {
             log(&format!(
@@ -1433,16 +1518,16 @@ pub fn remove_retired_models(cfg: &Config) -> Vec<PathBuf> {
     gone
 }
 
-pub fn models_missing(cfg: &Config) -> bool {
-    !astromech_voice::models::missing(&cfg.models_dir()).is_empty()
+pub fn models_missing(cfg: &Config, paths: &Paths) -> bool {
+    !astromech_voice::models::missing(&cfg.models_dir(paths)).is_empty()
 }
 
 fn watch_game(core: Arc<Core>) {
     let mut w = gamewatch::Watcher::default();
-    let jdir = core.cfg().journal_dir();
+    let jdir = core.cfg().journal_dir(&core.paths);
     let mut journal_seen = jdir.as_deref().and_then(gamewatch::newest_journal).map(|(_, t)| t);
     loop {
-        let names = gamewatch::process_names();
+        let names = (core.processes)();
         let change = w.poll(&names);
         *core.game.lock().recover() = w.game;
         match change {
@@ -1486,31 +1571,28 @@ fn watch_game(core: Arc<Core>) {
     }
 }
 
-/// Run the core until "Quit". Returns the exit code.
-pub fn run(opts: Opts) -> i32 {
-    let paths = Paths::current();
+/// A core built by [`assemble`], and the receiving end of its messages to the UI thread.
+pub struct Assembled {
+    pub core: Arc<Core>,
+    pub ui: Receiver<Ui>,
+}
+
+/// Build the core on `b`: load the config (`opts.config`, else the paths' config file), set
+/// make the core with its route follower, its command layer and its remote-data client. Starts
+/// no thread and sets no process-wide switch; [`start`] does.
+pub fn assemble(opts: &Opts, b: Boundaries) -> Assembled {
+    assemble_with(opts, b, |s| s)
+}
+
+/// [`assemble`], with the command layer's state passed through `state` (a test's devices,
+/// neutron star file server or Spansh polling).
+pub(crate) fn assemble_with(
+    opts: &Opts,
+    b: Boundaries,
+    state: impl FnOnce(astromech_api::State) -> astromech_api::State,
+) -> Assembled {
+    let paths = b.paths;
     let app_dir = paths.app_dir().to_path_buf();
-    let _ = std::fs::create_dir_all(&app_dir);
-    crate::logging::init(&paths.log_dir(), false);
-    crate::crash::install(&app_dir);
-
-    // Single instance: a second start opens the window of the first, then exits.
-    let Some(_guard) = crate::instance::acquire(&app_dir) else {
-        if !opts.background {
-            match control::call_short(&app_dir, "open_window", opts.route.as_deref()) {
-                Ok(_) => log("already running: asked it to open the window"),
-                Err(e) => log(&format!("already running, but it didn't answer: {e:#}")),
-            }
-        }
-        return 0;
-    };
-    log(&format!(
-        "astromech-core {} starting{} (pid {})",
-        env!("CARGO_PKG_VERSION"),
-        if opts.background { " in the background" } else { "" },
-        std::process::id()
-    ));
-
     let config_path = opts.config.clone().unwrap_or_else(|| paths.config_file());
     let config_exists = config_path.is_file();
     let (mut cfg, config_watch) = if config_exists {
@@ -1535,14 +1617,6 @@ pub fn run(opts: Opts) -> i32 {
         cfg.actions.dry_run = true;
     }
 
-    if !paths.portable() {
-        if let Ok(exe) = std::env::current_exe() {
-            if let Some(m) = crate::autostart::apply_default(&app_dir, &exe) {
-                log(&m);
-            }
-        }
-    }
-
     let crash = crate::crash::pending(&app_dir);
     if crash.is_some() {
         log("astromech crashed last time; the tray offers Save diagnostics");
@@ -1556,28 +1630,25 @@ pub fn run(opts: Opts) -> i32 {
         update_handle.snap.apply_error = Some(e.trim().to_string());
     }
 
-    crate::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, Ordering::SeqCst);
-    let secrets: Arc<dyn astromech_store::secrets::Secrets> = Arc::new(astromech_store::secrets::OsKeyring::new());
-    apply_edsm_switch(&cfg, secrets.as_ref());
-    let route = Arc::new(crate::route::Desk::in_dir(&cfg.data_dir()));
-    let data_dir = cfg.data_dir();
+    let data_dir = cfg.data_dir(&paths);
+    let clipboard = b.clipboard;
+    let route = Arc::new(crate::route::Desk::in_dir(&data_dir, Box::new(move |t: &str| clipboard(t))));
     // Saved binding overrides used to live in the app dir whatever `data_dir` said; carry them
     // across once (never overwriting). A failed copy only means the old overrides aren't seen.
     if let Err(e) = paths.carry_over("device-overrides.json", &data_dir) {
         log(&format!("could not carry device-overrides.json over to {}: {e}", data_dir.display()));
     }
     let (ui_tx, ui_rx) = channel();
-    let openable = vec![app_dir.clone(), paths.log_dir()];
-    let remote = remote_client(&data_dir);
+    let remote = (b.remote)(&data_dir);
+    let onboarded = crate::calibration::open_store(&data_dir)
+        .map(|s| crate::setup::onboarded_at_start(&s, config_exists, &cfg))
+        .unwrap_or(false);
+    let opener = b.opener;
     let core = Arc::new_cyclic(|me| Core {
-        api: Arc::new(api_state(me.clone(), data_dir, remote, openable)),
-        app_dir: app_dir.clone(),
+        api: Arc::new(state(api_state(me.clone(), &paths, data_dir, remote, opener.clone()))),
+        paths,
         config_path,
-        onboarded: AtomicBool::new(
-            crate::calibration::open_store(&cfg.data_dir())
-                .map(|s| crate::setup::onboarded_at_start(&s, config_exists, &cfg))
-                .unwrap_or(false),
-        ),
+        onboarded: AtomicBool::new(onboarded),
         config_lock: Mutex::new(()),
         preview: Default::default(),
         cfg: std::sync::RwLock::new(cfg),
@@ -1593,11 +1664,31 @@ pub fn run(opts: Opts) -> i32 {
         opts: opts.clone(),
         calibration: Mutex::new(None),
         history: Default::default(),
-        secrets,
+        secrets: b.secrets,
+        processes: b.processes,
+        opener,
+        notifier: b.notifier,
+        autostart: b.autostart,
         route,
     });
+    Assembled { core, ui: ui_rx }
+}
 
-    let _server = match control::serve(&app_dir, Arc::new(core.commands())) {
+/// What [`start`] started that its caller keeps: the control API, while it is held. The
+/// threads are detached.
+pub struct Started {
+    pub server: Option<control::Server>,
+}
+
+/// Start an assembled core: set the process-wide EDDN and EDSM switches from its config, serve
+/// the control API, replace a retired speech model, follow the journal history, and start the
+/// game watch and the idle reaper. The installed app ([`run`]) and world mode both do this.
+pub fn start(core: &Arc<Core>) -> Started {
+    let cfg = core.cfg();
+    crate::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, Ordering::SeqCst);
+    apply_edsm_switch(&cfg, &core.data_dir(), core.secrets.as_ref());
+
+    let server = match control::serve(core.paths.app_dir(), Arc::new(core.commands())) {
         Ok(s) => {
             log(&format!("control API on 127.0.0.1:{}", s.endpoint.port));
             Some(s)
@@ -1610,13 +1701,13 @@ pub fn run(opts: Opts) -> i32 {
 
     // An update from Kokoro v0.19: fetch v1.0 (the old model can't serve v1.0 voices), and
     // remove v0.19 once v1.0 is there.
-    let models_dir = core.cfg().models_dir();
+    let models_dir = core.cfg().models_dir(&core.paths);
     if astromech_voice::models::has_retired(&models_dir) {
         if astromech_voice::models::find_tts(&models_dir).is_ok() {
-            remove_retired_models(&core.cfg());
+            remove_retired_models(&core.cfg(), &core.paths);
         } else {
             log("text-to-speech: Kokoro v0.19 was replaced by v1.0; downloading it");
-            download_models(&core);
+            download_models(core);
         }
     }
 
@@ -1646,6 +1737,46 @@ pub fn run(opts: Opts) -> i32 {
         })
         .expect("spawn preview reaper");
 
+    Started { server }
+}
+
+/// Run the core until "Quit". Returns the exit code.
+pub fn run(opts: Opts) -> i32 {
+    let paths = Paths::current();
+    let app_dir = paths.app_dir().to_path_buf();
+    let _ = std::fs::create_dir_all(&app_dir);
+    crate::logging::init(&paths.log_dir(), false);
+    crate::crash::install(&app_dir);
+
+    // Single instance: a second start opens the window of the first, then exits.
+    let Some(_guard) = crate::instance::acquire(&app_dir) else {
+        if !opts.background {
+            match control::call_short(&app_dir, "open_window", opts.route.as_deref()) {
+                Ok(_) => log("already running: asked it to open the window"),
+                Err(e) => log(&format!("already running, but it didn't answer: {e:#}")),
+            }
+        }
+        return 0;
+    };
+    log(&format!(
+        "astromech-core {} starting{} (pid {})",
+        env!("CARGO_PKG_VERSION"),
+        if opts.background { " in the background" } else { "" },
+        std::process::id()
+    ));
+
+    let b = Boundaries::real(paths.clone());
+    if !paths.portable() {
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(m) = crate::autostart::apply_default(&app_dir, &exe, b.autostart.as_ref()) {
+                log(&m);
+            }
+        }
+    }
+
+    let Assembled { core, ui } = assemble(&opts, b);
+    let _started = start(&core);
+
     if core.cfg().update.check {
         let c = core.clone();
         std::thread::Builder::new()
@@ -1664,7 +1795,7 @@ pub fn run(opts: Opts) -> i32 {
         let _ = core.open_window(opts.route.as_deref());
     }
 
-    let code = ui_loop(core.clone(), ui_rx);
+    let code = ui_loop(core.clone(), ui);
     log("quitting");
     core.deactivate("quit");
     core.apply_on_quit();
@@ -1733,49 +1864,64 @@ mod tests {
         Arc::new(client.limiter(astromech_data::Limiter::none()))
     }
 
+    /// Opens nothing; a test that checks what is opened passes its own.
+    pub(super) struct NoOpener;
+    impl Opener for NoOpener {
+        fn open(&self, _: &str) -> Result<(), String> {
+            Ok(())
+        }
+        fn reveal(&self, _: &Path) {}
+        fn edit(&self, _: &Path) {}
+    }
+
+    /// Start with Windows that is off and can't be set, as off Windows.
+    struct NoAutostart;
+    impl crate::autostart::Autostart for NoAutostart {
+        fn get(&self) -> Option<String> {
+            None
+        }
+        fn set(&self, _: bool, _: &Path) -> Result<(), String> {
+            Err("not in this test".into())
+        }
+    }
+
+    /// A test's boundaries in `dir`: the app folder under it, no running processes, no
+    /// clipboard, notifications to the log, secrets in memory, and lookups through `remote`.
+    pub(super) fn boundaries(dir: &Path, remote: Arc<astromech_data::Client>) -> Boundaries {
+        let local = dir.join("local");
+        Boundaries {
+            paths: Paths::new(dir.join("exe"), move |k| (k == "LOCALAPPDATA").then(|| local.clone().into())),
+            processes: Arc::new(Vec::new),
+            opener: Arc::new(NoOpener),
+            clipboard: Arc::new(|_: &str| Ok(())),
+            notifier: Arc::new(crate::callouts::LogNotifier),
+            secrets: Arc::new(astromech_store::secrets::MemorySecrets::default()),
+            autostart: Arc::new(NoAutostart),
+            remote: Arc::new(move |_: &Path| remote.clone()),
+        }
+    }
+
     const NO_WAIT: astromech_data::spansh::Polling =
         astromech_data::spansh::Polling { every: Duration::ZERO, timeout: Duration::from_secs(5) };
 
     /// [`core`] with its lookups going through `remote`.
     fn core_with(dir: &Path, text: &str, remote: Arc<astromech_data::Client>) -> Arc<Core> {
-        core_with_state(dir, text, remote, |s| s)
+        assembled(dir, text, boundaries(dir, remote), |s| s)
     }
 
-    /// [`core_with`], with the command layer's state passed through `state` (a test's opener
-    /// or devices).
-    pub(super) fn core_with_state(
+    /// The core [`assemble`] builds on `b`, on the config file `text` in `dir`, with the
+    /// command layer's state passed through `state` (a test's devices or servers).
+    pub(super) fn assembled(
         dir: &Path,
         text: &str,
-        remote: Arc<astromech_data::Client>,
+        b: Boundaries,
         state: impl FnOnce(astromech_api::State) -> astromech_api::State,
     ) -> Arc<Core> {
         let config_path = dir.join("astromech.toml");
         std::fs::write(&config_path, text).unwrap();
-        let data_dir = Config::load(&config_path).unwrap().data_dir();
-        Arc::new_cyclic(|me| Core {
-            // Recorded Spansh answers need no wait between polls.
-            api: Arc::new(state(api_state(me.clone(), data_dir, remote, vec![]).plot_polling(NO_WAIT))),
-            app_dir: dir.to_path_buf(),
-            cfg: std::sync::RwLock::new(Config::load(&config_path).unwrap()),
-            config_path,
-            config_lock: Mutex::new(()),
-            preview: Default::default(),
-            config_watch: Mutex::new(ConfigWatch::default()),
-            game: Mutex::new(Game::NotRunning),
-            session: Mutex::new(None),
-            starting: AtomicBool::new(false),
-            voice: Mutex::new(String::new()),
-            crash: Mutex::new(None),
-            models: Mutex::new(None),
-            update: Mutex::new(update::Handle::new()),
-            ui: Mutex::new(channel().0),
-            opts: Opts::default(),
-            calibration: Mutex::new(None),
-            onboarded: AtomicBool::new(false),
-            history: Default::default(),
-            secrets: Arc::new(astromech_store::secrets::MemorySecrets::default()),
-            route: Arc::new(crate::route::Desk::open(None, Box::new(|_| Ok(())))),
-        })
+        let opts = Opts { config: Some(config_path), ..Opts::default() };
+        // Recorded Spansh answers need no wait between polls.
+        assemble_with(&opts, b, |s| state(s.plot_polling(NO_WAIT))).core
     }
 
     #[test]
@@ -2009,7 +2155,7 @@ mod tests {
             &format!("data_dir = '{}'\n[game]\njournal_dir = '{}'\n", data.display(), missing.display()),
         );
         core.follow_history(&core.cfg());
-        assert_eq!(core.cfg().journal_dir(), Some(missing));
+        assert_eq!(core.cfg().journal_dir(&core.paths), Some(missing));
         wait_for("the empty first import", || core.history.status().is_some_and(|p| p.ready));
         assert_eq!(core.history.status().unwrap().events, 0);
 
@@ -2043,7 +2189,7 @@ mod tests {
         }
         let mut cfg = Config::default();
         cfg.voice.models_dir = m.display().to_string();
-        assert!(remove_retired_models(&cfg).is_empty());
+        assert!(remove_retired_models(&cfg, &boundaries(d.path(), offline()).paths).is_empty());
         assert!(models::has_retired(m), "another tool's v0.19 is left alone");
         assert!(models::find_tts(m).is_ok());
     }
@@ -2445,7 +2591,7 @@ mod tests {
         drop(h);
 
         let core = core(d.path(), &format!("data_dir = '{}'\n", data.display()));
-        assert_ne!(core.cfg().data_dir(), Config::default().data_dir());
+        assert_ne!(core.data_dir(), Config::default().data_dir(&core.paths));
         let app = d.path().join("app");
         let _srv = control::serve(&app, Arc::new(core.commands())).unwrap();
         let ask = |cmd: &str, args: Value| {
