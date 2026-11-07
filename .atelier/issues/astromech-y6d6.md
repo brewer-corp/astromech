@@ -11,6 +11,9 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-01ft"
+    type: "blocked_by"
+  - kind: "issue"
     id: "astromech-bp23"
     type: "blocked_by"
   - kind: "issue"
