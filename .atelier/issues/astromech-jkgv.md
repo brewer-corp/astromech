@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Dev bridge from pnpm dev to the headless core, and preview fixtures dumped from it"
-updated_at: "2026-11-07T14:06:43.308764563+00:00"
+updated_at: "2026-11-07T18:49:02.864662337+00:00"
 ---
 
 ## Goal
@@ -41,3 +41,4 @@ The existing dumpers (crates/astromech-galaxy/examples/dump-local-route.rs, dump
 ## Notes
 
 - 2026-11-07 [note] From finding astromech-1uyn (d2nq review): world mode quits when its stdin closes, so the Vite plugin must pipe the world core's stdin and hold it open for the dev server's life; state it in this child's Done when. Optional: give world_mode.rs's kill test a hang guard.
+- 2026-11-07 [note] From finding astromech-lwic (1hh9 review): the world 'focus' step and gui/vehicle reactions are only covered by a script-load test; add a voice world case where a key is refused after Elite loses focus, and one gui reaction.

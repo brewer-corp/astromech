@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Every window command runs for real against the headless world core"
-updated_at: "2026-11-07T17:13:54.055364231+00:00"
+updated_at: "2026-11-07T18:49:03.219297868+00:00"
 ---
 
 ## Goal
@@ -49,3 +49,4 @@ ro7a's report (atelier issue show astromech-ro7a --full) gives the current table
 ## Notes
 
 - 2026-11-07 [note] From finding astromech-ur4v (xk0n review): Spansh's 180 s polling timeout reads the manual clock (world.rs:504 NO_WAIT, spansh.rs:1050-1061), so a recording that leaves a job queued makes a lookup spin and never return. Cap the polls or add a real-time guard that only fails the call, here where worlds first plot routes.
+- 2026-11-07 [note] From finding astromech-gnnh (1hh9 review): CONTRIBUTING.md:256-258 and worlds/gear-down/astromech.toml should give the exact clip recipe (render-voices bm_george, the text, then ffmpeg to 16 kHz mono), since render-voices writes 24 kHz and the world mic needs 16 kHz.

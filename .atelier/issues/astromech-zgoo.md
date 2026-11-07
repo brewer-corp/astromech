@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Clippy rejects direct time reads and sleeps; the remaining reads move to the clock"
-updated_at: "2026-11-07T13:50:45.418234520+00:00"
+updated_at: "2026-11-07T18:49:02.374002522+00:00"
 ---
 
 ## Goal
@@ -55,3 +55,4 @@ The site counts at planning: about 116 production reads and 40 waits across the 
 ## Notes
 
 - 2026-11-07 [note] From finding astromech-4k6h (d2nq review): world_wait's 30 s guard (world.rs:437-458) uses Instant::now and Condvar::wait_timeout on real time; add it to the list of waits that stay real, with an #[allow] and the reason (it only fails a stuck call and decides nothing).
+- 2026-11-07 [note] From finding astromech-vwbs (1hh9 review): the voice tester is armed and read with Instant::now (app.rs:1185, :1200, :418) while the push-to-talk loop reads TESTER.armed(clk.now()); move these three sites to the clock rather than giving them an allow.
