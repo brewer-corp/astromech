@@ -305,6 +305,7 @@ dependencies = [
 name = "astromech-eddn"
 version = "0.0.0-dev"
 dependencies = [
+ "astromech-proto",
  "astromech-store",
  "flate2",
  "jsonschema",

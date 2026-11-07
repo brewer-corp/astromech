@@ -30,7 +30,6 @@ use std::collections::HashMap;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::time::Instant;
 
 type Log = Arc<dyn Fn(&str) + Send + Sync>;
 
@@ -105,13 +104,14 @@ impl Feed {
         test: bool,
         transport: Box<dyn Transport + Send>,
         sharing: Arc<AtomicBool>,
+        clock: Arc<dyn astromech_proto::Clock>,
         log: impl Fn(&str) + Send + Sync + 'static,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let log: Log = Arc::new(log);
         let sender = Sender::new(Outbox::open(db)?, software, test);
-        let courier = Courier::new(Outbox::open(db)?, transport, Instant::now(), sharing.clone());
+        let courier = Courier::new(Outbox::open(db)?, transport, clock.now(), sharing.clone());
         let worker_log = log.clone();
-        let worker = Worker::spawn(courier, "EDDN", move |m| worker_log(m))?;
+        let worker = Worker::spawn(courier, "EDDN", clock, move |m| worker_log(m))?;
         Ok(Self { worker: Some(worker), log, sharing, ..Self::new(sender) })
     }
 
@@ -243,6 +243,7 @@ mod tests {
     use std::sync::mpsc::{channel, Receiver, Sender as Tx};
     use std::sync::Mutex;
     use std::time::Duration;
+    use std::time::Instant;
 
     const T0: &str = "2026-10-16T11:59:00Z";
 
@@ -521,8 +522,16 @@ mod tests {
         let (started_tx, started) = channel();
         let (release, release_rx) = channel();
         let gate = Gate { started: Mutex::new(started_tx), release: Mutex::new(release_rx) };
-        let mut f =
-            Feed::start(&db, software(), true, Box::new(gate), Arc::new(AtomicBool::new(true)), |_| {}).unwrap();
+        let mut f = Feed::start(
+            &db,
+            software(),
+            true,
+            Box::new(gate),
+            Arc::new(AtomicBool::new(true)),
+            Arc::new(astromech_proto::SystemClock),
+            |_| {},
+        )
+        .unwrap();
         feed_all(&mut f, &session("r1 ", "Jameson"), false);
         // Real time: the worker gives up on messages queued long ago by its own clock.
         let now = wall_now();
@@ -564,7 +573,16 @@ mod tests {
         let queued = Outbox::open(&db).unwrap();
         queued.enqueue("https://eddn.edcd.io/schemas/journal/1/test", b"one", wall_now()).unwrap();
         queued.enqueue("https://eddn.edcd.io/schemas/journal/1/test", b"two", wall_now()).unwrap();
-        let f = Feed::start(&db, software(), true, Box::new(gate), Arc::new(AtomicBool::new(true)), |_| {}).unwrap();
+        let f = Feed::start(
+            &db,
+            software(),
+            true,
+            Box::new(gate),
+            Arc::new(AtomicBool::new(true)),
+            Arc::new(astromech_proto::SystemClock),
+            |_| {},
+        )
+        .unwrap();
         started.recv_timeout(Duration::from_secs(10)).expect("the worker posts");
 
         let t = Instant::now();

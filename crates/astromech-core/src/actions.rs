@@ -149,7 +149,7 @@ impl Runner {
             say(PASTE_REFUSED);
             return Outcome::Refused(PASTE_REFUSED.into());
         }
-        let ticket = match self.policy.authorize("paste_search", Tier::T1, origin, Instant::now()) {
+        let ticket = match self.policy.authorize("paste_search", Tier::T1, origin, self.policy.clock().now()) {
             Ok(t) => t,
             Err(d) => {
                 say(&d.spoken());
@@ -160,6 +160,9 @@ impl Runner {
             say(&e.spoken());
             return Outcome::PressFailed(e);
         }
+        // Real time: it gives the game time to take Ctrl+V before GuiFocus is read again, and
+        // in a world GuiFocus changes only between steps, so the read is the same every run.
+        #[allow(clippy::disallowed_methods)]
         std::thread::sleep(PASTE_SETTLE);
         if !in_map() {
             (self.log)("paste_search: Ctrl+V sent; the galaxy map closed before Enter, so Enter was not sent");
@@ -224,7 +227,7 @@ impl Runner {
             }
         };
         let name = tool_name(call);
-        let ticket = match self.policy.authorize(name, Tier::T1, origin, Instant::now()) {
+        let ticket = match self.policy.authorize(name, Tier::T1, origin, self.policy.clock().now()) {
             Ok(t) => t,
             Err(d) => {
                 say(&d.spoken());

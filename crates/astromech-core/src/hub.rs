@@ -5,10 +5,11 @@ use astromech_api::Recover;
 use astromech_gamestate::mining::MiningRun;
 use astromech_gamestate::GameState;
 use astromech_journal::JournalLine;
+use astromech_proto::{Clock, SystemClock};
 use astromech_status::StatusSnap;
 use std::sync::mpsc::{channel, Receiver, Sender};
-use std::sync::{Condvar, Mutex};
-use std::time::{Duration, Instant};
+use std::sync::{Arc, Condvar, Mutex};
+use std::time::Duration;
 
 /// The mining run in the status reply: when it started (RFC 3339), tons refined by commodity,
 /// their total and the rate per hour.
@@ -20,17 +21,39 @@ pub struct Mining {
     pub per_hour: Option<f64>,
 }
 
-#[derive(Default)]
 pub struct StateHub {
-    state: Mutex<(GameState, u64)>,
-    cv: Condvar,
+    state: Arc<Mutex<(GameState, u64)>>,
+    cv: Arc<Condvar>,
     subs: Mutex<Vec<Sender<GameState>>>,
     mining: Mutex<MiningRun>,
+    /// The verify waits' time, and the pipeline's ([`crate::pipeline::start`]).
+    clock: Arc<dyn Clock>,
+}
+
+impl Default for StateHub {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl StateHub {
+    /// On the system clock.
     pub fn new() -> Self {
-        Self::default()
+        Self::with_clock(Arc::new(SystemClock))
+    }
+
+    pub fn with_clock(clock: Arc<dyn Clock>) -> Self {
+        Self {
+            state: Default::default(),
+            cv: Default::default(),
+            subs: Default::default(),
+            mining: Default::default(),
+            clock,
+        }
+    }
+
+    pub fn clock(&self) -> &Arc<dyn Clock> {
+        &self.clock
     }
 
     pub fn snapshot(&self) -> GameState {
@@ -65,7 +88,7 @@ impl StateHub {
             g.1 += 1;
             g.0.clone()
         };
-        self.cv.notify_all();
+        self.clock.notify_all(&self.state, &self.cv);
         self.subs.lock().recover().retain(|s| s.send(snap.clone()).is_ok());
     }
 
@@ -97,7 +120,7 @@ impl StateHub {
     /// Wait until `flag` is set (`expect`) or clear, up to `timeout`. Returns early (false)
     /// when `cancelled()` turns true.
     pub fn wait_flag(&self, flag: u64, expect: bool, timeout: Duration, cancelled: &dyn Fn() -> bool) -> bool {
-        let end = Instant::now() + timeout;
+        let end = self.clock.now() + timeout;
         let mut g = self.state.lock().recover();
         loop {
             if g.0.status_seen && (g.0.status_flags & flag != 0) == expect {
@@ -106,17 +129,18 @@ impl StateHub {
             if cancelled() {
                 return false;
             }
-            let now = Instant::now();
+            let now = self.clock.now();
             if now >= end {
                 return false;
             }
-            g = self.cv.wait_timeout(g, (end - now).min(Duration::from_millis(25))).recover().0;
+            // In 25 ms slices, so `cancelled` (the kill switch) is looked at while waiting.
+            g = self.clock.wait_timeout(&self.state, &self.cv, g, (end - now).min(Duration::from_millis(25))).0;
         }
     }
 
     /// Wait until `GuiFocus` equals `want`.
     pub fn wait_gui(&self, want: u64, timeout: Duration, cancelled: &dyn Fn() -> bool) -> bool {
-        let end = Instant::now() + timeout;
+        let end = self.clock.now() + timeout;
         let mut g = self.state.lock().recover();
         loop {
             if g.0.status_seen && g.0.gui_focus.unwrap_or(0) == want {
@@ -125,11 +149,12 @@ impl StateHub {
             if cancelled() {
                 return false;
             }
-            let now = Instant::now();
+            let now = self.clock.now();
             if now >= end {
                 return false;
             }
-            g = self.cv.wait_timeout(g, (end - now).min(Duration::from_millis(25))).recover().0;
+            // In 25 ms slices, so `cancelled` (the kill switch) is looked at while waiting.
+            g = self.clock.wait_timeout(&self.state, &self.cv, g, (end - now).min(Duration::from_millis(25))).0;
         }
     }
 }

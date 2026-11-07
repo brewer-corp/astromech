@@ -7,12 +7,14 @@ use astromech_api::Recover;
 use astromech_keybinds::active::{self, ActionIndex, KeyCombo};
 use astromech_keybinds::doctor::{self, Confidence};
 use astromech_keybinds::{devices, game};
+use astromech_proto::{Clock, ClockSender};
 use astromech_tools::Toggle;
 use notify::{RecursiveMode, Watcher};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Issue {
@@ -176,38 +178,63 @@ pub fn run_check(bindings_dir: &Path, game_dir: Option<&Path>, live_devices: boo
 
 pub type Shared = Arc<RwLock<BindsState>>;
 
-/// Watch the Bindings folder and re-run the check (debounced 500 ms) on any change.
+/// Watch the Bindings folder and re-run the check (debounced 500 ms) on any change. Dropping it
+/// stops the thread: a stop and a wake, since under a manual clock its channel never
+/// disconnects (the clock's rules).
 pub struct HealthWatch {
     _watcher: notify::RecommendedWatcher,
+    stop: Arc<AtomicBool>,
+    wake: ClockSender<notify::Result<notify::Event>>,
 }
 
+impl Drop for HealthWatch {
+    fn drop(&mut self) {
+        self.stop.store(true, Ordering::SeqCst);
+        self.wake.wake();
+    }
+}
+
+/// The thread is registered with `clock` and waits on it.
 pub fn watch(
     bindings_dir: PathBuf,
     game_dir: Option<PathBuf>,
     live_devices: bool,
     shared: Shared,
     on_change: impl Fn(&BindsState) + Send + 'static,
+    clock: Arc<dyn Clock>,
 ) -> Result<HealthWatch> {
-    let (tx, rx) = std::sync::mpsc::channel::<notify::Result<notify::Event>>();
-    let mut w = notify::recommended_watcher(tx).context("creating Bindings watcher")?;
+    let (tx, rx) = clock.channel::<notify::Result<notify::Event>>();
+    let wake = tx.clone();
+    let mut w = notify::recommended_watcher(move |e| {
+        let _ = tx.send(e);
+    })
+    .context("creating Bindings watcher")?;
     w.watch(&bindings_dir, RecursiveMode::Recursive).with_context(|| format!("watching {}", bindings_dir.display()))?;
-    std::thread::Builder::new().name("health".into()).spawn(move || {
+    let stop = Arc::new(AtomicBool::new(false));
+    let (stop2, c) = (stop.clone(), clock.clone());
+    clock.spawn(std::thread::Builder::new().name("health".into()), move || {
         while let Ok(first) = rx.recv() {
+            if stop2.load(Ordering::SeqCst) {
+                return;
+            }
             if first.is_err() {
                 continue;
             }
-            let until = Instant::now() + Duration::from_millis(500);
-            while let Some(left) = until.checked_duration_since(Instant::now()) {
+            let until = c.now() + Duration::from_millis(500);
+            while let Some(left) = until.checked_duration_since(c.now()) {
                 if rx.recv_timeout(left).is_err() {
                     break;
                 }
+            }
+            if stop2.load(Ordering::SeqCst) {
+                return;
             }
             let st = run_check(&bindings_dir, game_dir.as_deref(), live_devices);
             on_change(&st);
             *shared.write().recover() = st;
         }
     })?;
-    Ok(HealthWatch { _watcher: w })
+    Ok(HealthWatch { _watcher: w, stop, wake })
 }
 
 /// Elite's controls-screen label for an action (for spoken hints).

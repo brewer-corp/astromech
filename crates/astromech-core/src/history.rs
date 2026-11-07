@@ -22,11 +22,12 @@
 use astromech_api::Recover;
 use astromech_history::{History, ImportOptions};
 use astromech_journal::journal_version;
+use astromech_proto::{Clock, ClockReceiver, ClockSender, SystemClock};
 use notify::{RecursiveMode, Watcher};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc::{channel, Receiver, RecvTimeoutError, Sender};
+use std::sync::mpsc::RecvTimeoutError;
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 use std::time::Duration;
@@ -77,7 +78,7 @@ type Log = Arc<dyn Fn(&str) + Send + Sync>;
 /// ends; [`Follower::stop`] also hands back the thread to wait for.
 pub struct Follower {
     progress: Arc<Mutex<Progress>>,
-    poke: Sender<()>,
+    poke: ClockSender<()>,
     stop: Arc<AtomicBool>,
     thread: Option<JoinHandle<()>>,
     _watcher: Option<Mutex<notify::RecommendedWatcher>>,
@@ -86,15 +87,23 @@ pub struct Follower {
 impl Follower {
     /// Start importing `dir` into `db` now and whenever its journals change. Returns at once.
     pub fn start(dir: PathBuf, db: PathBuf, timing: Timing, log: Log) -> Follower {
-        Self::start_after(None, dir, db, timing, log)
+        Self::start_after(None, dir, db, timing, log, Arc::new(SystemClock))
     }
 
     /// [`Follower::start`], but its thread first waits for `previous` (a stopped follower's
     /// thread) to end, so two followers never write the database at once. Still returns at once.
-    fn start_after(previous: Option<JoinHandle<()>>, dir: PathBuf, db: PathBuf, timing: Timing, log: Log) -> Follower {
+    /// The thread is registered with `clock` and waits on it.
+    fn start_after(
+        previous: Option<JoinHandle<()>>,
+        dir: PathBuf,
+        db: PathBuf,
+        timing: Timing,
+        log: Log,
+        clock: Arc<dyn Clock>,
+    ) -> Follower {
         let progress = Arc::new(Mutex::new(Progress::default()));
         let stop = Arc::new(AtomicBool::new(false));
-        let (poke, rx) = channel();
+        let (poke, rx) = clock.channel();
         let tx = poke.clone();
         let watcher = if timing.notify {
             notify::recommended_watcher(move |e: notify::Result<notify::Event>| {
@@ -110,14 +119,15 @@ impl Follower {
         } else {
             None
         };
-        let (p, s, l) = (progress.clone(), stop.clone(), log.clone());
-        let thread = std::thread::Builder::new()
-            .name("history".into())
-            .spawn(move || {
+        let (p, s, l, c) = (progress.clone(), stop.clone(), log.clone(), clock.clone());
+        let thread = clock
+            .spawn(std::thread::Builder::new().name("history".into()), move || {
+                // The previous follower was stopped and woken (`Follower::stop`): it ends once
+                // a running import does, with no clock time.
                 if let Some(t) = previous {
                     let _ = t.join();
                 }
-                run(&dir, &db, timing, &p, &s, &rx, &l)
+                run(&dir, &db, timing, &p, &s, &rx, &l, c.as_ref())
             })
             .map_err(|e| log(&format!("history: can't start its thread: {e}")))
             .ok();
@@ -148,8 +158,9 @@ fn run(
     timing: Timing,
     p: &Mutex<Progress>,
     stop: &AtomicBool,
-    rx: &Receiver<()>,
+    rx: &ClockReceiver<()>,
     log: &Log,
+    clock: &dyn Clock,
 ) {
     let mut history: Option<History> = None;
     let mut first = true;
@@ -210,7 +221,7 @@ fn run(
             match rx.recv_timeout(timing.recheck) {
                 Ok(()) if stop.load(Ordering::SeqCst) => return,
                 Ok(()) => {
-                    std::thread::sleep(timing.settle);
+                    clock.sleep(timing.settle);
                     while rx.try_recv().is_ok() {}
                     break;
                 }
@@ -235,6 +246,8 @@ fn run(
 pub struct Following {
     timing: Timing,
     state: Mutex<Followed>,
+    /// Each follower's thread waits on it.
+    clock: Arc<dyn Clock>,
 }
 
 #[derive(Default)]
@@ -247,13 +260,13 @@ struct Followed {
 
 impl Default for Following {
     fn default() -> Self {
-        Self::new(Timing::default())
+        Self::new(Timing::default(), Arc::new(SystemClock))
     }
 }
 
 impl Following {
-    pub fn new(timing: Timing) -> Self {
-        Self { timing, state: Mutex::default() }
+    pub fn new(timing: Timing, clock: Arc<dyn Clock>) -> Self {
+        Self { timing, state: Mutex::default(), clock }
     }
 
     /// Import `dir`'s journals into `history.sqlite` in `data_dir` and keep following them (`None`:
@@ -270,7 +283,7 @@ impl Following {
             Some((dir, db)) => {
                 let _ = std::fs::create_dir_all(data_dir);
                 log(&format!("history: following {}", dir.display()));
-                let f = Follower::start_after(previous, dir.clone(), db.clone(), self.timing, log);
+                let f = Follower::start_after(previous, dir.clone(), db.clone(), self.timing, log, self.clock.clone());
                 s.current = Some((dir, db, f));
             }
             None => {
@@ -423,7 +436,7 @@ pub(crate) mod tests {
         .unwrap();
         let data = tempfile::tempdir().unwrap();
         let db = data.path().join(DB_FILE);
-        let f = Following::new(fast(true));
+        let f = Following::new(fast(true), Arc::new(SystemClock));
         f.follow(Some(j1.path().to_path_buf()), data.path(), quiet());
         wait_for("the first folder", || f.status().is_some_and(|p| p.ready && p.events == 52));
         f.follow(Some(j1.path().to_path_buf()), data.path(), quiet());

@@ -14,6 +14,7 @@ use crate::update::{self, ApplyWhen, Status as UpStatus};
 use anyhow::Result;
 use astromech_api::reply::{Answer, Done, Nothing};
 use astromech_api::{control, Exposure, Recover, Registry, Request};
+use astromech_proto::{Clock, SystemClock};
 use astromech_store::Paths;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -123,6 +124,9 @@ pub struct Boundaries {
     /// Commands only this mode has: world mode's `world_*` ([`crate::world`]). None for the
     /// installed app.
     pub more_commands: Option<MoreCommands>,
+    /// The time and the behaviour timers' waits (`astromech_proto::clock`): the system's for the
+    /// installed app, a manual clock in a world. `remote` runs on the same one.
+    pub clock: Arc<dyn Clock>,
 }
 
 impl Boundaries {
@@ -141,6 +145,7 @@ impl Boundaries {
             remote: Arc::new(remote_client),
             window: Arc::new(move |route: Option<&str>| open_shell(&exe_dir, route)),
             more_commands: None,
+            clock: Arc::new(SystemClock),
         }
     }
 }
@@ -227,6 +232,8 @@ pub struct Core {
     pub route: Arc<crate::route::Desk>,
     /// The command layer's state (keybinds, journal caches), read by the window's commands.
     pub api: Arc<astromech_api::State>,
+    /// [`Boundaries::clock`].
+    pub clock: Arc<dyn Clock>,
 }
 
 /// The command layer's state over `core`'s live config: its folders are read on every call,
@@ -485,12 +492,19 @@ impl Core {
         self.notify();
         let t0 = Instant::now();
         let cfg = self.cfg();
-        let r =
-            Session::start(&cfg, &self.paths, &self.opts.session, self.route.clone(), &self.api, self.notifier.clone())
-                .and_then(|mut s| {
-                    s.start_buttons(&cfg, &self.paths, &self.opts.session)?;
-                    Ok(s)
-                });
+        let r = Session::start(
+            &cfg,
+            &self.paths,
+            &self.opts.session,
+            self.route.clone(),
+            &self.api,
+            self.notifier.clone(),
+            self.clock.clone(),
+        )
+        .and_then(|mut s| {
+            s.start_buttons(&cfg, &self.paths, &self.opts.session)?;
+            Ok(s)
+        });
         match r {
             Ok(s) => {
                 log(&format!("active in {} ms: {}", t0.elapsed().as_millis(), s.voice));
@@ -658,8 +672,9 @@ impl Core {
                 log("update: helper started; quitting so files can be replaced");
                 // Quit a moment later, so whoever asked (the window) still gets this reply.
                 let ui = self.ui.lock().recover().clone();
+                let clock = self.clock.clone();
                 std::thread::spawn(move || {
-                    std::thread::sleep(Duration::from_millis(300));
+                    clock.sleep(Duration::from_millis(300));
                     let _ = ui.send(Ui::Quit);
                 });
                 Answer::ok(Nothing {})
@@ -1552,15 +1567,20 @@ fn watch_game(core: Arc<Core>) {
         let change = w.poll(&names);
         *core.game.lock().recover() = w.game;
         match change {
+            // `activate` runs on a thread registered here, before it is spawned.
             Some(Change::LauncherOpened) => {
                 log("Elite launcher (EDLaunch.exe) opened");
                 let c = core.clone();
-                std::thread::spawn(move || c.activate("pre-warming for the launcher"));
+                core.clock
+                    .spawn(std::thread::Builder::new(), move || c.activate("pre-warming for the launcher"))
+                    .expect("failed to spawn thread");
             }
             Some(Change::GameStarted) => {
                 log(&format!("Elite started ({})", gamewatch::GAME_EXE));
                 let c = core.clone();
-                std::thread::spawn(move || c.activate("Elite running"));
+                core.clock
+                    .spawn(std::thread::Builder::new(), move || c.activate("Elite running"))
+                    .expect("failed to spawn thread");
             }
             Some(Change::GameExited) => {
                 log("Elite exited");
@@ -1588,7 +1608,7 @@ fn watch_game(core: Arc<Core>) {
         if change.is_some() {
             core.notify();
         }
-        std::thread::sleep(gamewatch::POLL);
+        core.clock.sleep(gamewatch::POLL);
     }
 }
 
@@ -1684,7 +1704,7 @@ pub(crate) fn assemble_with(
         ui: Mutex::new(ui_tx),
         opts: opts.clone(),
         calibration: Mutex::new(None),
-        history: Default::default(),
+        history: crate::history::Following::new(Default::default(), b.clock.clone()),
         secrets: b.secrets,
         processes: b.processes,
         opener,
@@ -1693,6 +1713,7 @@ pub(crate) fn assemble_with(
         window: b.window,
         more_commands: b.more_commands,
         route,
+        clock: b.clock,
     });
     Assembled { core, ui: ui_rx }
 }
@@ -1743,20 +1764,22 @@ pub fn start(core: &Arc<Core>) -> Started {
         log("history: no journal folder; set game.journal_dir");
     }
 
+    // Both threads are registered with the core's clock and wait on it.
     let c = core.clone();
-    std::thread::Builder::new().name("gamewatch".into()).spawn(move || watch_game(c)).expect("spawn game watcher");
+    core.clock
+        .spawn(std::thread::Builder::new().name("gamewatch".into()), move || watch_game(c))
+        .expect("spawn game watcher");
 
     // Release the voice preview's Kokoro, and what the command layer loaded (the neutron star
     // file, the journal caches, the in-memory star map), once they have sat unused.
     let c = core.clone();
-    std::thread::Builder::new()
-        .name("preview-idle".into())
-        .spawn(move || loop {
-            std::thread::sleep(Duration::from_secs(10));
-            if c.preview.release_idle(Instant::now(), crate::speech::PREVIEW_IDLE) {
+    core.clock
+        .spawn(std::thread::Builder::new().name("preview-idle".into()), move || loop {
+            c.clock.sleep(Duration::from_secs(10));
+            if c.preview.release_idle(c.clock.now(), crate::speech::PREVIEW_IDLE) {
                 log("voice preview: Kokoro released (unused for a minute)");
             }
-            c.api.release_idle(Instant::now(), astromech_api::state::IDLE);
+            c.api.release_idle(c.clock.now(), astromech_api::state::IDLE);
         })
         .expect("spawn preview reaper");
 
@@ -1802,13 +1825,12 @@ pub fn run(opts: Opts) -> i32 {
 
     if core.cfg().update.check {
         let c = core.clone();
-        std::thread::Builder::new()
-            .name("update".into())
-            .spawn(move || {
-                std::thread::sleep(update::STARTUP_DELAY);
+        core.clock
+            .spawn(std::thread::Builder::new().name("update".into()), move || {
+                c.clock.sleep(update::STARTUP_DELAY);
                 loop {
                     c.check_update(false);
-                    std::thread::sleep(update::CHECK_EVERY);
+                    c.clock.sleep(update::CHECK_EVERY);
                 }
             })
             .expect("spawn update checker");
@@ -1924,6 +1946,7 @@ mod tests {
             remote: Arc::new(move |_: &Path| remote.clone()),
             window: Arc::new(|_: Option<&str>| Err("no app window in this test".into())),
             more_commands: None,
+            clock: Arc::new(SystemClock),
         }
     }
 

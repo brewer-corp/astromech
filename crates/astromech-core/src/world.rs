@@ -69,6 +69,7 @@ use crate::app::{self, Assembled, Boundaries, Opener};
 use crate::logging::log;
 use anyhow::{Context, Result};
 use astromech_api::{Exposure, Recover, Registry};
+use astromech_proto::ManualClock;
 use astromech_store::secrets::{MemorySecrets, Secrets};
 use astromech_store::Paths;
 use serde::Deserialize;
@@ -211,6 +212,8 @@ pub struct World {
     /// The running processes' exe names the game watch sees.
     processes: Arc<Mutex<Vec<String>>>,
     secrets: Vec<(String, String)>,
+    /// The core's clock: time moves only when the script advances it (astromech-i1ev).
+    clock: Arc<ManualClock>,
 }
 
 impl World {
@@ -219,7 +222,10 @@ impl World {
         anyhow::ensure!(src.is_dir(), "no world folder at {}", src.display());
         let dir =
             tempfile::Builder::new().prefix("astromech-world-").tempdir().context("making the world's temp folder")?;
-        let w = Self { dir, observed: Default::default(), processes: Default::default(), secrets: vec![] };
+        // It starts at the real time, so the world's seed files are as old as they are on disk.
+        #[allow(clippy::disallowed_methods)]
+        let clock = Arc::new(ManualClock::new(std::time::SystemTime::now()));
+        let w = Self { dir, observed: Default::default(), processes: Default::default(), secrets: vec![], clock };
         copy_dir(src, &w.world()).with_context(|| format!("copying the world {}", src.display()))?;
         let secrets = match std::fs::read_to_string(w.world().join("secrets.json")) {
             Ok(t) => serde_json::from_str::<std::collections::BTreeMap<String, String>>(&t)
@@ -237,6 +243,11 @@ impl World {
         }
         w.write_config()?;
         Ok(Self { secrets, ..w })
+    }
+
+    /// The core's clock, which the script's `advance` moves.
+    pub fn clock(&self) -> &Arc<ManualClock> {
+        &self.clock
     }
 
     /// The temp directory.
@@ -293,7 +304,8 @@ impl World {
                 astromech_data::Cache::in_memory().expect("an in-memory cache"),
                 Arc::new(Unrecorded(o.clone())),
             )
-            .limiter(astromech_data::Limiter::none()),
+            .limiter(astromech_data::Limiter::none())
+            .clock(self.clock.clone()),
         );
         let processes = self.processes.clone();
         let (clip, commands) = (o.clone(), o.clone());
@@ -314,6 +326,7 @@ impl World {
             }),
             remote: Arc::new(move |_: &Path| remote.clone()),
             more_commands: Some(Arc::new(move |_, reg| register(&commands, reg))),
+            clock: self.clock.clone(),
         }
     }
 }

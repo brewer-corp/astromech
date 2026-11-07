@@ -127,7 +127,8 @@ impl Session {
     /// commander jumps. `api` is the command layer's state: its one remote-data client and its
     /// star map serve the voice lookups too, so they share one rate limit and cache with the
     /// window's. `paths` places the folders the config doesn't name, and `notifier` shows the
-    /// callouts' notifications (one at a time, behind [`callouts::Background`]).
+    /// callouts' notifications (one at a time, behind [`callouts::Background`]). Its timers
+    /// read and wait on `clock`, and its threads are registered with it.
     pub fn start(
         cfg: &Config,
         paths: &Paths,
@@ -135,6 +136,7 @@ impl Session {
         route: Arc<crate::route::Desk>,
         api: &astromech_api::State,
         notifier: Arc<dyn callouts::Notifier>,
+        clock: Arc<dyn astromech_proto::Clock>,
     ) -> Result<Session> {
         let args = opts;
         let data = cfg.data_dir(paths);
@@ -158,18 +160,25 @@ impl Session {
         write_health(&data, &st);
         let binds: health::Shared = Arc::new(RwLock::new(st));
         let data2 = data.clone();
-        let hw = health::watch(bindings.clone(), cfg.game_dir(), live, binds.clone(), move |s| {
-            log("Bindings folder changed; health check re-run:");
-            for l in s.summary().lines() {
-                log(l);
-            }
-            write_health(&data2, s);
-        })
+        let hw = health::watch(
+            bindings.clone(),
+            cfg.game_dir(),
+            live,
+            binds.clone(),
+            move |s| {
+                log("Bindings folder changed; health check re-run:");
+                for l in s.summary().lines() {
+                    log(l);
+                }
+                write_health(&data2, s);
+            },
+            clock.clone(),
+        )
         .map_err(|e| log(&format!("not watching the Bindings folder: {e:#}")))
         .ok();
 
         // 2. Game state pipeline, feeding the callouts (spoken once the speaker exists, step 3).
-        let hub = Arc::new(StateHub::new());
+        let hub = Arc::new(StateHub::with_clock(clock.clone()));
         let jdir = cfg.journal_dir(paths).context("can't find the journal folder; set game.journal_dir")?;
         let shared = callouts::shared_from_store(&data, &|m: &str| log(m));
         shared.visits.set(Arc::new(crate::visits::HistoryVisits::new(data.join(crate::history::DB_FILE))));
@@ -187,23 +196,23 @@ impl Session {
         for p in engine.setting_problems() {
             log(&format!("config: {p}"));
         }
-        let (pending, toasts) = (Arc::new(callouts::Pending::default()), Arc::new(Toasts::default()));
+        let (pending, toasts) = (Arc::new(callouts::Pending::new(clock.clone())), Arc::new(Toasts::default()));
         let deliver = Box::new(callouts::router(
             pending.clone(),
             toasts.clone(),
             Arc::new(
-                callouts::Background::start(notifier, callouts::NOTIFY_GAP)
+                callouts::Background::start(notifier, callouts::NOTIFY_GAP, clock.clone())
                     .context("starting the notification thread")?,
             ),
         ));
-        let eddn = crate::pipeline::eddn_feed(cfg, &data);
+        let eddn = crate::pipeline::eddn_feed(cfg, &data, clock.clone());
         let pipe = crate::pipeline::start_with_eddn(
             &jdir,
             hub.clone(),
             Some(&data.join("astromech.sqlite")),
             log,
             eddn,
-            crate::pipeline::edsm_uploader(&data),
+            crate::pipeline::edsm_uploader(&data, clock.clone()),
             Some(Callouts { engine, deliver }),
         )
         .with_context(|| format!("journal folder {}", jdir.display()))?;
@@ -307,7 +316,7 @@ impl Session {
             ..Default::default()
         };
         let runner = Arc::new(Runner {
-            policy: Policy::new(platform, pcfg),
+            policy: Policy::with_clock(platform, pcfg, clock.clone()),
             hub: hub.clone(),
             binds,
             speaker: speaker.clone(),

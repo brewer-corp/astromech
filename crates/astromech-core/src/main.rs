@@ -366,7 +366,15 @@ fn run_console(args: Args) -> Result<()> {
         move || astromech_api::Folders { journal: journal.clone(), bindings: bindings.clone(), game: game.clone() };
     let remote = astromech_core::app::remote_client(&data);
     let api = astromech_api::State::new(data, remote, preload, folders);
-    let mut s = Session::start(&cfg, &paths, &opts, route, &api, astromech_core::callouts::platform_notifier())?;
+    let mut s = Session::start(
+        &cfg,
+        &paths,
+        &opts,
+        route,
+        &api,
+        astromech_core::callouts::platform_notifier(),
+        std::sync::Arc::new(astromech_proto::SystemClock),
+    )?;
     log(&s.voice);
 
     if let Some(wav) = &args.transcribe {

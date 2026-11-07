@@ -114,7 +114,7 @@ use crate::{
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 /// Every station type Spansh knows (its `type` field values, 16 Oct 2026).
 pub const STATION_TYPES: &[&str] = &[
@@ -1049,16 +1049,16 @@ impl Client {
     /// Submit a job with `submit`, then poll `/api/results/{job}` every `polling.every` until it
     /// is done or `polling.timeout` has passed ([`Error::Timeout`]).
     fn spansh_wait<T: DeserializeOwned>(&self, submit: impl FnOnce() -> Result<Job>, polling: Polling) -> Result<T> {
-        let start = Instant::now();
+        let start = self.clock.now();
         let job = submit()?;
         loop {
             if let JobStatus::Done(v) = self.spansh_job(&job.job)? {
                 return Ok(v);
             }
-            if start.elapsed() + polling.every > polling.timeout {
+            if self.clock.now().saturating_duration_since(start) + polling.every > polling.timeout {
                 return Err(Error::Timeout { service: Service::Spansh });
             }
-            std::thread::sleep(polling.every);
+            self.clock.sleep(polling.every);
         }
     }
 
