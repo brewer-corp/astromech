@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-11-07T03:15:43.394911967+00:00"
+status: "done"
 title: "Publish the browser preview as an artifact"
-updated_at: "2026-11-07T03:05:30.385455431+00:00"
+updated_at: "2026-11-07T03:15:43.394911967+00:00"
 ---
 
 ## Goal
@@ -29,11 +30,15 @@ Design work happens in the real app on its work branch, not in hand-drawn mockup
 
 ## Done when
 
-- [ ] `scripts/preview-publish [--core ready] [--page route] [--out dir]` builds the preview with relative asset paths into a directory ready to publish, its page with no document wrapper of its own.
-- [ ] Without `?core=` the build answers as the chosen scenario; the dev server and Tauri builds are unchanged.
-- [ ] The published build opens on the chosen page and its navigation works in the artifact viewer (checked once, by publishing it).
-- [ ] CONTRIBUTING.md's UI check says how to share a preview.
+- [x] `scripts/preview-publish [--core ready] [--page route] [--out dir]` builds the preview with relative asset paths into a directory ready to publish, its page with no document wrapper of its own.
+- [x] Without `?core=` the build answers as the chosen scenario; the dev server and Tauri builds are unchanged.
+- [x] The published build opens on the chosen page and its navigation works in the artifact viewer (checked once, by publishing it).
+- [x] CONTRIBUTING.md's UI check says how to share a preview.
 
 ## Context
 
 The `#/mockup/ds-*` mockups re-implement components in `ds.css` and drift from the app. The browser preview already runs the real pages against `lib/fakecore.ts`. An artifact link carries neither `?core=` nor a `#/path`, so the scenario and start page are set at build time.
+
+## Close Reason
+
+scripts/preview-publish builds the real app against fakecore into app/dist-preview with relative paths and the scenario and start page baked in; published as https://claude.ai/artifact/ULshEHBXYuKBUBkQNHBvkJ, and Sumeet confirmed on 6 Nov 2026 that it opens on Route, navigates and loads its images in the viewer. Review findings astromech-doh0, -1qa8 and -pnzj fixed in 527c5618; approved in astromech-dgn0. CONTRIBUTING.md says how to share a preview.
