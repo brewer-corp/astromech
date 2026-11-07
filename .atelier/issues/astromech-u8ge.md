@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "One clock for the core's behaviour timers, with a manual clock whose advance waits for quiescence"
-updated_at: "2026-11-07T11:57:01.792573617+00:00"
+updated_at: "2026-11-07T14:07:29.523316373+00:00"
 ---
 
 ## Goal
