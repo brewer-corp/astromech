@@ -13,9 +13,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "backlog"
 title: "Check the remaining keybinds questions in the game"
-updated_at: "2026-11-07T14:27:59.335505291+00:00"
+updated_at: "2026-10-16T04:38:23.212743283+00:00"
 ---
 
 ## Goal

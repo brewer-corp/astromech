@@ -15,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "backlog"
 title: "Run the overlay spike next to Elite"
-updated_at: "2026-11-07T14:28:00.205466701+00:00"
+updated_at: "2026-10-16T18:26:24.491979223+00:00"
 ---
 
 ## Goal

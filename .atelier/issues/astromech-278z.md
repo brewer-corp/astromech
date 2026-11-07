@@ -16,7 +16,7 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "backlog"
 title: "GPU timing for the Rust voice stack on Sumeet's PC with Elite in VR"
 updated_at: "2026-11-07T05:34:24.723280855+00:00"
 ---
