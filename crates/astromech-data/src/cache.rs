@@ -15,6 +15,8 @@ pub const BUSY_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
 /// Switch to WAL, retrying while another process holds the file: SQLite doesn't run the busy
 /// handler for this switch, so two openers of a new file at once would otherwise fail. (Same
 /// as `astromech-store`'s, which this crate can't depend on.)
+// Real time: it retries a database another process holds, and finishes on its own.
+#[allow(clippy::disallowed_methods)]
 fn enable_wal(db: &Connection) -> rusqlite::Result<()> {
     let start = std::time::Instant::now();
     loop {

@@ -1144,7 +1144,12 @@ mod tests {
     use std::io::Write;
 
     fn tailer(dir: &Path) -> (Tailer, Arc<StateHub>, Arc<std::sync::Mutex<Vec<String>>>) {
-        let hub = Arc::new(StateHub::new());
+        tailer_on(dir, Arc::new(astromech_proto::SystemClock))
+    }
+
+    /// [`tailer`] on `clock`.
+    fn tailer_on(dir: &Path, clock: Arc<dyn Clock>) -> (Tailer, Arc<StateHub>, Arc<std::sync::Mutex<Vec<String>>>) {
+        let hub = Arc::new(StateHub::with_clock(clock.clone()));
         let logs = Arc::new(std::sync::Mutex::new(vec![]));
         let l2 = logs.clone();
         let t = Tailer {
@@ -1162,9 +1167,9 @@ mod tests {
             live: true,
             caught_up: false,
             opened: Default::default(),
-            last_scan: Instant::now(),
-            last_read: Instant::now(),
-            clock: Arc::new(astromech_proto::SystemClock),
+            last_scan: clock.now(),
+            last_read: clock.now(),
+            clock,
             game_session: None,
             writing: None,
             retired: Default::default(),
@@ -1189,6 +1194,24 @@ mod tests {
         fn react(
             &self,
             input: &astromech_announce::Input,
+            g: &astromech_gamestate::GameState,
+        ) -> Option<astromech_announce::Callout> {
+            ScanEvery30s.react(input, g)
+        }
+    }
+
+    /// [`ScanRule`] with a 30 s cooldown.
+    struct ScanEvery30s;
+    impl astromech_announce::Rule for ScanEvery30s {
+        fn id(&self) -> &'static str {
+            "scan30"
+        }
+        fn cooldown(&self) -> Duration {
+            Duration::from_secs(30)
+        }
+        fn react(
+            &self,
+            input: &astromech_announce::Input,
             _: &astromech_gamestate::GameState,
         ) -> Option<astromech_announce::Callout> {
             use astromech_announce::*;
@@ -1202,6 +1225,81 @@ mod tests {
 
     fn scanned(ts: &str) -> String {
         format!("{{\"timestamp\":\"2026-10-16T{ts}Z\",\"event\":\"Scanned\",\"ScanType\":\"Cargo\"}}\r\n")
+    }
+
+    /// A manual clock at 2026-10-16T20:00:00Z.
+    fn evening() -> (Arc<astromech_proto::ManualClock>, Arc<dyn Clock>) {
+        let m = Arc::new(astromech_proto::ManualClock::at_unix(
+            chrono::DateTime::parse_from_rfc3339("2026-10-16T20:00:00Z").unwrap().timestamp(),
+        ));
+        let c: Arc<dyn Clock> = m.clone();
+        (m, c)
+    }
+
+    /// Journal freshness reads the pipeline's clock: a line stamped at its now is fresh, one
+    /// stamped two hours earlier isn't. The clock is weeks from the real time, so on the wall
+    /// clock neither would be.
+    #[test]
+    fn journal_freshness_is_on_the_clock() {
+        let (_, clock) = evening();
+        let d = tempfile::tempdir().unwrap();
+        let (t, _, _) = tailer_on(d.path(), clock);
+        let line = |ts: &str| format!(r#"{{"timestamp":"{ts}","event":"Music"}}"#);
+        assert!(line_is_fresh(&line("2026-10-16T20:00:00Z"), t.clock.now_s()));
+        assert!(!line_is_fresh(&line("2026-10-16T18:00:00Z"), t.clock.now_s()));
+    }
+
+    /// A callout cooldown runs on the pipeline's clock: a repeat within 30 s is held back, and
+    /// once the clock has moved 30 s the next one is said.
+    #[test]
+    fn a_callout_cooldown_runs_on_the_clock() {
+        let (manual, clock) = evening();
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("Journal.2026-10-16T195000.01.log");
+        std::fs::write(&p, scanned("19:50:00")).unwrap();
+        let (mut t, _, _) = tailer_on(d.path(), clock);
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(vec![Box::new(ScanEvery30s)], &Default::default()),
+            deliver: Box::new(move |rs| f2.lock().recover().extend(rs.into_iter().map(|r| r.text))),
+        });
+        t.catch_up();
+        let live = |t: &mut Tailer, ts: &str| {
+            let mut f = std::fs::OpenOptions::new().append(true).open(&p).unwrap();
+            write!(f, "{}", scanned(ts)).unwrap();
+            drop(f);
+            t.on_journal_activity();
+        };
+        live(&mut t, "20:00:00");
+        assert_eq!(fired.lock().recover().len(), 1);
+        live(&mut t, "20:00:00");
+        assert_eq!(fired.lock().recover().len(), 1, "a repeat within the cooldown");
+        manual.advance(Duration::from_secs(30));
+        live(&mut t, "20:00:30");
+        assert_eq!(fired.lock().recover().len(), 2, "said again once the clock passed the cooldown");
+    }
+
+    /// Dropping a pipeline whose thread is in a clock wait returns at once: the stop wakes the
+    /// wait, with no `advance`. Without the wake the drop would wait for an `advance` that never
+    /// comes; the guard fails the test instead of hanging it.
+    #[test]
+    fn dropping_a_pipeline_wakes_its_clock_wait() {
+        let (manual, clock) = evening();
+        let d = tempfile::tempdir().unwrap();
+        let hub = Arc::new(StateHub::with_clock(clock));
+        let pipe = start(d.path(), hub, None, |_| {}, None).unwrap();
+        // The loop is registered: this returns once it is parked in its `IDLE` wait.
+        manual.advance(Duration::ZERO);
+        let (done_tx, done) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            drop(pipe);
+            let _ = done_tx.send(());
+        });
+        // A guard against hanging, never how the test decides: the drop is expected at once.
+        #[allow(clippy::disallowed_methods)]
+        let dropped = done.recv_timeout(Duration::from_secs(30));
+        assert!(dropped.is_ok(), "the pipeline's drop waited for the clock");
     }
 
     #[test]

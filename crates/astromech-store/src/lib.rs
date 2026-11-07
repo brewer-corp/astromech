@@ -35,6 +35,8 @@ const MIGRATIONS: &[&str] = &[
 
 /// Switching a file to WAL while another connection is opening it fails at once with "database
 /// is locked" (SQLite doesn't call the busy handler for it), so retry for a few seconds.
+// Real time: it retries a database another process holds, and finishes on its own.
+#[allow(clippy::disallowed_methods)]
 fn enable_wal(conn: &Connection) -> Result<()> {
     let start = std::time::Instant::now();
     loop {

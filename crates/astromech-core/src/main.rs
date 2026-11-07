@@ -156,7 +156,9 @@ fn attach_console() -> bool {
     }
 }
 
-/// `--quit` (used by the installer): 0 if no core runs any more.
+/// `--quit` (used by the installer): 0 if no core runs any more. Real time: a console-only
+/// path, which world mode doesn't run.
+#[allow(clippy::disallowed_methods)]
 fn quit_running() -> i32 {
     let dir = Paths::current().app_dir().to_path_buf();
     let file = dir.join(astromech_api::control::FILE);
@@ -253,6 +255,8 @@ fn download_models(cfg: &Config, paths: &Paths) -> Result<()> {
     Ok(())
 }
 
+/// Real time: a console-only path, which world mode doesn't run.
+#[allow(clippy::disallowed_methods)]
 fn run_console(args: Args) -> Result<()> {
     let paths = Paths::current();
     let cfg_path = args.config.clone().unwrap_or_else(|| paths.config_file());
@@ -464,7 +468,9 @@ fn calibrate_files(cfg: &Config, data: &Path, files: &[PathBuf]) -> Result<()> {
     Ok(())
 }
 
+/// Real time: a console-only path, which world mode doesn't run.
 #[cfg(windows)]
+#[allow(clippy::disallowed_methods)]
 fn listen(secs: u64) -> Result<()> {
     use astromech_input::listen::{tracker::Processor, win};
     println!("Press buttons for {secs} s; each line shows the device and key to put in astromech.toml.");

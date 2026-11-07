@@ -225,7 +225,9 @@ pub fn describe_button(what: &str, b: &Button, devices: &[DeviceMeta]) -> String
 }
 
 /// Start listening on Windows. Returns the Raw Input/XInput status and the devices found.
+// Device timing, on real time: the listeners' sample stamps and the Mapper's ticks.
 #[cfg(windows)]
+#[allow(clippy::disallowed_methods)]
 pub fn start(
     ptt: Option<Button>,
     kill: Option<Button>,

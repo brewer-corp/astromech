@@ -234,6 +234,8 @@ impl Recorder {
     pub fn position(&self) -> u64 {
         self.ring.0.lock().unwrap().total
     }
+    /// Real time: it waits for the device's next callback, which is device timing.
+    #[allow(clippy::disallowed_methods)]
     pub fn wait_after(&self, t: Instant, max: Duration) {
         let (m, cv) = &*self.ring;
         let end = Instant::now() + max;

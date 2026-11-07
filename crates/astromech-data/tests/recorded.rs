@@ -663,6 +663,40 @@ fn spansh_trade_route_polls_until_the_job_is_done() {
     assert_eq!((cargo.source_commodity.buy_price, cargo.destination_commodity.sell_price), (110, 754));
 }
 
+/// A Spansh poll's next request goes out only once the clock has passed `Polling::every`: the
+/// polling thread is registered with a manual clock, so each `advance` returns with it parked
+/// again and the request count read after it is settled.
+#[test]
+fn spansh_polls_on_the_clock() {
+    let rec = Arc::new(Recorded::default());
+    let manual = Arc::new(astromech_proto::ManualClock::at_unix(T0));
+    let clock: Arc<dyn Clock> = manual.clone();
+    let c = Arc::new(
+        Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none()).clock(clock.clone()),
+    );
+    rec.on("/api/trade/route", 202, fixture!("spansh-trade-submit.json"));
+    rec.in_turn(
+        "/api/results/",
+        &[(202, fixture!("spansh-trade-queued.json")), (200, fixture!("spansh-trade-result.json"))],
+    );
+    let every = std::time::Duration::from_secs(3);
+    let polling = Polling { every, timeout: std::time::Duration::from_secs(180) };
+    let (tx, out) = std::sync::mpsc::channel();
+    let poller = clock
+        .spawn(std::thread::Builder::new(), move || {
+            let _ = tx.send(c.spansh_trade_route_wait(&trade_request(), polling).map(|h| h.len()));
+        })
+        .unwrap();
+    manual.advance(std::time::Duration::ZERO);
+    assert_eq!(rec.requests(), 2, "the submit and the first poll, then a wait");
+    manual.advance(every - std::time::Duration::from_millis(1));
+    assert_eq!(rec.requests(), 2, "no poll before `every` has passed");
+    manual.advance(std::time::Duration::from_millis(1));
+    assert_eq!(rec.requests(), 3, "the next poll once it has");
+    poller.join().unwrap();
+    assert_eq!(out.recv().unwrap().unwrap(), 1);
+}
+
 #[test]
 fn spansh_trade_route_errors_are_plain_words() {
     // An unknown start station: HTTP 400 with Spansh's reason.

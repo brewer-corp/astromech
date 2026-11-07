@@ -119,7 +119,10 @@ impl Worker {
         if writeln!(self.stdin, "{line}").and_then(|_| self.stdin.flush()).is_err() {
             bail!("the {} voice worker is not running. {}", self.flavour, self.log_tail());
         }
-        match self.rx.recv_timeout(timeout) {
+        // Real time: it talks to the speech worker process, which world mode doesn't start.
+        #[allow(clippy::disallowed_methods)]
+        let answer = self.rx.recv_timeout(timeout);
+        match answer {
             Ok(r) => Ok(r),
             Err(mpsc::RecvTimeoutError::Timeout) => {
                 let _ = self.child.kill();
@@ -131,6 +134,7 @@ impl Worker {
                 ))
             }
             Err(mpsc::RecvTimeoutError::Disconnected) => {
+                #[allow(clippy::disallowed_methods)]
                 std::thread::sleep(Duration::from_millis(200));
                 let status =
                     self.child.try_wait().ok().flatten().map(|s| format!("{s}")).unwrap_or_else(|| "unknown".into());
@@ -171,6 +175,8 @@ impl Drop for Worker {
             if let Ok(Some(_)) = self.child.try_wait() {
                 return;
             }
+            // Real time: the worker process's exit.
+            #[allow(clippy::disallowed_methods)]
             std::thread::sleep(Duration::from_millis(100));
         }
         let _ = self.child.kill();

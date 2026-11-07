@@ -368,6 +368,8 @@ fn copy_dir(from: &Path, to: &Path) -> Result<()> {
     Ok(())
 }
 
+// Real time: the update helper waits for the old process to exit; world mode never runs it.
+#[allow(clippy::disallowed_methods)]
 pub fn wait_pid(pid: u32, timeout: Duration) -> Result<()> {
     if pid == 0 {
         return Ok(());
@@ -502,6 +504,8 @@ pub fn apply_error_file(app_dir: &Path) -> PathBuf {
 
 /// The `--apply-update` helper. Logs every step (it has no window), and relaunches even when
 /// the copy failed so astromech isn't left off; the error is left in [`apply_error_file`].
+// Real time: its retries wait on files another process holds; world mode never runs it.
+#[allow(clippy::disallowed_methods)]
 pub fn apply_cli(from: &Path, install_dir: &Path, wait: Option<u32>, after: After, app_dir: &Path) -> i32 {
     use crate::logging::log;
     log(&format!("update helper: applying {} to {}", from.display(), install_dir.display()));

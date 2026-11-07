@@ -164,6 +164,56 @@ mod tests {
     use super::*;
     use std::sync::Arc;
 
+    /// `advance` on a helper thread, failing the test (not hanging it) if it never settles:
+    /// a registered thread waiting off the clock would hold it up for good.
+    fn settle(m: &Arc<astromech_proto::ManualClock>, d: Duration) {
+        let (m, (tx, rx)) = (m.clone(), std::sync::mpsc::channel());
+        std::thread::spawn(move || {
+            m.advance(d);
+            let _ = tx.send(());
+        });
+        // A guard against hanging, never how the test decides.
+        #[allow(clippy::disallowed_methods)]
+        let settled = rx.recv_timeout(Duration::from_secs(30));
+        assert!(settled.is_ok(), "advance never settled: the wait isn't on the clock");
+    }
+
+    /// A verify wait on the clock: it returns at once when the flag is set, with no `advance`,
+    /// and times out only once `advance` has passed the timeout.
+    #[test]
+    fn a_verify_wait_returns_on_the_flag_and_times_out_on_the_clock() {
+        const FLAG: u64 = astromech_status::FLAG_IN_MAIN_SHIP;
+        const OTHER: u64 = astromech_status::FLAG_IN_SRV;
+        let m = Arc::new(astromech_proto::ManualClock::at_unix(1_800_000_000));
+        let clock: Arc<dyn Clock> = m.clone();
+        let hub = Arc::new(StateHub::with_clock(clock.clone()));
+        let (tx, out) = std::sync::mpsc::channel();
+        let wait = |flag: u64| {
+            let (h, tx) = (hub.clone(), tx.clone());
+            clock
+                .spawn(std::thread::Builder::new(), move || {
+                    let _ = tx.send(h.wait_flag(flag, true, Duration::from_secs(2), &|| false));
+                })
+                .unwrap()
+        };
+        let set = wait(FLAG);
+        settle(&m, Duration::ZERO);
+        hub.update(|g| {
+            g.status_seen = true;
+            g.status_flags = FLAG;
+        });
+        set.join().unwrap();
+        assert_eq!(out.try_recv(), Ok(true), "seen at once, with no advance");
+
+        let unset = wait(OTHER);
+        settle(&m, Duration::ZERO);
+        settle(&m, Duration::from_millis(1999));
+        assert!(out.try_recv().is_err(), "timed out before the timeout passed on the clock");
+        settle(&m, Duration::from_millis(1));
+        unset.join().unwrap();
+        assert_eq!(out.try_recv(), Ok(false), "timed out once it had");
+    }
+
     /// A panic while the state was locked (a handler's, say) doesn't make the next press's
     /// verification panic: the wait recovers the lock and still sees the flag the pipeline sets.
     #[test]
