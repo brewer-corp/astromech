@@ -63,12 +63,21 @@ fn rig(at_sol: bool) -> (Assistant, Arc<RecordingSpeaker>, Arc<NoKeys>) {
 }
 
 fn rig_with(at_sol: bool, transport: Recorded) -> (Assistant, Arc<RecordingSpeaker>, Arc<NoKeys>) {
-    rig_opening(at_sol, transport, 0)
+    let (a, speaker, exec, _) = rig_opening(at_sol, transport, 0);
+    (a, speaker, exec)
 }
 
+/// The threads the star map's opens ran on.
+type OpenedOn = Arc<Mutex<Vec<std::thread::ThreadId>>>;
+
 /// [`rig_with`] whose star map is opened on the first lookup, and fails to open `failures`
-/// times first.
-fn rig_opening(at_sol: bool, transport: Recorded, failures: usize) -> (Assistant, Arc<RecordingSpeaker>, Arc<NoKeys>) {
+/// times first; each try records the thread it ran on.
+fn rig_opening(
+    at_sol: bool,
+    transport: Recorded,
+    failures: usize,
+) -> (Assistant, Arc<RecordingSpeaker>, Arc<NoKeys>, OpenedOn) {
+    let opened_on = OpenedOn::default();
     let hub = Arc::new(StateHub::new());
     hub.update(|g| {
         g.status_seen = true;
@@ -91,8 +100,9 @@ fn rig_opening(at_sol: bool, transport: Recorded, failures: usize) -> (Assistant
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
         stars: Arc::new(astromech_api::GalaxyHolder::new({
-            let (client, left) = (client.clone(), Mutex::new(failures));
+            let (client, left, on) = (client.clone(), Mutex::new(failures), opened_on.clone());
             move || {
+                on.lock().unwrap().push(std::thread::current().id());
                 let mut left = left.lock().unwrap();
                 if *left > 0 {
                     *left -= 1;
@@ -103,7 +113,7 @@ fn rig_opening(at_sol: bool, transport: Recorded, failures: usize) -> (Assistant
         })),
         remote: client,
     });
-    (Assistant::new(runner), speaker, exec)
+    (Assistant::new(runner), speaker, exec, opened_on)
 }
 
 const ANSWER: &str = "Nearest crystalline shards: Oochorrs SB-J d10-5 B 6 a, 1,426 light years, about 48 jumps, \
@@ -208,18 +218,21 @@ fn a_named_system_is_searched_from_and_named() {
     assert_eq!(a.dry_run("nearest crystalline shards", Source::Typed).live_from, None);
 }
 
-/// The star map opens on the first voice lookup that needs it. While it can't be opened the
-/// lookup says lookups are off, and the next one tries again.
+/// The star map opens on the first voice lookup that needs it, on the lookup's own thread, so
+/// the speech thread is free at once (opening it can seed it from the preload). While it can't
+/// be opened the lookup says lookups are off, and the next one tries again.
 #[test]
 fn a_star_map_that_would_not_open_is_tried_again_on_the_next_lookup() {
-    let (a, speaker, _) = rig_opening(true, Recorded::default(), 1);
-    let Handled::Ran { outcome: Outcome::Spoken(s), .. } =
+    let (a, speaker, _, opened_on) = rig_opening(true, Recorded::default(), 1);
+    let Handled::Ran { outcome: Outcome::LookingUp(h), .. } =
         a.handle("nearest crystalline shards", astromech_proto::Origin::Voice)
     else {
-        panic!("not spoken")
+        panic!("not a lookup")
     };
+    let s = h.join().unwrap();
     assert_eq!(s, astromech_tools::lookup::NO_STAR_MAP);
-    assert_eq!(speaker.take(), vec![s]);
+    assert_eq!(speaker.take(), vec!["Looking that up.".to_string(), s]);
+    assert!(!opened_on.lock().unwrap().contains(&std::thread::current().id()), "not opened on the speech thread");
     let Handled::Ran { outcome: Outcome::LookingUp(h), .. } =
         a.handle("nearest crystalline shards", astromech_proto::Origin::Voice)
     else {

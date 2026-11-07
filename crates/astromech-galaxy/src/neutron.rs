@@ -328,9 +328,9 @@ impl NeutronStars {
 }
 
 /// The neutron star file in a data folder as the app keeps it: loaded on first use (0.1–0.2 s)
-/// and held (about 80 MB), and loaded again when the file on disk is no longer the one loaded,
-/// so a download that replaced it is picked up by the next [`Kept::get`]. A file that fails to
-/// load is not tried again until it changes.
+/// and held (about 80 MB) until [`Kept::release_idle`] drops it, and loaded again when the file
+/// on disk is no longer the one loaded, so a download that replaced it is picked up by the next
+/// [`Kept::get`]. A file that fails to load is not tried again until it changes.
 pub struct Kept {
     dir: PathBuf,
     state: std::sync::Mutex<KeptState>,
@@ -339,6 +339,8 @@ pub struct Kept {
 #[derive(Default)]
 struct KeptState {
     file: Option<std::sync::Arc<NeutronStars>>,
+    /// When [`Kept::get`] last handed the loaded file out.
+    used: Option<std::time::Instant>,
     /// The last load failed, for the file with this length and modified time.
     failed: Option<((u64, std::time::SystemTime), String)>,
 }
@@ -363,8 +365,9 @@ impl Kept {
     /// there is no file; an error (a sentence) if it can't be read.
     pub fn get(&self) -> Result<Option<std::sync::Arc<NeutronStars>>> {
         let mut s = self.lock();
-        if let Some(f) = s.file.as_ref().filter(|f| f.is_current()) {
-            return Ok(Some(f.clone()));
+        if let Some(f) = s.file.clone().filter(|f| f.is_current()) {
+            s.used = Some(std::time::Instant::now());
+            return Ok(Some(f));
         }
         s.file = None; // free the old one before loading the new
         let path = self.dir.join(FILE_NAME);
@@ -381,6 +384,7 @@ impl Kept {
                 s.failed = None;
                 let f = std::sync::Arc::new(f);
                 s.file = Some(f.clone());
+                s.used = Some(std::time::Instant::now());
                 Ok(Some(f))
             }
             Err(e) => {
@@ -389,6 +393,17 @@ impl Kept {
                 bail!("{e}")
             }
         }
+    }
+
+    /// Drop the loaded file if [`Kept::get`] last handed it out `idle` or longer before `now`;
+    /// true if one was dropped. The next [`Kept::get`] loads it again.
+    pub fn release_idle(&self, now: std::time::Instant, idle: std::time::Duration) -> bool {
+        let mut s = self.lock();
+        if s.file.is_some() && s.used.is_some_and(|t| now.saturating_duration_since(t) >= idle) {
+            s.file = None;
+            return true;
+        }
+        false
     }
 
     /// [`installed`], unless the file failed to load since it last changed: then why.

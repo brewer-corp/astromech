@@ -61,15 +61,27 @@ pub struct Runner {
     /// it, and the star map holds the same one, so they share its rate limit and cache.
     pub remote: Arc<astromech_data::Client>,
     /// Star map and remote lookups for "nearest crystalline shards" and friends, opened on the
-    /// first lookup (the window's lookups share it).
+    /// first lookup (the window's lookups share it). Lookups take it on their own thread: opening
+    /// it can seed it from the preload, and waits while a window lookup opens it.
     pub stars: Arc<astromech_api::GalaxyHolder>,
 }
 
 impl Runner {
-    /// The star map, opened now if it isn't yet; `None` when it can't be opened (the holder
-    /// logged why), and the next lookup tries again.
-    pub fn galaxy(&self) -> Option<Arc<astromech_galaxy::Galaxy>> {
-        self.stars.get().ok()
+    /// Start a lookup off the caller's thread: "Looking that up." is said now, then `answer`
+    /// runs on its own thread with the star map (opened then if it isn't yet) and its answer is
+    /// said. Without a star map (the holder logged why) the answer is that lookups are off, and
+    /// the next lookup tries again.
+    pub fn look_up(&self, answer: impl FnOnce(&astromech_galaxy::Galaxy) -> String + Send + 'static) -> Outcome {
+        self.speaker.say("Looking that up.");
+        let (stars, speaker) = (self.stars.clone(), self.speaker.clone());
+        Outcome::LookingUp(std::thread::spawn(move || {
+            let m = match stars.get() {
+                Ok(g) => answer(&g),
+                Err(_) => astromech_tools::lookup::NO_STAR_MAP.to_string(),
+            };
+            speaker.say(&m);
+            m
+        }))
     }
 
     /// Start the nearest-site lookup for `kind`, near the commander or the system named in
@@ -84,19 +96,7 @@ impl Runner {
             self.speaker.say(&m);
             return Outcome::Spoken(m);
         }
-        let Some(galaxy) = self.galaxy() else {
-            let m = astromech_tools::lookup::NO_STAR_MAP.to_string();
-            self.speaker.say(&m);
-            return Outcome::Spoken(m);
-        };
-        self.speaker.say("Looking that up.");
-        let speaker = self.speaker.clone();
-        let h = std::thread::spawn(move || {
-            let m = crate::lookups::sites_answer(&galaxy, kind, &g, from.as_deref());
-            speaker.say(&m);
-            m
-        });
-        Outcome::LookingUp(h)
+        self.look_up(move |galaxy| crate::lookups::sites_answer(galaxy, kind, &g, from.as_deref()))
     }
 
     /// Paste the clipboard into the galaxy map's search box: Ctrl+V, then Enter to search.

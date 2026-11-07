@@ -10,6 +10,10 @@
 //! `Api` is rebuilt when the Bindings or game folder it was built from changes, and each journal
 //! cache is dropped when the journal folder changes. The data folder is fixed for the process,
 //! so the client, the star map and the neutron star file in it are never reopened.
+//!
+//! The core runs from login for days, so what a page or a plot loaded is dropped once it has sat
+//! unused for [`IDLE`] ([`State::release_idle`]): the neutron star file, each journal cache and
+//! the star map's in-memory map. The next call that needs one loads it again.
 
 use crate::lock;
 use astromech_journal::{journal_version, JournalCache, JournalVersion};
@@ -18,6 +22,17 @@ use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
+
+/// How long a loaded piece of the state (the neutron star file, a journal cache, the in-memory
+/// star map) is kept unused before [`State::release_idle`] drops it. Long enough that moving
+/// between pages or plotting again soon finds it loaded.
+pub const IDLE: Duration = Duration::from_secs(10 * 60);
+
+/// Whether something last used at `used` has sat unused for `idle` by `now`.
+fn idle_since(used: Instant, now: Instant, idle: Duration) -> bool {
+    now.saturating_duration_since(used) >= idle
+}
 
 /// The star map preload's file name: the bundled `starmap.db`, which the installer puts next to
 /// the app's executables.
@@ -31,10 +46,12 @@ pub fn preload_beside(exe: &Path) -> Option<PathBuf> {
 }
 
 /// The local star map, opened on first use and then kept. A failed open is not remembered: the
-/// next call tries again. The window's lookups and the session's voice lookups share one.
+/// next call tries again. The window's lookups and the session's voice lookups share one. Its
+/// in-memory map is dropped when unused ([`GalaxyHolder::release_idle`]); the database stays open.
 pub struct GalaxyHolder {
     open: Box<dyn Fn() -> anyhow::Result<astromech_galaxy::Galaxy> + Send + Sync>,
-    slot: Mutex<Option<Arc<astromech_galaxy::Galaxy>>>,
+    /// The star map and when [`GalaxyHolder::get`] last handed it out.
+    slot: Mutex<Option<(Arc<astromech_galaxy::Galaxy>, Instant)>>,
 }
 
 impl GalaxyHolder {
@@ -63,18 +80,30 @@ impl GalaxyHolder {
 
     /// A star map that is open already (a test's, over a store in memory).
     pub fn opened(galaxy: astromech_galaxy::Galaxy) -> Self {
-        Self { open: Box::new(|| anyhow::bail!("opened already")), slot: Mutex::new(Some(Arc::new(galaxy))) }
+        Self {
+            open: Box::new(|| anyhow::bail!("opened already")),
+            slot: Mutex::new(Some((Arc::new(galaxy), Instant::now()))),
+        }
     }
 
     /// The star map, opening it if it isn't open yet.
     pub fn get(&self) -> Result<Arc<astromech_galaxy::Galaxy>, String> {
         let mut g = lock(&self.slot);
-        if let Some(x) = g.as_ref() {
-            return Ok(x.clone());
+        let galaxy = match g.take() {
+            Some((x, _)) => x,
+            None => Arc::new((self.open)().map_err(|e| format!("{e:#}"))?),
+        };
+        *g = Some((galaxy.clone(), Instant::now()));
+        Ok(galaxy)
+    }
+
+    /// Drop the star map's in-memory map if the star map was last handed out `idle` or longer
+    /// before `now`; true if one was dropped.
+    pub fn release_idle(&self, now: Instant, idle: Duration) -> bool {
+        match &*lock(&self.slot) {
+            Some((g, used)) if idle_since(*used, now, idle) => g.unload_map(),
+            _ => false,
         }
-        let opened = Arc::new((self.open)().map_err(|e| format!("{e:#}"))?);
-        *g = Some(opened.clone());
-        Ok(opened)
     }
 }
 
@@ -171,9 +200,11 @@ impl JournalState {
     }
 }
 
-/// A cache for one journal folder, dropped and made afresh when the folder changes.
+/// A cache for one journal folder, dropped and made afresh when the folder changes, and dropped
+/// when unused ([`ForDir::release_idle`]).
 struct ForDir<C> {
-    slot: Mutex<Option<(PathBuf, Arc<C>)>>,
+    /// The folder, its cache and when [`ForDir::get`] last handed it out.
+    slot: Mutex<Option<(PathBuf, Arc<C>, Instant)>>,
     make: fn(&Path) -> C,
 }
 
@@ -184,14 +215,22 @@ impl<C> ForDir<C> {
 
     fn get(&self, dir: &Path) -> Arc<C> {
         let mut g = lock(&self.slot);
-        match &*g {
-            Some((d, c)) if d == dir => c.clone(),
-            _ => {
-                let c = Arc::new((self.make)(dir));
-                *g = Some((dir.to_path_buf(), c.clone()));
-                c
-            }
+        let c = match g.take() {
+            Some((d, c, _)) if d == dir => c,
+            _ => Arc::new((self.make)(dir)),
+        };
+        *g = Some((dir.to_path_buf(), c.clone(), Instant::now()));
+        c
+    }
+
+    /// Drop the cache if it was last handed out `idle` or longer before `now`; true if dropped.
+    fn release_idle(&self, now: Instant, idle: Duration) -> bool {
+        let mut g = lock(&self.slot);
+        if g.as_ref().is_some_and(|(_, _, used)| idle_since(*used, now, idle)) {
+            *g = None;
+            return true;
         }
+        false
     }
 }
 
@@ -232,14 +271,14 @@ pub struct State {
     powerplay: ForDir<Mutex<astromech_powerplay::Follower>>,
     engineering: ForDir<JournalCache<JournalState>>,
     exploration: ForDir<Mutex<astromech_exploration::SystemViewCache>>,
-    /// Keyed by the history in the data folder, which is fixed, so it is never dropped.
-    unsold: Mutex<astromech_history::UnsoldCache>,
+    /// Keyed by the history in the data folder, which is fixed.
+    unsold: ForDir<Mutex<astromech_history::UnsoldCache>>,
     colonisation: ForDir<Versioned<ColonisationKey, Vec<astromech_colonisation::ProjectView>>>,
     /// The process's one remote-data client (Spansh, Ardent, EDSM).
     remote: Arc<astromech_data::Client>,
     galaxy: Arc<GalaxyHolder>,
     /// The neutron star file in the data folder, loaded on the first local neutron plot and kept
-    /// (about 80 MB), and loaded again when a download replaces it.
+    /// (about 80 MB) until it sits unused, and loaded again when a download replaces it.
     pub(crate) neutron: astromech_galaxy::neutron::Kept,
     /// Where the neutron star file is published.
     pub(crate) neutron_url: String,
@@ -285,7 +324,7 @@ impl State {
             powerplay: ForDir::new(|d| Mutex::new(astromech_powerplay::Follower::new(d))),
             engineering: ForDir::new(|_| JournalState::cache()),
             exploration: ForDir::new(|_| Mutex::new(Default::default())),
-            unsold: Mutex::new(Default::default()),
+            unsold: ForDir::new(|_| Mutex::new(Default::default())),
             colonisation: ForDir::new(|_| Mutex::new(None)),
         }
     }
@@ -471,7 +510,8 @@ impl State {
     /// The latest commander's unsold cartographic and organic data from the history; `None`
     /// before the first commander or without a history yet.
     pub fn exploration_unsold(&self) -> Result<Option<astromech_history::UnsoldData>, String> {
-        lock(&self.unsold).unsold_at(&self.history(), None).map_err(|e| e.to_string())
+        let history = self.history();
+        lock(&self.unsold.get(&history)).unsold_at(&history, None).map_err(|e| e.to_string())
     }
 
     /// Colonisation projects from the journals, being built first, each with what is left to
@@ -489,6 +529,27 @@ impl State {
             return Err("no journal history yet: the core builds it from the journals once it runs".into());
         }
         astromech_history::History::open_read_only(&db).map_err(|e| e.to_string())
+    }
+
+    /// Drop what was loaded and has not been used for `idle` by `now`: the neutron star file,
+    /// each journal cache, and the star map's in-memory map. Dropping the neutron star file (the
+    /// one big enough to matter) is logged.
+    pub fn release_idle(&self, now: Instant, idle: Duration) {
+        self.materials.release_idle(now, idle);
+        self.odyssey.release_idle(now, idle);
+        self.powerplay.release_idle(now, idle);
+        self.engineering.release_idle(now, idle);
+        self.exploration.release_idle(now, idle);
+        self.unsold.release_idle(now, idle);
+        self.colonisation.release_idle(now, idle);
+        self.galaxy.release_idle(now, idle);
+        if self.neutron.release_idle(now, idle) {
+            astromech_log::log(&format!(
+                "neutron star file: {} released (unused for {} minutes)",
+                self.data_dir.join(astromech_galaxy::neutron::FILE_NAME).display(),
+                idle.as_secs() / 60
+            ));
+        }
     }
 
     /// How often the Exploration page's journals were parsed (for tests).
@@ -647,6 +708,108 @@ pub(crate) mod tests {
         assert!(!Arc::ptr_eq(&a, &b));
         *lock(&now) = one;
         assert!(!Arc::ptr_eq(&a, &state.materials().unwrap()), "the first folder's cache was dropped");
+    }
+
+    impl<C> ForDir<C> {
+        fn loaded(&self) -> bool {
+            lock(&self.slot).is_some()
+        }
+    }
+
+    /// `load` loads the cache `which` picks; [`State::release_idle`] keeps it when it was used
+    /// less than [`IDLE`] ago and drops it after, and the next `load` loads it again.
+    fn dropped_when_idle<C>(which: impl Fn(&State) -> &ForDir<C>, load: impl Fn(&State)) {
+        let w = world();
+        let s = &w.state;
+        assert!(!which(s).loaded());
+        load(s);
+        assert!(which(s).loaded());
+        let now = Instant::now();
+        s.release_idle(now, IDLE);
+        assert!(which(s).loaded(), "used just now: kept");
+        s.release_idle(now + IDLE, IDLE);
+        assert!(!which(s).loaded(), "unused for IDLE: dropped");
+        load(s);
+        assert!(which(s).loaded(), "loaded again");
+    }
+
+    #[test]
+    fn materials_are_dropped_when_idle() {
+        dropped_when_idle(|s| &s.materials, |s| drop(s.materials().unwrap()));
+    }
+
+    #[test]
+    fn odyssey_state_is_dropped_when_idle() {
+        dropped_when_idle(|s| &s.odyssey, |s| drop(s.odyssey().unwrap()));
+    }
+
+    #[test]
+    fn the_powerplay_follower_is_dropped_when_idle() {
+        dropped_when_idle(|s| &s.powerplay, |s| drop(s.powerplay().unwrap()));
+    }
+
+    #[test]
+    fn the_engineering_state_is_dropped_when_idle() {
+        dropped_when_idle(|s| &s.engineering, |s| drop(s.engineering().unwrap()));
+    }
+
+    #[test]
+    fn the_system_view_is_dropped_when_idle() {
+        dropped_when_idle(|s| &s.exploration, |s| drop(s.exploration_system()));
+    }
+
+    #[test]
+    fn the_unsold_data_cache_is_dropped_when_idle() {
+        dropped_when_idle(|s| &s.unsold, |s| drop(s.exploration_unsold()));
+    }
+
+    #[test]
+    fn colonisation_is_dropped_when_idle() {
+        dropped_when_idle(|s| &s.colonisation, |s| drop(s.colonisation().unwrap()));
+    }
+
+    /// The star map's in-memory map is dropped when no lookup has asked for the star map for
+    /// [`IDLE`], and read from the database again by the next lookup.
+    #[test]
+    fn the_star_map_is_dropped_when_idle() {
+        let w = world();
+        let g = w.state.galaxy().unwrap();
+        let m = g.map().unwrap();
+        let now = Instant::now();
+        w.state.release_idle(now, IDLE);
+        assert!(Arc::ptr_eq(&m, &g.map().unwrap()), "used just now: kept");
+        w.state.release_idle(now + IDLE, IDLE);
+        assert!(!Arc::ptr_eq(&m, &w.state.galaxy().unwrap().map().unwrap()), "read again");
+    }
+
+    /// The neutron star file a plot loaded is dropped, with one log line, when no plot has used
+    /// it for [`IDLE`], and the next plot loads it again.
+    #[test]
+    fn the_neutron_star_file_is_dropped_when_idle() {
+        crate::tests::test_log();
+        let w = world();
+        std::fs::create_dir_all(w.state.data_dir()).unwrap();
+        std::fs::copy(
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../astromech-galaxy/tests/fixtures/neutron-sample.bin"),
+            w.state.data_dir().join(astromech_galaxy::neutron::FILE_NAME),
+        )
+        .unwrap();
+        let line = format!(
+            "neutron star file: {} released (unused for 10 minutes)",
+            w.state.data_dir().join(astromech_galaxy::neutron::FILE_NAME).display()
+        );
+        let released = || crate::tests::logged().matches(&line).count();
+        assert!(w.state.neutron.get().unwrap().is_some(), "a plot loads it");
+        let now = Instant::now();
+        w.state.release_idle(now, IDLE);
+        assert_eq!(released(), 0, "used just now: kept");
+        w.state.release_idle(now + IDLE, IDLE);
+        assert_eq!(released(), 1, "unused for IDLE: dropped");
+        w.state.release_idle(now + IDLE, IDLE);
+        assert_eq!(released(), 1, "dropped already");
+        assert!(w.state.neutron.get().unwrap().is_some());
+        w.state.release_idle(Instant::now() + IDLE, IDLE);
+        assert_eq!(released(), 2, "the next plot loaded it again");
     }
 
     #[test]

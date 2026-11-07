@@ -1426,7 +1426,8 @@ pub fn run(opts: Opts) -> i32 {
     let c = core.clone();
     std::thread::Builder::new().name("gamewatch".into()).spawn(move || watch_game(c)).expect("spawn game watcher");
 
-    // Release the voice preview's Kokoro once it has sat unused.
+    // Release the voice preview's Kokoro, and what the command layer loaded (the neutron star
+    // file, the journal caches, the in-memory star map), once they have sat unused.
     let c = core.clone();
     std::thread::Builder::new()
         .name("preview-idle".into())
@@ -1435,6 +1436,7 @@ pub fn run(opts: Opts) -> i32 {
             if c.preview.release_idle(Instant::now(), crate::speech::PREVIEW_IDLE) {
                 log("voice preview: Kokoro released (unused for a minute)");
             }
+            c.api.release_idle(Instant::now(), astromech_api::state::IDLE);
         })
         .expect("spawn preview reaper");
 

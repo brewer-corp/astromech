@@ -227,7 +227,9 @@ astromech/
                          the neutron star file and the long jobs' one-at-a-time flags, once per
                          process, reading the journal, Bindings and game folders from a source the
                          core implements over its live config (the data folder is fixed); the
-                         window's journal and local-file commands (`commands`: keybinds, materials,
+                         neutron star file, the journal caches and the star map's in-memory map
+                         are dropped after 10 minutes unused (`State::release_idle`, called by the
+                         core's reaper thread) and load again on the next use; the window's journal and local-file commands (`commands`: keybinds, materials,
                          engineering, Odyssey, Powerplay, colonisation, exploration, logbook, docked
                          here) and its lookups (`lookups`: star map, trade, mining, route plotting,
                          the neutron star file, `open_external`, `shell_info`) run on it; a handler

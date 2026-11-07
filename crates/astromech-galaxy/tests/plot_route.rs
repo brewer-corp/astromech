@@ -112,6 +112,39 @@ fn stops(p: &astromech_galaxy::plot::Plotted) -> Vec<(&str, Option<&str>)> {
     p.waypoints.iter().map(|w| (w.system.as_str(), w.label.as_deref())).collect()
 }
 
+/// The kept file is dropped once no plot has used it for the idle time, and the next plot loads
+/// it again.
+#[test]
+fn the_kept_file_is_dropped_when_idle_and_loaded_again_by_the_next_plot() {
+    let dir = data_dir(Some("neutron-sample.bin"));
+    let kept = Kept::new(dir.path());
+    let t = Spansh::new(r#"{"min_max":[]}"#);
+    let g = galaxy(&t);
+    let plot = || {
+        let p = plot_route(
+            g.remote(),
+            &kept,
+            |n| g.locate(n),
+            &ask(Plotter::Neutron, "Somewhere"),
+            Some(&sol()),
+            &ship(),
+            NO_WAIT,
+        )
+        .unwrap();
+        assert!(p.local);
+    };
+    const IDLE: Duration = Duration::from_secs(600);
+    assert!(!kept.release_idle(std::time::Instant::now() + IDLE, IDLE), "nothing loaded before a plot");
+    plot();
+    let now = std::time::Instant::now();
+    assert!(!kept.release_idle(now, IDLE), "used just now: kept");
+    assert!(kept.release_idle(now + IDLE, IDLE), "unused for the idle time: dropped");
+    assert!(!kept.release_idle(now + IDLE, IDLE), "dropped already");
+    plot();
+    let later = std::time::Instant::now();
+    assert!(kept.release_idle(later + IDLE, IDLE), "the next plot loaded it again");
+}
+
 #[test]
 fn a_neutron_route_is_plotted_on_this_pc_when_the_file_is_there() {
     let dir = data_dir(Some("neutron-sample.bin"));

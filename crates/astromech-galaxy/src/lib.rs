@@ -191,6 +191,12 @@ impl Galaxy {
         *self.map.write().unwrap_or_else(|e| e.into_inner()) = None;
     }
 
+    /// Drop the in-memory star map (the next [`Galaxy::map`] reads it from the store again);
+    /// true if one was loaded.
+    pub fn unload_map(&self) -> bool {
+        self.map.write().unwrap_or_else(|e| e.into_inner()).take().is_some()
+    }
+
     pub fn summary(&self) -> Result<(i64, Option<String>)> {
         let s = self.store();
         Ok((s.count()?, s.meta("preload")?))
