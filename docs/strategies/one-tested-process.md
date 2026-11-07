@@ -1,6 +1,6 @@
 ---
 status: draft
-last_changed: "2026-11-06: first version, from the architecture and testing discussion (Sumeet's direction)"
+last_changed: "2026-11-07: no memory bound in one-process (Sumeet, decision astromech-01ft)"
 ---
 
 # Why
@@ -28,12 +28,9 @@ its own: the transport seam and the command layer, even before the single-proces
 # Success Criteria
 
 - one-process: The installed app is one app process plus its supervised speech worker
-  (`astromech-voice-worker`, which stays separate). With the window closed, no WebView2
-  process is left, and the app process's idle memory is at most 50 MB above today's core
-  alone. With the window open, the window's cost (the app process's rise plus its WebView2
-  processes) stays inside S11's 250 MB. Shown by `scripts/webview_cost.py`, changed to measure
-  this, in the Windows webview-cost CI job before merge, and by Sumeet's run of it next to
-  Elite when the agent asks.
+  (`astromech-voice-worker`, which stays separate), and with the window closed no WebView2
+  process is left. Shown on Windows CI. Memory is reported, not bounded (decision
+  astromech-01ft): next to Elite and a browser it is small.
 - one-command-list: Every command the window uses is served by the command layer and reachable
   over the control API and the headless mode. The shell holds only the window, the tray and
   startup. Shown by a test that lists the window's commands and calls each one through the
@@ -91,14 +88,14 @@ approval to an independent agent review. An orchestrator may change the incremen
 sequencing, crate and module names, the record-and-replay format, and which journeys the
 suite holds beyond the three named above. These must come back to Sumeet: changing the outcome
 or success criteria; dropping the journey suite or the single-process merge; anything that
-changes what the shipped app does while playing; and any idle memory beyond the one-process criterion's bounds.
+changes what the shipped app does while playing;.
 
 # Risks and Unknowns
 
 - Tray and window in one Tauri event loop: the tray must keep working with no window and
   through window crashes. Spiked first in the single-process increment, before any migration.
-- Whether destroying the window really frees WebView2's processes on Windows, and what the
-  windowless process costs at idle. Measured with the S11 harness before the merge lands.
+- Whether destroying the window really frees WebView2's processes on Windows. Checked on
+  Windows CI before the merge lands; memory is reported along the way.
 - Core memory: the neutron star file and the scan caches move into the always-on process.
   They load on first use and are dropped when idle.
 - A fault in the window side now shares a process with the kill switch. Commands run behind
