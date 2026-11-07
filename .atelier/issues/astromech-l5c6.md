@@ -4,6 +4,9 @@ id: "astromech-l5c6"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-l5c6
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Publish the browser preview as an artifact"
-updated_at: "2026-11-07T02:59:31.569919498+00:00"
+updated_at: "2026-11-07T03:00:18.082733892+00:00"
 ---
 
 ## Goal

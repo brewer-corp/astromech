@@ -4,7 +4,7 @@ import globals from "globals";
 import ts from "typescript-eslint";
 
 export default ts.config(
-  { ignores: ["dist/", "src-tauri/", "node_modules/"] },
+  { ignores: ["dist/", "dist-preview/", "src-tauri/", "node_modules/"] },
   js.configs.recommended,
   ...ts.configs.recommended,
   ...svelte.configs.recommended,

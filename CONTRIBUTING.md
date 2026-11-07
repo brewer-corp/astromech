@@ -96,6 +96,12 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   Needs Google Chrome (or `CHROME` pointing at Chromium). `scripts/app-shots.sh` and
   `scripts/mockup-shots.sh` use the same binary; `scripts/mockup-shots.sh ds-sell ds-places`
   re-renders only the named mockups (the DESIGN.md ones are `ds-*`).
+- To show a UI change to someone off this machine, work on the real page on its branch against the
+  browser preview's fakecore (`?core=ready`, `?route=exact`, `?fail=`, `?slow=`; add a fixture when
+  the change needs data the preview lacks), then `scripts/preview-publish --page route --query
+  route=exact`. It builds the preview into `app/dist-preview/` with the scenario and start page baked
+  in, since an artifact link carries neither, and lists the files to publish as one claude.ai
+  artifact beside `index.html`. Republish the same `index.html` to update the link.
 - Respect the dependency rules: actions go through `astromech-policy`; voice and tools never use
   the input executor directly.
 - Player-visible game data (anything on the Elite Dangerous wiki) is fine in `data/`; credit its

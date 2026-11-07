@@ -8,6 +8,7 @@ import { listen } from "@tauri-apps/api/event";
 import { inTauri } from "./core";
 import { fakeScenario, previewGate } from "./fakecore";
 import fixture from "./fixtures/sample.json";
+import { previewQuery } from "./previewquery";
 
 export interface Modifier { device: string; key: string }
 export interface Slot { slot: string; device: string; key: string; modifiers: Modifier[] }
@@ -166,7 +167,7 @@ export function onPress(cb: (p: Press) => void): () => void {
 
 /** `?press=231D3201:Joy_4` (browser preview / screenshots): one simulated press on load. */
 export function simulatedPress(): Press | null {
-  const m = new URLSearchParams(location.search).get("press");
+  const m = previewQuery().get("press");
   if (!m) return null;
   const [device = "", key = ""] = m.split(":");
   return { device, key, kind: device === "Keyboard" ? "key" : "button", down: true, device_name: device, t_ms: 0 };

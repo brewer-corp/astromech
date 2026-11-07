@@ -23,6 +23,7 @@ import type { Route, RouteView, Waypoint } from "./route";
 import eddnSample from "./fixtures/eddn-log.json";
 import plotSample from "./fixtures/plot.json";
 import biologySample from "./fixtures/exobiology.json";
+import { previewQuery } from "./previewquery";
 
 export type Scenario = "empty" | "new" | "ready";
 
@@ -111,7 +112,7 @@ function names(list: string | null): { all: boolean; some: Set<string> } | null 
  */
 export async function previewGate(cmd: string): Promise<void> {
   if (typeof location === "undefined") return;
-  const q = new URLSearchParams(location.search);
+  const q = previewQuery();
   const fail = names(q.get("fail"));
   const slow = q.get("slow");
   if (slow) {
@@ -144,7 +145,7 @@ export async function previewLookup<T>(cmd: string, origin: string | null, sampl
 
 export function fakeScenario(): Scenario | null {
   if (typeof location === "undefined") return null;
-  const s = new URLSearchParams(location.search).get("core");
+  const s = previewQuery().get("core");
   return s === "empty" || s === "new" || s === "ready" ? s : null;
 }
 
@@ -181,7 +182,7 @@ function fresh(scenario: Scenario): State {
 /** `?route=exact`: the exact route from fixtures/plot.json, with the commander in its third
  * waypoint, so the fourth is next. */
 function startingRoute(): Route | null {
-  if (new URLSearchParams(location.search).get("route") !== "exact") return null;
+  if (previewQuery().get("route") !== "exact") return null;
   const { name, source, waypoints } = plotSample.exact;
   return { name, source, waypoints: structuredClone(waypoints), next: 3 };
 }
