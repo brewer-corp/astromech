@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Move the star-map, lookup, plotting and neutron commands into the command layer"
-updated_at: "2026-11-07T06:33:38.678430735+00:00"
+updated_at: "2026-11-07T07:11:12.010109863+00:00"
 ---
 
 ## Goal
@@ -49,3 +49,7 @@ The rest of the window's commands move into the command layer: star-map, lookup 
 ## Scope
 
 astromech-api, crates/astromech-core (session.rs, app.rs), astromech-galaxy only if the holder needs a hook, window.rs, astromech-store. The `input` listener (window.rs:1145-1195), the core start, the watchdog and single instance stay in the shell (astromech-y6d6).
+
+## Notes
+
+- 2026-11-07 [note] From finding astromech-9h8f (6siv review): the folders for moved commands now come from the core's in-memory config, while the shell's remaining config()/journal_dir() still re-read astromech.toml on each call, so after a hand edit the two halves can disagree. When ndzx removes the shell's config()/journal_dir(), make sure no reader of astromech.toml is left in the shell; one owner (the core's config) is the end state.
