@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Installer, updater and Start with Windows on the one executable; upgrade from the last two-process release on Windows CI"
-updated_at: "2026-11-07T19:39:18.341144247+00:00"
+updated_at: "2026-11-07T19:40:17.586788423+00:00"
 ---
 
 ## Goal
@@ -93,6 +93,7 @@ app/src-tauri (hooks, conf), the forwarder crate, crates/astromech-core (update.
   Rejected: Leave publish on installer only: a broken upgrade would ship
 - 2026-11-07 [decision] The NSIS route's clean-quit check is the old core's quitting line plus core.json removed; its exit code is reported, not required
   Reason: core.json goes after shutdown releases held keys, so its absence proves the clean quit finished; the hook's fallback taskkill can still hit a core between removing core.json and exiting (exit code 1, harmless), so requiring 0 would flake. On the updater route the helper waits for the old core to exit, so code 0 is required there
+- 2026-11-07 [handoff] Built at f6a048be; see ## Report. Ticked: update.rs, log prune, V1-DESIGN. Waiting on Windows CI (Release build installer smoke and the new upgrade job): lines 1, 2, 4, 6, 7. Independent review outstanding.
 
 ## Report
 
