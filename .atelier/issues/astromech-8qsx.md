@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Journey harness: node --test drives the page with Playwright against a world core, and a lookup fails with TRY AGAIN"
-updated_at: "2026-11-07T23:12:54.488725070+00:00"
+updated_at: "2026-11-07T23:13:51.260098222+00:00"
 ---
 
 ## Goal
@@ -120,6 +120,7 @@ Out:
   Reason: A recorded answer already in the repository (decision astromech-1zhg: fixtures are recorded raw inputs), and the journey can also check every request the core made was in the recording.
 - 2026-11-07 [decision] Failure artifacts go to app/journeys/results/<journey>/ (trace.zip, page.png, the core's astromech-core.log copied before quit, and its stderr), removed when the journey passes; the repository's results/ ignore rule already covers it.
   Reason: A known path for CI's upload-artifact step, kept out of git with no .gitignore change.
+- 2026-11-07 [handoff] Implementer handoff: see ## Report. Commits d7792acd (code, worlds, CI, docs) and 15ec04ca (records) on astromech-yis2. Six lines ticked; line 2 holds but uses pauseAt beside install (wording for the plan owner), and line 6 waits on the PR's CI run for the runner timing. Review outstanding.
 
 ## Report
 
