@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Every window command runs for real against the headless world core"
-updated_at: "2026-11-07T19:25:58.902532997+00:00"
+updated_at: "2026-11-07T19:49:06.320862541+00:00"
 ---
 
 ## Goal
@@ -63,6 +63,7 @@ ro7a's report (atelier issue show astromech-ro7a --full) gives the current table
 - 2026-11-07 [decision] Spansh job polling with Polling::every zero stops after spansh::NO_WAIT_POLLS (100) polls with Error::Timeout (finding astromech-ur4v)
   Reason: A poll count bounds it without the clock moving; with a nonzero wait the timeout already bounds it, so the installed app is unchanged
 - 2026-11-07 [note] Finding astromech-n5cr: setters now read their effect back (.reads), lookups and reads check their reply's content from the recording (.has), and the test fails for a net.json exchange no request used (http observations carry the answering exchange's index). Without a read-back: ack_crash (no crash in the world), learned_forget (nothing is learned without a spoken correction), set_eddn (switching it on would upload to EDDN, which has no recorded answer; off is the world's start), shopping_set (read only by the session's callouts; its reply's count is checked). set_kill_switch now sets a button and set_folders a dotted spelling of the world's own folder, so each edit reads back as made; set_edsm sets commander Jameson; binds_set_active the copy; binds_set_override a Joy name.
+- 2026-11-07 [note] Finding astromech-6iev: set_voice's example (bf_emma, 1.0, cockpit) was the default, so its read-back couldn't fail; it now sets bm_george, 1.25 (exact in f32) and harsh. The first status entry pins the world's start for each setter's read-back (ptt, kill switch and mic unset, not onboarded, voice not paused, autostart off, the default voice, EDSM commander Test); the other setters were checked against it: callouts, prospector thresholds, search filters, binds and the route already read their start before the change, and set_folders' dotted path can't be the start.
 
 ## Report
 

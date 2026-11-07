@@ -221,7 +221,13 @@ fn cases(f: &Folders) -> Vec<Case> {
     });
     vec![
         // Status and the tray's commands.
-        ok("status", None).has(json!({"game": "running", "active": true})),
+        // The world's start, which each setter below changes, so its read-back can't pass unchanged.
+        ok("status", None)
+            .has(json!({"game": "running", "active": true}))
+            .has(json!({"ptt": null, "kill_switch": null, "mic": "", "onboarded": false}))
+            .has(json!({"voice_paused": false, "autostart": false}))
+            .reads("voice_settings", None, json!({"speaker": "bf_emma", "speed": 1.0, "colour": "cockpit"}))
+            .reads("edsm_status", None, json!({"commander": "Test"})),
         // No crash in the world: its effect, clearing a pending crash, can't be read back.
         ok("ack_crash", None),
         ok("kill_switch", None).sees(said("Kill switch on. All actions stopped.")).again(said("Re-armed.")),
@@ -269,8 +275,8 @@ fn cases(f: &Folders) -> Vec<Case> {
         // The world's own folders, spelt with a `.` so the edit reads back as made.
         ok("set_folders", Some(json!({"bindings_dir": f.bindings, "journal_dir": f.game_dotted})))
             .reads("find_elite", None, json!({"journal_dir": f.game_dotted, "journal_found": true})),
-        ok("set_voice", Some(json!({"speaker": "bf_emma", "speed": 1.0, "colour": "cockpit"})))
-            .reads("voice_settings", None, json!({"speaker": "bf_emma", "colour": "cockpit"})),
+        ok("set_voice", Some(json!({"speaker": "bm_george", "speed": 1.25, "colour": "harsh"})))
+            .reads("voice_settings", None, json!({"speaker": "bm_george", "speed": 1.25, "colour": "harsh"})),
         // Off, as the world starts: switching it on would upload to EDDN, which the world has no
         // recorded answer for, so the switch can't be read back changed.
         ok("set_eddn", Some(json!({"enabled": false}))).reads("eddn_log", None, json!({"enabled": false})),
