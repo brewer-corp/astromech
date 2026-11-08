@@ -172,8 +172,6 @@ pub type ProcessList = Arc<dyn Fn() -> Vec<String> + Send + Sync>;
 pub type Clipboard = Arc<dyn Fn(&str) -> Result<(), String> + Send + Sync>;
 /// Makes the process's one remote-data client, its cache in the data folder it is given.
 pub type RemoteClient = Arc<dyn Fn(&Path) -> Arc<astromech_data::Client> + Send + Sync>;
-/// Opens (or focuses) the app window at a page.
-pub type AppWindow = Arc<dyn Fn(Option<&str>) -> Result<(), String> + Send + Sync>;
 /// Registers a mode's own commands beside the core's ([`Core::commands`]).
 pub type MoreCommands = Arc<dyn Fn(&Arc<Core>, &mut Registry) + Send + Sync>;
 /// Makes EDDN's upload transport (one per session's feed).
@@ -260,7 +258,6 @@ impl Boundaries {
     /// the Run key, HTTP, the system clock and the real devices, over `paths`, and no UI
     /// ([`Headless`]) until the host gives its own.
     pub fn real(paths: Paths) -> Self {
-        let exe_dir = paths.exe_dir().to_path_buf();
         Self {
             paths,
             processes: Arc::new(gamewatch::process_names),
@@ -359,7 +356,6 @@ pub struct Core {
     pub autostart: Arc<dyn crate::autostart::Autostart>,
     /// [`Boundaries::http`].
     pub http: Http,
-    window: AppWindow,
     more_commands: Option<MoreCommands>,
     /// The route being followed (docs/PLOTTING.md). The core owns it, not a session, so the
     /// window can set one while Elite isn't running.
@@ -1632,32 +1628,6 @@ mod replies {
 }
 pub use replies::*;
 
-/// The installed app's window: start the shell next to the core (or `ASTROMECH_SHELL`) at
-/// `route`.
-fn open_shell(exe_dir: &Path, route: Option<&str>) -> Result<(), String> {
-    let exe = std::env::var_os("ASTROMECH_SHELL").map(PathBuf::from).unwrap_or_else(|| exe_dir.join(SHELL_EXE));
-    if !exe.is_file() {
-        let m = format!("the app window ({}) isn't installed next to the core", exe.display());
-        log(&m);
-        return Err(m);
-    }
-    let mut c = std::process::Command::new(&exe);
-    if let Some(r) = route {
-        c.arg("--route").arg(r);
-    }
-    match c.spawn() {
-        Ok(_) => {
-            log(&format!("opened the app window{}", route.map(|r| format!(" at {r}")).unwrap_or_default()));
-            Ok(())
-        }
-        Err(e) => {
-            let m = format!("couldn't open the app window: {e}");
-            log(&m);
-            Err(m)
-        }
-    }
-}
-
 /// Write the sample config if there is no config yet. The sample changes no setting: its
 /// examples are comments, so a fresh install gets the same defaults as with no file.
 fn write_sample_config(path: &Path) {
@@ -1901,7 +1871,6 @@ pub(crate) fn assemble_with(
         notifier: b.notifier,
         autostart: b.autostart,
         http: b.http,
-        window: b.window,
         more_commands: b.more_commands,
         route,
         clock: b.clock,

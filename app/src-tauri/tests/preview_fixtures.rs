@@ -10,7 +10,7 @@
 //! compares the reply with the file. A hand edit to a dumped fixture fails it.
 //!
 //! Refresh the files after a deliberate change to the core or a world with
-//! `ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-core --test preview_fixtures`, then check
+//! `ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-app --test preview_fixtures`, then check
 //! the diff, and that `pnpm check` and `pnpm test` in app/ still pass.
 #![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
@@ -858,7 +858,7 @@ fn every_preview_fixture_is_the_cores_reply_or_says_why_not() {
     }
     assert!(
         problems.is_empty(),
-        "{}\n\nRefresh with ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-core --test preview_fixtures after a deliberate change",
+        "{}\n\nRefresh with ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-app --test preview_fixtures after a deliberate change",
         problems.join("\n")
     );
 }

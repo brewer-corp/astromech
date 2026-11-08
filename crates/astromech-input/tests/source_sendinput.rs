@@ -6,6 +6,7 @@
 //! `cargo test -p astromech-input --test source_sendinput -- --ignored`. Windows CI runs it
 //! best effort.
 #![cfg(windows)]
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_input::listen::model::SampleData;
 use astromech_input::listen::source::{self, Msg};

@@ -81,6 +81,9 @@ impl<B: Backend> Hub<B> {
         }
         // Subscribed before the backend starts, so the first subscriber misses nothing.
         let s = self.started.get_or_init(|| {
+            // Real time: the samples' time base, as each listener's own was (raw-input sample
+            // timing). World mode's controls are fakes and never start this source.
+            #[allow(clippy::disallowed_methods)]
             let epoch = Instant::now();
             let (btx, brx) = channel();
             let fanout = self.fanout.clone();
@@ -181,6 +184,7 @@ mod windows {
 pub use windows::{restart, subscribe};
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::listen::model::{DevKind, SampleData};

@@ -228,9 +228,12 @@ dependencies = [
  "astromech-api",
  "astromech-core",
  "astromech-input",
+ "astromech-voice",
+ "serde",
  "serde_json",
  "tauri",
  "tauri-build",
+ "tempfile",
  "webview2-com",
  "windows-sys 0.61.2",
 ]

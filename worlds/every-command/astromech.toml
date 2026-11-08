@@ -1,4 +1,4 @@
-# Every window command (crates/astromech-core/tests/every_window_command.rs): Elite is running and
+# Every window command (app/src-tauri/tests/every_window_command.rs): Elite is running and
 # in front, the commander docked at Abraham Lincoln in Sol in an Asp. The journal and Status.json
 # are hand-built in the shape the game writes; Key_Insert turns the lights on (the header's
 # reaction), so the voice tester's live run verifies. The microphone's two clips are gear-down's.

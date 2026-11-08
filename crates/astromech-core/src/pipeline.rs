@@ -991,6 +991,8 @@ fn read_status_whole(p: &Path, tries: u32) -> Option<Option<astromech_status::St
             }
         }
         if i + 1 < tries {
+            // Real time: it retries a half-written file, and finishes on its own.
+            #[allow(clippy::disallowed_methods)]
             std::thread::sleep(Duration::from_millis(1));
         }
     }
@@ -1682,9 +1684,9 @@ mod tests {
         std::fs::write(&status, r#"{"timestamp":"t","event":"Status","Flags":16777216,"GuiFocus":0}"#).unwrap();
         let (mut t, hub, _) = tailer(d.path());
         t.catch_up();
-        let (_silent_watcher, rx) = std::sync::mpsc::channel();
+        let (_silent_watcher, rx) = t.clock.channel();
         let stop = Arc::new(AtomicBool::new(false));
-        let thread = spawn_loop(t, rx, stop.clone()).unwrap();
+        let thread = spawn_loop(t, rx, stop.clone(), None).unwrap();
         std::fs::write(&status, r#"{"timestamp":"t","event":"Status","Flags":16777216,"GuiFocus":2}"#).unwrap();
         std::fs::File::options()
             .write(true)

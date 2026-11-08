@@ -109,8 +109,9 @@ struct Args {
 
 /// Every option `--world` can't be given with: those that act on the user's real core or files
 /// (`--quit`, `--apply-update` and its options, `--config`), the installed app's own
-/// (`--background`, `--route`) and the console's, which `--world` would otherwise ignore.
-const WORLD_CONFLICTS: [&str; 18] = [
+/// (`--background`, `--route`, `--webview-debug-port`) and the console's, which `--world` would
+/// otherwise ignore.
+const WORLD_CONFLICTS: [&str; 19] = [
     "quit",
     "apply_update",
     "from",
@@ -120,6 +121,7 @@ const WORLD_CONFLICTS: [&str; 18] = [
     "config",
     "background",
     "route",
+    "webview_debug_port",
     "console",
     "write_config",
     "health",
@@ -552,6 +554,7 @@ mod tests {
             &["--config", "c.toml"],
             &["--background"],
             &["--route", "settings"],
+            &["--webview-debug-port", "9222"],
             &["--console"],
             &["--write-config"],
             &["--health"],

@@ -9,7 +9,7 @@
  * [`startWorld`] spawns the core and reads the one line it prints on stdout, its only endpoint
  * source (never `core.json`). The core quits when its stdin reaches end of file, so the client
  * holds the pipe for the core's life: if this process goes, even killed outright, the core
- * follows. Like the Rust tests' helper (crates/astromech-core/tests/support/mod.rs), the child
+ * follows. Like the Rust tests' helper (app/src-tauri/tests/support/mod.rs), the child
  * gets an empty home of its own in place of every folder variable, and no proxy variables.
  *
  * Plain Node with erasable TypeScript only, so `node` runs it as is.

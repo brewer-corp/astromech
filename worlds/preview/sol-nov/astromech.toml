@@ -1,4 +1,4 @@
-# The browser preview's Sol lookups recorded for it (crates/astromech-core/tests/preview_fixtures.rs):
+# The browser preview's Sol lookups recorded for it (app/src-tauri/tests/preview_fixtures.rs):
 # the same commander as worlds/preview/sol (its game folder), on the clock of the recording.
 #
 # Provenance: every spansh-*.json here is Spansh's public answer (no account, key or commander

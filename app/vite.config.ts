@@ -34,7 +34,7 @@ export default defineConfig({
             headless: true,
             provider: playwright(),
             instances: [{ browser: "chromium" }],
-            // The app window's opening size (src-tauri/src/window.rs), not Vitest's phone-sized default.
+            // The app window's opening size (src-tauri/src/host.rs), not Vitest's phone-sized default.
             viewport: { width: 1200, height: 800 },
             screenshotFailures: false,
           },

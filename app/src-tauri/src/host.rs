@@ -117,6 +117,8 @@ impl Host {
             .min_inner_size(800.0, 500.0)
             .on_page_load(move |_, p| {
                 if p.event() == tauri::webview::PageLoadEvent::Finished && !loaded.swap(true, Ordering::SeqCst) {
+                    // Real time: the cold-start line measures this process's own start.
+                    #[allow(clippy::disallowed_methods)]
                     let ms = STARTED.get().map_or(0, |t| t.elapsed().as_millis());
                     log(&format!("window: page loaded {ms} ms after start"));
                 }
@@ -236,6 +238,9 @@ impl Host {
 
     /// Destroy the window whose webview died and build it again at the page it showed.
     #[cfg(windows)]
+    // Real time: a short wait for Tauri to finish destroying the window, which ends on its own;
+    // the installed app's window only, which world mode never builds.
+    #[allow(clippy::disallowed_methods)]
     fn rebuild_window(self: &Arc<Self>) {
         let Some(w) = self.app.get_webview_window(LABEL) else { return };
         let route = w
@@ -259,6 +264,7 @@ impl Host {
 
 /// The page's presses, until `stop` is set: the window's subscription to the input source.
 #[cfg(windows)]
+#[allow(clippy::disallowed_methods, reason = "raw-input and XInput sample timing, against the source's epoch")]
 fn press_listener(app: AppHandle, stop: &AtomicBool) {
     use astromech_input::listen::{source, tracker::Processor, win};
     let mut p = Processor::new(astromech_input::ELITE_TITLE, None, true);
@@ -357,6 +363,9 @@ impl Ui for TauriUi {
 
 /// Run the installed app on Tauri's event loop until Quit. Returns the exit code when it
 /// doesn't start; after Quit the process exits from the event loop with 0.
+// Real time: the cold-start line measures this process's own start (scripts/webview_cost.py
+// reads it).
+#[allow(clippy::disallowed_methods)]
 pub fn run(opts: Opts) -> i32 {
     STARTED.get_or_init(Instant::now);
     let Some(begun) = app::begin(&opts) else { return 0 };

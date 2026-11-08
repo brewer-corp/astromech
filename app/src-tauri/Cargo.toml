@@ -32,6 +32,13 @@ astromech-core.workspace = true
 astromech-api.workspace = true
 astromech-input.workspace = true
 
+# The tests that run this binary headless in a world (tests/world_*.rs, every_window_command.rs,
+# preview_fixtures.rs): only this package's tests get its path (`CARGO_BIN_EXE_astromech-core`).
+[dev-dependencies]
+serde.workspace = true
+tempfile.workspace = true
+astromech-voice.workspace = true
+
 [target.'cfg(windows)'.dependencies]
 # wry's version, to handle WebView2's ProcessFailed event.
 webview2-com = { version = "0.39", optional = true }

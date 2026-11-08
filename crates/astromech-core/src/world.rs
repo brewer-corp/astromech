@@ -196,7 +196,7 @@
 //!   itself wakes the wait; if none arrives within [`WAIT_GUARD`], the call fails.
 //!
 //! And two that read the registry, for the every-window-command test
-//! (crates/astromech-core/tests/every_window_command.rs): `world_commands`, `{window, local}`, the
+//! (app/src-tauri/tests/every_window_command.rs): `world_commands`, `{window, local}`, the
 //! command names by who may call them; and `world_args {cmd, args}`, `args` parsed as `cmd`'s args
 //! type and written back ([`astromech_api::Registry::round_trip_args`]), so a field the type
 //! doesn't have drops out.
@@ -358,6 +358,43 @@ impl crate::autostart::Autostart for WorldAutostart {
     }
 }
 
+/// What the core asks of the world's tray ([`WorldUi`]), for [`tray`].
+enum TrayMsg {
+    Refresh,
+    Quit,
+}
+
+/// The tray and the window in world mode: an `open_window` is recorded as `window {route}` and
+/// opens nothing, and the tray's refreshes and the quit go to [`tray`] on world mode's main
+/// thread, which observes what the tray would show. No window is ever open.
+struct WorldUi {
+    observed: Arc<Observed>,
+    tx: Mutex<std::sync::mpsc::Sender<TrayMsg>>,
+}
+
+impl app::Ui for WorldUi {
+    fn refresh(&self) {
+        let _ = self.tx.lock().recover().send(TrayMsg::Refresh);
+    }
+
+    fn open_window(&self, route: Option<&str>) -> Result<(), String> {
+        self.observed.record("window", json!({ "route": route }));
+        Ok(())
+    }
+
+    fn window_open(&self) -> bool {
+        false
+    }
+
+    fn state(&self) -> app::UiState {
+        app::UiState { window: app::WindowState::Closed, tray: false, page: None }
+    }
+
+    fn quit(&self) {
+        let _ = self.tx.lock().recover().send(TrayMsg::Quit);
+    }
+}
+
 /// A world, copied into its temp directory, and the state its fakes share.
 pub struct World {
     dir: tempfile::TempDir,
@@ -375,6 +412,9 @@ pub struct World {
     net: net::Net,
     /// The session's devices: keys, the foreground window, buttons, mic and speech.
     io: Arc<io::Io>,
+    /// The tray and the window, and the receiving end of what the core asks of the tray.
+    ui: Arc<WorldUi>,
+    tray: std::sync::mpsc::Receiver<TrayMsg>,
 }
 
 impl World {
@@ -420,6 +460,8 @@ impl World {
             net.replay().clone(),
             io.clone(),
         );
+        let (tray_tx, tray) = std::sync::mpsc::channel();
+        let ui = Arc::new(WorldUi { observed: observed.clone(), tx: Mutex::new(tray_tx) });
         let w = Self {
             dir,
             observed,
@@ -430,6 +472,8 @@ impl World {
             steps: Arc::new(Mutex::new(steps)),
             net,
             io,
+            ui,
+            tray,
         };
         copy_dir(src, &w.world()).with_context(|| format!("copying the world {}", src.display()))?;
         let secrets = match std::fs::read_to_string(w.world().join("secrets.json")) {
@@ -517,10 +561,7 @@ impl World {
             notifier: Arc::new(WorldNotifier(o.clone())),
             secrets: Arc::new(secrets),
             autostart: Arc::new(WorldAutostart { observed: o.clone(), run: Mutex::new(None) }),
-            window: Arc::new(move |route: Option<&str>| {
-                o.record("window", json!({ "route": route }));
-                Ok(())
-            }),
+            ui: self.ui.clone(),
             remote: Arc::new(move |_: &Path| remote.clone()),
             http: self.net.http(),
             more_commands: Some(Arc::new(move |core, reg| register(&commands, &steps, &settle, core, reg))),
@@ -634,11 +675,11 @@ fn register(
 /// queue up while one is read are taken together, as the tray's loop takes them. What it shows
 /// is read after every earlier observation was recorded (read again if one came meanwhile), so
 /// a `tray` after an observation shows the core as it was after it. Runs until `quit`.
-fn tray(core: &Core, ui: &std::sync::mpsc::Receiver<app::Ui>, observed: &Observed) {
+fn tray(core: &Core, ui: &std::sync::mpsc::Receiver<TrayMsg>, observed: &Observed) {
     while let Ok(m) = ui.recv() {
-        let mut quit = m == app::Ui::Quit;
+        let mut quit = matches!(m, TrayMsg::Quit);
         while let Ok(m) = ui.try_recv() {
-            quit |= m == app::Ui::Quit;
+            quit |= matches!(m, TrayMsg::Quit);
         }
         if quit {
             return;
@@ -682,7 +723,7 @@ fn serve(src: &Path, session: crate::session::Opts, record: Option<&Path>) -> Re
     }
     let opts = app::Opts { config: Some(world.config_path()), session, ..Default::default() };
     let recording = world.net.recording();
-    let Assembled { core, ui } = app::assemble_with(&opts, b, |s| if recording { s } else { s.plot_polling(NO_WAIT) });
+    let Assembled { core } = app::assemble_with(&opts, b, |s| if recording { s } else { s.plot_polling(NO_WAIT) });
     let started = app::start(&core);
     let server = started.server.as_ref().context("the control API didn't start")?;
     let line = json!({ "control": server.endpoint.contact(), "app_dir": app_dir });
@@ -692,13 +733,13 @@ fn serve(src: &Path, session: crate::session::Opts, record: Option<&Path>) -> Re
         out.flush()?;
     }
     // Quit when the starter goes: its end of stdin closes, even when it is killed.
-    let ui_tx = core.ui.lock().recover().clone();
+    let ui = core.ui.clone();
     std::thread::Builder::new().name("world-stdin".into()).spawn(move || {
         let _ = std::io::copy(&mut std::io::stdin().lock(), &mut std::io::sink());
         log("world mode: stdin closed");
-        let _ = ui_tx.send(app::Ui::Quit);
+        ui.quit();
     })?;
-    tray(&core, &ui, &world.observed);
+    tray(&core, &world.tray, &world.observed);
     log("world mode: quitting");
     // Stop what writes into the temp folder before removing it: the session (and its threads)
     // and the history follower, whose first open of its database may still be running. The
@@ -908,7 +949,7 @@ mod tests {
         b.autostart.set(true, Path::new("astromech-core")).unwrap();
         assert_eq!(b.autostart.get(), Some(crate::autostart::command_line(Path::new("astromech-core"))));
         b.autostart.set(false, Path::new("astromech-core")).unwrap();
-        (b.window)(Some("settings")).unwrap();
+        b.ui.open_window(Some("settings")).unwrap();
         assert!((b.processes)().is_empty());
         let client = (b.remote)(Path::new("unused"));
         assert!(client.send(astromech_data::Service::Spansh, &astromech_data::Request::get("/api/x")).is_err());

@@ -1,4 +1,4 @@
-# The browser preview's Sol samples (crates/astromech-core/tests/preview_fixtures.rs): Jameson docked
+# The browser preview's Sol samples (app/src-tauri/tests/preview_fixtures.rs): Jameson docked
 # at Abraham Lincoln in Sol in an Asp, on 16 Oct 2026's clock. Every answer in net.json is a file
 # already in the repository's crate fixtures (crates/astromech-*/tests/fixtures/), named by path:
 # the Spansh famine, site, trade and route pages and the Ardent Insight market pages those crates'

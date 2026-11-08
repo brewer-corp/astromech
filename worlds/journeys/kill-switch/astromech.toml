@@ -3,7 +3,7 @@
 # switch (Joy_1 on the right stick) is pressed and released, which stops everything, then held
 # for [controls] rearm_hold_ms (1000 ms, the advance between press and release), which re-arms
 # it. The denied voice command and the short hold stay in worlds/kill-switch and
-# crates/astromech-core/tests/world_voice.rs.
+# app/src-tauri/tests/world_voice.rs.
 [controls]
 ptt = { device = "231D3201", key = "Joy_4" }
 kill_switch = { device = "231D0200", key = "Joy_1" }

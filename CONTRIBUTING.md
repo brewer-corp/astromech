@@ -74,7 +74,7 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 
 Two loops for working on the window:
 
-- **The real core in the browser**, on any host: `cargo build -p astromech-core`, then
+- **The real core in the browser**, on any host: `cargo build -p astromech-app`, then
   `cd app && ASTROMECH_WORLD=../worlds/<name> pnpm dev` and open http://127.0.0.1:5173/. The dev
   server's plugin (`app/dev/bridge.ts`) starts the headless core on that world
   (`astromech-core --world`, the binary `ASTROMECH_CORE` or `target/debug/astromech-core`), and
@@ -103,7 +103,7 @@ core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`wo
   `cargo test --workspace`, `python3 scripts/check-deps.py`, `python3 scripts/check-guide.py` (guide links), `cargo deny check`, and in `app/`:
   `pnpm lint && pnpm check && pnpm build && pnpm test`, then `python3 scripts/check-dist.py` (the build carries no browser preview),
   then `pnpm exec tsc -p journeys` and the journeys, `node --test 'journeys/*.journey.ts'` (after `cargo test` or
-  `cargo build -p astromech-core` has built the core).
+  `cargo build -p astromech-app` has built the core).
   `pnpm test` runs the UI tests in headless Chromium: install it once with
   `pnpm exec playwright install --only-shell chromium` (see [Tests](#tests)).
 - Tracker records: the **Atelier** workflow (`.github/workflows/atelier.yml`) runs
@@ -139,10 +139,10 @@ core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`wo
   handler (`app/src/preview/coverage.test.ts`), and a release build must carry none of the fake
   or the dev bridge (`scripts/check-dist.py app/dist` after `pnpm build`, run in CI).
 - The fake's fixtures (`app/src/preview/fixtures/`) are the real core's replies, dumped from
-  worlds under `worlds/preview/`. `crates/astromech-core/tests/preview_fixtures.rs` lists each
+  worlds under `worlds/preview/`. `app/src-tauri/tests/preview_fixtures.rs` lists each
   file with the command and args that produce it, or why the core doesn't, and fails when one
   drifts. After a deliberate change to the core or one of those worlds, refresh them with
-  `ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-core --test preview_fixtures`, check the
+  `ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-app --test preview_fixtures`, check the
   diff, and run `pnpm check` and `pnpm test`. Don't edit a dumped fixture by hand.
 - Every command's args, reply and progress types are exported to TypeScript from the Rust
   command layer (ts-rs): `app/src/lib/api/types/` (generated, so lint skips it) and
@@ -158,7 +158,7 @@ core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`wo
   (`app/src/preview/recorded.ts`), so `pnpm check` fails on a fixture missing a field the core
   sends. Take the field from the fixture's recorded input (or the example that dumps it).
 - A new `window` command needs an entry in the table in
-  `crates/astromech-core/tests/every_window_command.rs`: example args, what the call gives (ok, or
+  `app/src-tauri/tests/every_window_command.rs`: example args, what the call gives (ok, or
   the handler's own error) and the effect to check, in the reply or in what the world observed.
   The test starts the headless core in the world `worlds/every-command` and calls each one through
   its control API, as the shell sends it. It fails for a `window` command with no entry, and for an
@@ -382,8 +382,9 @@ name or personal data. `crates/astromech-core/tests/committed_worlds.rs` fails f
 `secrets.json` value that isn't a placeholder (`not-a-real-key`; it must say `not-a-real`,
 `fake` or `placeholder`, or be empty) and for a `net.json` holding an EDSM flight log with entries. The
 format, the settle rules and the `world_*` commands are in the [world module's doc
-comment](crates/astromech-core/src/world.rs); the worlds are in `worlds/`. `crates/astromech-core/tests/support/` starts one (`WorldCore`) and calls it over the
-control API. Each world core is its own process, because the core keeps process-wide state. The
+comment](crates/astromech-core/src/world.rs); the worlds are in `worlds/`. `app/src-tauri/tests/support/` starts one (`WorldCore`) and calls it over the
+control API. The tests that start the binary live in `app/src-tauri/tests/`, beside the package
+that builds it (`astromech-app`), since cargo gives only that package's tests its path. Each world core is its own process, because the core keeps process-wide state. The
 helper points every home variable (`HOME`, the `XDG_*` folders, `LOCALAPPDATA`, `APPDATA`,
 `USERPROFILE`) at an empty folder that `quit()` checks is still empty, and holds the core's
 stdin: world mode quits when its stdin closes, so a killed test leaves no core running. Started
