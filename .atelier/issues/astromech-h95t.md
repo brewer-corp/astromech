@@ -28,6 +28,7 @@ Players updating from v1.0.0-alpha.4 learn that astromech is now one app, what e
 - [x] `docs/releases/v1.0.0-alpha.5.md` follows alpha.4's layout (intro, Installing, What's new since alpha.4, What has not been checked in the game, Known limits) and covers every user-visible change on main since the v1.0.0-alpha.4 tag.
 - [x] README's release-notes link points at it.
 - [x] `python3 scripts/check-release-notes.py docs/releases/v1.0.0-alpha.5.md` passes.
+- [x] CI's Atelier job (`.github/workflows/atelier.yml`) pins `ATELIER_REV` 4910be4563e9466e561af11029f46e8e8e1d5a3e (spadaval/atelier master, toolchain still 1.95.0), so it reads the schema-4 review records the installed binary 0.3.1+4910be45 writes; `atelier doctor` passes on PR #225.
 
 ## Report
 
