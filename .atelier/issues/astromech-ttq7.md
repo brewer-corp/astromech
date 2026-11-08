@@ -27,3 +27,4 @@ The clock lint catches a real-time read added to the one app's event loop, and c
 
 - [ ] The clock-lint allow in `app/src-tauri/src/host.rs` (around line 368) covers only the `STARTED.get_or_init(Instant::now)` statement, not all of `host::run` (review finding astromech-3rf9).
 - [ ] The comments in `app/src/lib/proxy.browser.test.ts:6-7` and `crates/astromech-api/src/lib.rs:10` describe `host.rs`'s in-process `call`, not the removed shell proxy and `window.rs` (review finding astromech-4r9s).
+- [ ] `scripts/webview_cost.py` fails when a run that read the tray as `rect` later reads `fallback`, and keeps DEGRADED only for a run that reads `fallback` throughout (review finding astromech-m6f9).
