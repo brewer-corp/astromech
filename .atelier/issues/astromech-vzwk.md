@@ -9,14 +9,18 @@ relationships:
   children: []
   attachments: []
   relates:
+  - kind: "issue"
+    id: "astromech-mqqa"
+    type: "duplicates"
   - kind: "review"
     id: "astromech-81t0"
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+closed_at: "2026-11-08T16:29:32.972277307+00:00"
+status: "superseded"
 title: "Updater: a 45 s timeout no longer kills the apply helper and leaves astromech off"
-updated_at: "2026-11-08T15:38:38.989060439+00:00"
+updated_at: "2026-11-08T16:29:32.972277307+00:00"
 ---
 
 ## Goal
@@ -31,3 +35,7 @@ When the update helper times out waiting for the old core to exit, it stops the 
 ## Context
 
 Review finding astromech-81t0. Same on main and v1.0.0-alpha.4, so it predates the one app.
+
+## Report
+
+Duplicate of astromech-mqqa, filed earlier for the same taskkill /T tree kill of the update helper
