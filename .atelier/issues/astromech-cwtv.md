@@ -41,7 +41,7 @@ Both drive the page through the harness against the real core and a committed wo
     - say "Next waypoint. <system>." (a `said` observation).
   - The page's route shows that stop as next.
   - Mutation: a jump to a system off the route fails the clipboard wait.
-- [ ] Both pass in the journey suite (`node --test 'journeys/*.journey.ts'` in app/) locally, 20 runs in a row with no failure, and in CI's Linux job.
+- [x] Both pass in the journey suite (`node --test 'journeys/*.journey.ts'` in app/) locally, 20 runs in a row with no failure, and in CI's Linux job.
 
 ## Scope
 

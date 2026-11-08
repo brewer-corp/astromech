@@ -38,7 +38,7 @@ The Rust world tests already cover the core's half of both (crates/astromech-cor
   - On the Voice tester page (app/src/modules/voicetester) the commander runs "gear down" live (`voice_test_live`, app/src/lib/voice.ts:62).
   - The core presses the gear key (a `key` observation), the world's reaction sets the flag, and the page shows that the game confirmed it.
   - Mutation: with the reaction removed, the page never shows the confirmation, and the journey fails.
-- [ ] Both pass in the journey suite (`node --test 'journeys/*.journey.ts'` in app/) locally, 20 runs in a row with no failure, and in CI's Linux job.
+- [x] Both pass in the journey suite (`node --test 'journeys/*.journey.ts'` in app/) locally, 20 runs in a row with no failure, and in CI's Linux job.
 
 ## Scope
 

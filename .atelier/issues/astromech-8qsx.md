@@ -46,7 +46,7 @@ A journey suite runs on every push. Node's test runner drives the page with Play
   - A new rule there rejects Playwright's `waitForTimeout` and a numeric `polling` interval.
   - Each rule has a case in app/eslint-rules/tests.test.js.
 - [x] No step or test retries: no harness or journey code retries, and `node --test` runs with no retry option. Waits are on the core's observations (`world_wait`, which has its own 30 s hang guard) or on the page (locator waits, or `waitForFunction` with `polling: "mutation"`). Their timeouts only guard against a hang.
-- [ ] CI: a step in ci.yml's Linux job runs the journey suite.
+- [x] CI: a step in ci.yml's Linux job runs the journey suite.
   - It goes after "dev bridge answers with the real core" (ci.yml:96-99), so `cargo test` has built the core and the browser project's step has installed Chromium (ci.yml:86-92).
   - It runs `node --test 'journeys/*.journey.ts'` and has `timeout-minutes: 5`.
   - When a journey fails, its Playwright trace, a screenshot and the core's log are uploaded as an artifact.
