@@ -9,7 +9,11 @@ relationships:
   blocks: []
   children:
   - kind: "issue"
+    id: "astromech-1tqb"
+  - kind: "issue"
     id: "astromech-278z"
+  - kind: "issue"
+    id: "astromech-6ec9"
   - kind: "issue"
     id: "astromech-7f11"
   - kind: "issue"
@@ -26,7 +30,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Voice stack without sherpa-onnx"
-updated_at: "2026-11-07T05:34:24.723901883+00:00"
+updated_at: "2026-11-08T18:51:23.938826148+00:00"
 ---
 
 ## Goal
