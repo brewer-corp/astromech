@@ -10,6 +10,13 @@ created_at: 2026-11-08T15:37:17.290672363Z
 event:
   event: finding
   recommendation: defer
+  disposition:
+    decision: defer
+    identity: claude-orchestrator-kjfs
+    commit: ed935fa6804b1f1e96f8849861861319e30ed8ce
+    recorded_at: 2026-11-08T15:37:58.853823690Z
+    follow_up: astromech-ttq7
+    reason: Low, no behaviour change; fixing it now would rerun Windows CI on the approved merge. Follow-up astromech-ttq7.
 ---
 
 low: app/src/lib/proxy.browser.test.ts:6-7 and crates/astromech-api/src/lib.rs:10 still name the removed shell: 'the shell's one proxy ... (app/src-tauri/src/window.rs)' and 'the shell's proxy stamps origin: app_window on what it forwards'. window.rs is gone (the merge kept it deleted) and the window now dispatches in process through host.rs's call and control::window_request. Not from these four commits (both predate 571fddcd), and comments only, so nothing fails; a reader following them looks for a file that doesn't exist. Fix: point both at app/src-tauri/src/host.rs's call (in process, control::window_request).
