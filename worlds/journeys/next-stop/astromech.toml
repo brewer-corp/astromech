@@ -1,0 +1,13 @@
+# The next-stop journey (app/journeys/route.journey.ts): the steps of worlds/jump. Jameson is in
+# Sol, Elite starts, the window sets astromech's own route Sol, Alpha Centauri, Barnard's Star,
+# and a jump into Alpha Centauri copies and reads out Barnard's Star. The journal lines are
+# hand-built in the shape the game writes.
+#
+# Provenance: net.json is Spansh's public answer (no account, key or commander sent) to the
+# biological-signals bodies search the core makes on arriving in Alpha Centauri, recorded on
+# 7 Nov 2026 at about 23:41 UTC with `astromech-core --world worlds/journeys/next-stop
+# --record-net <file>`, whole; nothing was redacted. EDSM's body list for the system, asked at the
+# same time, is left out because its answer names other players (the bodies' discoverers): the
+# world refuses that request, as it does any it doesn't hold.
+[eddn]
+enabled = false

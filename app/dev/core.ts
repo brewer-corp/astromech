@@ -101,8 +101,9 @@ export interface WorldOptions {
   core?: string;
   /** More variables for the core, set after the client's own. */
   env?: Record<string, string>;
-  /** Where the core's stderr (its log lines) goes; default this process's. */
-  stderr?: "inherit" | "ignore";
+  /** Where the core's stderr goes: this process's (the default), nowhere, or an open file
+   * descriptor (the journey harness's log file). */
+  stderr?: "inherit" | "ignore" | number;
 }
 
 /** A running world core. */
