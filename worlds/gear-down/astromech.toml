@@ -1,4 +1,4 @@
-# Gear down by voice (crates/astromech-core/tests/world_voice.rs): Elite is running and in front, the
+# Gear down by voice (app/src-tauri/tests/world_voice.rs): Elite is running and in front, the
 # commander holds push-to-talk (Joy_4 on the left stick), says "gear down" and lets go. The clip,
 # gear-down.wav, is Kokoro's bm_george saying "Gear down." in the default cockpit colour
 # (examples/render-voices.rs --line 'Gear down.' --voices bm_george), converted from its 24 kHz to

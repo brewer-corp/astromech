@@ -1,8 +1,8 @@
 /**
  * The window's one way to its backend. `call` sends a command and `subscribe` takes what the
- * backend pushes. In the app (Tauri) every command goes through the shell's one proxy, `call`,
- * to the core's command registry, and pushes are Tauri events ("input", "route",
- * "core-restarted") or a command's progress, published on the command's own name
+ * backend pushes. In the app (Tauri) every command goes through the window's one Tauri command,
+ * `call`, into the core's command registry in the same process, and pushes are Tauri events
+ * ("input", "route") or a command's progress, published on the command's own name
  * ("neutron_download"). Outside Tauri, in `pnpm dev`, the tests and a
  * preview build (scripts/preview-publish sets VITE_PREVIEW), the browser preview's fake answers
  * (app/src/preview/): main.ts and the tests' setup files load it, and it registers itself here

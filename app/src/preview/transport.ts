@@ -38,9 +38,8 @@ export function previewCommands(): Handlers {
 /** The topics the window subscribes to. */
 export const topics: Record<string, (handler: (payload: unknown) => void) => () => void> = {
   input: onPreviewPress as (handler: (payload: unknown) => void) => () => void,
-  // The tray's page requests and the shell restarting the core don't happen in a browser.
+  // The tray's page requests don't happen in a browser.
   route: quiet,
-  "core-restarted": quiet,
   neutron_download: pushed("neutron_download"),
 };
 

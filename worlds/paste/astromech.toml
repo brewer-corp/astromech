@@ -1,4 +1,4 @@
-# The paste button (crates/astromech-core/tests/world_voice.rs): in the galaxy map (GuiFocus 6) the
+# The paste button (app/src-tauri/tests/world_voice.rs): in the galaxy map (GuiFocus 6) the
 # paste button (Joy_12 on the left stick) sends Ctrl+V, then Enter. The modifier gap and the paste
 # settle are real pacing waits on the paste's own thread, so the keys are awaited, not stepped.
 # Then the map closes, and a press sends nothing.

@@ -1,3 +1,3 @@
-# The browser preview's sample (crates/astromech-core/tests/preview_fixtures.rs).
+# The browser preview's sample (app/src-tauri/tests/preview_fixtures.rs).
 [eddn]
 enabled = false

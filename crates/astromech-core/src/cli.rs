@@ -1,9 +1,12 @@
-//! astromech-core: the always-running core with the tray icon (default), the console
-//! preview (`--console`, and the one-shot options such as `--listen` and `--health`), or world
-//! mode (`--world`, headless against a scripted world).
+//! `astromech-core.exe`'s command line: the app (the default, with `--background` from the Run
+//! key), the console preview (`--console`, and the one-shot options such as `--listen` and
+//! `--health`), world mode (`--world`, headless against a scripted world), `--quit` and the
+//! update helper (`--apply-update`). The binary is built by app/src-tauri, whose `main` is
+//! [`main`] with the app it runs: the Tauri host with the tray and the window, or
+//! [`crate::app::run`] headless without its `window` feature (decision astromech-nade). Console
+//! mode, world mode and `--apply-update` run before any of the app's setup.
 
-#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
-
+use crate as astromech_core;
 use anyhow::{bail, Context, Result};
 use astromech_api::Recover;
 use astromech_core::config::{Config, SAMPLE};
@@ -87,6 +90,11 @@ struct Args {
     /// Start astromech-core again after copying (with --route: open the window at that page)
     #[arg(long)]
     relaunch: bool,
+    /// Open WebView2's DevTools port (127.0.0.1) on the window, for CI's onboarding smoke test
+    /// (scripts/onboarding_smoke.py). A flag, not an environment variable, so it can't linger
+    /// in a user's environment
+    #[arg(long, value_name = "PORT")]
+    webview_debug_port: Option<u16>,
     /// Run headless against the scripted world in this folder (tests and the dev bridge): a temp
     /// copy, fake processes, opener, clipboard and Start with Windows, no window or tray. Prints
     /// the control API's port and token on stdout, then runs until `quit` or its stdin closes.
@@ -101,8 +109,9 @@ struct Args {
 
 /// Every option `--world` can't be given with: those that act on the user's real core or files
 /// (`--quit`, `--apply-update` and its options, `--config`), the installed app's own
-/// (`--background`, `--route`) and the console's, which `--world` would otherwise ignore.
-const WORLD_CONFLICTS: [&str; 18] = [
+/// (`--background`, `--route`, `--webview-debug-port`) and the console's, which `--world` would
+/// otherwise ignore.
+const WORLD_CONFLICTS: [&str; 19] = [
     "quit",
     "apply_update",
     "from",
@@ -112,6 +121,7 @@ const WORLD_CONFLICTS: [&str; 18] = [
     "config",
     "background",
     "route",
+    "webview_debug_port",
     "console",
     "write_config",
     "health",
@@ -178,7 +188,8 @@ fn quit_running() -> i32 {
     1
 }
 
-fn main() {
+/// Parse the command line and do what it asks; `app` runs the app itself. Never returns.
+pub fn main(app: fn(astromech_core::app::Opts) -> i32) -> ! {
     let args = Args::parse();
     if args.apply_update {
         let from = args.from.expect("--apply-update needs --from");
@@ -201,11 +212,12 @@ fn main() {
         std::process::exit(astromech_core::world::run(world, args.session_opts(), args.record_net.as_deref()));
     }
     if !args.console_mode() {
-        let code = astromech_core::app::run(astromech_core::app::Opts {
+        let code = app(astromech_core::app::Opts {
             background: args.background,
             route: args.route.clone(),
             config: args.config.clone(),
             session: args.session_opts(),
+            webview_debug_port: args.webview_debug_port,
         });
         std::process::exit(code);
     }
@@ -221,6 +233,7 @@ fn main() {
         }
         std::process::exit(1);
     }
+    std::process::exit(0);
 }
 
 fn download_models(cfg: &Config, paths: &Paths) -> Result<()> {
@@ -479,23 +492,21 @@ fn calibrate_files(cfg: &Config, data: &Path, files: &[PathBuf]) -> Result<()> {
 #[cfg(windows)]
 #[allow(clippy::disallowed_methods)]
 fn listen(secs: u64) -> Result<()> {
-    use astromech_input::listen::{tracker::Processor, win};
+    use astromech_input::listen::{source, tracker::Processor, win};
     println!("Press buttons for {secs} s; each line shows the device and key to put in astromech.toml.");
-    let start = std::time::Instant::now();
-    let (tx, rx) = std::sync::mpsc::channel();
-    let _ = win::rawinput::start(tx.clone(), start);
-    let _ = win::xinput::start(tx, start);
+    let started = std::time::Instant::now();
+    let rx = source::subscribe().rx;
     let mut p = Processor::new(astromech_input::ELITE_TITLE, None, true);
     for d in win::rawinput::list_devices() {
         p.add_device(d);
     }
-    while start.elapsed() < Duration::from_secs(secs) {
+    while started.elapsed() < Duration::from_secs(secs) {
         let evs = match rx.recv_timeout(Duration::from_millis(100)) {
-            Ok(win::Msg::Device(d)) => {
+            Ok(source::Msg::Device(d)) => {
                 p.add_device(d);
                 continue;
             }
-            Ok(win::Msg::Sample(s)) => p.process(&s),
+            Ok(source::Msg::Sample(s)) => p.process(&s),
             Err(_) => continue,
         };
         for e in evs {
@@ -543,6 +554,7 @@ mod tests {
             &["--config", "c.toml"],
             &["--background"],
             &["--route", "settings"],
+            &["--webview-debug-port", "9222"],
             &["--console"],
             &["--write-config"],
             &["--health"],

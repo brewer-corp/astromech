@@ -1,8 +1,8 @@
 //! The core's local control API: JSON lines over TCP on 127.0.0.1, one request per
 //! connection, served from the [`Registry`]. The port and a per-run token are written to
 //! `<app dir>/core.json`, which only this user can read; every request must carry the token.
-//! The server ([`serve`]) and the client ([`call`]) live here together, so the core, the shell
-//! and tests speak one wire.
+//! The server ([`serve`]) and the client ([`call`]) live here together, so the core, its local
+//! clients (a second start, `--quit`) and tests speak one wire.
 //!
 //! A request is `{token, cmd, args?, text?, route?, origin?}`. The reply is zero or more
 //! `{"progress": V}` lines, then `{"ok": true, "value": V}` or `{"ok": false, "error": "…"}`.
@@ -64,8 +64,8 @@ pub struct Request {
     /// The page to show (`open_window`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub route: Option<String>,
-    /// Who the request is for: `app_window` when the shell forwards the page's call; none from a
-    /// local control client.
+    /// Who the request is for: `app_window` for the window's calls ([`window_request`]); none
+    /// from a local control client.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub origin: Option<Origin>,
 }
@@ -209,22 +209,29 @@ pub fn call_short(app_dir: &Path, cmd: &str, route: Option<&str>) -> Result<Valu
     call(app_dir, req, Some(SHORT), &mut |_| {})
 }
 
-/// The window's call, as the shell's one proxy sends it: stamped `origin: "app_window"`, so the
-/// registry refuses the `local` commands, and with no read timeout (a plot polls Spansh for
-/// minutes; a dropped connection means the core died), except `status`: the window polls it
-/// every few seconds, so it keeps the [`SHORT`] bound and a core that stopped answering reads as
-/// not running instead of leaving each poll waiting forever. A string `args` is the request's `text`
-/// (the voice tester's phrase or command id, a JSON change such as `prospector_set`'s), the
-/// commands whose args type is `string` in the generated map. Progress values go to
-/// `on_progress`.
+/// The window's request for `cmd`: stamped `origin: "app_window"`, so the registry refuses the
+/// `local` commands. A string `args` is the request's `text` (the voice tester's phrase or
+/// command id, a JSON change such as `prospector_set`'s), the commands whose args type is
+/// `string` in the generated map. The window's `call` (app/src-tauri) dispatches it in process.
+pub fn window_request(cmd: &str, args: Option<Value>) -> Request {
+    let (text, args) = match args {
+        Some(Value::String(s)) => (Some(s), None),
+        a => (None, a),
+    };
+    Request { args, text, origin: Some(Origin::AppWindow), ..Request::new(cmd) }
+}
+
+/// [`window_request`] over the control API, for tests that call the core as the window does:
+/// no read timeout (a plot polls Spansh for minutes; a dropped connection means the core died),
+/// except `status`, which keeps the [`SHORT`] bound of status-style callers. Progress values go
+/// to `on_progress`.
 pub fn call_window(
     app_dir: &Path,
     cmd: &str,
     args: Option<Value>,
     on_progress: &mut dyn FnMut(Value),
 ) -> Result<Value, String> {
-    let (req, timeout) = window_request(cmd, args);
-    call(app_dir, req, timeout, on_progress)
+    call(app_dir, window_request(cmd, args), window_timeout(cmd), on_progress)
 }
 
 /// [`call_window`] to the core at `to`, without reading `core.json`.
@@ -234,18 +241,12 @@ pub fn call_window_to(
     args: Option<Value>,
     on_progress: &mut dyn FnMut(Value),
 ) -> Result<Value, String> {
-    let (req, timeout) = window_request(cmd, args);
-    call_to(to, req, timeout, on_progress)
+    call_to(to, window_request(cmd, args), window_timeout(cmd), on_progress)
 }
 
-/// The window's request for `cmd`, and its read timeout ([`call_window`]).
-fn window_request(cmd: &str, args: Option<Value>) -> (Request, Option<Duration>) {
-    let (text, args) = match args {
-        Some(Value::String(s)) => (Some(s), None),
-        a => (None, a),
-    };
-    let req = Request { args, text, origin: Some(Origin::AppWindow), ..Request::new(cmd) };
-    (req, (cmd == "status").then_some(SHORT))
+/// The read timeout of [`call_window`]: none, except `status`'s [`SHORT`].
+fn window_timeout(cmd: &str) -> Option<Duration> {
+    (cmd == "status").then_some(SHORT)
 }
 
 #[cfg(test)]
@@ -436,6 +437,26 @@ mod tests {
         assert!(e.starts_with("not allowed"), "{e}");
         let e = call_window(d.path(), "nope", None, &mut no_progress).unwrap_err();
         assert!(e.contains("unknown command"), "{e}");
+    }
+
+    #[test]
+    fn the_windows_request_dispatched_in_process_is_the_same() {
+        // What the window's `call` (app/src-tauri) does: no socket, the registry directly.
+        let mut reg = Registry::new();
+        reg.add("echo", Exposure::Window, |r, call| {
+            call.progress(json!(1));
+            Ok(json!({"args": r.args, "text": r.text, "origin": r.origin}))
+        });
+        reg.add("quit", Exposure::Local, |_, _| Ok(json!("bye")));
+        let got = Mutex::new(vec![]);
+        let progress = |p| got.lock().unwrap().push(p);
+        let v = reg.dispatch(&window_request("echo", Some(json!({"within_ly": 20}))), &progress).unwrap();
+        assert_eq!(v, json!({"args": {"within_ly": 20}, "text": null, "origin": "app_window"}));
+        assert_eq!(*got.lock().unwrap(), vec![json!(1)]);
+        let v = reg.dispatch(&window_request("echo", Some(json!("gear down"))), &|_| {}).unwrap();
+        assert_eq!(v, json!({"args": null, "text": "gear down", "origin": "app_window"}));
+        let e = reg.dispatch(&window_request("quit", None), &|_| {}).unwrap_err();
+        assert!(e.starts_with("not allowed"), "{e}");
     }
 
     #[test]

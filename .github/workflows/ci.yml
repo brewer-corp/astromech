@@ -118,7 +118,7 @@ jobs:
           if-no-files-found: ignore
 
   windows:
-    name: Windows (MSVC build + tests, app shell)
+    name: Windows (MSVC build + tests, the app with its window)
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
@@ -132,6 +132,9 @@ jobs:
         run: cargo build --workspace --locked
       - name: tests
         run: cargo test --workspace --locked
+      - name: one input source, two subscribers, before and after restart (best effort; SendInput needs a desktop session)
+        continue-on-error: true
+        run: cargo test -p astromech-input --test source_sendinput --locked -- --ignored
       - name: gear-down end-to-end vs the mock game window (best effort; SendInput needs a desktop session)
         continue-on-error: true
         shell: bash
@@ -139,7 +142,7 @@ jobs:
           RUN: ""
           TARGET_DIR: target/debug
         run: |
-          cargo build -p astromech-core --bin astromech-core -p astromech-mockgame --bin mockgame --locked
+          cargo build -p astromech-app --bin astromech-core -p astromech-mockgame --bin mockgame --locked
           scripts/e2e-gear-down.sh
       - uses: pnpm/action-setup@v4
         with:
@@ -149,12 +152,12 @@ jobs:
           node-version: 22
           cache: pnpm
           cache-dependency-path: app/pnpm-lock.yaml
-      - name: frontend build (for the shell)
+      - name: frontend build (for the window)
         working-directory: app
         run: |
           pnpm install --frozen-lockfile
           pnpm build
-      - name: stage the core next to the shell (externalBin)
+      - name: voice worker placeholder and the forwarder (externalBin)
         shell: bash
         env:
           PLACEHOLDER: "1"
@@ -162,8 +165,8 @@ jobs:
       - name: star map placeholder (releases download the published preload)
         shell: bash
         run: python scripts/gen-starmap.py --empty --out app/src-tauri/resources/starmap.db
-      # The workspace steps above build the window as a stub; this builds the real one.
-      - name: app shell (Tauri) build
-        run: cargo build -p astromech-shell --features window --locked
-      - name: app shell clippy
-        run: cargo clippy -p astromech-shell --features window --all-targets --locked -- -D warnings
+      # The workspace steps above build the app headless; this builds it with the tray and the window.
+      - name: the app with its window (Tauri) build
+        run: cargo build -p astromech-app --features window --locked
+      - name: the app with its window clippy
+        run: cargo clippy -p astromech-app --features window --all-targets --locked -- -D warnings

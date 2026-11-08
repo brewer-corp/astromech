@@ -17,10 +17,11 @@ the code.
   feasibility spikes.
 
 ```
-crates/         the Rust crates (astromech-core is the tray process; the rest are libraries)
+crates/         the Rust crates (astromech-core is the core and its command line; the rest are libraries)
 app/            Svelte 5 + TypeScript + Vite app shell; one folder per page in src/modules/*;
                 app/dev/ the dev bridge to a headless core and its Node control client
-app/src-tauri/  astromech-shell, the Tauri v2 window (a workspace member; a stub without its `window` feature)
+app/src-tauri/  astromech-app, which builds astromech-core.exe: the one app, the core with its Tauri v2 tray and
+                window (a workspace member; the headless core without its `window` feature)
 data/           player-visible game data and the device sheets
 docs/           design documents, and the user guide in docs/guide/
 spikes/         spike tools (own code only)
@@ -39,13 +40,15 @@ python3 scripts/check-deps.py    # dependency rules
 cargo deny check                 # licences, advisories, sources
 
 cd app && pnpm install && pnpm build    # frontend
-pnpm tauri build                        # app window (Windows; Linux needs webkit2gtk-4.1)
+pnpm tauri build                        # the app with its window (Windows; Linux needs webkit2gtk-4.1)
 ```
 
-The window is in the workspace, but Tauri is behind its `window` feature, so `cargo build
---workspace` and `cargo test --workspace` build it as a stub and need no webkit2gtk.
+The app, `astromech-core` (package `astromech-app` in `app/src-tauri`), is in the workspace, but
+Tauri is behind its `window` feature, so `cargo build --workspace` and `cargo test --workspace`
+build it headless (the core with no tray and no window) and need no webkit2gtk; the scripts and
+CI's gear-down step run that build (`cargo build -p astromech-app --bin astromech-core`).
 `pnpm tauri build` and `pnpm tauri dev` turn the feature on (`build.features` in
-`tauri.conf.json`); to build or lint it with cargo, add `-p astromech-shell --features window`.
+`tauri.conf.json`); to build or lint it with cargo, add `-p astromech-app --features window`.
 Everything builds into the one `target/` folder.
 
 The repository's version is the placeholder `0.0.0-dev`, which sorts below every release, so a
@@ -71,7 +74,7 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 
 Two loops for working on the window:
 
-- **The real core in the browser**, on any host: `cargo build -p astromech-core`, then
+- **The real core in the browser**, on any host: `cargo build -p astromech-app`, then
   `cd app && ASTROMECH_WORLD=../worlds/<name> pnpm dev` and open http://127.0.0.1:5173/. The dev
   server's plugin (`app/dev/bridge.ts`) starts the headless core on that world
   (`astromech-core --world`, the binary `ASTROMECH_CORE` or `target/debug/astromech-core`), and
@@ -100,7 +103,7 @@ core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`wo
   `cargo test --workspace`, `python3 scripts/check-deps.py`, `python3 scripts/check-guide.py` (guide links), `cargo deny check`, and in `app/`:
   `pnpm lint && pnpm check && pnpm build && pnpm test`, then `python3 scripts/check-dist.py` (the build carries no browser preview),
   then `pnpm exec tsc -p journeys` and the journeys, `node --test 'journeys/*.journey.ts'` (after `cargo test` or
-  `cargo build -p astromech-core` has built the core).
+  `cargo build -p astromech-app` has built the core).
   `pnpm test` runs the UI tests in headless Chromium: install it once with
   `pnpm exec playwright install --only-shell chromium` (see [Tests](#tests)).
 - Tracker records: the **Atelier** workflow (`.github/workflows/atelier.yml`) runs
@@ -136,10 +139,10 @@ core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`wo
   handler (`app/src/preview/coverage.test.ts`), and a release build must carry none of the fake
   or the dev bridge (`scripts/check-dist.py app/dist` after `pnpm build`, run in CI).
 - The fake's fixtures (`app/src/preview/fixtures/`) are the real core's replies, dumped from
-  worlds under `worlds/preview/`. `crates/astromech-core/tests/preview_fixtures.rs` lists each
+  worlds under `worlds/preview/`. `app/src-tauri/tests/preview_fixtures.rs` lists each
   file with the command and args that produce it, or why the core doesn't, and fails when one
   drifts. After a deliberate change to the core or one of those worlds, refresh them with
-  `ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-core --test preview_fixtures`, check the
+  `ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-app --test preview_fixtures`, check the
   diff, and run `pnpm check` and `pnpm test`. Don't edit a dumped fixture by hand.
 - Every command's args, reply and progress types are exported to TypeScript from the Rust
   command layer (ts-rs): `app/src/lib/api/types/` (generated, so lint skips it) and
@@ -155,7 +158,7 @@ core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`wo
   (`app/src/preview/recorded.ts`), so `pnpm check` fails on a fixture missing a field the core
   sends. Take the field from the fixture's recorded input (or the example that dumps it).
 - A new `window` command needs an entry in the table in
-  `crates/astromech-core/tests/every_window_command.rs`: example args, what the call gives (ok, or
+  `app/src-tauri/tests/every_window_command.rs`: example args, what the call gives (ok, or
   the handler's own error) and the effect to check, in the reply or in what the world observed.
   The test starts the headless core in the world `worlds/every-command` and calls each one through
   its control API, as the shell sends it. It fails for a `window` command with no entry, and for an
@@ -198,14 +201,33 @@ core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`wo
 - The **Release build** also runs `scripts/onboarding_smoke.py` after the installer smoke test: a
   fresh silent install, the onboarding wizard driven in the real window, then "gear down" run live
   from the voice tester against the mock game, with each step's time. It opens the window with
-  `astromech-shell --webview-debug-port <port>`, which turns on WebView2's DevTools port on
+  `astromech-core --webview-debug-port <port>`, which turns on WebView2's DevTools port on
   127.0.0.1 so the page can be driven; nothing else uses that flag.
+  After it, `scripts/webview_cost.py --checks-only` runs the one-process checks against a fresh
+  install: the app windowless with no WebView2 process, a second start opening the window, five
+  closes that must each free every WebView2 process within 15 s, the window's renderer and
+  browser process killed (the window must recover, and its close free WebView2), and quit.
+  Its `upgrade` job (`scripts/upgrade_smoke.py`) installs v1.0.0-alpha.4, the last two-process
+  release (pinned: the script starts its two processes; between one-process releases is
+  astromech-7pl5), starts it as
+  a player has it (the core with `--background`, then its window) and upgrades it to this build
+  twice: with that release's own update helper overlaying this build's zip, and with this
+  build's `setup.exe /S`. After each, one `astromech-core.exe` of this build must run, the old
+  one must have quit cleanly, the Run value must be unchanged and the old `astromech-shell.exe`
+  shortcut must open the window. Any change to the installer hooks, the update helper or the
+  executables' names has to keep it passing: the old release's code runs during the upgrade.
 - The game-free MVP criteria (docs/ARCHITECTURE.md §14 Phase 1) are measured on Windows by
   `scripts/mvp_criteria.py`: the release core against the mock game window
   (`crates/astromech-mockgame`), with a report against each threshold. The
   **MVP criteria** workflow runs a 5-minute soak on PRs that change the core; the full 4 h run is
   manual (Actions → MVP criteria → Run workflow). Its analysis tests run anywhere:
   `python3 scripts/test_mvp_criteria.py`.
+- What the one app costs with its window, and that it stays one process, is measured by
+  `scripts/webview_cost.py` (docs/ARCHITECTURE.md §18.1): the app windowless, with its window
+  open, closed again five times and crashed, in a scratch profile. The **App window cost**
+  workflow runs it on PRs that change the app and gates on Windows: no WebView2 process windowless
+  or 15 s after a close, the app alive throughout, cold start, idle CPU. Memory is reported, with
+  no pass mark. Its judging tests run anywhere: `python3 scripts/test_webview_cost.py`.
 - New dependencies must pass `cargo deny` (permissive licences only).
 - Contributions are accepted under the MIT licence.
 
@@ -360,8 +382,9 @@ name or personal data. `crates/astromech-core/tests/committed_worlds.rs` fails f
 `secrets.json` value that isn't a placeholder (`not-a-real-key`; it must say `not-a-real`,
 `fake` or `placeholder`, or be empty) and for a `net.json` holding an EDSM flight log with entries. The
 format, the settle rules and the `world_*` commands are in the [world module's doc
-comment](crates/astromech-core/src/world.rs); the worlds are in `worlds/`. `crates/astromech-core/tests/support/` starts one (`WorldCore`) and calls it over the
-control API. Each world core is its own process, because the core keeps process-wide state. The
+comment](crates/astromech-core/src/world.rs); the worlds are in `worlds/`. `app/src-tauri/tests/support/` starts one (`WorldCore`) and calls it over the
+control API. The tests that start the binary live in `app/src-tauri/tests/`, beside the package
+that builds it (`astromech-app`), since cargo gives only that package's tests its path. Each world core is its own process, because the core keeps process-wide state. The
 helper points every home variable (`HOME`, the `XDG_*` folders, `LOCALAPPDATA`, `APPDATA`,
 `USERPROFILE`) at an empty folder that `quit()` checks is still empty, and holds the core's
 stdin: world mode quits when its stdin closes, so a killed test leaves no core running. Started
@@ -376,5 +399,5 @@ by hand, keep its stdin open: `sleep infinity | astromech-core --world worlds/mi
    no CI runs for it.
 3. Tag `main` (`git tag -a vX.Y.Z[-pre]`) and push the tag. The **Release build** stamps the
    tag's version into the version files (`scripts/set-version.py`), builds and smoke-tests the
-   installer, and publishes the release with the signed update. It fails before publishing if
+   installer, tests the upgrade from the last two-process release, and publishes the release with the signed update. It fails before publishing if
    the notes file is missing or any step fails.

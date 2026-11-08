@@ -10,14 +10,18 @@ relationships:
   children: []
   attachments: []
   relates:
+  - kind: "evidence"
+    id: "astromech-fqw9"
+    type: "discovered_from"
   - kind: "issue"
     id: "astromech-v3u4"
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-11-08T03:44:19.884641827+00:00"
+status: "superseded"
 title: "Run the one-process probe's restart mode on Sumeet's PC"
-updated_at: "2026-11-07T14:07:11.000043748+00:00"
+updated_at: "2026-11-08T03:44:19.884641827+00:00"
 ---
 
 ## Goal
@@ -34,4 +38,8 @@ Learn whether Windows restart registration restarts a crashed astromech on a rea
 
 ## Context
 
-The spike (astromech-wgtr on branch astromech-y6d6, evidence astromech-fqw9 there) could not show a restart on the GitHub Windows runner: no restart, WER report or WerFault in 15 crashes across three WER configurations. Raised in the wgtr review as an open question.
+The spike (astromech-wgtr, evidence astromech-fqw9) could not show a restart on the GitHub Windows runner: no restart, WER report or WerFault in 15 crashes across three WER configurations. Raised in the wgtr review as an open question.
+
+## Report
+
+Sumeet decided no automatic crash restart (decision astromech-lkwj), so whether Windows restarts a crash no longer matters; the probe script is removed

@@ -5,12 +5,13 @@ import { svelteTesting } from "@testing-library/svelte/vite";
 import { astromechBridge } from "./dev/bridge.ts";
 import pkg from "./package.json" with { type: "json" };
 
-// The Tauri shell loads dist/ (production) or this dev server (tauri dev). `ASTROMECH_WORLD=<dir>
-// pnpm dev` adds the dev bridge to the headless core (dev/bridge.ts).
+// The app's window (astromech-core.exe, app/src-tauri) loads dist/ (production) or this dev
+// server (tauri dev). `ASTROMECH_WORLD=<dir> pnpm dev` adds the dev bridge to the headless core
+// (dev/bridge.ts).
 export default defineConfig({
   plugins: [svelte(), svelteTesting({ resolveBrowser: false }), astromechBridge()],
-  // The window's own version (lib/core.ts WINDOW_VERSION): the bundle ships inside the shell's
-  // exe, so Diagnostics can tell a window and a core from different releases apart.
+  // The window's version (lib/core.ts WINDOW_VERSION), shown by Diagnostics: the bundle ships
+  // inside the app's one exe, so it is the app's version.
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   clearScreen: false,
   server: { port: 5173, strictPort: true },
@@ -33,7 +34,7 @@ export default defineConfig({
             headless: true,
             provider: playwright(),
             instances: [{ browser: "chromium" }],
-            // The app window's opening size (src-tauri/src/window.rs), not Vitest's phone-sized default.
+            // The app window's opening size (src-tauri/src/host.rs), not Vitest's phone-sized default.
             viewport: { width: 1200, height: 800 },
             screenshotFailures: false,
           },

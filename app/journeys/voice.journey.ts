@@ -1,6 +1,6 @@
 /**
  * The journeys about what matters most while playing (strategy, Shape: copilot reliability wins
- * over window features). The core's half of both is in crates/astromech-core/tests/world_voice.rs;
+ * over window features). The core's half of both is in app/src-tauri/tests/world_voice.rs;
  * these add what the commander sees.
  */
 import assert from "node:assert/strict";

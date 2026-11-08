@@ -106,7 +106,9 @@ mod win {
     fn log(line: &str) {
         let s = STATE.get().unwrap();
         let mut f = std::fs::OpenOptions::new().create(true).append(true).open(s.dir.join("keys.log")).unwrap();
-        writeln!(f, "{line}").unwrap();
+        // One write per line: the key hook and the delay threads log at once, and `writeln!`
+        // writes the text and the newline separately, so their lines would interleave.
+        f.write_all(format!("{line}\n").as_bytes()).unwrap();
     }
 
     fn write_status(s: &State, g: &Game) {

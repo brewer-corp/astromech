@@ -36,7 +36,7 @@ export const RESULTS = join(APP, "journeys", "results");
 /** The pattern the suite runs (`node --test 'journeys/*.journey.ts'` in app/). */
 export const PATTERN = "journeys/*.journey.ts";
 
-/** The app window's opening size (app/src-tauri/src/window.rs). */
+/** The app window's opening size (app/src-tauri/src/host.rs). */
 const WINDOW = { width: 1200, height: 800 };
 /** Hang guards, deciding nothing: a page wait, and a whole journey. */
 const PAGE_GUARD_MS = 15_000;

@@ -487,10 +487,18 @@ pub fn spawn_apply(payload: &Path, install_dir: &Path, after: After) -> Result<(
     Ok(())
 }
 
+/// The payload's executables, which the helper ends before copying so none is locked: the app,
+/// its voice worker, and the `astromech-shell.exe` forwarder (decision astromech-nade; it exits
+/// as soon as it has started the app). By name, with `/T`, so the app's WebView2 and worker go
+/// too. The helper runs as `astromech-apply-<pid>.exe` ([`spawn_apply`]), so no name here
+/// matches it, but it is the core's child: if the core is still running when `wait_pid`'s 45 s
+/// run out, `/T` on `astromech-core.exe` ends the helper too (astromech-mqqa).
+pub const LOCKED_EXES: [&str; 3] = ["astromech-shell.exe", "astromech-voice-worker.exe", "astromech-core.exe"];
+
 fn stop_locked_exes() {
     #[cfg(windows)]
     {
-        for name in ["astromech-shell.exe", "astromech-voice-worker.exe", "astromech-core.exe"] {
+        for name in LOCKED_EXES {
             let _ = std::process::Command::new("taskkill")
                 .args(["/F", "/T", "/IM", name])
                 .stdout(std::process::Stdio::null())
@@ -689,23 +697,47 @@ mod tests {
         assert_eq!(fs::read(to.join("uninstall.exe")).unwrap(), b"nsis");
     }
 
+    /// An update over a two-process install (up to v1.0.0-alpha.4): the zip's forwarder replaces
+    /// the old window's astromech-shell.exe, which copy_payload never deletes, and the helper's
+    /// own copy in %TEMP% is never one of the names it ends.
+    #[test]
+    fn an_update_over_a_two_process_install_replaces_its_window_with_the_forwarder() {
+        let d = tempfile::tempdir().unwrap();
+        let (from, to) = (d.path().join("from"), d.path().join("to"));
+        fs::create_dir_all(&from).unwrap();
+        fs::create_dir_all(&to).unwrap();
+        for (name, old, new) in
+            [("astromech-core.exe", "old core", "app"), ("astromech-shell.exe", "old window", "fwd")]
+        {
+            fs::write(to.join(name), old).unwrap();
+            fs::write(from.join(name), new).unwrap();
+        }
+        copy_payload(&from, &to).unwrap();
+        assert_eq!(fs::read_to_string(to.join("astromech-core.exe")).unwrap(), "app");
+        assert_eq!(fs::read_to_string(to.join("astromech-shell.exe")).unwrap(), "fwd");
+        for name in ["astromech-shell.exe", "astromech-voice-worker.exe", "astromech-core.exe"] {
+            assert!(LOCKED_EXES.contains(&name), "{name}");
+        }
+        assert!(LOCKED_EXES.iter().all(|n| !n.starts_with("astromech-apply-")));
+    }
+
     #[test]
     fn zip_roundtrip_and_hash() {
         let d = tempfile::tempdir().unwrap();
         let payload = d.path().join("in");
         fs::create_dir_all(&payload).unwrap();
-        fs::write(payload.join("astromech-shell.exe"), b"shell").unwrap();
+        fs::write(payload.join("astromech-core.exe"), b"app").unwrap();
         let zip_path = d.path().join("u.zip");
         {
             let f = File::create(&zip_path).unwrap();
             let mut z = zip::ZipWriter::new(f);
-            z.start_file("astromech-shell.exe", zip::write::SimpleFileOptions::default()).unwrap();
-            z.write_all(b"shell").unwrap();
+            z.start_file("astromech-core.exe", zip::write::SimpleFileOptions::default()).unwrap();
+            z.write_all(b"app").unwrap();
             z.finish().unwrap();
         }
         let out = d.path().join("out");
         extract_zip(&zip_path, &out).unwrap();
-        assert_eq!(fs::read(out.join("astromech-shell.exe")).unwrap(), b"shell");
+        assert_eq!(fs::read(out.join("astromech-core.exe")).unwrap(), b"app");
         assert_eq!(sha256_file(&zip_path).unwrap().len(), 64);
     }
 

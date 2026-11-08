@@ -288,19 +288,18 @@ pub fn start(
     tx: std::sync::mpsc::Sender<Control>,
     log: impl Fn(&str) + Send + Clone + 'static,
 ) -> (String, Vec<DeviceMeta>) {
-    use astromech_input::listen::win::{self, Msg};
-    // Enumerate first, then register (same order as s7-input-listener and --listen).
-    let devices = win::rawinput::list_devices();
+    use astromech_input::listen::source::{self, Msg};
+    use astromech_input::listen::win::rawinput;
+    // Enumerate first, then subscribe, which registers if nothing in the process has yet (same
+    // order as s7-input-listener and --listen).
+    let devices = rawinput::list_devices();
     let mut m = Mapper::new(ptt, kill, debug, log.clone());
     m.paste = paste;
     m.debounce_ms = debounce_ms as f64;
     for d in &devices {
         m.add_device(d.clone());
     }
-    let start = Instant::now();
-    let (mtx, mrx) = std::sync::mpsc::channel();
-    let reg = win::rawinput::start(mtx.clone(), start);
-    let xi = win::xinput::start(mtx, start);
+    let source::Subscription { rx: mrx, epoch: start, status } = source::subscribe();
     std::thread::Builder::new()
         .name("controls".into())
         .spawn(move || {
@@ -327,13 +326,6 @@ pub fn start(
             }
         })
         .expect("spawn controls thread");
-    let status = format!(
-        "Raw Input: {}; XInput: {xi}",
-        match reg {
-            Ok(()) => "ok".to_string(),
-            Err(e) => e,
-        }
-    );
     (status, devices)
 }
 

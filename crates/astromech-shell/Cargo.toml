@@ -1,0 +1,18 @@
+[package]
+name = "astromech-shell"
+description = "astromech-shell.exe, kept for old shortcuts and taskbar pins (decision astromech-nade): starts astromech-core.exe beside it with the same arguments and exits"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "astromech-shell"
+path = "src/main.rs"
+
+[dependencies]

@@ -14,9 +14,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-11-08T03:44:19.128682289+00:00"
+status: "done"
 title: "After a crash restart: do the kill switch and Pause voice come back as they were, and does End task leave astromech off?"
-updated_at: "2026-11-07T11:57:35.952046418+00:00"
+updated_at: "2026-11-08T03:44:19.128682289+00:00"
 ---
 
 ## Question
@@ -42,3 +43,11 @@ For 2, ended from outside. Today, with the window closed, End task or `taskkill`
 - **b. It comes back.** Restart registration can't do this. The strategy's Shape allows a minimal watchdog as a fallback, but success criterion one-process (one app process plus its speech worker) would then have to change, which is also Sumeet's call.
 
 **Recommendation:** 1a and 2a. A crash shouldn't silently undo a kill switch the player pressed mid-game, and a deliberate End task should be respected. If 1a's state file seems too much, 1c is the cheaper safe choice. 1b is not recommended.
+
+## Decision
+
+Neither option set: astromech has no automatic crash restart at all (Sumeet, 7 Nov 2026). If the app crashes, that's a bug to fix, not to paper over; crashes should be rare, and rarer once sherpa-onnx is gone (astromech-v6r3), so a restart is either unused or a band-aid. So the questions this record asked don't arise: nothing restarts after a crash, an End task leaves astromech off, and the next start offers the crash report (Save diagnostics) as today. astromech-dl53 (crash restart) and astromech-fmub (the restart probe on his PC) are superseded, and the strategy's Shape no longer names crash restart.
+
+## Report
+
+No automatic crash restart at all: a crash is a bug to fix (Sumeet, 7 Nov 2026)

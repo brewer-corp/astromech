@@ -17,6 +17,9 @@ on:
       - .cargo/config.toml
       - crates/**
       - "!crates/**/tests/**"
+      # The executable's package (its headless build is what this measures).
+      - app/src-tauri/Cargo.toml
+      - app/src-tauri/src/main.rs
   workflow_dispatch:
     inputs:
       soak_minutes:
@@ -57,8 +60,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           key: criteria
-      - name: core and mock game (release)
-        run: cargo build -p astromech-core --bin astromech-core -p astromech-mockgame --bin mockgame --release --locked
+      - name: the app (headless) and mock game (release)
+        run: cargo build -p astromech-app --bin astromech-core -p astromech-mockgame --bin mockgame --release --locked
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

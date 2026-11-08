@@ -1,6 +1,6 @@
 [package]
-name = "astromech-shell"
-description = "astromech app window: Tauri v2 shell around the Svelte app (app/)"
+name = "astromech-app"
+description = "astromech, the one app (decision astromech-6i8s): the core, its tray and the window in one Tauri v2 process"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -11,24 +11,35 @@ publish.workspace = true
 [lints]
 workspace = true
 
+# The executable keeps the core's name (decision astromech-nade): the Run key, the installer's
+# `--quit`, every release's update helper and the single-instance mutex name it.
 [[bin]]
-name = "astromech-shell"
+name = "astromech-core"
 path = "src/main.rs"
 
-# Tauri is optional so the root workspace's checks build this crate as a stub, without
+# Tauri is optional so the root workspace's checks build this as the headless app, without
 # webkit2gtk on Linux. tauri.conf.json's build.features turns `window` on for tauri build/dev.
 [features]
-window = ["dep:tauri", "dep:tauri-plugin-single-instance", "dep:tauri-build"]
+window = ["dep:tauri", "dep:tauri-build", "dep:webview2-com", "dep:windows-sys"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [], optional = true }
 
 [dependencies]
-tauri = { version = "2", features = [], optional = true }
-tauri-plugin-single-instance = { version = "2", optional = true }
+tauri = { version = "2", features = ["tray-icon", "image-png"], optional = true }
 serde_json.workspace = true
-astromech-keybinds.workspace = true
-astromech-input.workspace = true
-astromech-store.workspace = true
-astromech-log.workspace = true
+astromech-core.workspace = true
 astromech-api.workspace = true
+astromech-input.workspace = true
+
+# The tests that run this binary headless in a world (tests/world_*.rs, every_window_command.rs,
+# preview_fixtures.rs): only this package's tests get its path (`CARGO_BIN_EXE_astromech-core`).
+[dev-dependencies]
+serde.workspace = true
+tempfile.workspace = true
+astromech-voice.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+# wry's version, to handle WebView2's ProcessFailed event.
+webview2-com = { version = "0.39", optional = true }
+windows-sys = { workspace = true, features = ["Win32_System_LibraryLoader"], optional = true }

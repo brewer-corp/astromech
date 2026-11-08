@@ -9,11 +9,11 @@ time each part took.
 What it does, in the order a new player would:
 1. Elite has run once on this account: its Bindings folder (a custom preset with a keyboard
    key for the landing gear) and journal folder exist in their default places.
-2. Silent install (`setup.exe /S`), then the app window is started from the install folder,
-   with WebView2's remote debugging on (`--webview-debug-port`) so the page can be driven over
-   the Chrome DevTools Protocol.
+2. Silent install (`setup.exe /S`), then the app (`astromech-core.exe`, the core, tray and
+   window in one process) is started from the install folder, with WebView2's remote debugging
+   on (`--webview-debug-port`) so the page can be driven over the Chrome DevTools Protocol.
 3. The wizard: Find Elite must show both folders found; push-to-talk and the kill switch are
-   bound by pressing keys (SendInput; the window's own Raw Input listener sees them) and saved;
+   bound by pressing keys (SendInput; the window's press listener sees them) and saved;
    the mic and calibration steps are skipped (the runner has no mic); Finish.
 4. The mock game starts as EliteDangerous64.exe (so the core's game watcher starts a session)
    and writes Status.json and a journal into the default journal folder.
@@ -22,10 +22,21 @@ What it does, in the order a new player would:
    command); the mock is brought to the front, and the page must show the game confirmed it.
 6. Every top-level page (each module in app/src/modules) is opened, and none may show that a
    call didn't reach its command: "not allowed", "unknown command", an internal error, "the
-   core is not running", or args the command or the shell's proxy refused. Then the star map is
-   opened (`galaxy_systems`), and the core's log must name the installed `starmap.db` as its
+   core is not running", or args the command or the window's `call` refused. Then the star map
+   is opened (`galaxy_systems`), and the app's log must name the installed `starmap.db` as its
    preload.
-Then the window and core are closed and the app uninstalled. The report lists each step's time
+7. The kill switch, with the window open and the session running: a tap of F8 (SendInput) must
+   turn it on in `status`, and a 1.2 s hold, past `controls.rearm_hold_ms` (1000 ms by
+   default), must re-arm it. Then the window is closed with WM_CLOSE, as a click on X would,
+   and one more tap must turn the kill switch on with no window. Done once in the session from
+   step 4, then again after the app is quit with `--quit` (config kept), the mock game started
+   first and the app started again in the background, so the session's listener starts at app
+   start, before any window (as after an update relaunch while Elite runs);
+   a second start with `--route settings` opens the window before the presses. The app's one
+   input source must register after Tauri builds its event loop, which registers Raw Input for
+   its own window, and this second run is the one where the session's listener could start
+   before that.
+Then the app is quit and uninstalled. The report lists each step's time
 and the total from the start of the install to the verified gear-down, against the 5 minute
 onboarding budget (docs/V1-DESIGN.md: install to working gear-down in under 5 minutes; the
 timed human run is separate).
@@ -59,6 +70,8 @@ CDP_PORT = 9223
 ELITE_TITLE = "Elite - Dangerous (CLIENT)"
 # Set-1 scan codes: the binds press Key_L for the gear; the wizard binds F7 and F8.
 SCAN_L, SCAN_F7, SCAN_F8 = 0x26, 0x41, 0x42
+# Longer than controls.rearm_hold_ms's default (1000 ms, crates/astromech-core/src/config.rs).
+REARM_HOLD_S = 1.2
 GEAR = 1 << 2
 
 BINDS = """<?xml version="1.0" encoding="UTF-8" ?>
@@ -92,6 +105,15 @@ if os.name == "nt":
     user32.SetForegroundWindow.argtypes = [wintypes.HWND]
     user32.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
     user32.GetForegroundWindow.restype = wintypes.HWND
+    user32.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
+    user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+    user32.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+    user32.GetWindowTextLengthW.argtypes = [wintypes.HWND]
+    _ENUM = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+APP = "astromech-core.exe"
+# The window's title (app/src-tauri/src/host.rs).
+TITLE = "astromech"
 
 
 def send(vk: int, scan: int, up: bool) -> None:
@@ -190,10 +212,14 @@ class Page:
         self.wait(js, what, timeout)
 
 
+def endpoint() -> Path:
+    return Path(os.environ["LOCALAPPDATA"]) / "astromech" / "data" / "core.json"
+
+
 def core_call(cmd: str, **extra) -> dict:
     """One control-API request: the command's value. Skips progress lines; raises ValueError
     with the core's error if the reply isn't ok."""
-    ep = json.loads((Path(os.environ["LOCALAPPDATA"]) / "astromech" / "data" / "core.json").read_text())
+    ep = json.loads(endpoint().read_text())
     with socket.create_connection(("127.0.0.1", ep["port"]), timeout=5) as s:
         s.sendall((json.dumps({"token": ep["token"], "cmd": cmd, **extra}) + "\n").encode())
         for line in s.makefile():
@@ -223,9 +249,51 @@ def wait_core(pred, what: str, timeout: float) -> dict:
 def install_dir() -> Path:
     la = Path(os.environ["LOCALAPPDATA"])
     for d in (la / "Programs" / "astromech", la / "astromech"):
-        if (d / "astromech-shell.exe").is_file():
+        if (d / APP).is_file():
             return d
-    raise RuntimeError("astromech-shell.exe not installed")
+    raise RuntimeError(f"{APP} not installed")
+
+
+def app_window(pid: int) -> int | None:
+    """The app's window, found by its title among `pid`'s top-level windows."""
+    found = []
+
+    def cb(h, _):
+        p = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(h, ctypes.byref(p))
+        if p.value == pid:
+            n = user32.GetWindowTextLengthW(h)
+            buf = ctypes.create_unicode_buffer(n + 1)
+            user32.GetWindowTextW(h, buf, n + 1)
+            if buf.value == TITLE:
+                found.append(h)
+        return True
+
+    user32.EnumWindows(_ENUM(cb), 0)
+    return found[0] if found else None
+
+
+def window_state() -> str | None:
+    """`ui_state`'s window: "open" or "closed"."""
+    try:
+        return core_call("ui_state")["window"]
+    except (OSError, ValueError, KeyError):
+        return None
+
+
+def close_window(run: Run, when: str) -> None:
+    """WM_CLOSE to the window, as a click on X: it is destroyed and the app stays."""
+    pid = json.loads(endpoint().read_text())["pid"]
+    hwnd = app_window(pid)
+    if not hwnd:
+        raise RuntimeError(f"no window titled {TITLE!r} in the app's process ({when})")
+    user32.PostMessageW(hwnd, 0x0010, 0, 0)
+    end = time.time() + 10
+    while window_state() != "closed":
+        if time.time() > end:
+            raise RuntimeError(f"the window didn't close within 10 s of WM_CLOSE ({when})")
+        time.sleep(0.25)
+    run.step(f"window closed with WM_CLOSE, the app still running ({when})")
 
 
 class Run:
@@ -249,7 +317,7 @@ def kill(name: str) -> None:
 def smoke(a, run: Run) -> None:
     la, home = Path(os.environ["LOCALAPPDATA"]), Path(os.environ["USERPROFILE"])
     # A fresh install: no astromech data from an earlier step on this runner.
-    for p in ("astromech-shell.exe", "astromech-core.exe"):
+    for p in ("astromech-shell.exe", APP):  # astromech-shell.exe: an older two-process install
         kill(p)
     shutil.rmtree(la / "astromech" / "data", ignore_errors=True)
     # Elite has run once on this account.
@@ -276,7 +344,7 @@ def cleanup(inst: Path, procs: list) -> None:
     """Close what the run started and uninstall; a failure here doesn't hide the run's own error."""
     for p in procs:
         p.kill()
-    for cmd, timeout in (([str(inst / "astromech-core.exe"), "--quit"], 30), ([str(inst / "uninstall.exe"), "/S"], 120)):
+    for cmd, timeout in (([str(inst / APP), "--quit"], 30), ([str(inst / "uninstall.exe"), "/S"], 120)):
         try:
             subprocess.run(cmd, timeout=timeout)
         except (OSError, subprocess.SubprocessError) as e:
@@ -284,7 +352,7 @@ def cleanup(inst: Path, procs: list) -> None:
 
 
 def drive(a, run: Run, inst: Path, journal: Path, procs: list) -> None:
-    procs.append(subprocess.Popen([str(inst / "astromech-shell.exe"), "--webview-debug-port", str(CDP_PORT)]))
+    procs.append(subprocess.Popen([str(inst / APP), "--webview-debug-port", str(CDP_PORT)]))
     page = Page(CDP_PORT, 60)
     page.wait(page.has("Find Elite"), "the onboarding wizard", 60)
     run.step("app window open on the wizard")
@@ -326,8 +394,8 @@ def drive(a, run: Run, inst: Path, journal: Path, procs: list) -> None:
     # The game starts.
     game = Path(tempfile.mkdtemp(prefix="mock-elite-")) / "EliteDangerous64.exe"
     shutil.copy(a.mock, game)
-    procs.append(subprocess.Popen([str(game), str(journal), f"{SCAN_L:x}", "0", str(GEAR), "0-1000", "600",
-                                   str(a.mock_drop)]))
+    mock = start_mock(a, game, journal)
+    procs.append(mock)
     wait_core(lambda s: s.get("active") is True, "the core's session (game detected)", 30)
     run.step("game detected, session running")
 
@@ -352,6 +420,75 @@ def drive(a, run: Run, inst: Path, journal: Path, procs: list) -> None:
 
     visit_pages(page, run)
     star_map_preload(inst, run)
+    kill_switch(run, "session started after the app")
+    restart_with_game_running(a, run, inst, game, journal, procs, app=procs[0], mock=mock)
+
+
+def start_mock(a, game: Path, journal: Path) -> subprocess.Popen:
+    """The mock game as EliteDangerous64.exe: the gear on Key_L, writing into `journal`."""
+    return subprocess.Popen([str(game), str(journal), f"{SCAN_L:x}", "0", str(GEAR), "0-1000", "600",
+                             str(a.mock_drop)])
+
+
+def kill_switch(run: Run, when: str) -> None:
+    """With the window open, tap the bound kill switch (F8): on. Hold it past the re-arm hold:
+    re-armed. Then close the window and tap again: on. Read from the core's `status`, so it's
+    the session's own listener that saw the presses."""
+    if window_state() != "open":
+        raise RuntimeError(f"the window isn't open for the kill switch presses ({when})")
+    wait_core(lambda s: s.get("killed") is False, f"the kill switch armed ({when})", 10)
+    tap(SCAN_F8)
+    wait_core(lambda s: s.get("killed") is True, f"the kill switch on after a tap of F8 ({when})", 10)
+    send(0, SCAN_F8, False)
+    time.sleep(REARM_HOLD_S)
+    send(0, SCAN_F8, True)
+    wait_core(lambda s: s.get("killed") is False, f"the kill switch re-armed by a {REARM_HOLD_S} s hold ({when})", 10)
+    run.step(f"kill switch: a tap of F8 killed, a {REARM_HOLD_S} s hold re-armed, window open ({when})")
+    close_window(run, when)
+    tap(SCAN_F8)
+    wait_core(lambda s: s.get("killed") is True, f"the kill switch on after a tap of F8, window closed ({when})", 10)
+    run.step(f"kill switch: a tap of F8 killed with the window closed ({when})")
+
+
+def restart_with_game_running(a, run: Run, inst: Path, game: Path, journal: Path, procs: list,
+                              app: subprocess.Popen, mock: subprocess.Popen) -> None:
+    """Quit (config kept), start the mock game, then the app: its session, and so its input
+    listener, starts at app start, before any window. Open the window by a second start, then
+    check the kill switch again."""
+    exe = str(inst / APP)
+    subprocess.run([exe, "--quit"], timeout=30)
+    end = time.time() + 30
+    while endpoint().exists():  # a clean quit removes it
+        if time.time() > end:
+            raise RuntimeError(f"{APP} --quit didn't stop the app")
+        time.sleep(0.25)
+    try:
+        code = app.wait(10)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(f"the app's process was still running 10 s after its endpoint went") from None
+    run.notes.append(f"--quit: the app exited with {code}")
+    mock.kill()
+    mock.wait(10)
+    run.step("app quit, mock game closed")
+
+    procs.append(start_mock(a, game, journal))
+    time.sleep(1)
+    procs.append(subprocess.Popen([exe, "--background"]))
+    wait_core(lambda s: s.get("active") is True, "the session at app start (game already running)", 30)
+    if window_state() != "closed":
+        raise RuntimeError("--background opened a window")
+    run.step("mock game started, then the app in the background: session running, no window")
+    second = subprocess.run([exe, "--route", "settings"], timeout=30)
+    if second.returncode != 0:
+        raise RuntimeError(f"the second start exited with {second.returncode}")
+    end = time.time() + 30
+    while window_state() != "open":
+        if time.time() > end:
+            raise RuntimeError("a second start with --route settings opened no app window")
+        time.sleep(0.25)
+    time.sleep(3)  # the window's page loading, as a player would open it
+    run.step("window opened by a second start (--route settings)")
+    kill_switch(run, "game running before the app")
 
 
 def module_ids() -> list[str]:

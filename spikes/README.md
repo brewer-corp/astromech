@@ -15,6 +15,7 @@ the crates as seeds.
 | `s8-licence-audit/` | Licence audit of the planned dependency tree; GPL-3.0 in sherpa-onnx 1.x | `deny.toml`, `NOTICE.md` |
 | `k0-binds-doctor/` | Why a .binds file doesn't show up in game; device ID checks | `astromech-keybinds` |
 | `q1-linked-places/` | Can "place A within N ly of place B" queries (HGE system near a trader, hotspot ring near a buyer) run on Spansh and Ardent? Yes: one search per side and a local join. Findings are in the close reason of Atelier issue astromech-yn6y; `replay.sh` reruns them from the gitignored `cache/` | not yet (galaxy rework, astromech-51ue) |
+| `o1-one-process/` | Can one Tauri process hold the tray with no window, survive the window crashing, free WebView2 when the window closes and keep astromech's Raw Input listener receiving keys? Yes to all four on Windows CI: the tray works windowless, the app outlives its renderer and browser process being killed, a close frees every WebView2 process in about 2.3 s, and the listener keeps receiving keys if it starts after Tauri's `build`. Windowless it cost 3.3 to 3.5 MB. It also tried Windows' restart registration, which never restarted a crash on the runner; astromech has no crash restart (decision astromech-lkwj). The answers are in Atelier issue astromech-wgtr. Its probe's checks now run against the one app in `scripts/webview_cost.py`, and its CI workflow and probe script are gone (astromech-xz7i, astromech-lkwj). Build it with `cargo build --release` in the folder | the one app (astromech-v3u4) |
 
 ## Deliberately left out
 
