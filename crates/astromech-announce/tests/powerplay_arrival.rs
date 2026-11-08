@@ -1,4 +1,5 @@
 //! Journal replay tests for the Powerplay arrival callout (`powerplay_arrival`, off by default).
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

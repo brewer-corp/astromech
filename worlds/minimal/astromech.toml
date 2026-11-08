@@ -1,0 +1,2 @@
+# The smallest world (crates/astromech-core/src/world.rs): the default settings, no journals and no
+# bindings. World mode points every folder at its temp copy.

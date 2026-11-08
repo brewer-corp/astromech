@@ -1,0 +1,4 @@
+{"timestamp":"2026-10-16T11:59:00Z","event":"Fileheader","part":1,"language":"English/UK","Odyssey":true,"gameversion":"4.2.1.0","build":"synthetic"}
+{"timestamp":"2026-10-16T11:59:05Z","event":"Commander","FID":"F0000001","Name":"Jameson"}
+{"timestamp":"2026-10-16T11:59:10Z","event":"Location","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0.0,0.0,0.0],"Docked":false,"Body":"Sol","BodyType":"Star"}
+{"timestamp":"2026-10-16T11:59:15Z","event":"Loadout","Ship":"asp","ShipID":3,"ShipName":"","ShipIdent":"","HullValue":6000000,"ModulesValue":0,"Rebuy":300000,"MaxJumpRange":30.0,"FuelCapacity":{"Main":32.0,"Reserve":0.63},"CargoCapacity":0,"Modules":[]}

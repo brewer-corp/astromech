@@ -1,0 +1,39 @@
+{
+  "exchanges": [
+    {"url": "/brewer-corp/astromech/releases/latest/download/latest.json", "from": "latest.json"},
+    {"url": "/brewer-corp/astromech/releases/latest/download/latest.json.sig", "from": "latest.json.sig"},
+    {"url": "/brewer-corp/astromech/releases/download/v1.0.0-alpha.4/", "status": 503},
+    {"url": "/k2-fsa/sherpa-onnx/releases/download/", "status": 503},
+    {"url": "/brewer-corp/astromech/releases/download/neutron/", "status": 503},
+    {
+      "url": "https://www.edsm.net/api-logs-v1/get-logs?commanderName=<redacted>&apiKey=<redacted>",
+      "method": "GET",
+      "status": 200,
+      "json": {"msgnum":203,"msg":"Commander name\/API Key not found"}
+    },
+    {"url": "https://www.edsm.net/api-v1/sphere-systems", "from": "../../crates/astromech-data/tests/fixtures/edsm-sphere.json"},
+    {"url": "https://spansh.co.uk/api/systems/field_values/system_names?q=Shin", "from": "../../crates/astromech-data/tests/fixtures/spansh-system-names.json"},
+    {"url": "https://spansh.co.uk/api/systems/search", "method": "POST", "sent": "Famine", "from": "../../crates/astromech-galaxy/tests/fixtures/spansh-famine.json"},
+    {"url": "https://spansh.co.uk/api/systems/search", "method": "POST", "sent": "\"population\"", "from": "../../crates/astromech-galaxy/tests/fixtures/spansh-colony-candidates.json"},
+    {"url": "https://spansh.co.uk/api/bodies/search", "method": "POST", "sent": "\"system_id64\"", "from": "../../crates/astromech-galaxy/tests/fixtures/spansh-colony-bodies.json"},
+    {"url": "https://spansh.co.uk/api/bodies/search", "method": "POST", "sent": "Brain Tree", "from": "../../crates/astromech-galaxy/tests/fixtures/spansh-sites-brain_trees.json"},
+    {"url": "https://spansh.co.uk/api/bodies/search", "method": "POST", "sent": "\"ring_signals\"", "from": "../../crates/astromech-market/tests/fixtures/spansh-rings-platinum-sol.json"},
+    {"url": "https://spansh.co.uk/api/bodies/search", "method": "POST", "sent": "\"Biological\"", "from": "../../crates/astromech-data/tests/fixtures/spansh-bodies-biology.json"},
+    {"url": "https://spansh.co.uk/api/stations/search", "method": "POST", "sent": "Material Trader", "from": "spansh-material-traders.json"},
+    {"url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/gold/nearby/imports", "from": "../../crates/astromech-market/tests/fixtures/ardent-sell-gold-lhs2435.json"},
+    {"url": "https://api.ardent-insight.com/v2/commodity/name/painite/imports", "from": "../../crates/astromech-market/tests/fixtures/ardent-galaxy-sell-painite.json"},
+    {"url": "https://api.ardent-insight.com/v2/system/name/Sol/commodity/name/steel/nearby/exports", "from": "../../crates/astromech-market/tests/fixtures/ardent-buy-steel-sol.json"},
+    {"url": "https://api.ardent-insight.com/v2/system/name/Sol/commodities", "from": "../../crates/astromech-market/tests/fixtures/ardent-markets-sol.json"},
+    {"url": "https://api.ardent-insight.com/v2/system/name/LP%2071-165/commodities", "from": "../../crates/astromech-market/tests/fixtures/ardent-markets-lp-71-165.json"},
+    {"url": "https://spansh.co.uk/api/trade/route", "method": "POST", "status": 202, "from": "../../crates/astromech-data/tests/fixtures/spansh-trade-submit.json"},
+    {"url": "https://spansh.co.uk/api/results/00000000-0000-0000-0000-000000000002", "in_turn": [
+      {"status": 202, "from": "../../crates/astromech-data/tests/fixtures/spansh-trade-queued.json"},
+      {"from": "../../crates/astromech-data/tests/fixtures/spansh-trade-result.json"}
+    ]},
+    {"url": "https://spansh.co.uk/api/generic/route", "method": "POST", "status": 202, "from": "../../crates/astromech-data/tests/fixtures/spansh-exact-submit.json"},
+    {"url": "https://spansh.co.uk/api/results/00000000-0000-0000-0000-000000000003", "in_turn": [
+      {"status": 202, "from": "../../crates/astromech-data/tests/fixtures/spansh-exact-pending.json"},
+      {"from": "../../crates/astromech-data/tests/fixtures/spansh-exact-result.json"}
+    ]}
+  ]
+}

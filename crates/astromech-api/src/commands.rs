@@ -6,43 +6,43 @@
 use crate::state::{Engineers, State};
 use crate::{Exposure::Window, Registry};
 use astromech_keybinds::api::SlotEdit;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct PathArg {
     path: PathBuf,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct EditArg {
     edit: SlotEdit,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct CopyArgs {
     src: PathBuf,
     name: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct ActiveArgs {
     name: String,
     contexts: Vec<usize>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct BackupArg {
     backup: PathBuf,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct OverrideArgs {
     device: String,
@@ -50,19 +50,19 @@ struct OverrideArgs {
     joy: Option<String>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 pub(crate) struct PlanArg {
     pub(crate) plan: astromech_engineering::Plan,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct PicksArg {
     picks: Vec<astromech_odyssey::Pick>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct LogbookArgs {
     query: String,
@@ -148,7 +148,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
 
     // Powerplay standing from the journals.
     let s = state.clone();
-    reg.add_typed("powerplay_overview", Window, move |(), _| Ok(s.powerplay()?.overview()));
+    reg.add_typed("powerplay_overview", Window, move |(), _| Ok(s.powerplay()?.overview(s.clock().utc().into())));
 
     // Colonisation projects, being built first, each with what is left to buy.
     let s = state.clone();
@@ -207,6 +207,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::control::{call, serve, Request};
@@ -240,7 +241,7 @@ mod tests {
         let mut reg = Registry::new();
         register(&state, &mut reg);
         let app = d.path().join("app");
-        let _srv = serve(&app, Arc::new(reg)).unwrap();
+        let _srv = serve(&app, Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         let ask = |origin: Option<Origin>, cmd: &str, args: Option<Value>| {
             call(&app, Request { args, origin, ..Request::new(cmd) }, None, &mut |_| {}).unwrap()
         };

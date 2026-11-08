@@ -1,6 +1,7 @@
 //! Import a journal folder into a history database and print how long it took and how big
 //! the database is, and how long logbook searches take (astromech-aonb, astromech-tqdh):
 //! `cargo run --release -p astromech-history --example import-history -- <journal dir> <history.sqlite>`.
+#![allow(clippy::disallowed_methods)] // a developer tool, not the core
 
 use astromech_history::{History, ImportOptions};
 use std::path::PathBuf;

@@ -117,7 +117,7 @@ impl Galaxy {
     ) -> Result<Targets> {
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
-        let now = crate::now_s();
+        let now = self.now_s();
         let page = self.remote.spansh_systems(&target.search(power, here.pos, within_ly, SEARCH_SIZE, filters, now))?;
         let n = page.value.results.len();
         let mut matched: Vec<System> = page.value.results.into_iter().filter(|s| target.matches(power, s)).collect();
@@ -327,6 +327,7 @@ impl Galaxy {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

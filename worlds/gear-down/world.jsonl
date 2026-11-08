@@ -1,0 +1,29 @@
+{"start": "2026-11-07T12:00:00Z", "foreground": "Elite - Dangerous (CLIENT)", "devices": [{"key": "hid:vkb-l", "kind": "hid", "vid": 8989, "pid": 12801, "product": "VKBsim Gladiator EVO OT L", "usage": 4, "buttons_declared": 128, "axes_declared": ["X", "Y", "Z", "RX", "RY", "RZ"], "hats_declared": 1}, {"key": "hid:vkb-r", "kind": "hid", "vid": 8989, "pid": 512, "product": "VKBsim Gladiator EVO R", "usage": 4, "buttons_declared": 128, "axes_declared": ["X", "Y", "Z", "RX", "RY", "RZ"], "hats_declared": 1}], "reactions": [{"scan": 38, "ext": 0, "flag": 4}, {"scan": 50, "ext": 0, "gui": 6}]}
+{"game": "running"}
+{"mark": "running"}
+{"press": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": [4]}}}
+{"audio": "gear-down.wav"}
+{"say": "gear down"}
+{"advance": "300ms"}
+{"release": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": []}}}
+{"advance": "150ms"}
+{"advance": "50ms"}
+{"mark": "spoken"}
+{"focus": "Notepad"}
+{"press": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": [4]}}}
+{"audio": "gear-down.wav"}
+{"say": "lights on"}
+{"advance": "300ms"}
+{"release": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": []}}}
+{"advance": "150ms"}
+{"advance": "50ms"}
+{"mark": "unfocused"}
+{"focus": "Elite - Dangerous (CLIENT)"}
+{"press": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": [4]}}}
+{"audio": "gear-down.wav"}
+{"say": "galaxy map"}
+{"advance": "300ms"}
+{"release": {"dev": "hid:vkb-l", "data": {"type": "hid", "buttons": []}}}
+{"advance": "150ms"}
+{"advance": "50ms"}
+{"mark": "map-open"}

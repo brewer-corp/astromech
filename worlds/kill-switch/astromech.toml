@@ -1,0 +1,10 @@
+# The kill switch (crates/astromech-core/tests/world_voice.rs): pressed (Joy_1 on the right stick)
+# it stops everything, so a following voice command is denied and sends no key. Holding it for
+# less than [controls] rearm_hold_ms (1000 ms) leaves it killed; holding it that long re-arms it.
+# Then a live run from the voice tester (lights, which nothing in the world answers, so it waits
+# to verify) is cancelled by a kill: under the manual clock the verify wait sees it once an
+# advance passes its 25 ms slice. The voice command's advances are gear-down's.
+[controls]
+ptt = { device = "231D3201", key = "Joy_4" }
+kill_switch = { device = "231D0200", key = "Joy_1" }
+paste = { device = "231D3201", key = "Joy_12" }

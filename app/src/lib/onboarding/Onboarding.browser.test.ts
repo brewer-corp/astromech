@@ -151,11 +151,17 @@ describe("onboarding: health check", () => {
   it("fixes a voice action with no keyboard key, then is ready", async () => {
     on("ready");
     step("health");
-    await fireEvent.click(await screen.findByRole("button", { name: "Bind a key" }));
-    expect(screen.getByRole("dialog", { name: "Bind Night vision" })).toBeTruthy();
-    press("Key_N");
-    await fireEvent.click(await screen.findByRole("button", { name: "Save" }));
-    await fireEvent.click(await screen.findByRole("button", { name: "Close" }));
+    // The sample preset has two: Night vision and the SRV's Drive assist.
+    for (const [action, key] of [
+      ["Night vision", "Key_N"],
+      ["Drive assist", "Key_J"],
+    ]) {
+      await fireEvent.click((await screen.findAllByRole("button", { name: "Bind a key" }))[0]!);
+      expect(screen.getByRole("dialog", { name: `Bind ${action}` })).toBeTruthy();
+      press(key!);
+      await fireEvent.click(await screen.findByRole("button", { name: "Save" }));
+      await fireEvent.click(await screen.findByRole("button", { name: "Close" }));
+    }
     expect(await screen.findByText(/Ready\. Start Elite/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Bind a key" })).toBeNull();
   });

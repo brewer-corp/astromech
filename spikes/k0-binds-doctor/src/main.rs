@@ -1,5 +1,6 @@
 //! k0-binds-doctor: read-only inspector for Elite Dangerous bindings and controllers.
 //! It never writes, renames or moves anything in the game folders; its only output is a report.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 mod analyze;
 mod binds;

@@ -62,7 +62,7 @@
     "keys": null,
     "live": "status.fuel",
     "live_from": null,
-    "message": "Fuel: 24.5 tonnes main. Tank 77 percent.",
+    "message": "Fuel: 24.5 tonnes main, 0.63 tonnes reservoir. Tank 77 percent.",
     "source": "typed",
     "transcript": "how much fuel",
     "would": "speak"

@@ -10,120 +10,18 @@
         ],
         "system": "Sol"
       },
-      "range": 20.0,
+      "range": 31.5,
       "results": [
         {
           "commodity": "tritium",
-          "fetched_at": 1792184400,
+          "fetched_at": 1792188000,
           "offers": [
-            {
-              "arrival_ls": 0.0,
-              "commodity": "tritium",
-              "exact": false,
-              "fleet_carrier": true,
-              "jumps": 1,
-              "ly": 19.709139892762952,
-              "market_id": 3700000822,
-              "odyssey": false,
-              "pad": "L",
-              "price": 2565,
-              "station": "FCX-822",
-              "station_type": "FleetCarrier",
-              "system": "82 Eridani",
-              "updated_at": "2026-10-01T01:55:53.000Z",
-              "volume": 494
-            },
-            {
-              "arrival_ls": 134.289641,
-              "commodity": "tritium",
-              "exact": false,
-              "fleet_carrier": true,
-              "jumps": 5,
-              "ly": 89.35267422201196,
-              "market_id": 3700000824,
-              "odyssey": false,
-              "pad": "L",
-              "price": 2565,
-              "station": "FCX-824",
-              "station_type": "FleetCarrier",
-              "system": "Wolf 397",
-              "updated_at": "2026-10-14T01:03:02.000Z",
-              "volume": 1542
-            },
-            {
-              "arrival_ls": 1093.296204,
-              "commodity": "tritium",
-              "exact": false,
-              "fleet_carrier": true,
-              "jumps": 27,
-              "ly": 527.690762677939,
-              "market_id": 3700000823,
-              "odyssey": false,
-              "pad": "L",
-              "price": 2565,
-              "station": "FCX-823",
-              "station_type": "FleetCarrier",
-              "system": "Wregoe IL-I c24-2",
-              "updated_at": "2026-10-11T09:30:56.000Z",
-              "volume": 8099
-            },
-            {
-              "arrival_ls": 5668.536358,
-              "commodity": "tritium",
-              "exact": false,
-              "fleet_carrier": true,
-              "jumps": 66,
-              "ly": 1301.3009138394452,
-              "market_id": 3700000825,
-              "odyssey": false,
-              "pad": "L",
-              "price": 2565,
-              "station": "FCX-825",
-              "station_type": "FleetCarrier",
-              "system": "Sphuedu XO-Z d13-2",
-              "updated_at": "2026-10-16T00:10:03.000Z",
-              "volume": 352
-            },
-            {
-              "arrival_ls": 0.0,
-              "commodity": "tritium",
-              "exact": false,
-              "fleet_carrier": true,
-              "jumps": 491,
-              "ly": 9816.980381190924,
-              "market_id": 3700000820,
-              "odyssey": false,
-              "pad": "L",
-              "price": 2565,
-              "station": "FCX-820",
-              "station_type": "FleetCarrier",
-              "system": "Qeajo KH-D d12-25",
-              "updated_at": "2026-09-19T13:20:47.000Z",
-              "volume": 5464
-            },
-            {
-              "arrival_ls": 0.0,
-              "commodity": "tritium",
-              "exact": false,
-              "fleet_carrier": true,
-              "jumps": 1150,
-              "ly": 22999.99533181848,
-              "market_id": 3700000821,
-              "odyssey": false,
-              "pad": "L",
-              "price": 2565,
-              "station": "FCX-821",
-              "station_type": "FleetCarrier",
-              "system": "Great Annihilator",
-              "updated_at": "2026-09-20T08:34:39.000Z",
-              "volume": 54224
-            },
             {
               "arrival_ls": 1877.090476,
               "commodity": "tritium",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 11,
+              "jumps": 7,
               "ly": 212.000345481735,
               "market_id": 4222002179,
               "odyssey": true,
@@ -140,7 +38,7 @@
               "commodity": "tritium",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 5,
+              "jumps": 3,
               "ly": 85.16255137236084,
               "market_id": 4220734723,
               "odyssey": true,
@@ -157,7 +55,7 @@
               "commodity": "tritium",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 11,
+              "jumps": 7,
               "ly": 212.000345481735,
               "market_id": 4308425987,
               "odyssey": true,
@@ -174,7 +72,7 @@
               "commodity": "tritium",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 3,
+              "jumps": 2,
               "ly": 56.7138169342357,
               "market_id": 4214816003,
               "odyssey": true,
@@ -191,7 +89,7 @@
               "commodity": "tritium",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 955,
+              "jumps": 607,
               "ly": 19099.87949945116,
               "market_id": 129007695,
               "odyssey": false,
@@ -208,7 +106,7 @@
               "commodity": "tritium",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 166,
+              "jumps": 106,
               "ly": 3319.174108082555,
               "market_id": 4394521603,
               "odyssey": true,
@@ -225,7 +123,7 @@
               "commodity": "tritium",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 13,
+              "jumps": 9,
               "ly": 257.40469072005567,
               "market_id": 4374173699,
               "odyssey": true,
@@ -254,18 +152,18 @@
         ],
         "system": "Sol"
       },
-      "range": 20.0,
+      "range": 31.5,
       "results": [
         {
           "commodity": "painite",
-          "fetched_at": 1792184400,
+          "fetched_at": 1792188000,
           "offers": [
             {
               "arrival_ls": 568.788796,
               "commodity": "painite",
               "exact": false,
               "fleet_carrier": true,
-              "jumps": 30,
+              "jumps": 19,
               "ly": 581.9761626615389,
               "market_id": 3700000800,
               "odyssey": false,
@@ -282,7 +180,7 @@
               "commodity": "painite",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 7,
+              "jumps": 5,
               "ly": 127.31885492853169,
               "market_id": 3894830592,
               "odyssey": true,
@@ -299,7 +197,7 @@
               "commodity": "painite",
               "exact": false,
               "fleet_carrier": true,
-              "jumps": 8,
+              "jumps": 5,
               "ly": 143.1260780527085,
               "market_id": 3700000802,
               "odyssey": false,
@@ -316,7 +214,7 @@
               "commodity": "painite",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 34,
+              "jumps": 22,
               "ly": 674.0424472561984,
               "market_id": 4266670083,
               "odyssey": false,
@@ -333,7 +231,7 @@
               "commodity": "painite",
               "exact": false,
               "fleet_carrier": true,
-              "jumps": 6,
+              "jumps": 4,
               "ly": 109.48469945185263,
               "market_id": 3700000804,
               "odyssey": false,
@@ -350,7 +248,7 @@
               "commodity": "painite",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 3,
+              "jumps": 2,
               "ly": 54.71575163115737,
               "market_id": 4212231683,
               "odyssey": false,
@@ -367,7 +265,7 @@
               "commodity": "painite",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 20,
+              "jumps": 13,
               "ly": 399.6982980851776,
               "market_id": 4373824515,
               "odyssey": false,
@@ -384,7 +282,7 @@
               "commodity": "painite",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 5,
+              "jumps": 3,
               "ly": 84.65206823374135,
               "market_id": 4208487939,
               "odyssey": false,
@@ -418,7 +316,7 @@
               "commodity": "painite",
               "exact": false,
               "fleet_carrier": false,
-              "jumps": 18,
+              "jumps": 11,
               "ly": 341.17706838559286,
               "market_id": 4242823939,
               "odyssey": false,
@@ -482,18 +380,18 @@
       ],
       "system": "Sol"
     },
-    "range": 20.0,
+    "range": 31.5,
     "results": [
       {
         "commodity": "tritium",
-        "fetched_at": 1792184400,
+        "fetched_at": 1792188000,
         "offers": [
           {
             "arrival_ls": 2265.68252,
             "commodity": "tritium",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": false,
-            "jumps": 2,
+            "jumps": 1,
             "ly": 30.26941203075309,
             "market_id": 4270845699,
             "odyssey": true,
@@ -508,7 +406,7 @@
           {
             "arrival_ls": 9681.954677,
             "commodity": "tritium",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": false,
             "jumps": 1,
             "ly": 19.4254635160271,
@@ -525,7 +423,7 @@
           {
             "arrival_ls": 198.234835,
             "commodity": "tritium",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": false,
             "jumps": 1,
             "ly": 16.552060389117724,
@@ -542,9 +440,9 @@
           {
             "arrival_ls": 1269.50918,
             "commodity": "tritium",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": false,
-            "jumps": 2,
+            "jumps": 1,
             "ly": 28.7513926293145,
             "market_id": 3228050688,
             "odyssey": false,
@@ -559,9 +457,9 @@
           {
             "arrival_ls": 4259.9136,
             "commodity": "tritium",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": false,
-            "jumps": 2,
+            "jumps": 1,
             "ly": 30.046237155216293,
             "market_id": 4278138627,
             "odyssey": false,
@@ -576,7 +474,7 @@
           {
             "arrival_ls": 855.846074,
             "commodity": "tritium",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": false,
             "jumps": 1,
             "ly": 16.579295729161718,
@@ -593,7 +491,7 @@
           {
             "arrival_ls": 287.554455,
             "commodity": "tritium",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": false,
             "jumps": 1,
             "ly": 16.737985429853858,
@@ -615,7 +513,7 @@
     "side": "buy"
   },
   "cargo": {
-    "fetched_at": 1792184400,
+    "fetched_at": 1792188000,
     "kept": [
       {
         "name": "Gold",
@@ -678,7 +576,7 @@
         "best": {
           "arrival_ls": 22200.024499,
           "commodity": "painite",
-          "exact": false,
+          "exact": true,
           "fleet_carrier": false,
           "jumps": 1,
           "ly": 18.769937316757346,
@@ -698,11 +596,7 @@
         "partial": null
       },
       {
-        "best": null,
-        "carried": 100,
-        "commodity": "platinum",
-        "name": "Platinum",
-        "partial": {
+        "best": {
           "arrival_ls": 2404.246255,
           "commodity": "platinum",
           "exact": false,
@@ -717,14 +611,18 @@
           "station_type": "Outpost",
           "system": "LFT 65",
           "updated_at": "2026-10-16T03:39:59.000Z",
-          "volume": 73
-        }
+          "volume": 2479
+        },
+        "carried": 100,
+        "commodity": "platinum",
+        "name": "Platinum",
+        "partial": null
       }
     ],
     "stations": [
       {
         "arrival_ls": 22200.024499,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -929,7 +827,7 @@
       },
       {
         "arrival_ls": 287.554455,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -970,9 +868,9 @@
       },
       {
         "arrival_ls": 214.989439,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": true,
-        "jumps": 2,
+        "jumps": 1,
         "lines": [
           {
             "carried": 300,
@@ -1011,7 +909,7 @@
       },
       {
         "arrival_ls": 855.846074,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1097,11 +995,11 @@
     }
   ],
   "list": {
-    "fetched_at": 1792184400,
+    "fetched_at": 1792188000,
     "stations": [
       {
         "arrival_ls": 4412.399395,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1141,7 +1039,7 @@
       },
       {
         "arrival_ls": 1226.638124,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1181,7 +1079,7 @@
       },
       {
         "arrival_ls": 438.650963,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1221,7 +1119,7 @@
       },
       {
         "arrival_ls": 963.421827,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1261,7 +1159,7 @@
       },
       {
         "arrival_ls": 3090.598556,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1301,7 +1199,7 @@
       },
       {
         "arrival_ls": 37.332957,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1335,7 +1233,7 @@
       },
       {
         "arrival_ls": 61.866701,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1369,7 +1267,7 @@
       },
       {
         "arrival_ls": 6.519859,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1403,7 +1301,7 @@
       },
       {
         "arrival_ls": 13.875402,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1437,7 +1335,7 @@
       },
       {
         "arrival_ls": 13.865395,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": true,
         "jumps": 1,
         "lines": [
@@ -1471,7 +1369,7 @@
       },
       {
         "arrival_ls": 232.746457,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": false,
         "jumps": 1,
         "lines": [
@@ -1505,7 +1403,7 @@
       },
       {
         "arrival_ls": 61.876633,
-        "exact": false,
+        "exact": true,
         "fleet_carrier": true,
         "jumps": 1,
         "lines": [
@@ -1535,6 +1433,133 @@
     "truncated": [],
     "unavailable": []
   },
+  "route": {
+    "defaults": {
+      "capacity": 200,
+      "credits": 10000000,
+      "range": 31.5,
+      "station": "Abraham Lincoln",
+      "system": "Sol"
+    },
+    "loop": {
+      "fetched_at": 1792192994,
+      "kind": "loop",
+      "legs": [
+        {
+          "cargo": [
+            {
+              "buy": 110,
+              "name": "Biowaste",
+              "profit": 128800,
+              "profit_per_t": 644,
+              "sell": 754,
+              "tonnes": 200
+            }
+          ],
+          "from": {
+            "arrival_ls": 505.0,
+            "market_id": 128016896,
+            "pad": "L",
+            "station": "Abraham Lincoln",
+            "system": "Sol"
+          },
+          "jumps": 1,
+          "ly": 23.7711049319862,
+          "profit": 128800,
+          "profit_per_t": 644,
+          "seconds": 210.18,
+          "source": "Spansh",
+          "to": {
+            "arrival_ls": 6.0,
+            "market_id": 4245314563,
+            "pad": "L",
+            "station": "Starbase Pratchett",
+            "system": "LP 71-165"
+          }
+        },
+        {
+          "cargo": [
+            {
+              "buy": 1581,
+              "name": "Reactive Armour",
+              "profit": 218600,
+              "profit_per_t": 1093,
+              "sell": 2674,
+              "tonnes": 200
+            }
+          ],
+          "from": {
+            "arrival_ls": 6.0,
+            "market_id": 4245314563,
+            "pad": "L",
+            "station": "Starbase Pratchett",
+            "system": "LP 71-165"
+          },
+          "jumps": 1,
+          "ly": 23.7711049319862,
+          "profit": 218600,
+          "profit_per_t": 1093,
+          "seconds": 225.15,
+          "source": "Ardent Insight",
+          "to": {
+            "arrival_ls": 505.0,
+            "market_id": 128016896,
+            "pad": "L",
+            "station": "Abraham Lincoln",
+            "system": "Sol"
+          }
+        }
+      ],
+      "minutes": 7.2555000000000005,
+      "per_hour": 2872855,
+      "profit": 347400,
+      "range": 31.5,
+      "warning": null
+    },
+    "single": {
+      "fetched_at": 1792188000,
+      "kind": "single",
+      "legs": [
+        {
+          "cargo": [
+            {
+              "buy": 110,
+              "name": "Biowaste",
+              "profit": 128800,
+              "profit_per_t": 644,
+              "sell": 754,
+              "tonnes": 200
+            }
+          ],
+          "from": {
+            "arrival_ls": 505.0,
+            "market_id": 128016896,
+            "pad": null,
+            "station": "Abraham Lincoln",
+            "system": "Sol"
+          },
+          "jumps": 1,
+          "ly": 23.7711049319862,
+          "profit": 128800,
+          "profit_per_t": 644,
+          "seconds": 210.18,
+          "source": "Spansh",
+          "to": {
+            "arrival_ls": 6.0,
+            "market_id": 4245314563,
+            "pad": "L",
+            "station": "Starbase Pratchett",
+            "system": "LP 71-165"
+          }
+        }
+      ],
+      "minutes": 7.2555000000000005,
+      "per_hour": 1065123,
+      "profit": 128800,
+      "range": 31.5,
+      "warning": null
+    }
+  },
   "sell": {
     "here": {
       "id64": 10477373803,
@@ -1545,16 +1570,16 @@
       ],
       "system": "Sol"
     },
-    "range": 20.0,
+    "range": 31.5,
     "results": [
       {
         "commodity": "painite",
-        "fetched_at": 1792184400,
+        "fetched_at": 1792188000,
         "offers": [
           {
             "arrival_ls": 22200.024499,
             "commodity": "painite",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": false,
             "jumps": 1,
             "ly": 18.769937316757346,
@@ -1605,9 +1630,9 @@
           {
             "arrival_ls": 214.989439,
             "commodity": "painite",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": true,
-            "jumps": 2,
+            "jumps": 1,
             "ly": 20.242523697034418,
             "market_id": 3700021024,
             "odyssey": false,
@@ -1622,7 +1647,7 @@
           {
             "arrival_ls": 855.846074,
             "commodity": "painite",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": false,
             "jumps": 1,
             "ly": 16.579295729161718,
@@ -1654,26 +1679,9 @@
             "volume": 29688
           },
           {
-            "arrival_ls": 1154.245977,
-            "commodity": "painite",
-            "exact": false,
-            "fleet_carrier": false,
-            "jumps": 2,
-            "ly": 33.007012749187105,
-            "market_id": 3815264000,
-            "odyssey": true,
-            "pad": "S",
-            "price": 186124,
-            "station": "Naudiyal Manufacturing Complex",
-            "station_type": "OnFootSettlement",
-            "system": "G 175-42",
-            "updated_at": "2026-09-17T18:29:55.000Z",
-            "volume": 15
-          },
-          {
             "arrival_ls": 287.554455,
             "commodity": "painite",
-            "exact": false,
+            "exact": true,
             "fleet_carrier": false,
             "jumps": 1,
             "ly": 16.737985429853858,
@@ -1710,132 +1718,5 @@
       }
     ],
     "side": "sell"
-  },
-  "route": {
-    "defaults": {
-      "capacity": 200,
-      "credits": 10000000,
-      "range": 31.5,
-      "station": "Abraham Lincoln",
-      "system": "Sol"
-    },
-    "single": {
-      "kind": "single",
-      "legs": [
-        {
-          "from": {
-            "station": "Abraham Lincoln",
-            "system": "Sol",
-            "market_id": 128016896,
-            "arrival_ls": 505.0,
-            "pad": "L"
-          },
-          "to": {
-            "station": "Starbase Pratchett",
-            "system": "LP 71-165",
-            "market_id": 4245314563,
-            "arrival_ls": 6.0,
-            "pad": "L"
-          },
-          "ly": 23.7711049319862,
-          "jumps": 1,
-          "cargo": [
-            {
-              "name": "Biowaste",
-              "tonnes": 200,
-              "buy": 110,
-              "sell": 754,
-              "profit_per_t": 644,
-              "profit": 128800
-            }
-          ],
-          "profit": 128800,
-          "profit_per_t": 644,
-          "source": "Spansh",
-          "seconds": 210.18
-        }
-      ],
-      "profit": 128800,
-      "minutes": 7.2555000000000005,
-      "per_hour": 1065123,
-      "range": 31.5,
-      "fetched_at": 1792192994,
-      "warning": null
-    },
-    "loop": {
-      "kind": "loop",
-      "legs": [
-        {
-          "from": {
-            "station": "Abraham Lincoln",
-            "system": "Sol",
-            "market_id": 128016896,
-            "arrival_ls": 505.0,
-            "pad": "L"
-          },
-          "to": {
-            "station": "Starbase Pratchett",
-            "system": "LP 71-165",
-            "market_id": 4245314563,
-            "arrival_ls": 6.0,
-            "pad": "L"
-          },
-          "ly": 23.7711049319862,
-          "jumps": 1,
-          "cargo": [
-            {
-              "name": "Biowaste",
-              "tonnes": 200,
-              "buy": 110,
-              "sell": 754,
-              "profit_per_t": 644,
-              "profit": 128800
-            }
-          ],
-          "profit": 128800,
-          "profit_per_t": 644,
-          "source": "Spansh",
-          "seconds": 210.18
-        },
-        {
-          "from": {
-            "station": "Starbase Pratchett",
-            "system": "LP 71-165",
-            "market_id": 4245314563,
-            "arrival_ls": 6.0,
-            "pad": "L"
-          },
-          "to": {
-            "station": "Abraham Lincoln",
-            "system": "Sol",
-            "market_id": 128016896,
-            "arrival_ls": 505.0,
-            "pad": "L"
-          },
-          "ly": 23.7711049319862,
-          "jumps": 1,
-          "cargo": [
-            {
-              "name": "Reactive Armour",
-              "tonnes": 200,
-              "buy": 1581,
-              "sell": 2674,
-              "profit_per_t": 1093,
-              "profit": 218600
-            }
-          ],
-          "profit": 218600,
-          "profit_per_t": 1093,
-          "source": "Ardent Insight",
-          "seconds": 225.15
-        }
-      ],
-      "profit": 347400,
-      "minutes": 7.2555000000000005,
-      "per_hour": 2872855,
-      "range": 31.5,
-      "fetched_at": 1792192994,
-      "warning": null
-    }
   }
 }

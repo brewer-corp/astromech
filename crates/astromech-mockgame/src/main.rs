@@ -18,6 +18,7 @@
 //! A `flag` key toggles that bit; a `gui` key sets GuiFocus; a `vehicle` key swaps the
 //! in-ship and in-SRV flags at once (no delay, never dropped) and closes any panel.
 //! `drop_every: N` drops every Nth press of a mapped key (a fault for the harness to catch).
+#![allow(clippy::disallowed_methods)] // the mock game is a test tool, not the core
 
 #[cfg(not(windows))]
 fn main() {

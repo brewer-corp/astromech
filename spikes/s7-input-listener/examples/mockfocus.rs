@@ -3,6 +3,7 @@
 //! smoke-tested under Wine. Midway it renames itself to test the "not focused" path.
 //!
 //! Usage: mockfocus <start_delay_s> <run_s>
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 #[cfg(not(windows))]
 fn main() {

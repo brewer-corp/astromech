@@ -1,6 +1,7 @@
 //! Where to collect and deliver power commodities, against a recorded Spansh answer
 //! (`fixtures/spansh-powerplay-reinforcement.json`: Li Yong-Rui's systems around Lembava,
 //! recorded 16 Oct 2026, trimmed to the system fields).
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::{Body, Cache, Client, Limiter, Request, Response, Transport, TransportError};
 use astromech_galaxy::{Galaxy, Here, Logistics, Sphere, Store, Target};

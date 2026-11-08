@@ -76,6 +76,9 @@ jobs:
       - name: frontend typecheck
         working-directory: app
         run: pnpm check
+      - name: journeys typecheck
+        working-directory: app
+        run: pnpm exec tsc -p journeys
       - name: frontend build
         working-directory: app
         run: pnpm build
@@ -93,6 +96,26 @@ jobs:
       - name: frontend tests (node and browser projects)
         working-directory: app
         run: pnpm test
+      # The dev bridge (app/dev/bridge.ts) on worlds/minimal, with the core `cargo test` built.
+      - name: dev bridge answers with the real core
+        working-directory: app
+        run: pnpm bridge-check
+      # The journeys (app/journeys/, CONTRIBUTING.md Tests): the page in Playwright's Chromium on
+      # the dev server, against the core `cargo test` built, each on its committed world. The `ls`
+      # fails a glob that matches nothing, which `node --test` would pass as a run of none.
+      - name: journeys
+        working-directory: app
+        timeout-minutes: 5
+        run: |
+          files=$(ls journeys/*.journey.ts)
+          node --test $files
+      - name: journey results (trace, screenshot, core log)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: journeys
+          path: app/journeys/results/
+          if-no-files-found: ignore
 
   windows:
     name: Windows (MSVC build + tests, the app with its window)

@@ -1,4 +1,5 @@
 //! The SAME egui HUD code (egui-demo/src/hud.rs), compiled to wasm for the web dashboard.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 #[path = "../../../egui-demo/src/hud.rs"]
 mod hud;
 

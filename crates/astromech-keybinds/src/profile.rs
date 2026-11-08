@@ -460,6 +460,7 @@ pub fn empty_slots(analogue: bool) -> Vec<Slot> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 pub(crate) mod tests {
     use super::*;
     use crate::devices::Controller;

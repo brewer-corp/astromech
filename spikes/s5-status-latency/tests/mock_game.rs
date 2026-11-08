@@ -1,4 +1,5 @@
 //! End-to-end tests of the measurement loop against a fake game that rewrites Status.json.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 use s5_status_latency::binds::Chord;
 use s5_status_latency::keys::ScanKey;

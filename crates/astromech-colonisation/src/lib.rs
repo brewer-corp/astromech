@@ -458,4 +458,5 @@ pub fn from_journal_dir(dir: &std::path::Path) -> Vec<ProjectView> {
 pub mod shopping;
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests;

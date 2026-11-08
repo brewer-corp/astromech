@@ -1,5 +1,6 @@
 //! Replay a journal against companion files: each event leaves its file's snapshot in the game
 //! state; a file that is missing, half-written or older than its event is reported, not used.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_gamestate::GameState;
 use astromech_journal::companion::{load, read_companion, triggers, CompanionIssue, CompanionKind, CompanionReport};

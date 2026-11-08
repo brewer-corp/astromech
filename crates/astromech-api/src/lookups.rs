@@ -15,7 +15,7 @@ use serde_json::Value;
 use std::sync::Arc;
 
 /// The common arguments of a search near somewhere.
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct Near<W> {
     #[serde(flatten)]
@@ -24,57 +24,57 @@ struct Near<W> {
     filters: Option<Filters>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct QueryArg {
     query: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct WantArg<W> {
     want: W,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct KindArg {
     kind: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct InterestArg {
     interest: astromech_galaxy::Interest,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct TradeArgs {
     side: astromech_market::Side,
     commodities: Vec<String>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct AnywhereArgs {
     side: astromech_market::Side,
     commodity: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct AskArg<A> {
     ask: A,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct NeedsArg {
     needs: Vec<astromech_market::list::Need>,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct TargetsArgs {
     target: astromech_galaxy::Target,
@@ -83,26 +83,26 @@ struct TargetsArgs {
     within_ly: f64,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct LookupArg {
     lookup: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct SetFiltersArgs {
     lookup: String,
     filters: Filters,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct PrefixArg {
     prefix: String,
 }
 
-#[derive(Deserialize, ts_rs::TS)]
+#[derive(Deserialize, Serialize, ts_rs::TS)]
 #[ts(optional_fields = nullable)]
 struct TargetArg {
     target: String,
@@ -186,9 +186,10 @@ fn range_of(ship: Option<&astromech_engineering::Ship>) -> f64 {
     ship.and_then(|s| s.max_jump_range).filter(|r| *r > 1.0).unwrap_or(20.0)
 }
 
-fn now() -> i64 {
-    use astromech_data::Clock;
-    astromech_data::SystemClock.now_s()
+/// Now, in Unix seconds, on the remote-data client's clock (the world's in world mode), for the
+/// lookups' ages and age filters.
+fn now(s: &State) -> i64 {
+    s.remote().clock_in_use().now_s()
 }
 
 fn text(e: impl std::fmt::Display) -> String {
@@ -287,11 +288,13 @@ fn neutron_download(s: &State, call: &Call) -> Result<NeutronFile, String> {
             call.progress(serde_json::to_value(NeutronProgress { done, total }).unwrap_or_default());
         }
     };
-    if let Err(e) = astromech_galaxy::neutron::download(s.data_dir(), &s.neutron_url, progress) {
+    if let Err(e) =
+        astromech_galaxy::neutron::download(s.data_dir(), &s.neutron_url, s.neutron_proxy_from_env, progress)
+    {
         astromech_log::log(&format!("neutron star file: download failed: {e:#}{}", download_detail(&e)));
         return Err(format!("{e:#}"));
     }
-    if let Err(e) = s.neutron.get() {
+    if let Err(e) = s.neutron.get(&**s.clock()) {
         astromech_log::log(&format!("neutron star file: the download won't load: {e:#}"));
     }
     Ok(neutron_status(s))
@@ -338,7 +341,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     reg.add_typed("trade_search", Window, move |x: Near<TradeArgs>, _| {
         let (g, here, range, filters) = near(&s, &x)?;
         let list: Vec<&str> = x.what.commodities.iter().map(String::as_str).collect();
-        astromech_market::search(&g, &here, range, x.what.side, &list, &filters, 8, now()).map_err(text)
+        astromech_market::search(&g, &here, range, x.what.side, &list, &filters, 8, now(&s)).map_err(text)
     });
 
     // Where to sell or buy `commodity` anywhere in the galaxy, best price first (Ardent
@@ -346,7 +349,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     let s = state.clone();
     reg.add_typed("trade_anywhere", Window, move |x: Near<AnywhereArgs>, _| {
         let (g, here, range, filters) = near(&s, &x)?;
-        astromech_market::anywhere(g.remote(), &here, range, x.what.side, &x.what.commodity, &filters, now())
+        astromech_market::anywhere(g.remote(), &here, range, x.what.side, &x.what.commodity, &filters, now(&s))
             .map_err(text)
     });
 
@@ -356,7 +359,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     reg.add_typed("trade_cargo", Window, move |x: Near<crate::Nothing>, _| {
         let (g, here, range, filters) = near(&s, &x)?;
         let hold = astromech_market::cargo::from_journal_dir(&s.journal_dir());
-        let plan = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters, 8, now()).map_err(text)?;
+        let plan = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters, 8, now(&s)).map_err(text)?;
         Ok(CargoSale { here, range, plan, hold })
     });
 
@@ -387,7 +390,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
             .map_err(text)?;
         let (here, range, filters) = search_origin(&s, &g, None, Some(saved))?;
         let hold = astromech_market::cargo::from_journal_dir(&dir);
-        astromech_market::here::compare_search(&g, &here, range, &market, &hold, &filters, now())
+        astromech_market::here::compare_search(&g, &here, range, &market, &hold, &filters, now(&s))
             .map(Some)
             .map_err(text)
     });
@@ -400,9 +403,9 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
             return Err("A route search is already running. Wait for it to finish.".to_string());
         };
         let (g, here, range, filters) = near(&s, &x)?;
-        let polling = astromech_market::route::Polling::default();
+        let polling = s.plot_polling;
         let route =
-            astromech_market::route::plan(g.remote(), &here.system, range, &x.what.ask, &filters, polling, now())
+            astromech_market::route::plan(g.remote(), &here.system, range, &x.what.ask, &filters, polling, now(&s))
                 .map_err(text)?;
         Ok(TradeRoute { here, route })
     });
@@ -412,8 +415,8 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     let s = state.clone();
     reg.add_typed("colonisation_buy", Window, move |x: Near<NeedsArg>, _| {
         let (g, here, range, filters) = near(&s, &x)?;
-        let plan =
-            astromech_market::list::plan_search(&g, &here, range, &x.what.needs, &filters, 12, now()).map_err(text)?;
+        let plan = astromech_market::list::plan_search(&g, &here, range, &x.what.needs, &filters, 12, now(&s))
+            .map_err(text)?;
         Ok(ShoppingPlan { here, range, plan })
     });
 
@@ -530,10 +533,11 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     // Whether the published file differs from the one downloaded (a small checksum file).
     let s = state.clone();
     reg.add_typed("neutron_check", Window, move |(), _| {
-        let newer = astromech_galaxy::neutron::newer_available(s.data_dir(), &s.neutron_url).map_err(|e| {
-            astromech_log::log(&format!("neutron star file: check failed: {e:#}{}", download_detail(&e)));
-            format!("{e:#}")
-        })?;
+        let newer = astromech_galaxy::neutron::newer_available(s.data_dir(), &s.neutron_url, s.neutron_proxy_from_env)
+            .map_err(|e| {
+                astromech_log::log(&format!("neutron star file: check failed: {e:#}{}", download_detail(&e)));
+                format!("{e:#}")
+            })?;
         Ok(NeutronCheck { newer })
     });
 
@@ -545,6 +549,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::control::{call, serve, Request};
@@ -658,7 +663,7 @@ mod tests {
         let mut reg = Registry::new();
         register(&state, &mut reg);
         let app = d.path().join("app");
-        let _srv = serve(&app, Arc::new(reg)).unwrap();
+        let _srv = serve(&app, Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         let ask = |cmd: &str, seen: &mut Vec<Value>| {
             let req = Request { origin: Some(Origin::AppWindow), ..Request::new(cmd) };
             let r = call(&app, req, None, &mut |p| seen.push(json!({ "progress": p })));
@@ -676,7 +681,7 @@ mod tests {
         assert_eq!(seen.last(), Some(&json!({ "reply": reply })));
         assert_eq!(reply["file"]["stars"], 35, "{reply}");
         assert_eq!(reply["error"], Value::Null);
-        assert!(state.neutron.get().unwrap().is_some(), "loaded for the next plot");
+        assert!(state.neutron.get(&**state.clock()).unwrap().is_some(), "loaded for the next plot");
         assert_eq!(ask("neutron_check", &mut vec![]), json!({ "newer": false }));
     }
 }

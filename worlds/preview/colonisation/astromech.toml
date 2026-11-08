@@ -1,0 +1,3 @@
+# The browser preview's sample (crates/astromech-core/tests/preview_fixtures.rs).
+[eddn]
+enabled = false

@@ -104,6 +104,7 @@ pub fn spoken(n: &Nearby, named: bool, now_s: i64) -> String {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_galaxy::{Here, Hop, NearbyHit, QUERIES};

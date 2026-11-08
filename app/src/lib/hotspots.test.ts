@@ -54,10 +54,15 @@ describe("Mining hotspots rows", () => {
     const all = await hotspots({ ore: "painite", ring_type: null, reserve: null }, null, DEFAULT_FILTERS);
     expect(all.rings).toHaveLength(10);
     expect(all.here.system).toBe("Sol");
-    const major = await hotspots({ ore: "platinum", ring_type: "Metal Rich", reserve: "major" }, "Deciat", DEFAULT_FILTERS);
-    expect(major.name).toBe("Platinum");
-    expect(major.here.system).toBe("Deciat");
-    expect(major.rings.length).toBeGreaterThan(0);
-    expect(major.rings.every((r) => r.ring_type === "Metal Rich" && (r.reserve === "Major" || r.reserve === "Pristine"))).toBe(true);
+    const metallic = await hotspots({ ore: "platinum", ring_type: "Metallic", reserve: null }, "Deciat", DEFAULT_FILTERS);
+    expect(metallic.name).toBe("Platinum");
+    expect(metallic.here.system).toBe("Deciat");
+    expect(metallic.rings.map((r) => r.ring)).toEqual(["Naunin A 4 A Ring", "Greila 4 A Ring"]);
+    // The recorded top ten hold no major or pristine reserve.
+    const major = await hotspots({ ore: "painite", ring_type: null, reserve: "major" }, null, DEFAULT_FILTERS);
+    expect(major.rings).toEqual([]);
+    const common = await hotspots({ ore: "painite", ring_type: "Metal Rich", reserve: null }, null, DEFAULT_FILTERS);
+    expect(common.rings.length).toBeGreaterThan(0);
+    expect(common.rings.every((r) => r.ring_type === "Metal Rich")).toBe(true);
   });
 });

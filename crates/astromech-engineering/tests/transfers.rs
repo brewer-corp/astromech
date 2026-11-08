@@ -1,6 +1,7 @@
 //! astromech-4irh: ships and modules ordered to a station arrive when their `TransferTime` passes
 //! on the Clock, whenever the page reads the fleet: the journal says nothing at that moment, so
 //! nothing is written to prompt a rebuild.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_engineering::{from_journal_dir_at, Settled, FLEET_EVENTS};
 use astromech_journal::JournalCache;
@@ -11,6 +12,16 @@ struct Fake(AtomicI64);
 impl Clock for Fake {
     fn now_s(&self) -> i64 {
         self.0.load(Ordering::SeqCst)
+    }
+    // A wall clock the test sets; the monotonic time and sleeps stay real.
+    fn now(&self) -> std::time::Instant {
+        std::time::Instant::now()
+    }
+    fn utc(&self) -> std::time::SystemTime {
+        std::time::UNIX_EPOCH + std::time::Duration::from_secs(self.now_s() as u64)
+    }
+    fn sleep(&self, d: std::time::Duration) {
+        std::thread::sleep(d)
     }
 }
 

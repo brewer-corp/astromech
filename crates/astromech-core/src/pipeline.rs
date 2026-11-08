@@ -60,15 +60,16 @@
 
 use crate::callouts::Callouts;
 use crate::hub::StateHub;
+use crate::world::settle::{FileGens, Watching};
 use anyhow::{Context, Result};
 use astromech_api::Recover;
-use astromech_eddn::worker::wall_now;
 use astromech_journal::companion::{load, triggers, CompanionFile, CompanionKind, Trigger};
 use astromech_journal::JournalTail;
+use astromech_proto::{Clock, ClockReceiver, ClockSender};
 use notify::{RecursiveMode, Watcher};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc::{channel, RecvTimeoutError};
+use std::sync::mpsc::RecvTimeoutError;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
@@ -130,8 +131,8 @@ fn local_header_check() -> Box<dyn Fn(i64, i64) -> bool + Send> {
 /// Whether a journal line is stamped within [`FRESH_LINE_SECS`] before now, or at most
 /// [`AHEAD_SECS`] after it. A line stamped further ahead was written by a clock running fast:
 /// before now, so not fresh (astromech-puak).
-fn line_is_fresh(line: &str) -> bool {
-    line_time(line).is_some_and(|t| (-AHEAD_SECS..=FRESH_LINE_SECS).contains(&(chrono::Utc::now().timestamp() - t)))
+fn line_is_fresh(line: &str, now_s: i64) -> bool {
+    line_time(line).is_some_and(|t| (-AHEAD_SECS..=FRESH_LINE_SECS).contains(&(now_s - t)))
 }
 
 /// A journal line's timestamp (UTC seconds).
@@ -179,6 +180,33 @@ const RECENT_SECS: i64 = 24 * 3600;
 /// How often an idle pipeline looks for a new journal file.
 const SCAN_EVERY: Duration = Duration::from_secs(1);
 
+/// What the pipeline does with a file in the journal folder when it is told of a change.
+enum Watched {
+    /// Status.json, Cargo.json or NavRoute.json: read with the status.
+    Status,
+    /// A companion file an event announces.
+    Companion(CompanionKind),
+    Journal,
+}
+
+/// How the pipeline handles a change to the file `name` in the journal folder; None: it ignores
+/// it.
+fn watched(name: &str) -> Option<Watched> {
+    if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
+        Some(Watched::Status)
+    } else if let Some(k) = CompanionKind::from_file_name(name) {
+        Some(Watched::Companion(k))
+    } else {
+        is_journal(Path::new(name)).then_some(Watched::Journal)
+    }
+}
+
+/// Whether a change to the file `name` in the journal folder is handled (a world's file step
+/// waits for it only then).
+pub fn watches(name: &str) -> bool {
+    watched(name).is_some()
+}
+
 fn is_journal(p: &Path) -> bool {
     p.file_name()
         .map(|n| {
@@ -198,6 +226,8 @@ fn eddn_file(f: &CompanionFile) -> Option<(&'static str, &str)> {
         _ => return None,
     })
 }
+
+use crate::watch::Event;
 
 /// Counters for logs and tests.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
@@ -219,13 +249,19 @@ pub struct Stats {
 pub struct Pipeline {
     _watcher: notify::RecommendedWatcher,
     stop: Arc<AtomicBool>,
+    /// Wakes the thread's wait to stop.
+    wake: ClockSender<Event>,
     thread: Option<std::thread::JoinHandle<()>>,
     pub stats: Arc<std::sync::Mutex<Stats>>,
+    /// A world's: this pipeline watches its game folder until the thread has ended (dropped
+    /// after `drop`'s join, being the last field).
+    _watching: Option<Watching>,
 }
 
 impl Drop for Pipeline {
     fn drop(&mut self) {
         self.stop.store(true, Ordering::SeqCst);
+        self.wake.wake();
         if let Some(t) = self.thread.take() {
             let _ = t.join();
         }
@@ -263,6 +299,8 @@ struct Tailer {
     /// when we left each, or its length at startup (`None` while followed). Opening one again
     /// replays up to that point; what the game wrote since is live.
     opened: std::collections::HashMap<PathBuf, Option<u64>>,
+    /// The hub's clock: the loop's waits, freshness and the reaction engine's `now`.
+    clock: Arc<dyn Clock>,
     /// When `on_idle` last looked for a new journal.
     last_scan: Instant,
     /// When the journal tail was last read, for any reason.
@@ -307,15 +345,15 @@ impl Tailer {
                         self.hub.apply_journal(&j);
                         if let Some(c) = &mut self.callouts {
                             c.engine.set_live(self.caught_up && self.live);
-                            fired.extend(self.hub.read(|g| c.engine.journal(&j, g, Instant::now())));
+                            fired.extend(self.hub.read(|g| c.engine.journal(&j, g, self.clock.now())));
                         }
                         if self.eddn.is_some() || self.edsm.is_some() {
                             if let Ok(raw) = serde_json::from_str(&j.raw_json) {
                                 if let Some(f) = &mut self.eddn {
-                                    f.journal(&raw, self.live, wall_now());
+                                    f.journal(&raw, self.live, self.clock.now_s());
                                 }
                                 if let Some(u) = &mut self.edsm {
-                                    u.journal(&raw, self.live, wall_now());
+                                    u.journal(&raw, self.live, self.clock.now_s());
                                 }
                             }
                         }
@@ -342,7 +380,7 @@ impl Tailer {
     fn on_tick(&mut self) {
         if let Some(c) = &mut self.callouts {
             c.engine.set_live(self.caught_up);
-            let fired = self.hub.read(|g| c.engine.tick(chrono::Utc::now().timestamp(), g, Instant::now()));
+            let fired = self.hub.read(|g| c.engine.tick(self.clock.now_s(), g, self.clock.now()));
             if !fired.is_empty() {
                 (c.deliver)(fired);
             }
@@ -355,7 +393,7 @@ impl Tailer {
         let Some(f) = self.eddn.as_mut().filter(|f| f.awaiting("NavRoute")) else { return };
         let file = std::fs::read(self.dir.join("NavRoute.json")).ok().and_then(|b| serde_json::from_slice(&b).ok());
         if let Some(file) = file {
-            f.companion_file("NavRoute", &file, wall_now());
+            f.companion_file("NavRoute", &file, self.clock.now_s());
         }
     }
 
@@ -381,7 +419,7 @@ impl Tailer {
             }
             if let (Some(feed), Some((event, raw))) = (&mut self.eddn, eddn_file(&f)) {
                 if let Ok(file) = serde_json::from_str(raw) {
-                    feed.companion_file(event, &file, wall_now());
+                    feed.companion_file(event, &file, self.clock.now_s());
                 }
             }
             let is_market = matches!(f, CompanionFile::Market(_));
@@ -391,7 +429,7 @@ impl Tailer {
                 c.engine.set_live(live);
                 let fired = self.hub.read(|g| {
                     let m = g.companions.market.clone()?;
-                    Some(c.engine.market(&m, g, Instant::now()))
+                    Some(c.engine.market(&m, g, self.clock.now()))
                 });
                 if let Some(fired) = fired.filter(|f| !f.is_empty()) {
                     (c.deliver)(fired);
@@ -432,7 +470,7 @@ impl Tailer {
         if self.pending.is_empty() {
             return;
         }
-        let now = chrono::Utc::now();
+        let now = chrono::DateTime::<chrono::Utc>::from(self.clock.utc());
         let (waiting, stale): (Vec<Pending>, Vec<Pending>) =
             std::mem::take(&mut self.pending).into_iter().partition(|p| {
                 chrono::DateTime::parse_from_rfc3339(&p.trigger.event_ts)
@@ -564,7 +602,7 @@ impl Tailer {
     /// header stamped later than now plus [`START_SLACK_SECS`] came from a clock that runs ahead
     /// (another PC's, or this one's before it was corrected back), so it says nothing about order.
     fn start_time(&mut self, path: &Path) -> Option<i64> {
-        self.header_time(path).filter(|t| *t <= chrono::Utc::now().timestamp() + START_SLACK_SECS)
+        self.header_time(path).filter(|t| *t <= self.clock.now_s() + START_SLACK_SECS)
     }
 
     /// Whether journal `a` began more than [`START_SLACK_SECS`] before `b`, by `start_time`. That
@@ -596,7 +634,7 @@ impl Tailer {
             self.not_written.insert(path.to_path_buf(), len);
             return false;
         }
-        let fresh = last_line(path).is_some_and(|l| line_is_fresh(&l));
+        let fresh = last_line(path).is_some_and(|l| line_is_fresh(&l, self.clock.now_s()));
         if fresh {
             self.not_written.remove(path);
             self.note_writing(path, stamp);
@@ -661,7 +699,7 @@ impl Tailer {
                 let mut run: Vec<String> = vec![];
                 let mut run_fresh = false;
                 for line in lines {
-                    let fresh = line_is_fresh(&line);
+                    let fresh = line_is_fresh(&line, self.clock.now_s());
                     if fresh != run_fresh && !run.is_empty() {
                         self.apply_gated_run(path, std::mem::take(&mut run), run_fresh);
                     }
@@ -714,14 +752,14 @@ impl Tailer {
 
     /// Read what the game appended to the journal we follow, without waiting to be told.
     fn read_tail(&mut self) -> bool {
-        self.last_read = Instant::now();
+        self.last_read = self.clock.now();
         let Some(t) = &mut self.tail else { return false };
         let (path, lines) = (t.path.clone(), t.read_new());
         let any = !lines.is_empty();
         if any {
             // Judged on every batch: a journal followed while still empty has no header yet.
             let class = self.classify(&path);
-            let fresh = lines.last().is_some_and(|l| line_is_fresh(l));
+            let fresh = lines.last().is_some_and(|l| line_is_fresh(l, self.clock.now_s()));
             self.apply_class(&path, class, lines, true, true);
             if fresh && class != Class::Foreign && self.writing.as_ref() != Some(&path) {
                 if let Some((stamp, _)) = astromech_journal::journal_name_stamp(&path) {
@@ -742,7 +780,7 @@ impl Tailer {
     /// The loop woke for some reason (a notification, or the timeout): read the journal if that
     /// hasn't happened for [`IDLE`], so notifications that name no journal can't starve it.
     fn on_wake(&mut self) {
-        if self.last_read.elapsed() >= IDLE {
+        if self.clock.now().saturating_duration_since(self.last_read) >= IDLE {
             self.on_idle();
         }
     }
@@ -762,8 +800,8 @@ impl Tailer {
         if stamp.is_some() && stamp != self.status_seen {
             self.on_status();
         }
-        if self.last_scan.elapsed() >= SCAN_EVERY {
-            self.last_scan = Instant::now();
+        if self.clock.now().saturating_duration_since(self.last_scan) >= SCAN_EVERY {
+            self.last_scan = self.clock.now();
             self.follow_newest();
             self.retry_pending();
         }
@@ -828,7 +866,7 @@ impl Tailer {
                 self.hub.apply_status(&s);
                 if let Some(c) = &mut self.callouts {
                     c.engine.set_live(self.caught_up);
-                    let fired = self.hub.read(|g| c.engine.status(&s, g, Instant::now()));
+                    let fired = self.hub.read(|g| c.engine.status(&s, g, self.clock.now()));
                     (c.deliver)(fired);
                 }
             }
@@ -887,7 +925,8 @@ impl Tailer {
         let Ok(entries) = std::fs::read_dir(&self.dir) else { return };
         let latest = astromech_journal::latest_journal(&self.dir);
         // Name stamps are the local wall clock read as UTC (see `journal_name_stamp`).
-        let recent_from = chrono::Local::now().naive_local().and_utc().timestamp() - RECENT_SECS;
+        let local = chrono::DateTime::<chrono::Utc>::from(self.clock.utc()).with_timezone(&chrono::Local);
+        let recent_from = local.naive_local().and_utc().timestamp() - RECENT_SECS;
         for e in entries.flatten() {
             let path = e.path();
             if !is_journal(&path) {
@@ -924,7 +963,7 @@ impl Tailer {
                 // A new route is an event for the callouts (the engine ignores the same one again).
                 if let Some(c) = &mut self.callouts {
                     c.engine.set_live(self.caught_up);
-                    let fired = self.hub.read(|g| c.engine.route(&r, g, Instant::now()));
+                    let fired = self.hub.read(|g| c.engine.route(&r, g, self.clock.now()));
                     if !fired.is_empty() {
                         (c.deliver)(fired);
                     }
@@ -936,7 +975,7 @@ impl Tailer {
     /// End of a journal, or shutdown: send a pending signal run.
     fn flush_eddn(&mut self) {
         if let Some(f) = &mut self.eddn {
-            f.flush(wall_now());
+            f.flush(self.clock.now_s());
         }
     }
 }
@@ -968,20 +1007,22 @@ fn file_stamp(p: &Path) -> Option<(std::time::SystemTime, u64)> {
 /// it changed) when none arrive.
 fn spawn_loop(
     mut t: Tailer,
-    rx: std::sync::mpsc::Receiver<notify::Result<notify::Event>>,
+    rx: ClockReceiver<Event>,
     stop2: Arc<AtomicBool>,
+    files: Option<Arc<FileGens>>,
 ) -> Result<std::thread::JoinHandle<()>> {
-    std::thread::Builder::new()
-        .name("pipeline".into())
-        .spawn(move || {
-            let mut last_tick = Instant::now();
+    let clock = t.clock.clone();
+    clock
+        .spawn(std::thread::Builder::new().name("pipeline".into()), move || {
+            let mut last_tick = t.clock.now();
             while !stop2.load(Ordering::SeqCst) {
-                if last_tick.elapsed() >= Duration::from_secs(1) {
-                    last_tick = Instant::now();
+                if t.clock.now().saturating_duration_since(last_tick) >= Duration::from_secs(1) {
+                    last_tick = t.clock.now();
                     t.on_tick();
                 }
                 // Whatever woke us, read the journal if it hasn't been for IDLE: with no
-                // notification at all the timeout below is what wakes us.
+                // notification at all the timeout below is what wakes us. A stop's wake is a
+                // timeout too, and the loop's condition ends it.
                 t.on_wake();
                 let ev = match rx.recv_timeout(IDLE) {
                     Ok(Ok(e)) => e,
@@ -992,18 +1033,26 @@ fn spawn_loop(
                 let mut journal = false;
                 let mut companions: Vec<CompanionKind> = vec![];
                 let mut nav_route = false;
+                // The files handled, for a world's settle (none in the installed app).
+                let mut names: Vec<String> = vec![];
                 let mut classify = |paths: &[PathBuf]| {
                     for p in paths {
                         let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
-                        if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
-                            status = true;
-                            nav_route |= name == "NavRoute.json";
-                        } else if let Some(k) = CompanionKind::from_file_name(&name) {
-                            if !companions.contains(&k) {
-                                companions.push(k);
+                        match watched(&name) {
+                            Some(Watched::Status) => {
+                                status = true;
+                                nav_route |= name == "NavRoute.json";
                             }
-                        } else if is_journal(p) {
-                            journal = true;
+                            Some(Watched::Companion(k)) => {
+                                if !companions.contains(&k) {
+                                    companions.push(k);
+                                }
+                            }
+                            Some(Watched::Journal) => journal = true,
+                            None => continue,
+                        }
+                        if files.is_some() && !names.contains(&name) {
+                            names.push(name);
                         }
                     }
                 };
@@ -1011,10 +1060,12 @@ fn spawn_loop(
                 // Coalesce a burst of notifications, but not so long that the journal waits for it.
                 while let Ok(Ok(e)) = rx.try_recv() {
                     classify(&e.paths);
-                    if t.last_read.elapsed() >= IDLE {
+                    if t.clock.now().saturating_duration_since(t.last_read) >= IDLE {
                         break;
                     }
                 }
+                // Read before the files are, so a write landing meanwhile isn't counted as read.
+                let seen = files.as_ref().map(|f| f.seen(&names)).unwrap_or_default();
                 if status {
                     t.on_status();
                 }
@@ -1026,6 +1077,9 @@ fn spawn_loop(
                 }
                 if nav_route {
                     t.eddn_nav_route();
+                }
+                if let Some(f) = &files {
+                    f.handled(seen);
                 }
             }
             t.flush_eddn();
@@ -1042,7 +1096,7 @@ pub fn start(
     log: impl Fn(&str) + Send + 'static,
     callouts: Option<Callouts>,
 ) -> Result<Pipeline> {
-    start_with_eddn(dir, hub, db, log, None, None, callouts)
+    start_with_eddn(dir, hub, db, log, None, None, callouts, None)
 }
 
 /// The user's EDDN switch (`[eddn] enabled`, Settings → Data sharing), read by the feed on every
@@ -1058,16 +1112,21 @@ pub fn eddn_test(cfg: &crate::config::Config) -> bool {
 
 /// The EDDN feed. It runs even while sharing is off, so the header, commander and location are
 /// right the moment it's switched on; off, it queues nothing and its worker posts nothing. A
-/// feed that can't start is logged and left out.
-pub fn eddn_feed(cfg: &crate::config::Config, data_dir: &Path) -> Option<astromech_eddn::Feed> {
+/// feed that can't start is logged and left out. `transport` is the session's
+/// ([`crate::app::Http::eddn`]).
+pub fn eddn_feed(
+    cfg: &crate::config::Config,
+    data_dir: &Path,
+    clock: Arc<dyn Clock>,
+    transport: Box<dyn astromech_eddn::Transport + Send>,
+) -> Option<astromech_eddn::Feed> {
     let test = eddn_test(cfg);
     let version = env!("CARGO_PKG_VERSION");
     let software = astromech_eddn::Software { name: "astromech".into(), version: version.into() };
-    let transport = astromech_eddn::HttpTransport::new(astromech_eddn::UPLOAD_URL, &format!("astromech/{version}"));
     let db = data_dir.join(astromech_eddn::DB_FILE);
     let sharing = EDDN_SHARING.clone();
     let on = sharing.load(Ordering::SeqCst);
-    match astromech_eddn::Feed::start(&db, software, test, Box::new(transport), sharing, crate::logging::log) {
+    match astromech_eddn::Feed::start(&db, software, test, transport, sharing, clock, crate::logging::log) {
         Ok(f) => {
             let state = if on { "sharing live data" } else { "off (Settings → Data sharing)" };
             crate::logging::log(&format!("EDDN: {state}{}", if test { ", test schemas" } else { "" }));
@@ -1087,14 +1146,18 @@ pub static EDSM: std::sync::LazyLock<Arc<astromech_eddn::edsm::Switch>> = std::s
 
 /// The EDSM uploader. Like EDDN's feed it runs while sharing is off, so the commander, system
 /// and ship are right the moment it's switched on. One that can't start is logged and left out.
-pub fn edsm_uploader(data_dir: &Path) -> Option<astromech_eddn::edsm::Uploader> {
+/// `api` is the session's ([`crate::app::Http::edsm`]).
+pub fn edsm_uploader(
+    data_dir: &Path,
+    clock: Arc<dyn Clock>,
+    api: Box<dyn astromech_eddn::edsm::api::Api>,
+) -> Option<astromech_eddn::edsm::Uploader> {
     use astromech_eddn::edsm;
     let version = env!("CARGO_PKG_VERSION");
     let software = astromech_eddn::Software { name: "astromech".into(), version: version.into() };
-    let api = edsm::api::HttpApi::new(&format!("astromech/{version}"));
     let db = data_dir.join(edsm::DB_FILE);
     let on = EDSM.get().is_some();
-    match edsm::Uploader::start(&db, software, Box::new(api), EDSM.clone(), crate::logging::log) {
+    match edsm::Uploader::start(&db, software, api, EDSM.clone(), clock, crate::logging::log) {
         Ok(u) => {
             crate::logging::log(if on {
                 "EDSM: uploading live journal"
@@ -1110,7 +1173,9 @@ pub fn edsm_uploader(data_dir: &Path) -> Option<astromech_eddn::edsm::Uploader> 
     }
 }
 
-/// [`start`], also feeding EDDN and EDSM.
+/// [`start`], also feeding EDDN and EDSM. `files`: a world's file generations, published for
+/// each file handled ([`FileGens`]); None in the installed app.
+#[allow(clippy::too_many_arguments)]
 pub fn start_with_eddn(
     dir: &Path,
     hub: Arc<StateHub>,
@@ -1119,9 +1184,12 @@ pub fn start_with_eddn(
     eddn: Option<astromech_eddn::Feed>,
     edsm: Option<astromech_eddn::edsm::Uploader>,
     callouts: Option<Callouts>,
+    files: Option<Arc<FileGens>>,
 ) -> Result<Pipeline> {
-    let (tx, rx) = channel::<notify::Result<notify::Event>>();
-    let mut watcher = notify::recommended_watcher(tx).context("creating file watcher")?;
+    let clock = hub.clock().clone();
+    let (tx, rx) = clock.channel::<Event>();
+    let wake = tx.clone();
+    let mut watcher = crate::watch::watcher(tx, Some).context("creating file watcher")?;
     watcher.watch(dir, RecursiveMode::NonRecursive).with_context(|| format!("watching {}", dir.display()))?;
     let store = match db {
         Some(p) => Some(astromech_store::Store::open(p).with_context(|| format!("opening {}", p.display()))?),
@@ -1150,9 +1218,10 @@ pub fn start_with_eddn(
         live: true,
         caught_up: false,
         opened: Default::default(),
-        last_scan: Instant::now(),
-        last_read: Instant::now(),
+        last_scan: clock.now(),
+        last_read: clock.now(),
         status_seen: None,
+        clock,
         game_session: None,
         writing: None,
         retired: Default::default(),
@@ -1162,19 +1231,34 @@ pub fn start_with_eddn(
         not_written: Default::default(),
         header_check: local_header_check(),
     };
+    // The catch-up reads every file: what was written before it is handled.
+    let watching = files.as_ref().map(|f| (f.watch(), f.seen_all()));
     t.catch_up();
+    let watching = match (&files, watching) {
+        (Some(f), Some((w, seen))) => {
+            f.handled(seen);
+            Some(w)
+        }
+        _ => None,
+    };
     let stop = Arc::new(AtomicBool::new(false));
-    let thread = spawn_loop(t, rx, stop.clone())?;
-    Ok(Pipeline { _watcher: watcher, stop, thread: Some(thread), stats })
+    let thread = spawn_loop(t, rx, stop.clone(), files)?;
+    Ok(Pipeline { _watcher: watcher, stop, wake, thread: Some(thread), stats, _watching: watching })
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use std::io::Write;
 
     fn tailer(dir: &Path) -> (Tailer, Arc<StateHub>, Arc<std::sync::Mutex<Vec<String>>>) {
-        let hub = Arc::new(StateHub::new());
+        tailer_on(dir, Arc::new(astromech_proto::SystemClock))
+    }
+
+    /// [`tailer`] on `clock`.
+    fn tailer_on(dir: &Path, clock: Arc<dyn Clock>) -> (Tailer, Arc<StateHub>, Arc<std::sync::Mutex<Vec<String>>>) {
+        let hub = Arc::new(StateHub::with_clock(clock.clone()));
         let logs = Arc::new(std::sync::Mutex::new(vec![]));
         let l2 = logs.clone();
         let t = Tailer {
@@ -1192,9 +1276,10 @@ mod tests {
             live: true,
             caught_up: false,
             opened: Default::default(),
-            last_scan: Instant::now(),
-            last_read: Instant::now(),
+            last_scan: clock.now(),
+            last_read: clock.now(),
             status_seen: None,
+            clock,
             game_session: None,
             writing: None,
             retired: Default::default(),
@@ -1219,6 +1304,24 @@ mod tests {
         fn react(
             &self,
             input: &astromech_announce::Input,
+            g: &astromech_gamestate::GameState,
+        ) -> Option<astromech_announce::Callout> {
+            ScanEvery30s.react(input, g)
+        }
+    }
+
+    /// [`ScanRule`] with a 30 s cooldown.
+    struct ScanEvery30s;
+    impl astromech_announce::Rule for ScanEvery30s {
+        fn id(&self) -> &'static str {
+            "scan30"
+        }
+        fn cooldown(&self) -> Duration {
+            Duration::from_secs(30)
+        }
+        fn react(
+            &self,
+            input: &astromech_announce::Input,
             _: &astromech_gamestate::GameState,
         ) -> Option<astromech_announce::Callout> {
             use astromech_announce::*;
@@ -1232,6 +1335,145 @@ mod tests {
 
     fn scanned(ts: &str) -> String {
         format!("{{\"timestamp\":\"2026-10-16T{ts}Z\",\"event\":\"Scanned\",\"ScanType\":\"Cargo\"}}\r\n")
+    }
+
+    /// A manual clock at 2026-10-16T20:00:00Z.
+    fn evening() -> (Arc<astromech_proto::ManualClock>, Arc<dyn Clock>) {
+        let m = Arc::new(astromech_proto::ManualClock::at_unix(
+            chrono::DateTime::parse_from_rfc3339("2026-10-16T20:00:00Z").unwrap().timestamp(),
+        ));
+        let c: Arc<dyn Clock> = m.clone();
+        (m, c)
+    }
+
+    /// Journal freshness reads the pipeline's clock: a line stamped at its now is fresh, one
+    /// stamped two hours earlier isn't. The clock is weeks from the real time, so on the wall
+    /// clock neither would be.
+    #[test]
+    fn journal_freshness_is_on_the_clock() {
+        let (_, clock) = evening();
+        let d = tempfile::tempdir().unwrap();
+        let (t, _, _) = tailer_on(d.path(), clock);
+        let line = |ts: &str| format!(r#"{{"timestamp":"{ts}","event":"Music"}}"#);
+        assert!(line_is_fresh(&line("2026-10-16T20:00:00Z"), t.clock.now_s()));
+        assert!(!line_is_fresh(&line("2026-10-16T18:00:00Z"), t.clock.now_s()));
+    }
+
+    /// A callout cooldown runs on the pipeline's clock: a repeat within 30 s is held back, and
+    /// once the clock has moved 30 s the next one is said.
+    #[test]
+    fn a_callout_cooldown_runs_on_the_clock() {
+        let (manual, clock) = evening();
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("Journal.2026-10-16T195000.01.log");
+        std::fs::write(&p, scanned("19:50:00")).unwrap();
+        let (mut t, _, _) = tailer_on(d.path(), clock);
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(vec![Box::new(ScanEvery30s)], &Default::default()),
+            deliver: Box::new(move |rs| f2.lock().recover().extend(rs.into_iter().map(|r| r.text))),
+        });
+        t.catch_up();
+        let live = |t: &mut Tailer, ts: &str| {
+            let mut f = std::fs::OpenOptions::new().append(true).open(&p).unwrap();
+            write!(f, "{}", scanned(ts)).unwrap();
+            drop(f);
+            t.on_journal_activity();
+        };
+        live(&mut t, "20:00:00");
+        assert_eq!(fired.lock().recover().len(), 1);
+        live(&mut t, "20:00:00");
+        assert_eq!(fired.lock().recover().len(), 1, "a repeat within the cooldown");
+        manual.advance(Duration::from_secs(30));
+        live(&mut t, "20:00:30");
+        assert_eq!(fired.lock().recover().len(), 2, "said again once the clock passed the cooldown");
+    }
+
+    /// Dropping a pipeline whose thread is in a clock wait returns at once: the stop wakes the
+    /// wait, with no `advance`. Without the wake the drop would wait for an `advance` that never
+    /// comes; the guard fails the test instead of hanging it.
+    #[test]
+    fn dropping_a_pipeline_wakes_its_clock_wait() {
+        let (manual, clock) = evening();
+        let d = tempfile::tempdir().unwrap();
+        let hub = Arc::new(StateHub::with_clock(clock));
+        let pipe = start(d.path(), hub, None, |_| {}, None).unwrap();
+        // The loop is registered: this returns once it is parked in its `IDLE` wait.
+        manual.advance(Duration::ZERO);
+        let (done_tx, done) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            drop(pipe);
+            let _ = done_tx.send(());
+        });
+        // A guard against hanging, never how the test decides: the drop is expected at once.
+        #[allow(clippy::disallowed_methods)]
+        let dropped = done.recv_timeout(Duration::from_secs(30));
+        assert!(dropped.is_ok(), "the pipeline's drop waited for the clock");
+    }
+
+    /// A world's file generations: the catch-up publishes what was written before it, and the
+    /// loop publishes each file it is told of once it has handled it, parsed or not. A file it
+    /// ignores is never published (the world doesn't wait for it). The events here are sent by
+    /// the test; the real watcher sends its own too, which only publish again. While the loop
+    /// is held inside its handling of a write (in the callouts' delivery, which every Status.json
+    /// read reaches), that write isn't published yet.
+    #[test]
+    fn the_pipeline_publishes_the_generation_it_handled() {
+        let (_manual, clock) = evening();
+        let d = tempfile::tempdir().unwrap();
+        let files = Arc::new(FileGens::default());
+        let status = d.path().join("Status.json");
+        let write = |text: &'static str| files.write("Status.json", || std::fs::write(&status, text)).unwrap();
+        let g1 = write(r#"{"timestamp":"t","event":"Status","Flags":4}"#);
+        let hub = Arc::new(StateHub::with_clock(clock));
+        let hold = Arc::new(AtomicBool::new(false));
+        let (entered_tx, entered) = std::sync::mpsc::channel();
+        let (go_tx, go) = std::sync::mpsc::channel::<()>();
+        let h = hold.clone();
+        let callouts = Callouts {
+            engine: astromech_announce::Engine::new(vec![], &Default::default()),
+            deliver: Box::new(move |_| {
+                if h.load(Ordering::SeqCst) {
+                    entered_tx.send(()).unwrap();
+                    go.recv().unwrap();
+                }
+            }),
+        };
+        let pipe =
+            start_with_eddn(d.path(), hub.clone(), None, |_| {}, None, None, Some(callouts), Some(files.clone()))
+                .unwrap();
+        files.wait("Status.json", g1, Duration::ZERO).expect("the catch-up handled it");
+        assert_eq!(hub.snapshot().status_flags, 4);
+        let tell = |name: &str| {
+            let e = notify::Event::new(notify::EventKind::Any).add_path(d.path().join(name));
+            pipe.wake.send(Ok(e)).unwrap();
+        };
+        hold.store(true, Ordering::SeqCst);
+        let g2 = write(r#"{"timestamp":"t","event":"Status","Flags":8}"#);
+        tell("Status.json");
+        entered.recv().unwrap();
+        let early = files.wait("Status.json", g2, Duration::ZERO).is_ok();
+        // Let it go before asserting: a failed test must not leave the loop held.
+        hold.store(false, Ordering::SeqCst);
+        go_tx.send(()).unwrap();
+        assert!(!early, "published before it was handled");
+        files.wait("Status.json", g2, Duration::from_secs(30)).unwrap();
+        assert_eq!(hub.snapshot().status_flags, 8);
+        let g3 = write(r#"{"timestamp":"t","event":"Sta"#);
+        tell("Status.json");
+        files.wait("Status.json", g3, Duration::from_secs(30)).expect("a file that doesn't parse is handled too");
+        assert_eq!(hub.snapshot().status_flags, 8);
+        let ignored = files.write("notes.txt", || Ok(())).unwrap();
+        tell("notes.txt");
+        let g4 = write(r#"{"timestamp":"t","event":"Status","Flags":16}"#);
+        tell("Status.json");
+        files.wait("Status.json", g4, Duration::from_secs(30)).unwrap();
+        assert!(files.wait("notes.txt", ignored, Duration::ZERO).is_err(), "an ignored file isn't published");
+        assert!(!watches("notes.txt") && watches("Status.json") && watches("Market.json"));
+        assert!(watches("Journal.2026-10-16T195000.01.log"));
+        drop(pipe);
+        files.wait("notes.txt", ignored, Duration::ZERO).expect("with no pipeline watching, nothing is waited for");
     }
 
     #[test]
@@ -1468,9 +1710,9 @@ mod tests {
         std::fs::write(&j, format!("{}\n", session(&ts(120), "r1 "))).unwrap();
         let (mut t, hub, _) = tailer(d.path());
         t.catch_up();
-        let (_silent_watcher, rx) = std::sync::mpsc::channel();
+        let (_silent_watcher, rx) = t.clock.channel();
         let stop = Arc::new(AtomicBool::new(false));
-        let thread = spawn_loop(t, rx, stop.clone()).unwrap();
+        let thread = spawn_loop(t, rx, stop.clone(), None).unwrap();
         append(
             &j,
             r#"{"timestamp":"2026-10-16T11:30:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":8.5}"#,
@@ -1493,7 +1735,7 @@ mod tests {
         std::fs::write(&j, format!("{}\n", session(&ts(120), "r1 "))).unwrap();
         let (mut t, hub, _) = tailer(d.path());
         t.catch_up();
-        let (tx, rx) = std::sync::mpsc::channel();
+        let (tx, rx) = t.clock.channel();
         let flood_stop = Arc::new(AtomicBool::new(false));
         let (fs, other) = (flood_stop.clone(), d.path().join("Unrelated.txt"));
         let flood = std::thread::spawn(move || {
@@ -1506,7 +1748,7 @@ mod tests {
             }
         });
         let stop = Arc::new(AtomicBool::new(false));
-        let thread = spawn_loop(t, rx, stop.clone()).unwrap();
+        let thread = spawn_loop(t, rx, stop.clone(), None).unwrap();
         append(
             &j,
             r#"{"timestamp":"2026-10-16T11:30:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":8.5}"#,

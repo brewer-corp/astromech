@@ -15,7 +15,7 @@ vi.mock("../../lib/colonisation", async (orig) => ({
 }));
 
 const projects = projectsSample as unknown as Project[];
-// The recorded search around Sol for the sample site's list (astromech-market dump-trade).
+// The recorded search around Sol for the sample site's list (the real core's, in worlds/preview/sol).
 const recorded = (tradeSample as unknown as { list: ListPlan }).list;
 const sol = (tradeSample as unknown as { buy: BuySearch }).buy.here;
 const answer = (origin: string | null, plan: ListPlan = recorded): BuySearch => ({

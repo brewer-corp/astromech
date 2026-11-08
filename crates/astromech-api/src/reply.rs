@@ -75,6 +75,7 @@ impl<T, E: std::fmt::Display> From<Result<T, E>> for Answer<T> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use serde_json::json;

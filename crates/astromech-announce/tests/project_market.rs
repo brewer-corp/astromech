@@ -1,5 +1,6 @@
 //! Journal replay tests for the colonisation market line: on docking, how many of the projects'
 //! outstanding commodities this market has in stock, once per dock.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

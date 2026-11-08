@@ -31,7 +31,7 @@ describe("Route plotter range line", () => {
   it("follows a cargo change while the page is open", async () => {
     calls.setup.mockResolvedValue(asp);
     render(Plot, { to: TO, onfollow: () => {} });
-    expect(await screen.findByText(/Asp Explorer: 39\.87 ly a jump with a full tank, from/)).toBeTruthy();
+    expect(await screen.findByText(/Asp Explorer: 36\.48 ly a jump with a full tank, from/)).toBeTruthy();
 
     calls.setup.mockResolvedValue(laden);
     await vi.advanceTimersByTimeAsync(5000);
@@ -42,7 +42,7 @@ describe("Route plotter range line", () => {
     calls.setup.mockResolvedValueOnce(asp).mockResolvedValue(laden);
     calls.plot.mockResolvedValue({ plotted, view: VIEW });
     render(Plot, { to: TO, onfollow: () => {} });
-    await screen.findByText(/39\.87 ly a jump/);
+    await screen.findByText(/36\.48 ly a jump/);
     await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
     expect(await screen.findByText("Following Sol to Maia: 12 jumps · 452 ly · 2 refuel stops, at 31.20 ly a jump. Plotted by Spansh.")).toBeTruthy();
     expect(await screen.findByText(/31\.20 ly a jump with a full tank and 64 t of cargo/)).toBeTruthy();
@@ -58,7 +58,7 @@ describe("Route plotter, the route it replaced", () => {
     await followRoute("Engineer trip", "engineer trip", [{ system: "Kuk" }]);
     await followRoute("Sol to Maia", "exact plotter", [{ system: "Maia" }]);
     render(Plot, { to: TO, onfollow: () => {} });
-    await screen.findByText(/39\.87 ly a jump/);
+    await screen.findByText(/36\.48 ly a jump/);
     await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
     expect(await screen.findByText("Replaced Engineer trip.")).toBeTruthy();
     await fireEvent.click(screen.getByRole("button", { name: "Resume" }));
@@ -84,7 +84,7 @@ describe("Route plotter, where the route was plotted", () => {
     };
     calls.plot.mockResolvedValue({ plotted: fallback, view: VIEW });
     render(Plot, { to: TO, onfollow: () => {} });
-    await screen.findByText(/39\.87 ly a jump/);
+    await screen.findByText(/36\.48 ly a jump/);
     await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
     expect(await screen.findByText("Following Sol to Colonia: 128 jumps · 22,000 ly · 1 neutron boost, at 39.87 ly a jump. Plotted by Spansh.")).toBeTruthy();
     expect(screen.getByText("The neutron star file can't be read, so Spansh plotted this route: neutron star file is cut short (100 bytes)")).toBeTruthy();
@@ -95,7 +95,7 @@ describe("Route plotter, where the route was plotted", () => {
     const local: Plotted = { ...plotted, name: "Sol to Colonia", source: "neutron plotter (this PC)", jumps: 180, ly: 22000, neutrons: 149, refuels: 0, range: 39.87, local: true, fewest: false };
     calls.plot.mockResolvedValueOnce({ plotted: local, view: VIEW }).mockResolvedValueOnce({ plotted: { ...local, fewest: true }, view: VIEW });
     render(Plot, { to: TO, onfollow: () => {} });
-    await screen.findByText(/39\.87 ly a jump/);
+    await screen.findByText(/36\.48 ly a jump/);
     await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
     expect(await screen.findByText(/at 39\.87 ly a jump\. Plotted on this PC, near the fewest jumps\.$/)).toBeTruthy();
     await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));

@@ -75,6 +75,7 @@ fn climbs(url: &str) -> bool {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use base64::engine::general_purpose::URL_SAFE_NO_PAD as B64URL;

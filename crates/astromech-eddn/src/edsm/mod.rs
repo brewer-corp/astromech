@@ -199,6 +199,7 @@ impl Uploader {
         software: Software,
         api: Box<dyn Api>,
         switch: Arc<Switch>,
+        clock: Arc<dyn astromech_proto::Clock>,
         log: impl Fn(&str) + Send + Sync + 'static,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let log: Log = Arc::new(log);
@@ -211,10 +212,10 @@ impl Uploader {
             software,
             switch.clone(),
             discards.clone(),
-            Instant::now(),
+            clock.now(),
         );
         let worker_log = log.clone();
-        let worker = Worker::spawn(courier, "EDSM", move |m| worker_log(m))?;
+        let worker = Worker::spawn(courier, "EDSM", clock, move |m| worker_log(m))?;
         switch.set_waker(worker.waker());
         Ok(Self { worker: Some(worker), log, ..Self::new(outbox, switch, discards) })
     }
@@ -694,4 +695,5 @@ impl Pass for Courier {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests;

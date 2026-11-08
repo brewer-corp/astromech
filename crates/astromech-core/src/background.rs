@@ -52,14 +52,15 @@ pub struct Background<V> {
 }
 
 impl<V: Clone + Send + 'static> Background<V> {
-    /// `thread` names the lookup threads.
-    pub fn new(thread: &'static str) -> Self {
+    /// `thread` names the lookup threads; `clock` times the answers and failures (the
+    /// remote-data client's).
+    pub fn new(thread: &'static str, clock: Arc<dyn astromech_data::Clock>) -> Self {
         Self {
             thread,
             entries: Arc::default(),
             retry_after: RETRY_AFTER,
             keep_for: KEEP_FOR,
-            clock: Arc::new(Instant::now),
+            clock: Arc::new(move || clock.now()),
         }
     }
 
@@ -111,6 +112,7 @@ impl<V: Clone + Send + 'static> Background<V> {
 
     /// Wait for the lookup that is out for `key` to finish (tests).
     #[cfg(test)]
+    #[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
     pub(crate) fn settle(&self, key: &str) {
         let deadline = Instant::now() + Duration::from_secs(10);
         while matches!(self.entries.lock().recover().get(key), Some(Lookup::Pending)) {
@@ -121,6 +123,7 @@ impl<V: Clone + Send + 'static> Background<V> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use std::sync::atomic::{AtomicUsize, Ordering};
@@ -128,7 +131,7 @@ mod tests {
     /// A background whose clock the test moves, with the lookups it started counted.
     fn fake(start: Instant) -> (Background<u32>, Arc<Mutex<Instant>>) {
         let now = Arc::new(Mutex::new(start));
-        let mut b = Background::new("test-lookup");
+        let mut b = Background::new("test-lookup", Arc::new(astromech_data::SystemClock));
         let n2 = now.clone();
         b.set_clock(Arc::new(move || *n2.lock().recover()));
         (b, now)

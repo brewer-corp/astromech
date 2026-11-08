@@ -1,0 +1,20 @@
+# The browser preview's Sol lookups recorded for it (crates/astromech-core/tests/preview_fixtures.rs):
+# the same commander as worlds/preview/sol (its game folder), on the clock of the recording.
+#
+# Provenance: every spansh-*.json here is Spansh's public answer (no account, key or commander
+# sent), recorded on 7 Nov 2026 at about 21:00 UTC with `astromech-core --world worlds/preview/sol-nov
+# --record-net <file>`, by calling the window commands below; the requests sent are in net.json's
+# `sent` matches, and the recording held nothing redacted. EDSM's sphere lookup answered 503 at the
+# time, and is recorded so.
+# - spansh-hge-any.json and spansh-hge-populous.json: galaxy_nearby fed_composites (the Federation
+#   faction search, then its populous band), trimmed from 50 rows each to the first 6;
+# - spansh-black-market.json: stations_nearby black_market, the first 10 of 40 rows;
+# - spansh-module-5a-fsd.json: stations_nearby for a 5A Frame Shift Drive, the first 4 of 40 rows;
+# - spansh-ship-krait-mkii.json: stations_nearby for a Krait MkII, the first 5 of 40 rows;
+# - spansh-hotspots-painite-{1,5,6}-up.json: mining_hotspots painite (every ring with the ore, then
+#   the bands of 5+ and 6+ hotspots), whole.
+# Trimming removed whole rows from the end of a page (its farthest stations or systems) and nothing
+# else, and only to keep the files small (a station row lists every module and ship it sells); the
+# answers are otherwise as Spansh sent them, written without whitespace.
+[eddn]
+enabled = false

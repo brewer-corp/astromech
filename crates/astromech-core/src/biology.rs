@@ -61,7 +61,8 @@ pub struct SpanshBiology {
 impl SpanshBiology {
     /// `client`: the process's one remote-data client.
     pub fn new(client: Arc<Client>) -> Self {
-        Self { client, systems: crate::background::Background::new("known-biology") }
+        let clock = client.clock_in_use().clone();
+        Self { client, systems: crate::background::Background::new("known-biology", clock) }
     }
 }
 
@@ -149,6 +150,7 @@ pub fn view(game: &GameState, known: Option<&dyn KnownBiology>) -> Done<Biology>
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_data::{Cache, Request, Response, Transport, TransportError};

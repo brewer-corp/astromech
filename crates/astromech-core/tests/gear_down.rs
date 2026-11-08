@@ -1,5 +1,6 @@
 //! End-to-end: fake game backend writes Status.json (after 0–1000 ms, the S5 range) when the
 //! landing-gear key goes down; the real pipeline watches the folder with file notifications.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::actions::{Outcome, Runner, Verified};
 use astromech_core::assistant::{Assistant, Handled};
@@ -115,7 +116,12 @@ fn rig(flags: u64, delays: &[u64]) -> Rig {
     let pipe =
         astromech_core::pipeline::start(&journal, hub.clone(), Some(&dir.path().join("db.sqlite")), |_| {}, None)
             .unwrap();
-    let binds = Arc::new(RwLock::new(health::run_check(&bindings, Some(&dir.path().join("nogame")), false)));
+    let binds = Arc::new(RwLock::new(health::run_check(
+        &bindings,
+        Some(&dir.path().join("nogame")),
+        false,
+        &astromech_proto::SystemClock,
+    )));
     let speaker = Arc::new(RecordingSpeaker::default());
     let logs = Arc::new(std::sync::Mutex::new(Vec::<String>::new()));
     let l2 = logs.clone();

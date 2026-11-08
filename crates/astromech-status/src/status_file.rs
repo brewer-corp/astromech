@@ -98,6 +98,8 @@ pub fn read_status_retry(path: &Path, tries: u32) -> Option<StatusSnap> {
             return Some(s);
         }
         if i + 1 < tries {
+            // Real time: it retries a half-written file, and finishes on its own.
+            #[allow(clippy::disallowed_methods)]
             std::thread::sleep(std::time::Duration::from_millis(1));
         }
     }
@@ -141,6 +143,7 @@ pub fn latest_fileheader(dir: &Path) -> Option<GameBuild> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

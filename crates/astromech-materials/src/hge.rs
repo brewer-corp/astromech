@@ -272,6 +272,7 @@ pub fn here_from_lines<'a>(lines: impl IntoIterator<Item = &'a JournalLine>) -> 
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_journal::parse_line;

@@ -1,3 +1,5 @@
+#![allow(clippy::disallowed_methods)] // a spike, not the core
+
 use s5_status_latency::binds::{self, BindsDoc, StartPreset};
 use s5_status_latency::keys::{self, KeyLookup, ScanKey};
 use std::path::PathBuf;

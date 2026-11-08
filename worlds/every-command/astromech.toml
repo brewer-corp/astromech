@@ -1,0 +1,18 @@
+# Every window command (crates/astromech-core/tests/every_window_command.rs): Elite is running and
+# in front, the commander docked at Abraham Lincoln in Sol in an Asp. The journal and Status.json
+# are hand-built in the shape the game writes; Key_Insert turns the lights on (the header's
+# reaction), so the voice tester's live run verifies. The microphone's two clips are gear-down's.
+#
+# net.json answers every request the commands make:
+# - latest.json and latest.json.sig: the project's real signed update feed, fetched from its public
+#   GitHub release on 7 Nov 2026 (the signature is checked against the built-in key); its zip,
+#   the speech models and the neutron star file are down (HTTP 503);
+# - EDSM's flight log: EDSM's real answer to this world's commander "Test" and its key, which is not
+#   a real one (secrets.json), recorded with --record-net (the key and commander are <redacted>);
+# - the lookups: recorded Spansh and Ardent Insight bodies already in the repository's fixtures,
+#   matched by URL and a part of the body sent; spansh-material-traders.json is the material
+#   trader page of crates/astromech-galaxy/tests/fixtures/spansh-services.json.
+[eddn]
+enabled = false
+[edsm]
+commander = "Test"

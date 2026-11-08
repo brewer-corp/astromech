@@ -3,6 +3,7 @@
 //! Everything is a pure function of time `t` (seconds since start), so every
 //! UI library renders the *same* frame for the same `t`, which keeps the
 //! screenshots and offscreen timings comparable. Nothing here touches the game.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 pub const ACCENT: [u8; 3] = [0xFF, 0x8C, 0x1A]; // Elite orange
 pub const ACCENT_DIM: [u8; 3] = [0x8A, 0x4A, 0x0C];

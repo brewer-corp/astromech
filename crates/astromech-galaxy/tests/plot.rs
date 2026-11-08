@@ -1,6 +1,7 @@
 //! Plotting neutron and exact routes for the current ship, on Spansh jobs recorded on 16 and
 //! 17 Oct 2026 (astromech-data's fixtures: Sol to Colonia by neutron, Sol to Maia exact). No
 //! test here touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_data::spansh::Polling;
 use astromech_data::{Body, Cache, Client, Limiter, Request, Response, Transport, TransportError};

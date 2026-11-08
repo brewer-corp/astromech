@@ -1,4 +1,5 @@
 //! Journal replay tests for the session summary (astromech-oo8y).
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

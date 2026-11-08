@@ -1,5 +1,6 @@
 //! Journal replay tests for the FSS signal callouts. The signal lines follow real journals
 //! (see `astromech_announce::signals` for sources).
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

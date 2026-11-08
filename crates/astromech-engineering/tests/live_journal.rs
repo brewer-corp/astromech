@@ -2,6 +2,7 @@
 //! `engineering_engineers`, and the material ledger behind build plans) must follow events
 //! appended to a journal the game still holds open, without a rebuild for events nothing reads.
 //! This drives `JournalCache` with the same readers and watched lines as the app window.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_engineering::{engineers, from_journal_dir, EngineerView, Fleet, FLEET_EVENTS};
 use astromech_journal::JournalCache;

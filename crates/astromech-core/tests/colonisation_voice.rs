@@ -3,6 +3,7 @@
 //! is left; and "where can I buy CMM composite for the depot" → the Colonisation page's Ardent
 //! lookup on the recorded answer around Sol (astromech-market's fixture, 16 Oct 2026). Nothing
 //! is pressed and no test touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::actions::{Outcome, Runner};
 use astromech_core::assistant::{Assistant, Handled};
@@ -68,6 +69,16 @@ struct Evening;
 impl Clock for Evening {
     fn now_s(&self) -> i64 {
         chrono::DateTime::parse_from_rfc3339("2026-10-16T21:00:00Z").unwrap().timestamp()
+    }
+    // A wall clock the test sets; the monotonic time and sleeps stay real.
+    fn now(&self) -> std::time::Instant {
+        std::time::Instant::now()
+    }
+    fn utc(&self) -> std::time::SystemTime {
+        std::time::UNIX_EPOCH + std::time::Duration::from_secs(self.now_s() as u64)
+    }
+    fn sleep(&self, d: std::time::Duration) {
+        std::thread::sleep(d)
     }
 }
 

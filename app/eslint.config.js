@@ -86,4 +86,17 @@ export default ts.config(
     plugins: { astromech: tests },
     rules: { "astromech/no-timer-wait": "error", "astromech/no-wall-clock": "error" },
   },
+  {
+    // The journeys and their harness too, and they wait on the page or the core, never on
+    // Playwright's timers (CONTRIBUTING.md, Tests: journeys).
+    files: ["journeys/**/*.ts"],
+    plugins: { astromech: tests },
+    languageOptions: { globals: { ...globals.node } },
+    rules: { "astromech/no-timer-wait": "error", "astromech/no-wall-clock": "error", "astromech/no-playwright-time": "error" },
+  },
+  {
+    // The harness installs and pauses the page's clock; journeys only run it (runFor).
+    files: ["journeys/harness.ts"],
+    rules: { "astromech/no-playwright-time": ["error", { clock: true }] },
+  },
 );

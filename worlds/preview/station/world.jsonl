@@ -1,0 +1,7 @@
+{"start": "2026-10-10T20:10:05Z"}
+{"game": "running"}
+{"journal": {"timestamp": "2026-10-10T20:10:06Z", "event": "Outfitting", "MarketID": 128000001, "StationName": "Test Orbital", "StarSystem": "Test System"}}
+{"file": "Outfitting.json", "from": "../../../crates/astromech-station/tests/fixtures/dock/Outfitting.json"}
+{"journal": {"timestamp": "2026-10-12T09:30:00Z", "event": "Outfitting", "MarketID": 128000002, "StationName": "Other Port", "StarSystem": "Far System"}}
+{"file": "Outfitting.json", "from": "../../../crates/astromech-station/tests/fixtures/dock/Outfitting-other.json"}
+{"mark": "seen"}

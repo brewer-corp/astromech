@@ -1,4 +1,5 @@
 //! Journal replay tests for the being-scanned callout.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_announce::*;
 use astromech_gamestate::GameState;

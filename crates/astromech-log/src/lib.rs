@@ -50,6 +50,7 @@ pub fn init(dir: &Path, name: &'static str, console: bool, redact: Redact) {
     init_with(dir, name, console, MAX_BYTES, redact);
 }
 
+#[allow(clippy::disallowed_methods, reason = "log lines and log files are stamped with real time, in every mode")]
 pub fn init_with(dir: &Path, name: &'static str, console: bool, max: u64, redact: Redact) {
     let _ = std::fs::create_dir_all(dir);
     prune_at_start(dir, name, SystemTime::now());
@@ -74,6 +75,7 @@ impl Sink {
         self.file = OpenOptions::new().create(true).append(true).open(&p).ok();
     }
 
+    #[allow(clippy::disallowed_methods, reason = "log lines and log files are stamped with real time, in every mode")]
     fn roll(&mut self) {
         self.file = None;
         let stamp = chrono::Local::now().format("%Y%m%d-%H%M%S%.3f");
@@ -140,6 +142,7 @@ fn prune_files(dir: &Path, name: &str, live_too: bool, keep: Duration, now: Syst
 }
 
 /// Log one line with a timestamp. Before [`init`], prints only.
+#[allow(clippy::disallowed_methods, reason = "log lines and log files are stamped with real time, in every mode")]
 pub fn log(s: &str) {
     let line = format!("{}  {s}", chrono::Local::now().format("%Y-%m-%d %H:%M:%S"));
     let mut g = sink().lock().unwrap_or_else(|e| e.into_inner());
@@ -150,6 +153,7 @@ pub fn log(s: &str) {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

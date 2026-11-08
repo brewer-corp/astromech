@@ -1,5 +1,6 @@
 //! The voice command tester: a typed phrase or a push-to-talk transcript shows its intent and
 //! keys with nothing pressed; only a live run presses, and it goes through the policy.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::actions::Runner;
 use astromech_core::assistant::{Assistant, Handled};
@@ -80,7 +81,12 @@ fn rig() -> Rig {
     let runner = Arc::new(Runner {
         policy: Policy::new(exec.clone(), PolicyConfig::default()),
         hub,
-        binds: Arc::new(RwLock::new(health::run_check(&bindings, Some(&dir.path().join("nogame")), false))),
+        binds: Arc::new(RwLock::new(health::run_check(
+            &bindings,
+            Some(&dir.path().join("nogame")),
+            false,
+            &astromech_proto::SystemClock,
+        ))),
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
@@ -313,7 +319,7 @@ fn typed_phrase_without_elite_running_still_shows_keys() {
     let mut cfg = Config::default();
     cfg.game.bindings_dir = write_binds(dir.path()).display().to_string();
     cfg.game.game_dir = dir.path().join("nogame").display().to_string();
-    let d = tester::dry_run_idle(&cfg, &dir.path().join("data"), "deploy landing gear");
+    let d = tester::dry_run_idle(&cfg, &dir.path().join("data"), "deploy landing gear", &astromech_proto::SystemClock);
     assert_eq!(d.intent.unwrap().command, "landing_gear.down");
     assert_eq!(d.keys.unwrap().key, "Key_L");
     assert_eq!(d.would, Would::Refused, "no game state: {}", d.message);
@@ -329,13 +335,13 @@ fn route_commands_are_described() {
     for (said, command, about) in
         [("next waypoint", "route.next", "clipboard"), ("clear route", "route.clear", "route")]
     {
-        let d = tester::dry_run_idle(&cfg, &data, said);
+        let d = tester::dry_run_idle(&cfg, &data, said, &astromech_proto::SystemClock);
         assert_eq!(d.intent.unwrap().command, command);
         assert_eq!(d.would, Would::Speak, "{said}: {}", d.message);
         assert!(d.message.contains(about), "{said}: {}", d.message);
     }
     // Paste presses keys, and only in the galaxy map.
-    let d = tester::dry_run_idle(&cfg, &data, "paste");
+    let d = tester::dry_run_idle(&cfg, &data, "paste", &astromech_proto::SystemClock);
     assert_eq!(d.intent.unwrap().command, "galaxy_map.paste");
     assert_eq!((d.would, d.message.as_str()), (Would::Refused, astromech_core::route::PASTE_REFUSED));
     let grammar = astromech_core::assistant::grammar();

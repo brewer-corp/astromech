@@ -1,0 +1,24 @@
+{
+ "exchanges": [
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/LHS%202435/commodity/name/gold/nearby/imports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-sell-gold-lhs2435.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/LHS%202435/commodity/name/silver/nearby/imports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-sell-silver-lhs2435.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/LHS%202435/commodity/name/palladium/nearby/imports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-sell-palladium-lhs2435.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/LHS%202435/commodity/name/tritium/nearby/imports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-sell-tritium-lhs2435.json"
+  },
+  {
+   "url": "https://api.ardent-insight.com/v2/system/name/LHS%202435/commodity/name/hydrogenfuel/nearby/imports",
+   "from": "../../../crates/astromech-market/tests/fixtures/ardent-sell-hydrogenfuel-lhs2435.json"
+  }
+ ]
+}

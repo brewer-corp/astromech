@@ -10,7 +10,7 @@
 
 use crate::Registry;
 use anyhow::{Context, Result};
-use astromech_proto::Origin;
+use astromech_proto::{Clock, Origin};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::io::{BufRead, BufReader, Read, Write};
@@ -34,6 +34,20 @@ pub struct Endpoint {
     pub token: String,
     pub pid: u32,
     pub version: String,
+}
+
+/// Where a core's control API answers: its port on 127.0.0.1 and the run's token. World mode
+/// prints it on stdout (`{"control": Contact, "app_dir": …}`), and its callers use [`call_to`].
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Contact {
+    pub port: u16,
+    pub token: String,
+}
+
+impl Endpoint {
+    pub fn contact(&self) -> Contact {
+        Contact { port: self.port, token: self.token.clone() }
+    }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -62,13 +76,14 @@ impl Request {
     }
 }
 
-fn token() -> String {
+/// `clock`'s time is mixed in with the OS-seeded hashers.
+fn token(clock: &dyn Clock) -> String {
     use std::hash::{BuildHasher, Hasher};
     // RandomState is seeded from the OS RNG; two of them give 128 bits.
     let mut s = String::new();
     for _ in 0..2 {
         let mut h = std::collections::hash_map::RandomState::new().build_hasher();
-        h.write_u128(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos());
+        h.write_u128(clock.utc().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos());
         s += &format!("{:016x}", h.finish());
     }
     s
@@ -88,12 +103,13 @@ impl Drop for Server {
     }
 }
 
-/// Listen on an ephemeral localhost port and publish it in `<app_dir>/core.json`.
-pub fn serve(app_dir: &Path, registry: Arc<Registry>) -> Result<Server> {
+/// Listen on an ephemeral localhost port and publish it in `<app_dir>/core.json`. The token's
+/// time is read on `clock`.
+pub fn serve(app_dir: &Path, registry: Arc<Registry>, clock: &dyn Clock) -> Result<Server> {
     let l = TcpListener::bind(("127.0.0.1", 0)).context("binding the local control port")?;
     let endpoint = Endpoint {
         port: l.local_addr()?.port(),
-        token: token(),
+        token: token(clock),
         pid: std::process::id(),
         version: env!("CARGO_PKG_VERSION").into(),
     };
@@ -122,19 +138,21 @@ fn handle(s: TcpStream, tok: &str, reg: &Registry) -> Result<()> {
     s.set_read_timeout(Some(Duration::from_secs(5)))?;
     let mut line = String::new();
     BufReader::new(s.try_clone()?).take(64 * 1024).read_line(&mut line)?;
-    let reply = match serde_json::from_str::<Request>(&line) {
-        Ok(r) if r.token == tok => reg.dispatch(&r, &|v| {
+    let (reply, after) = match serde_json::from_str::<Request>(&line) {
+        Ok(r) if r.token == tok => reg.dispatch_then(&r, &|v| {
             let _ = send(&s, &json!({ "progress": v }));
         }),
-        Ok(_) => Err("bad token".into()),
-        Err(e) => Err(format!("bad request: {e}")),
+        Ok(_) => (Err("bad token".into()), Default::default()),
+        Err(e) => (Err(format!("bad request: {e}")), Default::default()),
     };
     let reply = match reply {
         Ok(value) => json!({"ok": true, "value": value}),
         Err(error) => json!({"ok": false, "error": error}),
     };
-    send(&s, &reply)?;
-    Ok(())
+    let sent = send(&s, &reply);
+    // The reply is out: what would cut it off (quit ending the process) runs only now.
+    after.run();
+    Ok(sent?)
 }
 
 pub fn read_endpoint(app_dir: &Path) -> Option<Endpoint> {
@@ -147,15 +165,25 @@ pub fn read_endpoint(app_dir: &Path) -> Option<Endpoint> {
 /// the connection drops.
 pub fn call(
     app_dir: &Path,
-    mut req: Request,
+    req: Request,
     timeout: Option<Duration>,
     on_progress: &mut dyn FnMut(Value),
 ) -> Result<Value, String> {
     let ep = read_endpoint(app_dir).ok_or("the core is not running")?;
-    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
+    call_to(&ep.contact(), req, timeout, on_progress)
+}
+
+/// [`call`] to the core at `to`, without reading `core.json`.
+pub fn call_to(
+    to: &Contact,
+    mut req: Request,
+    timeout: Option<Duration>,
+    on_progress: &mut dyn FnMut(Value),
+) -> Result<Value, String> {
+    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], to.port));
     let s = TcpStream::connect_timeout(&addr, CONNECT).map_err(|e| format!("connecting to the core: {e}"))?;
     s.set_read_timeout(timeout).map_err(|e| e.to_string())?;
-    req.token = ep.token;
+    req.token = to.token.clone();
     let line = serde_json::to_string(&req).map_err(|e| e.to_string())?;
     (&s).write_all(format!("{line}\n").as_bytes()).map_err(|e| format!("sending to the core: {e}"))?;
     let mut lines = BufReader::new(s).lines();
@@ -203,11 +231,26 @@ pub fn call_window(
     args: Option<Value>,
     on_progress: &mut dyn FnMut(Value),
 ) -> Result<Value, String> {
-    let timeout = (cmd == "status").then_some(SHORT);
-    call(app_dir, window_request(cmd, args), timeout, on_progress)
+    call(app_dir, window_request(cmd, args), window_timeout(cmd), on_progress)
+}
+
+/// [`call_window`] to the core at `to`, without reading `core.json`.
+pub fn call_window_to(
+    to: &Contact,
+    cmd: &str,
+    args: Option<Value>,
+    on_progress: &mut dyn FnMut(Value),
+) -> Result<Value, String> {
+    call_to(to, window_request(cmd, args), window_timeout(cmd), on_progress)
+}
+
+/// The read timeout of [`call_window`]: none, except `status`'s [`SHORT`].
+fn window_timeout(cmd: &str) -> Option<Duration> {
+    (cmd == "status").then_some(SHORT)
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::Exposure;
@@ -221,7 +264,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let mut reg = Registry::new();
         reg.add("open_window", Exposure::Local, |r, _| Ok(json!({"ok": true, "route": r.route})));
-        let srv = serve(d.path(), Arc::new(reg)).unwrap();
+        let srv = serve(d.path(), Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         // The handler's reply is the value, and the request's fields reach it.
         let v = call_short(d.path(), "open_window", Some("settings")).unwrap();
         assert_eq!(v, json!({"ok": true, "route": "settings"}));
@@ -274,7 +317,7 @@ mod tests {
                 .map_err(|_| "the progress line never reached the client".to_string())?;
             Ok(json!("done"))
         });
-        let _srv = serve(d.path(), Arc::new(reg)).unwrap();
+        let _srv = serve(d.path(), Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         let mut got = vec![];
         let v = call(d.path(), Request::new("job"), None, &mut |p| {
             got.push(p);
@@ -282,6 +325,49 @@ mod tests {
         });
         assert_eq!(v, Ok(json!("done")));
         assert_eq!(got, vec![json!("halfway")]);
+    }
+
+    /// An effect the handler defers with `after_reply` runs only once the reply is sent: it
+    /// waits for the client to have read the reply, which a hook run before the reply never sees
+    /// (the guard then fails the call), as `quit` ending the process would cut the reply off.
+    #[test]
+    fn an_after_reply_effect_runs_once_the_reply_is_written() {
+        let d = tempfile::tempdir().unwrap();
+        let (read_tx, read_rx) = channel::<()>();
+        let read_rx = Arc::new(Mutex::new(read_rx));
+        let (ran_tx, ran_rx) = channel::<bool>();
+        let ran_tx = Mutex::new(ran_tx);
+        let mut reg = Registry::new();
+        reg.add("quit", Exposure::Local, move |_, call| {
+            let (seen, ran) = (read_rx.clone(), crate::lock(&ran_tx).clone());
+            call.after_reply(move || {
+                let read = crate::lock(&seen).recv_timeout(Duration::from_secs(60)).is_ok();
+                let _ = ran.send(read);
+            });
+            Ok(json!("bye"))
+        });
+        let _srv = serve(d.path(), Arc::new(reg), &astromech_proto::SystemClock).unwrap();
+        assert_eq!(call_short(d.path(), "quit", None), Ok(json!("bye")));
+        read_tx.send(()).unwrap();
+        assert!(ran_rx.recv().unwrap(), "the effect ran before the client had the reply");
+    }
+
+    /// In-process, the effect runs as dispatch returns, after the handler's reply is made.
+    #[test]
+    fn dispatch_runs_the_after_reply_effects_before_it_returns() {
+        let ran = Arc::new(Mutex::new(vec![]));
+        let mut reg = Registry::new();
+        let r = ran.clone();
+        reg.add("twice", Exposure::Window, move |_, call| {
+            for n in [1, 2] {
+                let r = r.clone();
+                call.after_reply(move || crate::lock(&r).push(n));
+            }
+            assert!(crate::lock(&r).is_empty(), "nothing runs before the reply");
+            Ok(json!("done"))
+        });
+        assert_eq!(reg.dispatch(&Request::new("twice"), &|_| {}), Ok(json!("done")));
+        assert_eq!(*crate::lock(&ran), vec![1, 2]);
     }
 
     /// Opened once, wakes every waiter.
@@ -313,7 +399,7 @@ mod tests {
             g.wait();
             Ok(json!("plotted"))
         });
-        let _srv = serve(d.path(), Arc::new(reg)).unwrap();
+        let _srv = serve(d.path(), Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         // The patient client is waiting inside the handler before the impatient one calls.
         let dir = d.path().to_path_buf();
         let patient = std::thread::spawn(move || call(&dir, Request::new("plot"), None, &mut no_progress));
@@ -336,7 +422,7 @@ mod tests {
         });
         reg.add("quit", Exposure::Local, |_, _| Ok(json!("bye")));
         reg.add("fail", Exposure::Window, |_, _| Err("no journal".into()));
-        let _srv = serve(d.path(), Arc::new(reg)).unwrap();
+        let _srv = serve(d.path(), Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         let mut got = vec![];
         let v = call_window(d.path(), "echo", Some(json!({"within_ly": 20})), &mut |p| got.push(p)).unwrap();
         assert_eq!(v, json!({"args": {"within_ly": 20}, "text": null, "origin": "app_window"}));

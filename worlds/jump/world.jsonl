@@ -1,0 +1,5 @@
+{"start": "2026-11-07T12:00:00Z"}
+{"game": "running"}
+{"mark": "running"}
+{"journal": { "timestamp":"2026-11-07T12:00:30Z", "event":"FSDJump", "StarSystem":"Alpha Centauri", "SystemAddress":1458376315610, "StarPos":[3.03125,-0.09375,3.15625], "Body":"Alpha Centauri", "BodyType":"Star", "JumpDist":4.38, "FuelUsed":0.4, "FuelLevel":31.6 }}
+{"mark": "jumped"}

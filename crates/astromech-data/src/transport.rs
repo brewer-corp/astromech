@@ -82,6 +82,7 @@ pub struct HttpTransport {
 }
 
 impl HttpTransport {
+    #[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
     pub fn new() -> Self {
         HttpTransport {
             agent: ureq::AgentBuilder::new()
@@ -153,6 +154,7 @@ pub fn encode_segment(s: &str) -> String {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

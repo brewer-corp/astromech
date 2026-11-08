@@ -62,6 +62,7 @@ fn fixture_dir() -> std::path::PathBuf {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_materials::catalog;

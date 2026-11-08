@@ -4,6 +4,7 @@
 //! On Windows sherpa-onnx and onnxruntime are linked statically into this exe (the
 //! static-MT prebuilt libraries), so it needs no DLLs besides Windows' own. The main tool
 //! starts it from the folder it was unpacked to. It never touches input devices or the game.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 use s79_common::proto::{Request, Response};
 use sherpa_onnx::{

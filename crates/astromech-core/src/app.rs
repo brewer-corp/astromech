@@ -14,13 +14,14 @@ use crate::update::{self, ApplyWhen, Status as UpStatus};
 use anyhow::Result;
 use astromech_api::reply::{Answer, Done, Nothing};
 use astromech_api::{control, Exposure, Recover, Registry, Request};
+use astromech_proto::{Clock, SystemClock};
 use astromech_store::Paths;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use ts_rs::TS;
 
 #[derive(Debug, Clone, Default)]
@@ -171,6 +172,46 @@ pub type ProcessList = Arc<dyn Fn() -> Vec<String> + Send + Sync>;
 pub type Clipboard = Arc<dyn Fn(&str) -> Result<(), String> + Send + Sync>;
 /// Makes the process's one remote-data client, its cache in the data folder it is given.
 pub type RemoteClient = Arc<dyn Fn(&Path) -> Arc<astromech_data::Client> + Send + Sync>;
+/// Opens (or focuses) the app window at a page.
+pub type AppWindow = Arc<dyn Fn(Option<&str>) -> Result<(), String> + Send + Sync>;
+/// Registers a mode's own commands beside the core's ([`Core::commands`]).
+pub type MoreCommands = Arc<dyn Fn(&Arc<Core>, &mut Registry) + Send + Sync>;
+/// Makes EDDN's upload transport (one per session's feed).
+pub type EddnTransport = Arc<dyn Fn() -> Box<dyn astromech_eddn::Transport + Send> + Send + Sync>;
+/// Makes EDSM's API, giving up on a request after the timeout it is made with.
+pub type EdsmApi = Arc<dyn Fn(Duration) -> Box<dyn astromech_eddn::edsm::api::Api> + Send + Sync>;
+/// The URL a download is fetched from, given its real URL.
+pub type Downloads = Arc<dyn Fn(&str) -> String + Send + Sync>;
+
+/// The HTTP the core makes outside its remote-data client ([`Boundaries::remote`]).
+#[derive(Clone)]
+pub struct Http {
+    /// EDDN's upload.
+    pub eddn: EddnTransport,
+    /// EDSM's API: the journal upload and the flight log.
+    pub edsm: EdsmApi,
+    /// Where each download is fetched from (the update feed and zip, the speech models, the
+    /// neutron star file): its own URL in the installed app, a world's replay server in a world.
+    pub downloads: Downloads,
+    /// Whether the downloads take a proxy from `ALL_PROXY`, `HTTPS_PROXY` or `HTTP_PROXY`: yes
+    /// in the installed app; never in a world, whose replay server is on 127.0.0.1 (ureq 2
+    /// ignores `NO_PROXY`, so a proxy would carry the request off the machine).
+    pub proxy_from_env: bool,
+}
+
+impl Http {
+    /// The installed app's: real HTTP to the real URLs, with today's agents and timeouts.
+    pub fn real() -> Self {
+        let ua = format!("astromech/{}", env!("CARGO_PKG_VERSION"));
+        let edsm_ua = ua.clone();
+        Self {
+            eddn: Arc::new(move || Box::new(astromech_eddn::HttpTransport::new(astromech_eddn::UPLOAD_URL, &ua))),
+            edsm: Arc::new(move |t| Box::new(astromech_eddn::edsm::api::HttpApi::with_timeout(&edsm_ua, t))),
+            downloads: Arc::new(|url: &str| url.to_string()),
+            proxy_from_env: true,
+        }
+    }
+}
 
 /// What the core reaches outside the process through, given to [`assemble`]: the installed app
 /// passes [`Boundaries::real`], and tests and world mode pass their own.
@@ -192,14 +233,34 @@ pub struct Boundaries {
     pub autostart: Arc<dyn crate::autostart::Autostart>,
     /// The remote-data client for the data folder the config names.
     pub remote: RemoteClient,
+    /// EDDN's upload, EDSM's API and the downloads.
+    pub http: Http,
+    /// Commands only this mode has: world mode's `world_*` ([`crate::world`]). None for the
+    /// installed app.
+    pub more_commands: Option<MoreCommands>,
+    /// The time and the behaviour timers' waits (`astromech_proto::clock`): the system's for the
+    /// installed app, a manual clock in a world. `remote` runs on the same one.
+    pub clock: Arc<dyn Clock>,
+    /// What a world waits on to know the core has consumed a step ([`crate::world::Settle`]):
+    /// the pipeline's file generations, the session events and the game watch's gate. None for
+    /// the installed app.
+    pub settle: Option<Arc<crate::world::Settle>>,
+    /// The session's devices ([`session::Io`]): the platform (key presses and the foreground
+    /// window), the control source (push-to-talk, the kill switch and the paste button), the
+    /// microphone, the speech worker (speech-to-text, and the speaker for sessions and
+    /// Settings' preview) and the controllers connected, for the binds check and the keybinds
+    /// pages.
+    pub io: session::Io,
     /// The tray and the window.
     pub ui: Arc<dyn Ui>,
 }
 
 impl Boundaries {
     /// The installed app's: the real processes, Explorer, the clipboard, toasts, the OS keyring,
-    /// the Run key and HTTP, over `paths`, and no UI ([`Headless`]) until the host gives its own.
+    /// the Run key, HTTP, the system clock and the real devices, over `paths`, and no UI
+    /// ([`Headless`]) until the host gives its own.
     pub fn real(paths: Paths) -> Self {
+        let exe_dir = paths.exe_dir().to_path_buf();
         Self {
             paths,
             processes: Arc::new(gamewatch::process_names),
@@ -209,6 +270,11 @@ impl Boundaries {
             secrets: Arc::new(astromech_store::secrets::OsKeyring::new()),
             autostart: Arc::new(crate::autostart::RunKey),
             remote: Arc::new(remote_client),
+            http: Http::real(),
+            more_commands: None,
+            clock: Arc::new(SystemClock),
+            settle: None,
+            io: session::Io::real(),
             ui: Arc::new(Headless::default()),
         }
     }
@@ -291,30 +357,44 @@ pub struct Core {
     pub opener: Arc<dyn Opener>,
     pub notifier: Arc<dyn crate::callouts::Notifier>,
     pub autostart: Arc<dyn crate::autostart::Autostart>,
+    /// [`Boundaries::http`].
+    pub http: Http,
+    window: AppWindow,
+    more_commands: Option<MoreCommands>,
     /// The route being followed (docs/PLOTTING.md). The core owns it, not a session, so the
     /// window can set one while Elite isn't running.
     pub route: Arc<crate::route::Desk>,
     /// The command layer's state (keybinds, journal caches), read by the window's commands.
     pub api: Arc<astromech_api::State>,
+    /// [`Boundaries::clock`].
+    pub clock: Arc<dyn Clock>,
+    /// [`Boundaries::settle`].
+    pub settle: Option<Arc<crate::world::Settle>>,
+    /// [`Boundaries::io`].
+    pub io: session::Io,
 }
 
 /// The command layer's state over `core`'s live config: its folders are read on every call,
 /// so a `set_folders` applies at once. `data_dir` is fixed for the process, and with it the
 /// process's one remote-data client (`remote`, its cache in `data_dir`) and the star map, whose
 /// preload is the bundled `starmap.db` next to this exe. `open_external` opens with `opener`,
-/// and may open folders under the app and log folders too.
+/// and may open folders under the app and log folders too. The neutron star file comes from
+/// where `downloads` sends its release folder.
 fn api_state(
     core: std::sync::Weak<Core>,
     paths: &Paths,
     data_dir: PathBuf,
     remote: Arc<astromech_data::Client>,
     opener: Arc<dyn Opener>,
+    http: &Http,
 ) -> astromech_api::State {
     let preload = std::env::current_exe().ok().and_then(|exe| astromech_api::preload_beside(&exe));
     let folders = move || core.upgrade().map(|c| api_folders(&c.cfg(), &c.paths)).unwrap_or_default();
     astromech_api::State::new(data_dir, remote, preload, folders)
         .openable(vec![paths.app_dir().to_path_buf(), paths.log_dir()])
         .with_opener(move |t| opener.open(t))
+        .with_neutron_url(&(http.downloads)(astromech_galaxy::neutron::RELEASE_URL))
+        .neutron_proxy_from_env(http.proxy_from_env)
 }
 
 /// The process's one remote-data client, its cache in `data_dir`.
@@ -365,8 +445,8 @@ impl Core {
     fn install_config(&self, mut c: Config) {
         c.actions.dry_run |= self.opts.session.dry_run;
         let data_dir = c.data_dir(&self.paths);
-        apply_eddn_switch(&c, &data_dir);
-        apply_edsm_switch(&c, &data_dir, self.secrets.as_ref());
+        apply_eddn_switch(&c, &data_dir, &*self.clock);
+        apply_edsm_switch(&c, &data_dir, self.secrets.as_ref(), &*self.clock);
         // Under the config lock, so concurrent edits re-point in the order they saved.
         self.follow_history(&c);
         *self.cfg.write().recover() = c;
@@ -417,7 +497,7 @@ impl Core {
 
     /// The tray's one status line (also its tooltip, under "astromech").
     pub fn status_line(&self) -> String {
-        self.status_line_for(TESTER.armed(Instant::now()))
+        self.status_line_for(TESTER.armed(self.clock.now()))
     }
 
     /// The tray status. While the voice tester's test mode is on, push-to-talk does nothing in the
@@ -521,6 +601,7 @@ impl Core {
             log_dir: &log_dir,
             config: Some(&self.config_path),
             status: serde_json::to_string_pretty(&self.status_json()).unwrap_or_default(),
+            clock: &*self.clock,
         })?;
         log(&format!("diagnostics saved: {}", p.display()));
         if self.crash.lock().recover().take().is_some() {
@@ -544,7 +625,19 @@ impl Core {
         self.notify();
     }
 
+    /// Start a session (the game watch's thread for it). A world is told when it has ended,
+    /// whether the session started, failed or was already there.
     fn activate(self: &Arc<Self>, why: &str) {
+        if let Some(s) = &self.settle {
+            s.sessions.started();
+        }
+        self.start_session(why);
+        if let Some(s) = &self.settle {
+            s.sessions.ended();
+        }
+    }
+
+    fn start_session(self: &Arc<Self>, why: &str) {
         if self.active() || self.starting.swap(true, Ordering::SeqCst) {
             return;
         }
@@ -553,17 +646,31 @@ impl Core {
         // new preview Kokoro can load while the session does.)
         self.preview.take();
         self.notify();
-        let t0 = Instant::now();
+        let t0 = self.clock.now();
         let cfg = self.cfg();
-        let r =
-            Session::start(&cfg, &self.paths, &self.opts.session, self.route.clone(), &self.api, self.notifier.clone())
-                .and_then(|mut s| {
-                    s.start_buttons(&cfg, &self.paths, &self.opts.session)?;
-                    Ok(s)
-                });
+        let r = Session::start(
+            &cfg,
+            &self.paths,
+            &self.opts.session,
+            self.route.clone(),
+            &self.api,
+            self.notifier.clone(),
+            self.clock.clone(),
+            self.settle.as_ref().map(|s| s.files.clone()),
+            &self.http,
+            &self.io,
+        )
+        .and_then(|mut s| {
+            s.start_buttons(&cfg, &self.paths, &self.opts.session)?;
+            Ok(s)
+        });
         match r {
             Ok(s) => {
-                log(&format!("active in {} ms: {}", t0.elapsed().as_millis(), s.voice));
+                log(&format!(
+                    "active in {} ms: {}",
+                    self.clock.now().saturating_duration_since(t0).as_millis(),
+                    s.voice
+                ));
                 *self.voice.lock().recover() = s.voice.clone();
                 *self.session.lock().recover() = Some(s);
                 // A voice saved in Settings while the session loaded: use it now.
@@ -585,7 +692,7 @@ impl Core {
         self.notify();
     }
 
-    fn deactivate(&self, why: &str) {
+    pub(crate) fn deactivate(&self, why: &str) {
         if !self.starting.load(Ordering::SeqCst) {
             *self.voice.lock().recover() = "voice not loaded".into();
         }
@@ -636,14 +743,15 @@ impl Core {
             }
         };
         log(if manual { "update: checking (requested)" } else { "update: checking" });
-        let settings = self.cfg().update;
-        match update::fetch_and_verify(&settings, &pk) {
+        let mut settings = self.cfg().update;
+        settings.feed = (self.http.downloads)(&update::feed_url(&settings));
+        match update::fetch_and_verify(&settings, &pk, self.http.proxy_from_env) {
             Ok((m, _)) => {
                 let installed = update::installed_version();
                 self.set_update(|h| {
                     h.snap.latest = Some(m.version.clone());
                     h.snap.notes = m.notes.clone();
-                    h.snap.last_check = Some(chrono::Utc::now().to_rfc3339());
+                    h.snap.last_check = Some(chrono::DateTime::<chrono::Utc>::from(self.clock.utc()).to_rfc3339());
                     h.snap.installed = installed.into();
                 });
                 if !update::newer(&m.version, installed) {
@@ -665,7 +773,8 @@ impl Core {
                 }
                 self.set_update(|h| h.snap.status = UpStatus::Downloading);
                 let work = self.paths.app_dir().join("updates");
-                match update::stage(&m, &work, |p| log(&format!("update: {p}"))) {
+                let zip = (self.http.downloads)(&update::zip_url(&m));
+                match update::stage(&m, &work, &zip, self.http.proxy_from_env, |p| log(&format!("update: {p}"))) {
                     Ok(payload) => {
                         self.set_update(|h| {
                             h.payload = Some(payload);
@@ -689,7 +798,7 @@ impl Core {
                 self.set_update(|h| {
                     h.snap.status = UpStatus::Error;
                     h.snap.error = Some(format!("{e:#}"));
-                    h.snap.last_check = Some(chrono::Utc::now().to_rfc3339());
+                    h.snap.last_check = Some(chrono::DateTime::<chrono::Utc>::from(self.clock.utc()).to_rfc3339());
                 });
                 log(&format!("update: check failed: {e:#}"));
             }
@@ -728,8 +837,9 @@ impl Core {
                 log("update: helper started; quitting so files can be replaced");
                 // Quit a moment later, so whoever asked (the window) still gets this reply.
                 let ui = self.ui.clone();
+                let clock = self.clock.clone();
                 std::thread::spawn(move || {
-                    std::thread::sleep(Duration::from_millis(300));
+                    clock.sleep(Duration::from_millis(300));
                     ui.quit();
                 });
                 Answer::ok(Nothing {})
@@ -815,7 +925,7 @@ impl Core {
             log(if k.is_empty() { "EDSM: API key removed" } else { "EDSM: API key saved in the OS keyring" });
         }
         if edits.is_empty() {
-            apply_edsm_switch(&self.cfg(), &self.data_dir(), self.secrets.as_ref());
+            apply_edsm_switch(&self.cfg(), &self.data_dir(), self.secrets.as_ref(), &*self.clock);
             self.notify();
             return Answer::ok(Applies { applies_next_session: false });
         }
@@ -863,22 +973,21 @@ impl Core {
             None
         };
         let start = || -> Result<Arc<dyn crate::speech::Speaker>> {
-            let v = &cfg.voice;
-            let s = crate::speech::TtsSpeaker::start(
-                &cfg.worker_exe(&self.paths),
-                &cfg.models_dir(&self.paths),
-                v.threads,
-                &cfg.data_dir(&self.paths),
-                &v.speaker,
-                v.speed,
-                v.colour,
-                vec![],
-            )
-            .map_err(|e| anyhow::anyhow!("couldn't start text-to-speech: {e:#}"))?;
+            let s = self
+                .io
+                .speech
+                .speaker(
+                    &cfg.worker_exe(&self.paths),
+                    &cfg.models_dir(&self.paths),
+                    &cfg.data_dir(&self.paths),
+                    &cfg.voice,
+                    vec![],
+                )
+                .map_err(|e| anyhow::anyhow!("couldn't start text-to-speech: {e:#}"))?;
             log("voice preview: Kokoro loaded (released after a minute unused)");
-            Ok(Arc::new(s))
+            Ok(s)
         };
-        match self.preview.say(PREVIEW_LINE, route, start) {
+        match self.preview.say(PREVIEW_LINE, &*self.clock, route, start) {
             Ok(()) => Answer::ok(Previewed { line: PREVIEW_LINE }),
             Err(e) => Answer::failed(format!("{e:#}")),
         }
@@ -932,7 +1041,7 @@ impl Core {
 
         // Each handler gets the core and the request; `A` is what the window sends as args
         // (`String`: the request's text).
-        fn add<A: TS + ?Sized + 'static, R: Serialize + TS + 'static>(
+        fn add<A: serde::de::DeserializeOwned + Serialize + TS + 'static, R: Serialize + TS + 'static>(
             reg: &mut Registry,
             core: &Arc<Core>,
             names: &[&str],
@@ -989,9 +1098,13 @@ impl Core {
             c.notify();
             Done::empty()
         });
-        add::<(), _>(&mut reg, self, &["quit"], Local, |c, _| {
-            c.ui.quit();
-            Done::empty()
+        // Quit once the reply is written: the UI's teardown ends the process, which would cut
+        // off a reply still being sent.
+        let c = self.clone();
+        reg.add_request::<(), Done<Nothing>>("quit", Local, move |_, call| {
+            let ui = c.ui.clone();
+            call.after_reply(move || ui.quit());
+            Ok(Done::empty())
         });
         // The window and the tray, for scripts/webview_cost.py and the upgrade smoke.
         add::<(), _>(&mut reg, self, &["ui_state"], Local, |c, _| c.ui.state());
@@ -1096,15 +1209,12 @@ impl Core {
             edsm_status(&cfg, &cfg.data_dir(&c.paths), c.secrets.as_ref())
         });
         add::<crate::setup::args::Edsm, _>(&mut reg, self, &["set_edsm"], Window, |c, r| c.set_edsm(r));
-        add::<(), Answer<FlightLog>>(&mut reg, self, &["edsm_flight_log"], Window, |c, _| {
-            let creds = edsm_credentials(&c.cfg().edsm, c.secrets.as_ref());
+        add::<(), Answer<FlightLog>>(&mut reg, self, &["edsm_flight_log"], Window, |core, _| {
+            let creds = edsm_credentials(&core.cfg().edsm, core.secrets.as_ref());
             match creds {
                 Ok(Some(c)) => {
-                    let api = astromech_eddn::edsm::api::HttpApi::with_timeout(
-                        &format!("astromech/{}", env!("CARGO_PKG_VERSION")),
-                        astromech_eddn::edsm::api::FLIGHT_LOG_TIMEOUT,
-                    );
-                    astromech_eddn::edsm::api::flight_log(&api, &c).map(|visits| FlightLog { visits }).into()
+                    let api = (core.http.edsm)(astromech_eddn::edsm::api::FLIGHT_LOG_TIMEOUT);
+                    astromech_eddn::edsm::api::flight_log(api.as_ref(), &c).map(|visits| FlightLog { visits }).into()
                 }
                 Ok(None) => Answer::failed("set your EDSM commander name and API key first"),
                 Err(e) => Answer::failed(e),
@@ -1125,12 +1235,12 @@ impl Core {
             let cfg = c.cfg();
             let device = cal::configured_device(&cfg.voice.mic);
             let gate = cal::open_store(&cfg.data_dir(&c.paths)).ok().and_then(|s| cal::stored_gate(&s, &device));
-            cal::mic_list(&cfg.voice.mic, cal::MicGate { device, min_level_dbfs: gate })
+            cal::mic_list(&cfg.voice.mic, c.io.mic.names(), cal::MicGate { device, min_level_dbfs: gate })
         });
         add::<(), _>(&mut reg, self, &["calibrate_start"], Window, |c, _| cal::start(&c.calibration));
         add::<(), _>(&mut reg, self, &["calibrate_record"], Window, |c, _| {
             let mic = c.cfg().voice.mic;
-            cal::record(&c.calibration, &|ms| cal::record_mic(&mic, ms))
+            cal::record(&c.calibration, &|ms| c.io.mic.record(&mic, ms))
         });
         add::<(), _>(&mut reg, self, &["calibrate_finish"], Window, |c, _| {
             let data = c.data_dir();
@@ -1146,7 +1256,7 @@ impl Core {
         add::<(), _>(&mut reg, self, &["calibrate_cancel"], Window, |c, _| cal::cancel(&c.calibration));
         add::<(), _>(&mut reg, self, &["mic_check"], Window, |c, _| {
             let mic = c.cfg().voice.mic;
-            cal::mic_check(&|ms| cal::record_mic(&mic, ms))
+            cal::mic_check(&|ms| c.io.mic.record(&mic, ms))
         });
         add::<(), _>(&mut reg, self, &["onboarding_done"], Window, |c, _| {
             let res = cal::open_store(&c.data_dir()).and_then(|s| crate::setup::mark_onboarded(&s));
@@ -1166,11 +1276,11 @@ impl Core {
                 let s = c.session.lock().recover();
                 s.as_ref().map(|s| s.assistant.dry_run(&text, Source::Typed))
             };
-            let result = res.unwrap_or_else(|| tester::dry_run_idle(&c.cfg(), &c.data_dir(), &text));
+            let result = res.unwrap_or_else(|| tester::dry_run_idle(&c.cfg(), &c.data_dir(), &text, &*c.clock));
             Done::new(Tried { result })
         });
         add::<(), _>(&mut reg, self, &["voice_test_poll"], Window, |c, _| {
-            if TESTER.arm(Instant::now()) {
+            if TESTER.arm(c.clock.now()) {
                 log("voice tester open: push-to-talk is tested there, nothing is pressed");
             }
             let last = TESTER.last().map(|(seq, result)| Heard { seq, result });
@@ -1184,8 +1294,8 @@ impl Core {
             log(&format!("learned phrase forgotten: {heard:?}"));
             crate::learned::forget(&c.data_dir(), assistant.as_deref(), &heard)
         });
-        add::<(), _>(&mut reg, self, &["voice_test_stop"], Window, |_, _| {
-            if TESTER.armed(Instant::now()) {
+        add::<(), _>(&mut reg, self, &["voice_test_stop"], Window, |c, _| {
+            if TESTER.armed(c.clock.now()) {
                 log("voice tester closed: push-to-talk acts again");
             }
             TESTER.disarm();
@@ -1207,6 +1317,9 @@ impl Core {
                 }
             }
         });
+        if let Some(more) = &self.more_commands {
+            more(self, &mut reg);
+        }
         reg
     }
 
@@ -1220,11 +1333,11 @@ impl Core {
 /// The EDDN switch after a config edit: set the flag the feed and its worker read, and when
 /// sharing goes off, empty the queue now. The worker would discard it on its next pass, but it
 /// may be asleep for minutes, and switched back on by then it would send the old messages.
-fn apply_eddn_switch(c: &Config, data_dir: &Path) {
+fn apply_eddn_switch(c: &Config, data_dir: &Path, clock: &dyn Clock) {
     let was = crate::pipeline::EDDN_SHARING.swap(c.eddn.enabled, Ordering::SeqCst);
     let p = data_dir.join(astromech_eddn::DB_FILE);
     if was && !c.eddn.enabled && p.is_file() {
-        let now = astromech_eddn::worker::wall_now();
+        let now = clock.now_s();
         if let Err(e) = astromech_eddn::Outbox::open(&p).and_then(|o| o.discard_all(now)) {
             log(&format!("EDDN outbox: {e}"));
         }
@@ -1249,8 +1362,13 @@ pub fn edsm_credentials(
 
 /// The EDSM switch at start and after an edit: the credentials while uploading is on (switched
 /// on, with a commander name and an API key), and when it goes off, the queue is emptied now
-/// (as for EDDN), in the outbox under `data_dir`.
-pub fn apply_edsm_switch(c: &Config, data_dir: &Path, secrets: &dyn astromech_store::secrets::Secrets) {
+/// (as for EDDN), in the outbox under `data_dir`, stamped on `clock`.
+pub fn apply_edsm_switch(
+    c: &Config,
+    data_dir: &Path,
+    secrets: &dyn astromech_store::secrets::Secrets,
+    clock: &dyn Clock,
+) {
     let creds = if c.edsm.enabled {
         edsm_credentials(&c.edsm, secrets).unwrap_or_else(|e| {
             log(&format!("EDSM: {e}"));
@@ -1263,7 +1381,7 @@ pub fn apply_edsm_switch(c: &Config, data_dir: &Path, secrets: &dyn astromech_st
     let was = crate::pipeline::EDSM.set(creds);
     let p = data_dir.join(astromech_eddn::edsm::DB_FILE);
     if was && !on && p.is_file() {
-        let now = astromech_eddn::worker::wall_now();
+        let now = clock.now_s();
         if let Err(e) = astromech_eddn::Outbox::open(&p).and_then(|o| o.with_label("edsm").discard_all(now)) {
             log(&format!("EDSM outbox: {e}"));
         }
@@ -1389,7 +1507,7 @@ mod replies {
 
     /// `route_set`: a name and a source, and the waypoints or, for an import, the text (a
     /// Spansh CSV or one system per line).
-    #[derive(Debug, Deserialize, ts_rs::TS)]
+    #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
     #[ts(optional_fields = nullable)]
     pub struct RouteSetArgs {
         pub name: Option<String>,
@@ -1399,7 +1517,7 @@ mod replies {
     }
 
     /// `route_add`: a lookup result's Add stop.
-    #[derive(Debug, Deserialize, ts_rs::TS)]
+    #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
     #[ts(optional_fields = nullable)]
     pub struct RouteAddArgs {
         pub system: Option<String>,
@@ -1463,14 +1581,14 @@ mod replies {
     }
 
     /// `voice_test_live`: the command id as the request's text, or a lookup from a named system.
-    #[derive(Debug, Serialize, ts_rs::TS)]
+    #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
     #[serde(untagged)]
     pub enum LiveRequest {
         Command(String),
         From(LiveFrom),
     }
 
-    #[derive(Debug, Serialize, ts_rs::TS)]
+    #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
     pub struct LiveFrom {
         pub command: String,
         pub from: String,
@@ -1514,6 +1632,32 @@ mod replies {
 }
 pub use replies::*;
 
+/// The installed app's window: start the shell next to the core (or `ASTROMECH_SHELL`) at
+/// `route`.
+fn open_shell(exe_dir: &Path, route: Option<&str>) -> Result<(), String> {
+    let exe = std::env::var_os("ASTROMECH_SHELL").map(PathBuf::from).unwrap_or_else(|| exe_dir.join(SHELL_EXE));
+    if !exe.is_file() {
+        let m = format!("the app window ({}) isn't installed next to the core", exe.display());
+        log(&m);
+        return Err(m);
+    }
+    let mut c = std::process::Command::new(&exe);
+    if let Some(r) = route {
+        c.arg("--route").arg(r);
+    }
+    match c.spawn() {
+        Ok(_) => {
+            log(&format!("opened the app window{}", route.map(|r| format!(" at {r}")).unwrap_or_default()));
+            Ok(())
+        }
+        Err(e) => {
+            let m = format!("couldn't open the app window: {e}");
+            log(&m);
+            Err(m)
+        }
+    }
+}
+
 /// Write the sample config if there is no config yet. The sample changes no setting: its
 /// examples are comments, so a fresh install gets the same defaults as with no file.
 fn write_sample_config(path: &Path) {
@@ -1546,7 +1690,8 @@ pub fn download_models(core: &Arc<Core>) {
         let mut err = None;
         for a in models::missing(&base) {
             let mut last = u64::MAX;
-            let r = models::download(&base, &a, &mut |p| {
+            let url = (c.http.downloads)(&a.url());
+            let r = models::download_from(&base, &a, &url, c.http.proxy_from_env, &*c.clock, &mut |p| {
                 let pct = (p.done * 100).checked_div(p.total).unwrap_or(0);
                 if pct != last {
                     last = pct;
@@ -1602,19 +1747,29 @@ fn watch_game(core: Arc<Core>) {
     let jdir = core.cfg().journal_dir(&core.paths);
     let mut journal_seen = jdir.as_deref().and_then(gamewatch::newest_journal).map(|(_, t)| t);
     loop {
+        // A world can hold the watch here (`world_gate`), before it looks at the processes,
+        // once the rest of the core is parked on the clock.
+        if let Some(s) = &core.settle {
+            s.gate.pass(crate::world::WAIT_GUARD, |g| core.clock.wait_others_parked(g));
+        }
         let names = (core.processes)();
         let change = w.poll(&names);
         *core.game.lock().recover() = w.game;
         match change {
+            // `activate` runs on a thread registered here, before it is spawned.
             Some(Change::LauncherOpened) => {
                 log("Elite launcher (EDLaunch.exe) opened");
                 let c = core.clone();
-                std::thread::spawn(move || c.activate("pre-warming for the launcher"));
+                core.clock
+                    .spawn(std::thread::Builder::new(), move || c.activate("pre-warming for the launcher"))
+                    .expect("failed to spawn thread");
             }
             Some(Change::GameStarted) => {
                 log(&format!("Elite started ({})", gamewatch::GAME_EXE));
                 let c = core.clone();
-                std::thread::spawn(move || c.activate("Elite running"));
+                core.clock
+                    .spawn(std::thread::Builder::new(), move || c.activate("Elite running"))
+                    .expect("failed to spawn thread");
             }
             Some(Change::GameExited) => {
                 log("Elite exited");
@@ -1642,7 +1797,7 @@ fn watch_game(core: Arc<Core>) {
         if change.is_some() {
             core.notify();
         }
-        std::thread::sleep(gamewatch::POLL);
+        core.clock.sleep(gamewatch::POLL);
     }
 }
 
@@ -1651,7 +1806,7 @@ pub struct Assembled {
     pub core: Arc<Core>,
 }
 
-/// Build the core on `b`: load the config (`opts.config`, else the paths' config file), set
+/// Build the core on `b`: load the config (`opts.config`, else the paths' config file), then
 /// make the core with its route follower, its command layer and its remote-data client. Starts
 /// no thread and sets no process-wide switch; [`start`] does.
 pub fn assemble(opts: &Opts, b: Boundaries) -> Assembled {
@@ -1717,8 +1872,11 @@ pub(crate) fn assemble_with(
         .map(|s| crate::setup::onboarded_at_start(&s, config_exists, &cfg))
         .unwrap_or(false);
     let opener = b.opener;
+    let devices = b.io.devices.clone();
     let core = Arc::new_cyclic(|me| Core {
-        api: Arc::new(state(api_state(me.clone(), &paths, data_dir, remote, opener.clone()))),
+        api: Arc::new(state(
+            api_state(me.clone(), &paths, data_dir, remote, opener.clone(), &b.http).with_devices(move || devices()),
+        )),
         paths,
         config_path,
         onboarded: AtomicBool::new(onboarded),
@@ -1736,13 +1894,19 @@ pub(crate) fn assemble_with(
         ui: b.ui,
         opts: opts.clone(),
         calibration: Mutex::new(None),
-        history: Default::default(),
+        history: crate::history::Following::new(Default::default(), b.clock.clone()),
         secrets: b.secrets,
         processes: b.processes,
         opener,
         notifier: b.notifier,
         autostart: b.autostart,
+        http: b.http,
+        window: b.window,
+        more_commands: b.more_commands,
         route,
+        clock: b.clock,
+        settle: b.settle,
+        io: b.io,
     });
     Assembled { core }
 }
@@ -1760,10 +1924,10 @@ pub struct Started {
 pub fn start(core: &Arc<Core>) -> Started {
     let cfg = core.cfg();
     crate::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, Ordering::SeqCst);
-    apply_edsm_switch(&cfg, &core.data_dir(), core.secrets.as_ref());
+    apply_edsm_switch(&cfg, &core.data_dir(), core.secrets.as_ref(), &*core.clock);
 
     let commands = Arc::new(core.commands());
-    let server = match control::serve(core.paths.app_dir(), commands.clone()) {
+    let server = match control::serve(core.paths.app_dir(), commands.clone(), &*core.clock) {
         Ok(s) => {
             log(&format!("control API on 127.0.0.1:{}", s.endpoint.port));
             Some(s)
@@ -1795,20 +1959,22 @@ pub fn start(core: &Arc<Core>) -> Started {
         log("history: no journal folder; set game.journal_dir");
     }
 
+    // Both threads are registered with the core's clock and wait on it.
     let c = core.clone();
-    std::thread::Builder::new().name("gamewatch".into()).spawn(move || watch_game(c)).expect("spawn game watcher");
+    core.clock
+        .spawn(std::thread::Builder::new().name("gamewatch".into()), move || watch_game(c))
+        .expect("spawn game watcher");
 
     // Release the voice preview's Kokoro, and what the command layer loaded (the neutron star
     // file, the journal caches, the in-memory star map), once they have sat unused.
     let c = core.clone();
-    std::thread::Builder::new()
-        .name("preview-idle".into())
-        .spawn(move || loop {
-            std::thread::sleep(Duration::from_secs(10));
-            if c.preview.release_idle(Instant::now(), crate::speech::PREVIEW_IDLE) {
+    core.clock
+        .spawn(std::thread::Builder::new().name("preview-idle".into()), move || loop {
+            c.clock.sleep(Duration::from_secs(10));
+            if c.preview.release_idle(c.clock.now(), crate::speech::PREVIEW_IDLE) {
                 log("voice preview: Kokoro released (unused for a minute)");
             }
-            c.api.release_idle(Instant::now(), astromech_api::state::IDLE);
+            c.api.release_idle(c.clock.now(), astromech_api::state::IDLE);
         })
         .expect("spawn preview reaper");
 
@@ -1829,7 +1995,7 @@ pub fn begin(opts: &Opts) -> Option<Begun> {
     let app_dir = paths.app_dir().to_path_buf();
     let _ = std::fs::create_dir_all(&app_dir);
     crate::logging::init(&paths.log_dir(), false);
-    crate::crash::install(&app_dir);
+    crate::crash::install(&app_dir, Arc::new(SystemClock));
 
     // Single instance: a second start opens the window of the first, then exits.
     let Some(guard) = crate::instance::acquire(&app_dir) else {
@@ -1875,13 +2041,12 @@ pub fn boot(opts: &Opts, begun: &Begun, ui: Arc<dyn Ui>) -> Booted {
 
     if core.cfg().update.check {
         let c = core.clone();
-        std::thread::Builder::new()
-            .name("update".into())
-            .spawn(move || {
-                std::thread::sleep(update::STARTUP_DELAY);
+        core.clock
+            .spawn(std::thread::Builder::new().name("update".into()), move || {
+                c.clock.sleep(update::STARTUP_DELAY);
                 loop {
                     c.check_update(false);
-                    std::thread::sleep(update::CHECK_EVERY);
+                    c.clock.sleep(update::CHECK_EVERY);
                 }
             })
             .expect("spawn update checker");
@@ -1919,9 +2084,7 @@ pub fn run(opts: Opts) -> i32 {
 }
 
 #[cfg(test)]
-mod every_window_command;
-
-#[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 
@@ -1942,33 +2105,15 @@ mod tests {
     /// Held by tests that edit the config through a core: every edit sets the process-wide
     /// EDDN switch. Also held by tests that set the process-wide voice pause or voice tester,
     /// which `status` reports.
-    pub(super) static CONFIG_EDITS: Mutex<()> = Mutex::new(());
+    static CONFIG_EDITS: Mutex<()> = Mutex::new(());
 
     /// A core as `run` builds it, on the config file `text` in `dir`, without its threads.
     fn core(dir: &Path, text: &str) -> Arc<Core> {
-        core_with(dir, text, offline())
-    }
-
-    /// A client whose every request fails, for tests that look nothing up.
-    pub(super) fn offline() -> Arc<astromech_data::Client> {
-        struct Offline;
-        impl astromech_data::Transport for Offline {
-            fn send(
-                &self,
-                url: &str,
-                _: &astromech_data::Request,
-            ) -> Result<astromech_data::Response, astromech_data::TransportError> {
-                Err(astromech_data::TransportError::Offline(format!("no network in this test: {url}")))
-            }
-        }
-        // With no spacing between requests: a refused one is sent at once, not after a wait.
-        let client =
-            astromech_data::Client::with_transport(astromech_data::Cache::in_memory().unwrap(), Arc::new(Offline));
-        Arc::new(client.limiter(astromech_data::Limiter::none()))
+        assembled(dir, text, boundaries(dir), |s| s)
     }
 
     /// Opens nothing; a test that checks what is opened passes its own.
-    pub(super) struct NoOpener;
+    struct NoOpener;
     impl Opener for NoOpener {
         fn open(&self, _: &str) -> Result<(), String> {
             Ok(())
@@ -1989,9 +2134,16 @@ mod tests {
     }
 
     /// A test's boundaries in `dir`: the app folder under it, no running processes, no
-    /// clipboard, notifications to the log, secrets in memory, and lookups through `remote`.
-    pub(super) fn boundaries(dir: &Path, remote: Arc<astromech_data::Client>) -> Boundaries {
+    /// clipboard, notifications to the log, secrets in memory, and lookups refused: the
+    /// remote-data client replays an empty recording, as a world with no `net.json` does.
+    fn boundaries(dir: &Path) -> Boundaries {
         let local = dir.join("local");
+        let replay = astromech_data::replay::Replay::new(Default::default());
+        // With no spacing between requests: a refused one is sent at once, not after a wait.
+        let remote = Arc::new(
+            astromech_data::Client::with_transport(astromech_data::Cache::in_memory().unwrap(), Arc::new(replay))
+                .limiter(astromech_data::Limiter::none()),
+        );
         Boundaries {
             paths: Paths::new(dir.join("exe"), move |k| (k == "LOCALAPPDATA").then(|| local.clone().into())),
             processes: Arc::new(Vec::new),
@@ -2001,6 +2153,11 @@ mod tests {
             secrets: Arc::new(astromech_store::secrets::MemorySecrets::default()),
             autostart: Arc::new(NoAutostart),
             remote: Arc::new(move |_: &Path| remote.clone()),
+            http: Http::real(),
+            more_commands: None,
+            clock: Arc::new(SystemClock),
+            settle: None,
+            io: session::Io::real(),
             ui: Arc::new(Headless::default()),
         }
     }
@@ -2010,12 +2167,13 @@ mod tests {
 
     /// [`core`] with its lookups going through `remote`.
     fn core_with(dir: &Path, text: &str, remote: Arc<astromech_data::Client>) -> Arc<Core> {
-        assembled(dir, text, boundaries(dir, remote), |s| s)
+        let b = Boundaries { remote: Arc::new(move |_: &Path| remote.clone()), ..boundaries(dir) };
+        assembled(dir, text, b, |s| s)
     }
 
     /// The core [`assemble`] builds on `b`, on the config file `text` in `dir`, with the
     /// command layer's state passed through `state` (a test's devices or servers).
-    pub(super) fn assembled(
+    fn assembled(
         dir: &Path,
         text: &str,
         b: Boundaries,
@@ -2293,7 +2451,7 @@ mod tests {
         }
         let mut cfg = Config::default();
         cfg.voice.models_dir = m.display().to_string();
-        assert!(remove_retired_models(&cfg, &boundaries(d.path(), offline()).paths).is_empty());
+        assert!(remove_retired_models(&cfg, &boundaries(d.path()).paths).is_empty());
         assert!(models::has_retired(m), "another tool's v0.19 is left alone");
         assert!(models::find_tts(m).is_ok());
     }
@@ -2634,7 +2792,7 @@ mod tests {
             ),
         );
         let app = d.path().join("app");
-        let _srv = control::serve(&app, Arc::new(core.commands())).unwrap();
+        let _srv = control::serve(&app, Arc::new(core.commands()), &astromech_proto::SystemClock).unwrap();
         let ask = |cmd: &str, args: Option<Value>| {
             let req = Request { args, origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
             control::call(&app, req, None, &mut |_| {}).unwrap()
@@ -2665,7 +2823,7 @@ mod tests {
             panic!("a handler's bug")
         });
         let app = d.path().join("app");
-        let _srv = control::serve(&app, Arc::new(reg)).unwrap();
+        let _srv = control::serve(&app, Arc::new(reg), &astromech_proto::SystemClock).unwrap();
         let ask = |cmd: &str| {
             let req = Request { origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
             control::call(&app, req, None, &mut |_| {})
@@ -2697,7 +2855,7 @@ mod tests {
         let core = core(d.path(), &format!("data_dir = '{}'\n", data.display()));
         assert_ne!(core.data_dir(), Config::default().data_dir(&core.paths));
         let app = d.path().join("app");
-        let _srv = control::serve(&app, Arc::new(core.commands())).unwrap();
+        let _srv = control::serve(&app, Arc::new(core.commands()), &astromech_proto::SystemClock).unwrap();
         let ask = |cmd: &str, args: Value| {
             let req =
                 Request { args: Some(args), origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
@@ -2752,7 +2910,7 @@ mod tests {
         );
         let core = core_with(d.path(), &config, Arc::new(remote));
         let app = d.path().join("app");
-        let _srv = control::serve(&app, Arc::new(core.commands())).unwrap();
+        let _srv = control::serve(&app, Arc::new(core.commands()), &astromech_proto::SystemClock).unwrap();
         let ask = |cmd: &str, args: Option<Value>| {
             let req = Request { args, origin: Some(astromech_proto::Origin::AppWindow), ..Request::new(cmd) };
             control::call(&app, req, None, &mut |_| {})

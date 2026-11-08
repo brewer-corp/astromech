@@ -17,15 +17,8 @@ pub use view::{
     from_journal_dir, journal_version, trader_view, Cell, FarmLine, GroupView, Inventory, JournalVersion, KindView,
 };
 
-/// Inventory produced from the crate's fake journal fixtures (app window sample).
-pub fn sample_inventory() -> Inventory {
-    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
-    let mut v = from_journal_dir(&dir);
-    v.source = "Sample journal".into();
-    v
-}
-
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use std::io::Write;

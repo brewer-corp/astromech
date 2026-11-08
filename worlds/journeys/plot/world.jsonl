@@ -1,0 +1,5 @@
+{"start": "2026-11-07T21:00:00Z"}
+{"game": "running"}
+{"mark": "running"}
+{"journal": {"timestamp": "2026-11-07T21:05:00Z", "event": "FSDJump", "StarSystem": "PSR J1752-2806", "SystemAddress": 22712681061, "StarPos": [-10.96875, -6.84375, 407.28125], "Body": "PSR J1752-2806", "BodyType": "Star", "JumpDist": 30.1, "FuelUsed": 2.9, "FuelLevel": 29.1}}
+{"mark": "jumped"}

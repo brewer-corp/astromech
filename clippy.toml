@@ -1,1 +1,34 @@
 msrv = "1.90"
+
+# Every HTTP request goes through a stack world mode rewrites or replaces (astromech-xk0n):
+# astromech_data's Transport and downloads, EDDN's Transport, EDSM's Api, the updater and the
+# speech-model download. Those modules allow these where they build their agent.
+disallowed-methods = [
+    { path = "ureq::AgentBuilder::new", reason = "HTTP goes through a transport world mode replaces (astromech_data::Transport, astromech_eddn::Transport, edsm::api::Api) or a download URL the composition root rewrites" },
+    { path = "ureq::Agent::new", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::agent", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::builder", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::request", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::request_url", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::get", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::head", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::post", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::put", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::patch", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::delete", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    # The core reads time and waits through its clock (astromech_proto::clock; strategy
+    # one-tested-process, astromech-zgoo). A wait that must stay real carries an allow and its reason.
+    { path = "std::time::Instant::now", reason = "read the time through the core's clock (astromech_proto::clock::Clock::now)" },
+    { path = "std::time::SystemTime::now", reason = "read the time through the core's clock (astromech_proto::clock::Clock::utc)" },
+    { path = "chrono::Utc::now", reason = "read the time through the core's clock (Clock::utc)" },
+    { path = "chrono::Local::now", reason = "read the time through the core's clock (Clock::utc, then with_timezone(&Local))" },
+    { path = "std::time::Instant::elapsed", reason = "it reads real time: take clock.now() and subtract (saturating_duration_since)" },
+    { path = "std::time::SystemTime::elapsed", reason = "it reads real time: compare with Clock::utc" },
+    { path = "std::thread::sleep", reason = "wait through the core's clock (Clock::sleep)" },
+    { path = "std::sync::Condvar::wait_timeout", reason = "wait through the core's clock (dyn Clock::wait_timeout)" },
+    { path = "std::sync::mpsc::Receiver::recv_timeout", reason = "wait through the core's clock (dyn Clock::channel)" },
+    # Every file watcher drops the notifications that can't be a change (astromech-core's
+    # watch::watcher; finding astromech-uerh): Linux reports reads, which would wake a watcher for ever.
+    { path = "notify::recommended_watcher", reason = "build file watchers with astromech_core::watch::watcher, which drops reads" },
+    { path = "notify::Watcher::new", reason = "build file watchers with astromech_core::watch::watcher, which drops reads" },
+]

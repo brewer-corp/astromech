@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Root PresetName="Keys" MajorVersion="4" MinorVersion="2">
+ <LandingGearToggle><Primary Device="{NoDevice}" Key="" /><Secondary Device="Keyboard" Key="Key_L" /></LandingGearToggle>
+ <ShipSpotLightToggle><Primary Device="Keyboard" Key="Key_K"><Modifier Device="Keyboard" Key="Key_LeftShift" /></Primary><Secondary Device="{NoDevice}" Key="" /></ShipSpotLightToggle>
+</Root>

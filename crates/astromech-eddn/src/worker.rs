@@ -13,19 +13,15 @@
 
 use crate::outbox::{Delivery, Outbox, MIN_RETRY_SECS};
 use crate::transport::Transport;
+use astromech_proto::{Clock, ClockSender as Tx};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::mpsc::{channel, RecvTimeoutError, Sender as Tx};
+use std::sync::mpsc::RecvTimeoutError;
 use std::sync::Arc;
-use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant};
 
 /// How long the worker sleeps when nothing is queued (a submit wakes it sooner).
 const IDLE: Duration = Duration::from_secs(300);
 const MIN_RETRY: Duration = Duration::from_secs(MIN_RETRY_SECS as u64);
-
-/// Unix seconds now.
-pub fn wall_now() -> i64 {
-    SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_secs() as i64).unwrap_or(0)
-}
 
 /// One delivery pass at a time, with the monotonic retry hold.
 pub struct Courier {
@@ -118,16 +114,19 @@ pub struct Worker {
 
 impl Worker {
     /// Start delivering to `service` ("EDDN", "EDSM": the thread name and log prefix). `log`
-    /// gets each pass that did something, and database errors.
+    /// gets each pass that did something, and database errors. The thread is registered with
+    /// `clock` and reads the time and waits on it.
     pub fn spawn(
         mut courier: impl Pass,
         service: &'static str,
+        clock: Arc<dyn Clock>,
         log: impl Fn(&str) + Send + 'static,
     ) -> std::io::Result<Self> {
-        let (tx, rx) = channel();
+        let (tx, rx) = clock.channel();
         let stop = courier.stop_flag();
-        std::thread::Builder::new().name(service.to_ascii_lowercase()).spawn(move || loop {
-            match courier.pass(wall_now(), Instant::now()) {
+        let c = clock.clone();
+        clock.spawn(std::thread::Builder::new().name(service.to_ascii_lowercase()), move || loop {
+            match courier.pass(c.now_s(), c.now()) {
                 Ok(d) if d != Delivery::default() => log(&format!(
                     "{service}: {} sent, {} rejected, {} to retry, {} given up{}",
                     d.sent,
@@ -142,7 +141,7 @@ impl Worker {
             if stop_seen(&courier) {
                 return;
             }
-            let wait = courier.wait(wall_now(), Instant::now());
+            let wait = courier.wait(c.now_s(), c.now());
             match rx.recv_timeout(wait) {
                 Ok(Signal::Wake) | Err(RecvTimeoutError::Timeout) => {
                     // Several submits in a row wake it once.
@@ -185,6 +184,7 @@ impl Drop for Worker {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use crate::outbox::tests::status;

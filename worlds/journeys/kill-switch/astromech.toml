@@ -1,0 +1,10 @@
+# The kill-switch journey (app/journeys/voice.journey.ts): worlds/kill-switch's header, game
+# folder, bindings and controls, with only its kill and re-arm steps. Elite is running, the kill
+# switch (Joy_1 on the right stick) is pressed and released, which stops everything, then held
+# for [controls] rearm_hold_ms (1000 ms, the advance between press and release), which re-arms
+# it. The denied voice command and the short hold stay in worlds/kill-switch and
+# crates/astromech-core/tests/world_voice.rs.
+[controls]
+ptt = { device = "231D3201", key = "Joy_4" }
+kill_switch = { device = "231D0200", key = "Joy_1" }
+paste = { device = "231D3201", key = "Joy_12" }

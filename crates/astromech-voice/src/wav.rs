@@ -31,6 +31,7 @@ pub fn read_mono_f32(path: &Path) -> Result<(u32, Vec<f32>)> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

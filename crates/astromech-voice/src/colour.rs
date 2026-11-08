@@ -226,6 +226,7 @@ pub fn resample(samples: &[f32], from: u32, to: u32) -> Vec<f32> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

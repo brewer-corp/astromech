@@ -3,6 +3,7 @@
 //! with the search's remembered filters, on Spansh's recorded answers around Lembava for
 //! Li Yong-Rui (astromech-galaxy's fixtures, 16 Oct 2026) → spoken answer. Nothing is pressed
 //! and no test touches the network.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::actions::{Outcome, Runner};
 use astromech_core::assistant::{Assistant, Handled};

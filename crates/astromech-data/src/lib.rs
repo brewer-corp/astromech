@@ -15,14 +15,15 @@
 //! looks something up, so the rate limit and the cache hold for the whole process.
 //!
 //! Endpoints live in [`spansh`], [`ardent`] and [`edsm`]. Large published files (the neutron star
-//! file) are streamed to disk by [`download`] instead. Tests swap the [`Transport`] for
-//! recorded bodies.
+//! file) are streamed to disk by [`download`] instead. Tests and world mode swap the
+//! [`Transport`] for a recording ([`replay`]).
 
 pub mod ardent;
 mod cache;
 pub mod download;
 pub mod edsm;
 mod limit;
+pub mod replay;
 pub mod spansh;
 mod transport;
 
@@ -33,7 +34,7 @@ pub use transport::{encode_segment, Body, HttpTransport, Method, Request, Respon
 use serde::de::DeserializeOwned;
 use std::fmt;
 use std::sync::{Arc, Mutex, MutexGuard};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 pub const USER_AGENT: &str =
     concat!("astromech/", env!("CARGO_PKG_VERSION"), " (+https://github.com/brewer-corp/astromech)");
@@ -209,9 +210,15 @@ impl Client {
         self
     }
 
+    /// Read the time and wait (the rate limit, Spansh's polling) on `clock`.
     pub fn clock(mut self, clock: Arc<dyn Clock>) -> Self {
         self.clock = clock;
         self
+    }
+
+    /// The clock it runs on (the command layer's idle times read it too).
+    pub fn clock_in_use(&self) -> &Arc<dyn Clock> {
+        &self.clock
     }
 
     pub fn limiter(mut self, limiter: Limiter) -> Self {
@@ -247,9 +254,9 @@ impl Client {
 
     /// One rate-limited request: any HTTP answer, or the connection failure as an [`Error`].
     pub(crate) fn exchange(&self, service: Service, req: &Request) -> Result<Response> {
-        let wait = self.limiter.lock().unwrap_or_else(|e| e.into_inner()).reserve(service, Instant::now());
+        let wait = self.limiter.lock().unwrap_or_else(|e| e.into_inner()).reserve(service, self.clock.now());
         if !wait.is_zero() {
-            std::thread::sleep(wait);
+            self.clock.sleep(wait);
         }
         let url = format!("{}{}", self.base(service), req.path);
         self.transport.send(&url, req).map_err(|e| match e {

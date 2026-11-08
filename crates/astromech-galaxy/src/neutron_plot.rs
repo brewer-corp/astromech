@@ -579,6 +579,7 @@ pub fn plot(file: &NeutronStars, from: &Here, to: &Here, ship: &Ship) -> Result<
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

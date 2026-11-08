@@ -21,6 +21,40 @@ pub enum Control {
     PasteDown,
 }
 
+/// A session's end of its control source: push-to-talk, kill-switch and paste presses, with a
+/// timeout. The installed app's is the bus's `std::sync::mpsc::Receiver` (session.rs's `bus`),
+/// a world's a channel on its clock.
+pub trait ControlRx: Send {
+    /// `Receiver::recv_timeout`.
+    fn recv_timeout(&self, d: Duration) -> Result<Control, std::sync::mpsc::RecvTimeoutError>;
+}
+
+impl ControlRx for std::sync::mpsc::Receiver<Control> {
+    #[allow(
+        clippy::disallowed_methods,
+        reason = "the Windows listener's bus (raw-input and XInput timing); a world's ControlRx is a clock channel"
+    )]
+    fn recv_timeout(&self, d: Duration) -> Result<Control, std::sync::mpsc::RecvTimeoutError> {
+        std::sync::mpsc::Receiver::recv_timeout(self, d)
+    }
+}
+
+impl ControlRx for astromech_proto::ClockReceiver<Control> {
+    fn recv_timeout(&self, d: Duration) -> Result<Control, std::sync::mpsc::RecvTimeoutError> {
+        astromech_proto::ClockReceiver::recv_timeout(self, d)
+    }
+}
+
+/// Where sessions get their button presses: on Windows the Raw Input and XInput listener behind
+/// the bus (started by the first session, kept for the process), in a world its `press` and
+/// `release` steps.
+pub trait Source: Send + Sync {
+    /// Attach a session: its receiver, the listener's status line and the devices found.
+    fn attach(&self, cfg: &crate::config::Config, debug: bool) -> (Box<dyn ControlRx>, String, Vec<DeviceMeta>);
+    /// The session has stopped (its stop flag is set): end its receiver.
+    fn detach(&self);
+}
+
 /// How many unmatched presses on the PTT device are reported (without --debug-input).
 pub const UNMATCHED_REPORTS: u32 = 5;
 /// Default PTT debounce: a release followed by a press within this window is contact bounce
@@ -36,6 +70,9 @@ pub struct Mapper {
     ptt: Option<Button>,
     kill: Option<Button>,
     kill_at: Option<Instant>,
+    /// What `kill_at` and the kill switch's hold are read from: `Instant::now` for the
+    /// listener ([`Mapper::new`]), the world's clock in a world ([`Mapper::with_now`]).
+    now: Box<dyn Fn() -> Instant + Send>,
     /// Optional paste button (`controls.paste`).
     pub paste: Option<Button>,
     /// Log every button event (`--debug-input`).
@@ -61,7 +98,20 @@ fn device_of(e: &Event) -> String {
 }
 
 impl Mapper {
+    // The listener's kill-switch hold is device timing, on real time.
+    #[allow(clippy::disallowed_methods)]
     pub fn new(ptt: Option<Button>, kill: Option<Button>, debug: bool, log: impl Fn(&str) + Send + 'static) -> Self {
+        Self::with_now(ptt, kill, debug, log, Instant::now)
+    }
+
+    /// [`Mapper::new`], with the kill switch's hold measured on `now`.
+    pub fn with_now(
+        ptt: Option<Button>,
+        kill: Option<Button>,
+        debug: bool,
+        log: impl Fn(&str) + Send + 'static,
+        now: impl Fn() -> Instant + Send + 'static,
+    ) -> Self {
         let mut p = Processor::new(astromech_input::ELITE_TITLE, None, true);
         // The first report from an idle joystick is the press itself (see Processor docs).
         p.initial_presses = true;
@@ -70,6 +120,7 @@ impl Mapper {
             ptt,
             kill,
             kill_at: None,
+            now: Box::new(now),
             paste: None,
             debug,
             unmatched: 0,
@@ -185,10 +236,10 @@ impl Mapper {
             }
             if is_kill {
                 if down {
-                    self.kill_at.get_or_insert_with(Instant::now);
+                    self.kill_at.get_or_insert_with(&self.now);
                     out.push(Control::KillDown);
                 } else if let Some(t) = self.kill_at.take() {
-                    out.push(Control::KillUp(t.elapsed()));
+                    out.push(Control::KillUp((self.now)().saturating_duration_since(t)));
                 }
             }
         }
@@ -225,7 +276,9 @@ pub fn describe_button(what: &str, b: &Button, devices: &[DeviceMeta]) -> String
 }
 
 /// Start listening on Windows. Returns the Raw Input/XInput status and the devices found.
+// Device timing, on real time: the listeners' sample stamps and the Mapper's ticks.
 #[cfg(windows)]
+#[allow(clippy::disallowed_methods)]
 pub fn start(
     ptt: Option<Button>,
     kill: Option<Button>,
@@ -277,6 +330,7 @@ pub fn start(
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_input::listen::model::{DevKind, SampleData};

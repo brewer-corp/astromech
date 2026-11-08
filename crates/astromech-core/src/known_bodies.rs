@@ -32,7 +32,8 @@ pub struct EdsmBodies {
 
 impl EdsmBodies {
     pub fn new(client: Arc<Client>, log: Log) -> Self {
-        Self { client, systems: Background::new("known-bodies"), log }
+        let clock = client.clock_in_use().clone();
+        Self { client, systems: Background::new("known-bodies", clock), log }
     }
 }
 
@@ -46,6 +47,7 @@ impl KnownBodies for EdsmBodies {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
     use astromech_data::{Cache, Request, Response, Transport, TransportError};
@@ -81,6 +83,16 @@ mod tests {
     impl astromech_data::Clock for At {
         fn now_s(&self) -> i64 {
             self.0.load(std::sync::atomic::Ordering::SeqCst)
+        }
+        // A wall clock the test sets; the monotonic time and sleeps stay real.
+        fn now(&self) -> std::time::Instant {
+            std::time::Instant::now()
+        }
+        fn utc(&self) -> std::time::SystemTime {
+            std::time::UNIX_EPOCH + std::time::Duration::from_secs(self.now_s() as u64)
+        }
+        fn sleep(&self, d: std::time::Duration) {
+            std::thread::sleep(d)
         }
     }
 

@@ -12,12 +12,13 @@ use crate::health::{self, BindsState};
 use crate::hub::StateHub;
 use crate::logging::log;
 use crate::speech::{self, ConsoleSpeaker, Speaker, Stt};
-#[cfg(windows)]
 use crate::tester::{self, TESTER};
 use anyhow::{Context, Result};
 use astromech_input::exec::keys::ScanKey;
 use astromech_input::exec::platform::{IntegrityReport, Platform};
+use astromech_keybinds::devices::Inventory;
 use astromech_policy::Policy;
+use astromech_proto::Clock;
 use astromech_store::Paths;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -32,6 +33,44 @@ pub struct Opts {
     pub dry_run: bool,
     pub no_voice: bool,
     pub debug_input: bool,
+}
+
+/// The controllers connected now, for the binds check and the keybinds pages.
+pub type Devices = Arc<dyn Fn() -> Inventory + Send + Sync>;
+
+/// What a session reaches outside the process through, beside the core's own boundaries
+/// ([`crate::app::Boundaries`]).
+#[derive(Clone)]
+pub struct Io {
+    /// Key presses and the foreground window.
+    pub platform: Arc<dyn Platform>,
+    /// Push-to-talk, the kill switch and the paste button: None where nothing listens for them
+    /// (the installed app off Windows).
+    pub controls: Option<Arc<dyn crate::controls::Source>>,
+    /// The microphone: push-to-talk, calibration and the mic picker.
+    pub mic: Arc<dyn crate::mic::Mics>,
+    /// The speech worker: speech-to-text, and the speaker for the session and Settings' preview.
+    pub speech: Arc<dyn speech::Speech>,
+    /// The controllers connected now.
+    pub devices: Devices,
+}
+
+impl Io {
+    /// The installed app's: Windows' key injection and focus, the Raw Input and XInput listener
+    /// behind the bus (Windows only), cpal, the voice worker and the live device inventory.
+    pub fn real() -> Self {
+        #[cfg(windows)]
+        let controls: Option<Arc<dyn crate::controls::Source>> = Some(Arc::new(BusSource));
+        #[cfg(not(windows))]
+        let controls = None;
+        Self {
+            platform: real_platform(),
+            controls,
+            mic: Arc::new(crate::mic::DeviceMics),
+            speech: Arc::new(speech::WorkerSpeech),
+            devices: Arc::new(astromech_keybinds::devices::enumerate_live),
+        }
+    }
 }
 
 pub struct Session {
@@ -49,6 +88,8 @@ pub struct Session {
     /// shopping list).
     pub shared: astromech_announce::Shared,
     stop: Arc<AtomicBool>,
+    io: Io,
+    clock: Arc<dyn Clock>,
     _pipe: crate::pipeline::Pipeline,
     _callouts: SpeechOut,
     _hw: Option<health::HealthWatch>,
@@ -57,8 +98,9 @@ pub struct Session {
 impl Drop for Session {
     fn drop(&mut self) {
         self.stop.store(true, Ordering::SeqCst);
-        #[cfg(windows)]
-        bus::detach();
+        if let Some(c) = &self.io.controls {
+            c.detach();
+        }
     }
 }
 
@@ -127,7 +169,11 @@ impl Session {
     /// commander jumps. `api` is the command layer's state: its one remote-data client and its
     /// star map serve the voice lookups too, so they share one rate limit and cache with the
     /// window's. `paths` places the folders the config doesn't name, and `notifier` shows the
-    /// callouts' notifications (one at a time, behind [`callouts::Background`]).
+    /// callouts' notifications (one at a time, behind [`callouts::Background`]). Its timers
+    /// read and wait on `clock`, and its threads are registered with it. `files`: a world's file
+    /// generations, which the pipeline publishes (None in the installed app). EDDN's upload and
+    /// EDSM's API come from `http`; keys, buttons, the mic, speech and the devices from `io`.
+    #[allow(clippy::too_many_arguments)]
     pub fn start(
         cfg: &Config,
         paths: &Paths,
@@ -135,6 +181,10 @@ impl Session {
         route: Arc<crate::route::Desk>,
         api: &astromech_api::State,
         notifier: Arc<dyn callouts::Notifier>,
+        clock: Arc<dyn astromech_proto::Clock>,
+        files: Option<Arc<crate::world::settle::FileGens>>,
+        http: &crate::app::Http,
+        io: &Io,
     ) -> Result<Session> {
         let args = opts;
         let data = cfg.data_dir(paths);
@@ -150,26 +200,32 @@ impl Session {
             .context("starting the star map's thread")?;
         // 1. Binds health check.
         let bindings = cfg.bindings_dir().context("can't find the Bindings folder; set game.bindings_dir")?;
-        let live = cfg!(windows);
-        let st = health::run_check(&bindings, cfg.game_dir().as_deref(), live);
+        let st = health::run_check_with(&bindings, cfg.game_dir().as_deref(), (io.devices)(), &*clock);
         for l in st.summary().lines() {
             log(l);
         }
         write_health(&data, &st);
         let binds: health::Shared = Arc::new(RwLock::new(st));
         let data2 = data.clone();
-        let hw = health::watch(bindings.clone(), cfg.game_dir(), live, binds.clone(), move |s| {
-            log("Bindings folder changed; health check re-run:");
-            for l in s.summary().lines() {
-                log(l);
-            }
-            write_health(&data2, s);
-        })
+        let hw = health::watch(
+            bindings.clone(),
+            cfg.game_dir(),
+            io.devices.clone(),
+            binds.clone(),
+            move |s| {
+                log("Bindings folder changed; health check re-run:");
+                for l in s.summary().lines() {
+                    log(l);
+                }
+                write_health(&data2, s);
+            },
+            clock.clone(),
+        )
         .map_err(|e| log(&format!("not watching the Bindings folder: {e:#}")))
         .ok();
 
         // 2. Game state pipeline, feeding the callouts (spoken once the speaker exists, step 3).
-        let hub = Arc::new(StateHub::new());
+        let hub = Arc::new(StateHub::with_clock(clock.clone()));
         let jdir = cfg.journal_dir(paths).context("can't find the journal folder; set game.journal_dir")?;
         let shared = callouts::shared_from_store(&data, &|m: &str| log(m));
         shared.visits.set(Arc::new(crate::visits::HistoryVisits::new(data.join(crate::history::DB_FILE))));
@@ -187,24 +243,29 @@ impl Session {
         for p in engine.setting_problems() {
             log(&format!("config: {p}"));
         }
-        let (pending, toasts) = (Arc::new(callouts::Pending::default()), Arc::new(Toasts::default()));
+        let (pending, toasts) = (Arc::new(callouts::Pending::new(clock.clone())), Arc::new(Toasts::new(clock.clone())));
         let deliver = Box::new(callouts::router(
             pending.clone(),
             toasts.clone(),
             Arc::new(
-                callouts::Background::start(notifier, callouts::NOTIFY_GAP)
+                callouts::Background::start(notifier, callouts::NOTIFY_GAP, clock.clone())
                     .context("starting the notification thread")?,
             ),
         ));
-        let eddn = crate::pipeline::eddn_feed(cfg, &data);
+        let eddn = crate::pipeline::eddn_feed(cfg, &data, clock.clone(), (http.eddn)());
         let pipe = crate::pipeline::start_with_eddn(
             &jdir,
             hub.clone(),
             Some(&data.join("astromech.sqlite")),
             log,
             eddn,
-            crate::pipeline::edsm_uploader(&data),
+            crate::pipeline::edsm_uploader(
+                &data,
+                clock.clone(),
+                (http.edsm)(astromech_eddn::edsm::api::REQUEST_TIMEOUT),
+            ),
             Some(Callouts { engine, deliver }),
+            files,
         )
         .with_context(|| format!("journal folder {}", jdir.display()))?;
         let g = hub.snapshot();
@@ -218,40 +279,32 @@ impl Session {
         // 3. Voice.
         let worker = cfg.worker_exe(paths);
         let models = cfg.models_dir(paths);
-        let voice_ok = !args.no_voice && worker.is_file();
+        let speech = io.speech.clone();
+        let voice_ok = !args.no_voice && speech.worker_found(&worker);
         if !args.no_voice {
-            use astromech_voice::models;
-            let stt_ok = models::find_stt(&models).is_ok();
-            let tts_ok = models::find_tts(&models).is_ok();
+            let stt_ok = speech.stt_found(&models);
+            let tts_ok = speech.tts_found(&models);
             log(&format!(
                 "voice: worker {} ({}); models {}: speech-to-text {}, text-to-speech {}",
                 worker.display(),
-                if worker.is_file() { "found" } else { "MISSING" },
+                if speech.worker_found(&worker) { "found" } else { "MISSING" },
                 models.display(),
                 if stt_ok { "found" } else { "MISSING" },
                 if tts_ok { "found" } else { "MISSING" }
             ));
         }
-        if !args.no_voice && !worker.is_file() {
+        if !args.no_voice && !speech.worker_found(&worker) {
             log(&format!("voice off: {} not found", worker.display()));
         }
         let speaker: Arc<dyn Speaker> = if voice_ok && cfg.voice.tts {
             let (exe, dir, data, v) = (worker.clone(), models.clone(), data.clone(), cfg.voice.clone());
+            let sp = speech.clone();
             let start = move || -> Result<Arc<dyn Speaker>> {
-                let r = speech::TtsSpeaker::start(
-                    &exe,
-                    &dir,
-                    v.threads,
-                    &data,
-                    &v.speaker,
-                    v.speed,
-                    v.colour,
-                    speech::fixed_phrases(),
-                );
+                let r = sp.speaker(&exe, &dir, &data, &v, speech::fixed_phrases());
                 match r {
                     Ok(s) => {
                         log(&format!("Kokoro text-to-speech loaded ({}, {})", v.speaker, v.colour.as_str()));
-                        Ok(Arc::new(s))
+                        Ok(s)
                     }
                     Err(e) => {
                         log(&format!("speech output off ({e:#}); replies are printed"));
@@ -259,22 +312,22 @@ impl Session {
                     }
                 }
             };
-            if astromech_voice::models::find_tts(&models).is_ok() {
+            if speech.tts_found(&models) {
                 start().unwrap_or_else(|_| Arc::new(ConsoleSpeaker))
             } else {
                 // Still downloading: speak from the first line said once the download completes.
                 log("text-to-speech model not downloaded yet; replies are printed until it is");
-                let m = models.clone();
-                Arc::new(speech::LazySpeaker::new(move || astromech_voice::models::find_tts(&m).is_ok(), start))
+                let (m, sp) = (models.clone(), speech.clone());
+                Arc::new(speech::LazySpeaker::new(move || sp.tts_found(&m), start))
             }
         } else {
             Arc::new(ConsoleSpeaker)
         };
         let stt: Option<Box<dyn Stt>> = if voice_ok {
-            match speech::WorkerStt::start(&worker, &models, cfg.voice.threads, &data) {
+            match speech.stt(&worker, &models, cfg.voice.threads, &data) {
                 Ok(s) => {
                     log("Parakeet speech-to-text loaded");
-                    Some(Box::new(s))
+                    Some(s)
                 }
                 Err(e) => {
                     log(&format!(
@@ -293,7 +346,7 @@ impl Session {
 
         // 4. Policy + executor.
         let platform: Arc<dyn Platform> =
-            if cfg.actions.dry_run { Arc::new(DryRun(real_platform())) } else { real_platform() };
+            if cfg.actions.dry_run { Arc::new(DryRun(io.platform.clone())) } else { io.platform.clone() };
         if cfg.actions.dry_run {
             log("DRY RUN: key presses are logged, not sent");
         }
@@ -307,7 +360,7 @@ impl Session {
             ..Default::default()
         };
         let runner = Arc::new(Runner {
-            policy: Policy::new(platform, pcfg),
+            policy: Policy::with_clock(platform, pcfg, clock.clone()),
             hub: hub.clone(),
             binds,
             speaker: speaker.clone(),
@@ -331,7 +384,7 @@ impl Session {
 
         let voice = if args.no_voice {
             "voice off (--no-voice)".to_string()
-        } else if !worker.is_file() {
+        } else if !speech.worker_found(&worker) {
             format!("voice off: {} missing", astromech_voice::client::WORKER_EXE)
         } else if stt.is_none() {
             "voice off: speech models missing or failed to load".to_string()
@@ -348,36 +401,40 @@ impl Session {
             toasts,
             shared,
             stop: Arc::new(AtomicBool::new(false)),
+            io: io.clone(),
+            clock,
             _pipe: pipe,
             _callouts: speech_out,
             _hw: hw,
         })
     }
 
-    /// Start push-to-talk, the kill switch and the microphone (Windows only).
+    /// Start push-to-talk, the kill switch and the microphone (where something listens for the
+    /// buttons: on Windows, or in a world).
     pub fn start_buttons(&mut self, cfg: &Config, paths: &Paths, opts: &Opts) -> Result<()> {
         let stt = self.stt.take();
-        #[cfg(windows)]
-        start_voice(
-            cfg,
-            &cfg.data_dir(paths),
-            self.assistant.clone(),
-            self.runner.clone(),
-            stt,
-            opts.debug_input,
-            self.stop.clone(),
-        )?;
-        #[cfg(not(windows))]
-        {
-            let _ = (cfg, paths, opts);
-            drop(stt);
-            log("push-to-talk and the kill switch need Windows; type commands instead");
+        match &self.io.controls {
+            Some(controls) => start_voice(
+                cfg,
+                &cfg.data_dir(paths),
+                self.assistant.clone(),
+                self.runner.clone(),
+                stt,
+                opts.debug_input,
+                self.stop.clone(),
+                controls.as_ref(),
+                self.io.mic.as_ref(),
+                self.clock.clone(),
+            )?,
+            None => {
+                drop(stt);
+                log("push-to-talk and the kill switch need Windows; type commands instead");
+            }
         }
         Ok(())
     }
 }
 
-#[cfg(windows)]
 struct ClipJob {
     samples: Vec<f32>,
     rate: u32,
@@ -390,7 +447,6 @@ struct ClipJob {
     testing: bool,
 }
 
-#[cfg(windows)]
 fn write_sidecar(path: &std::path::Path, meta: &serde_json::Value, transcript: &str, command: Option<&str>) {
     let mut v = meta.clone();
     if let serde_json::Value::Object(m) = &mut v {
@@ -402,7 +458,10 @@ fn write_sidecar(path: &std::path::Path, meta: &serde_json::Value, transcript: &
     let _ = std::fs::write(path, serde_json::to_string_pretty(&v).unwrap_or_default());
 }
 
-#[cfg(windows)]
+/// The push-to-talk loop and its speech-to-text thread. Its presses come from `controls`, its
+/// clips from `mics`; it reads the time and waits on `clock`, and its thread is registered with
+/// it (the speech-to-text thread is not).
+#[allow(clippy::too_many_arguments)]
 fn start_voice(
     cfg: &Config,
     data: &Path,
@@ -411,9 +470,12 @@ fn start_voice(
     stt: Option<Box<dyn Stt>>,
     debug_input: bool,
     stop: Arc<AtomicBool>,
+    controls: &dyn crate::controls::Source,
+    mics: &dyn crate::mic::Mics,
+    clock: Arc<dyn Clock>,
 ) -> Result<()> {
     use crate::controls::{self, Control};
-    let (rx, status, devices) = bus::attach(cfg, debug_input);
+    let (rx, status, devices) = controls.attach(cfg, debug_input);
     log(&format!(
         "input listener: {status}{}",
         if debug_input { " (--debug-input: logging every button)" } else { "" }
@@ -432,10 +494,10 @@ fn start_voice(
     let have_stt = stt.is_some();
     let want_mic = cfg.voice.mic.trim();
     let mic = if stt.is_some() {
-        match astromech_voice::mic::Recorder::start_named((!want_mic.is_empty()).then_some(want_mic)) {
+        match mics.open((!want_mic.is_empty()).then_some(want_mic)) {
             Ok(m) => {
                 log(&format!("microphone: {} ({} Hz)", m.device_name(), m.sample_rate()));
-                if let Some(d) = &m.default_name {
+                if let Some(d) = &m.default_name() {
                     if !d.eq_ignore_ascii_case(&m.device_name()) {
                         log(&format!("microphone: Windows default is {d}; recording the chosen device instead"));
                     }
@@ -452,10 +514,11 @@ fn start_voice(
     };
     let (jtx, jrx) = std::sync::mpsc::channel::<ClipJob>();
     if let Some(mut stt) = stt {
-        let a = assistant.clone();
+        let (a, c) = (assistant.clone(), clock.clone());
         std::thread::Builder::new().name("stt".into()).spawn(move || {
             while let Ok(job) = jrx.recv() {
-                let t0 = std::time::Instant::now();
+                let t0 = c.now();
+                let ms = || c.now().saturating_duration_since(t0).as_millis();
                 match stt.transcribe(&job.samples, job.rate) {
                     Ok(t) if t.is_empty() && !job.testing => a.runner.speaker.say("Say again."),
                     Ok(t) => match tester::on_heard(&TESTER, &a, &t, job.testing) {
@@ -463,7 +526,7 @@ fn start_voice(
                         tester::Heard::Tested(r) => {
                             log(&format!(
                                 "voice tester heard {t:?} ({} ms): would {:?}, nothing pressed",
-                                t0.elapsed().as_millis(),
+                                ms(),
                                 r.would
                             ));
                             a.runner.speaker.say(tester::TEST_ONLY);
@@ -473,9 +536,9 @@ fn start_voice(
                         }
                         tester::Heard::Handled(h) => {
                             if matches!(h, crate::assistant::Handled::Ignored) {
-                                log(&format!("heard {t:?} ({} ms): noise only, ignored", t0.elapsed().as_millis()));
+                                log(&format!("heard {t:?} ({} ms): noise only, ignored", ms()));
                             } else {
-                                log(&format!("heard {t:?} ({} ms)", t0.elapsed().as_millis()));
+                                log(&format!("heard {t:?} ({} ms)", ms()));
                                 log(&format!("  -> {}", short(&h)));
                             }
                             if let Some(p) = job.sidecar {
@@ -517,14 +580,15 @@ fn start_voice(
         let _ = std::fs::create_dir_all(&clips_dir);
         log(&format!("debug: saving PTT clips under {}", clips_dir.display()));
     }
-    let t_start = std::time::Instant::now();
+    let t_start = clock.now();
     let secs = move |t: std::time::Instant| t.duration_since(t_start).as_secs_f64();
-    std::thread::Builder::new().name("ptt".into()).spawn(move || {
+    let clk = clock.clone();
+    clock.spawn(std::thread::Builder::new().name("ptt".into()), move || {
         let mut from: Option<u64> = None;
-        let mut down_at = std::time::Instant::now();
+        let mut down_at = clk.now();
         let mut press_killed = false;
         let mut mic = mic;
-        let report_mic = |mic: &mut Option<astromech_voice::mic::Recorder>| {
+        let report_mic = |mic: &mut Option<Box<dyn crate::mic::Mic>>| {
             let Some(m) = mic.as_mut() else { return };
             if let Some(e) = m.take_errors() {
                 log(&format!(
@@ -561,10 +625,10 @@ fn start_voice(
                 }
                 Control::PttUp if from.is_none() && VOICE_PAUSED.load(Ordering::SeqCst) => callouts::VOICE_TURN.ptt_up(),
                 Control::PttDown => {
-                    callouts::VOICE_TURN.ptt_down(std::time::Instant::now());
+                    callouts::VOICE_TURN.ptt_down(clk.now());
                     runner.speaker.interrupt();
                     report_mic(&mut mic);
-                    down_at = std::time::Instant::now();
+                    down_at = clk.now();
                     log(&format!("PTT down (t={:.3} s) — listening", secs(down_at)));
                     if let Some(m) = &mic {
                         let back = m.sample_rate() as u64 * pre / 1000;
@@ -581,11 +645,13 @@ fn start_voice(
                     if let (Some(m), Some(f)) = (&mic, from.take()) {
                         // The release reaches us after the debounce window; time it from the
                         // real release and keep the post-roll measured from there too.
-                        let up_at = std::time::Instant::now().checked_sub(debounce).unwrap_or(down_at).max(down_at);
+                        let up_at = clk.now().checked_sub(debounce).unwrap_or(down_at).max(down_at);
                         let held = up_at.duration_since(down_at).as_millis() as u64;
                         // Test mode as it is at release; the clip may take seconds to transcribe.
-                        let testing = TESTER.armed(std::time::Instant::now());
-                        std::thread::sleep(post.saturating_sub(debounce));
+                        let testing = TESTER.armed(clk.now());
+                        clk.sleep(post.saturating_sub(debounce));
+                        // Real time: the device's next callback is device timing.
+                        #[allow(clippy::disallowed_methods)]
                         m.wait_after(std::time::Instant::now(), Duration::from_millis(100));
                         let samples = m.take(f, m.position());
                         let st = crate::speech::clip_stats(&samples, m.sample_rate());
@@ -605,7 +671,7 @@ fn start_voice(
                                 let mut sidecar = None;
                                 let mut meta = serde_json::json!({});
                                 if save_clips {
-                                    let stamp = chrono::Utc::now().format("%Y%m%dT%H%M%S%.3fZ");
+                                    let stamp = chrono::DateTime::<chrono::Utc>::from(clk.utc()).format("%Y%m%dT%H%M%S%.3fZ");
                                     let wav = clips_dir.join(format!("{stamp}.wav"));
                                     if astromech_voice::wav::write_mono_i16(&wav, m.sample_rate(), &n.samples).is_ok() {
                                         sidecar = Some(wav.with_extension("json"));
@@ -625,7 +691,7 @@ fn start_voice(
                                     rate: m.sample_rate(),
                                     sidecar,
                                     meta,
-                                    _turn: callouts::VOICE_TURN.job_queued(std::time::Instant::now()),
+                                    _turn: callouts::VOICE_TURN.job_queued(clk.now()),
                                     testing,
                                 });
                             }
@@ -668,6 +734,25 @@ fn start_voice(
         }
     })?;
     Ok(())
+}
+
+/// The installed app's control source on Windows: the [`bus`].
+#[cfg(windows)]
+struct BusSource;
+
+#[cfg(windows)]
+impl crate::controls::Source for BusSource {
+    fn attach(
+        &self,
+        cfg: &Config,
+        debug: bool,
+    ) -> (Box<dyn crate::controls::ControlRx>, String, Vec<astromech_input::listen::model::DeviceMeta>) {
+        let (rx, status, devices) = bus::attach(cfg, debug);
+        (Box::new(rx), status, devices)
+    }
+    fn detach(&self) {
+        bus::detach();
+    }
 }
 
 /// The Raw Input/XInput listener outlives sessions: it's started once, and each session
@@ -722,5 +807,183 @@ mod bus {
         if let Some(b) = BUS.get() {
             *b.current.lock().unwrap() = None;
         }
+    }
+
+    /// Send `c` to the attached session, as the controls-bus thread does with the listener's.
+    #[cfg(test)]
+    pub fn forward(c: Control) {
+        if let Some(b) = BUS.get() {
+            if let Some(s) = b.current.lock().unwrap().as_ref() {
+                let _ = s.send(c);
+            }
+        }
+    }
+}
+
+/// The stand-in for the in-game push-to-talk path on Windows: `start_voice` on the real
+/// `bus::attach` (the real Raw Input and XInput listener and the bus), with a fake microphone,
+/// speech-to-text and speaker. The S7 replay's presses go through `controls::Mapper` into the
+/// bus as its thread forwards the listener's.
+#[cfg(all(test, windows))]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
+mod windows_tests {
+    use super::*;
+    use crate::config::Button;
+    use crate::controls::{Control, Mapper};
+    use crate::mic::{Mic, Mics, StreamErrors};
+    use astromech_input::exec::platform::mock::MockGame;
+    use std::sync::mpsc::{channel, Receiver, Sender};
+    use std::sync::Mutex;
+    use std::time::Instant;
+
+    /// One loud second of tone, there from the start.
+    struct ToneMic;
+    impl Mic for ToneMic {
+        fn device_name(&self) -> String {
+            "Test microphone".into()
+        }
+        fn sample_rate(&self) -> u32 {
+            16_000
+        }
+        fn default_name(&self) -> Option<String> {
+            None
+        }
+        fn position(&self) -> u64 {
+            16_000
+        }
+        fn take(&self, from: u64, to: u64) -> Vec<f32> {
+            (from..to.min(16_000)).map(|i| 0.5 * (i as f32 * 0.2).sin()).collect()
+        }
+        fn wait_after(&self, _t: Instant, _max: Duration) {}
+        fn take_errors(&self) -> Option<StreamErrors> {
+            None
+        }
+        fn recover(&mut self) -> Result<bool> {
+            Ok(false)
+        }
+    }
+    struct ToneMics;
+    impl Mics for ToneMics {
+        fn open(&self, _want: Option<&str>) -> Result<Box<dyn Mic>> {
+            Ok(Box::new(ToneMic))
+        }
+        fn record(&self, _want: &str, _ms: u64) -> Result<crate::calibration::Clip> {
+            anyhow::bail!("not in this test")
+        }
+        fn names(&self) -> (Vec<String>, Option<String>) {
+            (vec![], None)
+        }
+    }
+
+    /// Each line said, to the test.
+    struct Said(Mutex<Sender<String>>);
+    impl Speaker for Said {
+        fn say(&self, text: &str) {
+            let _ = self.0.lock().unwrap().send(text.to_string());
+        }
+    }
+
+    fn heard(rx: &Receiver<String>, line: &str) {
+        loop {
+            match rx.recv_timeout(Duration::from_secs(30)) {
+                Ok(l) if l == line => return,
+                Ok(_) => continue,
+                Err(e) => panic!("{line:?} was never said: {e}"),
+            }
+        }
+    }
+
+    const BINDS: &str = r#"<?xml version="1.0" encoding="UTF-8" ?>
+<Root PresetName="Keys" MajorVersion="4" MinorVersion="2">
+ <LandingGearToggle><Primary Device="Keyboard" Key="Key_L" /><Secondary Device="{NoDevice}" Key="" /></LandingGearToggle>
+</Root>"#;
+
+    #[test]
+    fn push_to_talk_and_the_kill_switch_through_the_real_bus() {
+        use astromech_input::exec::keys::{lookup, KeyLookup};
+        let dir = tempfile::tempdir().unwrap();
+        let bindings = dir.path().join("Bindings");
+        std::fs::create_dir_all(&bindings).unwrap();
+        std::fs::write(bindings.join("Keys.4.2.binds"), BINDS).unwrap();
+        std::fs::write(bindings.join("StartPreset.4.start"), "Keys\nKeys\nKeys\nKeys\n").unwrap();
+        let KeyLookup::Ok(l) = lookup("Key_L") else { panic!("Key_L") };
+        let game = Arc::new(MockGame::new(
+            dir.path().join("Status.json"),
+            l,
+            astromech_status::FLAG_GEAR,
+            astromech_status::FLAG_IN_MAIN_SHIP,
+            Duration::ZERO,
+        ));
+        let hub = Arc::new(StateHub::new());
+        hub.update(|g| {
+            g.status_flags = astromech_status::FLAG_IN_MAIN_SHIP;
+            g.status_seen = true;
+        });
+        let (tx, said) = channel();
+        let speaker: Arc<dyn Speaker> = Arc::new(Said(Mutex::new(tx)));
+        let runner = Arc::new(Runner {
+            policy: Policy::new(game.clone(), Default::default()),
+            hub,
+            binds: Arc::new(RwLock::new(health::run_check(
+                &bindings,
+                Some(&dir.path().join("nogame")),
+                false,
+                &astromech_proto::SystemClock,
+            ))),
+            speaker,
+            verify_timeout: Duration::from_millis(200),
+            log: Arc::new(|_: &str| {}),
+            remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
+            stars: Arc::new(astromech_api::GalaxyHolder::new(|| anyhow::bail!("no star map in this test"))),
+        });
+        let assistant = Arc::new(Assistant::new(runner.clone()));
+        let (ptt, kill) = (
+            Button { device: "231D3201".into(), key: "Joy_4".into() },
+            Button { device: "231D0200".into(), key: "Joy_1".into() },
+        );
+        let mut cfg = Config::default();
+        cfg.controls.ptt = Some(ptt.clone());
+        cfg.controls.kill_switch = Some(kill.clone());
+        // The replay's presses are forwarded at once, so the hold is measured as nothing.
+        cfg.voice.min_hold_ms = 0;
+        let stt: Box<dyn Stt> = Box::new(speech::FakeStt::new(&["gear down"]));
+        let stop = Arc::new(AtomicBool::new(false));
+        start_voice(
+            &cfg,
+            dir.path(),
+            assistant,
+            runner.clone(),
+            Some(stt),
+            false,
+            stop.clone(),
+            &BusSource,
+            &ToneMics,
+            Arc::new(astromech_proto::SystemClock),
+        )
+        .unwrap();
+
+        let f = concat!(env!("CARGO_MANIFEST_DIR"), "/../astromech-input/tests/fixtures/replay-vkb.json");
+        let rf: astromech_input::listen::replay::ReplayFile =
+            serde_json::from_str(&std::fs::read_to_string(f).unwrap()).unwrap();
+        let mut m = Mapper::new(Some(ptt), Some(kill), false, |_: &str| {});
+        for d in rf.devices {
+            m.add_device(d);
+        }
+        let mut got = vec![];
+        for s in &rf.samples {
+            got.extend(m.sample(s));
+        }
+        got.extend(m.tick(1e9));
+        assert_eq!(&got[..3], &[Control::PttDown, Control::PttUp, Control::KillDown], "{got:?}");
+
+        bus::forward(got[0]);
+        bus::forward(got[1]);
+        heard(&said, "Landing gear deployed.");
+        assert!(game.log.lock().unwrap().contains(&(l, false)), "Key_L went to the game");
+        bus::forward(got[2]);
+        heard(&said, "Kill switch on. All actions stopped.");
+        assert!(runner.policy.is_killed());
+        stop.store(true, Ordering::SeqCst);
+        bus::detach();
     }
 }

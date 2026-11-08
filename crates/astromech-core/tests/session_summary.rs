@@ -2,6 +2,7 @@
 //! (three sessions of one commander): imported into `history.sqlite`, read through the core's
 //! read connection, spoken by the reaction engine at the end of a session and by the voice
 //! query.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_announce::{builtin, Engine, Settings, Shared};
 use astromech_core::actions::{Outcome, Runner};

@@ -408,7 +408,7 @@ impl Assistant {
                 let outcome =
                     if confirmed { self.runner.run_confirmed(call, origin) } else { self.runner.run(call, origin) };
                 if matches!(outcome, Outcome::NeedsConfirm(_)) {
-                    *self.pending.lock().recover() = Some(Pending::Act { command, at: Instant::now() });
+                    *self.pending.lock().recover() = Some(Pending::Act { command, at: self.now() });
                     return Handled::Asked { command, phrase: "silent running".into() };
                 }
                 Handled::Ran { command, outcome }
@@ -420,10 +420,19 @@ impl Assistant {
         }
     }
 
+    /// Now on the session's clock (its policy's), for the confirm window.
+    fn now(&self) -> Instant {
+        self.runner.policy.clock().now()
+    }
+
     fn take_pending(&self) -> Option<Pending> {
         let mut p = self.pending.lock().recover();
         match p.as_ref() {
-            Some(Pending::Mean { at, .. } | Pending::Act { at, .. }) if at.elapsed() < CONFIRM_WINDOW => p.take(),
+            Some(Pending::Mean { at, .. } | Pending::Act { at, .. })
+                if self.now().saturating_duration_since(*at) < CONFIRM_WINDOW =>
+            {
+                p.take()
+            }
             _ => {
                 *p = None;
                 None
@@ -512,7 +521,7 @@ impl Assistant {
                     slot_text: m.slot_text.clone(),
                     from: m.origin.clone(),
                     heard: transcript.to_string(),
-                    at: Instant::now(),
+                    at: self.now(),
                 });
                 self.say(&format!("Did you mean {}?", m.phrase));
                 Handled::Asked { command: m.command, phrase: m.phrase }

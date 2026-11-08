@@ -18,12 +18,14 @@ the code.
 
 ```
 crates/         the Rust crates (astromech-core is the core and its command line; the rest are libraries)
-app/            Svelte 5 + TypeScript + Vite app shell; one folder per page in src/modules/*
+app/            Svelte 5 + TypeScript + Vite app shell; one folder per page in src/modules/*;
+                app/dev/ the dev bridge to a headless core and its Node control client
 app/src-tauri/  astromech-app, which builds astromech-core.exe: the one app, the core with its Tauri v2 tray and
                 window (a workspace member; the headless core without its `window` feature)
 data/           player-visible game data and the device sheets
 docs/           design documents, and the user guide in docs/guide/
 spikes/         spike tools (own code only)
+worlds/         scripted worlds the headless core runs in (`astromech-core --world`)
 scripts/        CI helpers (dependency-rule check); `scripts/ui` drives the Vite shell in headless Chrome
 ```
 
@@ -68,11 +70,40 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 `--dry-run` (log key presses instead of sending them), `--health` (the binds check), `--listen 20`
 (print button names) and `--debug-input`. `astromech-core --help` lists them all.
 
+## Running the app
+
+Two loops for working on the window:
+
+- **The real core in the browser**, on any host: `cargo build -p astromech-core`, then
+  `cd app && ASTROMECH_WORLD=../worlds/<name> pnpm dev` and open http://127.0.0.1:5173/. The dev
+  server's plugin (`app/dev/bridge.ts`) starts the headless core on that world
+  (`astromech-core --world`, the binary `ASTROMECH_CORE` or `target/debug/astromech-core`), and
+  every call the page makes goes to it through the dev bridge instead of the browser preview's
+  fake. The core runs in a temp copy of the world and stops with the dev server. It answers from
+  the world's journals and recorded network, so each page shows the real core's replies. Nothing
+  moves the world's steps from the page: the bridge sends the window's calls, which can't call
+  the `world_*` commands. The shell's own pushes (the raw-input presses for "press a control",
+  the tray's page requests) don't come through the bridge. `pnpm bridge-check` (in CI) checks
+  that the bridge gives the core's own reply. With no `ASTROMECH_WORLD`, `pnpm dev` is the
+  browser preview's fake, as below.
+- **The real window**, at the PC on Windows: `cd app && pnpm tauri dev` builds and starts the
+  Tauri shell on its own `pnpm dev` (leave `ASTROMECH_WORLD` unset), with this PC's core behind
+  it (the one running, else the `astromech-core` next to the shell's exe, which it starts) and the
+  game's own folders. Use it for what only the PC has: the window itself, the tray, raw input,
+  WebView2.
+
+`app/dev/core.ts` is the Node control client the bridge uses: `startWorld(<dir>)` spawns a world
+core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`world_step`),
+`wait` (`world_wait`) and `observed` speak the control API. Scripts and the journeys
+([Tests](#tests)) import it as it is (`node` runs it).
+
 ## Before a PR
 
 - Run `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`,
   `cargo test --workspace`, `python3 scripts/check-deps.py`, `python3 scripts/check-guide.py` (guide links), `cargo deny check`, and in `app/`:
-  `pnpm lint && pnpm check && pnpm build && pnpm test`, then `python3 scripts/check-dist.py` (the build carries no browser preview).
+  `pnpm lint && pnpm check && pnpm build && pnpm test`, then `python3 scripts/check-dist.py` (the build carries no browser preview),
+  then `pnpm exec tsc -p journeys` and the journeys, `node --test 'journeys/*.journey.ts'` (after `cargo test` or
+  `cargo build -p astromech-core` has built the core).
   `pnpm test` runs the UI tests in headless Chromium: install it once with
   `pnpm exec playwright install --only-shell chromium` (see [Tests](#tests)).
 - Tracker records: the **Atelier** workflow (`.github/workflows/atelier.yml`) runs
@@ -101,12 +132,18 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   Needs Google Chrome (or `CHROME` pointing at Chromium). `scripts/app-shots.sh` and
   `scripts/mockup-shots.sh` use the same binary; `scripts/mockup-shots.sh ds-sell ds-places`
   re-renders only the named mockups (the DESIGN.md ones are `ds-*`).
-- Outside Tauri (`pnpm dev`, the tests, a preview build) the window's one transport,
+- Outside Tauri (`pnpm dev` with no world, the tests, a preview build) the window's one transport,
   `app/src/lib/transport.ts`, is answered by the browser preview's fake in `app/src/preview/`
   (`?core=ready`, `?route=exact`, `?fail=`, `?slow=`). App code reaches the backend only through
   `call`, `subscribe` and `previewOption` (lint enforces it); a new command or topic needs a fake
   handler (`app/src/preview/coverage.test.ts`), and a release build must carry none of the fake
-  (`scripts/check-dist.py app/dist` after `pnpm build`, run in CI).
+  or the dev bridge (`scripts/check-dist.py app/dist` after `pnpm build`, run in CI).
+- The fake's fixtures (`app/src/preview/fixtures/`) are the real core's replies, dumped from
+  worlds under `worlds/preview/`. `crates/astromech-core/tests/preview_fixtures.rs` lists each
+  file with the command and args that produce it, or why the core doesn't, and fails when one
+  drifts. After a deliberate change to the core or one of those worlds, refresh them with
+  `ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-core --test preview_fixtures`, check the
+  diff, and run `pnpm check` and `pnpm test`. Don't edit a dumped fixture by hand.
 - Every command's args, reply and progress types are exported to TypeScript from the Rust
   command layer (ts-rs): `app/src/lib/api/types/` (generated, so lint skips it) and
   `app/src/lib/api/commands.ts`, which maps each command name to `{ args, reply, exposure,
@@ -121,11 +158,15 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   (`app/src/preview/recorded.ts`), so `pnpm check` fails on a fixture missing a field the core
   sends. Take the field from the fixture's recorded input (or the example that dumps it).
 - A new `window` command needs an entry in the table in
-  `crates/astromech-core/src/app/every_window_command.rs`: example args and what the call gives
-  (ok, or the handler's own error). The test calls each one through a core's control API, as the
-  shell sends it, and fails for a `window` command with no entry. It has no network and starts no
-  program: a command whose effect has no seam yet is called with state that stops it first, or not
-  called, and is named in `NOT_RUN_FOR_REAL` with the missing seam.
+  `crates/astromech-core/tests/every_window_command.rs`: example args, what the call gives (ok, or
+  the handler's own error) and the effect to check, in the reply or in what the world observed.
+  The test starts the headless core in the world `worlds/every-command` and calls each one through
+  its control API, as the shell sends it. It fails for a `window` command with no entry, and for an
+  example field the command's args type drops (a misspelt field). A setter's entry reads its
+  effect back with another command (`.reads`), and a lookup's reply must hold data from its
+  recording (`.has`). A request the command makes needs an answer in that world's `net.json`: a
+  recorded body (an existing fixture will do) or a fault; the test fails for an exchange no
+  request used. Only `install_update` is in `NOT_RUN_FOR_REAL`, called with no update staged.
 - To show a UI change to someone off this machine, work on the real page on its branch against the
   browser preview (add a fixture under `app/src/preview/fixtures/` when the change needs data the
   preview lacks), then `scripts/preview-publish --page route --query route=exact`. It builds the
@@ -228,6 +269,18 @@ quarantine: it needs an Atelier issue, named on the line above (`// quarantine: 
 <why>`). Lint rejects `setTimeout` and wall-clock reads in test files
 (`app/eslint-rules/tests.js`, tested by `tests.test.js` beside it).
 
+**The core's clock.** The core reads the time and waits through its clock
+(`astromech_proto::clock`: `clock.now()`, `clock.utc()`, `clock.sleep`, a clock channel's
+`recv_timeout`, `dyn Clock::wait_timeout`), so a world's manual clock moves it. Clippy rejects
+`Instant::now`, `Instant::elapsed`, `SystemTime::now`, `SystemTime::elapsed`, `chrono::Utc::now`,
+`chrono::Local::now`, `thread::sleep`, `Condvar::wait_timeout` and `mpsc::Receiver::recv_timeout`
+(`clippy.toml`). A wait that must stay real (device timing, a short pacing wait that ends on its own,
+a hang guard that decides nothing) carries `#[allow(clippy::disallowed_methods)]` with its reason.
+Rust tests are exempt for now, by an `allow` at the top of each `tests/*.rs` file and on each
+`#[cfg(test)]` module; astromech-c7lc removes those file by file. File watchers come from
+`astromech_core::watch::watcher`, which drops the notifications Linux sends for reads; clippy rejects
+`notify::recommended_watcher` elsewhere.
+
 **The frontend's two test projects** (`app/vite.config.ts`):
 
 - `node`: pure logic in `app/src/**/*.test.ts`, run in Node.
@@ -265,6 +318,76 @@ The preview's own tests (`app/src/preview/`) and the two tests of the app's side
 stale-data and callout announcement tests, and `lib/mining.test.ts`); move one behind `answer`
 when you change it. `vi.mock` of a module the preview imports deadlocks in the
 browser, so never add one.
+
+**Journeys** (`app/journeys/`). A journey is a user outcome that crosses the page, the real
+core and a boundary: a lookup that fails and recovers, a route plotted and followed. It is never
+a case a lower layer already tests: a parser, a plotter or a page's own states stay in Rust or in
+a UI test. A journey is a `*.journey.ts` file that calls `journey(name, { world }, fn)` from
+`app/journeys/harness.ts` on a committed world under `worlds/journeys/`. For each journey the
+harness starts one world core, a Vite dev server on `app/vite.config.ts` whose dev bridge sends
+the page's calls to that core (`astromechBridge({ core })`), and a fresh Chromium context at the
+app window's 1200×800. `fn` gets:
+
+- `open(route)`: past onboarding (the window's `onboarding_done`, what Skip setup sends), then
+  the page loaded once at `#/<route>`;
+- `page`, Playwright's page;
+- `core`: the world core's `step` (`world_step`), `wait` (`world_wait`), `observed` and
+  `callWindow`;
+- `runFor(ms)`: the page's clock, which `open` installs at the world header's `start` and pauses
+  there, so every timer in the page (the 2 s status and route polls, a toast's dismissal, the
+  plot bar's and the searches' debounces) fires only on `runFor`. A journey that types into a
+  debounced box calls `runFor` before it waits for the lookup;
+- `calls(cmd)`, the window's calls of `cmd` posted to the dev bridge, and `settled()`, which
+  resolves once every request the page made before it has reached the harness;
+- `world`, the core's temp world folder.
+
+The harness then closes the page and the server and quits the core, which must exit 0 with its
+home empty and its temp world gone, or the journey fails. A page that loads a second time or throws an error fails the journey too. Each journey's
+dev server pre-bundles at start only what `optimizeDeps.include` lists (vite-plugin-svelte adds
+svelte's entries) into a cache of its own in the journey's temp world, and discovers no other
+dependency (`noDiscovery`), so nothing re-optimises and reloads the page mid-journey, and the
+journeys `node --test` runs side by side share no cache and never write `app/node_modules/.vite`. Run them in `app/` with `node --test 'journeys/*.journey.ts'`, or one with
+`node --test journeys/lookup.journey.ts`, after building the core (`cargo build -p
+astromech-core`; `ASTROMECH_CORE` names another binary); the glob is quoted so Node expands it,
+and `journeys/harness.journey.ts`, the harness's own test, fails when the glob finds no
+journey. A failed journey leaves its Playwright trace (`pnpm exec playwright show-trace`), a
+screenshot and the core's log in `app/journeys/results/<journey>/`, which CI uploads. The
+Determinism rules hold, and lint enforces them in `app/journeys/` (the two rules above, and
+`astromech/no-playwright-time`: no `waitForTimeout`, no `polling` but `"mutation"`, no
+`"networkidle"`, and outside the harness none of the page clock's `resume`, `setSystemTime`,
+`setFixedTime` or `fastForward`: a journey moves the clock with `runFor` only). A
+journey waits on what the core observed (`wait`, whose `world_wait` has its own hang guard) or
+on the page (a locator, or `waitForFunction` with `polling: "mutation"`), and nothing retries:
+the harness's timeouts and node:test's only stop a hang. `pnpm exec tsc -p journeys` typechecks
+them (`app/journeys/tsconfig.json`). `scripts/ui` stays the tool for captures and agent checks.
+
+**The core in a world.** A Rust test that needs the whole core starts it headless in a world:
+`astromech-core --world <dir>` copies the world directory to a temp folder, runs the real core
+there with fakes for the processes, opener, clipboard, notifications, Start with Windows and
+secrets, and prints its control port and token on stdout. A world's `world.jsonl` moves the
+game step by step (journal lines, companion files, Elite starting and exiting, the clock), and
+`world_step` returns once the core has consumed each step, so a world test needs no sleeps. A
+world's `net.json` answers every HTTP request the core makes (recorded bodies, statuses and
+faults); a request it doesn't hold is refused and shows as unrecorded in `world_observed`.
+Push-to-talk, the kill switch and the paste button are raw-input samples in `press` and
+`release` steps, the microphone gets `audio` clips (mono 16 kHz WAVs rendered by the real
+speech path, never a personal recording: `cargo run -p astromech-core --example render-voices --
+--worker <worker> --models <models> --out <dir> --line 'Gear down.' --voices bm_george` writes
+`<dir>/bm_george.wav` at 24 kHz in the default cockpit colour, and `ffmpeg -i <dir>/bm_george.wav
+-ac 1 -ar 16000 <clip>.wav` converts it), speech-to-text hears
+`say` steps, and keys sent and lines said show in `world_observed`. `--record-net <file>` records real answers into that form with keys and commander names
+redacted, JSON-escaped echoes included. A recording committed here comes from public endpoints,
+with no credentials, and is checked for redaction; never commit one holding a key, a commander
+name or personal data. `crates/astromech-core/tests/committed_worlds.rs` fails for a world's
+`secrets.json` value that isn't a placeholder (`not-a-real-key`; it must say `not-a-real`,
+`fake` or `placeholder`, or be empty) and for a `net.json` holding an EDSM flight log with entries. The
+format, the settle rules and the `world_*` commands are in the [world module's doc
+comment](crates/astromech-core/src/world.rs); the worlds are in `worlds/`. `crates/astromech-core/tests/support/` starts one (`WorldCore`) and calls it over the
+control API. Each world core is its own process, because the core keeps process-wide state. The
+helper points every home variable (`HOME`, the `XDG_*` folders, `LOCALAPPDATA`, `APPDATA`,
+`USERPROFILE`) at an empty folder that `quit()` checks is still empty, and holds the core's
+stdin: world mode quits when its stdin closes, so a killed test leaves no core running. Started
+by hand, keep its stdin open: `sleep infinity | astromech-core --world worlds/minimal`.
 
 ## Releasing
 

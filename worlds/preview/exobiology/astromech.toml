@@ -1,0 +1,9 @@
+# The browser preview's biology sample (crates/astromech-core/tests/preview_fixtures.rs): in game,
+# the commander arrives in Synthetic Sector AB-C d1, finds three biological signals on B 3 and two on A 2
+# with the FSS, maps A 2 and logs a first Stratum Tectonicas sample, then walks about 210 m off.
+# A 2's lines are the exploration crate's synthetic ones (crates/astromech-exploration/tests/biology.rs); B 3's scan, the
+# Status.json positions and the commander are written for this world. No network is recorded, so
+# the session's background search for other players' reports is refused: the sample's `known` part
+# stays hand-written (the table says why).
+[eddn]
+enabled = false

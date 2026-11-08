@@ -1,5 +1,6 @@
 //! Journal replay tests for fuel along the route: the next scoopable star, and the warning when
 //! the fuel won't reach one.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 mod common;
 

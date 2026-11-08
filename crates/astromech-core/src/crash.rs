@@ -3,7 +3,9 @@
 //! "astromech crashed last time · Save diagnostics"; saving or dismissing moves the marker to
 //! `crash-last.txt` (kept for the next diagnostics bundle).
 
+use astromech_proto::Clock;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 pub const MARKER: &str = "crash.marker";
 pub const LAST: &str = "crash-last.txt";
@@ -16,8 +18,8 @@ pub const LAST: &str = "crash-last.txt";
 /// crash (decision astromech-lkwj): the next start offers Save diagnostics and the cause is fixed. A panic in a command's handler,
 /// which the command layer catches and answers with an error ([`astromech_api::panic_is_caught`]),
 /// is logged but leaves no crash marker: the core kept running. A second panic while that one
-/// unwinds aborts the process, so it leaves one.
-pub fn install(app_dir: &Path) {
+/// unwinds aborts the process, so it leaves one. `clock` stamps the marker.
+pub fn install(app_dir: &Path, clock: Arc<dyn Clock>) {
     let marker = app_dir.join(MARKER);
     let prev = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |info| {
@@ -31,7 +33,7 @@ pub fn install(app_dir: &Path) {
         let text = format!(
             "astromech-core {} crashed at {}\nthread: {thread}\n{info}\n\nbacktrace:\n{bt}\n",
             env!("CARGO_PKG_VERSION"),
-            chrono::Local::now().format("%Y-%m-%d %H:%M:%S %:z"),
+            chrono::DateTime::<chrono::Local>::from(clock.utc()).format("%Y-%m-%d %H:%M:%S %:z"),
         );
         crate::logging::log(&format!("CRASH (panic) on thread {thread}: {info}"));
         let red = astromech_keybinds::report::Redactor::from_env();
@@ -55,6 +57,7 @@ pub fn acknowledge(app_dir: &Path) -> Option<PathBuf> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 

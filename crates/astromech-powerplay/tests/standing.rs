@@ -1,5 +1,6 @@
 //! Replays synthetic journals (`fixtures/standing`: three sessions across the Thursday cycle tick)
 //! and checks the standing the app and voice show.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_journal::parse_line;
 use astromech_powerplay::{standing_from_journal_dir, standing_from_lines, Standing};

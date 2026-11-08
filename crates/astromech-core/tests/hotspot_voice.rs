@@ -2,6 +2,7 @@
 //! hotspot lookup with the ore in its `{mineral}` slot, answered from the commander's position
 //! (here Sol, on Spansh's recorded Painite rings) and spoken: the nearest ring, its distance,
 //! jumps, hotspots and reserves. Nothing is pressed.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::actions::{Outcome, Runner};
 use astromech_core::assistant::{Assistant, Handled};

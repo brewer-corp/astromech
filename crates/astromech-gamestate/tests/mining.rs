@@ -1,4 +1,5 @@
 //! A synthetic mining session: refined count and tons per hour.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_gamestate::mining::MiningRun;
 use chrono::DateTime;

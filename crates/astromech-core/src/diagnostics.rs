@@ -15,6 +15,13 @@ pub struct Inputs<'a> {
     pub config: Option<&'a Path>,
     /// Extra lines for `system.txt` (core status).
     pub status: String,
+    /// Stamps the file name and `system.txt`'s time.
+    pub clock: &'a dyn astromech_proto::Clock,
+}
+
+/// Local now on `clock`: what `chrono::Local::now()` reads on the system clock.
+fn local(clock: &dyn astromech_proto::Clock) -> chrono::DateTime<chrono::Local> {
+    chrono::DateTime::from(clock.utc())
 }
 
 /// Write `<app_dir>/diagnostics/astromech-diagnostics-<stamp>.zip` and return its path.
@@ -22,7 +29,7 @@ pub fn save(inp: &Inputs) -> Result<PathBuf> {
     let red = Redactor::from_env();
     let out_dir = inp.app_dir.join("diagnostics");
     std::fs::create_dir_all(&out_dir)?;
-    let out = out_dir.join(format!("astromech-diagnostics-{}.zip", chrono::Local::now().format("%Y%m%d-%H%M%S")));
+    let out = out_dir.join(format!("astromech-diagnostics-{}.zip", local(inp.clock).format("%Y%m%d-%H%M%S")));
     let f = std::fs::File::create(&out).with_context(|| format!("creating {}", out.display()))?;
     let mut z = zip::ZipWriter::new(f);
     let opt = zip::write::SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
@@ -38,7 +45,7 @@ pub fn save(inp: &Inputs) -> Result<PathBuf> {
             env!("CARGO_PKG_VERSION"),
             std::env::consts::OS,
             std::env::consts::ARCH,
-            chrono::Local::now().format("%Y-%m-%d %H:%M:%S %:z"),
+            local(inp.clock).format("%Y-%m-%d %H:%M:%S %:z"),
             inp.status
         ),
     )?;
@@ -72,6 +79,7 @@ pub fn save(inp: &Inputs) -> Result<PathBuf> {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
     use super::*;
 
@@ -89,6 +97,7 @@ mod tests {
             log_dir: &logs,
             config: None,
             status: "idle".into(),
+            clock: &astromech_proto::SystemClock,
         })
         .unwrap();
         let mut z = zip::ZipArchive::new(std::fs::File::open(p).unwrap()).unwrap();

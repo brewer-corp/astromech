@@ -47,7 +47,8 @@ fn sample(s: &XINPUT_STATE) -> SampleData {
     }
 }
 
-/// Start polling. Returns a status string.
+/// Start polling. Returns a status string. Its polling is device timing, on real time.
+#[allow(clippy::disallowed_methods)]
 pub fn start(tx: Sender<Msg>, start: Instant) -> String {
     let Some(get) = load() else { return "XInput DLL not available; Xbox pads not polled".into() };
     std::thread::Builder::new()

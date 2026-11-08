@@ -1,5 +1,6 @@
 //! One parser test per typed event, on the synthetic lines in `fixtures/events.jsonl`, plus the
 //! raw-JSON guarantee the EDDN sender relies on.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_journal::{parse_line, ExtraEvent as E, JournalEvent, JournalLine};
 

@@ -1,89 +1,69 @@
 {
-  "query": {
-    "id": "famine",
-    "label": "Famine (distribution centres)",
-    "allegiances": [],
-    "states": [
-      "Famine"
-    ],
-    "min_population": 0,
-    "by_population": false
-  },
+  "fetched": "2026-10-16T22:00:00Z",
   "here": {
-    "system": "Sol",
     "id64": 10477373803,
     "pos": [
       0.0,
       0.0,
       0.0
-    ]
+    ],
+    "system": "Sol"
   },
-  "range": 32.5,
-  "fetched": "2026-10-14T19:26:42Z",
   "hits": [
     {
-      "name": "WISE 0855-0714",
-      "id64": 58144730663760,
-      "ly": 7.17165372752338,
-      "jumps": 1,
-      "exact": false,
-      "population": 34825,
-      "updated_at": "2026-10-14T18:08:31Z",
+      "exact": true,
       "factions": [
         {
-          "name": "WISE 0855-0714 Gold Gang",
-          "allegiance": "Independent",
-          "state": "Famine",
           "active_states": [
             "Famine",
             "Infrastructure Failure"
           ],
-          "influence": 0.010101
+          "allegiance": "Independent",
+          "influence": 0.010101,
+          "name": "WISE 0855-0714 Gold Gang",
+          "state": "Famine"
         }
       ],
-      "seen_on_visit": false
+      "id64": 58144730663760,
+      "jumps": 1,
+      "ly": 7.17165372752338,
+      "name": "WISE 0855-0714",
+      "population": 34825,
+      "seen_on_visit": false,
+      "updated_at": "2026-10-14T18:08:31Z"
     },
     {
-      "name": "Ross 154",
-      "id64": 7268024264105,
-      "ly": 9.688961583291576,
-      "jumps": 1,
-      "exact": false,
-      "population": 2006272,
-      "updated_at": "2026-10-14T19:20:00Z",
+      "exact": true,
       "factions": [
         {
+          "active_states": [
+            "Famine",
+            "Civil Unrest"
+          ],
+          "allegiance": "Independent",
+          "influence": 0.31,
           "name": "Ross 154 Boys",
-          "allegiance": "Independent",
-          "state": "Famine",
-          "active_states": [
-            "Famine"
-          ],
-          "influence": 0.01
+          "state": "Famine"
         }
       ],
-      "seen_on_visit": true
-    },
-    {
-      "name": "Tau Ceti",
-      "id64": 3107509506770,
-      "ly": 11.937050056965498,
+      "id64": 7268024264105,
       "jumps": 1,
-      "exact": false,
-      "population": 5000152143,
-      "updated_at": "2026-10-14T17:55:17Z",
-      "factions": [
-        {
-          "name": "Tau Ceti Crimson Boys",
-          "allegiance": "Independent",
-          "state": "Famine",
-          "active_states": [
-            "Famine"
-          ],
-          "influence": 0.019038
-        }
-      ],
-      "seen_on_visit": false
+      "ly": 9.688961583291576,
+      "name": "Ross 154",
+      "population": 2006272,
+      "seen_on_visit": true,
+      "updated_at": "2026-10-16T12:00:00Z"
     }
-  ]
+  ],
+  "query": {
+    "allegiances": [],
+    "by_population": false,
+    "id": "famine",
+    "label": "Famine (distribution centres)",
+    "min_population": 0,
+    "states": [
+      "Famine"
+    ]
+  },
+  "range": 31.5
 }

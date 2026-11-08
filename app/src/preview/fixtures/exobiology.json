@@ -60,6 +60,12 @@
             {
               "fit": 1.0,
               "genus": "Electricae",
+              "species": "Electricae Pluma",
+              "value": 6284600
+            },
+            {
+              "fit": 1.0,
+              "genus": "Electricae",
               "species": "Electricae Radialem",
               "value": 6284600
             }
@@ -155,10 +161,10 @@
   "sampling": {
     "body_id": 5,
     "clearance": {
-      "bearing_deg": 206.21584760924785,
+      "bearing_deg": 260.39491244744687,
       "colony_range_m": 500,
       "far_enough": false,
-      "nearest_m": 230.66738387841158,
+      "nearest_m": 209.19024443272434,
       "next": 2
     },
     "colony_range_m": 500,

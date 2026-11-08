@@ -28,6 +28,7 @@
 //! - [`setup`]: onboarding's checks and the config edits the window makes;
 //! - [`config`]: the `astromech.toml` file (PTT and kill-switch buttons, folders, timings);
 //! - [`app::eddn_log`]: the EDDN send log for the Diagnostics page (`astromech-eddn`);
+//! - [`world`]: world mode (`--world`), the core headless against a scripted world;
 //! - [`logging`], [`crash`], [`diagnostics`], [`instance`], [`autostart`],
 //!   [`gamewatch`], [`update`]: the M0 infrastructure pieces.
 
@@ -57,6 +58,7 @@ pub mod known_bodies;
 pub mod learned;
 pub mod logging;
 pub mod lookups;
+pub mod mic;
 pub mod pipeline;
 pub mod route;
 pub mod session;
@@ -68,3 +70,5 @@ pub mod trade;
 pub mod tray;
 pub mod update;
 pub mod visits;
+pub mod watch;
+pub mod world;

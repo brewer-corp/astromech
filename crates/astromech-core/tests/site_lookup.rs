@@ -1,6 +1,7 @@
 //! "Nearest crystalline shards" by voice: the transcript resolves to the site lookup, which is
 //! answered from the commander's position (here Sol, on Spansh's recorded answer) and spoken.
 //! Nothing is pressed.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::actions::{Outcome, Runner};
 use astromech_core::assistant::{Assistant, Handled};

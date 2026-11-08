@@ -1,6 +1,7 @@
 //! The mining run in the core's status reply: a synthetic mining session fed through the hub
 //! gives the JSON shape the window's Mining page reads. The window's sample
 //! (`app/src/preview/fixtures/mining.json`) must be the same JSON.
+#![allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 
 use astromech_core::hub::StateHub;
 use serde_json::Value;

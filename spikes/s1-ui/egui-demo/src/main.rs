@@ -6,6 +6,7 @@
 //!                                headless: render N frames at 1024x768 to an RGBA buffer, print timings
 //!
 //! Standalone demo: reads nothing, writes nothing (except --png), never touches the game.
+#![allow(clippy::disallowed_methods)] // a spike, not the core
 
 mod hud;
 mod offscreen;
