@@ -1,0 +1,10 @@
+{"start": "2026-11-07T12:00:00Z", "foreground": "Elite - Dangerous (CLIENT)", "devices": [{"key": "hid:vkb-l", "kind": "hid", "vid": 8989, "pid": 12801, "product": "VKBsim Gladiator EVO OT L", "usage": 4, "buttons_declared": 128, "axes_declared": ["X", "Y", "Z", "RX", "RY", "RZ"], "hats_declared": 1}, {"key": "hid:vkb-r", "kind": "hid", "vid": 8989, "pid": 512, "product": "VKBsim Gladiator EVO R", "usage": 4, "buttons_declared": 128, "axes_declared": ["X", "Y", "Z", "RX", "RY", "RZ"], "hats_declared": 1}], "reactions": [{"scan": 38, "ext": 0, "flag": 4}]}
+{"game": "running"}
+{"mark": "running"}
+{"press": {"dev": "hid:vkb-r", "data": {"type": "hid", "buttons": [1]}}}
+{"release": {"dev": "hid:vkb-r", "data": {"type": "hid", "buttons": []}}}
+{"mark": "killed"}
+{"press": {"dev": "hid:vkb-r", "data": {"type": "hid", "buttons": [1]}}}
+{"advance": "1000ms"}
+{"release": {"dev": "hid:vkb-r", "data": {"type": "hid", "buttons": []}}}
+{"mark": "rearmed"}
