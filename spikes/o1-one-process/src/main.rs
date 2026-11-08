@@ -2,7 +2,7 @@
 //! window, survive the window crashing, free WebView2 when the window closes, and leave
 //! astromech's own Raw Input listener receiving keys? Throwaway code: scripts/one_process_probe.py
 //! drove it on Windows CI, in a workflow deleted once its checks moved to scripts/webview_cost.py
-//! (astromech-xz7i); the probe's `--restart` mode still drives it (astromech-fmub).
+//! (astromech-xz7i). The probe was removed with crash restart (astromech-lkwj).
 //!
 //! astromech-spike [--background] [--route X] [--plain-tray]
 //!                 [--sink-before-build | --sink-after-build] [--crash-hook] [--restarted]

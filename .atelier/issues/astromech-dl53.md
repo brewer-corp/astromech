@@ -21,9 +21,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-11-08T03:44:19.513839628+00:00"
+status: "superseded"
 title: "Crash restart for the one app through Windows restart registration"
-updated_at: "2026-11-07T14:07:01.291052660+00:00"
+updated_at: "2026-11-08T03:44:19.513839628+00:00"
 ---
 
 ## Goal
@@ -81,3 +82,7 @@ crates/astromech-core (crash.rs, app.rs startup, session.rs for the saved state,
 
 - 2026-11-07 [note] From spike astromech-wgtr (evidence astromech-fqw9): restart registration couldn't be shown on Windows CI. RegisterApplicationRestart returned 0, but no crash was restarted in 15 cases (abort, access_violation and main_thread_panic after 65 s, TerminateProcess, abort after 10 s) across three configurations: the runner's WER (WerSvc stopped, DontShowUI=1), WER on, and WER on with the app launched with the default error mode. The runner hands its children error mode 0x3 (SEM_NOGPFAULTERRORBOX), and it refuses CREATE_BREAKAWAY_FROM_JOB. Even with error mode 0, no WER report, WerFault or dialog appeared, so WER never engaged there. Its CI job therefore can't prove a restart: Done when now has the job assert registration and a faked --restarted start, and the real restart moves to an after-merge needs-human check at Sumeet's PC. If Windows restarts neither abort nor access_violation there with WER on, the watchdog question goes to Sumeet (stop rule). Also, main_thread_panic exits 0x65 with no WER, so the main-thread abort line applies (its condition is met).
 - 2026-11-07 [note] From finding astromech-1vi3 (wgtr review): word the runner result as 'no restart, WER report or WerFault was observed' (WerSvc went from stopped to running during the runner-WER configuration, so 'WER never engages' overstates it), and have the records step log AeDebug, LocalDumps and the WerSvc state before and after each crash.
+
+## Report
+
+Sumeet decided no automatic crash restart (decision astromech-lkwj, 7 Nov 2026): a crash is a bug to fix, not to paper over

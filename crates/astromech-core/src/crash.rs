@@ -11,8 +11,9 @@ pub const LAST: &str = "crash-last.txt";
 /// Install the panic hook. Panics on any thread are logged; the process then carries on as
 /// Rust normally would, except that a panic on the main thread aborts once it is logged and its
 /// marker written. The main thread runs Tauri's event loop, which would catch the panic and end
-/// the process with an ordinary exit code (101), out of reach of Windows Error Reporting and so
-/// of restart registration (spike astromech-wgtr); an abort is a crash to Windows. A panic in a command's handler,
+/// the process with an ordinary exit code (101), out of reach of Windows Error Reporting; an
+/// abort is a crash to Windows, so it gets a WER report. astromech never restarts itself after a
+/// crash (decision astromech-lkwj): the next start offers Save diagnostics and the cause is fixed. A panic in a command's handler,
 /// which the command layer catches and answers with an error ([`astromech_api::panic_is_caught`]),
 /// is logged but leaves no crash marker: the core kept running. A second panic while that one
 /// unwinds aborts the process, so it leaves one.

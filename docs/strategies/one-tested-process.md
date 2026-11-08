@@ -1,6 +1,6 @@
 ---
 status: draft
-last_changed: "2026-11-07: no memory bound in one-process (Sumeet, decision astromech-01ft)"
+last_changed: "2026-11-07: no crash restart (Sumeet, decision astromech-lkwj)"
 ---
 
 # Why
@@ -47,8 +47,9 @@ its own: the transport seam and the command layer, even before the single-proces
 - **One process** (decision astromech-6i8s, superseding ARCHITECTURE §18's process model): the
   tray, the pipeline, voice, input and the window live in one Tauri app. The speech worker
   stays a separate supervised process. Closing the window
-  destroys it, so WebView2 exits. Start with Windows never creates a window. Crash restart
-  comes from Windows' restart registration, or a minimal watchdog if that can't cover it.
+  destroys it, so WebView2 exits. Start with Windows never creates a window. Nothing restarts the
+  app after a crash: a crash is a bug to fix, and the next start offers Save diagnostics
+  (Sumeet, 7 Nov 2026; decision astromech-lkwj).
 - **One command layer in a crate**: every way in (Tauri `invoke`, the TCP control API, and
   later WASM) calls the same handlers. Nothing in the window process bypasses it.
 - **The core is headless-capable**: one binary runs without a window on Linux for CI, the dev
@@ -100,7 +101,8 @@ changes what the shipped app does while playing;.
   They load on first use and are dropped when idle.
 - A fault in the window side now shares a process with the kill switch. Commands run behind
   `catch_unwind` on worker threads; a native crash (SQLite, WebView2's host side) takes the
-  process down, which crash restart must cover. Speech stays isolated in its worker.
+  process down; the next start offers its report, and the cause gets fixed. Speech stays isolated
+  in its worker.
 - Putting every window command on the control API widens what a local client can do; which
   commands pass `astromech-policy` is settled in the command layer increment.
 - The headless core needs Linux stand-ins for sending keys, the keyboard hook and audio. Some

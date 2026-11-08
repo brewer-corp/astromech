@@ -3,7 +3,7 @@ name = "o1-one-process"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "Spike O1 (astromech-wgtr): a windowless Tauri tray app on Windows, probed by scripts/one_process_probe.py"
+description = "Spike O1 (astromech-wgtr): a windowless Tauri tray app on Windows; its probe script was removed with crash restart (astromech-lkwj)"
 publish = false
 
 [[bin]]

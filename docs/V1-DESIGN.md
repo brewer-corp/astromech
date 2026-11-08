@@ -795,13 +795,13 @@ skip the guide. A new rule's lines go in that test.
   "Astromech online" (optional). When the game exits: unload models (free ≈ 1–2 GB), close the
   mic, go idle. Setting: "Keep voice loaded" for fast restarts.
 
-### 7.7 Single instance, crash restart, logs
+### 7.7 Single instance, crashes, logs
 - **Single instance:** a named mutex `Local\astromech-core`, the only guard (decision
   astromech-nade), the same name in every release, so an old tray core and a new app never run
   together. A second start tells the first to open the window, then exits; that includes the
   `astromech-shell.exe` forwarder an old shortcut or pin starts.
-- **Crash restart:** through Windows' restart registration (astromech-dl53; the shell that
-  restarted the core is gone with the one app). The app installs a panic hook that writes the panic + backtrace to the log and a crash marker. On the
+- **Crashes:** astromech doesn't restart itself after a crash (decision astromech-lkwj). A crash
+  is a bug to fix, not to paper over, and crashes should be rare. The app installs a panic hook that writes the panic + backtrace to the log and a crash marker. On the
   next start the tray offers "astromech crashed last time · Save diagnostics". The voice worker is
   already a supervised child (restarted by the core).
 - **Logs:** rolling files in `%LOCALAPPDATA%\astromech\data\logs` (7 days, 10 MB each), the same lines
@@ -862,8 +862,8 @@ Total about **11 weeks**.
   for two polls (6 s). The Raw Input listener starts at the first activation and stays.
 - Start with Windows, Open config file and Download speech models moved from the tray to
   Settings (14 Oct); the tray links there with "Finish setup" while something is missing.
-- Crash restart: in M0 the window's watchdog restarted the core. The one app has no second
-  process to watch it; crash restart moves to Windows' restart registration (astromech-dl53).
+- Crash restart: in M0 the window's watchdog restarted the core while the window was open. The
+  one app has no second process to watch it and doesn't restart itself (decision astromech-lkwj).
 
 ### 7.11 As built in M1 (11 Oct 2026)
 - **Where the keybinds code runs.** The app window reads and edits presets itself, through

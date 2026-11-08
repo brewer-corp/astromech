@@ -31,7 +31,7 @@ What it does, in the order a new player would:
    and one more tap must turn the kill switch on with no window. Done once in the session from
    step 4, then again after the app is quit with `--quit` (config kept), the mock game started
    first and the app started again in the background, so the session's listener starts at app
-   start, before any window (as after a crash restart or an update relaunch while Elite runs);
+   start, before any window (as after an update relaunch while Elite runs);
    a second start with `--route settings` opens the window before the presses. The app's one
    input source must register after Tauri builds its event loop, which registers Raw Input for
    its own window, and this second run is the one where the session's listener could start
