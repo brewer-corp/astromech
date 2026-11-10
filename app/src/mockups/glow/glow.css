@@ -8,7 +8,6 @@
   --accent: #ff7100;
   --orange-mid: #d97a34;
   --placeholder: #ff7100bf;
-  --panel: 400px;
   font-family: var(--face);
   font-stretch: var(--face-stretch);
   font-size: var(--fs);
@@ -62,7 +61,7 @@
 .glow .badge { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); line-height: 1; white-space: nowrap; }
 
 /* Meter: a Seam track filled from the left */
-.glow .meter { display: block; height: 3px; background: var(--line); }
+.glow .meter { display: block; height: 4px; background: var(--line); }
 .glow .meter > span { display: block; height: 100%; background: var(--accent); }
 
 /* Grade pips: five squares, the reached grades filled */

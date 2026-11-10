@@ -46,8 +46,8 @@
                   {#if n < want}<span class="bang">!</span>{/if}need {want}
                   {#if name === tipOn}
                     <Tip side="below" end width={340}>
-                      <b>Germanium: 4 of 10.</b> Long Way Round's FSD plan wants 6 and Heavy Lifter's shield plan
-                      wants 4. Trade 36 Nickel up to make the 6 you lack.
+                      <b>Germanium: 4 of 10.</b> Long Way Round's wide angle sensors want 6 and Heavy Lifter's
+                      thermal resistant shields want 4. Trade 36 Nickel up to make the 6 you lack.
                     </Tip>
                   {/if}
                 </span>
@@ -67,14 +67,14 @@
 
       <h3 class="section">Wanted by</h3>
       <div class="wants">
-        <span>Long Way Round <span class="mid">· hull reinforcement G3</span></span><span class="r">4</span>
-        <span>Heavy Lifter <span class="mid">· shield booster G2</span></span><span class="r">8</span>
+        <span>Long Way Round<span class="label sub">Thrusters, reinforced G3</span></span><span class="r">4</span>
+        <span>Heavy Lifter<span class="label sub">Armour, heavy duty G4</span></span><span class="r">8</span>
       </div>
 
       <h3 class="section">Trade for it</h3>
       <div class="wants">
-        <span>6 Carbon <span class="mid">→ 1 Vanadium</span></span><span class="r"><span class="lit">14</span><span class="unit">you could make</span></span>
-        <span>1 Niobium <span class="mid">→ 3 Vanadium</span></span><span class="r mid">none held</span>
+        <span>6 Carbon <span class="mid">→ 1</span></span><span class="r"><span class="lit">14</span><span class="unit">from your 89</span></span>
+        <span>1 Niobium <span class="mid">→ 3</span></span><span class="r mid">none held</span>
       </div>
 
       <h3 class="section">Where to get it</h3>
@@ -94,11 +94,10 @@
   .grid { display: grid; grid-template-columns: 104px repeat(4, minmax(180px, 290px)); gap: var(--sp-2); align-items: center; }
   .colhead { padding: 0 var(--sp-3); }
   .rowhead.current { color: var(--text-hi); }
-  .tile { position: relative; height: 84px; padding: 12px var(--sp-3) 10px; background: var(--surface); display: grid; grid-template-rows: auto 1fr; }
+  .tile { position: relative; height: var(--tile); padding: var(--sp-2) var(--sp-3); background: var(--surface); display: grid; grid-template-rows: auto 1fr; }
   .count { font-size: var(--fs-xxl); font-weight: 500; line-height: 1; color: var(--orange-lit); }
-  .name { align-self: end; color: var(--accent); }
-  .need { position: absolute; top: 10px; right: var(--sp-3); font-size: var(--fs-xs); color: var(--orange-mid); }
-  .need.short { color: var(--accent); }
+  .name { align-self: end; font-size: var(--fs-s); color: var(--accent); }
+  .need { position: absolute; top: var(--sp-2); right: var(--sp-3); font-size: var(--fs-xs); color: var(--accent); }
   .need .bang { margin-right: 3px; }
   .track { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--line); }
   .fill { display: block; height: 100%; background: var(--orange-mid); }
@@ -113,7 +112,8 @@
   .key { display: flex; align-items: baseline; margin: var(--sp-6) 0 var(--sp-2); }
   .short-line { color: var(--accent); margin-bottom: var(--sp-8); }
   .section { margin-bottom: var(--sp-3); }
-  .wants { display: grid; grid-template-columns: 1fr auto; gap: var(--sp-2) var(--sp-3); color: var(--accent); margin-bottom: var(--sp-8); }
+  .wants { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: var(--sp-3); color: var(--accent); margin-bottom: var(--sp-8); }
+  .wants .sub { display: block; }
   .get { display: grid; gap: var(--sp-2); color: var(--accent); margin-bottom: var(--sp-6); }
   .acts { display: flex; gap: var(--sp-4); }
 </style>

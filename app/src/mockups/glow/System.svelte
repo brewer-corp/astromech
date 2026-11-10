@@ -23,8 +23,6 @@
     { d: 0, icon: "star", name: "B", type: "M red dwarf", ls: "18,320", value: "2,950", state: "star" },
     { d: 1, icon: "icy", name: "B 1", type: "Icy body", ls: "18,330", value: "2,700", state: "plain" },
     { d: 1, icon: "ammonia", name: "B 2", type: "Ammonia world", ls: "18,345", value: "2,887,300", state: "worth", badges: ["First discovery"] },
-    { d: 1, icon: "gas-giant", name: "B 3", type: "Class I gas giant", ls: "18,400", value: "38,200", state: "plain" },
-    { d: 0, icon: "star-dwarf", name: "C", type: "T brown dwarf", ls: "41,200", value: "1,820", state: "star" },
   ];
   const selected = "A 4";
 
@@ -52,7 +50,7 @@
   }));
 </script>
 
-<Frame top="Exploration" tabs={["System", "Exobiology", "Codex"]} tab="System"
+<Frame top="Exploration" tabs={["System", "Biology"]} tab="System"
   strip={{ next: "Synuefe ZL-J d10-109", of: "1 of 6", flags: ["Scoopable"], dest: "Col 285 Sector RD-S b18-0", left: "6 jumps left" }}
   status={{ ship: "Long Way Round", type: "Krait Mk II", jump: "31.4", fuel: "24.6 / 32", cargo: "0 / 144" }}>
   <div class="page">
@@ -60,11 +58,11 @@
       <div class="head">
         <div>
           <div class="name-row"><h1 class="title">Synuefe GW-Z a54-3</h1><Copy /></div>
-          <p class="label">16 bodies, all scanned · 4 worth mapping</p>
+          <p class="label">14 bodies, all scanned · 3 worth mapping</p>
         </div>
         <div class="heroes">
-          <p class="hero"><span class="vxl base">1,412,960</span><span class="unit">cr now</span></p>
-          <p class="hero"><span class="vxl">10,824,960</span><span class="unit">cr if you map the best 3</span></p>
+          <p class="hero"><span class="vxl base">3,853,200</span><span class="unit">cr now</span></p>
+          <p class="hero"><span class="vxl">10,720,300</span><span class="unit">cr if you map the best 3</span></p>
         </div>
       </div>
 
@@ -89,25 +87,24 @@
 
     <aside>
       <h2 class="title">A 4</h2>
-      <p class="label">High metal content world · Synuefe GW-Z a54-3</p>
+      <p class="label">Synuefe GW-Z a54-3</p>
       <p class="key"><span class="vxl white">1,612,400</span><span class="unit">cr mapped</span></p>
-      <p class="label">412,300 cr now · 1,204 ls from arrival</p>
+      <p class="label">412,300 cr now · not mapped yet</p>
       <dl>
-        <dt class="label">Gravity</dt><dd>0.31 g</dd>
-        <dt class="label">Temperature</dt><dd>182 K</dd>
-        <dt class="label">Atmosphere</dt><dd>Thin carbon dioxide</dd>
+        <dt class="label">Class</dt><dd>High metal content world</dd>
+        <dt class="label">Distance</dt><dd>1,204<span class="unit">ls</span></dd>
+        <dt class="label">Gravity</dt><dd>0.31<span class="unit">g</span></dd>
         <dt class="label">Signals</dt><dd>2 biological · 3 geological</dd>
+        <dt class="label">Surface</dt><dd>Landable · terraformable</dd>
+        <dt class="label">Discovery</dt><dd>Discovered, never mapped</dd>
+        <dt class="label">Landings</dt><dd class="mid">None yet</dd>
       </dl>
       <h3 class="section">What to do</h3>
       <ol class="todo">
-        <li><span class="step">1</span><span>Map it: 6 probes for the efficiency bonus.</span></li>
-        <li><span class="step">2</span><span>Land for the 2 biological signals. Likely here:</span></li>
+        <li><span class="step">1</span><span>Map it with the efficiency target for the full value.</span></li>
+        <li><span class="step">2</span><span>Land for the 2 biological signals; first footfall is likely.</span></li>
       </ol>
-      <div class="species">
-        <span>Stratum Tectonicas</span><span class="r"><span class="lit">19,010,800</span><span class="unit">cr</span></span>
-        <span>Bacterium Aurasus</span><span class="r">1,000,000<span class="unit">cr</span></span>
-      </div>
-      <div class="acts"><button class="act">Open in Exobiology</button></div>
+      <div class="acts"><button class="act">Open in Biology</button></div>
     </aside>
   </div>
 </Frame>
@@ -121,7 +118,7 @@
   .hero { display: flex; align-items: baseline; white-space: nowrap; }
   .vxl.base { color: var(--accent); }
 
-  .row { display: grid; grid-template-columns: 136px 96px 400px minmax(0, 1fr); align-items: center; column-gap: var(--sp-6); height: 40px; padding: 0 var(--sp-3); white-space: nowrap; }
+  .row { display: grid; grid-template-columns: 136px 96px 400px minmax(0, 1fr); align-items: center; column-gap: var(--sp-6); height: var(--row-result); padding: 0 var(--sp-3); white-space: nowrap; }
   .row.heads { height: 28px; border-bottom: 1px solid var(--line); margin-bottom: var(--sp-1); }
   .value { color: var(--accent); }
   .row.worth .value { font-size: var(--fs-l); font-weight: 600; color: var(--orange-lit); }
@@ -151,12 +148,11 @@
   aside { border-left: 1px solid var(--accent); padding-left: var(--sp-6); }
   aside > .label { margin-top: var(--sp-1); }
   .key { display: flex; align-items: baseline; margin: var(--sp-6) 0 var(--sp-1); }
-  dl { display: grid; grid-template-columns: 112px 1fr; gap: var(--sp-2) var(--sp-3); margin: var(--sp-6) 0 var(--sp-8); }
+  dl { display: grid; grid-template-columns: 88px 1fr; gap: var(--sp-2) var(--sp-3); margin: var(--sp-6) 0 var(--sp-8); }
   dt { align-self: center; }
   .section { margin-bottom: var(--sp-3); }
-  .todo { display: grid; gap: var(--sp-2); }
+  .todo { display: grid; gap: var(--sp-2); margin-bottom: var(--sp-4); }
   .todo li { display: flex; gap: var(--sp-3); color: var(--prose); }
   .step { color: var(--accent); font-weight: 600; }
-  .species { display: grid; grid-template-columns: 1fr auto; gap: var(--sp-1) var(--sp-3); margin: var(--sp-2) 0 var(--sp-4) 22px; color: var(--accent); }
   .acts { margin-left: calc(-1 * var(--sp-2)); }
 </style>

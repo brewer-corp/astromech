@@ -11,7 +11,7 @@
     ["Hardpoints", [
       { size: "3C", module: "Multi-cannon, gimballed", grade: 5, blueprint: "Overcharged", special: "Corrosive shell" },
       { size: "3C", module: "Multi-cannon, gimballed", grade: 5, blueprint: "Overcharged", special: "Auto loader" },
-      { size: "3D", module: "Beam laser, gimballed", grade: 3, blueprint: "Efficient" },
+      { size: "3D", module: "Beam laser, gimballed" },
       { size: "2E", module: "Pulse laser, gimballed" },
       { size: "2E", module: "Pulse laser, gimballed" },
     ]],
@@ -23,7 +23,7 @@
     ]],
     ["Core", [
       { size: "", module: "Military grade composite", grade: 5, blueprint: "Heavy duty" },
-      { size: "7A", module: "Power plant", grade: 3, blueprint: "Overcharged" },
+      { size: "7A", module: "Power plant", grade: 1, blueprint: "Overcharged" },
       { size: "6A", module: "Thrusters", grade: 3, blueprint: "Dirty drive tuning" },
       { size: "5A", module: "Frame shift drive", grade: 5, blueprint: "Increased range", special: "Mass manager" },
       { size: "4D", module: "Life support" },
@@ -77,7 +77,7 @@
         <img src="/ships/krait-mk-ii.png" alt="Krait Mk II" />
         <div class="who">
           <h1 class="title">Long Way Round</h1>
-          <p class="label">Krait Mk II · KR-27A · 9 of 23 modules engineered</p>
+          <p class="label">Krait Mk II · KR-27A · 10 of 23 modules engineered</p>
         </div>
         <dl class="stats">
           <div><dt class="label">Jump range</dt><dd><span class="vxl">31.4</span><span class="unit">ly</span></dd></div>
@@ -96,21 +96,21 @@
     <aside>
       <h2 class="title">Power distributor</h2>
       <p class="label">7A · Charge enhanced, grade 3 of 5</p>
-      <p class="key"><span class="vxl white">+31%</span><span class="unit">recharge</span></p>
+      <p class="key"><span class="vxl white">+24%</span><span class="unit">recharge</span></p>
       <dl class="facts">
-        <dt class="label">Weapons</dt><dd>5.6<span class="unit">MW/s</span></dd>
-        <dt class="label">Engines</dt><dd>4.0<span class="unit">MW/s</span></dd>
-        <dt class="label">Systems</dt><dd>4.0<span class="unit">MW/s</span></dd>
+        <dt class="label">Grade 3 rolls</dt><dd>+18 to +27%<span class="unit">recharge</span></dd>
+        <dt class="label">Capacity</dt><dd>−3%</dd>
+        <dt class="label">Grade 4</dt><dd>+27 to +36%<span class="unit">recharge</span></dd>
       </dl>
       <h3 class="section">Grade 4 needs</h3>
       <div class="needs">
         <span class="label">Material</span><span class="label r">Need</span><span class="label r">Have</span>
-        <span>Grid resistors</span><span class="r">1</span><span class="r">4</span>
-        <span>Conductive polymers</span><span class="r">1</span><span class="r">3</span>
+        <span>Chemical manipulators</span><span class="r">1</span><span class="r">2</span>
+        <span>Modified consumer firmware</span><span class="r">1</span><span class="r">5</span>
         <span>Hybrid capacitors</span><span class="r">1</span><span class="r"><span class="bang">!</span>0</span>
       </div>
       <p class="eng"><span class="label">Engineer</span><span class="ename">The Dweller</span><span class="label">Wyrd</span><Copy /></p>
-      <p class="warn"><span class="bang">!</span>Unlock The Dweller first: sell at 5 black markets, 2 of 5.</p>
+      <p class="warn"><span class="bang">!</span>Unlock The Dweller first: deal at 5 black markets, 2 of 5.</p>
       <div class="acts"><button class="primary">Add to plan</button><button class="act">Engineers</button></div>
     </aside>
 
@@ -157,10 +157,10 @@
   aside { grid-row: 1 / 3; grid-column: 2; border-left: 1px solid var(--accent); padding-left: var(--sp-6); }
   aside > .label { margin-top: var(--sp-1); }
   .key { display: flex; align-items: baseline; margin: var(--sp-6) 0 var(--sp-4); }
-  .facts { display: grid; grid-template-columns: 112px 1fr; gap: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-8); }
+  .facts { display: grid; grid-template-columns: 104px 1fr; gap: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-8); }
   dt { align-self: center; }
   aside .section { margin-top: 0; }
-  .needs { display: grid; grid-template-columns: 1fr 56px 56px; gap: var(--sp-2) var(--sp-3); color: var(--accent); margin-bottom: var(--sp-6); }
+  .needs { display: grid; grid-template-columns: 1fr 36px 36px; gap: var(--sp-2) var(--sp-3); color: var(--accent); margin-bottom: var(--sp-6); }
   .eng { display: flex; align-items: baseline; gap: var(--sp-3); }
   .eng :global(.copy) { align-self: center; margin-left: -8px; }
   .ename { color: var(--accent); }
@@ -170,10 +170,11 @@
   .fleet { grid-column: 1; align-self: end; }
   .fleet .section { margin-top: 0; }
   .ships { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-2); }
-  .boat { display: grid; grid-template-columns: 56px 1fr; grid-template-rows: auto auto; column-gap: var(--sp-3); align-items: center; height: 56px; padding: 0 var(--sp-3) 0 var(--sp-2); background: var(--surface); border-bottom: 2px solid transparent; white-space: nowrap; }
+  .boat { display: grid; grid-template-columns: 56px 1fr; grid-template-rows: auto auto; column-gap: var(--sp-3); align-items: center; height: 56px; padding: 0 var(--sp-3) 0 var(--sp-2); background: var(--surface); white-space: nowrap; }
   .boat img { grid-row: 1 / 3; width: 52px; height: 52px; }
   .boat .fname { align-self: end; color: var(--accent); }
   .boat .label { align-self: start; overflow: hidden; text-overflow: ellipsis; }
-  .boat.shown { border-bottom-color: var(--accent); }
-  .boat.shown .fname { color: var(--orange-lit); }
+  /* The ship the page shows is the fleet's selection: filled, as DESIGN.md's One Fill Per Group. */
+  .boat.shown { background: var(--accent); }
+  .boat.shown .fname, .boat.shown .label { color: var(--on-accent); }
 </style>

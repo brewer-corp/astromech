@@ -7,23 +7,31 @@
   import Copy from "./Copy.svelte";
 
   type Eng = { name: string; state: "unlocked" | "known" | "hidden"; grade?: number; at?: string; step?: string; have?: number; need?: number; count?: string; kids?: Eng[] };
+  // The Bubble's ship engineers and their introductions, as data/catalog/engineer-unlocks.json
+  // has them; Colonia's four sit behind the Colonia choice. Introductions come once the rank with
+  // the introducer passes grade 3, so every introducer here with a known engineer is at grade 4+.
   const roots: Eng[] = [
     { name: "Felicity Farseer", state: "unlocked", grade: 5, at: "Deciat", kids: [
-      { name: "Juri Ishmaak", state: "unlocked", grade: 2, at: "Giryak", kids: [
+      { name: "Juri Ishmaak", state: "unlocked", grade: 4, at: "Giryak", kids: [
         { name: "Colonel Bris Dekker", state: "known", step: "Hand in 1M cr of combat bonds", have: 420, need: 1000, count: "420k of 1M" },
-        { name: "The Sarge", state: "known", step: "Bring 50 Aberrant shield pattern analysis", have: 18, need: 50 },
+        { name: "The Sarge", state: "known", step: "Invitation: Federal Navy Midshipman" },
       ] },
     ] },
     { name: "Elvira Martuuk", state: "unlocked", grade: 5, at: "Khun", kids: [
+      { name: "Marco Qwent", state: "known", step: "Bring 25 Modular terminals", have: 9, need: 25, kids: [
+        { name: "Professor Palin", state: "hidden" },
+        { name: "Chloe Sedesi", state: "hidden" },
+        { name: "Lori Jameson", state: "hidden" },
+      ] },
       { name: "Zacariah Nemo", state: "known", step: "Bring 25 Xihe biomorphic companions", have: 0, need: 25 },
     ] },
-    { name: "The Dweller", state: "known", step: "Sell at 5 black markets", have: 2, need: 5, kids: [
+    { name: "The Dweller", state: "known", step: "Deal at 5 black markets", have: 2, need: 5, kids: [
       { name: "Lei Cheung", state: "hidden", kids: [{ name: "Ram Tah", state: "hidden" }] },
     ] },
-    { name: "Liz Ryder", state: "unlocked", grade: 3, at: "Eurybia", kids: [
+    { name: "Liz Ryder", state: "unlocked", grade: 4, at: "Eurybia", kids: [
       { name: "Hera Tani", state: "known", step: "Bring 50 Kamitra cigars", have: 12, need: 50, kids: [
-        { name: "Tiana Fortune", state: "hidden" },
         { name: "Broo Tarquin", state: "hidden" },
+        { name: "Tiana Fortune", state: "hidden" },
       ] },
     ] },
     { name: "Tod McQuinn", state: "unlocked", grade: 5, at: "Wolf 397", kids: [
@@ -32,16 +40,12 @@
         { name: "Bill Turner", state: "known", step: "Bring 50 Bromellite", have: 31, need: 50 },
       ] },
     ] },
-    { name: "Marco Qwent", state: "known", step: "Bring 25 Modular terminals", have: 9, need: 25, kids: [
-      { name: "Professor Palin", state: "hidden" },
-      { name: "Lori Jameson", state: "hidden" },
-    ] },
   ];
   const selected = "The Dweller";
 
   // Lay the tree out: leaves take the next row; a parent sits level with the middle of its
   // children. Columns are depth.
-  const W = 340, H = 60, GX = 96, PITCH = 70;
+  const W = 360, H = 56, GX = 96, PITCH = 64;
   type Node = Eng & { x: number; y: number };
   const nodes: Node[] = [];
   const links: { from: Node; to: Node }[] = [];
@@ -69,6 +73,7 @@
     <section class="main">
       <div class="bar">
         <span class="choices"><button class="choice on">Ship engineers</button><button class="choice">On-foot engineers</button></span>
+        <span class="choices"><button class="choice on">Bubble</button><button class="choice">Colonia</button></span>
         <span class="label">{counts.unlocked} unlocked · {counts.known} known · {counts.hidden} not introduced yet</span>
       </div>
       <div class="graph" style="width: {3 * W + 2 * GX}px; height: {height}px; --w: {W}px; --h: {H}px">
@@ -81,8 +86,8 @@
             {#if n.state === "unlocked"}
               <span class="sub"><span class="pips">{#each [1, 2, 3, 4, 5] as g (g)}<span class:on={g <= (n.grade ?? 0)}></span>{/each}</span><span class="label">{n.at}</span></span>
             {:else if n.state === "known"}
-              <span class="sub step"><span class="label">{n.step}</span><span class="count">{n.count ?? `${n.have} of ${n.need}`}</span></span>
-              {#if n.name !== selected}<span class="meter"><span style="width: {(100 * (n.have ?? 0)) / (n.need ?? 1)}%"></span></span>{/if}
+              <span class="sub step"><span class="label">{n.step}</span>{#if n.need}<span class="count">{n.count ?? `${n.have} of ${n.need}`}</span>{/if}</span>
+              {#if n.need && n.name !== selected}<span class="meter"><span style="width: {(100 * (n.have ?? 0)) / (n.need ?? 1)}%"></span></span>{/if}
             {:else}
               <span class="sub"><span class="label">Not introduced</span></span>
             {/if}
@@ -93,13 +98,13 @@
 
     <aside>
       <h2 class="title">The Dweller</h2>
-      <p class="where"><span class="label">Black Hide in</span><span class="sys">Wyrd</span><Copy /><span class="label">84 ly · 5 jumps</span></p>
+      <p class="where"><span class="label">Black Hide in</span><span class="sys">Wyrd</span><Copy /></p>
+      <p class="label">84 ly · 5 jumps</p>
       <p class="key"><span class="vxl white">2</span><span class="unit">of 5 black markets</span></p>
       <h3 class="section">To unlock</h3>
       <ol class="steps">
-        <li class="done"><span class="n">1</span><span>Learn about him: open to all</span></li>
-        <li><span class="n">2</span><span>Sell at 5 black markets <span class="mid">· 2 of 5</span></span></li>
-        <li><span class="n">3</span><span>Pay 500,000 cr <span class="mid">· you have 41.2M</span></span></li>
+        <li><span class="n">1</span><span>Invitation: deal in stolen or illicit goods at 5 black markets <span class="mid">· 2 of 5</span></span></li>
+        <li><span class="n">2</span><span>Unlock: pay 500,000 cr <span class="mid">· you have 41.2M</span></span></li>
       </ol>
       <h3 class="section">Works on</h3>
       <dl class="mods">
@@ -109,7 +114,7 @@
         <dt>Beam laser</dt><dd><span class="pips">{#each [1, 2, 3, 4, 5] as g (g)}<span class:on={g <= 3}></span>{/each}</span></dd>
       </dl>
       <p class="label intro">Introduces Lei Cheung and Marsha Hicks</p>
-      <div class="acts"><button class="primary">Find black markets</button><button class="act">Plot to Wyrd</button></div>
+      <div class="acts"><button class="primary">Find black markets</button></div>
     </aside>
   </div>
 </Frame>
@@ -122,7 +127,7 @@
   path { fill: none; stroke: var(--line); stroke-width: 1; }
   path.lit { stroke: var(--orange-dim); }
 
-  .node { position: absolute; width: var(--w); height: var(--h); padding: 9px var(--sp-3) 0; background: var(--surface); display: flex; flex-direction: column; gap: 4px; white-space: nowrap; }
+  .node { position: absolute; width: var(--w); height: var(--h); padding: var(--sp-2) var(--sp-3) 0; background: var(--surface); display: flex; flex-direction: column; gap: 4px; white-space: nowrap; }
   .nm { font-weight: 500; line-height: 1.2; color: var(--accent); }
   .sub { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; }
   .sub .label { overflow: hidden; text-overflow: ellipsis; }
@@ -145,8 +150,7 @@
   .steps { display: grid; gap: var(--sp-2); margin-bottom: var(--sp-8); }
   .steps li { display: flex; gap: var(--sp-3); color: var(--accent); }
   .steps .n { color: var(--orange-mid); width: 10px; }
-  .steps li.done { color: var(--orange-mid); }
   .mods { display: grid; grid-template-columns: 1fr auto; gap: var(--sp-2) var(--sp-3); align-items: center; margin-bottom: var(--sp-4); color: var(--accent); }
   .intro { margin-bottom: var(--sp-6); }
-  .acts { display: flex; gap: var(--sp-4); }
+  .acts { display: flex; gap: var(--sp-4); white-space: nowrap; }
 </style>

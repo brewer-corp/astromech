@@ -26,7 +26,7 @@
           <p class="sub"><span class="label">Docked at pad 14 · Orbis starport in</span><span class="sys">Liaedin</span><Copy /><span class="label">1,210 ls from arrival</span></p>
         </div>
       </div>
-      <p class="needs"><span class="bang">!</span>Refuel here before you undock. <span class="mid">3.9 t aboard; the next jump needs 4.6 t.</span></p>
+      <p class="needs"><span class="bang">!</span>Refuel here before you undock. <span class="mid">3.9 t of 32 t aboard.</span></p>
     </section>
 
 
@@ -53,8 +53,7 @@
         <h2 class="section">Powerplay</h2>
         <p class="hero"><span class="vxl">1,240</span><span class="unit">merits this week</span></p>
         <p class="line icon-line"><Icon name="clock" /><span>2 d 14 h left in the cycle</span></p>
-        <span class="meter cycle"><span style="width: 63%"></span></span>
-        <p class="label">Aisling Duval · rank 38 · 1,860 merits to rank 39</p>
+        <p class="label">Aisling Duval · rank 12 · 4,140 merits to rank 13</p>
       </div>
     </section>
 
@@ -72,7 +71,7 @@
 <style>
   /* Three bands: where you are and what needs you; the four answers as one row of large values to
      scan; then the station's services board, which is reference, so it comes last. */
-  .now { display: flex; flex-direction: column; gap: 56px; max-width: 1760px; }
+  .now { display: flex; flex-direction: column; gap: var(--sp-12); max-width: 1760px; }
   .place { display: flex; align-items: flex-start; gap: var(--sp-3); }
   .kind { color: var(--accent); padding-top: 4px; }
   .sub { display: flex; align-items: baseline; gap: var(--sp-2); margin-top: var(--sp-1); white-space: nowrap; }
@@ -83,7 +82,7 @@
 
   .section { margin-bottom: var(--sp-3); }
   .board { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--gap); }
-  .svc { display: flex; align-items: center; height: 60px; padding: 0 var(--sp-4); background: var(--surface); color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .svc { display: flex; align-items: center; height: 64px; padding: 0 var(--sp-4); background: var(--surface); color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .svc.none { background: var(--bg); outline: 1px solid var(--line); outline-offset: -1px; color: var(--orange-dim); }
 
   .answers { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 48px; row-gap: var(--sp-8); }
@@ -95,11 +94,10 @@
   .icon-line { display: flex; align-items: center; gap: var(--sp-2); }
   .icon-line :global(.icon) { color: var(--orange-mid); }
   .label { margin-top: 2px; }
-  .cycle { width: 220px; margin: var(--sp-2) 0 var(--sp-2) 24px; }
 
   /* Narrow windows (the 1100 px minimum): two answers a row, and four services a row. */
   @container (max-width: 1400px) {
-    .now { gap: 40px; }
+    .now { gap: var(--sp-8); }
     .answers { grid-template-columns: 1fr 1fr; }
     .board { grid-template-columns: repeat(4, 1fr); }
     .svc { height: 48px; }

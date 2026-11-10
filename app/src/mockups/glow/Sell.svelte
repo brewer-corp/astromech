@@ -27,7 +27,7 @@
   const hover = "Ackerman Market";
 </script>
 
-<Frame top="Galaxy" tabs={["Places", "Route", "Colonisation"]} tab="Places"
+<Frame top="Galaxy" tabs={["Places", "Route"]} tab="Places"
   strip={{ next: "Wregoe OI-C b54-6", of: "4 of 10", flags: ["Scoopable"], dest: "Synuefe GW-Z a54-3", left: "6 jumps left" }}>
   <div class="page">
     <section class="main">
@@ -73,7 +73,7 @@
       <h2 class="title">Shajn Market</h2>
       <p class="where"><span class="label">Ocellus starport in</span><span class="sys">LTT 4487</span><Copy /></p>
       <p class="key"><span class="vxl white">56,990</span><span class="unit">cr per t</span></p>
-      <p class="gain"><span class="lit">913,920</span><span class="unit">cr profit on your 128 t</span></p>
+      <p class="gain"><span class="lit">917,760</span><span class="unit">cr profit on your 128 t</span></p>
       <p class="label">741,120 cr more than selling here</p>
       <dl>
         <dt class="label">Demand</dt><dd>6,903<span class="unit">t</span></dd>
@@ -119,7 +119,7 @@
   .key { display: flex; align-items: baseline; margin: var(--sp-6) 0 var(--sp-2); }
   .gain { display: flex; align-items: baseline; }
   .gain .lit { font-size: var(--fs-l); font-weight: 600; }
-  dl { display: grid; grid-template-columns: 112px 1fr; gap: var(--sp-2) var(--sp-3); margin: var(--sp-8) 0; color: var(--accent); }
+  dl { display: grid; grid-template-columns: 88px 1fr; gap: var(--sp-2) var(--sp-3); margin: var(--sp-8) 0; color: var(--accent); }
   dt { align-self: center; }
   .acts-panel { display: flex; gap: var(--sp-4); }
 </style>
