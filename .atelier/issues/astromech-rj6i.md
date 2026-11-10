@@ -38,4 +38,4 @@ Strategy: docs/strategies/glow-up.md (mission astromech-xajc). Mockup: docs/desi
 
 ## Unknowns
 
-Whether the uncertain rules (astromech-c1sq, astromech-66pq) show a mark.
+Whether the uncertain rules (astromech-c1sq, astromech-66pq) show a mark. The mockup's rank meter needs where the current rank starts, which the next-rank reply does not give (only the rank table in powerplay.json has it): the reply gains that threshold, or the meter goes.
