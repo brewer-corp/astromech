@@ -56,7 +56,7 @@ Increment 1 of mission astromech-xajc is proven as a whole before any other scre
 ## Done when
 
 - [ ] On main, with every item this one waits on merged: an agent that wrote none of them captures the Route page and each converted page (Materials, a Places finder, Trade > Commodities, Settings > General, Powerplay, Exploration) at 1100 x 700, 1920 x 1080, 2560 x 1440 and 3840 x 2160 from the browser preview and reports, per capture, anything clipped, overlapping, stretched so an action is far from its row, or below 12 px before scaling. Each problem is fixed or filed as a bug on astromech-xajc.
-- [ ] It confirms from the code that app/src/modules/route uses a layout component, the type roles, Tip and Glyph's star icons, and that the page-sizing check is on for every module converted so far.
+- [ ] It confirms from the code that app/src/modules/route uses a layout component, the type roles, Tip and Glyph's star icons, and that each part of the page-sizing check is on for exactly the files increment 1 promised: the width part for the files astromech-mwh5 converted and for app/src/modules/route, the font-size part for the files astromech-z5oh enrolled and for app/src/modules/route. Files left for later items (Places home among them) are expected to be off the list.
 - [ ] scripts/preview-publish output for the Route page and for Materials is published and both links are in a note on astromech-xajc, with the captures' paths.
 - [ ] The result is an evidence receipt on astromech-xajc.
 

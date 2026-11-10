@@ -275,5 +275,5 @@ and any screen whose built result departs from its mockup in kind, not detail.
 - Scaling changes how much fits at 1100 x 700. If a page can't fit, its layout drops its
   detail panel below the content at that size; it never shrinks text.
 - Sumeet dislikes a built screen. It reverts to its old body per page; the foundation stays.
-- Lint rules for width and font size will flag existing pages. They are turned on per module
-  as each page is converted, and for all modules at mission close.
+- The page-sizing check would flag existing pages. Each part is turned on file by file as a
+  page is converted, and is on for every page file outside Controls at mission close.
