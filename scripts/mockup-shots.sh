@@ -18,8 +18,14 @@ SHOTS=(activities:1920x1080 ship:1440x900 keybinds:1440x900 controller:1440x900 
   ds-materials:1600x1000:design-system-materials-after ds-sell:1600x1000:design-system-places-sell-after
   ds-mining:1600x1000:design-system-places-mining-after ds-places:1600x1000:design-system-places-home-after
   ds-settings:1600x1000:design-system-settings-after
-  ds-settings:1100x700:design-system-header-1100)
-# The last is DESIGN.md's one-row header at its 1100 px minimum window width (astromech-pey5).
+  ds-settings:1100x700:design-system-header-1100
+  glow-now:2560x1440:glow-up-now glow-system:2560x1440:glow-up-system glow-ship:2560x1440:glow-up-ship
+  glow-engineers:2560x1440:glow-up-engineers glow-powerplay:2560x1440:glow-up-powerplay
+  glow-materials:2560x1440:glow-up-materials glow-sell:2560x1440:glow-up-sell
+  glow-now:1100x700:glow-up-now-1100)
+# design-system-header-1100 is DESIGN.md's one-row header at its 1100 px minimum window width
+# (astromech-pey5). The glow-* ones are the Glow-up mission's target look at 2560x1440, the UI
+# scaled with the window height, and the home page at the 1100x700 minimum window.
 for p in "${SHOTS[@]}"; do
   IFS=: read -r id size file <<<"$p"
   if [[ $# -gt 0 && " $* " != *" $id "* ]]; then continue; fi

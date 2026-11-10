@@ -98,9 +98,9 @@
       <p class="label">7A · Charge enhanced, grade 3 of 5</p>
       <p class="key"><span class="vxl white">+31%</span><span class="unit">recharge</span></p>
       <dl class="facts">
-        <dt class="label">Weapons</dt><dd>5.6 <span class="unit">MW/s</span></dd>
-        <dt class="label">Engines</dt><dd>4.0 <span class="unit">MW/s</span></dd>
-        <dt class="label">Systems</dt><dd>4.0 <span class="unit">MW/s</span></dd>
+        <dt class="label">Weapons</dt><dd>5.6<span class="unit">MW/s</span></dd>
+        <dt class="label">Engines</dt><dd>4.0<span class="unit">MW/s</span></dd>
+        <dt class="label">Systems</dt><dd>4.0<span class="unit">MW/s</span></dd>
       </dl>
       <h3 class="section">Grade 4 needs</h3>
       <div class="needs">
