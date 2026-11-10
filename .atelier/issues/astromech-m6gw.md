@@ -38,4 +38,4 @@ Strategy: docs/strategies/glow-up.md (mission astromech-xajc). Mockup: docs/desi
 
 ## Unknowns
 
-Layout of the Colonia engineers and of engineers with no referrer.
+Layout of the Colonia engineers and of engineers with no referrer (the mockup puts Colonia behind a Bubble / Colonia choice). The mockup shows progress counts on a step ('2 of 5 black markets', '12 of 50'); the unlock reply gives only the step's text, so the counts need a source in the journal or the mockup's counts go.
