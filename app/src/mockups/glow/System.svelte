@@ -144,7 +144,7 @@
   .row.mapped .ls, .row.star .ls { color: var(--orange-mid); }
 
   .row.sel { background: var(--accent); }
-  .row.sel, .row.sel * { color: var(--on-accent) !important; }
+  .row.sel, .row.sel :global(*) { color: var(--on-accent) !important; }
   .row.sel .badge { border-color: var(--on-accent); }
   .row.sel .guide.on::before, .row.sel .elbow::before, .row.sel .elbow::after { border-color: var(--on-accent); }
 
