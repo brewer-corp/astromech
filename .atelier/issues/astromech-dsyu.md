@@ -29,7 +29,7 @@ The route timeline, the system tree and the station board mark each star, body a
 
 ## Done when
 
-- [ ] app/src/lib/ui/Glyph.svelte has, in DESIGN.md's style (16 px grid, 1 px stroke, currentColor, no fill): stars (scoopable, neutron, white dwarf, brown dwarf, black hole, other non-scoopable); bodies (rocky, icy, high metal content, water world, Earth-like, ammonia world, gas giant, ringed); and any station kind the existing set lacks.
+- [ ] app/src/lib/ui/Glyph.svelte has, in DESIGN.md's style (16 px grid, 1 px stroke, currentColor, no fill): stars (scoopable, neutron, white dwarf, brown dwarf, black hole, other non-scoopable, and unknown); bodies (rocky, icy, high metal content, water world, Earth-like, ammonia world, gas giant, ringed); and any station kind the existing set lacks.
 - [ ] A mockup page (#/mockup/glow-icons) shows every icon with its name at 16 px and at 1.4x, rendered to docs/design/glow-up-icons.png, and each is distinct from the others at 16 px.
 - [ ] Each icon has an accessible name where it is used alone; pnpm check and pnpm lint pass.
 

@@ -116,10 +116,11 @@ the increment.
   Each owns its widths, gutters and the 320 px detail panel. A page module picks one and sets
   no width of its own.
 - *The page-sizing check*: one check in `pnpm lint`, built by astromech-mwh5, with two parts
-  switched on per module from one list in `app/eslint.config.js`: width (a `max-width` or
+  switched on per file from one list in `app/eslint.config.js`, so a module enrols a page at
+  a time: width (a `max-width` or
   fixed width in a page module; media-query conditions and the prose measure are allowed) and
-  font size (any `font-size` in a page module). Each item turns its modules on as it converts
-  them. The Controls modules are exempt for good.
+  font size (any `font-size` in a page module). Each item enrols the files it converts;
+  astromech-gvy0 enrols whatever is left. The Controls modules are exempt for good.
 - *Type roles*: the roles in DESIGN.md's Hierarchy table become classes in `tokens.css`
   (`.value-xl`, `.value-l`, `.name`, `.label`, `.meta`), so a page names a role, not a size
   (astromech-z5oh, after k6pl has set the values).
@@ -131,8 +132,8 @@ the increment.
   parts must leave the page 480 px; if not, the bar shares the route strip's row there.
 - *Icons*: the new sets go in `app/src/lib/ui/Glyph.svelte` with the existing ones.
 - *Filter summary* (astromech-drnv): `app/src/lib/ui/SearchFilters.svelte` owns the collapsed
-  state and shows the summary its parent passes. Edits apply live and the panel stays open
-  until DONE, so several filters change in one visit.
+  state and shows the summary its parent passes. Edits apply live and the panel closes only
+  on DONE, Escape or CHANGE, whatever a search does, so several filters change in one visit.
 
 **Route page (increment 1, astromech-ok29).** The data in the core (astromech-woqv), the title
 as the plotter (astromech-irrv), the timeline (astromech-qwvs). It is the first screen built
@@ -142,7 +143,9 @@ One thing changes from the mockup agreed on 6 Nov. That mockup drew the stars pa
 leg. The neutron plotters return only the stops and a jump count per leg, so the stars of a
 leg are known only where a source lists them: the leg being flown, from the game's
 `NavRoute.json` once it is plotted in the galaxy map, and every leg of an exact route. A leg
-with unknown jumps shows its jump count, and never claims there is nowhere to scoop.
+with unknown jumps shows its jump count. A leg's jumps come from NavRoute first, then the
+plotter's own list, then not at all; the page says there is nowhere to scoop only when every
+jump is listed and known not to be scoopable.
 
 **Now page (increment 2).** A new module `app/src/modules/now/` in a new first nav group. It
 composes replies the window already has: `DockedHere` (station, services), the route view, the

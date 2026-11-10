@@ -37,8 +37,8 @@ A commander finds the main value of an element without reading. DESIGN.md gives 
 
 - [ ] tokens.css has a class per role in DESIGN.md's Hierarchy table (value-xl, value-l, title, name, label, meta, and the rest), each setting size, weight, colour and tabular figures, using the values astromech-k6pl set.
 - [ ] The material tile matches DESIGN.md's Material tile spec (count in Value XL top left, name below, 2 px meter, one corner mark), as in docs/design/glow-up-materials.png, inside the Board layout astromech-mwh5 put the page on.
-- [ ] The stat tiles on Exploration, Biology, Session and Mining and the Places home tiles use the roles, each with exactly one Value.
-- [ ] The font-size part of the page-sizing check (built by astromech-mwh5) is turned on for the modules converted here and passes.
+- [ ] The stat tiles on Exploration, Biology, Session and Mining and the Places home tiles use the roles, each with exactly one Value. Settings > General (put on the Form layout by astromech-mwh5) uses the roles throughout.
+- [ ] The font-size part of the page-sizing check (built by astromech-mwh5) is turned on, file by file, for the files that after this item set no font size of their own: at least the material tile's file, the Places home, and Settings > General. A file with other raw sizes left (a table on Exploration, say) stays off the list until its own item converts it.
 - [ ] Before-and-after captures of the changed pages at 2560 x 1440 are in docs/design/; pnpm check, pnpm lint and pnpm test pass.
 
 ## Scope
