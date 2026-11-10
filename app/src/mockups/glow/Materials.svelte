@@ -17,6 +17,11 @@
     [["Lead", 120], ["Zirconium", 19], ["Boron", 0], ["Antimony", 5]],
   ];
   const need: Record<string, number> = { Vanadium: 12, Carbon: 20, Germanium: 10, Manganese: 6, Arsenic: 3, Tungsten: 4 };
+  // The summary line is worked out from the grid, so sample edits can't leave it wrong.
+  const all = grid.flat();
+  const held = all.reduce((sum, [, n]) => sum + n, 0);
+  const wanted = all.filter(([name]) => need[name]).length;
+  const short = all.filter(([name, n]) => n < (need[name] ?? 0)).length;
   const selected = "Vanadium";
   const tipOn = "Germanium";
 </script>
@@ -27,7 +32,7 @@
     <section class="main">
       <div class="bar">
         <span class="choices"><button class="choice on">Raw</button><button class="choice">Manufactured</button><button class="choice">Encoded</button></span>
-        <span class="label">1,265 held · 6 wanted by your plans, 3 short</span>
+        <span class="label">{held.toLocaleString("en-GB")} held · {wanted} wanted by your plans, {short} short</span>
       </div>
 
       <div class="grid">

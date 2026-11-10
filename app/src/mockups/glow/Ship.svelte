@@ -110,7 +110,7 @@
         <span>Hybrid capacitors</span><span class="r">1</span><span class="r"><span class="bang">!</span>0</span>
       </div>
       <p class="eng"><span class="label">Engineer</span><span class="ename">The Dweller</span><span class="label">Wyrd</span><Copy /></p>
-      <p class="warn"><span class="bang">!</span>Unlock The Dweller first: deal at 5 black markets, 2 of 5.</p>
+      <p class="warn"><span class="bang">!</span>Unlock The Dweller first. His invitation: deal at 5 black markets.</p>
       <div class="acts"><button class="primary">Add to plan</button><button class="act">Engineers</button></div>
     </aside>
 

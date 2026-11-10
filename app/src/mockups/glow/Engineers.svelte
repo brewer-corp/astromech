@@ -1,35 +1,36 @@
 <script lang="ts">
   // Glow-up mockup: Engineering > Engineers as the unlock tree (List with a detail panel, the list
   // drawn as a graph). Columns by depth, each engineer joined to the one who introduces them.
-  // Unlocked: lit name and grade pips. Known, not unlocked: base orange with the one next step
-  // and a thin meter. Not introduced: dim. The links are the game's own introductions.
+  // Unlocked: lit name and grade pips (the journal gives the rank). Known or invited: base orange
+  // with the one next step in words, as the unlock tree states it; the app has no counted progress
+  // toward a step. Not introduced: dim. The links are the game's own introductions.
   import Frame from "./Frame.svelte";
   import Copy from "./Copy.svelte";
 
-  type Eng = { name: string; state: "unlocked" | "known" | "hidden"; grade?: number; at?: string; step?: string; have?: number; need?: number; count?: string; kids?: Eng[] };
+  type Eng = { name: string; state: "unlocked" | "known" | "hidden"; grade?: number; at?: string; step?: string; kids?: Eng[] };
   // The Bubble's ship engineers and their introductions, as data/catalog/engineer-unlocks.json
-  // has them; Colonia's four sit behind the Colonia choice. Introductions come once the rank with
+  // has them; Colonia's four are left out, and the summary line says so. Introductions come once the rank with
   // the introducer passes grade 3, so every introducer here with a known engineer is at grade 4+.
   const roots: Eng[] = [
     { name: "Felicity Farseer", state: "unlocked", grade: 5, at: "Deciat", kids: [
       { name: "Juri Ishmaak", state: "unlocked", grade: 4, at: "Giryak", kids: [
-        { name: "Colonel Bris Dekker", state: "known", step: "Hand in 1M cr of combat bonds", have: 420, need: 1000, count: "420k of 1M" },
+        { name: "Colonel Bris Dekker", state: "known", step: "Unlock: 1,000,000 cr of combat bonds" },
         { name: "The Sarge", state: "known", step: "Invitation: Federal Navy Midshipman" },
       ] },
     ] },
     { name: "Elvira Martuuk", state: "unlocked", grade: 5, at: "Khun", kids: [
-      { name: "Marco Qwent", state: "known", step: "Bring 25 Modular terminals", have: 9, need: 25, kids: [
+      { name: "Marco Qwent", state: "known", step: "Unlock: 25 Modular terminals", kids: [
         { name: "Professor Palin", state: "hidden" },
         { name: "Chloe Sedesi", state: "hidden" },
         { name: "Lori Jameson", state: "hidden" },
       ] },
-      { name: "Zacariah Nemo", state: "known", step: "Bring 25 Xihe biomorphic companions", have: 0, need: 25 },
+      { name: "Zacariah Nemo", state: "known", step: "Unlock: 25 Xihe biomorphic companions" },
     ] },
-    { name: "The Dweller", state: "known", step: "Deal at 5 black markets", have: 2, need: 5, kids: [
+    { name: "The Dweller", state: "known", step: "Invitation: deal at 5 black markets", kids: [
       { name: "Lei Cheung", state: "hidden", kids: [{ name: "Ram Tah", state: "hidden" }] },
     ] },
     { name: "Liz Ryder", state: "unlocked", grade: 4, at: "Eurybia", kids: [
-      { name: "Hera Tani", state: "known", step: "Bring 50 Kamitra cigars", have: 12, need: 50, kids: [
+      { name: "Hera Tani", state: "known", step: "Unlock: 50 Kamitra cigars", kids: [
         { name: "Broo Tarquin", state: "hidden" },
         { name: "Tiana Fortune", state: "hidden" },
       ] },
@@ -37,7 +38,7 @@
     { name: "Tod McQuinn", state: "unlocked", grade: 5, at: "Wolf 397", kids: [
       { name: "Selene Jean", state: "unlocked", grade: 5, at: "Kuk", kids: [
         { name: "Didi Vatermann", state: "unlocked", grade: 2, at: "Leesti" },
-        { name: "Bill Turner", state: "known", step: "Bring 50 Bromellite", have: 31, need: 50 },
+        { name: "Bill Turner", state: "known", step: "Unlock: 50 Bromellite" },
       ] },
     ] },
   ];
@@ -73,8 +74,7 @@
     <section class="main">
       <div class="bar">
         <span class="choices"><button class="choice on">Ship engineers</button><button class="choice">On-foot engineers</button></span>
-        <span class="choices"><button class="choice on">Bubble</button><button class="choice">Colonia</button></span>
-        <span class="label">{counts.unlocked} unlocked · {counts.known} known · {counts.hidden} not introduced yet</span>
+        <span class="label">Bubble ship engineers · {counts.unlocked} unlocked · {counts.known} known · {counts.hidden} not introduced yet</span>
       </div>
       <div class="graph" style="width: {3 * W + 2 * GX}px; height: {height}px; --w: {W}px; --h: {H}px">
         <svg width={3 * W + 2 * GX} height={height} aria-hidden="true">
@@ -86,8 +86,7 @@
             {#if n.state === "unlocked"}
               <span class="sub"><span class="pips">{#each [1, 2, 3, 4, 5] as g (g)}<span class:on={g <= (n.grade ?? 0)}></span>{/each}</span><span class="label">{n.at}</span></span>
             {:else if n.state === "known"}
-              <span class="sub step"><span class="label">{n.step}</span>{#if n.need}<span class="count">{n.count ?? `${n.have} of ${n.need}`}</span>{/if}</span>
-              {#if n.need && n.name !== selected}<span class="meter"><span style="width: {(100 * (n.have ?? 0)) / (n.need ?? 1)}%"></span></span>{/if}
+              <span class="sub"><span class="label">{n.step}</span></span>
             {:else}
               <span class="sub"><span class="label">Not introduced</span></span>
             {/if}
@@ -100,11 +99,11 @@
       <h2 class="title">The Dweller</h2>
       <p class="where"><span class="label">Black Hide in</span><span class="sys">Wyrd</span><Copy /></p>
       <p class="label">84 ly · 5 jumps</p>
-      <p class="key"><span class="vxl white">2</span><span class="unit">of 5 black markets</span></p>
+      <p class="key">Invitation next</p>
       <h3 class="section">To unlock</h3>
       <ol class="steps">
-        <li><span class="n">1</span><span>Invitation: deal in stolen or illicit goods at 5 black markets <span class="mid">· 2 of 5</span></span></li>
-        <li><span class="n">2</span><span>Unlock: pay 500,000 cr <span class="mid">· you have 41.2M</span></span></li>
+        <li><span class="n">1</span><span>Invitation: deal in stolen or illicit goods at 5 black markets</span></li>
+        <li><span class="n">2</span><span>Unlock at Wyrd: pay 500,000 cr</span></li>
       </ol>
       <h3 class="section">Works on</h3>
       <dl class="mods">
@@ -131,10 +130,6 @@
   .nm { font-weight: 500; line-height: 1.2; color: var(--accent); }
   .sub { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; }
   .sub .label { overflow: hidden; text-overflow: ellipsis; }
-  .step { justify-content: space-between; }
-  .count { font-size: var(--fs-s); color: var(--accent); flex: none; }
-  .node .meter { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; }
-  .node .meter > span { background: var(--orange-mid); }
   .node.unlocked .nm { color: var(--orange-lit); }
   .node.hidden { background: var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
   .node.hidden .nm, .node.hidden .label { color: var(--orange-dim); }
@@ -145,7 +140,7 @@
   .where { display: flex; align-items: baseline; gap: var(--sp-2); margin-top: var(--sp-1); white-space: nowrap; }
   .where :global(.copy) { align-self: center; margin-right: var(--sp-1); }
   .sys { color: var(--accent); }
-  .key { display: flex; align-items: baseline; margin: var(--sp-6) 0 var(--sp-8); }
+  .key { margin: var(--sp-6) 0 var(--sp-8); font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; color: var(--text-hi); }
   .section { margin-bottom: var(--sp-3); }
   .steps { display: grid; gap: var(--sp-2); margin-bottom: var(--sp-8); }
   .steps li { display: flex; gap: var(--sp-3); color: var(--accent); }
