@@ -14,13 +14,19 @@ relationships:
     id: "astromech-b2k3"
     type: "blocked_by"
   - kind: "issue"
+    id: "astromech-k6pl"
+    type: "blocked_by"
+  - kind: "issue"
+    id: "astromech-mwh5"
+    type: "blocked_by"
+  - kind: "issue"
     id: "astromech-xajc"
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Type roles: every tile, row and card shows one main value at its DESIGN.md size"
-updated_at: "2026-11-10T05:54:58.675398899+00:00"
+updated_at: "2026-11-10T06:04:04.443441037+00:00"
 ---
 
 ## Goal
@@ -29,16 +35,16 @@ A commander finds the main value of an element without reading. DESIGN.md gives 
 
 ## Done when
 
-- [ ] tokens.css has a class per role in DESIGN.md's Hierarchy table (value-xl, value-l, title, name, label, meta, and the rest), each setting size, weight, colour and tabular figures.
-- [ ] The material tile matches DESIGN.md's Material tile spec (count in Value XL top left, name below, 2 px meter, one corner mark), as in docs/design/glow-up-materials.png.
+- [ ] tokens.css has a class per role in DESIGN.md's Hierarchy table (value-xl, value-l, title, name, label, meta, and the rest), each setting size, weight, colour and tabular figures, using the values astromech-k6pl set.
+- [ ] The material tile matches DESIGN.md's Material tile spec (count in Value XL top left, name below, 2 px meter, one corner mark), as in docs/design/glow-up-materials.png, inside the Board layout astromech-mwh5 put the page on.
 - [ ] The stat tiles on Exploration, Biology, Session and Mining and the Places home tiles use the roles, each with exactly one Value.
-- [ ] A rule in app/eslint-rules fails on a raw font-size in a file under app/src/modules/, enabled for the modules converted here, with its own test.
+- [ ] The font-size part of the page-sizing check (built by astromech-mwh5) is turned on for the modules converted here and passes.
 - [ ] Before-and-after captures of the changed pages at 2560 x 1440 are in docs/design/; pnpm check, pnpm lint and pnpm test pass.
 
 ## Scope
 
-The role classes, the lint rule, and the pages named. Pages that get a new screen later take the roles then.
+The role classes and the pages named. Pages that get a new screen later take the roles then.
 
 ## Context
 
-Strategy: docs/strategies/glow-up.md (mission astromech-xajc). Mockups: docs/design/glow-up-*.png. DESIGN.md Typography and Components. The 10 Nov audit found zero uses of --fs-xxl outside the mockups.
+Strategy: docs/strategies/glow-up.md (mission astromech-xajc). Mockups: docs/design/glow-up-*.png. DESIGN.md Typography and Components. The 10 Nov audit found zero uses of --fs-xxl outside the mockups. Waits on astromech-k6pl (sizes and colours in tokens.css) and astromech-mwh5 (the Materials page's layout and the page-sizing check).

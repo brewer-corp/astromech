@@ -1,6 +1,6 @@
 ---
 status: draft
-last_changed: "2026-11-10: first version, from the 10 Nov page audit (Sumeet's direction)"
+last_changed: "2026-11-10: first version, from the 10 Nov page audit (Sumeet's direction), revised after the first planning reviews"
 ---
 
 # Why
@@ -11,8 +11,8 @@ seeing his binds on his own stick. The window lets them down. An audit of all 24
 
 - **The pages don't follow DESIGN.md's main rule.** "One main value, largest" is the rule; the
   28 px value size (`--fs-xxl`) is used nowhere, and a material tile shows its count at 13 px.
-- **Half the window is empty, or the content is stretched.** Eleven pages are capped at
-  `max-width: 60rem` and pinned left; Stored modules and On foot spread three columns over
+- **Half the window is empty, or the content is stretched.** Eight pages cap themselves at
+  `max-width: 60rem` and sit pinned left; Stored modules and On foot spread three columns over
   1,800 px.
 - **Nothing ranks.** Almost all text is one orange at 13 to 15 px. On a 1440p screen it is
   smaller than the game's smallest text.
@@ -27,22 +27,29 @@ been built.
 
 # Outcome
 
-A commander opens the window on a page about what they are doing now. Every page fills the
-window at any size from 1100 x 700 to 4K, shows one obvious main value per element, and uses a
-screen built for its job where a table was. Text is readable from a seat next to the game.
+A commander opens the window on a page about what they are doing now. Every page outside
+Controls uses the window well at any size from 1100 x 700 to 4K, shows one obvious main value
+per element, and uses a screen built for its job where a table was. A sparse page stays
+sparse: a layout places content, it never adds any. Text is readable from a seat next to the game.
 Worth shipping on its own: the foundation (scale, orange, type scale, layouts, tooltip, status
 bar) and the Route page.
 
 # Success Criteria
 
-- fills-the-window: every page is built on one of the four layout components, and no page
-  module sets its own `max-width`. Shown by a lint rule that fails on a page-level width cap,
-  and by screenshots of every page at 1100 x 700, 1920 x 1080 and 2560 x 1440 with nothing
-  clipped.
+Both cover every page outside Controls (My controller, All keybinds, Presets, Key tester),
+which already read best and get only the frame, the scale and Tip.
+
+- fills-the-window: every page is built on one of the four layout components and passes the
+  page-sizing check (no page module sets its own width or font size). Shown by the check
+  being on for every module except the Controls ones, and by captures of every page at
+  1100 x 700, 1920 x 1080, 2560 x 1440 and 3840 x 2160 with nothing clipped and no action
+  further than one column from what it acts on.
 - glance-test: on every page a reader can point to the main value, the thing they can change
-  and the thing that needs them, without reading (DESIGN.md's own test). Shown by an
-  independent validation: a fresh agent given only the 2560 x 1440 screenshots answers the
-  three questions per page, and its misses are fixed or filed.
+  and the thing that needs them, without reading (DESIGN.md's own test). Shown by
+  astromech-crxa: expected answers are written per page first ("none" where a page has
+  nothing to change or nothing needing attention), a fresh agent answers from the
+  2560 x 1440 screenshots alone, and every page passes. A failing page is fixed and asked
+  again; one left failing leaves the criterion unmet.
 
 # Sizing
 
@@ -96,29 +103,46 @@ first.
 
 # Design
 
-**Foundation (increment 1).**
+**Foundation (increment 1).** Order: DESIGN.md revision 4 (astromech-b2k3) and the scale
+(astromech-k6pl) first; then layouts (astromech-mwh5), then type roles (astromech-z5oh);
+the Route page's two page items wait on all three. astromech-irtr is the gate that closes
+the increment.
 
 - *Scale and colour* (astromech-k6pl): one root `zoom` set from window height in
-  `app/src/App.svelte`, tokens in `app/src/design/tokens.css`, the Text size setting stored
-  with the other window settings.
+  `app/src/App.svelte`, tokens in `app/src/design/tokens.css`. The Text size setting lives in
+  the core's config behind commands in the command layer, as the voice settings do; the
+  window has no settings store of its own.
 - *Layouts*: `app/src/lib/ui/layout/` holds `Board`, `ListDetail`, `Workbench` and `Form`.
   Each owns its widths, gutters and the 320 px detail panel. A page module picks one and sets
-  no width of its own; `app/eslint-rules` gains a rule that fails on `max-width` in
-  `app/src/modules/`.
+  no width of its own.
+- *The page-sizing check*: one check in `pnpm lint`, built by astromech-mwh5, with two parts
+  switched on per module from one list in `app/eslint.config.js`: width (a `max-width` or
+  fixed width in a page module; media-query conditions and the prose measure are allowed) and
+  font size (any `font-size` in a page module). Each item turns its modules on as it converts
+  them. The Controls modules are exempt for good.
 - *Type roles*: the roles in DESIGN.md's Hierarchy table become classes in `tokens.css`
-  (`.value-xl`, `.value-l`, `.name`, `.label`, `.meta`), so a page names a role, not a size.
-  The same lint rule fails on a raw `font-size` in a page module.
+  (`.value-xl`, `.value-l`, `.name`, `.label`, `.meta`), so a page names a role, not a size
+  (astromech-z5oh, after k6pl has set the values).
 - *Tip* (astromech-sixj): `app/src/lib/ui/Tip.svelte`, used by `IconButton` and every former
   `title=`.
-- *Status bar* (astromech-q79q): `app/src/lib/ui/StatusBar.svelte` in the frame, fed by the
-  status poll `App.svelte` already runs plus the current ship.
+- *Status bar* (astromech-q79q): `app/src/lib/ui/StatusBar.svelte` in the frame. The ship and
+  its range come from the `engineering_fleet` reply; fuel and cargo need a new window command,
+  `ship_status`, since the `status` reply carries neither. At 1100 x 700 the frame's fixed
+  parts must leave the page 480 px; if not, the bar shares the route strip's row there.
 - *Icons*: the new sets go in `app/src/lib/ui/Glyph.svelte` with the existing ones.
-- *Filter summary*: `app/src/lib/ui/SearchFilters.svelte` gains the collapsed state, so every
-  finder gets it at once.
+- *Filter summary* (astromech-drnv): `app/src/lib/ui/SearchFilters.svelte` owns the collapsed
+  state and shows the summary its parent passes. Edits apply live and the panel stays open
+  until DONE, so several filters change in one visit.
 
-**Route page (increment 1, astromech-ok29).** As already designed: the data in the core
-(astromech-woqv), the title as the plotter (astromech-irrv), the timeline (astromech-qwvs). It
-is the first screen built on the foundation.
+**Route page (increment 1, astromech-ok29).** The data in the core (astromech-woqv), the title
+as the plotter (astromech-irrv), the timeline (astromech-qwvs). It is the first screen built
+on the foundation, and its items require the layouts, type roles, Tip and icons.
+
+One thing changes from the mockup agreed on 6 Nov. That mockup drew the stars passed on every
+leg. The neutron plotters return only the stops and a jump count per leg, so the stars of a
+leg are known only where a source lists them: the leg being flown, from the game's
+`NavRoute.json` once it is plotted in the galaxy map, and every leg of an exact route. A leg
+with unknown jumps shows its jump count, and never claims there is nowhere to scoop.
 
 **Now page (increment 2).** A new module `app/src/modules/now/` in a new first nav group. It
 composes replies the window already has: `DockedHere` (station, services), the route view, the
@@ -141,6 +165,25 @@ on existing replies unless noted:
 | Session and Logbook | `session`, `logbook` | existing |
 | Station board | `station` (shown on Now) | existing (`DockedHere.services`) |
 | Trade route legs | `trade` | existing |
+
+**Which item converts which page.** Controls pages are exempt.
+
+| Page | Item |
+|---|---|
+| Ships | astromech-8wr4 |
+| Stored modules, On foot, Places home, Mining, Data sharing, Diagnostics, Voice tester | astromech-gvy0 |
+| Materials | astromech-mwh5 (layout), astromech-z5oh (tiles) |
+| Engineers | astromech-m6gw |
+| Places finders | astromech-mwh5, astromech-drnv |
+| Route | astromech-ok29 |
+| Commodities | astromech-mwh5 (layout), astromech-el3i (result) |
+| Colonisation | astromech-m07p |
+| System, Biology | astromech-dpaz, astromech-evj3 |
+| Powerplay | astromech-rj6i |
+| Logbook, Session | astromech-fzhp |
+| Station | astromech-7vxi |
+| Settings > General | astromech-mwh5 |
+| Now (new) | astromech-coq6 |
 
 The planned pages already in the backlog (System page astromech-glrl, Station page
 astromech-0t4i, Missions astromech-ak4v, Bookmarks astromech-mg25, part diagrams
@@ -171,13 +214,20 @@ eyes on it early and cheaply:
 1. The mockups are part of this brief, so the direction is approved before any page changes.
 2. Increment 1 ends with the Route page built for real on the foundation. It is the design
    already agreed in detail, so it tests the foundation (scale, layouts, Tip, icons) without
-   also testing a new idea.
-3. The screens in increments 3 and 4 are planned only after increment 1 has merged and Sumeet
-   has seen its preview link. What he says there shapes them.
+   also testing a new idea. Its page items are blocked on the foundation items, so it cannot
+   finish first.
+3. astromech-irtr closes increment 1: an agent that built none of it checks every converted
+   page at four sizes and publishes preview links. The mission then stops for Sumeet to
+   look. This is its one planned stop, reserved in Authority, and the screens in increments
+   2 to 4 are planned from what he says.
 
-The second risk is the scale rule: CSS `zoom` behaves the same in Chrome and WebView2 as far
-as we know, but only the preview runs here. astromech-k6pl goes first and its Windows check
-is a loose end, so a surprise shows before the screens depend on it.
+The second risk is that the plotters can't feed the timeline as drawn. The planning review
+found that already, and astromech-woqv now starts from a contract of what each source knows.
+
+The third is the scale rule in WebView2, which only Windows can show. It is a residual risk,
+not a gate: astromech-3340 is a check on Sumeet's PC that waits on a release and blocks
+nothing. If it goes wrong, the Text size setting and the cap are the levers, and the scale is
+one root rule to change.
 
 # Scope
 
@@ -203,7 +253,13 @@ through the browser preview.
 
 The orchestrator may decide the layout and detail of each screen within the approved mockups
 and DESIGN.md, the order of screens, and how work is split. It may cut a visual that fails the
-"answers a question the commander acts on" test. Back to Sumeet: a change to navigation or the
+"answers a question the commander acts on" test.
+
+One planned stop: after astromech-irtr the orchestrator sends Sumeet the preview links and
+waits. It plans the Now page and the screens only after his answer, and records that answer
+as a decision.
+
+Back to Sumeet at any time: a change to navigation or the
 default page beyond this brief, a new hue or typeface, removing a feature a page has today,
 and any screen whose built result departs from its mockup in kind, not detail.
 

@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Scale the window with its height, and a stronger orange"
-updated_at: "2026-11-07T03:00:10.391746191+00:00"
+updated_at: "2026-11-10T06:03:07.884354190+00:00"
 ---
 
 ## Goal
@@ -26,11 +26,16 @@ Text is readable on a big screen. The game scales its UI with the screen's heigh
 
 ## Done when
 
-- [ ] At 2560 x 1440 the window renders at about 1.4x; at 1100 x 700 it is unchanged; the Text size setting changes it live and persists.
+- [ ] At 2560 x 1440 the window renders at about 1.4x; at 1100 x 700 it is unchanged; at 3840 x 2160 it is capped at 1.8x.
+- [ ] A Text size setting in Settings > General (Smaller, Normal, Larger: 0.85, 1.0, 1.15 times the height scale) changes it live and persists across restarts. It is stored in the core's config and read and set through commands in the command layer, as the voice settings are (voice_settings and its setter), with a fake handler in the preview and a test.
 - [ ] DESIGN.md's Typography, Layout and Token map say the scale rule and the new values, and tokens.css has them.
-- [ ] Every page checked in the preview at 1100 px and 2560 px wide; the design-system screenshots re-rendered.
+- [ ] Every page checked in the preview at 1100 x 700 and 2560 x 1440; the design-system screenshots re-rendered.
+
+## Context
+
+Mission astromech-xajc. This item owns DESIGN.md's Typography sizes, colour values and Token map; astromech-b2k3 owns the other revision 4 amendments. The window has no settings store of its own: settings live in the core's config.
 
 ## Design
 
-- The whole window scales with its height: 1.0 at 1000 px tall, capped near 1.8, as one root zoom so DESIGN.md's px tokens stay as they are; a Text size setting multiplies it.
+- The whole window scales with its height: 1.0 at 1000 px tall, capped at 1.8, as one root zoom so DESIGN.md's px tokens stay as they are; the Text size setting multiplies it.
 - Orange text at weight 500, Orange Mid #d97a34, the base orange #ff7100, and fewer labels in Orange Mid. The before/after is in the Route mockup's toggles (astromech-ok29).

@@ -11,6 +11,9 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-irtr"
+    type: "blocked_by"
+  - kind: "issue"
     id: "astromech-xajc"
     type: "advances"
 schema: "atelier.issue"
