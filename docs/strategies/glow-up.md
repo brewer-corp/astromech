@@ -87,7 +87,9 @@ first.
 
 ## DESIGN.md amendments (revision 4)
 
-1. Scale with window height: 1.0 at 1000 px, capped at 1.8, with a Text size setting.
+1. Scale with window height: `clamp(1, min(height / 1000, width / 1100), 1.8)`, with a Text
+   size setting. Text never shrinks below its size today, and a narrow window is not zoomed
+   past its width.
 2. Orange `#ff7100`, label orange `#d97a34`, body weight 500; labels used less.
 3. Frame: a 32 px status bar at the foot (ship, range, fuel, cargo, app health); the header
    loses its status text; a NOW tab first, and the app opens on it.
