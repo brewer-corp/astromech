@@ -14,12 +14,14 @@
   import DsSettings from "./ds/Settings.svelte";
   // Glow-up mission mockups (docs/design/glow-up-*.png)
   import GlowNow from "./glow/Now.svelte";
+  import GlowSystem from "./glow/System.svelte";
+  import GlowShip from "./glow/Ship.svelte";
   const pages = { activities: ActivityView, ship: ShipDiagram, keybinds: KeybindsList, controller: MyController, settings: Settings, tray: TrayMenu };
   const read = () => location.hash.replace("#/mockup/", "");
   let id = $state(read());
   window.addEventListener("hashchange", () => (id = read()));
   const Page = $derived(pages[id as keyof typeof pages] ?? KeybindsList);
-  const glow = { "glow-now": GlowNow };
+  const glow = { "glow-now": GlowNow, "glow-system": GlowSystem, "glow-ship": GlowShip };
   const Glow = $derived(glow[id as keyof typeof glow]);
 </script>
 

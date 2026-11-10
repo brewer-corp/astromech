@@ -1,7 +1,7 @@
 <script lang="ts" module>
   export type Strip = { next: string; of: string; flags?: string[]; dest: string; left: string };
   export type Status = { ship: string; type: string; jump: string; fuel: string; fuelLow?: boolean; cargo: string };
-  export const ship: Status = { ship: "Long Way Round", type: "Krait Mk II", jump: "27.8", fuel: "3.9 / 32", fuelLow: true, cargo: "128 / 160" };
+  export const ship: Status = { ship: "Long Way Round", type: "Krait Mk II", jump: "27.8", fuel: "3.9 / 32", fuelLow: true, cargo: "128 / 144" };
 </script>
 
 <script lang="ts">
