@@ -30,7 +30,7 @@ Every page outside Controls that gets no new screen still stops sizing itself: S
 ## Done when
 
 - [ ] (provisional) Each page named is on a layout component and the type roles, and the page-sizing check is on for its module. Stored modules groups its rows by where the module is; On foot keeps its tables where rows are compared on shared columns.
-- [ ] (provisional) With this merged and the screen items done, both parts of the page-sizing check are on for every file under app/src/modules/ except the Controls modules; this item enrols whatever file is still off the list.
+- [ ] (provisional) With this merged and the screen items done, both parts of the page-sizing check are on for every file under app/src/modules/ except the Controls modules and the two frame parts in the route module (Strip.svelte, PlotBar.svelte); this item enrols whatever file is still off the list.
 - [ ] (provisional) Captures at 1100 x 700 and 2560 x 1440 in docs/design/.
 
 ## Context

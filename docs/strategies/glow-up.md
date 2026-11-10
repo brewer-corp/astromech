@@ -40,8 +40,9 @@ Both cover every page outside Controls (My controller, All keybinds, Presets, Ke
 which already read best and get only the frame, the scale and Tip.
 
 - fills-the-window: every page is built on one of the four layout components and passes the
-  page-sizing check (no page module sets its own width or font size). Shown by the check
-  being on for every module except the Controls ones, and by captures of every page at
+  page-sizing check (no page file sets its own width or font size). Shown by the check
+  being on for every page file except the Controls ones and the frame's two parts in the
+  route module, and by captures of every page at
   1100 x 700, 1920 x 1080, 2560 x 1440 and 3840 x 2160 with nothing clipped and no action
   further than one column from what it acts on.
 - glance-test: on every page a reader can point to the main value, the thing they can change
@@ -122,7 +123,8 @@ the increment.
   a time: width (a `max-width` or
   fixed width in a page module; media-query conditions and the prose measure are allowed) and
   font size (any `font-size` in a page module). Each item enrols the files it converts;
-  astromech-gvy0 enrols whatever is left. The Controls modules are exempt for good.
+  astromech-gvy0 enrols whatever is left. The frame's parts that live in the route module
+  (`Strip.svelte`, `PlotBar.svelte`) are not pages and are exempt, like Controls. The Controls modules are exempt for good.
 - *Type roles*: the roles in DESIGN.md's Hierarchy table become classes in `tokens.css`
   (`.value-xl`, `.value-l`, `.name`, `.label`, `.meta`), so a page names a role, not a size
   (astromech-z5oh, after k6pl has set the values).

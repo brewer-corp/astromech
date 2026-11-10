@@ -33,7 +33,7 @@ The Galaxy > Route page shows where you are and what's next at a glance, and is 
 ## Done when
 
 - [ ] Every child is done and the page matches the Design below in the preview at 2560 x 1440.
-- [ ] The page uses a layout component, the type roles, Tip and Glyph's star icons, and sets no page-level width or font size (the page-sizing lint rule is enabled for app/src/modules/route and passes).
+- [ ] The page uses a layout component, the type roles, Tip and Glyph's star icons, and sets no page-level width or font size (both parts of the page-sizing check are on for the Route page's own files, View.svelte and the components the page is built from, and pass; The frame's own parts that live in the route module (Strip.svelte, the route strip, and PlotBar.svelte, the header's Find or plot) are not pages and are exempt).
 - [ ] The page holds up in the preview at 1100 x 700 and 2560 x 1440 with the height scale on, and the route tests pass.
 
 ## Design
