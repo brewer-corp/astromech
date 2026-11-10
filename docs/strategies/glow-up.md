@@ -1,0 +1,218 @@
+---
+status: draft
+last_changed: "2026-11-10: first version, from the 10 Nov page audit (Sumeet's direction)"
+---
+
+# Why
+
+The core works, and some features are ones Sumeet won't play without: neutron plotting, and
+seeing his binds on his own stick. The window lets them down. An audit of all 24 pages at
+1920 px on 10 Nov 2026 found:
+
+- **The pages don't follow DESIGN.md's main rule.** "One main value, largest" is the rule; the
+  28 px value size (`--fs-xxl`) is used nowhere, and a material tile shows its count at 13 px.
+- **Half the window is empty, or the content is stretched.** Eleven pages are capped at
+  `max-width: 60rem` and pinned left; Stored modules and On foot spread three columns over
+  1,800 px.
+- **Nothing ranks.** Almost all text is one orange at 13 to 15 px. On a 1440p screen it is
+  smaller than the game's smallest text.
+- **Tables are the universal hammer.** Ten page files are plain tables, most others label and
+  value lists.
+- **There is no home.** The app opens on My controller, and the live views (Station, Session,
+  Mining) are filed under Logbook.
+- **Explanations are printed on the page**: 13 paragraphs on Powerplay, footnotes elsewhere.
+
+The Route page redesign agreed on 6 Nov (astromech-ok29) is the model for the fix and has not
+been built.
+
+# Outcome
+
+A commander opens the window on a page about what they are doing now. Every page fills the
+window at any size from 1100 x 700 to 4K, shows one obvious main value per element, and uses a
+screen built for its job where a table was. Text is readable from a seat next to the game.
+Worth shipping on its own: the foundation (scale, orange, type scale, layouts, tooltip, status
+bar) and the Route page.
+
+# Success Criteria
+
+- fills-the-window: every page is built on one of the four layout components, and no page
+  module sets its own `max-width`. Shown by a lint rule that fails on a page-level width cap,
+  and by screenshots of every page at 1100 x 700, 1920 x 1080 and 2560 x 1440 with nothing
+  clipped.
+- glance-test: on every page a reader can point to the main value, the thing they can change
+  and the thing that needs them, without reading (DESIGN.md's own test). Shown by an
+  independent validation: a fresh agent given only the 2560 x 1440 screenshots answers the
+  three questions per page, and its misses are fixed or filed.
+
+# Sizing
+
+- Complexity: high. It touches every page, which is why it runs as increments reviewed one
+  screen at a time.
+- Value: high. The pages are in daily use, and the owner named their look as the app's
+  weakest part.
+- Risk: low. Changes are visual, show at once in the preview, and revert per page. The scale
+  rule is the one part that could misbehave in WebView2 only.
+
+It is worth its cost because features that already work are being undersold by pages nobody
+enjoys reading. The cheaper alternative, fixing only the scale and orange (astromech-k6pl),
+makes the same tables bigger.
+
+# Shape
+
+Sumeet approved all eight proposals on 10 Nov 2026 (decision astromech-ci0o). The mockups
+in [Mockups](#mockups) are the direction; DESIGN.md stays the binding rulebook and is amended
+first.
+
+- **The game's language still wins.** DESIGN.md's Station Board stays: one hue plus alarm red,
+  square corners, brightness as state, cells mean editable. This mission makes the pages obey
+  it and amends it in the few places below.
+- **Hierarchy over density** (Sumeet's sparse-UI rule). An empty area is not a reason to add
+  content. A screen earns a visual only when the visual answers a question the commander
+  acts on; the Route thread cut bars, distance columns and jump counts on that test.
+- **Purpose-built over generic.** A table stays where the job is comparing rows on shared
+  columns (finder results, the market). It goes where the data has a shape of its own: a
+  tree, a route, a loadout, progress to a goal.
+- **Design on the real page.** Each screen is built on its branch against the browser preview
+  and shared with `scripts/preview-publish` (CONTRIBUTING.md). The static mockups are only
+  the brief's reference.
+- **When qualities conflict:** readable beats dense, the game's convention beats a new one,
+  and a page that says less beats one that explains itself in prose.
+
+## DESIGN.md amendments (revision 4)
+
+1. Scale with window height: 1.0 at 1000 px, capped at 1.8, with a Text size setting.
+2. Orange `#ff7100`, label orange `#d97a34`, body weight 500; labels used less.
+3. Frame: a 32 px status bar at the foot (ship, range, fuel, cargo, app health); the header
+   loses its status text; a NOW tab first, and the app opens on it.
+4. Four page layouts replace the content-width caps: Board, List with detail, Workbench, Form.
+   The width rule becomes "an action sits next to what it acts on".
+5. Tip, an instant tooltip, as a component; explanations live in Tips, not in page prose.
+6. White or Options Grey is allowed for entity names outside Controls where it ranks them.
+7. Brief state feedback is allowed (a copy icon becomes a check for 1.5 s). No decorative
+   motion, no transitions between pages.
+8. Icon sets for star types, body types and station types, drawn for astromech.
+9. Collapsed filters: a finder shows its one-line constraint summary with CHANGE; the controls
+   open on demand.
+
+# Design
+
+**Foundation (increment 1).**
+
+- *Scale and colour* (astromech-k6pl): one root `zoom` set from window height in
+  `app/src/App.svelte`, tokens in `app/src/design/tokens.css`, the Text size setting stored
+  with the other window settings.
+- *Layouts*: `app/src/lib/ui/layout/` holds `Board`, `ListDetail`, `Workbench` and `Form`.
+  Each owns its widths, gutters and the 320 px detail panel. A page module picks one and sets
+  no width of its own; `app/eslint-rules` gains a rule that fails on `max-width` in
+  `app/src/modules/`.
+- *Type roles*: the roles in DESIGN.md's Hierarchy table become classes in `tokens.css`
+  (`.value-xl`, `.value-l`, `.name`, `.label`, `.meta`), so a page names a role, not a size.
+  The same lint rule fails on a raw `font-size` in a page module.
+- *Tip* (astromech-sixj): `app/src/lib/ui/Tip.svelte`, used by `IconButton` and every former
+  `title=`.
+- *Status bar* (astromech-q79q): `app/src/lib/ui/StatusBar.svelte` in the frame, fed by the
+  status poll `App.svelte` already runs plus the current ship.
+- *Icons*: the new sets go in `app/src/lib/ui/Glyph.svelte` with the existing ones.
+- *Filter summary*: `app/src/lib/ui/SearchFilters.svelte` gains the collapsed state, so every
+  finder gets it at once.
+
+**Route page (increment 1, astromech-ok29).** As already designed: the data in the core
+(astromech-woqv), the title as the plotter (astromech-irrv), the timeline (astromech-qwvs). It
+is the first screen built on the foundation.
+
+**Now page (increment 2).** A new module `app/src/modules/now/` in a new first nav group. It
+composes replies the window already has: `DockedHere` (station, services), the route view, the
+cargo sale comparison, Powerplay standing, and `Session`. It follows the game's state: docked,
+in a system, or not running. Station, Session and Mining leave the Logbook group; their old
+links keep working through `App.svelte`'s `MOVED` map. No new core command is expected; if one
+is needed it goes through the command layer like any other.
+
+**Screens (increments 3 and 4).** Each replaces one page's body inside its existing module,
+on existing replies unless noted:
+
+| Screen | Module | Data |
+|---|---|---|
+| System tree | `exploration` | `BodyView` lacks a body's parents; the core adds them from the journal's `Scan` |
+| Biology cards | `exobiology` | existing |
+| Ship loadout | `engineering` | existing (`Ship.modules`); slot grouping from the module's slot name |
+| Engineer tree | `unlocks` | existing (`referred_by`, `refers`, `next`) |
+| Powerplay | `powerplay` | existing (`NextRank`, system view); cycle end from the clock |
+| Colonisation | `colonisation` | existing |
+| Session and Logbook | `session`, `logbook` | existing |
+| Station board | `station` (shown on Now) | existing (`DockedHere.services`) |
+| Trade route legs | `trade` | existing |
+
+The planned pages already in the backlog (System page astromech-glrl, Station page
+astromech-0t4i, Missions astromech-ak4v, Bookmarks astromech-mg25, part diagrams
+astromech-rgrh) are not in this mission. When they are built they use these layouts and
+components.
+
+## Mockups
+
+Static mockups in `app/src/mockups/glow/`, rendered by `scripts/mockup-shots.sh` at
+2560 x 1440:
+
+- Now, docked: [glow-up-now.png](../design/glow-up-now.png), and at the 1100 x 700 minimum
+  [glow-up-now-1100.png](../design/glow-up-now-1100.png)
+- System tree: [glow-up-system.png](../design/glow-up-system.png)
+- Ship loadout: [glow-up-ship.png](../design/glow-up-ship.png)
+- Engineer tree: [glow-up-engineers.png](../design/glow-up-engineers.png)
+- Powerplay: [glow-up-powerplay.png](../design/glow-up-powerplay.png)
+- Materials with the real type scale: [glow-up-materials.png](../design/glow-up-materials.png)
+- Sell finder with collapsed filters: [glow-up-sell.png](../design/glow-up-sell.png)
+- Route timeline: the 6 Nov mockup, https://claude.ai/artifact/JduR92Bxotyi7hd6Jg8nN7
+
+# Derisking
+
+The riskiest assumption is that the purpose-built screens read better than the tables they
+replace, to Sumeet, on his screen. Taste can't be settled by a test, so the plan gets his
+eyes on it early and cheaply:
+
+1. The mockups are part of this brief, so the direction is approved before any page changes.
+2. Increment 1 ends with the Route page built for real on the foundation. It is the design
+   already agreed in detail, so it tests the foundation (scale, layouts, Tip, icons) without
+   also testing a new idea.
+3. The screens in increments 3 and 4 are planned only after increment 1 has merged and Sumeet
+   has seen its preview link. What he says there shapes them.
+
+The second risk is the scale rule: CSS `zoom` behaves the same in Chrome and WebView2 as far
+as we know, but only the preview runs here. astromech-k6pl goes first and its Windows check
+is a loose end, so a surprise shows before the screens depend on it.
+
+# Scope
+
+In: the window's frame, the design system and its tokens, shared UI components, the Now page,
+the Route page, and the nine screens above. Core changes only where a screen needs data it
+lacks (route data, body parents).
+
+Out:
+
+| Thing | Why | Instead |
+|---|---|---|
+| New features (system and station pages, missions, bookmarks) | A different outcome | They stay in the backlog and adopt the layouts when built |
+| Controls pages | They already read best | Only the frame, scale and Tip reach them |
+| VR or in-flight UI, overlays | Deferred (PRODUCT.md) | Unchanged |
+| A galaxy map of the route | Most work, least proven | Backlog item, after the timeline |
+| Themes, colour customisation, a second hue | DESIGN.md fixed rule | Unchanged |
+| Voice, callouts, lookups' behaviour | Not visual | Unchanged |
+
+Environment: Windows with WebView2 next to Elite; designed and tested in Chrome on Linux
+through the browser preview.
+
+# Authority
+
+The orchestrator may decide the layout and detail of each screen within the approved mockups
+and DESIGN.md, the order of screens, and how work is split. It may cut a visual that fails the
+"answers a question the commander acts on" test. Back to Sumeet: a change to navigation or the
+default page beyond this brief, a new hue or typeface, removing a feature a page has today,
+and any screen whose built result departs from its mockup in kind, not detail.
+
+# Risks and Unknowns
+
+- A screen needs data the core doesn't give (body parents are the known case). It becomes a
+  core task in that screen's increment; the screen ships after it.
+- Scaling changes how much fits at 1100 x 700. If a page can't fit, its layout drops its
+  detail panel below the content at that size; it never shrinks text.
+- Sumeet dislikes a built screen. It reverts to its old body per page; the foundation stays.
+- Lint rules for width and font size will flag existing pages. They are turned on per module
+  as each page is converted, and for all modules at mission close.

@@ -11,11 +11,17 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-dsyu"
+    type: "blocked_by"
+  - kind: "issue"
     id: "astromech-sixj"
     type: "blocked_by"
   - kind: "issue"
     id: "astromech-woqv"
     type: "blocked_by"
+  - kind: "issue"
+    id: "astromech-xajc"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
