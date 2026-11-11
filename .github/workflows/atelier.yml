@@ -1,9 +1,8 @@
 name: Atelier
 
-# Runs `atelier doctor`, the check of every done claim and the whole review history, on every
-# PR and every push to main. On a push to main it also runs `atelier land` on main over the
-# pushed commits, which refuses code or a done claim that skipped review. No paths filter:
-# record-only commits are what it checks.
+# Validates the Atelier records with `atelier check` on every pull request
+# and every push to main. Written by Atelier's cutover runbook, which pins
+# ATELIER_REV to the commit of Atelier's master it converted.
 
 on:
   push:
@@ -14,33 +13,27 @@ on:
 permissions:
   contents: read
 
-# A PR's newer run replaces its older one. Each push to main gets its own group: the land step
-# checks only that push's commits (event.before..sha), so a cancelled or replaced push run
-# would leave them unchecked.
 concurrency:
   group: atelier-${{ github.event_name == 'push' && github.sha || github.ref }}
   cancel-in-progress: true
 
 env:
-  # spadaval/atelier master; publishes no releases. Move the pin to pick up fixes.
-  ATELIER_REV: 4910be4563e9466e561af11029f46e8e8e1d5a3e
-  # Atelier's own rust-toolchain.toml pin, named explicitly because `cargo install` takes the
-  # toolchain from the working directory, not from the crate it builds.
+  # The commit of spadaval/atelier that is installed.
+  ATELIER_REV: 7f499285e9ab1c167a3d01fedb91eee0f11a34f1
+  # The toolchain Atelier's rust-toolchain.toml names. `cargo install --git`
+  # does not read that file, so it is given here.
   ATELIER_TOOLCHAIN: 1.95.0
   CARGO_TERM_COLOR: always
 
 jobs:
-  doctor:
-    name: atelier doctor
+  check:
+    name: atelier check
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      # The pushed tip, or the PR head rather than GitHub's merge of it: `atelier merge` makes
-      # its own merge commit into main, so GitHub's merge commit never lands.
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
       - uses: actions/cache@v4
         id: cache
         with:
@@ -53,34 +46,5 @@ jobs:
           rustup toolchain install "$ATELIER_TOOLCHAIN" --profile minimal
           cargo "+$ATELIER_TOOLCHAIN" install --locked \
             --git https://github.com/spadaval/atelier --rev "$ATELIER_REV" atelier-cli
-      # Doctor judges the tip as main: local main at the tip and HEAD detached one empty commit
-      # above it, so every claim is checked against the history it would have on main. Without
-      # the empty commit, an approval added by the tip itself is not yet in HEAD^ and does not
-      # count, the way it does once anything lands on top.
-      - name: atelier doctor
-        run: |
-          git branch -f main HEAD
-          git checkout --detach
-          git -c user.name=ci -c user.email=ci@localhost commit --quiet --allow-empty -m "atelier doctor"
-          atelier doctor
-      # Doctor does not ask whether a commit on main came through review; `atelier land` on main
-      # does, for the commits beyond main's upstream. So the pushed commits are checked the way
-      # land checks them before a push: main at the pushed tip, its upstream at the commit main
-      # was before the push. Land changes nothing without --push. A force push is checked for
-      # the commits the old main did not have; if the old main can no longer be fetched, the step
-      # fails. A new main has no before commit, and doctor above checked its whole history.
-      - name: atelier land (pushed commits)
-        if: github.event_name == 'push' && !cancelled()
-        env:
-          BEFORE: ${{ github.event.before }}
-        run: |
-          if [ "$BEFORE" = 0000000000000000000000000000000000000000 ]; then
-            echo "main is new: no earlier commit to check from."
-            exit 0
-          fi
-          git cat-file -e "$BEFORE^{commit}" 2>/dev/null || git fetch --quiet --no-tags origin "$BEFORE"
-          git checkout --quiet -B main "$GITHUB_SHA"
-          git update-ref refs/remotes/origin/main "$BEFORE"
-          git branch --quiet --set-upstream-to=origin/main main
-          test "$(git rev-parse 'main@{upstream}')" = "$BEFORE"
-          atelier land
+      - name: atelier check
+        run: atelier check

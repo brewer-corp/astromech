@@ -1,0 +1,37 @@
+---
+schema: atelier.item
+schema_version: 3
+id: astromech-nf25
+title: VR overlay
+status: draft
+mission: null
+labels:
+- feature
+priority: medium
+blocked_by: []
+implementers: []
+ready: null
+trivial: null
+caused_by: null
+created_at: 2026-10-15T20:36:13.648747508Z
+---
+
+## Goal
+
+In VR, the user sees the PTT and confirmation toast and a kneeboard with the lookups that matter mid-flight, in a SteamVR overlay next to Elite.
+
+## Done when
+
+- [ ] Every child is done. Independent review. The headset checks (astromech-iw0s, astromech-leio) run after this merges.
+
+## Scope
+
+Deferred: no UI in VR *yet*. This is a prioritisation call (Sumeet, 15 Oct 2026), not a permanent one; it comes after the daily lookups. Voice-only in VR until then. Keep designs overlay-friendly where it's cheap.
+
+## Unknowns
+
+Whether a Rust SteamVR overlay is stable and cheap enough next to Elite (the spike answers this).
+
+## Design
+
+[ARCHITECTURE §14](docs/ARCHITECTURE.md) Phase 3. V1-DESIGN §1.4's "probably for good" is superseded by this.

@@ -1,0 +1,31 @@
+---
+schema: atelier.item
+schema_version: 3
+id: astromech-b8js
+title: 'Outfitting to EDDN: settle Arx-ship armour and unknown-sku modules with EDCD'
+status: ready
+mission: astromech-7q0z
+labels:
+- size-s
+priority: low
+blocked_by: []
+implementers: []
+ready:
+  by: conversion
+  at: 2026-10-23T00:08:31.259829293Z
+trivial: null
+caused_by: null
+created_at: 2026-10-23T00:08:31.259829293Z
+---
+
+## Goal
+
+astromech's outfitting/2 messages include every module a station sells to anyone, no more and no less, in the cases where FDevIDs' sku data is ambiguous.
+
+## Done when
+
+- [ ] EDCD (EDDN maintainers) has answered whether armour for ships first sold through the Arx store (Cobra Mk V, Type-8, Mandalay, Corsair, Python Mk II, Kestrel, Panther Mk II, Type-11, Caspian, Lynx Highliner, Anaconda Mk II) and modules with an unknown sku ('?' in FDevIDs: Caustic Sink Launcher, Thargoid Pulse Neutraliser) count as commander-specific; data/catalog/eddn-outfitting.json follows the answer; the test labels the '?' modules as unknown sku, not tech broker; docs/guide/data-sharing.md says the list leaves out modules whose sku is unknown. CONTRIBUTING.md's regenerate step for a failing eddn-outfitting check says to check new station-side symbols and new sku values against the EDDN rule and this answer before committing (review finding astromech-m2np on task/astromech-58a7; Anaconda Mk II added per astromech-aj2w).
+
+## Context
+
+Review findings R1 (astromech-akqt) and R2 (astromech-32yq) on task/astromech-dlrb. Today they are dropped (the cautious choice): 42 armour items at Jameson Memorial, and the Thargoid Pulse Neutraliser.

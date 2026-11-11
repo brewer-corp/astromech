@@ -1,0 +1,35 @@
+---
+schema: atelier.item
+schema_version: 3
+id: astromech-ir9i
+title: 'My controller: alternatives on the other stick, and edge-case tests'
+status: draft
+mission: null
+labels:
+- alpha
+priority: low
+blocked_by: []
+implementers: []
+ready: null
+trivial: null
+caused_by: null
+created_at: 2026-10-17T19:30:02.493599671Z
+---
+
+## Goal
+
+Close the edge cases the review of the My controller restore left open.
+
+## Done when
+
+- [ ] (1) An activity's action whose alternative is bound only on the other stick (or only elsewhere) shows in the other-stick or Elsewhere list instead of nowhere. (2) Tests for an invalid stored activity id, selId resetting on an activity change, an action bound on both sticks, and the Ship/General box preference.
+
+## Context
+
+Review findings R3 and R4 on PR #133 (astromech-54hd), both low and not regressions: elsewhere already ignored alternatives.
+
+Second review of PR #133 (the fix commit): `showRow()` does not clear `unknown`, so after an unmapped press, clicking an action row lights its control but the panel keeps showing the unknown press (the template checks `unknown` before `sel`); the device switch buttons do not clear `unknown` either. One line each plus a test (press an unmapped key, click a row, expect "Action"). Not a regression from the PR.
+
+## Notes
+
+- 2026-10-17 [note] 17 Oct 2026, Sumeet: one stick at a time on the controller page is fine for v1.0; side-by-side sticks are not needed.
