@@ -11,7 +11,7 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "todo"
 title: "Spike: int8 Parakeet Unified that parakeet-rs loads"
 updated_at: "2026-11-08T18:51:31.769799110+00:00"
 ---
