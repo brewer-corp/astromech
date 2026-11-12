@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-z5oh
 title: 'Type roles: every tile, row and card shows one main value at its DESIGN.md size'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
@@ -13,7 +13,8 @@ blocked_by:
 - astromech-b2k3
 - astromech-k6pl
 - astromech-mwh5
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3A419fed58-3752-414c-b007-1be2aa87edff
 ready:
   by: conversion
   at: 2026-11-10T06:04:04.443441037Z
