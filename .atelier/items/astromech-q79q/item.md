@@ -49,15 +49,17 @@ core's state line has left the header.
 - **Command** `ship_status` (astromech-core's commands, `Done<ShipStatus>`): `fuel`,
   `fuel_capacity`, `cargo`, `cargo_capacity` from the session hub's game state (Status.json and
   the last `Loadout`), all null with no session (Elite not running). It also carries `ship_id`
-  (the last `Loadout`'s), which is not in the Done when: the bar re-reads the fleet only when that
-  id differs from the fleet's current ship (a ship swap), or after a failed fleet read, at most
-  once per tick, instead of fetching the whole fleet every 2 s.
+  and the last `Loadout`'s `ship_name` and `max_jump_range`, which are not in the Done when: the
+  bar reads the fleet again once whenever those change (a ship swap, a refit or a rename), or
+  after a failed fleet read, at most once per tick, instead of fetching the whole fleet every 2 s.
 - **Tick**: App.svelte's 2 s status tick asks `status` and `ship_status` together.
 - **Tests**: `every_window_command.rs` checks the reply against the every-command world's
   recorded Loadout and Status.json (Asp: 32 of 32 t, 0 of 64 t, ship 1; a wrong value fails it,
   checked). New preview world `worlds/preview/ship` (the engineering world's Anaconda Loadout,
-  re-dated, plus a written Status.json) dumps `fixtures/ship-status.json` through
-  `preview_fixtures.rs`. Fake handler in fakecore.ts: the sample under `?core=ready`, nulls in
+  re-dated, plus a written Status.json, then a refit step: ship 3's next `Loadout` at 21.4 ly)
+  dumps `fixtures/ship-status.json` through `preview_fixtures.rs`: `ship_status` before and after
+  the refit and `engineering_fleet` after it. A browser case switches to the refitted replies on
+  the next tick and sees "Jump 21.4 ly" (it fails with an id-only re-read). Fake handler in fakecore.ts: the sample under `?core=ready`, nulls in
   the other scenarios, and no core gives a failed call. `StatusBar.browser.test.ts`: Elite not
   running (ship, no fuel or cargo), then the next tick with Elite running (figures appear), and
   the call failing (ship kept, figures dropped, no error text or Failure).
@@ -78,8 +80,11 @@ core's state line has left the header.
   -p astromech-app, cargo clippy on both with -D warnings, cargo fmt --check: all pass.
 - Height scaling (astromech-k6pl) is not done yet; the bar uses the token, so it scales with the
   rest once that lands.
+- A reviewer's run once saw `every_preview_fixture_is_the_cores_reply_or_says_why_not` fail on
+  the unchanged exploration fixture (one organic sample instead of two) and pass on rerun; it
+  passed in each of my runs. It is not in this change's fixtures.
+- The window guide (`docs/guide/using-the-app.md`) describes the bar and the remeasured header.
 
 ### Responses
 
-1-77tl.1: fixed in 8474debf: ship_status also carries the last Loadout's ship_name and max_jump_range, and the bar reads engineering_fleet again once whenever ship_id, name or range changes; StatusBar.browser.test.ts covers a same-ID range change (18.0 to 21.4 ly).
-1-77tl.2: fixed in 8474debf: docs/guide/using-the-app.md describes the status bar (ship, jump range, fuel and cargo, when they drop out, the 2 s refresh) and the health line in it, and gives the remeasured header widths.
+2-x4aq.3: fixed in d3c7ef9c: worlds/preview/ship has a refit step (ship 3's next Loadout at 21.4 ly, mark "refitted"); ship-status.json's flying, refitted and refitted_fleet parts are dumped by preview_fixtures.rs, and the refit test switches to those (it fails with the old id-only re-read).
