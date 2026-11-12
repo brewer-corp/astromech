@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-v4bw
 title: Explanations move from page prose into Tips
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-s
@@ -96,3 +96,4 @@ line instead of the removed description.
 
 - 1-bvka.1: fixed in bb269601: `docs/guide/exploration.md` says a species nobody had logged pays five times.
 - 1-bvka.2: fixed in bb269601: `Suggestions.browser.test.ts` deleted; Tip's own tests cover the description.
+- 2-svbq.3: fixed in 5fe6d164: the "shows what earns merits" case is removed; 576 tests pass.
