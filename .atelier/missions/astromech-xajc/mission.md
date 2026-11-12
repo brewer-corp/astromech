@@ -5,7 +5,7 @@ id: astromech-xajc
 title: 'Glow-up: every page reads at a glance and fills the window'
 status: ready
 labels: []
-lead: null
+lead: 65a8ff7c-e901-48a1-be52-323bbbd8e80c
 ready:
   by: Sumeet
   at: 2026-11-12T09:32:43.470033653Z
