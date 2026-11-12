@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-qwvs
 title: 'Route page: the timeline'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
@@ -15,7 +15,8 @@ blocked_by:
 - astromech-sixj
 - astromech-woqv
 - astromech-z5oh
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3A5e78e1b5-3f1e-4b4d-b3ed-888d41e195f4
 ready:
   by: conversion
   at: 2026-11-10T06:03:06.734551139Z
