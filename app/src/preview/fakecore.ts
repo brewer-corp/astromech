@@ -18,7 +18,10 @@
  * calls do then, except the few with a sample (NO_CORE below).
  *
  * `?core=ready&route=exact` starts on a route, for the route strip: fixtures/plot.json's exact
- * route, with the commander in its third waypoint. Without it the preview has no route.
+ * route, with the commander in its third waypoint. `?core=ready&route=timeline` starts on
+ * fixtures/route.json's: a neutron route whose flown leg lists its jumps from the galaxy map,
+ * with inhabited stops' details, answered as recorded until a command changes the route. Without
+ * either the preview has no route.
  */
 import type { Biology } from "../lib/api/types/Biology";
 import type { CalibrationStep } from "../lib/api/types/CalibrationStep";
@@ -31,10 +34,12 @@ import type { Mining } from "../lib/api/types/Mining";
 import type { Ores } from "../lib/api/types/Ores";
 import type { Outbox } from "../lib/api/types/Outbox";
 import type { RouteReply } from "../lib/api/types/RouteReply";
+import type { RouteStop } from "../lib/api/types/RouteStop";
+import type { Scoop } from "../lib/api/types/Scoop";
 import type { ShipStatus } from "../lib/api/types/ShipStatus";
 import type { CoreCmd, CoreStatus, Level } from "../lib/core";
 import type { EdsmStatus } from "../lib/edsm";
-import type { Route, RouteView, Waypoint } from "../lib/route";
+import type { Plotted, Route, RouteView, Waypoint } from "../lib/route";
 import type { ArgList, Args, Reply } from "../lib/transport";
 import type { DryRun, LearnedPhrase } from "../lib/voice";
 import eddnFixture from "./fixtures/eddn-log.json";
@@ -42,6 +47,7 @@ import biologyFixture from "./fixtures/exobiology.json";
 import miningFixture from "./fixtures/mining.json";
 import shipFixture from "./fixtures/ship-status.json";
 import plotSample from "./fixtures/plot.json";
+import routeFixture from "./fixtures/route.json";
 import voiceFixture from "./fixtures/voice.json";
 import { previewQuery } from "./query";
 import { labelled, recorded, type Handler, type Handlers } from "./recorded";
@@ -49,6 +55,8 @@ import { labelled, recorded, type Handler, type Handlers } from "./recorded";
 const eddnSample = recorded<Outbox<EddnHead>>(eddnFixture);
 const biologySample = recorded<Done<Biology>>(biologyFixture);
 const miningSample = recorded<Mining>(miningFixture);
+const routeSample = recorded<{ plotted: Plotted; view: RouteView }>(routeFixture);
+const exactSample = recorded<Plotted>(plotSample.exact);
 /** The ship world's replies: `flying` is the status bar's sample (`refitted` and its fleet, the same
  * ship after a refit, are the bar's test's). */
 const shipSample = recorded<{ flying: Done<ShipStatus>; refitted: Done<ShipStatus>; refitted_fleet: Fleet }>(shipFixture).flying;
@@ -88,6 +96,8 @@ interface State {
   route: Route | null;
   /** The route a galaxy-map plot replaced. */
   parked: Route | null;
+  /** `?route=timeline`: the recorded view, answered until a command changes the route. */
+  timeline: RouteView | null;
   here: string | null;
   /** Why the clipboard turns writes down (tests: `fakeClipboard`), and the last write's error. */
   clipFails: string | null;
@@ -204,7 +214,8 @@ function fresh(scenario: Scenario): State {
     edsm: { enabled: false, commander: "", key: false },
     route: done ? startingRoute() : null,
     parked: null,
-    here: done ? (startingRoute()?.waypoints[2]?.system ?? "Sol") : null,
+    timeline: done && previewQuery().get("route") === "timeline" ? structuredClone(routeSample.view) : null,
+    here: done ? startingHere() : null,
     clipFails: null,
     clipError: null,
   };
@@ -213,9 +224,17 @@ function fresh(scenario: Scenario): State {
 /** `?route=exact`: the exact route from fixtures/plot.json, with the commander in its third
  * waypoint, so the fourth is next. */
 function startingRoute(): Route | null {
-  if (previewQuery().get("route") !== "exact") return null;
-  const { name, source, waypoints } = plotSample.exact;
-  return { name, source, waypoints: structuredClone(waypoints), next: 3 };
+  const scenario = previewQuery().get("route");
+  if (scenario === "timeline") return structuredClone(routeSample.view.route);
+  if (scenario !== "exact") return null;
+  const { name, source, waypoints, plot } = exactSample;
+  return { name, source, waypoints: structuredClone(waypoints), next: 3, plot };
+}
+
+/** Where the commander starts: the recorded timeline's system, or the exact route's third stop. */
+function startingHere(): string {
+  if (previewQuery().get("route") === "timeline") return routeSample.view.here ?? "Sol";
+  return startingRoute()?.waypoints[2]?.system ?? "Sol";
 }
 
 const sameSystem = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -230,7 +249,11 @@ function cleanStops(list: Waypoint[]): Waypoint[] {
     if (last && sameSystem(last.system, system)) {
       if (w.label && w.label !== last.label) last.label = last.label ? `${last.label}, ${w.label}` : w.label;
       if (last.jumps != null) last.jumps += w.jumps ?? 0;
-    } else out.push({ system, ...(w.label ? { label: w.label } : {}), ...(w.jumps != null ? { jumps: w.jumps } : {}) });
+      if (last.ly != null) last.ly += w.ly ?? 0;
+    } else {
+      const { label, ...rest } = w;
+      out.push({ ...rest, system, ...(label ? { label } : {}) });
+    }
   }
   return out;
 }
@@ -250,10 +273,48 @@ function jumpsLeft(r: Route): number | null {
   return ahead.every((w) => w.jumps != null) ? ahead.reduce((n, w) => n + (w.jumps ?? 0), 0) : null;
 }
 
+/** As the core's `Scoop::of`: from the star class (KGBFOAM), else the plotter's flag. */
+function scoop(starClass: string | null | undefined, flag: boolean | null | undefined): Scoop {
+  const known = starClass != null ? "OBAFGKM".includes(starClass.split("_")[0] ?? "-") && starClass.split("_")[0]?.length === 1 : flag;
+  return known == null ? "unknown" : known ? "yes" : "no";
+}
+
+/** As the core's timeline, without the galaxy map's route: each stop with what its source gave,
+ * and the plotter's listed jumps; the commander's place on the flown leg when it lists them. */
+function timeline(r: Route, here: string | null): { stops: RouteStop[]; position: number | null } {
+  let position: number | null = null;
+  const stops = r.waypoints.map((w, i): RouteStop => {
+    const prev = r.waypoints[i - 1];
+    if (i === r.next && w.hops && prev && here) {
+      const systems = [prev.system, ...w.hops.map((h) => h.system)];
+      const at = systems.map((s) => sameSystem(s, here)).lastIndexOf(true);
+      position = at >= 0 ? at : null;
+    }
+    const neutron = (c: string | null | undefined, flag: boolean | null | undefined) => (c != null ? c === "N" : (flag ?? null));
+    return {
+      system: w.system,
+      label: w.label ?? null,
+      star_class: w.star_class ?? null,
+      scoopable: scoop(w.star_class, w.scoopable),
+      neutron: neutron(w.star_class, w.neutron),
+      jumps: w.jumps ?? null,
+      ly: w.ly ?? null,
+      hops: w.hops
+        ? w.hops.map((h) => ({ system: h.system, star_class: h.star_class ?? null, scoopable: scoop(h.star_class, h.scoopable), neutron: neutron(h.star_class, h.neutron) }))
+        : null,
+      hops_from: w.hops ? "plotter" : null,
+      details: null,
+    };
+  });
+  return { stops, position };
+}
+
 /** The preview's clipboard takes the text unless a test made it fail (`fakeClipboard`). */
 function routeView(st: State): RouteView {
+  if (st.timeline) return { ...structuredClone(st.timeline), clipboard_error: st.clipError };
   const r = st.route;
   return {
+    ...(r ? timeline(r, st.here) : { stops: [], position: null }),
     route: r ? structuredClone(r) : null,
     here: st.here,
     next: r?.waypoints[r.next] ?? null,
@@ -280,7 +341,7 @@ function skipReached(st: State): void {
  * (tests): a leg of the route followed changes nothing, a plot onto the parked route resumes it,
  * anything else is followed and parks an unfinished route of ours. */
 export function fakePlotInGame(systems: string[]): void {
-  const st = s();
+  const st = changed(s());
   const dest = systems.at(-1);
   if (!dest || systems.length < 2) return;
   const r = st.route;
@@ -299,11 +360,11 @@ export function fakePlotInGame(systems: string[]): void {
 const ours = (r: Route | null): r is Route => !!r && r.source !== GAME_SOURCE && r.next < r.waypoints.length;
 
 /** As the core's `Desk::set`: follow `waypoints`, parking the unfinished route of ours it replaces. */
-function follow(st: State, name: string, source: string, waypoints: Waypoint[]): void {
+function follow(st: State, name: string, source: string, waypoints: Waypoint[], plot?: Route["plot"]): void {
   const first = waypoints[0];
   const next = st.here && first && sameSystem(first.system, st.here) ? 1 : 0;
   if (ours(st.route)) st.parked = st.route;
-  st.route = { name, source, waypoints, next };
+  st.route = { name, source, waypoints, next, ...(plot ? { plot } : {}) };
 }
 
 /** As the core's `Desk::add` on a route of ours: the stop becomes the next waypoint, merged with
@@ -318,8 +379,12 @@ function addNext(st: State, r: Route, stop: Waypoint): void {
     prev.label = merge(prev.label, stop.label);
     r.next -= 1;
   } else {
-    // The leg after the new stop starts there now: its jumps are unknown.
-    if (at) delete at.jumps;
+    // The leg after the new stop starts there now: it is unknown.
+    if (at) {
+      delete at.jumps;
+      delete at.ly;
+      delete at.hops;
+    }
     r.waypoints.splice(r.next, 0, stop);
   }
   const next = r.waypoints[r.next];
@@ -334,9 +399,15 @@ export function fakeClipboard(error: string | null): void {
 /** A live arrival in `system`, as the core's `Desk::on_system` takes it (tests): the commander is
  * there, and a waypoint ahead is reached. */
 export function fakeJump(system: string): void {
-  const st = s();
+  const st = changed(s());
   st.here = system;
   skipReached(st);
+}
+
+/** A command changed the route: the recorded timeline no longer answers. */
+function changed(st: State): State {
+  st.timeline = null;
+  return st;
 }
 
 /** The route commands' reply: the route's view. */
@@ -349,17 +420,22 @@ function copies(st: State): State {
   return st;
 }
 
-const routeHandlers: Pick<CoreHandlers, "route" | "route_set" | "route_add" | "route_skip" | "route_back" | "route_clear" | "route_copy" | "route_resume"> = {
+const routeHandlers: Pick<
+  CoreHandlers,
+  "route" | "route_details" | "route_set" | "route_add" | "route_skip" | "route_back" | "route_clear" | "route_copy" | "route_resume"
+> = {
   route: viewed,
+  // The recorded timeline has its stops' details; another route's stops have none here.
+  route_details: viewed,
   route_set: (st, args) => {
-    copies(st);
+    copies(changed(st));
     const waypoints = cleanStops(typeof args.text === "string" ? parseList(args.text) : (args.waypoints ?? []));
     if (!waypoints.length) return { ok: false, error: "the route has no systems" };
-    follow(st, args.name || "Route", args.source ?? "", waypoints);
+    follow(st, args.name || "Route", args.source ?? "", waypoints, args.plot ?? undefined);
     return viewed(st);
   },
   route_add: (st, args) => {
-    copies(st);
+    copies(changed(st));
     const system = (args.system ?? "").trim();
     if (!system) return { ok: false, error: "the stop has no system" };
     const stop: Waypoint = { system, ...(args.label?.trim() ? { label: args.label } : {}) };
@@ -369,16 +445,17 @@ const routeHandlers: Pick<CoreHandlers, "route" | "route_set" | "route_add" | "r
     return viewed(st);
   },
   route_skip: (st) => {
-    const r = copies(st).route;
+    const r = copies(changed(st)).route;
     if (r) r.next = Math.min(r.next + 1, r.waypoints.length);
     return viewed(st);
   },
   route_back: (st) => {
-    const r = copies(st).route;
+    const r = copies(changed(st)).route;
     if (r) r.next = Math.max(r.next - 1, 0);
     return viewed(st);
   },
   route_clear: (st) => {
+    changed(st);
     st.clipError = null;
     st.route = null;
     st.parked = null;
@@ -386,7 +463,7 @@ const routeHandlers: Pick<CoreHandlers, "route" | "route_set" | "route_add" | "r
   },
   route_copy: (st) => viewed(copies(st)),
   route_resume: (st) => {
-    copies(st);
+    copies(changed(st));
     if (!st.parked) return { ok: false, error: "there is no route to resume" };
     st.route = st.parked;
     st.parked = null;

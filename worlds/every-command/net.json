@@ -31,6 +31,8 @@
       {"from": "../../crates/astromech-data/tests/fixtures/spansh-trade-result.json"}
     ]},
     {"url": "https://spansh.co.uk/api/generic/route", "method": "POST", "status": 202, "from": "../../crates/astromech-data/tests/fixtures/spansh-exact-submit.json"},
+    {"url": "https://spansh.co.uk/api/systems/search", "method": "POST", "sent": "Tascheter Sector LS-T a3-0", "from": "../../crates/astromech-galaxy/tests/fixtures/spansh-route-stops-maia.json"},
+    {"url": "https://spansh.co.uk/api/results/00000000-0000-0000-0000-000000000003", "from": "../../crates/astromech-data/tests/fixtures/spansh-exact-result.json"},
     {"url": "https://spansh.co.uk/api/results/00000000-0000-0000-0000-000000000003", "in_turn": [
       {"status": 202, "from": "../../crates/astromech-data/tests/fixtures/spansh-exact-pending.json"},
       {"from": "../../crates/astromech-data/tests/fixtures/spansh-exact-result.json"}

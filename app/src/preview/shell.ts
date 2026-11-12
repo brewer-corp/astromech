@@ -352,10 +352,19 @@ async function neutronDownload(progress: (p: unknown) => void): Promise<NeutronF
 const routePlot: H<"route_plot"> = async ({ ask }) => {
   const neutronRoute = neutron.file ? plotSample.local : plotSample.neutron;
   const plotted = ask.plotter === "neutron" ? neutronRoute : plotSample.exact;
-  const r = await coreReply("route_set", { name: plotted.name, source: plotted.source, waypoints: plotted.waypoints });
+  const r = await coreReply("route_set", { name: plotted.name, source: plotted.source, waypoints: plotted.waypoints, plot: plotted.plot });
   if (!r.ok) throw new Error(r.error);
   const view: RouteView = r.view;
   return { plotted, view };
+};
+
+/** As the command layer's `route_replot`: plot again with the route's own settings. */
+const routeReplot: H<"route_replot"> = async () => {
+  const r = await coreReply("route", null);
+  const plot = r.ok ? r.view.route?.plot : null;
+  if (!plot) throw new Error("This route wasn't plotted here, so there is nothing to plot again. Plot it from the top bar.");
+  const { to, plotter, engine, efficiency, refuel_every_scoopable, range } = plot;
+  return routePlot({ ask: { to, plotter, engine, efficiency, refuel_every_scoopable, range } });
 };
 
 /** The command layer's commands. `publish` sends a push (a command's progress channel). */
@@ -424,6 +433,7 @@ export function shellCommands(publish: (topic: string, payload: unknown) => void
     galaxy_systems: ({ prefix }) => SYSTEMS.filter((s) => s.toLowerCase().startsWith(prefix.toLowerCase())),
     route_plot_ship: () => plotSample.ship,
     route_plot: routePlot,
+    route_replot: routeReplot,
     neutron_file: async () => {
       await previewGate("neutron_file");
       return neutron;

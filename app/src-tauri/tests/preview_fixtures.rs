@@ -365,6 +365,38 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
             },
         ],
     );
+    // The Route page's timeline (worlds/preview/route): a neutron route Sol, PSR J1752-2806,
+    // Colonia plotted by Spansh's recorded job; then the first leg plotted in the galaxy map and
+    // two of its jumps made, so the flown leg lists its jumps (systems and star classes from
+    // NavRoute.json) and the commander's place on it, the leg after it has only a count, and the
+    // stops' details come from Spansh (all three are inhabited).
+    t.insert(
+        "route.json",
+        vec![
+            Part {
+                key: "/plotted",
+                from: From::Core {
+                    world: "route",
+                    at: Some("running"),
+                    cmd: "route_plot",
+                    args: json!({"ask": {"plotter": "neutron", "to": "Colonia", "efficiency": 60, "refuel_every_scoopable": false}}),
+                    pick: "/plotted",
+                    keep: &[],
+                },
+            },
+            Part {
+                key: "/view",
+                from: From::Core {
+                    world: "route",
+                    at: Some("flying"),
+                    cmd: "route_details",
+                    args: Value::Null,
+                    pick: "/view",
+                    keep: &[],
+                },
+            },
+        ],
+    );
     // Colony candidates around Greae Phoea EM-K d9-675, where the colonies world's commander is,
     // from Spansh's answers recorded there on 17 Oct 2026.
     t.insert(

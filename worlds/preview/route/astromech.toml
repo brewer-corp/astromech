@@ -1,0 +1,19 @@
+# The browser preview's route timeline (app/src-tauri/tests/preview_fixtures.rs, route.json):
+# Jameson docked at Abraham Lincoln in Sol in an Asp (the game folder of worlds/preview/sol) on
+# 12 Nov 2026's clock. Elite runs; the window plots a neutron route to Colonia (Spansh's recorded
+# job: Sol, 10 jumps to the neutron star PSR J1752-2806, 1 jump on to Colonia). Then the
+# commander plots the first leg in the galaxy map (NavRoute.json and its journal line), undocks
+# and makes two of its jumps, so the flown leg lists its jumps from the galaxy map and the leg
+# after it has only a count. The journal lines and NavRoute.json are hand-built in the shape the
+# game writes.
+#
+# Provenance: the route answers are astromech-data's recorded fixtures, as in worlds/preview/sol.
+# NavRoute.json's systems, addresses and positions are the leg's jumps from Spansh's exact
+# plotter (Sol to PSR J1752-2806 for the fixture Asp's drive, asked on 12 Nov 2026), and each
+# star class is the system's main star on its Spansh system page, written as the journal names
+# it (G, M, TTS, N). The stops' details are Spansh's systems search for the three stops by name
+# (crates/astromech-galaxy/tests/fixtures/spansh-route-stops.json, 12 Nov 2026; bodies, stations,
+# factions and synthesis recipes dropped): all three are inhabited. Lookups the core makes on
+# arriving in a system (EDSM's bodies, Spansh's biology) aren't held, so the world refuses them.
+[eddn]
+enabled = false

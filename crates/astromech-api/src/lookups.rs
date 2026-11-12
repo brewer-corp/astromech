@@ -276,6 +276,24 @@ fn route_plot(s: &State, ask: &astromech_galaxy::plot::Ask, call: &Call) -> Resu
     Ok(RoutePlotted { plotted, view: r["view"].take() })
 }
 
+/// Plot the route followed again from the commander's system with what it was plotted with
+/// (destination, plotter, engine, efficiency and range: the route's `plot`, read through
+/// `route`), and follow the new one as `route_plot` does. A route that wasn't plotted, or was
+/// saved before its settings were kept, has none.
+fn route_replot(s: &State, call: &Call) -> Result<RoutePlotted, String> {
+    let r = call.run("route", None).map_err(|e| format!("The route could not be read: {e}."))?;
+    let plot = r.pointer("/view/route/plot").cloned().unwrap_or(serde_json::Value::Null);
+    if plot.is_null() {
+        return Err(NO_REPLOT.into());
+    }
+    let settings: astromech_galaxy::plot::Settings = serde_json::from_value(plot).map_err(text)?;
+    route_plot(s, &settings.ask(), call)
+}
+
+/// `route_replot` with no plotted route to plot again.
+pub const NO_REPLOT: &str =
+    "This route wasn't plotted here, so there is nothing to plot again. Plot it from the top bar.";
+
 /// Download the latest neutron star file (about 70 MB), sending progress about once a megabyte.
 /// The old file, if any, stays until the new one is complete and checked. A second download
 /// while one runs is turned down (by `neutron::download`). The new file is loaded straight away,
@@ -523,6 +541,8 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     reg.add_typed("route_plot", Window, move |x: AskArg<astromech_galaxy::plot::Ask>, call| {
         route_plot(&s, &x.ask, call)
     });
+    let s = state.clone();
+    reg.add_typed("route_replot", Window, move |(), call| route_replot(&s, call));
 
     // The neutron star file in the data folder, downloaded only when the commander presses
     // Download on the Route page.

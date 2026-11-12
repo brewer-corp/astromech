@@ -411,7 +411,7 @@ impl astromech_announce::route_follow::Follower for Follower {
         (system == "A").then(|| "Next waypoint. B.".to_string())
     }
     fn here(&self, _: &str) {}
-    fn plotted(&self, _: &[String]) {
+    fn plotted(&self, _: &[astromech_journal::RouteHop]) {
         self.0.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
     }
     fn cleared(&self) {}

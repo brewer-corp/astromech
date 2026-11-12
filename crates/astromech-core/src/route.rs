@@ -21,32 +21,63 @@
 //! is not running, and it does the clipboard writes.
 //!
 //! (Not to be confused with the window's `--route`, which is a page in the app.)
+//!
+//! The Route page's timeline is [`View::stops`]: what each source says about the route's stops
+//! and legs, and nothing it doesn't say ([`StopView`] gives the contract per source).
 
 use astromech_api::Recover;
+use astromech_galaxy::plot::{Hop, Settings};
+use astromech_galaxy::stops::Details;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+/// A stop on the route. Every field but `system` is optional and present only where the route's
+/// source said it; `route.json` from before a field was recorded loads without it.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
 pub struct Waypoint {
     pub system: String,
     /// What is there, e.g. the engineer's name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
     /// Jumps from the waypoint before, where the route knows them: a plotted route
-    /// (`astromech_galaxy::plot`) and one plotted in the galaxy map do, an import or a lookup's
-    /// stop doesn't. `route.json` from before it was recorded loads without it.
+    /// (`astromech_galaxy::plot`), one plotted in the galaxy map and a CSV with a Jumps column
+    /// do, a plain list or a lookup's stop doesn't.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub jumps: Option<u32>,
+    /// Light years from the waypoint before: a plotted route, and a Spansh CSV's leg distance.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ly: Option<f64>,
+    /// `StarClass`, as `NavRoute.json` writes it: a route plotted in the galaxy map.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub star_class: Option<String>,
+    /// Whether its star can be scooped, as the plotter flags it (exact routes).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub scoopable: Option<bool>,
+    /// Whether its star is a neutron star, as the plotter or a CSV's Neutron Star column says.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub neutron: Option<bool>,
+    /// The leg's jumps, the last being this stop, as the plotter listed them (exact routes).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hops: Option<Vec<Hop>>,
 }
 
 impl Waypoint {
     pub fn new(system: &str) -> Self {
-        Self { system: system.trim().to_string(), label: None, jumps: None }
+        Self { system: system.trim().to_string(), ..Self::default() }
+    }
+
+    /// The leg to it is no longer the one its source described (a stop was put before it).
+    fn forget_leg(&mut self) {
+        self.jumps = None;
+        self.ly = None;
+        self.hops = None;
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ts_rs::TS)]
 #[ts(rename = "FollowedRoute")]
 pub struct Route {
     pub name: String,
@@ -57,6 +88,11 @@ pub struct Route {
     /// Index of the next waypoint; `waypoints.len()` once the route is finished.
     #[serde(default)]
     pub next: usize,
+    /// What a plotted route was plotted with, for `route_replot`. Other routes, and plotted
+    /// ones saved before it was recorded, have none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub plot: Option<Settings>,
 }
 
 /// The source of a route plotted in the galaxy map.
@@ -90,11 +126,17 @@ impl Route {
                     last.label = merge_labels(last.label.take(), w.label);
                     // A repeat of the same system is no further jump.
                     last.jumps = last.jumps.map(|j| j + w.jumps.unwrap_or(0));
+                    last.ly = last.ly.map(|l| l + w.ly.unwrap_or(0.0));
                 }
                 _ => out.push(w),
             }
         }
-        Self { name: name.trim().to_string(), source: source.to_string(), waypoints: out, next: 0 }
+        Self { name: name.trim().to_string(), source: source.to_string(), waypoints: out, next: 0, plot: None }
+    }
+
+    /// The same route, kept with what it was plotted with.
+    pub fn plotted_with(self, plot: Option<Settings>) -> Self {
+        Self { plot, ..self }
     }
 
     pub fn next_stop(&self) -> Option<&Waypoint> {
@@ -162,25 +204,63 @@ impl Route {
             w.label = merge_labels(w.label.take(), stop.label);
             self.next = i - 1;
         } else {
-            // The stop after it is now reached from the new stop, so its jumps are unknown too.
+            // The stop after it is now reached from the new stop, so its leg is unknown too.
             if let Some(after) = self.waypoints.get_mut(i) {
-                after.jumps = None;
+                after.forget_leg();
             }
             self.waypoints.insert(i, stop);
         }
     }
 }
 
-/// Waypoints from pasted text: a Spansh CSV export (any router; the "System Name" column, with
-/// repeats for road-to-riches bodies merged), or one system name per line.
+/// Waypoints from pasted text: a Spansh CSV export (any router), or one system name per line.
+///
+/// A CSV gives what its columns give, as Spansh's site writes them (its `downloadCSV` column
+/// lists, read 12 Nov 2026): the "System Name" column; "Jumps" (neutron, road to riches,
+/// tourist and others) as each stop's jumps; the leg's light years from "Distance" (exact,
+/// fleet carrier, colonisation) or, in the neutron plotter's export, "Distance To Arrival"
+/// (elsewhere that column is a body's distance in light seconds, so it is read only with a
+/// "Distance Remaining" column and no "Body Name"); and "Neutron Star" (Yes or No). No export
+/// has a star class or a scoopable flag. Rows repeating the system before them (road to riches:
+/// one row per body, each with the system's jumps) are one stop, from its first row.
 pub fn parse_list(text: &str) -> Vec<Waypoint> {
     let mut lines = text.lines().map(str::trim).filter(|l| !l.is_empty()).peekable();
     let Some(first) = lines.peek() else { return vec![] };
     let header = split_csv(first);
-    let col = header.iter().position(|h| h.eq_ignore_ascii_case("system name") || h.eq_ignore_ascii_case("system"));
-    let out: Vec<Waypoint> = match col {
+    let col = |names: &[&str]| header.iter().position(|h| names.iter().any(|n| h.eq_ignore_ascii_case(n)));
+    let out: Vec<Waypoint> = match col(&["system name", "system"]) {
         Some(c) if header.len() > 1 || first.contains('"') => {
-            lines.skip(1).filter_map(|l| split_csv(l).get(c).map(|s| Waypoint::new(s))).collect()
+            let jumps = col(&["jumps"]);
+            let leg_ly = col(&["distance"]).or_else(|| {
+                (col(&["distance remaining"]).is_some() && col(&["body name"]).is_none())
+                    .then(|| col(&["distance to arrival"]))
+                    .flatten()
+            });
+            let neutron = col(&["neutron star"]);
+            let mut out: Vec<Waypoint> = vec![];
+            for l in lines.skip(1) {
+                let f = split_csv(l);
+                let Some(system) = f.get(c) else { continue };
+                let cell = |i: Option<usize>| i.and_then(|i| f.get(i)).map(String::as_str);
+                let w = Waypoint {
+                    jumps: cell(jumps).and_then(|j| j.parse().ok()),
+                    ly: cell(leg_ly).and_then(|d| d.parse().ok()),
+                    neutron: cell(neutron).and_then(|n| {
+                        if n.eq_ignore_ascii_case("yes") {
+                            Some(true)
+                        } else if n.eq_ignore_ascii_case("no") {
+                            Some(false)
+                        } else {
+                            None
+                        }
+                    }),
+                    ..Waypoint::new(system)
+                };
+                if !out.last().is_some_and(|last| same_system(&last.system, &w.system)) {
+                    out.push(w);
+                }
+            }
+            out
         }
         _ => lines.map(|l| Waypoint::new(l.trim_matches('"'))).collect(),
     };
@@ -209,7 +289,7 @@ fn split_csv(line: &str) -> Vec<String> {
 }
 
 /// What the route did after a jump, for the spoken line.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Moved {
     /// Reached a waypoint; `next` is now on the clipboard (`copied` false if that failed).
     Arrived { at: Waypoint, next: Waypoint, left: usize, copied: bool },
@@ -349,6 +429,107 @@ pub struct View {
     pub clipboard_error: Option<String>,
     /// The route a galaxy-map plot or a route set from the window replaced, to resume.
     pub parked: Option<Route>,
+    /// The timeline: the route's stops in order, each with the leg to it.
+    pub stops: Vec<StopView>,
+    /// Where the commander is on the leg being flown (the one to `next`), when its jumps are
+    /// listed: how many of `stops[route.next].hops` are behind them, from the journal's
+    /// current system (0: still in the system the list starts from, before its first jump). None
+    /// when the leg's jumps aren't listed, or the commander isn't on them.
+    pub position: Option<usize>,
+}
+
+/// Whether a star can be fuel-scooped: from its class where one is known (the KGBFOAM classes,
+/// as `astromech_announce::fuel::scoopable` has it), else from the plotter's flag, else unknown.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, ts_rs::TS)]
+#[serde(rename_all = "lowercase")]
+pub enum Scoop {
+    Yes,
+    No,
+    Unknown,
+}
+
+impl Scoop {
+    fn of(star_class: Option<&str>, flag: Option<bool>) -> Self {
+        match star_class.map(astromech_announce::fuel::scoopable).or(flag) {
+            Some(true) => Scoop::Yes,
+            Some(false) => Scoop::No,
+            None => Scoop::Unknown,
+        }
+    }
+}
+
+/// Whether a star is a neutron star: from its class where known, else the plotter's flag.
+fn neutron_of(star_class: Option<&str>, flag: Option<bool>) -> Option<bool> {
+    star_class.map(|c| c == "N").or(flag)
+}
+
+/// Where a leg's listed jumps come from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, ts_rs::TS)]
+#[serde(rename_all = "snake_case")]
+pub enum HopsFrom {
+    /// The route the commander plotted in the galaxy map (`NavRoute.json`), for the leg being
+    /// flown: systems and star classes.
+    NavRoute,
+    /// The plotter's own list (exact routes): systems with Spansh's scoopable and neutron flags.
+    Plotter,
+}
+
+/// A jump of a leg, as its source lists it.
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "RouteJump")]
+pub struct JumpView {
+    pub system: String,
+    pub star_class: Option<String>,
+    pub scoopable: Scoop,
+    pub neutron: Option<bool>,
+}
+
+impl JumpView {
+    fn of(h: &Hop) -> Self {
+        let class = h.star_class.as_deref();
+        JumpView {
+            system: h.system.clone(),
+            star_class: h.star_class.clone(),
+            scoopable: Scoop::of(class, h.scoopable),
+            neutron: neutron_of(class, h.neutron),
+        }
+    }
+}
+
+/// A stop on the timeline and the leg to it. What each source gives, and nothing more:
+///
+/// - Neutron routes (this PC's plotter, Spansh's): the stop's system and whether it is a neutron
+///   star; the leg's jump count and light years. No star class, and no jumps listed.
+/// - Exact routes (Spansh): every jump is a stop, so each leg is the one jump to its stop, listed
+///   with Spansh's scoopable and neutron flags (`hops_from: plotter`; the destination has no
+///   scoopable flag, which Spansh sets false at both ends). No star class.
+/// - A route plotted in the galaxy map: every jump is a stop, with its star class from
+///   `NavRoute.json`; each leg is one jump, not listed.
+/// - An imported CSV: what its columns give ([`parse_list`]): jumps, light years and the neutron
+///   flag where the export has them. A plain list, or a lookup's stop: the system alone.
+///
+/// The leg being flown (to `route.next`) lists its jumps from `NavRoute.json` instead, when the
+/// route the commander plotted in the galaxy map ends at this stop (`hops_from: nav_route`): its
+/// systems with their star classes, which give the stop its class too; a jump it gives no class
+/// keeps the plotter's flags for that system, where the plotter listed it. Otherwise a leg lists the
+/// plotter's jumps if it has them, and is count-only if not. A scoopable that neither a class
+/// nor a flag gives is `unknown`.
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+#[ts(rename = "RouteStop")]
+pub struct StopView {
+    pub system: String,
+    pub label: Option<String>,
+    pub star_class: Option<String>,
+    pub scoopable: Scoop,
+    pub neutron: Option<bool>,
+    /// The leg's jumps (0 for a plotted route's first stop).
+    pub jumps: Option<u32>,
+    pub ly: Option<f64>,
+    /// The leg's jumps in order, the last being this stop, where a source lists them.
+    pub hops: Option<Vec<JumpView>>,
+    pub hops_from: Option<HopsFrom>,
+    /// An inhabited system's details from Spansh, once `route_details` has looked it up.
+    pub details: Option<Details>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -358,6 +539,84 @@ struct Saved {
     here: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     parked: Option<Route>,
+    /// The galaxy map's route (`NavRoute.json`), the system it was plotted from first: the
+    /// systems and star classes of the leg being flown. Not saved: each start reads the game's
+    /// file again ([`Desk::known`]), so a route changed while astromech was closed isn't stale.
+    #[serde(skip)]
+    nav: Vec<Hop>,
+}
+
+/// The timeline of `r` ([`View::stops`]) and the commander's place on the leg being flown.
+fn timeline(
+    r: &Route,
+    nav: &[Hop],
+    here: Option<&str>,
+    details: &HashMap<String, Option<Details>>,
+) -> (Vec<StopView>, Option<usize>) {
+    let mut position = None;
+    let stops = r
+        .waypoints
+        .iter()
+        .enumerate()
+        .map(|(i, w)| {
+            let flown = i == r.next;
+            let nav = nav.last().filter(|d| flown && nav.len() > 1 && same_system(&d.system, &w.system)).map(|_| nav);
+            let (start, hops, from) = match (nav, &w.hops) {
+                (Some(nav), _) => (Some(nav[0].system.as_str()), Some(&nav[1..]), Some(HopsFrom::NavRoute)),
+                (None, Some(h)) => {
+                    (i.checked_sub(1).map(|p| r.waypoints[p].system.as_str()), Some(&h[..]), Some(HopsFrom::Plotter))
+                }
+                (None, None) => (None, None, None),
+            };
+            // NavRoute's jumps and classes first; where it gives no class, the plotter's flags for
+            // the same system (an exact route's) still say what is known.
+            let hops: Option<Vec<JumpView>> = hops.map(|list| {
+                list.iter()
+                    .map(|h| match (from, &w.hops) {
+                        (Some(HopsFrom::NavRoute), Some(plotted)) => {
+                            let p = plotted.iter().find(|p| same_system(&p.system, &h.system));
+                            JumpView::of(&Hop {
+                                scoopable: h.scoopable.or(p.and_then(|p| p.scoopable)),
+                                neutron: h.neutron.or(p.and_then(|p| p.neutron)),
+                                ..h.clone()
+                            })
+                        }
+                        _ => JumpView::of(h),
+                    })
+                    .collect()
+            });
+            if let (true, Some(start), Some(hops), Some(here)) = (flown, start, &hops, here) {
+                let systems = std::iter::once(start).chain(hops.iter().map(|h: &JumpView| h.system.as_str()));
+                position = systems.collect::<Vec<_>>().iter().rposition(|s| same_system(s, here));
+            }
+            let class = w.star_class.clone().or_else(|| nav.and_then(|n| n.last()).and_then(|h| h.star_class.clone()));
+            StopView {
+                system: w.system.clone(),
+                label: w.label.clone(),
+                scoopable: Scoop::of(class.as_deref(), w.scoopable),
+                neutron: neutron_of(class.as_deref(), w.neutron),
+                star_class: class,
+                jumps: w.jumps,
+                ly: w.ly,
+                hops,
+                hops_from: from,
+                details: details.get(&key(&w.system)).cloned().flatten(),
+            }
+        })
+        .collect();
+    (stops, position)
+}
+
+/// `NavRoute.json`'s systems with their star classes.
+fn nav_of(hops: &[astromech_journal::RouteHop]) -> Vec<Hop> {
+    hops.iter()
+        .map(|h| Hop { system: h.system.clone(), star_class: h.star_class.clone(), scoopable: None, neutron: None })
+        .collect()
+}
+
+/// A system's key in the details cache.
+fn key(system: &str) -> String {
+    system.trim().to_ascii_lowercase()
 }
 
 pub type Clip = Box<dyn Fn(&str) -> Result<(), String> + Send + Sync>;
@@ -367,6 +626,9 @@ pub struct Desk {
     path: Option<PathBuf>,
     state: Mutex<(Saved, Option<String>)>,
     clip: Clip,
+    /// Stops' details from Spansh by [`key`], for this run: None for a system looked up and found
+    /// uninhabited or unknown, or whose lookup failed (it is not asked again).
+    details: Mutex<HashMap<String, Option<Details>>>,
 }
 
 impl Desk {
@@ -377,7 +639,7 @@ impl Desk {
             .and_then(|p| std::fs::read(p).ok())
             .and_then(|b| serde_json::from_slice::<Saved>(&b).ok())
             .unwrap_or_default();
-        Self { path, state: Mutex::new((saved, None)), clip }
+        Self { path, state: Mutex::new((saved, None)), clip, details: Mutex::default() }
     }
 
     /// The core's one: `<data>/route.json`, copying with `clip` (the installed app's is the
@@ -413,8 +675,10 @@ impl Desk {
         }
     }
 
-    fn view_of(st: &(Saved, Option<String>)) -> View {
+    fn view_of(&self, st: &(Saved, Option<String>)) -> View {
         let r = st.0.route.as_ref();
+        let (stops, position) =
+            r.map(|r| timeline(r, &st.0.nav, st.0.here.as_deref(), &self.details.lock().recover())).unwrap_or_default();
         View {
             route: r.cloned(),
             here: st.0.here.clone(),
@@ -423,11 +687,36 @@ impl Desk {
             jumps_left: r.and_then(Route::jumps_left),
             clipboard_error: st.1.clone(),
             parked: st.0.parked.clone(),
+            stops,
+            position,
         }
     }
 
     pub fn view(&self) -> View {
-        Self::view_of(&self.state.lock().recover())
+        self.view_of(&self.state.lock().recover())
+    }
+
+    /// The route's stops not looked up yet, now counted as looked up so each is asked for once
+    /// ([`Desk::put_details`] gives the answer).
+    pub fn take_details_wanted(&self) -> Vec<String> {
+        let st = self.state.lock().recover();
+        let mut d = self.details.lock().recover();
+        let mut want = vec![];
+        for w in st.0.route.iter().flat_map(|r| &r.waypoints) {
+            if let std::collections::hash_map::Entry::Vacant(e) = d.entry(key(&w.system)) {
+                e.insert(None);
+                want.push(w.system.clone());
+            }
+        }
+        want
+    }
+
+    /// Spansh's answer for stops [`Desk::take_details_wanted`] gave; the others stay without.
+    pub fn put_details(&self, found: Vec<(String, Details)>) {
+        let mut d = self.details.lock().recover();
+        for (system, details) in found {
+            d.insert(key(&system), Some(details));
+        }
     }
 
     pub fn has_route(&self) -> bool {
@@ -467,7 +756,7 @@ impl Desk {
         st.0.route = Some(route);
         self.copy(st);
         self.save(&st.0);
-        Self::view_of(st)
+        self.view_of(st)
     }
 
     /// Add stop: make `stop` the next waypoint of the route followed and copy it. Already in its
@@ -497,7 +786,7 @@ impl Desk {
         }
         self.copy(&mut st);
         self.save(&st.0);
-        Ok(Self::view_of(&st))
+        Ok(self.view_of(&st))
     }
 
     /// Stop following the route, and forget a parked one.
@@ -508,7 +797,7 @@ impl Desk {
         }
         st.1 = None;
         self.save(&st.0);
-        Self::view_of(&st)
+        self.view_of(&st)
     }
 
     /// Skip (`forward`) or go back one waypoint, and copy the new next one.
@@ -519,14 +808,14 @@ impl Desk {
             self.copy(&mut st);
             self.save(&st.0);
         }
-        Self::view_of(&st)
+        self.view_of(&st)
     }
 
     /// Copy the next waypoint again (something else took the clipboard).
     pub fn copy_next(&self) -> View {
         let mut st = self.state.lock().recover();
         self.copy(&mut st);
-        Self::view_of(&st)
+        self.view_of(&st)
     }
 
     /// Follow the parked route again and copy its next waypoint. Already in a waypoint ahead (flown
@@ -541,16 +830,20 @@ impl Desk {
         st.0.route = Some(r);
         self.copy(&mut st);
         self.save(&st.0);
-        Ok(Self::view_of(&st))
+        Ok(self.view_of(&st))
     }
 
-    /// The commander plotted `systems` in the galaxy map (live; the current system first). A
-    /// plot to a waypoint ahead on the route followed is a leg of it: nothing changes. A plot to
-    /// a waypoint ahead on the parked route resumes that. Anything else is followed as a route
-    /// from the game, and an unfinished route of our own that it replaces is parked.
-    pub fn plotted(&self, systems: &[String]) {
-        let Some(dest) = systems.last().filter(|_| systems.len() > 1) else { return };
+    /// The commander plotted `hops` in the galaxy map (live, `NavRoute.json`; the current system
+    /// first). Its systems and star classes are kept for the leg being flown ([`View::stops`]).
+    /// A plot to a waypoint ahead on the route followed is a leg of it: the route doesn't
+    /// change. A plot to a waypoint ahead on the parked route resumes that. Anything else is
+    /// followed as a route from the game, and an unfinished route of our own that it replaces is
+    /// parked.
+    pub fn plotted(&self, hops: &[astromech_journal::RouteHop]) {
+        let systems: Vec<&str> = hops.iter().map(|h| h.system.as_str()).collect();
+        let Some(dest) = systems.last().copied().filter(|_| systems.len() > 1) else { return };
         let mut st = self.state.lock().recover();
+        st.0.nav = nav_of(hops);
         if st.0.route.as_ref().is_some_and(|r| !r.from_game() && r.ahead(dest)) {
             return;
         }
@@ -565,8 +858,11 @@ impl Desk {
             self.save(&st.0);
             return;
         }
-        // The galaxy map's route has every jump as a waypoint.
-        let jumps = systems[1..].iter().map(|s| Waypoint { jumps: Some(1), ..Waypoint::new(s) }).collect();
+        // The galaxy map's route has every jump as a waypoint, with its star class.
+        let jumps = hops[1..]
+            .iter()
+            .map(|h| Waypoint { jumps: Some(1), star_class: h.star_class.clone(), ..Waypoint::new(&h.system) })
+            .collect();
         let game = Route::new(&format!("Route to {dest}"), GAME, jumps);
         if game.waypoints.is_empty() {
             return;
@@ -588,12 +884,19 @@ impl Desk {
     /// route of our own stays (its leg was cleared, or the commander arrived).
     pub fn cleared_in_game(&self) {
         let mut st = self.state.lock().recover();
+        st.0.nav.clear();
         if st.0.route.as_ref().is_some_and(Route::from_game) {
             st.0.route = None;
             st.1 = None;
             crate::logging::log("route: the galaxy map's route was cleared");
             self.save(&st.0);
         }
+    }
+
+    /// `NavRoute.json` as the game has it, not live (the catch-up's read at startup, or with
+    /// following off): kept for the timeline only; the route doesn't change.
+    pub fn known(&self, hops: &[astromech_journal::RouteHop]) {
+        self.state.lock().recover().0.nav = nav_of(hops);
     }
 
     /// A replayed journal put us in `system`: remember where we are, but don't move the route
@@ -648,11 +951,14 @@ impl astromech_announce::route_follow::Follower for Desk {
     fn here(&self, system: &str) {
         self.set_here(system);
     }
-    fn plotted(&self, systems: &[String]) {
-        Desk::plotted(self, systems);
+    fn plotted(&self, hops: &[astromech_journal::RouteHop]) {
+        Desk::plotted(self, hops);
     }
     fn cleared(&self) {
         self.cleared_in_game();
+    }
+    fn known(&self, hops: &[astromech_journal::RouteHop]) {
+        Desk::known(self, hops);
     }
 }
 
@@ -732,7 +1038,11 @@ mod tests {
     }
 
     fn plot_in_game(d: &Desk, systems: &[&str]) {
-        d.plotted(&systems.iter().map(|s| s.to_string()).collect::<Vec<_>>());
+        let hops: Vec<astromech_journal::RouteHop> = systems
+            .iter()
+            .map(|s| astromech_journal::RouteHop { system: s.to_string(), ..Default::default() })
+            .collect();
+        d.plotted(&hops);
     }
 
     /// A Spansh neutron route's stops are neutron stars; the commander plots each leg in the
@@ -815,7 +1125,7 @@ mod tests {
     }
 
     fn stop(system: &str, label: &str) -> Waypoint {
-        Waypoint { system: system.into(), label: Some(label.into()), jumps: None }
+        Waypoint { label: Some(label.into()), ..Waypoint::new(system) }
     }
 
     fn systems(v: &View) -> Vec<String> {
@@ -1102,5 +1412,302 @@ mod tests {
         );
         assert_eq!(split_csv(r#""a ""b""",c"#), ["a \"b\"", "c"]);
         assert!(parse_list("").is_empty());
+    }
+
+    /// NavRoute.json for the leg Sol to PSR J1752-2806, as the game writes it: the systems Spansh's
+    /// exact plotter gave for that leg (12 Nov 2026), with each one's main star from Spansh's
+    /// system pages as the journal names the classes.
+    const NAV: &[(&str, &str)] = &[
+        ("Sol", "G"),
+        ("Core Sys Sector RT-R b4-5", "M"),
+        ("Alrai Sector LH-V b2-4", "M"),
+        ("Erh Longo", "M"),
+        ("Scorpii Sector GR-W c1-35", "G"),
+        ("Col 285 Sector VB-H b25-6", "M"),
+        ("Col 285 Sector DO-D b27-9", "M"),
+        ("Col 285 Sector LA-A b29-3", "TTS"),
+        ("Praea Euq RD-T b3-5", "TTS"),
+        ("Col 359 Sector ZL-K b10-5", "M"),
+        ("Col 359 Sector GP-P c6-35", "TTS"),
+        ("PSR J1752-2806", "N"),
+    ];
+
+    fn nav(hops: &[(&str, &str)]) -> Vec<astromech_journal::RouteHop> {
+        hops.iter()
+            .map(|&(s, c)| astromech_journal::RouteHop {
+                system: s.into(),
+                star_class: (!c.is_empty()).then(|| c.into()),
+                star_pos: None,
+            })
+            .collect()
+    }
+
+    /// The neutron route Spansh plotted (astromech-data's spansh-route-result.json): Sol, 10
+    /// jumps to PSR J1752-2806, 1 to Colonia.
+    fn spansh_neutron() -> Route {
+        let w = |s: &str, jumps: u32, ly: f64, neutron: Option<bool>| Waypoint {
+            jumps: Some(jumps),
+            ly: Some(ly),
+            neutron,
+            ..Waypoint::new(s)
+        };
+        Route::new(
+            "Sol to Colonia",
+            "neutron plotter",
+            vec![
+                w("Sol", 0, 0.0, None),
+                w("PSR J1752-2806", 10, 407.486400990496, Some(true)),
+                w("Colonia", 1, 113.169815881102, Some(false)),
+            ],
+        )
+    }
+
+    /// The leg being flown lists its jumps from NavRoute.json when the commander's galaxy-map
+    /// route ends at the next stop: systems, star classes, scoopable from the class, and the
+    /// commander's place on it from the journal. The leg after it keeps only its count.
+    #[test]
+    fn the_flown_leg_lists_its_jumps_from_the_galaxy_map() {
+        let (d, _) = desk();
+        d.on_system("Sol");
+        let v = d.set(spansh_neutron()).unwrap();
+        assert_eq!((v.stops[1].hops.as_ref(), v.position), (None, None), "no galaxy-map route yet: count only");
+
+        d.plotted(&nav(NAV));
+        let v = d.view();
+        assert_eq!(v.route.as_ref().unwrap().name, "Sol to Colonia", "a leg of the route");
+        let leg = &v.stops[1];
+        assert_eq!(leg.hops_from, Some(HopsFrom::NavRoute));
+        let hops = leg.hops.as_ref().unwrap();
+        assert_eq!(hops.len(), 11, "the game's 11 jumps, though the plotter counted 10 at its range");
+        assert_eq!(leg.jumps, Some(10));
+        assert_eq!(
+            hops[0],
+            JumpView {
+                system: "Core Sys Sector RT-R b4-5".into(),
+                star_class: Some("M".into()),
+                scoopable: Scoop::Yes,
+                neutron: Some(false)
+            }
+        );
+        assert_eq!((hops[6].star_class.as_deref(), hops[6].scoopable), (Some("TTS"), Scoop::No));
+        assert_eq!(
+            (leg.star_class.as_deref(), leg.scoopable, leg.neutron),
+            (Some("N"), Scoop::No, Some(true)),
+            "the stop's class too"
+        );
+        assert_eq!(v.position, Some(0), "in Sol, before the first jump");
+        assert_eq!((v.stops[2].hops.as_ref(), v.stops[2].jumps, v.stops[2].star_class.as_ref()), (None, Some(1), None));
+
+        // Jumping along the leg: the journal's system is the place on it.
+        assert_eq!(d.on_system("Core Sys Sector RT-R b4-5"), None);
+        d.on_system("Alrai Sector LH-V b2-4");
+        assert_eq!(d.view().position, Some(2));
+        // Off the listed jumps: no place.
+        d.on_system("Wolf 359");
+        assert_eq!(d.view().position, None);
+
+        // Arriving: the next leg has no galaxy-map route ending at its stop, so it is count-only.
+        d.on_system("PSR J1752-2806");
+        let v = d.view();
+        assert_eq!((v.stops[2].hops.as_ref(), v.position), (None, None));
+        // The stop just reached keeps nothing from the old galaxy-map route either.
+        assert_eq!(v.stops[1].hops, None);
+    }
+
+    /// A galaxy-map route that ends elsewhere lists nothing on the leg, and a jump with no star
+    /// class (RouteHop.star_class is optional) is unknown, not guessed. A clear forgets it.
+    #[test]
+    fn a_galaxy_map_route_lists_a_leg_only_when_it_ends_at_the_next_stop() {
+        let (d, _) = desk();
+        d.on_system("Sol");
+        d.set(spansh_neutron()).unwrap();
+        // A plot to Colonia, a stop further on, is a leg of the route but not the leg flown.
+        d.plotted(&nav(&[("Sol", "G"), ("Somewhere", "K"), ("Colonia", "")]));
+        assert_eq!(d.view().stops.iter().filter(|s| s.hops.is_some()).count(), 0);
+
+        d.plotted(&nav(&[("Sol", "G"), ("Unscanned", ""), ("PSR J1752-2806", "N")]));
+        let v = d.view();
+        let hops = v.stops[1].hops.as_ref().unwrap();
+        assert_eq!((hops[0].star_class.as_ref(), hops[0].scoopable, hops[0].neutron), (None, Scoop::Unknown, None));
+        d.cleared_in_game();
+        assert_eq!(d.view().stops[1].hops, None);
+    }
+
+    /// The galaxy map's own route has every jump as a stop, each with its star class.
+    #[test]
+    fn a_galaxy_map_route_gives_each_stop_its_star_class() {
+        let (d, _) = desk();
+        d.on_system("Sol");
+        d.plotted(&nav(&NAV[..4]));
+        let v = d.view();
+        let classes: Vec<_> =
+            v.stops.iter().map(|s| (s.system.as_str(), s.star_class.as_deref(), s.scoopable)).collect();
+        assert_eq!(
+            classes,
+            [
+                ("Core Sys Sector RT-R b4-5", Some("M"), Scoop::Yes),
+                ("Alrai Sector LH-V b2-4", Some("M"), Scoop::Yes),
+                ("Erh Longo", Some("M"), Scoop::Yes)
+            ]
+        );
+    }
+
+    /// Spansh's CSV exports (its site's column lists, here over the recorded neutron and exact
+    /// jobs in astromech-data's fixtures) give what their columns give.
+    #[test]
+    fn a_csv_import_gives_what_its_columns_give() {
+        let w = parse_list(include_str!("../tests/fixtures/spansh-neutron-sol-colonia.csv"));
+        let got: Vec<_> = w.iter().map(|w| (w.system.as_str(), w.jumps, w.ly, w.neutron)).collect();
+        assert_eq!(
+            got,
+            [
+                ("Sol", Some(0), Some(0.0), Some(false)),
+                ("PSR J1752-2806", Some(10), Some(407.486400990496), Some(true)),
+                ("Colonia", Some(1), Some(113.169815881102), Some(false))
+            ]
+        );
+        // The exact plotter's export: every jump, its distance and neutron flag, but no jump count
+        // column, no star class and no scoopable flag.
+        let w = parse_list(include_str!("../tests/fixtures/spansh-exact-sol-maia.csv"));
+        assert_eq!(w.len(), 10);
+        assert_eq!((w[1].jumps, w[1].ly, w[1].neutron), (None, Some(38.2943229675293), Some(false)));
+        assert_eq!(w[8].neutron, Some(true), "98 k Tauri");
+        assert!(w.iter().all(|w| w.star_class.is_none() && w.scoopable.is_none() && w.hops.is_none()));
+        let (d, _) = desk();
+        let v = d.set(Route::new("Import", "import", w)).unwrap();
+        assert!(v.stops.iter().all(|s| s.hops.is_none() && s.scoopable == Scoop::Unknown));
+        // Road to riches: "Distance To Arrival" is a body's light seconds, not a leg.
+        let r2r = "\"System Name\",\"Body Name\",\"Body Subtype\",\"Is Terraformable\",\"Distance To Arrival\",\"Estimated Scan Value\",\"Estimated Mapping Value\",\"Jumps\"\n\
+                   \"HIP 1\",\"HIP 1 A 1\",\"Water world\",\"No\",\"1200\",\"1\",\"2\",\"3\"\n\
+                   \"HIP 1\",\"HIP 1 A 2\",\"Earth-like world\",\"No\",\"1500\",\"1\",\"2\",\"3\"\n";
+        let w = parse_list(r2r);
+        assert_eq!((w.len(), w[0].jumps, w[0].ly), (1, Some(3), None), "one stop, its jumps counted once");
+    }
+
+    /// Each stop is looked up once; a stop Spansh doesn't answer for, or a failed lookup, has no
+    /// details and isn't asked for again.
+    #[test]
+    fn stop_details_are_looked_up_once() {
+        let (d, _) = desk();
+        d.set(spansh_neutron()).unwrap();
+        assert_eq!(d.take_details_wanted(), ["Sol", "PSR J1752-2806", "Colonia"]);
+        assert!(d.take_details_wanted().is_empty(), "asked once");
+        let sol = Details {
+            population: 18320926115,
+            allegiance: Some("Federation".into()),
+            government: Some("Democracy".into()),
+            security: Some("High".into()),
+            faction: Some("Mother Gaia".into()),
+            faction_state: Some("Expansion".into()),
+        };
+        d.put_details(vec![("Sol".into(), sol.clone())]);
+        let v = d.view();
+        assert_eq!(v.stops[0].details.as_ref(), Some(&sol));
+        assert_eq!((v.stops[1].details.as_ref(), v.stops[2].details.as_ref()), (None, None));
+        // A new route asks only for its new stops.
+        d.set(route(&["Sol", "Deciat"])).unwrap();
+        assert_eq!(d.take_details_wanted(), ["Deciat"]);
+    }
+
+    /// A plotted route keeps its plot settings across a restart; one saved before they were
+    /// recorded loads without them.
+    #[test]
+    fn plot_settings_are_kept_and_optional() {
+        use astromech_galaxy::plot::{Engine, Plotter};
+        let dir = tempfile::tempdir().unwrap();
+        let p = dir.path().join("route.json");
+        let settings = Settings {
+            to: "Colonia".into(),
+            plotter: Plotter::Neutron,
+            engine: Engine::Local,
+            efficiency: 60,
+            refuel_every_scoopable: false,
+            range: 39.87,
+        };
+        let d = Desk::open(Some(p.clone()), Box::new(|_| Ok(())));
+        d.set(spansh_neutron().plotted_with(Some(settings.clone()))).unwrap();
+        drop(d);
+        let v = Desk::open(Some(p.clone()), Box::new(|_| Ok(()))).view();
+        assert_eq!(v.route.unwrap().plot, Some(settings));
+        std::fs::write(
+            &p,
+            r#"{"route":{"name":"Sol to Colonia","source":"neutron plotter","waypoints":[{"system":"Sol","jumps":0},{"system":"Colonia","jumps":40}],"next":1},"here":"Sol"}"#,
+        )
+        .unwrap();
+        let v = Desk::open(Some(p), Box::new(|_| Ok(()))).view();
+        let r = v.route.unwrap();
+        assert_eq!((r.plot, r.waypoints.len(), v.stops[1].jumps), (None, 2, Some(40)));
+    }
+
+    /// The galaxy map's route read at startup (the catch-up) or with following off is known, not
+    /// followed: the flown leg lists its jumps, the route doesn't move and nothing is copied. It
+    /// isn't saved, so a restart takes the game's file as it is then, never a stale copy.
+    #[test]
+    fn a_galaxy_map_route_read_at_startup_lists_the_flown_leg() {
+        let dir = tempfile::tempdir().unwrap();
+        let p = dir.path().join("route.json");
+        let got = Arc::new(Mutex::new(vec![]));
+        let g = got.clone();
+        let clip: Clip = Box::new(move |s| {
+            g.lock().recover().push(s.to_string());
+            Ok(())
+        });
+        let d = Desk::open(Some(p.clone()), clip);
+        d.on_system("Sol");
+        d.set(spansh_neutron()).unwrap();
+        d.known(&nav(NAV));
+        let v = d.view();
+        assert_eq!(
+            (v.route.as_ref().unwrap().name.as_str(), v.next.as_ref().unwrap().system.as_str()),
+            ("Sol to Colonia", "PSR J1752-2806")
+        );
+        assert_eq!(
+            (v.stops[1].hops.as_ref().map(Vec::len), v.stops[1].hops_from, v.position),
+            (Some(11), Some(HopsFrom::NavRoute), Some(0))
+        );
+        assert_eq!(got.lock().recover().len(), 1, "only the copy when the route was set");
+        // A galaxy-map route of its own, known at startup, doesn't replace ours.
+        d.known(&nav(&[("Sol", "G"), ("Wolf 359", "M")]));
+        assert_eq!(d.view().route.unwrap().name, "Sol to Colonia");
+        d.known(&nav(NAV));
+        drop(d);
+        assert!(!std::fs::read_to_string(&p).unwrap().contains("Erh Longo"), "not saved");
+        let v = Desk::open(Some(p), Box::new(|_| Ok(()))).view();
+        assert_eq!((v.stops[1].hops.as_ref(), v.position), (None, None), "until the game's file is read again");
+    }
+
+    /// The exact route's first leg flown with a galaxy-map route that leaves out the stop's star
+    /// class (RouteHop.star_class is optional): the jump keeps Spansh's flags, as the stop does.
+    #[test]
+    fn a_galaxy_map_jump_with_no_class_keeps_the_plotters_flags() {
+        let (d, _) = desk();
+        d.on_system("Sol");
+        let hop = Hop {
+            system: "Tascheter Sector MN-T b3-6".into(),
+            star_class: None,
+            scoopable: Some(true),
+            neutron: Some(false),
+        };
+        let w = |s: &str| Waypoint { jumps: Some(1), ..Waypoint::new(s) };
+        let tascheter = Waypoint {
+            scoopable: Some(true),
+            neutron: Some(false),
+            hops: Some(vec![hop]),
+            ..w("Tascheter Sector MN-T b3-6")
+        };
+        d.set(Route::new(
+            "Sol to Maia",
+            "exact plotter",
+            vec![Waypoint::new("Sol"), tascheter, w("Tascheter Sector LS-T a3-0")],
+        ))
+        .unwrap();
+        d.known(&nav(&[("Sol", "G"), ("Tascheter Sector MN-T b3-6", "")]));
+        let v = d.view();
+        let leg = &v.stops[1];
+        assert_eq!(leg.hops_from, Some(HopsFrom::NavRoute));
+        let j = &leg.hops.as_ref().unwrap()[0];
+        assert_eq!((j.star_class.as_ref(), j.scoopable, j.neutron), (None, Scoop::Yes, Some(false)));
+        assert_eq!(leg.scoopable, j.scoopable, "the stop and its jump agree");
+        assert_eq!(v.position, Some(0));
     }
 }

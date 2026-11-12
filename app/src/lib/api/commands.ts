@@ -184,8 +184,10 @@ export type Commands = {
   route_back: { args: null; reply: Done<RouteReply>; exposure: "window" };
   route_clear: { args: null; reply: Done<RouteReply>; exposure: "window" };
   route_copy: { args: null; reply: Done<RouteReply>; exposure: "window" };
+  route_details: { args: null; reply: Done<RouteReply>; exposure: "window" };
   route_plot: { args: AskArg<PlotAsk>; reply: RoutePlotted; exposure: "window" };
   route_plot_ship: { args: null; reply: PlotShip; exposure: "window" };
+  route_replot: { args: null; reply: RoutePlotted; exposure: "window" };
   route_resume: { args: null; reply: Answer<RouteReply>; exposure: "window" };
   route_set: { args: RouteSetArgs; reply: Answer<RouteReply>; exposure: "window" };
   route_skip: { args: null; reply: Done<RouteReply>; exposure: "window" };

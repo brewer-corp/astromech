@@ -265,7 +265,9 @@ this PC instead of on Spansh. Until it is downloaded, Spansh plots neutron route
 
 **Import** takes a pasted list. Paste a Spansh CSV export (neutron, road to riches, fleet
 carrier or any other: astromech reads its "System Name" column) or one system name per line,
-give it a name if you like, and press **Follow this route**.
+give it a name if you like, and press **Follow this route**. Where the export has a "Jumps"
+column (neutron, road to riches and others), the route strip counts the jumps left instead of
+the stops.
 
 ## Other routes in astromech
 

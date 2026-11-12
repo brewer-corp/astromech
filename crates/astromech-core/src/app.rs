@@ -1013,14 +1013,31 @@ impl Core {
         };
         let name = a.name.filter(|n| !n.trim().is_empty()).unwrap_or_else(|| "Route".to_string());
         self.route
-            .set(Route::new(&name, &a.source.unwrap_or_default(), waypoints))
+            .set(Route::new(&name, &a.source.unwrap_or_default(), waypoints).plotted_with(a.plot))
             .map(|view| RouteReply { view })
             .into()
     }
 
+    /// `route_details`: look up on Spansh the route's stops not looked up yet this run (an
+    /// inhabited system's allegiance, government, security, population and controlling
+    /// faction), then the route as it is now. Each stop is asked for once; a failed request
+    /// leaves its stops without details, and the other requests still go.
+    fn route_details(&self) -> RouteReply {
+        let want = self.route.take_details_wanted();
+        if !want.is_empty() {
+            let found = astromech_galaxy::stops::details(self.api.remote(), &want);
+            for (names, e) in &found.failed {
+                log(&format!("route: couldn't look up {} stops on Spansh: {e}", names.len()));
+            }
+            self.route.put_details(found.details);
+        }
+        RouteReply { view: self.route.view() }
+    }
+
     /// `route_add`: `{system, label, source}`, a lookup result's Add stop.
     fn route_add(&self, a: RouteAddArgs) -> Answer<RouteReply> {
-        let stop = crate::route::Waypoint { system: a.system.unwrap_or_default(), label: a.label, jumps: None };
+        let stop =
+            crate::route::Waypoint { label: a.label, ..crate::route::Waypoint::new(&a.system.unwrap_or_default()) };
         self.route.add(stop, &a.source.unwrap_or_default()).map(|view| RouteReply { view }).into()
     }
 
@@ -1065,6 +1082,7 @@ impl Core {
             Window,
             |c, r| c.route_cmd(&r.cmd),
         );
+        add::<(), _>(&mut reg, self, &["route_details"], Window, |c, _| Done::new(c.route_details()));
         add::<(), Answer<RouteReply>>(&mut reg, self, &["route_resume"], Window, |c, _| {
             c.route.resume().map(|view| RouteReply { view }).into()
         });
@@ -1520,6 +1538,8 @@ mod replies {
         pub source: Option<String>,
         pub text: Option<String>,
         pub waypoints: Option<Vec<crate::route::Waypoint>>,
+        /// What a plotted route was plotted with (`route_plot` sends it), for `route_replot`.
+        pub plot: Option<astromech_galaxy::plot::Settings>,
     }
 
     /// `route_add`: a lookup result's Add stop.
@@ -2253,7 +2273,8 @@ mod tests {
         // Resume: the route a galaxy-map plot parked.
         assert_eq!(call("route_resume", None)["ok"], false);
         call("route_set", Some(json!({"text": "Sol\nColonia"})));
-        core.route.plotted(&["Sol".into(), "Wolf 359".into()]);
+        let hop = |s: &str| astromech_journal::RouteHop { system: s.into(), ..Default::default() };
+        core.route.plotted(&[hop("Sol"), hop("Wolf 359")]);
         assert_eq!(call("route", None)["view"]["parked"]["waypoints"][1]["system"], "Colonia");
         let v = call("route_resume", None);
         assert_eq!(v["view"]["route"]["waypoints"][1]["system"], "Colonia", "{v}");
@@ -2331,7 +2352,10 @@ mod tests {
     /// A neutron and an exact route plotted from recorded Spansh jobs go to the follower as the
     /// app window sends them (`route_set` with the plotted route): the commander, in Sol, gets
     /// the first stop after it on the clipboard, jumping into it moves the route on, and "next
-    /// waypoint" says what to do there.
+    /// waypoint" says what to do there. The timeline says what each plotter gave and no more: a
+    /// neutron route's legs have a jump count and light years but no jumps listed; an exact
+    /// route's every leg lists its one jump with Spansh's flags, and no star class. Both keep
+    /// what they were plotted with, for `route_replot`.
     #[test]
     fn plotted_routes_load_into_the_follower() {
         use astromech_galaxy::plot::{plot, Ask, Plotter, Ship};
@@ -2358,7 +2382,8 @@ mod tests {
                 Arc::new(RecordedJob(Mutex::new(answers))),
             )
             .limiter(astromech_data::Limiter::none());
-            let ask = Ask { plotter, to: to.into(), efficiency: 60, refuel_every_scoopable: true };
+            let ask =
+                Ask { plotter, to: to.into(), efficiency: 60, refuel_every_scoopable: true, engine: None, range: None };
             serde_json::to_value(plot(&client, "Sol", &ask, &ship, NO_WAIT).unwrap()).unwrap()
         };
 
@@ -2388,9 +2413,35 @@ mod tests {
         let v = set(neutron);
         assert_eq!(v["view"]["route"]["name"], "Sol to Colonia", "{v}");
         assert_eq!(v["view"]["route"]["source"], "neutron plotter");
-        assert_eq!(v["view"]["next"], json!({"system": "PSR J1752-2806", "label": "neutron boost", "jumps": 10}));
+        assert_eq!(
+            v["view"]["next"],
+            json!({"system": "PSR J1752-2806", "label": "neutron boost", "jumps": 10, "ly": 407.486400990496, "neutron": true})
+        );
         // Each stop brought its leg's jumps: 10 to the neutron star, 1 on to Colonia.
         assert_eq!((v["view"]["remaining"].clone(), v["view"]["jumps_left"].clone()), (json!(2), json!(11)));
+        let stops = v["view"]["stops"].as_array().unwrap();
+        let legs: Vec<_> = stops.iter().map(|s| (s["jumps"].clone(), s["ly"].clone(), s["neutron"].clone())).collect();
+        assert_eq!(
+            legs,
+            [
+                (json!(0), json!(0.0), Value::Null),
+                (json!(10), json!(407.486400990496), json!(true)),
+                (json!(1), json!(113.169815881102), json!(false))
+            ]
+        );
+        for s in stops {
+            assert_eq!(
+                (&s["hops"], &s["star_class"], &s["scoopable"]),
+                (&Value::Null, &Value::Null, &json!("unknown")),
+                "{s}"
+            );
+        }
+        assert_eq!(v["view"]["position"], Value::Null, "no jumps listed, so no place on the leg");
+        assert_eq!(
+            v["view"]["route"]["plot"],
+            json!({"to": "Colonia", "plotter": "neutron", "engine": "spansh", "efficiency": 60,
+                   "refuel_every_scoopable": true, "range": (ship.range * 100.0).round() / 100.0})
+        );
 
         let exact = plotted(
             Plotter::Exact,
@@ -2403,8 +2454,33 @@ mod tests {
         );
         let v = set(exact);
         assert_eq!(v["view"]["route"]["source"], "exact plotter", "{v}");
-        assert_eq!(v["view"]["next"], json!({"system": "Tascheter Sector MN-T b3-6", "label": "fuel", "jumps": 1}));
+        assert_eq!(v["view"]["next"]["system"], "Tascheter Sector MN-T b3-6");
         assert_eq!((v["view"]["remaining"].clone(), v["view"]["jumps_left"].clone()), (json!(9), json!(9)));
+        let stops = v["view"]["stops"].as_array().unwrap();
+        assert_eq!(stops.len(), 10);
+        assert_eq!(
+            (&stops[0]["hops"], &stops[0]["scoopable"]),
+            (&Value::Null, &json!("unknown")),
+            "the start isn't a jump"
+        );
+        for s in &stops[1..] {
+            let hops = s["hops"].as_array().unwrap();
+            assert_eq!((hops.len(), &hops[0]["system"], &s["hops_from"]), (1, &s["system"], &json!("plotter")), "{s}");
+            assert_eq!(
+                (&hops[0]["star_class"], &s["star_class"]),
+                (&Value::Null, &Value::Null),
+                "Spansh gives no class"
+            );
+            assert_eq!((&hops[0]["scoopable"], &hops[0]["neutron"]), (&s["scoopable"], &s["neutron"]));
+        }
+        let flags: Vec<_> = stops[1..].iter().map(|s| (s["scoopable"].clone(), s["neutron"].clone())).collect();
+        let (yes, no) = (json!("yes"), json!("no"));
+        assert_eq!(flags[0], (yes.clone(), json!(false)), "Tascheter Sector MN-T b3-6");
+        assert_eq!(flags[7], (yes, json!(true)), "98 k Tauri");
+        assert_eq!(flags[2], (no, json!(false)), "Arietis Sector LD-H a11-1");
+        assert_eq!(flags[8], (json!("unknown"), json!(false)), "Maia: Spansh's flag on an end isn't kept");
+        assert_eq!(v["view"]["position"], json!(0), "in Sol, where the flown leg's list starts");
+        assert_eq!(v["view"]["route"]["plot"]["plotter"], "exact");
         let moved = core.route.on_system("Tascheter Sector MN-T b3-6").unwrap();
         assert_eq!(moved.spoken(), "Next waypoint. Tascheter Sector LS-T a3-0.");
         for s in [
@@ -3127,12 +3203,15 @@ mod tests {
     /// Where a command's args or reply may hold a `serde_json::Value` (ts-rs's `JsonValue`,
     /// which tells the window nothing), each with why. `bindings_use_json_value_only_where_allowed`
     /// fails for any other, and for an entry no longer needed.
-    const JSON_VALUES: &[(&str, &str, &str)] = &[(
-        "route_plot",
-        "reply",
-        "its `view` is route_set's, which astromech-api reads through Call::run and can't name: the \
-         route follower's types are the core's",
-    )];
+    const JSON_VALUES: &[(&str, &str, &str)] = &[
+        (
+            "route_plot",
+            "reply",
+            "its `view` is route_set's, which astromech-api reads through Call::run and can't name: the \
+             route follower's types are the core's",
+        ),
+        ("route_replot", "reply", "route_plot's reply, for the same reason"),
+    ];
 
     /// The registry's TypeScript types (astromech-se44) are the checked-in `app/src/lib/api/`
     /// files: `types/` (ts-rs) and `commands.ts`. After changing a command's args or reply,

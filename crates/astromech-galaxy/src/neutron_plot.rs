@@ -58,7 +58,7 @@
 //! for the same route are a little higher.
 
 use crate::neutron::{NeutronStars, Stars};
-use crate::plot::{Plotted, Ship, Stop, NEUTRON};
+use crate::plot::{unset, Engine, Plotted, Plotter, Settings, Ship, Stop, NEUTRON};
 use crate::store::dist;
 use crate::Here;
 use std::cmp::Reverse;
@@ -556,11 +556,31 @@ pub fn plot(file: &NeutronStars, from: &Here, to: &Here, ship: &Ship) -> Result<
     let stars: Vec<usize> = r.legs.iter().filter_map(|l| l.star).collect();
     let mut names = file.names(&stars).map_err(|e| format!("{e:#}"))?.into_iter();
     let boosted = |yes: bool| yes.then(|| NEUTRON.to_string());
-    let mut waypoints = vec![Stop { system: from.system.clone(), label: boosted(r.start.is_some()), jumps: 0 }];
+    // The file lists neutron stars only: a stop from it is one, and the ends are one only when the
+    // route starts on one.
+    let start = Stop {
+        system: from.system.clone(),
+        label: boosted(r.start.is_some()),
+        jumps: 0,
+        ly: 0.0,
+        neutron: r.start.is_some().then_some(true),
+        scoopable: None,
+        hops: None,
+    };
+    let mut waypoints = vec![start];
     for leg in &r.legs {
-        waypoints.push(match leg.star {
-            Some(_) => Stop { system: names.next().unwrap_or_default(), label: boosted(true), jumps: leg.jumps },
-            None => Stop { system: to.system.clone(), label: None, jumps: leg.jumps },
+        let (system, neutron) = match leg.star {
+            Some(_) => (names.next().unwrap_or_default(), Some(true)),
+            None => (to.system.clone(), None),
+        };
+        waypoints.push(Stop {
+            system,
+            label: boosted(neutron.is_some()),
+            jumps: leg.jumps,
+            ly: leg.ly,
+            neutron,
+            scoopable: None,
+            hops: None,
         });
     }
     Ok(Plotted {
@@ -575,6 +595,7 @@ pub fn plot(file: &NeutronStars, from: &Here, to: &Here, ship: &Ship) -> Result<
         local: true,
         fewest: Some(r.fewest),
         fallback: None,
+        plot: Settings { to: to.system.clone(), engine: Engine::Local, ..unset(Plotter::Neutron, ship.range) },
     })
 }
 
