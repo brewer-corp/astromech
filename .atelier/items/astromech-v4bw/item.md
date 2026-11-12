@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-v4bw
 title: Explanations move from page prose into Tips
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-s
