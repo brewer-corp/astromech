@@ -151,7 +151,7 @@
   .sep { color: var(--orange-mid); }
   .u { color: var(--orange-mid); font-size: var(--fs-s); }
   .power { grid-column: 1 / -1; }
-  @media (min-width: 1100px) {
+  @container win (min-width: 1100px) {
     .power { grid-column: auto; }
   }
   .prow { display: grid; grid-template-columns: 7rem minmax(6rem, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-s); color: var(--orange-mid); }

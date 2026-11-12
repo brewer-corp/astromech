@@ -220,7 +220,7 @@
   .warn { color: var(--accent); }
   .pad { padding-left: 34px; }
   .id { margin-top: 24px; font-size: var(--fs-s); }
-  @media (max-width: 1200px) {
+  @container win (max-width: 1200px) {
     .cols { grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; }
     .row, .head { grid-template-columns: minmax(0, 1fr) 120px 120px 110px; }
     .grp { grid-template-columns: 22px minmax(0, 1fr) 110px; }

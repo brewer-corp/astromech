@@ -268,7 +268,7 @@
   .pick.on .pick-name { color: var(--orange-lit); }
   .pick-type, .pick-now { font-size: var(--fs-s); color: var(--orange-mid); }
   .pick.now .pick-now { color: var(--accent); }
-  @media (max-width: 900px) {
+  @container win (max-width: 900px) {
     .ship { grid-template-columns: minmax(0, 1fr); }
     .art { justify-content: start; }
   }

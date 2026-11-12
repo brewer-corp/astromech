@@ -57,7 +57,7 @@
   .id { font-size: var(--fs-s); }
   .lo { color: var(--orange-mid); }
   p.lo { color: var(--prose); }
-  @media (max-width: 1200px) {
+  @container win (max-width: 1200px) {
     .grid { grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; }
     .head, .row { grid-template-columns: 150px 150px minmax(0, 1fr); }
   }

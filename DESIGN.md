@@ -2,11 +2,11 @@
 name: astromech
 description: The window beside Elite Dangerous, drawn in the game's own orange. Sparse, scannable, lit where it matters.
 colors:
-  orange: "#fa6e00"
+  orange: "#ff7100"
   orange-lit: "#ffa04a"
-  orange-mid: "#c26c32"
+  orange-mid: "#d97a34"
   orange-dim: "#8a5834"
-  placeholder: "#fa6e00bf"
+  placeholder: "#ff7100bf"
   on-orange: "#0c0d0f"
   ember-cell: "#3d220f"
   ember-cell-hover: "#482810"
@@ -74,7 +74,7 @@ typography:
   figures:
     fontFamily: "Saira Variable, Bahnschrift, Segoe UI, sans-serif"
     fontSize: "15px"
-    fontWeight: 400
+    fontWeight: 500
     lineHeight: 1.3
     letterSpacing: "normal"
     fontFeature: "\"tnum\" 1"
@@ -254,7 +254,14 @@ then 4 Nov 2026 with the changes the independent panel asked for (decision astro
 Tokens: app/src/design/tokens.css, mapped in Token map below. The pages moved to the orange
 ramp and the caps rule with astromech-yxtz, to cells-mean-editable with astromech-dfvp, and to
 the one face with astromech-dzwy, and to two tab rows with astromech-sllo. Mockups:
-docs/design/design-system-*.png. -->
+docs/design/design-system-*.png.
+Revision 4, 12 Nov 2026 (astromech-b2k3): the Glow-up amendments Sumeet approved on 10 Nov
+(decision astromech-ci0o, mission astromech-xajc; mockups in app/src/mockups/glow/ and
+docs/design/glow-up-*.png on the mockups/glow-up branch): page layouts in place of the width
+caps, lifted entity names, brief state feedback, the star, body and station icons, collapsed
+filters and the NOW tab. The rest of that list lands with its own
+item, which writes it here: the height scale and the new orange values (astromech-k6pl), Tip
+(astromech-sixj) and the status bar (astromech-q79q). -->
 
 ## Overview
 
@@ -285,9 +292,11 @@ that needs them, without reading?
 - One main value per element, in the brightest orange and the largest size.
 - Solid orange fill with dark text means selected, as in the game.
 - Brown surfaces: dark hull for read-only tiles, brighter ember cells for what you can change.
-- White only for titles, the current section and the selected item's key value.
+- White only for titles, the current section, the selected item's key value and, where it
+  ranks them, entity names.
 - Red only for hard errors.
-- One face (variable Saira), tabular figures, square corners, no shadow, no glow, no motion.
+- One face (variable Saira), tabular figures, square corners, no shadow, no glow, and no
+  motion beyond a control's brief confirmation that it worked.
 
 ### Principles
 
@@ -330,30 +339,34 @@ that needs them, without reading?
 The game's orange in four brightnesses on warm brown surfaces, over a neutral near-black.
 Values were sampled from game screenshots (the material trader, the commodity market, the
 Options → Controls screen and the right-hand modules panel) and lifted slightly where
-anti-aliased samples read darker than the game draws them.
+anti-aliased samples read darker than the game draws them. Revision 4 (astromech-k6pl,
+12 Nov 2026) made Orange and Orange Mid stronger: the sampled `#fa6e00` and `#c26c32` looked
+washed out next to the game, which draws its orange as light.
 
 ### Primary: the orange ramp
 
 - **Orange Lit** (`orange-lit`, 9.6:1 on Void): the one main value of an element (a tile's
   count, a row's price, the next system), and the active page tab. *Why:* the game draws its
   most important figures and highlighted heads in a lighter, yellower orange.
-- **Orange** (`orange`, 6.7:1): the base. Names, available items, facts, section headings,
+- **Orange** (`orange`, 7.1:1): the base. Names, available items, facts, section headings,
   action words, cell values, and the fill for anything selected. *Why:* it is the colour of
   ordinary text on every station screen.
-- **Orange Mid** (`orange-mid`, 5.1:1 on Void, 4.8:1 on Hull): labels, column heads, units,
-  secondary facts such as the system after a station name, inactive tabs, icons at rest.
-  Never on an ember cell (3.8:1 there); text in cells is at least Orange, the placeholder
-  excepted. The darker Ember Empty is the exception (4.7:1): an empty binding slot's word is
-  Orange Mid. *Why:* one step down for what supports the main value, still above 4.5:1 where it
-  is used.
+- **Orange Mid** (`orange-mid`, 6.3:1 on Void, 5.9:1 on Hull): units, column heads,
+  secondary facts such as the system after a station name, inactive tabs, icons at rest, and
+  the few labels a value needs. Use labels sparingly: a value that says what it is (a system
+  name, "7 jumps", "27.4 / 32 t") needs no label in front of it, and a label it doesn't need is
+  one more Orange Mid word to read past. Never on an ember cell (4.7:1 there): text in cells is
+  at least Orange, the placeholder excepted. The darker Ember Empty is the exception (5.8:1): an
+  empty binding slot's word is Orange Mid. *Why:* one step down for what supports the main
+  value, far enough above 4.5:1 to read from the seat beside the game.
 - **Orange Dim** (`orange-dim`, 3.3:1 on Void, 3.1:1 on Hull): unavailable, zero, disabled.
   It is state, not content, and knowingly below WCAG AA: it says "not this one", and it never
   carries text the commander needs in order to act. Anything they must read to decide stays
   at Orange Mid or brighter. *Why:* the trader's empty tiles: still legible, plainly absent,
   no word needed.
-- **On Orange** (`on-orange`, 6.7:1 on Orange): text and icons on an orange fill, and the
+- **On Orange** (`on-orange`, 7.1:1 on Orange): text and icons on an orange fill, and the
   focus outline on a filled element.
-- **Placeholder** (`placeholder`, Orange at 75 % opacity, 3.5:1 on an ember cell): the hint
+- **Placeholder** (`placeholder`, Orange at 75 % opacity, 3.6:1 on an ember cell): the hint
   text in an empty input, and nothing else. It disappears as soon as there is a value, and the
   input always has a label of its own (visible, or an accessible name for the header's Find
   or plot). *Why:* one step below the value it stands in for, without a second hue in a cell.
@@ -368,7 +381,7 @@ anti-aliased samples read darker than the game draws them.
   the commander can change (input, dropdown, choice, binding slot, Settings value). *Why:*
   the game's binding and option cells are this brown; making it brighter than the hull keeps
   "can change" visible at a glance. The hover is only as bright as keeps Orange text at 4.5:1
-  (4.6:1); the placeholder there is 3.3:1, a hint the input's own label backs up.
+  (4.8:1); the placeholder there is 3.4:1, a hint the input's own label backs up.
 - **Ember Empty** (`ember-empty`): an unbound binding slot. *Why:* the game draws empty slots
   like filled ones; we make them visibly empty (see Deviations).
 - **Seam** (`seam`): the only line colour besides orange: section rules, column-head
@@ -383,13 +396,15 @@ anti-aliased samples read darker than the game draws them.
   cockpit that reads as neutral near-black; a neutral ground makes the orange look like
   light, and a brown ground would make the brown cells disappear.
 - **White** (`white`): page and panel titles, the heading of the current section, the
-  selected item's key value in a side panel, the wordmark. The **current section** is the one
+  selected item's key value in a side panel, the wordmark, and entity names lifted under
+  [The Lifted Name Rule](#named-rules). The **current section** is the one
   holding the item a side panel describes (the selected row, tile or binding); a page with no
   such selection has none. Focus and scroll position do not make a section current. *Why:* the game uses white
   exactly there (screen titles, the trader's current section, the market's "91 CR").
 - **Options Grey** (`options-grey`): row labels and binding text on Controls and Settings
-  lists. *Why:* the game's Options screen, which those pages copy, draws its labels and
-  bound keys in this grey-white.
+  lists, and a long column of entity names lifted under The Lifted Name Rule. *Why:* the
+  game's Options screen, which those pages copy, draws its labels and bound keys in this
+  grey-white.
 - **Prose Grey** (`prose-grey`): paragraphs (descriptions, the side panel's explanation,
   guide-like text). *Why:* the game's "About this setting" text is grey; long passages in
   orange on black tire the eye.
@@ -421,6 +436,19 @@ no default selected row. *Why:* the game fills the selected tab and the selected
 same time, but never two rows; a fill means "this one", and a fill that nothing explains is
 decoration.
 
+**The Lifted Name Rule.** Outside Controls, an entity name (a station, body, module, system
+or engineer) may be White or Options Grey instead of Orange where the lift ranks it. Lift a
+name when the element is about the named thing and Orange would sink it among facts of the
+same size and colour: the station a Now answer names, the bodies down a system tree, the
+engineered modules of a loadout, the system a Powerplay page is about. Leave it Orange when
+the element is ranked by a value (a finder row's price ranks it, so its station stays Orange),
+and when every name on the page would be lifted, since a lift that holds for all of them ranks
+none. White for a few names that lead; Options Grey for a long column of them, one step
+quieter so the titles still lead. A lifted name keeps its role's size and never outranks the
+element's main value. *Why:* with everything in one orange at one size, the 10 Nov audit found
+nothing ranked; the game itself draws its few key names (screen titles, the selected item) in
+white, so a lift reads as "this is the thing" without a new hue.
+
 **The Narrow Red Rule.** Red appears only on a hard error. Never for stale data, warnings,
 health issues, decoration, numbers going down, or emphasis. *Why:* red earns its meaning by
 being rare; once it decorates, the next real failure is missed.
@@ -433,7 +461,12 @@ for everything, including paths and logs. *Why:* condensed and square-shouldered
 game's lettering without copying it; the variable file has tabular figures (the static
 Semi Condensed files do not) and replaced three files (two Saira cuts and Share Tech Mono).
 `tokens.css` sets the face, its width and tabular figures once on the page, so every element
-has them; the `font` shorthand resets the width, so set `font-stretch` after it.
+has them; the `font` shorthand resets the width, so set `font-stretch` after it. It also sets
+weight 500, so text is 500 unless its role below says otherwise; Body, Label and Meta are 400.
+*Why:* orange text at 400 looked thin and washed out at the game's distance.
+
+The sizes below are CSS px at zoom 1, a window up to 1000 px tall. The window scales them all with
+its height ([The Height Scale Rule](#named-rules-1)).
 
 ### Hierarchy
 
@@ -445,9 +478,9 @@ has them; the `font` shorthand resets the width, so set `font-stretch` after it.
 | Value L | 18 / 600 / 1.2, tabular | figures | orange lit | the one value of a row or strip |
 | Nav | 15 / 500, tracking 0.06em | caps | orange mid; active on orange fill | top tabs |
 | Section | 13 / 600, tracking 0.06em | caps | orange; current section white | section headings, with a Seam rule to the right |
-| Name | 15 / 500 / 1.3 | mixed | orange | station, material, ship, engineer names; page tabs |
+| Name | 15 / 500 / 1.3 | mixed | orange; white or options grey under The Lifted Name Rule | station, material, ship, engineer names; page tabs |
 | Body | 15 / 400 / 1.45, max 68ch | sentence | prose grey | paragraphs |
-| Figures | 15 / 400, tabular | figures | orange | numbers in columns and cells |
+| Figures | 15 / 500, tabular | figures | orange | numbers in columns and cells |
 | Label | 13 / 400 / 1.3 | sentence | orange mid | column heads, field labels, units, secondary facts, badges |
 | Meta | 12 / 400, tabular | figures | orange mid | corner marks in tiles |
 | Action | 13 / 600, tracking 0.06em | caps | orange; on orange on a fill | buttons and text actions |
@@ -466,6 +499,33 @@ tabs, section headings and action words. Names, column heads, labels, badges, st
 and prose are mixed or sentence case. *Why:* when everything is caps (the audit counted about
 140 caps rules), caps signal nothing; mixed case also reads faster, and procedural system
 names carry meaning in their case ("Synuefe GW-Z a54-3", "HR-W d1-42").
+
+**The Height Scale Rule.** The whole window scales with its height, as the game scales its UI
+with the screen's. One root zoom does it, so every px value in this document and in
+`tokens.css` stays as written:
+
+    zoom = clamp(1, min(height / 1000, width / 1100), 1.8) × text size
+
+`height` and `width` are the window's, in CSS px. The width term keeps the layout at least
+1100 px wide (see [Frame](#frame)), so a tall, narrow window is not zoomed past its width. The
+floor of 1 means text never shrinks below these sizes, and a short window scrolls. The cap is
+1.8. The commander's **Text size** (Settings → General: Smaller, Normal, Larger, which is 0.85,
+1 and 1.15) multiplies the result; it is `[window] text_size` in the core's config.
+
+| Window | Zoom at Normal |
+|---|---|
+| 1100 × 700 | 1 (unchanged) |
+| 1920 × 1080 | 1.08 |
+| 2560 × 1440 | 1.44 |
+| 3840 × 2160 | 1.8 (capped) |
+| 1100 × 1400 | 1 (the width term) |
+
+`app/src/lib/scale.svelte.ts` sets it on the root as `zoom` and `--zoom`. CSS zoom scales `vh`
+and `vw` as well, so a size taken from the window uses `--win-h` (its height) or `--win-w` (1 %
+of its width), and a page's narrow-window rule is a container query on the frame,
+`@container win (max-width: …)`, which measures the layout. A media query measures the screen,
+and would leave a zoomed window on its wide layout. *Why:* fixed px sizes left a 1440p or 4K
+window's text about the size of the game's smallest; the game reads the same on any screen.
 
 **The Tabular Rule.** Every number uses tabular figures, and a column of quantities is
 right-aligned. A tile's value sits where its tile spec puts it (the material tile's count top
@@ -493,18 +553,37 @@ wide separations let grouping be seen without boxes.
 | Page tabs | 44 px | one row, only when the area has more than one page |
 | Page | rest | scrolls; the frame does not |
 
-Side margins 40 px; minimum window width 1100 px. The only width-dependent change in the frame is
+Side margins 40 px; minimum window width 1100 px. Every size here is in CSS px before the root
+zoom ([The Height Scale Rule](#named-rules-1)), and 1100 px is the narrowest the zoomed layout
+gets at Normal text size: the header's widths above are layout widths, the window's divided by
+its zoom. The only width-dependent change in the frame is
 the header's second tab row (decision astromech-ghyo, 5 Nov 2026).
 
-### Content widths and rows
+The top tabs start with **NOW**, and the window opens on the Now page: what the commander is
+doing at the moment (docked, in a system, or Elite not running). *Why:* the window used to open
+on My controller and filed the live views (Station, Session, Mining) under Logbook, so it had
+no home page (audit, 10 Nov 2026).
 
-- Prose: 68ch. Settings and forms: 900 px, a 200 px label and a cell up to 700 px. Result
-  lists: up to 1200 px, actions right after the last fact column. Tile grids: 200–240 px
-  columns, 8 px gaps. Side panel: 320 px after a 1 px orange line. *Why:* a 1600 px row put the
-  old GO button 1400 px from the name it acted on.
-- Control row 34 px; result row 44 px, one line; material tile 76 px. *Why:* one-line rows
-  fit about 18 results on a 1000 px window and keep columns aligned; the old 65–100 px rows
-  fit 8.
+### Page layouts
+
+Every page outside Controls is built on one of four layouts. The layout owns the page's
+widths, gutters and detail panel; a page picks one and sets no width of its own. A layout
+places content, it never adds any: a sparse page stays sparse.
+
+| Layout | What it holds | Use it when | For example |
+|---|---|---|---|
+| Board | blocks or tiles laid out across the width, each with its own main value; where a tile can be selected, the 320 px side panel after a 1 px orange line describes it | the page is answers or tiles read at a glance, laid out by their own shape (a grid of categories and grades, a row of answers) | Now, Powerplay, Places home; Materials, with its side panel |
+| List with detail | a list (rows or a tree) and the 320 px side panel after a 1 px orange line, which describes the selected item | the commander picks one item from many and then wants its details | Places finders, System, Ships, Engineers |
+| Workbench | the inputs on the left, the result on the right | the commander sets up a question and reads one answer that changes as the inputs do | Trade > Commodities |
+| Form | Settings rows in one column: a 200 px label and a cell up to 700 px, 900 px in all | the page is values to set | Settings |
+
+Pick by the commander's job on the page, not by how much there is to show. When a window is
+too narrow for a side panel (the 1100 x 700 minimum), the layout moves the panel below the
+content. It never shrinks text to make it fit.
+
+Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps; control row 34 px;
+result row 44 px, one line; material tile 76 px. *Why:* one-line rows fit about 18 results on a
+1000 px window and keep columns aligned; the old 65–100 px rows fit 8.
 
 ### Named Rules
 
@@ -515,12 +594,29 @@ stacked tab rows; the game never stacks more than two either.
 **The Aligned Columns Rule.** Repeated facts are fixed-width columns with a header row. If a
 fact would wrap, the column is wrong or the fact should go.
 
+**The Next To It Rule.** An action sits next to what it acts on. A row is as wide as its
+columns, not as the window, and its actions come right after its last fact column; a side
+panel's actions act on the item the panel describes; a form's action word ends its cell. The
+test: at any window size, no action is more than one column from the thing it acts on.
+Spare width stays empty or goes to the side panel; it never stretches a row. *Why:* a 1600 px
+row put the old GO button 1400 px from the name it acted on, and the fixed width caps that
+followed (60rem on eight pages) left half of a big window empty, with the page pinned left.
+
 ## Elevation & Depth
 
 Flat and tonal: Void, then Hull, then Hull Raised for popovers and the Tip. No shadows, blur or glow;
 state changes are instant. *Why:* the game's panels are flat planes; its glow comes from the
 cockpit and the HUD, which a desktop window does not need, and motion would draw the eye
 away from the game on the other screen.
+
+**The Brief Feedback Rule.** The one timed change allowed is a control confirming what it
+just did, where nothing else on screen shows it: the copy icon becomes a check (the `copied`
+glyph) for 1.5 s, then turns back. The swap is instant both
+ways, on the control the commander used, and says only that the action worked. Nothing
+fades, slides, pulses, blinks or spins; pages change without a transition; loading is a line
+of words (see [States](#states)). Decorative motion stays banned. *Why:* a copy leaves no
+trace on screen, so without the check the commander copies twice to be sure; a swap that
+lasts a moment and stops answers that without pulling the eye.
 
 ## Shapes
 
@@ -533,18 +629,36 @@ section rules.
 ### Icons
 
 One set of one-stroke icons drawn for astromech: 16 px on a 16 px grid, 1 px stroke,
-`currentColor`, no fill, square ends. They live with the existing glyphs in
-`app/src/lib/ui/Glyph.svelte` (copy, station kinds, ship, factions) and add **add stop**
-(a route with a plus), **set destination** (a flag; replaces the route), **open external**
-(a box with an arrow out), **chevron** (dropdowns) and **clear** (an ×, the end action that empties
-an input). *Why:* own-drawn keeps Frontier's
-icons out and needs no licence; one stroke matches the game's thin line icons.
+`currentColor`, no fill, square ends. They live in `app/src/lib/ui/Glyph.svelte`: copy and
+copied, **add stop** (a route with a plus), **set destination** (a flag; replaces the route),
+**open external** (a box with an arrow out), **chevron** (dropdowns), **clear** (an ×, the end
+action that empties an input), ship and the factions. *Why:* own-drawn keeps Frontier's icons
+out and needs no licence; one stroke matches the game's thin line icons.
+
+Three type sets say what a star, body or station is, so a row or a tree shows it without a
+word:
+
+- **Stars:** main sequence (a disc with eight rays), brown dwarf (a banded disc, no rays),
+  white dwarf (a small disc with four short rays), neutron star (a small core with its two
+  jets) and black hole (a disc inside a flat ring).
+- **Bodies:** a disc for every planet, told apart by what is inside it: rocky, high metal
+  content (a metal core), metal-rich, icy, rocky ice, water world, Earth-like, ammonia world,
+  gas giant and water giant.
+- **Stations:** Coriolis (a many-faced hull with its letterbox), Orbis (a wheel on a spindle),
+  Ocellus (a ball with its docking eye), outpost, planetary port (a port on the horizon),
+  settlement, asteroid base, fleet carrier and megaship. These replace the old station kinds
+  (one starport icon for all three starports).
+
+A type icon is a fact, not a control: it sits before the name it describes, in that name's
+colour, at 16 px in a row and 24 px beside a title, and its accessible name is the type
+("Orbis starport", "Neutron star"). A type the set does not draw, such as a rare star class,
+uses the nearest shape and keeps its own name.
 
 **The Icon Or Word Rule.**
 
 - *Icons* for frequent, repeated, recognisable actions and facts: copy, add stop, set
-  destination, open external, station type. Every icon button has a Tip and an
-  accessible label naming the action ("Add Diaguandri as a stop"). *Why:* a column of
+  destination, open external, star, body and station type. Every icon button has a Tip and
+  an accessible label naming the action ("Add Diaguandri as a stop"). *Why:* a column of
   repeated words ("ADD STOP REPLACE ROUTE" on every row) is noise; an icon repeated down a
   column is learned once.
 - *Words* for the primary action, one-off actions and anything destructive (NEXT, SAVE
@@ -709,10 +823,19 @@ Orange text, one per list, and only while something shows the selection (a side 
 row, or keyboard focus in the list); a plain finder list has no filled row. A stale row keeps
 its name in Orange, steps its main value and facts down to Orange Mid and shows its report age
 in Orange, so the age is the brightest fact on the row. Column heads sit above a Seam hairline.
-A one-line summary of the constraints sits above them in Label ("Within 100 ly of Sol · large
-pad · reports up to 30 days old"). *Why:* the market screen's grammar (columns, one filled
-row), with the ranked value moved first and made largest, which the audit found was the
-smallest text in a row.
+*Why:* the market screen's grammar (columns, one filled row), with the ranked value moved first
+and made largest, which the audit found was the smallest text in a row.
+
+**Collapsed filters.** Above the column heads a finder shows its filters as one summary line in
+Label ("Within 100 ly of Sol · large pad · reports up to 30 days old") with CHANGE after it,
+and no filter controls. The thing searched for (the commodity, module or service) is not a
+filter: it stays an input above the summary. CHANGE opens the controls in place; each edit
+applies at once and searches again, and the controls stay open across edits, so several
+filters change in one visit. They close on DONE, on Escape or on CHANGE again, never because a
+search started, finished or failed. A filter set away from its default is always named in the
+summary. *Why:* up to five rows of filter controls stood above the first result, though the
+commander changes them rarely and reads the results every time, and the summary line above the
+results already named them.
 
 Text fact columns (faction, module, bodies) share the width left after the fixed columns with
 the place, and truncate with an ellipsis rather than wrap. Where even that leaves no room, as in
@@ -771,6 +894,7 @@ right-hand detail panel (white item name, orange facts, white key price) and the
 | Hard error (it failed) | red "!" + plain words + a recovery action ("! Could not read the route. TRY AGAIN"); a whole-page error is a white title, a prose line and the action. A page that re-reads on its own every few seconds offers no action: the next read is the recovery. Never a filled block | red is the game's malfunction colour |
 | Empty | one prose line saying what is empty and what to relax, plus one action ("No buyers within 100 ly. WIDEN TO 250 LY") | an empty list with no way forward is a dead end |
 | Loading | one Orange Mid line naming what is fetched ("Asking Spansh…"); a refresh keeps old rows Dim until replaced. No spinners or skeletons | motion pulls the eye; dim old rows keep the layout still |
+| Done (a copy, say) | the control's own icon swaps for 1.5 s (copy to the `copied` check), then back; instant both ways | the one brief feedback allowed (The Brief Feedback Rule): a copy leaves no other trace |
 | Listening (press to bind) | binding cell filled orange, On Orange caps | the game's listening cell |
 | Conflict, ignored binding | orange "!" + "Also: <action>"; ignored text struck through, Dim | a warning, not a failure |
 
@@ -786,7 +910,9 @@ only rows that came back past the limit. Staleness is judged as of the answer's 
 Each name in this document and the `app/src/design/tokens.css` variable that holds it. Use
 the variable; never repeat the value. Some variables keep names from before this document
 (`--accent`, `--bg`, `--cell`) because the pages already use them. `--row-hover` was a grey
-(#16171a) before revision 3; it is now DESIGN.md's warm Row Hover for every page.
+(#16171a) before revision 3; it is now DESIGN.md's warm Row Hover for every page. `--list-w`
+(1200 px) is the result-list cap that revision 4 drops: it is not a DESIGN.md name, and it stays
+in tokens.css only until the last page using it moves onto a layout.
 
 | DESIGN.md | tokens.css | Value |
 |---|---|---|
@@ -798,11 +924,11 @@ the variable; never repeat the value. Some variables keep names from before this
 | ember-cell | `--cell` | #3d220f |
 | ember-cell-hover | `--cell-hover` | #482810 |
 | ember-empty | `--cell-empty` | #1c1610 |
-| orange | `--accent` | #fa6e00 |
+| orange | `--accent` | #ff7100 |
 | orange-lit | `--orange-lit` | #ffa04a |
-| orange-mid | `--orange-mid` | #c26c32 |
+| orange-mid | `--orange-mid` | #d97a34 |
 | orange-dim | `--orange-dim` | #8a5834 |
-| placeholder | `--placeholder` | #fa6e00bf (Orange at 75 %) |
+| placeholder | `--placeholder` | #ff7100bf (Orange at 75 %) |
 | on-orange | `--on-accent` | #0c0d0f |
 | white | `--text-hi` | #ffffff |
 | options-grey | `--options-grey` | #e0e0e0 |
@@ -813,14 +939,16 @@ the variable; never repeat the value. Some variables keep names from before this
 | xl, 2xl, 3xl | `--sp-6`, `--sp-8`, `--sp-12` | 24, 32, 48 px |
 | gutter | `--gutter` | 40 px |
 | Prose width | `--measure` | 68ch |
-| Settings and forms width | `--form-w` | 900 px |
-| Result list width | `--list-w` | 1200 px |
-| Side panel | `--panel` | 320 px |
+| Form layout width | `--form-w` | 900 px |
+| Side panel (List with detail) | `--panel` | 320 px |
 | Control row, result row | `--row`, `--row-result` | 34, 44 px |
 | Route strip, material tile | `--strip`, `--tile` | 36, 76 px |
 | Meta, Label/Section/Action, Body/Name/Nav/Figures | `--fs-xs`, `--fs-s`, `--fs` | 12, 13, 15 px |
 | Value L and wordmark, Title, Value XL | `--fs-l`, `--fs-xl`, `--fs-xxl` | 18, 24, 28 px |
 | Caps tracking | `--caps` | 0.06em |
+| The root zoom (The Height Scale Rule) | `--zoom` | set by `lib/scale.svelte.ts`; 1 to 1.8, times the text size |
+| The window's height, 1 % of its width, under the zoom | `--win-h`, `--win-w` | `100vh / --zoom`, `1vw / --zoom` |
+| The frame's side margins | `--side` | 16 to 40 px: 3 % of the window's width |
 | The face | `--face`, `--face-stretch` | Saira Variable at 87.5 % |
 
 ## Deviations from the game
@@ -835,7 +963,8 @@ Each place we depart from Elite's UI, what we do instead, and why.
 | The item under the gamepad cursor is filled, so the default action starts filled | The primary button is always filled; other buttons are text actions | A mouse window has no cursor highlight; the primary needs the fill to be found |
 | Empty binding slots look like filled ones | Empty slots are the dimmer Ember Empty with the word "Set" in Orange Mid | Finding unbound actions is a main job of the Controls pages; the word is what the commander clicks, so it stays readable |
 | Blurred cockpit behind every panel | Flat neutral Void | Calmer and more legible; no Frontier art behind the window |
-| Glow, scan lines and animated panel transitions | Flat, no glow, no motion | A desktop window beside the game should not pull the eye |
+| Glow, scan lines and animated panel transitions | Flat, no glow, no motion; the one exception is a control's brief confirmation (copy to a check for 1.5 s) | A desktop window beside the game should not pull the eye; a copy leaves no other trace on screen |
+| Names on station screens in orange, like every other fact | White or Options Grey for entity names where the lift ranks them (The Lifted Name Rule) | With one orange at one size nothing ranked (audit, 10 Nov); the game already uses white for its few key names |
 | Prose in orange on station screens | Paragraphs in Prose Grey | Long orange passages tire the eye; the game's own Options screen uses grey for its explanations |
 | Long single-screen lists with no search | Search, Find or plot, aligned columns and one-line rows | The window is a lookup tool; the game's lists are a known pain (PRODUCT.md) |
 | Every value cell has a corner ratio or icon | Corner marks only for what the commander's plan needs | The window does not trade; the plan is the useful corner fact |
@@ -852,7 +981,13 @@ Each place we depart from Elite's UI, what we do instead, and why.
 - **Do** show rank and state with the orange ramp and the fill: lit, base, mid, dim, filled.
 - **Do** fill the selected tab, row, tile or option with solid orange and dark text.
 - **Do** keep changeable values in ember cells and read-only things on Hull or Void.
-- **Do** use white only for titles, the current section and the selected item's key value.
+- **Do** use white only for titles, the current section, the selected item's key value and
+  names lifted under The Lifted Name Rule.
+- **Do** build every page outside Controls on Board, List with detail, Workbench or Form, and
+  keep each action next to what it acts on.
+- **Do** show a finder's filters as their summary line with CHANGE, and open the controls only
+  on demand.
+- **Do** name star, body and station types with their icons, the type as the accessible name.
 - **Do** use icons for repeated row actions, with a Tip and a label, and words for
   primary and one-off actions.
 - **Do** set numbers in tabular figures, right-aligned, units in Orange Mid.
@@ -863,7 +998,9 @@ Each place we depart from Elite's UI, what we do instead, and why.
 ### Don't:
 
 - **Don't** use grey where the game uses orange; neutral greys only for the window, Options
-  labels and prose.
+  labels, prose and lifted names.
+- **Don't** set a page's own width or stretch a row across the window; the layout places it.
+- **Don't** lift every name on a page, or the name in a row ranked by its value.
 - **Don't** put read-only tiles, specs, chips or cards in ember cells.
 - **Don't** fill more than one item in a group, or show more than one primary button.
 - **Don't** use red for stale data, warnings, health issues, decoration or emphasis.
@@ -874,5 +1011,6 @@ Each place we depart from Elite's UI, what we do instead, and why.
 - **Don't** put repeated words like ADD STOP on every row, or hide row actions until hover.
 - **Don't** make the ranked value the smallest text in a row.
 - **Don't** draw a warning or error as a solid colour block.
-- **Don't** use a second typeface, a radius, a shadow, a glow or an animation.
+- **Don't** use a second typeface, a radius, a shadow, a glow, an animation or a page
+  transition. A control's 1.5 s confirmation is the one timed change allowed.
 - **Don't** use Frontier art, fonts, icons or screenshots, or any language but English.
