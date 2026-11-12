@@ -69,5 +69,6 @@ that mod.
 ## Limits
 
 - Game data (items, values, who fits what) is from the Elite Dangerous wiki and EDCD/FDevIDs, as of the
-  date the page shows at the bottom, with how many values are unsure or blank on the wiki.
+  date the page shows at the bottom. Point at that line for how many values are unsure or blank on
+  the wiki.
 - Your picks are remembered by the app window on this PC.

@@ -8,6 +8,7 @@
   import { credits, loadSystem, loadUnsold, type Body, type SystemView, type Unsold } from "../../lib/exploration";
   import { when } from "../../lib/logbook";
   import { serviceRoute } from "../../lib/places";
+  import { tip } from "../../lib/ui/tip";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let view = $state<SystemView | null>(null);
@@ -65,6 +66,10 @@
   }
 
   const scanned = $derived(view ? view.bodies.length : 0);
+
+  // What the values are, in the Tips on the tiles and the column heads.
+  const ESTIMATE = "Estimated with the community's exploration value formulae, the same ones EDSM and OD Explorer use";
+  const MAPPED = "Mapped with the Detailed Surface Scanner, within the efficiency target";
 </script>
 
 <section>
@@ -84,14 +89,14 @@
       {#if view.source}<span class="lo">· {view.source}</span>{/if}
     </p>
     <div class="tiles">
-      <div><span class="k">Value now</span><span class="v">{credits(view.value)}</span></div>
-      <div><span class="k">Mapping the best</span><span class="v">{credits(view.value_if_mapped)}</span></div>
+      <div {@attach tip(ESTIMATE)}><span class="k">Value now</span><span class="v">{credits(view.value)}</span></div>
+      <div {@attach tip("Once you map every body worth mapping")}><span class="k">Mapping the best</span><span class="v">{credits(view.value_if_mapped)}</span></div>
     </div>
 
     {#if view.bodies.length}
       <table aria-label="Bodies">
         <thead>
-          <tr><th>Body</th><th>Class</th><th class="num">Distance</th><th class="num">Gravity</th><th></th><th class="num">Value</th><th class="num">Mapped</th><th></th></tr>
+          <tr><th>Body</th><th>Class</th><th class="num">Distance</th><th class="num">Gravity</th><th></th><th class="num" {@attach tip(ESTIMATE)}>Value</th><th class="num" {@attach tip(MAPPED)}>Mapped</th><th></th></tr>
         </thead>
         <tbody>
           {#each view.bodies as b (b.name)}
@@ -104,8 +109,8 @@
               <td class="num">{credits(b.value)}</td>
               <td class="num">{b.star ? "" : credits(b.value_mapped)}</td>
               <td><div class="note">
-                {#if b.worth_mapping}<Badge>Worth mapping</Badge>{:else if b.mapped}<span class="lo">Mapped{b.mapped_efficiently ? ", efficiently" : ""}</span>{/if}
-                {#if b.first_footfall_likely}<Badge>First footfall likely</Badge>{/if}
+                {#if b.worth_mapping}<Badge {@attach tip("A planet worth at least 500 k cr mapped")}>Worth mapping</Badge>{:else if b.mapped}<span class="lo">Mapped{b.mapped_efficiently ? ", efficiently" : ""}</span>{/if}
+                {#if b.first_footfall_likely}<Badge {@attach tip("Landable, and nobody had discovered it in this unpopulated system. The journal can't say who walked there first.")}>First footfall likely</Badge>{/if}
                 {#if b.landings}<span class="lo">Landed {b.landings === 1 ? "once" : `${b.landings} times`}</span>{/if}
               </div></td>
             </tr>
@@ -115,12 +120,6 @@
     {:else}
       <p class="lo">Nothing scanned here yet. Honk and use the FSS: bodies show here as you scan them.</p>
     {/if}
-    <p class="lo note">
-      Values are estimates from the community's exploration value formulae, the same ones EDSM and OD Explorer use: "Mapped" is
-      with the Detailed Surface Scanner within the efficiency target. "Worth mapping" is a planet worth at least 500 k cr mapped.
-      "First footfall likely" is a landable body nobody had discovered in an unpopulated system; the journal can't say who
-      walked there first.
-    </p>
   {/if}
 
   <h3 class="section">Unsold data</h3>
@@ -178,7 +177,6 @@
   .facts { display: flex; flex-wrap: wrap; gap: 4px; }
   .note { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--fs-s); }
   tr.worth .name { color: var(--orange-lit); }
-  p.note { margin-top: 18px; font-size: var(--fs-s); max-width: 52rem; }
   h3 { margin: 28px 0 10px; }
   .small { font-size: var(--fs-s); }
   /* A warning: an orange "!" and plain words, never a filled block (DESIGN.md States). */

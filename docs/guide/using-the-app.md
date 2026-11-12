@@ -35,6 +35,9 @@ Point at an icon, a value or a button that has more to say and its explanation a
 beside it: what a button does, the conditions behind a figure ("Full tank and full cargo"), the
 detail of a warning. It moves to the next thing you point at and goes when you move away, scroll
 or press **Esc**. Moving to one with **Tab** shows it too, and screen readers read the same words.
+Pages keep their explanations there rather than in notes under the content: a column heading says
+what its figures mean, a tag such as **Ethos** says what it marks. Where the data comes from and
+how old it is stays on the page, in one small line.
 
 Pages that follow the game (ships, materials, on foot, station, session, exploration, biology,
 mining, colonisation, Powerplay, the logbook, the route, data sharing and diagnostics) read your journal again

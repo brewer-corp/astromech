@@ -7,6 +7,7 @@
   import { when } from "../../lib/logbook";
   import { compareMarket, credits, DEFAULT_DISTANCE_LY, DEFAULT_MAX_AGE_DAYS, gainText, type MarketCompare, type MarketLine } from "../../lib/trade";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
+  import { tip } from "../../lib/ui/tip";
   import { untrack } from "svelte";
 
   let { marketId }: { marketId: number | null } = $props();
@@ -42,13 +43,16 @@
     untrack(check);
   });
 
+  /** What Best nearby is, in its column head's Tip. */
+  const BEST = `The best price a station in another system pays, within ${DEFAULT_DISTANCE_LY} ly and ${DEFAULT_MAX_AGE_DAYS} days unless changed in Commodities › Sell`;
+
   const where = (l: MarketLine) => (l.best ? `${jumps(l.best.jumps, l.best.exact)} · ${l.best.ly.toFixed(1)} ly · demand ${credits(l.best.volume)} · ${ago(l.best.updated_at)}` : "");
 </script>
 
 <div class="head">
   <p class="sub">
-    Against the best price a station in another system pays, with the filters of Commodities › Sell ({DEFAULT_DISTANCE_LY} ly and {DEFAULT_MAX_AGE_DAYS} days unless changed there).
-    {#if res && res.fetched_at}Ardent Insight, asked {ago(new Date(res.fetched_at * 1000).toISOString())}.{/if}
+    {#if res}<span {@attach tip("The last time you opened its commodity market: open it again to refresh")}>Market as of {when(res.seen)} UTC ({ago(res.seen)})</span>{/if}
+    {#if res?.fetched_at}· Ardent Insight, asked {ago(new Date(res.fetched_at * 1000).toISOString())}{/if}
   </p>
   <Button onclick={check} disabled={busy}>{busy ? "Asking…" : "Check again"}</Button>
 </div>
@@ -57,12 +61,9 @@
 {:else if busy && !res}
   <p class="lo">Asking Ardent Insight…</p>
 {:else if res}
-  <p class="lo seen">
-    Market as of {when(res.seen)} UTC ({ago(res.seen)}), the last time its commodity market was opened. Open it again to refresh.
-  </p>
   {#if res.carried.length}
     <table aria-label="Your cargo">
-      <thead><tr><th>Your cargo</th><th class="num">Here</th><th class="num">Best nearby</th><th class="num">Difference</th><th>Where</th></tr></thead>
+      <thead><tr><th>Your cargo</th><th class="num">Here</th><th class="num" {@attach tip(BEST)}>Best nearby</th><th class="num">Difference</th><th>Where</th></tr></thead>
       <tbody>
         {#each res.carried as l (l.commodity)}
           <tr>
@@ -71,7 +72,7 @@
             <td class="num">{l.best ? credits(l.best.price) : "–"}</td>
             <td class="num" class:up={(l.gain ?? 0) > 0}>{l.gain === null ? "" : `${gainText(l.gain)}/t`}</td>
             <td>
-              {#if l.best}<span>{l.best.station} <SystemChip name={l.best.system} /></span> <span class="lo">{where(l)}</span>{:else if !l.checked}<span class="lo">Not looked up (a dozen per dock, the biggest loads first).</span>{:else}<span class="lo">No station nearby takes all of it.</span>{/if}
+              {#if l.best}<span>{l.best.station} <SystemChip name={l.best.system} /></span> <span class="lo">{where(l)}</span>{:else if !l.checked}<span class="lo" {@attach tip("A dozen are looked up per dock, the biggest loads first")}>Not looked up</span>{:else}<span class="lo">No station nearby takes all of it.</span>{/if}
             </td>
           </tr>
         {/each}
@@ -86,7 +87,7 @@
 
   {#if res.for_sale.length}
     <table aria-label="For sale here">
-      <thead><tr><th>For sale here</th><th class="num">Price</th><th class="num">Best nearby</th><th class="num">Profit</th><th>Where</th></tr></thead>
+      <thead><tr><th>For sale here</th><th class="num">Price</th><th class="num" {@attach tip(BEST)}>Best nearby</th><th class="num">Profit</th><th>Where</th></tr></thead>
       <tbody>
         {#each res.for_sale as l (l.commodity)}
           <tr>
@@ -105,7 +106,7 @@
     <p class="lo">Nothing for sale here.</p>
   {/if}
   {#if res.unchecked.length}
-    <p class="lo">Not looked up (a dozen per dock, those furthest below their average price first): {res.unchecked.join(", ")}.</p>
+    <p class="lo" {@attach tip("A dozen are looked up per dock, those furthest below their average price first")}>Not looked up: {res.unchecked.join(", ")}.</p>
   {/if}
 {/if}
 
@@ -113,7 +114,6 @@
   .head { display: flex; align-items: baseline; gap: 18px; max-width: 60rem; }
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 8px 0; flex: 1; }
   .err { color: var(--accent); }
-  .seen { font-size: var(--fs-s); margin: 0 0 4px; }
   .lo { color: var(--orange-mid); }
   .name { white-space: nowrap; }
   .up { color: var(--accent); }

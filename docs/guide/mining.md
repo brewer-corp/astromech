@@ -10,7 +10,7 @@ It follows your journal live while you mine.
 - **Refined**: total tons refined in this run.
 - **Per hour**: tons per hour, shown once a minute has passed. This is tons, not credits.
 - **By ore**: tons refined for each ore, most first.
-- A note: when the run started (UTC), "measured to the latest journal line".
+- A line: when the run started (UTC). The rate is measured to the latest journal line.
 
 ## When a run starts and ends
 

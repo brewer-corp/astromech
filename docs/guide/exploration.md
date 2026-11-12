@@ -23,8 +23,8 @@ The system you are in, with:
 
 If nothing is scanned: "Honk and use the FSS: bodies show here as you scan them."
 
-Values are estimates from the community's exploration value formulae, the same ones EDSM and OD
-Explorer use, tested against EDSM's published estimates. "Mapped" assumes the Detailed Surface Scanner
+Point at a value's heading, or a tag, for what it means. Values are estimates from the
+community's exploration value formulae, the same ones EDSM and OD Explorer use, tested against EDSM's published estimates. "Mapped" assumes the Detailed Surface Scanner
 within the efficiency target. They include the first-discovery bonus when the scan says nobody had
 discovered the body. They do not estimate selling through a fleet carrier, which pays 25% less.
 

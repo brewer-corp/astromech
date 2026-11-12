@@ -16,8 +16,11 @@ const s = (o: Partial<Suggestion>): Suggestion => ({
 
 const rules = { version: 1, fetched: "2026-10-16" };
 
+/** The words a Tip gives the element, as a screen reader hears them. */
+const described = (el: HTMLElement) => document.getElementById(el.getAttribute("aria-describedby") ?? "")?.textContent;
+
 describe("What earns merits here", () => {
-  it("lists each activity with how to do it, in the order given", () => {
+  it("lists each activity in the order given, with how to do it in its Tip", () => {
     render(Suggestions, {
       items: [
         s({ activity: "commit-crimes", name: "Crimes", how: "Murder ships here.", favoured: true }),
@@ -26,14 +29,14 @@ describe("What earns merits here", () => {
       ],
       rules,
     });
-    const names = screen.getAllByText(/^(Crimes|Power commodities)$/).map((e) => e.textContent);
-    expect(names).toEqual(["Crimes", "Power commodities", "Power commodities"]);
-    expect(screen.getByText("Murder ships here.")).toBeTruthy();
-    expect(screen.getByText("Pick up Sirius Franchise Package.")).toBeTruthy();
+    const names = screen.getAllByText(/^(Crimes|Power commodities)$/);
+    expect(names.map((e) => e.textContent)).toEqual(["Crimes", "Power commodities", "Power commodities"]);
+    expect(described(names[2]!)).toContain("Pick up Sirius Franchise Package.");
+    expect(screen.queryByText("Murder ships here.")).toBeNull();
     expect(screen.getByText(/as of 16 Oct 2026 \(rules v1\)/)).toBeTruthy();
   });
 
-  it("tags ethos, weak spots and on-foot activities", () => {
+  it("tags ethos, weak spots and on-foot activities, each tag explained in its Tip", () => {
     render(Suggestions, {
       items: [
         s({ activity: "flood-markets", name: "Flood markets", favoured: true, weak_spot: true }),
@@ -41,29 +44,18 @@ describe("What earns merits here", () => {
       ],
       rules,
     });
-    // One tag per row, and one in the key under the list, which says what it means.
-    expect(screen.getAllByText("Ethos")).toHaveLength(2);
-    expect(screen.getAllByText("Weak spot")).toHaveLength(2);
-    expect(screen.getByText(/your power favours it: bonus merits/)).toBeTruthy();
-    expect(screen.getByText(/the controlling power is weak to it/)).toBeTruthy();
+    expect(described(screen.getByText("Ethos"))).toMatch(/bonus merits/);
+    expect(described(screen.getByText("Weak spot"))).toMatch(/weak to it/);
     expect(screen.getByText("On foot")).toBeTruthy();
   });
 
-  it("marks unverified rules quietly and explains the mark", () => {
+  it("marks unverified rules quietly, with the reason in the activity's Tip", () => {
     const { container } = render(Suggestions, {
       items: [s({ activity: "salvage", name: "Salvage", uncertain: "Hand-in place not documented." }), s({ activity: "cartography", name: "Exploration data" })],
       rules,
     });
     expect(container.querySelectorAll(".unverified")).toHaveLength(1);
-    // The reason is plain text under the row: no hover needed, read by screen readers.
-    expect(screen.getByText("Not checked in game: Hand-in place not documented.").tagName).toBe("P");
-    expect(container.querySelector("[title]")).toBeNull();
-    expect(screen.getByText(/not yet checked in game/)).toBeTruthy();
-  });
-
-  it("leaves out the key when every rule is verified", () => {
-    render(Suggestions, { items: [s({ name: "Exploration data" })], rules });
-    expect(screen.queryByText(/not yet checked in game/)).toBeNull();
-    expect(screen.queryByText(/bonus merits/)).toBeNull();
+    expect(described(screen.getByText("Salvage"))).toContain("Not checked in game: Hand-in place not documented.");
+    expect(described(screen.getByText("Exploration data"))).not.toContain("Not checked");
   });
 });
