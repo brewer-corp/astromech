@@ -598,12 +598,13 @@ out and needs no licence; one stroke matches the game's thin line icons.
 Three type sets say what a star, body or station is, so a row or a tree shows it without a
 word:
 
-- **Stars:** main sequence (a disc with eight rays), brown dwarf (a banded disc, no rays),
-  white dwarf (a small disc with four short rays), neutron star (a small core with its two
-  jets) and black hole (a disc inside a flat ring).
+- **Stars:** scoopable (a plain disc), other non-scoopable (a disc with eight rays), brown
+  dwarf (a small banded disc, no rays), white dwarf (a small disc with four short rays),
+  neutron star (a pulsar: a small core, its two beams and a faint ring), black hole (a disc
+  inside a flat ring) and unknown (a dashed circle).
 - **Bodies:** a disc for every planet, told apart by what is inside it: rocky, high metal
   content (a metal core), metal-rich, icy, rocky ice, water world, Earth-like, ammonia world,
-  gas giant and water giant.
+  gas giant, water giant and ringed (a disc in a tilted ring).
 - **Stations:** Coriolis (a many-faced hull with its letterbox), Orbis (a wheel on a spindle),
   Ocellus (a ball with its docking eye), outpost, planetary port (a port on the horizon),
   settlement, asteroid base, fleet carrier and megaship. These replace the old station kinds
