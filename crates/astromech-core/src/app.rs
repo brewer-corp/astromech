@@ -1020,15 +1020,16 @@ impl Core {
 
     /// `route_details`: look up on Spansh the route's stops not looked up yet this run (an
     /// inhabited system's allegiance, government, security, population and controlling
-    /// faction), then the route as it is now. Each stop is asked for once; a failed lookup
-    /// leaves its stops without details.
+    /// faction), then the route as it is now. Each stop is asked for once; a failed request
+    /// leaves its stops without details, and the other requests still go.
     fn route_details(&self) -> RouteReply {
         let want = self.route.take_details_wanted();
         if !want.is_empty() {
-            match astromech_galaxy::stops::details(self.api.remote(), &want) {
-                Ok(found) => self.route.put_details(found),
-                Err(e) => log(&format!("route: couldn't look up {} stops on Spansh: {e}", want.len())),
+            let found = astromech_galaxy::stops::details(self.api.remote(), &want);
+            for (names, e) in &found.failed {
+                log(&format!("route: couldn't look up {} stops on Spansh: {e}", names.len()));
             }
+            self.route.put_details(found.details);
         }
         RouteReply { view: self.route.view() }
     }

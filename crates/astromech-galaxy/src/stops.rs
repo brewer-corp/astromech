@@ -24,21 +24,38 @@ pub struct Details {
     pub faction_state: Option<String>,
 }
 
+/// What [`details`] found, and the requests that failed.
+#[derive(Debug, Default)]
+pub struct Found {
+    /// Each inhabited system Spansh has, by the name as given.
+    pub details: Vec<(String, Details)>,
+    /// Each failed request's error, with the names it asked for.
+    pub failed: Vec<(Vec<String>, astromech_data::Error)>,
+}
+
 /// The details of each of `names` that Spansh has and that is inhabited, by the name as given
-/// (matched in any case). One request per [`CHUNK`] names; the first failure is the error.
-pub fn details(remote: &Client, names: &[String]) -> astromech_data::Result<Vec<(String, Details)>> {
-    let mut out = vec![];
+/// (matched in any case). One request per [`CHUNK`] names; a failed request leaves its names
+/// without details and the others are still asked for.
+pub fn details(remote: &Client, names: &[String]) -> Found {
+    let mut out = Found::default();
     for chunk in names.chunks(CHUNK) {
         let search = Search::near(Reference::System(chunk[0].clone()))
             .size(chunk.len())
             .filter("name", json!({ "value": chunk }));
-        for s in remote.spansh_systems(&search)?.value.results {
+        let page = match remote.spansh_systems(&search) {
+            Ok(page) => page.value,
+            Err(e) => {
+                out.failed.push((chunk.to_vec(), e));
+                continue;
+            }
+        };
+        for s in page.results {
             let Some(name) = chunk.iter().find(|n| n.trim().eq_ignore_ascii_case(&s.name)) else { continue };
             if s.population <= 0 {
                 continue;
             }
             let some = |v: Option<String>| v.filter(|v| !v.is_empty() && v != "None");
-            out.push((
+            out.details.push((
                 name.clone(),
                 Details {
                     population: s.population,
@@ -51,5 +68,5 @@ pub fn details(remote: &Client, names: &[String]) -> astromech_data::Result<Vec<
             ));
         }
     }
-    Ok(out)
+    out
 }

@@ -538,9 +538,10 @@ struct Saved {
     here: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     parked: Option<Route>,
-    /// The route last plotted in the galaxy map (`NavRoute.json`, live), the system it was
-    /// plotted from first: the systems and star classes of the leg being flown.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    /// The galaxy map's route (`NavRoute.json`), the system it was plotted from first: the
+    /// systems and star classes of the leg being flown. Not saved: each start reads the game's
+    /// file again ([`Desk::known`]), so a route changed while astromech was closed isn't stale.
+    #[serde(skip)]
     nav: Vec<Hop>,
 }
 
@@ -586,6 +587,13 @@ fn timeline(
         })
         .collect();
     (stops, position)
+}
+
+/// `NavRoute.json`'s systems with their star classes.
+fn nav_of(hops: &[astromech_journal::RouteHop]) -> Vec<Hop> {
+    hops.iter()
+        .map(|h| Hop { system: h.system.clone(), star_class: h.star_class.clone(), scoopable: None, neutron: None })
+        .collect()
 }
 
 /// A system's key in the details cache.
@@ -817,12 +825,8 @@ impl Desk {
         let systems: Vec<&str> = hops.iter().map(|h| h.system.as_str()).collect();
         let Some(dest) = systems.last().copied().filter(|_| systems.len() > 1) else { return };
         let mut st = self.state.lock().recover();
-        st.0.nav = hops
-            .iter()
-            .map(|h| Hop { system: h.system.clone(), star_class: h.star_class.clone(), scoopable: None, neutron: None })
-            .collect();
+        st.0.nav = nav_of(hops);
         if st.0.route.as_ref().is_some_and(|r| !r.from_game() && r.ahead(dest)) {
-            self.save(&st.0);
             return;
         }
         if st.0.parked.as_ref().is_some_and(|r| r.ahead(dest)) {
@@ -862,16 +866,19 @@ impl Desk {
     /// route of our own stays (its leg was cleared, or the commander arrived).
     pub fn cleared_in_game(&self) {
         let mut st = self.state.lock().recover();
-        if !st.0.nav.is_empty() {
-            st.0.nav.clear();
-            self.save(&st.0);
-        }
+        st.0.nav.clear();
         if st.0.route.as_ref().is_some_and(Route::from_game) {
             st.0.route = None;
             st.1 = None;
             crate::logging::log("route: the galaxy map's route was cleared");
             self.save(&st.0);
         }
+    }
+
+    /// `NavRoute.json` as the game has it, not live (the catch-up's read at startup, or with
+    /// following off): kept for the timeline only; the route doesn't change.
+    pub fn known(&self, hops: &[astromech_journal::RouteHop]) {
+        self.state.lock().recover().0.nav = nav_of(hops);
     }
 
     /// A replayed journal put us in `system`: remember where we are, but don't move the route
@@ -931,6 +938,9 @@ impl astromech_announce::route_follow::Follower for Desk {
     }
     fn cleared(&self) {
         self.cleared_in_game();
+    }
+    fn known(&self, hops: &[astromech_journal::RouteHop]) {
+        Desk::known(self, hops);
     }
 }
 
@@ -1609,5 +1619,42 @@ mod tests {
         let v = Desk::open(Some(p), Box::new(|_| Ok(()))).view();
         let r = v.route.unwrap();
         assert_eq!((r.plot, r.waypoints.len(), v.stops[1].jumps), (None, 2, Some(40)));
+    }
+
+    /// The galaxy map's route read at startup (the catch-up) or with following off is known, not
+    /// followed: the flown leg lists its jumps, the route doesn't move and nothing is copied. It
+    /// isn't saved, so a restart takes the game's file as it is then, never a stale copy.
+    #[test]
+    fn a_galaxy_map_route_read_at_startup_lists_the_flown_leg() {
+        let dir = tempfile::tempdir().unwrap();
+        let p = dir.path().join("route.json");
+        let got = Arc::new(Mutex::new(vec![]));
+        let g = got.clone();
+        let clip: Clip = Box::new(move |s| {
+            g.lock().recover().push(s.to_string());
+            Ok(())
+        });
+        let d = Desk::open(Some(p.clone()), clip);
+        d.on_system("Sol");
+        d.set(spansh_neutron()).unwrap();
+        d.known(&nav(NAV));
+        let v = d.view();
+        assert_eq!(
+            (v.route.as_ref().unwrap().name.as_str(), v.next.as_ref().unwrap().system.as_str()),
+            ("Sol to Colonia", "PSR J1752-2806")
+        );
+        assert_eq!(
+            (v.stops[1].hops.as_ref().map(Vec::len), v.stops[1].hops_from, v.position),
+            (Some(11), Some(HopsFrom::NavRoute), Some(0))
+        );
+        assert_eq!(got.lock().recover().len(), 1, "only the copy when the route was set");
+        // A galaxy-map route of its own, known at startup, doesn't replace ours.
+        d.known(&nav(&[("Sol", "G"), ("Wolf 359", "M")]));
+        assert_eq!(d.view().route.unwrap().name, "Sol to Colonia");
+        d.known(&nav(NAV));
+        drop(d);
+        assert!(!std::fs::read_to_string(&p).unwrap().contains("Erh Longo"), "not saved");
+        let v = Desk::open(Some(p), Box::new(|_| Ok(()))).view();
+        assert_eq!((v.stops[1].hops.as_ref(), v.position), (None, None), "until the game's file is read again");
     }
 }

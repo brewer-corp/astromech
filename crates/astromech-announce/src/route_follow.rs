@@ -31,6 +31,10 @@ pub trait Follower: Send + Sync {
     fn plotted(&self, hops: &[astromech_journal::RouteHop]);
     /// The commander cleared the galaxy map's route (live `NavRouteClear`).
     fn cleared(&self);
+    /// `NavRoute.json` as the game has it, read in the catch-up (the route plotted before
+    /// astromech started) or with following off: what the galaxy map has plotted, to know, not
+    /// to follow. It must not move the route or write the clipboard.
+    fn known(&self, _hops: &[astromech_journal::RouteHop]) {}
 }
 
 /// The follower the core plugs in. Shared like the visit history.
@@ -105,7 +109,10 @@ impl Rule for RouteFollow {
         Some(Callout { text, priority: Priority::Normal, channels: Channels::SPEECH | Channels::TOAST })
     }
     fn replayed(&self, input: &Input, _state: &GameState) {
-        if let (Some(f), Some(system)) = (self.follower.get(), arrival(input)) {
+        let Some(f) = self.follower.get() else { return };
+        if let Input::Route(r) = input {
+            f.known(&r.hops);
+        } else if let Some(system) = arrival(input) {
             f.here(system);
         }
     }
@@ -139,6 +146,10 @@ mod tests {
         }
         fn cleared(&self) {
             self.0.lock().unwrap().push("cleared".into());
+        }
+        fn known(&self, hops: &[astromech_journal::RouteHop]) {
+            let systems: Vec<&str> = hops.iter().map(|h| h.system.as_str()).collect();
+            self.0.lock().unwrap().push(format!("known {}", systems.join(">")));
         }
     }
 
@@ -184,8 +195,9 @@ mod tests {
         assert_eq!(*log.0.lock().unwrap(), ["here Sol", "here Kuk"]);
     }
 
-    /// Galaxy-map plots and clears reach the follower only live and with following on, and say
-    /// nothing themselves.
+    /// Galaxy-map plots and clears reach the follower to follow only live and with following on,
+    /// and say nothing themselves. The route file read in the catch-up (plotted before astromech
+    /// started) or with following off reaches it only as known, for the Route page's timeline.
     #[test]
     fn galaxy_map_plots_and_clears_are_handed_over_live() {
         use astromech_journal::NavRouteSnap;
@@ -207,7 +219,7 @@ mod tests {
         e.set_live(true);
         assert!(e.route(&snap(&["Sol", "Wolf 359", "Kuk"]), &g, Instant::now()).is_empty());
         assert!(e.journal(&clear, &g, Instant::now()).is_empty());
-        assert_eq!(*log.0.lock().unwrap(), ["plotted Sol>Wolf 359>Kuk", "cleared"]);
+        assert_eq!(*log.0.lock().unwrap(), ["known Sol>Kuk", "plotted Sol>Wolf 359>Kuk", "cleared"]);
 
         let log = Arc::new(Log::default());
         let shared = SharedFollower::default();
@@ -217,7 +229,7 @@ mod tests {
         e.set_live(true);
         e.route(&snap(&["Sol", "Kuk"]), &g, Instant::now());
         e.journal(&clear, &g, Instant::now());
-        assert!(log.0.lock().unwrap().is_empty(), "following off: the galaxy map's route isn't mirrored");
+        assert_eq!(*log.0.lock().unwrap(), ["known Sol>Kuk"], "following off: known, not followed");
     }
 
     /// A clear then a re-plot, with the journal read late: the new route file (read on a
