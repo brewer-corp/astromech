@@ -81,3 +81,9 @@ All three findings of review 1 are fixed, including the deferred one:
 
 The tests use real core replies: `worlds/preview/route` gains a replot from Alrai after the two jumps (mark `replotted`), and fixtures/route.json gains `/replotted` (`route` there) and `/first` (a `route_set` to PSR J1752-2806 and Colonia there), recorded with `ASTROMECH_UPDATE_FIXTURES=1`. The preview takes them as `?route=replotted` and `?route=first`. The new browser tests cover both cases and the flown-leg warning. `pnpm test` passes 619 tests, and `preview_fixtures` passes.
 
+
+### Responses
+
+1-mga3.1: fixed in 1b8c5af4
+1-mga3.2: fixed in 1b8c5af4
+1-mga3.3: fixed in 1b8c5af4
