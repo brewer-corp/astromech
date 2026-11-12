@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-drnv
 title: Finder filters collapse to their summary line
-status: approved
+status: in_review
 mission: astromech-xajc
 labels:
 - size-s
