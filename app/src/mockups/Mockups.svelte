@@ -12,14 +12,26 @@
   import DsFinder from "./ds/Finder.svelte";
   import DsPlacesHome from "./ds/PlacesHome.svelte";
   import DsSettings from "./ds/Settings.svelte";
+  // Glow-up mission mockups (docs/design/glow-up-*.png)
+  import GlowNow from "./glow/Now.svelte";
+  import GlowSystem from "./glow/System.svelte";
+  import GlowShip from "./glow/Ship.svelte";
+  import GlowEngineers from "./glow/Engineers.svelte";
+  import GlowPowerplay from "./glow/Powerplay.svelte";
+  import GlowMaterials from "./glow/Materials.svelte";
+  import GlowSell from "./glow/Sell.svelte";
   const pages = { activities: ActivityView, ship: ShipDiagram, keybinds: KeybindsList, controller: MyController, settings: Settings, tray: TrayMenu };
   const read = () => location.hash.replace("#/mockup/", "");
   let id = $state(read());
   window.addEventListener("hashchange", () => (id = read()));
   const Page = $derived(pages[id as keyof typeof pages] ?? KeybindsList);
+  const glow = { "glow-now": GlowNow, "glow-system": GlowSystem, "glow-ship": GlowShip, "glow-engineers": GlowEngineers, "glow-powerplay": GlowPowerplay, "glow-materials": GlowMaterials, "glow-sell": GlowSell };
+  const Glow = $derived(glow[id as keyof typeof glow]);
 </script>
 
-{#if id === "ds-materials"}
+{#if Glow}
+  <Glow />
+{:else if id === "ds-materials"}
   <DsMaterials />
 {:else if id === "ds-sell" || id === "ds-mining"}
   <DsFinder kind={id === "ds-sell" ? "sell" : "mining"} />

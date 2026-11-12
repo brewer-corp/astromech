@@ -1,0 +1,70 @@
+/* Glow-up mockups (#/mockup/glow-*): the target look the Glow-up mission proposes. Every
+   override is scoped to .glow, the mockup root, so the app's tokens.css is untouched.
+   - A stronger orange (#ff7100), a brighter label orange (#d97a34, replacing orange-mid #c26c32)
+     and body weight 500.
+   - White or Options Grey allowed for entity names outside Controls where it helps rank.
+   - Value XL (28 px) used for the one main value of a tile. */
+.glow {
+  --accent: #ff7100;
+  --orange-mid: #d97a34;
+  --placeholder: #ff7100bf;
+  font-family: var(--face);
+  font-stretch: var(--face-stretch);
+  font-size: var(--fs);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.glow button { all: unset; cursor: pointer; box-sizing: border-box; font-stretch: var(--face-stretch); }
+.glow :focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+.glow h1, .glow h2, .glow h3, .glow p, .glow dl, .glow dd, .glow ul, .glow ol { margin: 0; padding: 0; }
+.glow li { list-style: none; }
+
+/* The orange ramp and the few neutrals */
+.glow .lit { color: var(--orange-lit); }
+.glow .mid { color: var(--orange-mid); }
+.glow .dim, .glow .dim * { color: var(--orange-dim) !important; }
+.glow .white { color: var(--text-hi); }
+.glow .grey { color: var(--options-grey); }
+.glow .prose { color: var(--prose); }
+.glow .unit { font-size: var(--fs-s); color: var(--orange-mid); margin-left: 3px; font-weight: 500; }
+
+/* Type roles */
+.glow .title { font-size: var(--fs-xl); font-weight: 600; line-height: 1.2; color: var(--text-hi); }
+.glow .label { font-size: var(--fs-s); color: var(--orange-mid); }
+.glow .vxl { font-size: var(--fs-xxl); font-weight: 500; line-height: 1; color: var(--orange-lit); }
+.glow .vl { font-size: var(--fs-l); font-weight: 600; line-height: 1.2; color: var(--orange-lit); }
+.glow .section { display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; color: var(--accent); }
+.glow .section::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.glow .section.current { color: var(--text-hi); }
+.glow .section.current::after { background: var(--accent); }
+.glow .r { text-align: right; }
+
+/* Buttons */
+.glow .act { display: inline-flex; align-items: center; height: var(--row); padding: 0 var(--sp-2); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+.glow .primary { display: inline-flex; align-items: center; height: var(--row); padding: 0 20px; background: var(--accent); color: var(--on-accent); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; }
+.glow .ibtn { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; color: var(--orange-mid); position: relative; }
+.glow .ibtn:hover { color: var(--orange-lit); }
+
+/* Warnings orange, hard errors red */
+.glow .bang { color: var(--accent); font-weight: 600; margin-right: 6px; }
+
+/* Ember cells mean editable */
+.glow .cell { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); background: var(--cell); color: var(--accent); }
+.glow .cell .ph { color: var(--placeholder); }
+.glow .choices { display: inline-flex; gap: var(--gap); }
+.glow .choice { display: inline-flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); background: var(--cell); color: var(--accent); font-size: var(--fs-s); }
+.glow .choice.on { background: var(--accent); color: var(--on-accent); }
+
+/* Badge: outlined, never filled */
+.glow .badge { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); line-height: 1; white-space: nowrap; }
+
+/* Meter: a Seam track filled from the left */
+.glow .meter { display: block; height: 4px; background: var(--line); }
+.glow .meter > span { display: block; height: 100%; background: var(--accent); }
+
+/* Grade pips: five squares, the reached grades filled */
+.glow .pips { display: inline-flex; gap: 3px; }
+.glow .pips > span { width: 7px; height: 7px; border: 1px solid var(--orange-dim); }
+.glow .pips > span.on { background: var(--orange-lit); border-color: var(--orange-lit); }
