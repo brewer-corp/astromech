@@ -104,7 +104,7 @@ input[type="checkbox"] { accent-color: var(--accent); }
    target (--tip-x from its left edge), above the target or below it near the top edge. Plain is
    one Orange line in Body; rich is a white title, an Orange fact line and a Prose Grey note in Label. It never
    takes the pointer, so moving across targets swaps it in place. */
-.tip { position: fixed; z-index: 1000; max-width: min(360px, calc(100vw - 16px)); padding: var(--sp-1) var(--sp-2); background: var(--surface-hi); border: 1px solid var(--orange-mid); color: var(--accent); font-size: var(--fs); line-height: 1.35; white-space: pre-line; pointer-events: none; }
+.tip { position: fixed; z-index: 1000; max-width: min(360px, calc(100 * var(--win-w) - 16px)); padding: var(--sp-1) var(--sp-2); background: var(--surface-hi); border: 1px solid var(--orange-mid); color: var(--accent); font-size: var(--fs); line-height: 1.35; white-space: pre-line; pointer-events: none; }
 .tip[hidden] { display: none; }
 .tip::before, .tip::after { content: ""; position: absolute; left: var(--tip-x, 50%); top: 100%; border: 6px solid transparent; border-top-color: var(--orange-mid); transform: translateX(-50%); }
 .tip::after { border-width: 5px; border-top-color: var(--surface-hi); }

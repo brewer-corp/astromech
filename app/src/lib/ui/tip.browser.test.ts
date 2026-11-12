@@ -92,4 +92,35 @@ describe("Tip", () => {
     if (offMark) offMark();
     host.remove();
   });
+  it("sits beside its target and inside the window under the window's zoom", async () => {
+    const root = document.documentElement;
+    root.style.zoom = "1.44";
+    root.style.setProperty("--zoom", "1.44");
+    const host = document.createElement("div");
+    host.innerHTML = `<button style="position:fixed;top:4px;right:4px">Help</button><span style="position:fixed;top:300px;left:200px">12.4</span>`;
+    document.body.append(host);
+    const [help, value] = [host.querySelector("button")!, host.querySelector("span")!];
+    const offs = [tip("Open this page's guide in your browser")(help), tip("Full tank and full cargo")(value)];
+    try {
+      for (const [target, side] of [[help, "below"], [value, "above"]] as const) {
+        await fireEvent.pointerEnter(target);
+        const t = target.getBoundingClientRect();
+        const b = shown()[0]!.getBoundingClientRect();
+        expect(b.left).toBeGreaterThanOrEqual(0);
+        expect(b.right).toBeLessThanOrEqual(window.innerWidth);
+        // The gap is 8 px at the window's scale: within a few px of its edge.
+        const gap = side === "below" ? b.top - t.bottom : t.top - b.bottom;
+        expect(gap).toBeGreaterThan(0);
+        expect(gap).toBeLessThan(20);
+        expect(b.left).toBeLessThan(t.right);
+        expect(b.right).toBeGreaterThan(t.left);
+        await fireEvent.pointerLeave(target);
+      }
+    } finally {
+      for (const off of offs) if (off) off();
+      host.remove();
+      root.style.zoom = "";
+      root.style.removeProperty("--zoom");
+    }
+  });
 });
