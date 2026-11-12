@@ -2,11 +2,11 @@
 name: astromech
 description: The window beside Elite Dangerous, drawn in the game's own orange. Sparse, scannable, lit where it matters.
 colors:
-  orange: "#fa6e00"
+  orange: "#ff7100"
   orange-lit: "#ffa04a"
-  orange-mid: "#c26c32"
+  orange-mid: "#d97a34"
   orange-dim: "#8a5834"
-  placeholder: "#fa6e00bf"
+  placeholder: "#ff7100bf"
   on-orange: "#0c0d0f"
   ember-cell: "#3d220f"
   ember-cell-hover: "#482810"
@@ -74,7 +74,7 @@ typography:
   figures:
     fontFamily: "Saira Variable, Bahnschrift, Segoe UI, sans-serif"
     fontSize: "15px"
-    fontWeight: 400
+    fontWeight: 500
     lineHeight: 1.3
     letterSpacing: "normal"
     fontFeature: "\"tnum\" 1"
@@ -339,30 +339,34 @@ that needs them, without reading?
 The game's orange in four brightnesses on warm brown surfaces, over a neutral near-black.
 Values were sampled from game screenshots (the material trader, the commodity market, the
 Options → Controls screen and the right-hand modules panel) and lifted slightly where
-anti-aliased samples read darker than the game draws them.
+anti-aliased samples read darker than the game draws them. Revision 4 (astromech-k6pl,
+12 Nov 2026) made Orange and Orange Mid stronger: the sampled `#fa6e00` and `#c26c32` looked
+washed out next to the game, which draws its orange as light.
 
 ### Primary: the orange ramp
 
 - **Orange Lit** (`orange-lit`, 9.6:1 on Void): the one main value of an element (a tile's
   count, a row's price, the next system), and the active page tab. *Why:* the game draws its
   most important figures and highlighted heads in a lighter, yellower orange.
-- **Orange** (`orange`, 6.7:1): the base. Names, available items, facts, section headings,
+- **Orange** (`orange`, 7.1:1): the base. Names, available items, facts, section headings,
   action words, cell values, and the fill for anything selected. *Why:* it is the colour of
   ordinary text on every station screen.
-- **Orange Mid** (`orange-mid`, 5.1:1 on Void, 4.8:1 on Hull): labels, column heads, units,
-  secondary facts such as the system after a station name, inactive tabs, icons at rest.
-  Never on an ember cell (3.8:1 there); text in cells is at least Orange, the placeholder
-  excepted. The darker Ember Empty is the exception (4.7:1): an empty binding slot's word is
-  Orange Mid. *Why:* one step down for what supports the main value, still above 4.5:1 where it
-  is used.
+- **Orange Mid** (`orange-mid`, 6.3:1 on Void, 5.9:1 on Hull): units, column heads,
+  secondary facts such as the system after a station name, inactive tabs, icons at rest, and
+  the few labels a value needs. Use labels sparingly: a value that says what it is (a system
+  name, "7 jumps", "27.4 / 32 t") needs no label in front of it, and a label it doesn't need is
+  one more Orange Mid word to read past. Never on an ember cell (4.7:1 there): text in cells is
+  at least Orange, the placeholder excepted. The darker Ember Empty is the exception (5.8:1): an
+  empty binding slot's word is Orange Mid. *Why:* one step down for what supports the main
+  value, far enough above 4.5:1 to read from the seat beside the game.
 - **Orange Dim** (`orange-dim`, 3.3:1 on Void, 3.1:1 on Hull): unavailable, zero, disabled.
   It is state, not content, and knowingly below WCAG AA: it says "not this one", and it never
   carries text the commander needs in order to act. Anything they must read to decide stays
   at Orange Mid or brighter. *Why:* the trader's empty tiles: still legible, plainly absent,
   no word needed.
-- **On Orange** (`on-orange`, 6.7:1 on Orange): text and icons on an orange fill, and the
+- **On Orange** (`on-orange`, 7.1:1 on Orange): text and icons on an orange fill, and the
   focus outline on a filled element.
-- **Placeholder** (`placeholder`, Orange at 75 % opacity, 3.5:1 on an ember cell): the hint
+- **Placeholder** (`placeholder`, Orange at 75 % opacity, 3.6:1 on an ember cell): the hint
   text in an empty input, and nothing else. It disappears as soon as there is a value, and the
   input always has a label of its own (visible, or an accessible name for the header's Find
   or plot). *Why:* one step below the value it stands in for, without a second hue in a cell.
@@ -377,7 +381,7 @@ anti-aliased samples read darker than the game draws them.
   the commander can change (input, dropdown, choice, binding slot, Settings value). *Why:*
   the game's binding and option cells are this brown; making it brighter than the hull keeps
   "can change" visible at a glance. The hover is only as bright as keeps Orange text at 4.5:1
-  (4.6:1); the placeholder there is 3.3:1, a hint the input's own label backs up.
+  (4.8:1); the placeholder there is 3.4:1, a hint the input's own label backs up.
 - **Ember Empty** (`ember-empty`): an unbound binding slot. *Why:* the game draws empty slots
   like filled ones; we make them visibly empty (see Deviations).
 - **Seam** (`seam`): the only line colour besides orange: section rules, column-head
@@ -457,7 +461,12 @@ for everything, including paths and logs. *Why:* condensed and square-shouldered
 game's lettering without copying it; the variable file has tabular figures (the static
 Semi Condensed files do not) and replaced three files (two Saira cuts and Share Tech Mono).
 `tokens.css` sets the face, its width and tabular figures once on the page, so every element
-has them; the `font` shorthand resets the width, so set `font-stretch` after it.
+has them; the `font` shorthand resets the width, so set `font-stretch` after it. It also sets
+weight 500, so text is 500 unless its role below says otherwise; Body, Label and Meta are 400.
+*Why:* orange text at 400 looked thin and washed out at the game's distance.
+
+The sizes below are CSS px at zoom 1, a window up to 1000 px tall. The window scales them all with
+its height ([The Height Scale Rule](#named-rules-1)).
 
 ### Hierarchy
 
@@ -471,7 +480,7 @@ has them; the `font` shorthand resets the width, so set `font-stretch` after it.
 | Section | 13 / 600, tracking 0.06em | caps | orange; current section white | section headings, with a Seam rule to the right |
 | Name | 15 / 500 / 1.3 | mixed | orange; white or options grey under The Lifted Name Rule | station, material, ship, engineer names; page tabs |
 | Body | 15 / 400 / 1.45, max 68ch | sentence | prose grey | paragraphs |
-| Figures | 15 / 400, tabular | figures | orange | numbers in columns and cells |
+| Figures | 15 / 500, tabular | figures | orange | numbers in columns and cells |
 | Label | 13 / 400 / 1.3 | sentence | orange mid | column heads, field labels, units, secondary facts, badges |
 | Meta | 12 / 400, tabular | figures | orange mid | corner marks in tiles |
 | Action | 13 / 600, tracking 0.06em | caps | orange; on orange on a fill | buttons and text actions |
@@ -490,6 +499,33 @@ tabs, section headings and action words. Names, column heads, labels, badges, st
 and prose are mixed or sentence case. *Why:* when everything is caps (the audit counted about
 140 caps rules), caps signal nothing; mixed case also reads faster, and procedural system
 names carry meaning in their case ("Synuefe GW-Z a54-3", "HR-W d1-42").
+
+**The Height Scale Rule.** The whole window scales with its height, as the game scales its UI
+with the screen's. One root zoom does it, so every px value in this document and in
+`tokens.css` stays as written:
+
+    zoom = clamp(1, min(height / 1000, width / 1100), 1.8) × text size
+
+`height` and `width` are the window's, in CSS px. The width term keeps the layout at least
+1100 px wide (see [Frame](#frame)), so a tall, narrow window is not zoomed past its width. The
+floor of 1 means text never shrinks below these sizes, and a short window scrolls. The cap is
+1.8. The commander's **Text size** (Settings → General: Smaller, Normal, Larger, which is 0.85,
+1 and 1.15) multiplies the result; it is `[window] text_size` in the core's config.
+
+| Window | Zoom at Normal |
+|---|---|
+| 1100 × 700 | 1 (unchanged) |
+| 1920 × 1080 | 1.08 |
+| 2560 × 1440 | 1.44 |
+| 3840 × 2160 | 1.8 (capped) |
+| 1100 × 1400 | 1 (the width term) |
+
+`app/src/lib/scale.svelte.ts` sets it on the root as `zoom` and `--zoom`. CSS zoom scales `vh`
+and `vw` as well, so a size taken from the window uses `--win-h` (its height) or `--win-w` (1 %
+of its width), and a page's narrow-window rule is a container query on the frame,
+`@container win (max-width: …)`, which measures the layout. A media query measures the screen,
+and would leave a zoomed window on its wide layout. *Why:* fixed px sizes left a 1440p or 4K
+window's text about the size of the game's smallest; the game reads the same on any screen.
 
 **The Tabular Rule.** Every number uses tabular figures, and a column of quantities is
 right-aligned. A tile's value sits where its tile spec puts it (the material tile's count top
@@ -517,7 +553,10 @@ wide separations let grouping be seen without boxes.
 | Page tabs | 44 px | one row, only when the area has more than one page |
 | Page | rest | scrolls; the frame does not |
 
-Side margins 40 px; minimum window width 1100 px. The only width-dependent change in the frame is
+Side margins 40 px; minimum window width 1100 px. Every size here is in CSS px before the root
+zoom ([The Height Scale Rule](#named-rules-1)), and 1100 px is the narrowest the zoomed layout
+gets at Normal text size: the header's widths above are layout widths, the window's divided by
+its zoom. The only width-dependent change in the frame is
 the header's second tab row (decision astromech-ghyo, 5 Nov 2026).
 
 The top tabs start with **NOW**, and the window opens on the Now page: what the commander is
@@ -861,11 +900,11 @@ in tokens.css only until the last page using it moves onto a layout.
 | ember-cell | `--cell` | #3d220f |
 | ember-cell-hover | `--cell-hover` | #482810 |
 | ember-empty | `--cell-empty` | #1c1610 |
-| orange | `--accent` | #fa6e00 |
+| orange | `--accent` | #ff7100 |
 | orange-lit | `--orange-lit` | #ffa04a |
-| orange-mid | `--orange-mid` | #c26c32 |
+| orange-mid | `--orange-mid` | #d97a34 |
 | orange-dim | `--orange-dim` | #8a5834 |
-| placeholder | `--placeholder` | #fa6e00bf (Orange at 75 %) |
+| placeholder | `--placeholder` | #ff7100bf (Orange at 75 %) |
 | on-orange | `--on-accent` | #0c0d0f |
 | white | `--text-hi` | #ffffff |
 | options-grey | `--options-grey` | #e0e0e0 |
@@ -883,6 +922,9 @@ in tokens.css only until the last page using it moves onto a layout.
 | Meta, Label/Section/Action, Body/Name/Nav/Figures | `--fs-xs`, `--fs-s`, `--fs` | 12, 13, 15 px |
 | Value L and wordmark, Title, Value XL | `--fs-l`, `--fs-xl`, `--fs-xxl` | 18, 24, 28 px |
 | Caps tracking | `--caps` | 0.06em |
+| The root zoom (The Height Scale Rule) | `--zoom` | set by `lib/scale.svelte.ts`; 1 to 1.8, times the text size |
+| The window's height, 1 % of its width, under the zoom | `--win-h`, `--win-w` | `100vh / --zoom`, `1vw / --zoom` |
+| The frame's side margins | `--side` | 16 to 40 px: 3 % of the window's width |
 | The face | `--face`, `--face-stretch` | Saira Variable at 87.5 % |
 
 ## Deviations from the game

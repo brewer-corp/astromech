@@ -79,6 +79,21 @@ describe("Settings → Voice responses", () => {
   });
 });
 
+describe("Settings → General → Window, Text size", () => {
+  it("scales the window at once and saves the size", async () => {
+    on("ready", "#/settings");
+    render(App);
+    const root = document.documentElement;
+    // The tests' 1200 x 800 window is under the height scale's 1000 px: Normal is 1.
+    await waitFor(() => expect(root.style.zoom).toBe("1"));
+    await fireEvent.click(await screen.findByRole("button", { name: "Larger" }));
+    expect(root.style.zoom).toBe("1.15");
+    expect((await previewAnswer("window_settings")).text_size).toBe("larger");
+    expect(screen.getByRole("button", { name: "Larger" }).getAttribute("aria-pressed")).toBe("true");
+    root.style.zoom = "";
+  });
+});
+
 describe("first launch", () => {
   it("opens onboarding until it's finished", async () => {
     on("new");

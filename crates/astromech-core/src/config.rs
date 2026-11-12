@@ -129,6 +129,34 @@ pub struct Edsm {
     pub commander: String,
 }
 
+/// The window's text size (Settings → General): a step on top of the scale the window takes from
+/// its height (DESIGN.md Typography).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+#[serde(rename_all = "lowercase")]
+pub enum TextSize {
+    Smaller,
+    #[default]
+    Normal,
+    Larger,
+}
+
+impl TextSize {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            TextSize::Smaller => "smaller",
+            TextSize::Normal => "normal",
+            TextSize::Larger => "larger",
+        }
+    }
+}
+
+/// The app window's own settings.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Window {
+    pub text_size: TextSize,
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
@@ -141,6 +169,7 @@ pub struct Config {
     pub callouts: astromech_announce::Settings,
     pub eddn: Eddn,
     pub edsm: Edsm,
+    pub window: Window,
     /// Where astromech keeps its database, logs and TTS cache. Empty: `astromech-data` next to the exe.
     pub data_dir: String,
 }

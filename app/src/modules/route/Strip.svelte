@@ -109,7 +109,7 @@
 <style>
   /* One line, always: the warning gives way first, then the destination; the next system, the
      strip's main value, keeps its width up to a third of the strip. */
-  .strip { display: flex; align-items: center; gap: var(--sp-3); height: var(--strip); min-width: 0; padding: 0 clamp(16px, 3vw, 40px); background: var(--surface); white-space: nowrap; overflow: hidden; }
+  .strip { display: flex; align-items: center; gap: var(--sp-3); height: var(--strip); min-width: 0; padding: 0 var(--side); background: var(--surface); white-space: nowrap; overflow: hidden; }
   .label { color: var(--orange-mid); font-size: var(--fs-s); }
   .sys { color: var(--orange-lit); font-size: var(--fs); font-weight: 500; max-width: 33%; overflow: hidden; text-overflow: ellipsis; flex: none; margin-right: calc(-1 * var(--sp-2)); }
   .of { color: var(--orange-mid); font-size: var(--fs); flex: none; }

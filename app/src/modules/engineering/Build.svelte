@@ -523,7 +523,7 @@
   .sublabel { margin: 20px 8px 8px; color: var(--orange-mid); font-size: var(--fs-s); }
   .then { display: block; margin: 4px 0 4px 0; color: var(--orange-mid); }
   .link:hover { color: var(--orange-lit); }
-  .side { grid-column: 2; position: sticky; top: 0; align-self: start; max-height: calc(100vh - 150px); overflow-y: auto; border-left: 1px solid var(--accent); padding: 20px 8px 28px 24px; }
+  .side { grid-column: 2; position: sticky; top: 0; align-self: start; max-height: calc(var(--win-h) - 150px); overflow-y: auto; border-left: 1px solid var(--accent); padding: 20px 8px 28px 24px; }
   .back { display: block; margin-bottom: 10px; color: var(--orange-mid); font-size: var(--fs-s); }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .about p { margin: 0 0 10px; line-height: 1.45; }
@@ -533,7 +533,7 @@
   .err::before { content: "! "; font-weight: 600; }
   .rolls { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 8px 0 12px; }
   .rolls label { display: flex; flex-direction: column; gap: 4px; color: var(--orange-mid); font-size: var(--fs-s); }
-  @media (max-width: 1100px) {
+  @container win (max-width: 1100px) {
     section { display: flex; flex-direction: column; }
     .main { padding: 20px 0 8px; }
     .side { border-left: 0; border-top: 1px solid var(--accent); padding: 16px 0 20px; max-height: none; position: static; }

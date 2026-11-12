@@ -221,10 +221,10 @@
   .warn::before { content: "! "; font-weight: 600; }
   .small { font-size: var(--fs-s); margin: 0 8px; }
   p { margin: 0 0 8px; }
-  @media (max-width: 1100px) {
+  @container win (max-width: 1100px) {
     .fields { grid-template-columns: minmax(0, 1fr); }
   }
-  @media (max-width: 900px) {
+  @container win (max-width: 900px) {
     .form-grid { grid-template-columns: minmax(0, 1fr); }
     .form-grid > :global(.kinds) { grid-column: 1; grid-row: auto; }
     li { grid-template-columns: minmax(0, 1fr); }

@@ -897,7 +897,7 @@ impl Core {
                     self.apply_voice();
                 }
                 self.notify();
-                let now = matches!(r.cmd.as_str(), "set_voice" | "set_eddn" | "set_edsm");
+                let now = matches!(r.cmd.as_str(), "set_voice" | "set_eddn" | "set_edsm" | "set_window");
                 Answer::ok(Applies { applies_next_session: !now && self.active() })
             }
             Err(e) => Answer::failed(format!("{e:#}")),
@@ -1199,6 +1199,10 @@ impl Core {
         add::<crate::setup::args::Voice, _>(&mut reg, self, &["set_voice"], Window, |c, r| c.edit_config(r));
         add::<crate::setup::args::Eddn, _>(&mut reg, self, &["set_eddn"], Window, |c, r| c.edit_config(r));
         add::<crate::setup::args::Callout, _>(&mut reg, self, &["set_callout"], Window, |c, r| c.edit_config(r));
+        add::<crate::setup::args::Window, _>(&mut reg, self, &["set_window"], Window, |c, r| c.edit_config(r));
+        add::<(), _>(&mut reg, self, &["window_settings"], Window, |c, _| {
+            Done::new(WindowSettings { text_size: c.cfg().window.text_size })
+        });
         add::<(), _>(&mut reg, self, &["callouts"], Window, |c, _| crate::callouts::callouts_json(&c.cfg().callouts));
         add::<(), _>(&mut reg, self, &["edsm_status"], Window, |c, _| {
             let cfg = c.cfg();
@@ -1554,6 +1558,12 @@ mod replies {
         pub voices: Vec<crate::speech::VoiceChoice>,
         /// The slowest and fastest speed.
         pub speeds: [f32; 2],
+    }
+
+    /// `window_settings`: the window's text size, which it multiplies its height scale by.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct WindowSettings {
+        pub text_size: crate::config::TextSize,
     }
 
     /// `voice_test`: what the phrase would do.

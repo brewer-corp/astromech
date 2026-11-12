@@ -96,7 +96,7 @@
 </div>
 
 <style>
-  .frame { height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+  .frame { container: win / inline-size; height: var(--win-h); display: grid; grid-template-rows: auto 1fr; }
   header { display: flex; align-items: center; gap: 40px; height: 64px; margin: 0 40px; border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
   /* The area's one top tab, active: Nav caps on a solid orange box. */
