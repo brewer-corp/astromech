@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-z5oh
 title: 'Type roles: every tile, row and card shows one main value at its DESIGN.md size'
-status: in_review
+status: changes_requested
 mission: astromech-xajc
 labels:
 - size-m
