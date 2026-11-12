@@ -1,0 +1,578 @@
+{
+ "route-1100x700": {
+  "file": "docs/design/increment1/route-1100x700.png",
+  "zoom": 1,
+  "docScroll": [
+   1100,
+   1100
+  ],
+  "mainScroll": [
+   1090,
+   1090
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": true
+ },
+ "route-1920x1080": {
+  "file": "docs/design/increment1/route-1920x1080.png",
+  "zoom": 1.08,
+  "docScroll": [
+   1920,
+   1920
+  ],
+  "mainScroll": [
+   1769,
+   1769
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "route-2560x1440": {
+  "file": "docs/design/increment1/route-2560x1440.png",
+  "zoom": 1.44,
+  "docScroll": [
+   2560,
+   2560
+  ],
+  "mainScroll": [
+   1771,
+   1771
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "route-3840x2160": {
+  "file": "docs/design/increment1/route-3840x2160.png",
+  "zoom": 1.8,
+  "docScroll": [
+   3840,
+   3840
+  ],
+  "mainScroll": [
+   2128,
+   2128
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "materials-1100x700": {
+  "file": "docs/design/increment1/materials-1100x700.png",
+  "zoom": 1,
+  "docScroll": [
+   1100,
+   1100
+  ],
+  "mainScroll": [
+   1090,
+   1090
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": true
+ },
+ "materials-1920x1080": {
+  "file": "docs/design/increment1/materials-1920x1080.png",
+  "zoom": 1.08,
+  "docScroll": [
+   1920,
+   1920
+  ],
+  "mainScroll": [
+   1769,
+   1769
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "materials-2560x1440": {
+  "file": "docs/design/increment1/materials-2560x1440.png",
+  "zoom": 1.44,
+  "docScroll": [
+   2560,
+   2560
+  ],
+  "mainScroll": [
+   1771,
+   1771
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "materials-3840x2160": {
+  "file": "docs/design/increment1/materials-3840x2160.png",
+  "zoom": 1.8,
+  "docScroll": [
+   3840,
+   3840
+  ],
+  "mainScroll": [
+   2128,
+   2128
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "places-sell-1100x700": {
+  "file": "docs/design/increment1/places-sell-1100x700.png",
+  "zoom": 1,
+  "docScroll": [
+   1100,
+   1100
+  ],
+  "mainScroll": [
+   1090,
+   1090
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": true
+ },
+ "places-sell-1920x1080": {
+  "file": "docs/design/increment1/places-sell-1920x1080.png",
+  "zoom": 1.08,
+  "docScroll": [
+   1920,
+   1920
+  ],
+  "mainScroll": [
+   1769,
+   1769
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "places-sell-2560x1440": {
+  "file": "docs/design/increment1/places-sell-2560x1440.png",
+  "zoom": 1.44,
+  "docScroll": [
+   2560,
+   2560
+  ],
+  "mainScroll": [
+   1771,
+   1771
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "places-sell-3840x2160": {
+  "file": "docs/design/increment1/places-sell-3840x2160.png",
+  "zoom": 1.8,
+  "docScroll": [
+   3840,
+   3840
+  ],
+  "mainScroll": [
+   2128,
+   2128
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "places-sell-selected-1100x700": {
+  "file": "docs/design/increment1/places-sell-selected-1100x700.png",
+  "zoom": 1,
+  "docScroll": [
+   1100,
+   1100
+  ],
+  "mainScroll": [
+   1090,
+   1090
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": true
+ },
+ "places-sell-selected-1920x1080": {
+  "file": "docs/design/increment1/places-sell-selected-1920x1080.png",
+  "zoom": 1.08,
+  "docScroll": [
+   1920,
+   1920
+  ],
+  "mainScroll": [
+   1769,
+   1769
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "places-sell-selected-2560x1440": {
+  "file": "docs/design/increment1/places-sell-selected-2560x1440.png",
+  "zoom": 1.44,
+  "docScroll": [
+   2560,
+   2560
+  ],
+  "mainScroll": [
+   1771,
+   1771
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "places-sell-selected-3840x2160": {
+  "file": "docs/design/increment1/places-sell-selected-3840x2160.png",
+  "zoom": 1.8,
+  "docScroll": [
+   3840,
+   3840
+  ],
+  "mainScroll": [
+   2128,
+   2128
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "trade-commodities-1100x700": {
+  "file": "docs/design/increment1/trade-commodities-1100x700.png",
+  "zoom": 1,
+  "docScroll": [
+   1100,
+   1100
+  ],
+  "mainScroll": [
+   1090,
+   1090
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "trade-commodities-1920x1080": {
+  "file": "docs/design/increment1/trade-commodities-1920x1080.png",
+  "zoom": 1.08,
+  "docScroll": [
+   1920,
+   1920
+  ],
+  "mainScroll": [
+   1769,
+   1769
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "trade-commodities-2560x1440": {
+  "file": "docs/design/increment1/trade-commodities-2560x1440.png",
+  "zoom": 1.44,
+  "docScroll": [
+   2560,
+   2560
+  ],
+  "mainScroll": [
+   1771,
+   1771
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "trade-commodities-3840x2160": {
+  "file": "docs/design/increment1/trade-commodities-3840x2160.png",
+  "zoom": 1.8,
+  "docScroll": [
+   3840,
+   3840
+  ],
+  "mainScroll": [
+   2128,
+   2128
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "settings-general-1100x700": {
+  "file": "docs/design/increment1/settings-general-1100x700.png",
+  "zoom": 1,
+  "docScroll": [
+   1100,
+   1100
+  ],
+  "mainScroll": [
+   1090,
+   1090
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": true
+ },
+ "settings-general-1920x1080": {
+  "file": "docs/design/increment1/settings-general-1920x1080.png",
+  "zoom": 1.08,
+  "docScroll": [
+   1920,
+   1920
+  ],
+  "mainScroll": [
+   1769,
+   1769
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": true
+ },
+ "settings-general-2560x1440": {
+  "file": "docs/design/increment1/settings-general-2560x1440.png",
+  "zoom": 1.44,
+  "docScroll": [
+   2560,
+   2560
+  ],
+  "mainScroll": [
+   1771,
+   1771
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": true
+ },
+ "settings-general-3840x2160": {
+  "file": "docs/design/increment1/settings-general-3840x2160.png",
+  "zoom": 1.8,
+  "docScroll": [
+   3840,
+   3840
+  ],
+  "mainScroll": [
+   2128,
+   2128
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": true
+ },
+ "powerplay-1100x700": {
+  "file": "docs/design/increment1/powerplay-1100x700.png",
+  "zoom": 1,
+  "docScroll": [
+   1100,
+   1100
+  ],
+  "mainScroll": [
+   1090,
+   1090
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": true
+ },
+ "powerplay-1920x1080": {
+  "file": "docs/design/increment1/powerplay-1920x1080.png",
+  "zoom": 1.08,
+  "docScroll": [
+   1920,
+   1920
+  ],
+  "mainScroll": [
+   1769,
+   1769
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "powerplay-2560x1440": {
+  "file": "docs/design/increment1/powerplay-2560x1440.png",
+  "zoom": 1.44,
+  "docScroll": [
+   2560,
+   2560
+  ],
+  "mainScroll": [
+   1771,
+   1771
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "powerplay-3840x2160": {
+  "file": "docs/design/increment1/powerplay-3840x2160.png",
+  "zoom": 1.8,
+  "docScroll": [
+   3840,
+   3840
+  ],
+  "mainScroll": [
+   2128,
+   2128
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "exploration-1100x700": {
+  "file": "docs/design/increment1/exploration-1100x700.png",
+  "zoom": 1,
+  "docScroll": [
+   1100,
+   1100
+  ],
+  "mainScroll": [
+   1090,
+   1090
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": true
+ },
+ "exploration-1920x1080": {
+  "file": "docs/design/increment1/exploration-1920x1080.png",
+  "zoom": 1.08,
+  "docScroll": [
+   1920,
+   1920
+  ],
+  "mainScroll": [
+   1769,
+   1769
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "exploration-2560x1440": {
+  "file": "docs/design/increment1/exploration-2560x1440.png",
+  "zoom": 1.44,
+  "docScroll": [
+   2560,
+   2560
+  ],
+  "mainScroll": [
+   1771,
+   1771
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ },
+ "exploration-3840x2160": {
+  "file": "docs/design/increment1/exploration-3840x2160.png",
+  "zoom": 1.8,
+  "docScroll": [
+   3840,
+   3840
+  ],
+  "mainScroll": [
+   2128,
+   2128
+  ],
+  "small": [],
+  "clipped": [],
+  "overlaps": [],
+  "far": [],
+  "offRight": [],
+  "mainScrollsY": false
+ }
+}
