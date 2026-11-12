@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-mwh5
 title: 'Page layouts: Board, List with detail, Workbench and Form replace the width caps'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -100,3 +100,4 @@ Four pages now use the window through a layout instead of a width cap, and a lin
 - 1-3fjf.1: fixed in a9508970. A panel action's note, failure and TRY AGAIN now show under the panel's buttons; places/Market.browser.test.ts finds the note inside the panel, and failed before the fix.
 - 1-3fjf.2: fixed in a9508970. A hovered selected row's icons are On Orange (rgb(12, 13, 15) in Chromium), and the row's icon buttons focus with an On Orange outline inset 2 px.
 - 1-3fjf.3: fixed in a9508970. stacks() uses the panel's full track, PANEL_TRACK = 320 + 24 + 1; the new lib/ui/layout/layout.test.ts failed before the fix. On Sell at 1410 x 900 the panel stacks and the list keeps all nine columns.
+- 2-ryk4.4: fixed in c223ace2. Split now waits on the panel element and scrolls once per selection; the Sell finder test selects a result in a 1100 x 500 window and checks the panel is on screen (failed before the fix). In the app at 1100 x 700 the first and second selections both bring the panel into view.
