@@ -83,6 +83,10 @@ input[type="checkbox"] { accent-color: var(--accent); }
 .section.current { color: var(--text-hi); }
 .section.current::after { background: var(--accent); }
 
+/* A finder's typed or dropped-down main input is 320 px, as Find or plot; a choice keeps its
+   cells' width. The width is the design system's, so a finder page sets none (page-sizing). */
+.finder-main > :is(.field, .dropdown) { width: 320px; }
+
 /* Scrollbars: a thin Orange Dim thumb on no track, like the game's lists; it brightens up the
    ramp under the pointer and while dragged. (Seam at rest was 1.4:1 on Void, nearly invisible.) */
 * { scrollbar-width: thin; scrollbar-color: var(--orange-dim) transparent; }

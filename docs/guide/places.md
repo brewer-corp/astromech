@@ -190,6 +190,9 @@ Colonisation, Powerplay and a ship's build plan (Engineering).
   (the [route strip](routes.md#the-route-strip) under the header), and **Set destination** makes it the whole route, pausing the old one
   ([Routes](routes.md#from-a-search-result)). The line under the list
   says which jump range was used, who the source is and how old the answer is.
+- **Details.** Click a result, or its name, to select it. A panel beside the list shows it: the
+  station or system, what the list is ranked by, every fact under its head, and **Set
+  destination** and **Add stop**. In a small window the panel sits below the list.
 - **Narrow panels.** Where a list sits in a narrow side panel (a build plan's material sources,
   Powerplay's "Where to work"), each row keeps only what it is ranked by, the place and
   the two buttons.

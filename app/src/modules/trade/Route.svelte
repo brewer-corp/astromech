@@ -3,6 +3,8 @@
   // best cargo back, for the hold, credits, pad and hop distance. The numbers start from the
   // current ship and the journal and can be changed; the filters are remembered as
   // `trade.route`. Spansh works the route out as a job, so it runs only on "Find route".
+  // DESIGN.md's Workbench: the question on the left, under the page's own lead, and the answer
+  // on the right.
   import Failure from "../../lib/ui/Failure.svelte";
   import Button from "../../lib/ui/Button.svelte";
   import Choice from "../../lib/ui/Choice.svelte";
@@ -15,6 +17,10 @@
   import SearchFilters from "../../lib/ui/SearchFilters.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import { failure } from "../../lib/ui/errors";
+  import Workbench from "../../lib/ui/layout/Workbench.svelte";
+  import type { Snippet } from "svelte";
+
+  let { lead }: { /** Above the inputs: where else to look. */ lead?: Snippet } = $props();
 
   const LOOKUP = "trade.route";
   /** Used when the journal has no Loadout yet. */
@@ -100,8 +106,10 @@
   const minutes = (m: number) => (m < 1 ? "under a minute" : `${Math.round(m)} min`);
 </script>
 
-<div class="route">
+<Workbench min={720}>
+  {#snippet inputs()}
   <div class="query">
+    {#if lead}{@render lead()}{/if}
     <div class="form-grid">
       <OriginInput {origin} onchange={(o) => (origin = o)} />
       <Choice
@@ -128,6 +136,7 @@
     {#if defaultsErr}<p class="warn">{defaultsErr}</p>{/if}
     {#if filterErr}<p class="warn">{filterErr}</p>{/if}
   </div>
+  {/snippet}
 
   <div class="out">
     {#if busy}
@@ -182,24 +191,23 @@
       <p class="lo">Press Find route to see the {kind === "loop" ? "loop" : "hop"}. Spansh can take a minute.</p>
     {/if}
   </div>
-</div>
+</Workbench>
 
 <style>
-  .route { display: flex; flex-direction: column; min-width: 0; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 12px 20px 20px; border-bottom: 1px solid var(--line); }
-  .query :global(.origin) { margin: 0; min-width: 0; grid-column: 1; }
-  .form-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 18px; align-items: center; }
-  .form-grid > :global(.kinds) { grid-column: 2; grid-row: 1; }
-  .pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs); grid-column: 1; min-width: 0; }
+  /* The inputs: one column of label and cell, the kind first, Find route last. */
+  .query { display: flex; flex-direction: column; gap: 12px; }
+  .query :global(.origin) { margin: 0; min-width: 0; }
+  .form-grid { display: flex; flex-direction: column; gap: 12px; }
+  .pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs); min-width: 0; }
   .lbl { color: var(--orange-mid); min-width: 5.5em; font-size: var(--fs-s); }
   .pick :global(.box) { flex: 1; }
-  .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; grid-column: 1; min-width: 0; }
+  .fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; min-width: 0; }
   label { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); align-items: center; gap: 8px; font-size: var(--fs-s); min-width: 0; }
   label > span { color: var(--orange-mid); }
   .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
   .tools :global(.filters) { flex: 1 1 auto; }
   .tools :global(.go) { margin-left: auto; }
-  .out { padding: 24px 8px 28px; }
+  .out { min-width: 0; }
   /* The answer's title: white, mixed case (system names carry meaning in their case). */
   h4 { margin: 0 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); }
   ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
@@ -221,12 +229,7 @@
   .warn::before { content: "! "; font-weight: 600; }
   .small { font-size: var(--fs-s); margin: 0 8px; }
   p { margin: 0 0 8px; }
-  @media (max-width: 1100px) {
-    .fields { grid-template-columns: minmax(0, 1fr); }
-  }
   @media (max-width: 900px) {
-    .form-grid { grid-template-columns: minmax(0, 1fr); }
-    .form-grid > :global(.kinds) { grid-column: 1; grid-row: auto; }
     li { grid-template-columns: minmax(0, 1fr); }
     .facts { align-items: flex-start; text-align: left; }
     .meta { white-space: normal; }

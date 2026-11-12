@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import { FINDERS, forgetAnswers, lastAnswer, type FinderId } from "../../lib/places";
 import { DEFAULT_FILTERS } from "../../lib/search";
 import type { CargoSearch, Side, TradeSearch } from "../../lib/trade";
 import type { Args } from "../../lib/transport";
-import { answer, previewAnswer, watch } from "../../test/transport";
+import { answer, previewAnswer, startPreview, watch } from "../../test/transport";
 import Cargo from "./Cargo.svelte";
 import Market from "./Market.svelte";
 
@@ -46,6 +46,24 @@ afterEach(() => {
 });
 
 describe("Sell and Buy finders", () => {
+  it("fills the side panel from the selected result: every fact under its head, and its two actions", async () => {
+    startPreview("/?core=ready#/places/sell/painite");
+    render(Market, { finder: finder("sell") });
+    expect(screen.queryByRole("complementary", { name: "Details" })).toBeNull();
+    const [pick] = within(await screen.findByRole("table", { name: "Results" })).getAllByRole("button", { pressed: false });
+    const name = pick!.textContent!;
+    await fireEvent.click(pick!);
+    expect(pick!.getAttribute("aria-pressed")).toBe("true");
+    const panel = within(screen.getByRole("complementary", { name: "Details" }));
+    expect(panel.getByRole("heading", { name }).textContent).toBe(name);
+    // The heads the row has, each with its value, though the row may be too narrow to show them.
+    expect(panel.getAllByRole("term").map((d) => d.textContent)).toEqual(
+      expect.arrayContaining(["Distance", "Pad", "Updated"]),
+    );
+    await fireEvent.click(panel.getByRole("button", { name: "Set destination" }));
+    expect(await screen.findByText(/Following\. .+ is on your clipboard\./)).toBeTruthy();
+  });
+
   it("opens Sell on painite near you, and switches to the best prices anywhere, in price order with data age and no radius filter", async () => {
     location.hash = "#/places/sell";
     render(Market, { finder: finder("sell") });

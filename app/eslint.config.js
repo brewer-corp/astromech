@@ -3,6 +3,31 @@ import svelte from "eslint-plugin-svelte";
 import globals from "globals";
 import ts from "typescript-eslint";
 import tests from "./eslint-rules/tests.js";
+import pageSizing from "./eslint-rules/pageSizing.js";
+
+/**
+ * The page-sizing check (DESIGN.md Page layouts): the page files it is on, and which of its parts
+ * (`width`, `font-size`). A page is enrolled when it is converted to a layout, a part at a time;
+ * by the end of mission astromech-xajc every page file outside PAGE_SIZING_EXEMPT is listed.
+ * An entry is a file or a glob under src/modules/.
+ */
+export const PAGE_SIZING = [
+  // astromech-mwh5: one page per layout.
+  ["src/modules/materials/View.svelte", "width"],
+  ["src/modules/places/FinderPage.svelte", "width"],
+  ["src/modules/places/{Market,Cargo,Services,Outfitting,Shipyard,Traders,RawSites,FactionStates,Hotspots}.svelte", "width"],
+  ["src/modules/trade/{View,Route}.svelte", "width"],
+  ["src/modules/settings/View.svelte", "width"],
+];
+/**
+ * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts
+ * that live in the route module, which are not pages.
+ */
+export const PAGE_SIZING_EXEMPT = [
+  "src/modules/{controller,keybinds,presets,keytester}/**",
+  "src/modules/route/Strip.svelte",
+  "src/modules/route/PlotBar.svelte",
+];
 
 const PREVIEW = {
   group: ["**/preview", "**/preview/*", "**/fakecore", "**/previewquery", "**/fixtures/*"],
@@ -99,4 +124,10 @@ export default ts.config(
     files: ["journeys/harness.ts"],
     rules: { "astromech/no-playwright-time": ["error", { clock: true }] },
   },
+  ...PAGE_SIZING.map(([files, ...parts]) => ({
+    files: [files],
+    ignores: PAGE_SIZING_EXEMPT,
+    plugins: { "page-sizing": pageSizing },
+    rules: Object.fromEntries(parts.map((p) => [`page-sizing/${p}`, "error"])),
+  })),
 );
