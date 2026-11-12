@@ -85,8 +85,8 @@
           label="Search range"
           value={want.anywhere ? "anywhere" : "near"}
           options={[
-            { value: "near", label: "Near", title: `Within a distance of the origin` },
-            { value: "anywhere", label: "Anywhere", title: "Ardent's best 100 prices in the galaxy that pass the filters" },
+            { value: "near", label: "Near", tip: `Within a distance of the origin` },
+            { value: "anywhere", label: "Anywhere", tip: "Ardent's best 100 prices in the galaxy that pass the filters" },
           ]}
           onchange={(v) => go({ ...want, anywhere: v === "anywhere" })}
         />

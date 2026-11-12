@@ -7,6 +7,7 @@
   // header box's Find or plot shortcut. The destination opens the Route page, which has the whole
   // list, import and Resume. A read or action that failed is DESIGN.md's hard error: a red "!",
   // the words, and TRY AGAIN, which repeats it.
+  import { tip } from "../../lib/ui/tip";
   import { copyNext, getRoute, resumeRoute, stopFlags, watchRoute, type RouteView } from "../../lib/route";
   import { failure, pollFailure } from "../../lib/ui/errors";
   import Badge from "../../lib/ui/Badge.svelte";
@@ -94,7 +95,7 @@
 
   <span class="grow"></span>
   {#if route && next && dest}
-    <a class="to" href="#/route" title={`${route.name}: show the whole route`}>
+    <a class="to" href="#/route" {@attach tip(`${route.name}: show the whole route`)}>
       <span class="label">To</span>
       <span class="dest">{dest.system}</span>
       <span class="left"><span class="n">{left.n}</span> <span class="label">{left.unit}</span></span>
@@ -102,7 +103,7 @@
   {:else if view?.parked && !next}
     <span class="label">Paused</span>
     <span class="dest">{view.parked.name}</span>
-    <Button title={`Follow ${view.parked.name} again`} onclick={() => run(resumeRoute, "resume the route")}>Resume</Button>
+    <Button {@attach tip(`Follow ${view.parked.name} again`)} onclick={() => run(resumeRoute, "resume the route")}>Resume</Button>
   {/if}
 </div>
 

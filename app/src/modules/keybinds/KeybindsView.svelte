@@ -2,6 +2,7 @@
   // All keybinds (docs/V1-DESIGN.md §3.1): the game's Controls list, improved. Search, context
   // and state filters, issue counts per group, inline health markers, empty slots that look
   // empty, and pressing any control jumps to what it does.
+  import { tip } from "../../lib/ui/tip";
   import Button from "../../lib/ui/Button.svelte";
   import Choice from "../../lib/ui/Choice.svelte";
   import Input from "../../lib/ui/Input.svelte";
@@ -131,7 +132,7 @@
             <div class="row item" id="row-{r.id}" class:sel={selId === r.id} class:hit={hits.includes(r.id)}>
               <button class="name" onclick={() => (selId = r.id)}>{r.name}</button>
               {#if r.analogue}
-                <button class="cell wide" class:empty={!bound(r.slots[0])} title={bound(r.slots[0]) ? "Click to select, click again to rebind" : "Set this axis"} onclick={() => { const again = selId === r.id; selId = r.id; if (!bound(r.slots[0]) || again) bind = { row: r, slot: "Binding" }; }}>{slotText(r.slots[0]) || "Set"}</button>
+                <button class="cell wide" class:empty={!bound(r.slots[0])} {@attach tip(bound(r.slots[0]) ? "Click to select, click again to rebind" : "Set this axis")} onclick={() => { const again = selId === r.id; selId = r.id; if (!bound(r.slots[0]) || again) bind = { row: r, slot: "Binding" }; }}>{slotText(r.slots[0]) || "Set"}</button>
               {:else}
                 {#each ["Primary", "Secondary"] as s (s)}
                   {@const sl = r.slots.find((x) => x.slot === s)}
@@ -139,7 +140,7 @@
                     class="cell"
                     class:empty={!bound(sl)}
                     class:bad={sl && /^Joy_(3[3-9]|[4-9]\d|\d{3})$/.test(sl.key)}
-                    title={bound(sl) ? "Click to select, click again to rebind" : "Set this slot"}
+                    {@attach tip(bound(sl) ? "Click to select, click again to rebind" : "Set this slot")}
                     onclick={() => {
                       const again = selId === r.id;
                       selId = r.id;

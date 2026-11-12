@@ -2,6 +2,7 @@
   // Ship detail: the build plan for one ship of the fleet (blueprint / grade / experimental per
   // module), its stats now and with the plan done, and the materials it costs against the
   // inventory, trades, what to farm and the engineer trip.
+  import { tip } from "../../lib/ui/tip";
   import { untrack } from "svelte";
   import {
     DEFAULT_ROLLS, dropShoppingList, evaluatePlan, fittedLine, groupFitted, loadEngineers, planTrip, savePlan, savedPlan, shareShoppingList, shipStats, shipTitle,
@@ -247,11 +248,11 @@
       {#if ship?.links}
         <span class="open">
           Open in
-          <Button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis <Glyph name="external" /></Button>
-          <Button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY <Glyph name="external" /></Button>
+          <Button {@attach tip("Open this loadout in Coriolis")} onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis <Glyph name="external" /></Button>
+          <Button {@attach tip("Open this loadout in EDSY")} onclick={() => ship?.links && open(ship.links.edsy)}>EDSY <Glyph name="external" /></Button>
         </span>
       {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
-        <span class="open lo" title="You engineered a module since the game last saved this loadout, so the link would show the old build.">Re-dock or relog to refresh the Coriolis / EDSY link</span>
+        <span class="open lo" {@attach tip("You engineered a module since the game last saved this loadout, so the link would show the old build.")}>Re-dock or relog to refresh the Coriolis / EDSY link</span>
       {/if}
     </div>
     {#if linkErr}<p class="lo">{linkErr}</p>{/if}

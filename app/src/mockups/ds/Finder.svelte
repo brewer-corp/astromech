@@ -1,6 +1,7 @@
 <script lang="ts">
   // DESIGN.md mockup: one Places finder layout, two finders. Each has its own title, main input
   // and lead column (the value it ranks by); the row grammar, actions and states are shared.
+  import { tip } from "../../lib/ui/tip";
   import Chrome from "./Chrome.svelte";
   import Copy from "./Copy.svelte";
   import Glyph from "../../lib/ui/Glyph.svelte";
@@ -123,8 +124,8 @@
             </span>
           {/each}
           <span class="acts">
-            <button class="ibtn" title="Add {r.system} as a stop" aria-label="Add {r.system} as a stop"><Glyph name="add-stop" /></button>
-            <button class="ibtn" title="Set {r.system} as the destination (replaces the route)" aria-label="Set {r.system} as the destination"><Glyph name="destination" /></button>
+            <button class="ibtn" aria-label="Add {r.system} as a stop" {@attach tip(`Add ${r.system} as a stop`)}><Glyph name="add-stop" /></button>
+            <button class="ibtn" aria-label="Set {r.system} as the destination" {@attach tip(`Set ${r.system} as the destination (replaces the route)`)}><Glyph name="destination" /></button>
           </span>
         </div>
       {/each}

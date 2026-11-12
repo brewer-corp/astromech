@@ -1,6 +1,7 @@
 <script lang="ts">
   // A ship's stats as fitted ("Now"), with its build plan done ("Plan"), and the difference.
   // Numbers use the precision Coriolis shows, so they can be checked against it.
+  import { tip } from "../../lib/ui/tip";
   import type { ShipStats, StatsComparison } from "../../lib/engineering";
 
   let {
@@ -109,14 +110,14 @@
 
 <div class="stats">
   {#if unknownHull}
-    <p class="warn" title="Hull: {unknownHull}">
+    <p class="warn" {@attach tip(`Hull: ${unknownHull}`)}>
       <span class="mark">!</span> Incomplete: this hull is not in the ship data, so there are no stats for it.
     </p>
   {:else if !stats}
     <p class="lo">{note ?? "Working out the stats…"}</p>
   {:else}
     {#if unresolved.length}
-      <p class="warn" title={unresolved.join("\n")}>
+      <p class="warn" {@attach tip(unresolved.join("\n"))}>
         <span class="mark">!</span> Incomplete: {unresolved.length} {unresolved.length === 1 ? "item is not" : "items are not"} in the ship data
         and {unresolved.length === 1 ? "is" : "are"} left out of these numbers.
       </p>
@@ -133,7 +134,7 @@
             {@const plan = r.get(stats.planned)}
             {@const d = delta(r, now, plan)}
             <tr>
-              <th scope="row" title={r.title}>{r.label}</th>
+              <th scope="row" {@attach tip(r.title)}>{r.label}</th>
               <td>{show(r, now)}</td>
               <td class:changed={d.text !== ""}>{show(r, plan)}</td>
               <td class="d" class:better={d.better}>{d.text}</td>
