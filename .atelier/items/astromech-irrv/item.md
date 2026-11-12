@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-irrv
 title: 'Route page: the title is the plotter'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
@@ -13,7 +13,8 @@ blocked_by:
 - astromech-mwh5
 - astromech-woqv
 - astromech-z5oh
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3Aaf4279c3-1204-452d-9106-7f433154a04e
 ready:
   by: conversion
   at: 2026-11-07T03:00:11.210775156Z
