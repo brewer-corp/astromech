@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-irrv
 title: 'Route page: the title is the plotter'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -77,6 +77,8 @@ Round 1 fixes (commit abce8aae): the header panel's dropdowns now open in the fl
 (`Picker`/`PlotSetup` `inline`), seen unclipped in the full preview at 1100 x 700 and
 2560 x 1440 with Worked out open; the title drops pending suggestions on Escape, clearing,
 pick, plot and blur, with a deferred-reply test that fails on the old code. 620 tests pass.
+Round 2 fix (406bbb1c): Picker moves between options on Up and Down only from its cell or an
+option, so Efficiency keeps its arrows; a test checks focus and the key's default stay.
 
 Checks: `pnpm lint`, `pnpm check`, and the full vitest run (619 tests, 83 files) pass;
 `scripts/check-guide.py` passes. New tests in `Title.browser.test.ts` cover plotting, replot,
@@ -90,6 +92,7 @@ clipped. Note for others on this machine: parallel worktrees collide on vitest's
 
 1-rw9s.1: fixed in abce8aae
 1-rw9s.2: fixed in abce8aae
+2-aisz.3: fixed in 406bbb1c
 
 ## Links
 
