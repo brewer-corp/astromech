@@ -8,7 +8,9 @@
   // status and download, under Worked out). The cell is an ember cell: `label` in Label, the
   // current option in Orange, the chevron. The open list is the popover: Hull Raised, Seam
   // border, the current option filled. Arrows move between options, Enter or a click picks,
-  // Escape or a click outside closes it.
+  // Escape or a click outside closes it. `inline` opens the list in the flow under the cell
+  // instead of over the page, for a container that scrolls and would clip it (the header's plot
+  // panel).
   import type { Snippet } from "svelte";
   import Glyph from "./Glyph.svelte";
 
@@ -19,6 +21,7 @@
     onchange,
     extra,
     shown,
+    inline = false,
   }: {
     label: string;
     value: T;
@@ -27,6 +30,7 @@
     extra?: Snippet;
     /** What the cell says, when it isn't the current option's label. */
     shown?: string;
+    inline?: boolean;
   } = $props();
 
   let open = $state(false);
@@ -81,7 +85,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<span class="picker" bind:this={box} onkeydown={key}>
+<span class="picker" class:inline bind:this={box} onkeydown={key}>
   <button bind:this={cell} type="button" class="cell" aria-haspopup="listbox" aria-expanded={open} aria-controls={id} onclick={toggle}>
     <span class="type-label">{label}</span>
     <span class="val">{shown ?? current?.label ?? ""}</span>
@@ -117,5 +121,7 @@
   .opt[aria-disabled="true"] { cursor: default; color: var(--orange-dim); }
   .opt[aria-disabled="true"] .hint { color: var(--orange-dim); }
   .hint { margin-top: 2px; }
+  .inline { display: flex; flex-direction: column; align-items: flex-start; }
+  .inline .pop { position: static; width: auto; max-width: none; align-self: stretch; }
   .extra { padding: var(--sp-2) var(--sp-3) var(--sp-3); border-top: 1px solid var(--line); }
 </style>

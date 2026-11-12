@@ -10,6 +10,10 @@
   import Picker from "../../lib/ui/Picker.svelte";
   import NeutronFile from "./NeutronFile.svelte";
 
+  /** In a container that scrolls (the header's plot panel): the dropdowns stack and open in the
+   * flow, so nothing they hold is clipped. */
+  let { inline = false }: { inline?: boolean } = $props();
+
   const plotters = [
     { value: "neutron" as Plotter, label: "Neutron", hint: "Stops at neutron stars to boost from" },
     { value: "exact" as Plotter, label: "Exact", hint: "Every jump, with refuel stops" },
@@ -20,8 +24,8 @@
   ]);
 </script>
 
-<span class="setup">
-  <Picker label="Plotter" value={setup.plotter} options={plotters} onchange={(v) => (setup.plotter = v)}>
+<span class="setup" class:inline>
+  <Picker label="Plotter" value={setup.plotter} options={plotters} {inline} onchange={(v) => (setup.plotter = v)}>
     {#snippet extra()}
       {#if setup.plotter === "exact"}
         <label class="check"><input type="checkbox" bind:checked={setup.refuel} /> Refuel at every scoopable star</label>
@@ -31,7 +35,7 @@
     {/snippet}
   </Picker>
   {#if setup.plotter === "neutron"}
-    <Picker label="Worked out" value={setup.worker} options={engines} onchange={(v) => (setup.engine = v)}>
+    <Picker label="Worked out" value={setup.worker} options={engines} {inline} onchange={(v) => (setup.engine = v)}>
       {#snippet extra()}
         <NeutronFile />
         {#if setup.worker === "spansh"}
@@ -46,6 +50,7 @@
 
 <style>
   .setup { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-1); }
+  .inline { display: flex; flex-direction: column; align-items: stretch; }
   .fact { display: inline-flex; align-items: center; gap: var(--sp-3); height: var(--row); padding: 0 var(--sp-3); white-space: nowrap; }
   p { margin: 0; }
   .check { display: flex; align-items: center; gap: var(--sp-2); min-height: var(--row); color: var(--accent); }

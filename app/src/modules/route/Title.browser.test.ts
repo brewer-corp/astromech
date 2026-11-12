@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import Plot from "./Plot.svelte";
 import View from "./View.svelte";
-import { previewAnswer, startPreview, watch } from "../../test/transport";
+import { answer, idle, previewAnswer, sent, startPreview, watch } from "../../test/transport";
 
 // The Route page's title is the plotter: from where the commander is (the preview's commander is
 // in Sol, in an Asp Explorer at 36.48 ly) to a destination edited in place, with the plot setup
@@ -70,6 +70,32 @@ describe("Route page title: plotting", () => {
     await fireEvent.click(within(alert).getByRole("button", { name: "Try again" }));
     expect(await screen.findByText("Plotted by Spansh.")).toBeTruthy();
     expect(screen.queryByRole("alert")).toBeNull();
+  });
+});
+
+describe("Route page title: destination suggestions", () => {
+  it("drops a reply that arrives after Escape or a cleared box", async () => {
+    let reply: (names: string[]) => void = () => {};
+    answer("galaxy_systems", () => new Promise<string[]>((r) => (reply = r)));
+    const asked = () => sent.mock.calls.filter(([c]) => c === "galaxy_systems").length;
+    await openPage("/?core=ready&route=exact");
+
+    await fireEvent.input(dest(), { target: { value: "Col" } });
+    await waitFor(() => expect(asked()).toBe(1));
+    await fireEvent.keyDown(dest(), { key: "Escape" });
+    expect(dest().value).toBe("Maia");
+    reply(["Colonia"]);
+    await idle();
+    expect(dest().getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByText("Colonia")).toBeNull();
+
+    await fireEvent.input(dest(), { target: { value: "Ach" } });
+    await waitFor(() => expect(asked()).toBe(2));
+    await fireEvent.input(dest(), { target: { value: "" } });
+    reply(["Achenar"]);
+    await idle();
+    expect(dest().getAttribute("aria-expanded")).toBe("false");
+    expect(screen.queryByText("Achenar")).toBeNull();
   });
 });
 

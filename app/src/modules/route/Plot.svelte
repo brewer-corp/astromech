@@ -62,7 +62,7 @@
 
 <div class="plot">
   <h4><span class="lo">{here ?? "Your system"} to</span> {to}</h4>
-  <div class="kinds"><PlotSetup /></div>
+  <div class="kinds"><PlotSetup inline /></div>
   {#if ship}
     <p class="lo">
       {ship.name}: {ship.range.toFixed(2)} ly a jump with a full tank{ship.cargo ? ` and ${Math.round(ship.cargo)} t of cargo` : ""}, from its last loadout.

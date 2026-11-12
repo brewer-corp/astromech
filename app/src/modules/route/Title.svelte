@@ -77,9 +77,17 @@
   /** The range now against the range the route was plotted at, when they differ. */
   const ranges = $derived(plot && ship && ship.range.toFixed(2) !== plot.range.toFixed(2) ? { now: ship.range, then: plot.range } : null);
 
+  /** Close the suggestions, and drop any reply still on its way, so it can't reopen them. */
+  function dropHits() {
+    clearTimeout(timer);
+    asked++;
+    open = false;
+    hits = [];
+  }
+
   async function go() {
     if (!ready) return;
-    open = false;
+    dropHits();
     mine = true;
     err = null;
     done = null;
@@ -102,14 +110,10 @@
     edited = true;
     sel = 0;
     moved = false;
-    clearTimeout(timer);
+    dropHits();
     const q = v.trim();
-    if (q.length < 2) {
-      hits = [];
-      open = false;
-      return;
-    }
-    const n = ++asked;
+    if (q.length < 2) return;
+    const n = asked;
     timer = setTimeout(() => {
       systemNames(q)
         .then((h) => {
@@ -124,10 +128,7 @@
   }
 
   function pick(name: string) {
-    clearTimeout(timer);
-    asked++;
-    open = false;
-    hits = [];
+    dropHits();
     dest = name;
     edited = true;
   }
@@ -150,6 +151,8 @@
         edited = false;
         dest = end;
       } else return;
+      // A reply still on its way is for the edit just dismissed.
+      dropHits();
     } else return;
     e.preventDefault();
   }
@@ -180,7 +183,7 @@
         aria-activedescendant={open ? `dest-list-${sel}` : undefined}
         oninput={(e) => typed(e.currentTarget.value)}
         onkeydown={key}
-        onblur={() => setTimeout(() => (open = false), 150)}
+        onblur={() => setTimeout(dropHits, 150)}
       />
       {#if open}
         <Suggestions id="dest-list" items={hits} {sel} key={(h) => h} onpick={pick}>
