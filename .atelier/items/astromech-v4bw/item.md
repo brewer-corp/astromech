@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-v4bw
 title: Explanations move from page prose into Tips
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-s
 priority: medium
 blocked_by:
 - astromech-sixj
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3A9c80e690-22c8-428d-90cf-657a3fee81fb
 ready:
   by: conversion
   at: 2026-11-10T06:04:05.980926316Z
