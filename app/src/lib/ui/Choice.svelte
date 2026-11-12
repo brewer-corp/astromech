@@ -1,8 +1,9 @@
 <script lang="ts" module>
   import type { GlyphName } from "./Glyph.svelte";
 
-  /** One option. `mark` is a glyph before its label (the ship you are flying on its pad size). */
-  export type ChoiceOpt = { value: string; label: string; title?: string; mark?: GlyphName; ariaLabel?: string };
+  /** One option. `mark` is a glyph before its label (the ship you are flying on its pad size);
+   * `tip` explains it in a Tip (`title` is refused, so an old option can't lose its words). */
+  export type ChoiceOpt = { value: string; label: string; tip?: string; title?: never; mark?: GlyphName; ariaLabel?: string };
 </script>
 
 <script lang="ts" generics="V extends string | string[]">
@@ -11,6 +12,7 @@
   // choice; an array is a multiple choice, where each chosen option is filled. Both look the same.
   // Use it when every option fits on one row; a longer list is a Dropdown.
   import Glyph from "./Glyph.svelte";
+  import { tip } from "./tip";
 
   let {
     label,
@@ -37,7 +39,7 @@
 
 <span class="choices {cls}" role="group" aria-label={label}>
   {#each options as o (o.value)}
-    <button type="button" class:on={on(o.value)} aria-pressed={on(o.value)} aria-label={o.ariaLabel} title={o.title} onclick={() => pick(o.value)}
+    <button type="button" class:on={on(o.value)} aria-pressed={on(o.value)} aria-label={o.ariaLabel} onclick={() => pick(o.value)} {@attach tip(o.tip)}
       >{#if o.mark}<Glyph name={o.mark} />{/if}{o.label}</button>
   {/each}
 </span>

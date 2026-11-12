@@ -24,8 +24,8 @@
   const ANY = "any";
   const rings = [...RING_TYPES.map((t) => ({ value: t, label: t })), { value: ANY, label: "Any", ariaLabel: "Any ring type" }];
   const reserves = [
-    { value: "pristine", label: "Pristine", title: "Pristine reserves only" },
-    { value: "major", label: "Major", title: "Major or pristine reserves" },
+    { value: "pristine", label: "Pristine", tip: "Pristine reserves only" },
+    { value: "major", label: "Major", tip: "Major or pristine reserves" },
     { value: ANY, label: "Any", ariaLabel: "Any reserve" },
   ];
 

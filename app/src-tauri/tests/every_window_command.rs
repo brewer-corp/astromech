@@ -228,6 +228,7 @@ fn cases(f: &Folders) -> Vec<Case> {
             .has(json!({"ptt": null, "kill_switch": null, "mic": "", "onboarded": false}))
             .has(json!({"voice_paused": false, "autostart": false}))
             .reads("voice_settings", None, json!({"speaker": "bf_emma", "speed": 1.0, "colour": "cockpit"}))
+            .reads("window_settings", None, json!({"text_size": "normal"}))
             .reads("edsm_status", None, json!({"commander": "Test"})),
         // No crash in the world: its effect, clearing a pending crash, can't be read back.
         ok("ack_crash", None),
@@ -289,6 +290,9 @@ fn cases(f: &Folders) -> Vec<Case> {
         fails("edsm_flight_log", None, "Commander name/API Key not found")
             .sees(http("https://www.edsm.net/api-logs-v1/get-logs?commanderName=<redacted>&apiKey=<redacted>")),
         ok("voice_settings", None).has(json!({"voices": [{"name": "bf_emma"}]})),
+        ok("set_window", Some(json!({"text_size": "larger"})))
+            .reads("window_settings", None, json!({"text_size": "larger"})),
+        ok("window_settings", None).has(json!({"text_size": "larger"})),
         ok("voice_preview", None).sees(said(astromech_core::speech::PREVIEW_LINE)),
         ok("prospector_thresholds", None).has(json!({"ore": "platinum", "threshold": 20})),
         ok("prospector_set", Some(json!(r#"{"ore":"platinum","threshold":35}"#)))

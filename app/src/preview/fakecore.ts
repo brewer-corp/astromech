@@ -23,6 +23,7 @@
 import type { Biology } from "../lib/api/types/Biology";
 import type { CalibrationStep } from "../lib/api/types/CalibrationStep";
 import type { Colour } from "../lib/api/types/Colour";
+import type { TextSize } from "../lib/api/types/TextSize";
 import type { Done } from "../lib/api/types/Done";
 import type { Fleet } from "../lib/api/types/Fleet";
 import type { EddnHead } from "../lib/api/types/EddnHead";
@@ -73,6 +74,8 @@ interface State {
   gates: Record<string, number>;
   run: number | null;
   voice: { speaker: string; speed: number; colour: Colour };
+  /** `[window] text_size`. */
+  textSize: TextSize;
   previews: string[];
   /** Prospector thresholds by ore (null: off), as the core's `prospector_thresholds` lists. */
   prospector: Record<string, number | null>;
@@ -193,6 +196,7 @@ function fresh(scenario: Scenario): State {
     gates: done ? { [MICS[0] ?? ""]: -51 } : {},
     run: null,
     voice: { speaker: "bf_emma", speed: 1, colour: "cockpit" },
+    textSize: "normal",
     previews: [],
     prospector: { ...PROSPECTOR_DEFAULTS },
     callouts: {},
@@ -590,6 +594,12 @@ export const coreHandlers: CoreHandlers = {
   set_voice: (st, args) => {
     if (args.speaker && !VOICES.some((v) => v.name === args.speaker)) return { ok: false, error: `unknown voice "${args.speaker}"` };
     st.voice = { speaker: args.speaker ?? st.voice.speaker, speed: args.speed ?? st.voice.speed, colour: args.colour ?? st.voice.colour };
+    return applies();
+  },
+  window_settings: (st) => ({ ok: true, text_size: st.textSize }),
+  set_window: (st, args) => {
+    if (!["smaller", "normal", "larger"].includes(args.text_size)) return { ok: false, error: "text_size is smaller, normal or larger" };
+    st.textSize = args.text_size;
     return applies();
   },
   voice_preview: (st) => {

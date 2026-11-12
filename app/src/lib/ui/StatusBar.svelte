@@ -66,7 +66,7 @@
 
 <style>
   /* DESIGN.md Status bar: a 32 px band with a 1 px Seam rule over it, one line. */
-  .bar { box-sizing: border-box; display: flex; align-items: center; gap: var(--sp-6); height: var(--status-bar); padding: 0 clamp(16px, 3vw, 40px); border-top: 1px solid var(--line); white-space: nowrap; overflow: hidden; font-size: var(--fs-s); }
+  .bar { box-sizing: border-box; display: flex; align-items: center; gap: var(--sp-6); height: var(--status-bar); padding: 0 var(--side); border-top: 1px solid var(--line); white-space: nowrap; overflow: hidden; font-size: var(--fs-s); }
   .ship { color: var(--accent); font-weight: 500; overflow: hidden; text-overflow: ellipsis; min-width: 3em; margin-right: calc(var(--sp-3) - var(--sp-6)); }
   .type, .label, .unit, .sep { color: var(--orange-mid); }
   .stat { display: flex; align-items: baseline; gap: var(--sp-2); flex: none; color: var(--accent); }

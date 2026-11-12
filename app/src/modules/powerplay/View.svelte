@@ -1,6 +1,7 @@
 <script lang="ts">
   // Powerplay for daily use: my standing and the current system's state from the journal, and
   // where my power wants work nearby (Spansh).
+  import { tip } from "../../lib/ui/tip";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { loadOverview, num, pct, pledged, until, WORK_LABEL, type Overview } from "../../lib/powerplay";
@@ -84,7 +85,7 @@
           <dt>State</dt><dd>{sys.state ?? "unknown"}</dd>
           <dt>Control</dt>
           <dd>
-            <span class="bar" title="Progress through the {sys.state?.toLowerCase() ?? ''} band"><span style:width="{fill}%"></span></span>
+            <span class="bar" {@attach tip(`Progress through the ${sys.state?.toLowerCase() ?? ""} band`)}><span style:width="{fill}%"></span></span>
             <span class="q">{pct(sys.control_progress)}</span>
           </dd>
           <dt>This cycle</dt>
