@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-woqv
 title: Route data for the timeline
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -105,3 +105,4 @@ build`, check-dist, `pnpm test` (563 pass), `tsc -p journeys` and the 7 journeys
 
 - 1-6zz3.1: fixed in 6cc69a4f: the catch-up's (and following-off) NavRoute read reaches the desk through `Follower::known`, which only records it, and `nav` is no longer saved, so a restart reads the game's file again; tests `a_galaxy_map_route_read_at_startup_lists_the_flown_leg` and `galaxy_map_plots_and_clears_are_handed_over_live`.
 - 1-6zz3.2: fixed in 6cc69a4f: `stops::details` returns what each request found and the failed requests separately, and keeps going after a failure; test `a_failed_request_costs_only_its_own_stops` (found, failed, then found).
+- 2-x15q.3: fixed in 32558e9b: a NavRoute jump with no star class takes the plotter's scoopable and neutron flags for the same system; test `a_galaxy_map_jump_with_no_class_keeps_the_plotters_flags`.
