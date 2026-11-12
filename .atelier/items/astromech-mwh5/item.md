@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-mwh5
 title: 'Page layouts: Board, List with detail, Workbench and Form replace the width caps'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
@@ -11,7 +11,8 @@ labels:
 priority: high
 blocked_by:
 - astromech-b2k3
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3A5aac3060-a7b6-4d8e-b38f-b0095d2b7464
 ready:
   by: conversion
   at: 2026-11-10T06:04:03.897072879Z
