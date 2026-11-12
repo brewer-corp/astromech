@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import { FINDERS, forgetAnswers, lastAnswer, type FinderId } from "../../lib/places";
-import { DEFAULT_FILTERS } from "../../lib/search";
+import { DEFAULT_FILTERS, type Filters } from "../../lib/search";
 import type { CargoSearch, Side, TradeSearch } from "../../lib/trade";
 import type { Args } from "../../lib/transport";
 import { answer, previewAnswer, watch } from "../../test/transport";
@@ -54,7 +54,7 @@ describe("Sell and Buy finders", () => {
     expect((screen.getByRole("combobox", { name: "Commodity" }) as HTMLInputElement).value).toBe("Painite");
     expect(near).toHaveBeenLastCalledWith(expect.objectContaining({ side: "sell", commodities: ["painite"], origin: null }));
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "trade.sell" });
-    expect(screen.getByText("Within")).toBeTruthy();
+    expect(screen.getByText(/^Within 100 ly of Sol/)).toBeTruthy();
 
     await fireEvent.click(screen.getByRole("button", { name: "Anywhere" }));
     expect(location.hash).toBe("#/places/sell/painite?range=anywhere");
@@ -63,7 +63,7 @@ describe("Sell and Buy finders", () => {
     // Each range keeps the filters Trade remembered for it, which voice questions use too.
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "trade.sell.anywhere" });
     expect(screen.getByText(/Best prices anywhere/)).toBeTruthy();
-    expect(screen.queryByText("Within")).toBeNull();
+    expect(screen.queryByText(/^Within \d+ ly of /)).toBeNull();
 
     // The price leads each row, highest first, and every row says how old its report is.
     expect(screen.getAllByRole("columnheader")[0]?.textContent).toBe("Price");
@@ -74,6 +74,66 @@ describe("Sell and Buy finders", () => {
 
     // Its tile keeps the answer and reopens the same search.
     expect(lastAnswer("sell")).toMatchObject({ figure: "390,780", unit: "cr", context: "Painite", route: "places/sell/painite?range=anywhere" });
+  });
+
+  it("keeps the filters open while two change and the list follows each, until DONE", async () => {
+    let stored: Filters = DEFAULT_FILTERS;
+    answer("search_filters", () => stored);
+    answer("set_search_filters", ({ filters }: { filters: Filters }) => void (stored = filters));
+    location.hash = "#/places/sell/painite";
+    render(Market, { finder: finder("sell") });
+    expect(await screen.findByText("Good Landing", { exact: false })).toBeTruthy();
+    expect(screen.queryByRole("combobox", { name: "Within" })).toBeNull();
+    const facts = (head: string) => {
+      const col = screen.getAllByRole("columnheader").findIndex((h) => h.textContent === head);
+      return screen
+        .getAllByRole("row")
+        .slice(1)
+        .map((r) => Number((r.querySelectorAll('[role="cell"]')[col]?.textContent ?? "").replace(/[^\d.]/g, "")));
+    };
+    const before = facts("Distance");
+    expect(before.some((ly) => ly > 20)).toBe(true);
+
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
+    await fireEvent.change(screen.getByRole("combobox", { name: "Within" }), { target: { value: "20" } });
+    await waitFor(() => expect(near).toHaveBeenLastCalledWith(expect.objectContaining({ filters: expect.objectContaining({ max_distance_ly: 20 }) })));
+    await waitFor(() => expect(facts("Distance").every((ly) => ly <= 20)).toBe(true));
+    const within20 = facts("Distance").length;
+    await fireEvent.change(screen.getByRole("combobox", { name: "Demand" }), { target: { value: "5000" } });
+    await waitFor(() => expect(near).toHaveBeenLastCalledWith(expect.objectContaining({ filters: expect.objectContaining({ max_distance_ly: 20, min_volume: 5000 }) })));
+    await waitFor(() => expect(facts("Demand").length).toBeLessThan(within20));
+    expect(facts("Demand").every((t) => t >= 5000)).toBe(true);
+    expect(screen.getByText(/^Within 20 ly of Sol · demand at least 5,000 t/)).toBeTruthy();
+    expect(screen.getByRole("combobox", { name: "Within" })).toBeTruthy(); // still open
+
+    await fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    expect(screen.queryByRole("combobox", { name: "Within" })).toBeNull();
+    expect(stored).toMatchObject({ max_distance_ly: 20, min_volume: 5000 });
+  });
+
+  it("leaves the filters open when the search they started fails, and over TRY AGAIN", async () => {
+    let stored: Filters = DEFAULT_FILTERS;
+    answer("search_filters", () => stored);
+    answer("set_search_filters", ({ filters }: { filters: Filters }) => void (stored = filters));
+    let fail = false;
+    answer("trade_search", async (args: { side: Side }) => {
+      if (fail) throw "Ardent took too long to answer";
+      return previewAnswer("trade_search", args);
+    });
+    location.hash = "#/places/sell/painite";
+    render(Market, { finder: finder("sell") });
+    expect(await screen.findByText("Good Landing", { exact: false })).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
+    fail = true;
+    await fireEvent.change(screen.getByRole("combobox", { name: "Data age" }), { target: { value: "7" } });
+    expect((await screen.findByRole("alert")).textContent).toMatch(/Ardent took too long to answer/);
+    expect(screen.getByRole("combobox", { name: "Data age" })).toBeTruthy();
+    expect(screen.getByText(/· reports up to 7 days old$/)).toBeTruthy();
+
+    fail = false;
+    await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+    expect(screen.getByRole("combobox", { name: "Data age" })).toBeTruthy();
   });
 
   it("opens Buy from its address, cheapest first, near or anywhere", async () => {

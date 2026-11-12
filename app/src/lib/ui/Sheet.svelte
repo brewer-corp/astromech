@@ -1,6 +1,7 @@
 <script lang="ts">
   // VKB's reference sheet with our text in VKB's own boxes. Box positions come from the device
   // map (PDF points, origin bottom left, page 792 x 612).
+  import { tip } from "./tip";
   import type { MapControl } from "../devices";
   export type Cell = { text: string; other?: string; hi?: boolean; sel?: boolean; empty?: boolean };
   let {
@@ -42,8 +43,8 @@
         class:dim={dimOthers && !cell?.hi}
         class:empty={!cell || cell.empty}
         style={pos(c.box.txt)}
-        title={c.control}
         onclick={() => onpick?.(c)}
+        {@attach tip(c.control)}
       >
         {#if cell}<b>{cell.text}</b>{#if cell.other}<i>{cell.other}</i>{/if}{/if}
       </button>

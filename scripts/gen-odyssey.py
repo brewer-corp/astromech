@@ -348,7 +348,7 @@ def main(cache, out):
                 sys.exit(f"{e['name']}: referred by unknown {r!r}")
 
     doc = {
-        "source": "Elite Dangerous Wiki (elite-dangerous.fandom.com) and EDCD/FDevIDs, via scripts/gen-odyssey.py",
+        "source": "Elite Dangerous Wiki and EDCD/FDevIDs",
         "generated": datetime.date.today().isoformat(),
         "note": "Suit and weapon grade upgrades are bought at Pioneer Supplies; modifications are fitted by the engineers listed.",
         "items": items,

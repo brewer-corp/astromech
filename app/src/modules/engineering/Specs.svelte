@@ -2,6 +2,7 @@
   // Info tab: the fitted ship's numbers, laid out like the in-game ship specs bar, then the
   // rest of what the calculations already produce. Pitch / roll / yaw are a hull-table stand-in
   // until astromech-ship computes handling.
+  import { tip } from "../../lib/ui/tip";
   import type { Headline, ShipStats } from "../../lib/engineering";
   import { handling } from "../../lib/manoeuvre";
 
@@ -38,9 +39,9 @@
 
 <div class="specs">
   {#if unknownHull}
-    <p class="warn" title="Hull: {unknownHull}"><span class="mark">!</span> Incomplete: this hull is not in the ship data, so there are no stats for it.</p>
+    <p class="warn" {@attach tip(`Hull: ${unknownHull}`)}><span class="mark">!</span> Incomplete: this hull is not in the ship data, so there are no stats for it.</p>
   {:else if unresolved.length}
-    <p class="warn" title={unresolved.join("\n")}>
+    <p class="warn" {@attach tip(unresolved.join("\n"))}>
       <span class="mark">!</span> Incomplete: {unresolved.length} {unresolved.length === 1 ? "item is not" : "items are not"} in the ship data
       and {unresolved.length === 1 ? "is" : "are"} left out of these numbers.
     </p>
@@ -53,7 +54,7 @@
       <div class="k">Speed (top / boost)</div>
       <div class="v"><span class="q">{n(speed, 0)}</span> <span class="sep">|</span> <span class="q">{n(boost, 0)}</span> <span class="u">m/s</span></div>
     </div>
-    <div class="stat" aria-label="Pitch / roll / yaw" title="Hull stand-in at four pips to engines, until the ship calculations include handling">
+    <div class="stat" aria-label="Pitch / roll / yaw" {@attach tip("Hull stand-in at four pips to engines, until the ship calculations include handling")}>
       <div class="k">Approximate pitch / roll / yaw</div>
       <div class="v">
         <span class="q">{n(turn?.pitch, 0)}</span> <span class="sep">|</span>
@@ -64,9 +65,9 @@
     <div class="stat" aria-label="Jump">
       <div class="k">Jump min / current / max</div>
       <div class="v">
-        <span class="q" title="Full tank and full cargo">{n(jump?.laden ?? headline?.jump, 2)}</span> <span class="sep">|</span>
-        <span class="q" title="Full tank, no cargo">{n(jump?.unladen ?? headline?.jump, 2)}</span> <span class="sep">|</span>
-        <span class="q" title="One jump's fuel, no cargo">{n(jump?.max ?? headline?.jump, 2)}</span> <span class="u">ly</span>
+        <span class="q" {@attach tip("Full tank and full cargo")}>{n(jump?.laden ?? headline?.jump, 2)}</span> <span class="sep">|</span>
+        <span class="q" {@attach tip("Full tank, no cargo")}>{n(jump?.unladen ?? headline?.jump, 2)}</span> <span class="sep">|</span>
+        <span class="q" {@attach tip("One jump's fuel, no cargo")}>{n(jump?.max ?? headline?.jump, 2)}</span> <span class="u">ly</span>
       </div>
     </div>
     <div class="stat power" aria-label="Power">
@@ -150,7 +151,7 @@
   .sep { color: var(--orange-mid); }
   .u { color: var(--orange-mid); font-size: var(--fs-s); }
   .power { grid-column: 1 / -1; }
-  @media (min-width: 1100px) {
+  @container win (min-width: 1100px) {
     .power { grid-column: auto; }
   }
   .prow { display: grid; grid-template-columns: 7rem minmax(6rem, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-s); color: var(--orange-mid); }

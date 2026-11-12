@@ -27,8 +27,15 @@ describe("Where to work", () => {
     expect(screen.getByText(/Li Yong-Rui stronghold 25% · reinforcement 0 \/ undermining 166/)).toBeTruthy();
     expect(load).toHaveBeenLastCalledWith("reinforce", null, expect.anything(), 40);
 
+    // The radius is a filter: named in the summary, its control behind CHANGE.
+    expect(await screen.findByText(/^Within 40 ly of /)).toBeTruthy();
+    expect(screen.queryByRole("combobox", { name: /Within/ })).toBeNull();
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
     await fireEvent.change(screen.getByRole("combobox", { name: /Within/ }), { target: { value: "80" } });
     await waitFor(() => expect(load).toHaveBeenLastCalledWith("reinforce", null, expect.anything(), 80));
+    expect(await screen.findByText(/^Within 80 ly of /)).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    expect(screen.queryByRole("combobox", { name: /Within/ })).toBeNull();
 
     await fireEvent.click(screen.getByRole("button", { name: "Undermine" }));
     expect(await screen.findByText("Piscium Sector EB-X b1-3")).toBeTruthy();

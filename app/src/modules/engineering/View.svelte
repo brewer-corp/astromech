@@ -1,6 +1,7 @@
 <script lang="ts">
   // Ships page: one selected ship as the main pane (info or engineering), the rest of the
   // fleet as a bottom rail. Stored modules live on their own Engineering tab.
+  import { tip } from "../../lib/ui/tip";
   import Button from "../../lib/ui/Button.svelte";
   import Choice from "../../lib/ui/Choice.svelte";
   import Glyph from "../../lib/ui/Glyph.svelte";
@@ -146,11 +147,11 @@
       {#if ship?.links}
         <span class="open">
           Open in
-          <Button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis <Glyph name="external" /></Button>
-          <Button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY <Glyph name="external" /></Button>
+          <Button {@attach tip("Open this loadout in Coriolis")} onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis <Glyph name="external" /></Button>
+          <Button {@attach tip("Open this loadout in EDSY")} onclick={() => ship?.links && open(ship.links.edsy)}>EDSY <Glyph name="external" /></Button>
         </span>
       {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
-        <span class="open lo" title="You engineered a module since the game last saved this loadout, so the link would show the old build.">Re-dock or relog to refresh the Coriolis / EDSY link</span>
+        <span class="open lo" {@attach tip("You engineered a module since the game last saved this loadout, so the link would show the old build.")}>Re-dock or relog to refresh the Coriolis / EDSY link</span>
       {/if}
     </div>
     {#if linkErr}<p class="err" role="alert"><b>!</b> {linkErr}</p>{/if}
@@ -182,7 +183,7 @@
       {@const h = headlines[ship.id]}
       <div class="ship" class:now={ship.current}>
         <div class="art">
-          <ShipIcon type={ship.ship_type} name={ship.type_name} size={180} />
+          <ShipIcon type={ship.ship_type} size={180} />
         </div>
         <div class="who">
           <h2>{ship.name ?? "Unnamed"}</h2>
@@ -217,7 +218,7 @@
     <nav class="rail" aria-label="Your ships">
       {#each fleet.ships as s (s.id)}
         <a class="pick" class:on={s.id === ship?.id} class:now={s.current} href={href(s.id)} aria-label="{s.name ?? s.ident ?? `#${s.id}`}, {s.type_name}" aria-current={s.id === ship?.id ? "page" : undefined}>
-          <ShipIcon type={s.ship_type} name={s.type_name} size={56} />
+          <ShipIcon type={s.ship_type} size={56} />
           <span class="pick-who">
             <span class="pick-name">{s.name ?? "Unnamed"}</span>
             <span class="pick-type">{s.type_name}</span>
@@ -267,7 +268,7 @@
   .pick.on .pick-name { color: var(--orange-lit); }
   .pick-type, .pick-now { font-size: var(--fs-s); color: var(--orange-mid); }
   .pick.now .pick-now { color: var(--accent); }
-  @media (max-width: 900px) {
+  @container win (max-width: 900px) {
     .ship { grid-template-columns: minmax(0, 1fr); }
     .art { justify-content: start; }
   }

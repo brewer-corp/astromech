@@ -5,6 +5,7 @@
   // samples are against the genus's colony range. Live while Elite runs.
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
+  import { tip } from "../../lib/ui/tip";
   import { loadBiology, millions, shortName, valueRange, type BiologyView } from "../../lib/exobiology";
 
   let v = $state<BiologyView | null>(null);
@@ -31,6 +32,9 @@
   const short = (name: string) => shortName(name, v?.system ?? null);
   const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
   const sampledBody = $derived(v?.sampling ? v.bodies.find((b) => b.body_id === v?.sampling?.body_id) : undefined);
+
+  /** What a Value means, in the column head's Tip. */
+  const VALUE = "Vista Genomics base value; a first logged species pays five times";
 </script>
 
 <section>
@@ -60,7 +64,7 @@
             <span class="k">From the nearest sample</span>
             <span class="v">{Math.round(c.nearest_m)} m of {c.colony_range_m} m</span>
           </div>
-          <div class:go={c.far_enough}>
+          <div class:go={c.far_enough} {@attach tip("Sample again at least the colony range from every earlier sample")}>
             <span class="k">Sample {c.next}</span>
             <span class="v">{c.far_enough ? "Far enough" : `${Math.max(0, Math.ceil(c.colony_range_m - c.nearest_m))} m to go`}</span>
           </div>
@@ -68,13 +72,13 @@
           <div><span class="k">Colony range</span><span class="v">{s.colony_range_m} m</span></div>
         {/if}
       </div>
-      {#if sampledBody}<p class="lo">On {short(sampledBody.name)}. Sample again at least the colony range from every earlier sample.</p>{/if}
+      {#if sampledBody}<p class="lo">On {short(sampledBody.name)}</p>{/if}
     {/if}
 
     <h3 class="section">Bodies with biology</h3>
     {#if v.bodies.length}
       <table aria-label="Bodies with biology">
-        <thead><tr><th>Body</th><th class="num">Signals</th><th>Genera</th><th class="num">Value</th></tr></thead>
+        <thead><tr><th>Body</th><th class="num">Signals</th><th>Genera</th><th class="num" {@attach tip(VALUE)}>Value</th></tr></thead>
         <tbody>
           {#each v.bodies as b (b.body_id)}
             <tr>
@@ -91,7 +95,7 @@
                       </li>
                     {/each}
                   </ul>
-                  <span class="lo small">{b.mapped ? "From the DSS" : "Predicted from the scan; the DSS will tell"}</span>
+                  {#if b.mapped}<span class="lo small">From the DSS</span>{:else}<span class="lo small" {@attach tip("Predicted from the scan: map it with the DSS to know")}>Predicted from the scan</span>{/if}
                 {:else}
                   <span class="lo">Scan the body to predict its genera.</span>
                 {/if}
@@ -108,7 +112,7 @@
     {#if v.known?.length}
       <h3 class="section">Reported by other players</h3>
       <table aria-label="Reported by other players">
-        <thead><tr><th>Body</th><th class="num">Signals</th><th>Genera and species</th><th class="num">Value</th></tr></thead>
+        <thead><tr><th>Body</th><th class="num">Signals</th><th>Genera and species</th><th class="num" {@attach tip(VALUE)}>Value</th></tr></thead>
         <tbody>
           {#each v.known as k (k.name)}
             <tr>
@@ -123,7 +127,7 @@
           {/each}
         </tbody>
       </table>
-      <p class="lo small">From Spansh (sent to EDDN by other players). Values are Vista Genomics base values; a first logged species pays five times.</p>
+      <p class="lo small">Spansh, from other players' EDDN reports</p>
     {/if}
   {/if}
 </section>

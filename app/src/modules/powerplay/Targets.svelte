@@ -31,14 +31,18 @@
 <div class="acts">
   <!-- Which work is a choice in the section, not a tab row (DESIGN.md Choice). -->
   <Choice label="Work" options={TARGETS.map((t) => ({ value: t.id, label: t.title }))} value={target} onchange={(v) => (target = v)} />
-  <label>Within
-    <Dropdown bind:value={within}>
-      {#each RANGES as r (r)}<option value={r}>{r} ly</option>{/each}
-    </Dropdown>
-  </label>
 </div>
-<!-- The kit re-runs when the lookup changes, and when `within` does: `run` reads it before awaiting. -->
-<SearchKit lookup={`powerplay.${target}`} offers={["age"]} {run} title="Nearest" noun="systems" busyText={kind?.busy ?? "Searching…"} />
+<!-- The kit re-runs when the lookup changes, and when `within` does: `run` reads it before awaiting.
+     The radius is among the filters, and the summary always names it ("Within 40 ly of Sol"). -->
+<SearchKit lookup={`powerplay.${target}`} offers={["age"]} {run} title={`Within ${within} ly`} joiner="of" noun="systems" busyText={kind?.busy ?? "Searching…"}>
+  {#snippet more()}
+    <label>Within
+      <Dropdown bind:value={within}>
+        {#each RANGES as r (r)}<option value={r}>{r} ly</option>{/each}
+      </Dropdown>
+    </label>
+  {/snippet}
+</SearchKit>
 
 <style>
   .acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }

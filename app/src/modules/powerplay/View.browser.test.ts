@@ -50,8 +50,8 @@ describe("Powerplay page", () => {
     const opened = vi.spyOn(window, "open").mockImplementation(() => null);
     overview.mockResolvedValue({ standing, here: "Deciat", system: null });
     render(View);
-    await fireEvent.click(await screen.findByTitle("Open Deciat on Spansh"));
-    await fireEvent.click(screen.getByTitle("Open Deciat on Inara"));
+    await fireEvent.click(await screen.findByRole("button", { description: "Open Deciat on Spansh" }));
+    await fireEvent.click(screen.getByRole("button", { description: "Open Deciat on Inara" }));
     expect(opened.mock.calls.map((c) => c[0])).toEqual([
       "https://spansh.co.uk/search/Deciat",
       "https://inara.cz/elite/starsystem/?search=Deciat",
@@ -94,15 +94,6 @@ describe("Powerplay page", () => {
     expect(await screen.findByText("Acquisition target")).toBeTruthy();
     expect(screen.getByText("9%")).toBeTruthy();
     expect(screen.getByText("0%")).toBeTruthy();
-  });
-
-  it("shows what earns merits in the current system", async () => {
-    overview.mockResolvedValue({ standing, here: undermine.system, system: undermine });
-    render(View);
-    expect(await screen.findByText("Crimes")).toBeTruthy();
-    expect(screen.getByText("What earns merits here")).toBeTruthy();
-    expect(screen.getAllByText("Ethos")).toHaveLength(2);
-    expect(screen.getByText("Not checked in game: Hand-in place not documented.")).toBeTruthy();
   });
 
   it("says when nothing here earns the power merits", async () => {

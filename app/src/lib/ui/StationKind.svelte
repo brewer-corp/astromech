@@ -1,5 +1,6 @@
 <script lang="ts">
   // Station type as a HUD mark. The full Spansh name is the accessible name.
+  import { tip } from "./tip";
   import Glyph, { type GlyphName } from "./Glyph.svelte";
 
   let { type }: { type: string | null | undefined } = $props();
@@ -17,7 +18,7 @@
 </script>
 
 {#if type}
-  <span class="kind" title={type}>
+  <span class="kind" {@attach tip({ title: type, stop: false })}>
     <Glyph name={kind(type)} label={type} />
   </span>
 {/if}

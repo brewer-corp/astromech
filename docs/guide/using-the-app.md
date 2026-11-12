@@ -22,14 +22,29 @@ click its destination for the full Route page, which [Find or plot](#find-or-plo
 | **Settings** | General, Data sharing, Diagnostics, Voice tester: [Settings](settings.md), [Data sharing](data-sharing.md), [Voice tester](voice-tester.md) |
 
 The header holds the **Find or plot** box too (below). In a window too narrow for everything on
-one line (about 1565 pixels wide, more with a long status), the area tabs move to a row of their
-own under the name.
+one line (about 1460 pixels wide, about 1610 with Finish setup), the area tabs move to a row of
+their own under the name.
 
-It opens on **My controller**. At the right of the header, a short line says what astromech is
-doing: "Waiting for Elite", "Elite running · Voice ready", "Voice paused", "Kill switch on".
-**Finish setup** appears next to it while voice is missing something; it opens the health check.
+It opens on **My controller**. **Finish setup** appears in the header while voice is missing
+something; it opens the health check.
+
+A status bar runs along the foot of every page. On the left is the ship you're flying: its name,
+type and unladen jump range ("Heavy Lifter Anaconda Jump 18.0 ly"), then, while Elite is running,
+its fuel and cargo against what the tank and hold take ("Fuel 24.6 | 32 t", "Cargo 120 | 256 t").
+They follow the game every 2 seconds, and the jump range updates after you refit or swap ships.
+With Elite closed, or if astromech can't read them, the fuel and cargo figures are left out and
+the ship stays. On the right, a short line says what astromech is doing: "Waiting for Elite",
+"Elite running · Voice ready", "Voice paused", "Kill switch on".
 
 Each page has a small **Help** link that opens its page in this guide in your browser.
+
+Point at an icon, a value or a button that has more to say and its explanation appears at once
+beside it: what a button does, the conditions behind a figure ("Full tank and full cargo"), the
+detail of a warning. It moves to the next thing you point at and goes when you move away, scroll
+or press **Esc**. Moving to one with **Tab** shows it too, and screen readers read the same words.
+Pages keep their explanations there rather than in notes under the content: a column heading says
+what its figures mean, a tag such as **Ethos** says what it marks. Where the data comes from and
+how old it is stays on the page, in one small line.
 
 Pages that follow the game (ships, materials, on foot, station, session, exploration, biology,
 mining, colonisation, Powerplay, the logbook, the route, data sharing and diagnostics) read your journal again

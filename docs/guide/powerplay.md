@@ -11,7 +11,7 @@ to a power, the page says so and only shows the system.
 
 Your power, **rank**, **merits** (lifetime), merits **this week** and when the cycle ends, merits
 **this session**, how long you have been **pledged**, and the **next rank** with its reward and
-the merits to go. Week merits count what the journal logs since Thursday 07:00 UTC. Weekly
+the merits to go. Point at the week's merits for what they count. Week merits count what the journal logs since Thursday 07:00 UTC. Weekly
 assignment rewards are not logged, so they are not in the count. The game sometimes logs one
 award twice but counts it once; the count drops back by that award at your next award or login.
 
@@ -28,11 +28,12 @@ your last jump.
 
 ## What earns merits here
 
-What earns your power merits in this system, with how, in a short list. The power's ethos
-activities come first, tagged **ethos** (bonus merits), and the controlling power's **weak
-spots** tagged too. A small "?" marks a rule not yet checked in game, with the reason. The
-rules come from community guides and are dated at the foot of the list ("as of ... rules v...").
-Frontier rebalances Powerplay often, so check a surprising line in game.
+What earns your power merits in this system, in a short list. Point at an activity for how to
+do it. The power's ethos activities come first, tagged **ethos** (bonus merits), and the
+controlling power's **weak spots** tagged too. A small "?" marks a rule not yet checked in game;
+the activity's explanation gives the reason. The rules come from community guides and are dated
+at the foot of the list ("as of ... rules v..."). Frontier rebalances Powerplay often, so check a
+surprising line in game.
 
 It lists reinforcing (when your power controls the system), undermining (another power's system) and acquiring (an unoccupied system your power is acquiring). Only an unoccupied system your power is not acquiring has nothing, and the page says so.
 
@@ -45,7 +46,7 @@ Nearby systems where your power wants work, on the usual search ([Places](places
 - **Undermine.** Other powers' systems.
 
 Choose how far to look: 20, 40 or 80 light years (40 by default). Each row has the jumps,
-the system, its Powerplay state and the distance. The only filter is the age of the data. Source: Spansh.
+the system, its Powerplay state and the distance. The filters, under **Change**, are this radius and the age of the data. Source: Spansh.
 
 ## By voice and as callouts
 

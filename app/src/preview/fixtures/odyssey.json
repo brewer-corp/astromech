@@ -421,7 +421,7 @@
   "view": {
     "backpack_ts": "2026-10-14T12:05:00Z",
     "data_date": "2026-10-16",
-    "data_source": "Elite Dangerous Wiki (elite-dangerous.fandom.com) and EDCD/FDevIDs, via scripts/gen-odyssey.py",
+    "data_source": "Elite Dangerous Wiki and EDCD/FDevIDs",
     "data_uncertain": [
       "Added Melee Damage: credits not on the wiki",
       "Headshot Damage (Kinematic Armaments weapons): wiki links RDX to Greater Range",

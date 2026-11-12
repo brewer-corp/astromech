@@ -1,15 +1,14 @@
 <script lang="ts">
   // What earns my power merits in this system (astromech_powerplay activity rules): the power's
-  // ethos and the controller's weak spots first. Unverified rules get a quiet "?" and their
-  // reason in small text; the tags are explained under the list (nothing is hover-only).
+  // ethos and the controller's weak spots first. Each activity's how, and an unverified rule's
+  // reason, are in its name's Tip; each tag explains itself in its own. Unverified rules get a
+  // quiet "?". Under the list, one line dates the rules.
   import Badge from "../../lib/ui/Badge.svelte";
+  import { tip } from "../../lib/ui/tip";
   import type { RulesVersion, Suggestion } from "../../lib/powerplay";
 
   let { items, rules }: { items: Suggestion[]; rules: RulesVersion } = $props();
 
-  const unverified = $derived(items.some((s) => s.uncertain));
-  const ethos = $derived(items.some((s) => s.favoured));
-  const weak = $derived(items.some((s) => s.weak_spot));
   /** "16 Oct 2026". */
   const asOf = $derived(new Date(`${rules.fetched}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }));
 </script>
@@ -17,32 +16,20 @@
 <ul>
   {#each items as s, i (`${s.activity}-${i}`)}
     <li>
-      <span class="name">{s.name}</span>
-      {#if s.weak_spot}<Badge>Weak spot</Badge>{/if}
-      {#if s.favoured}<Badge>Ethos</Badge>{/if}
+      <span class="name" {@attach tip({ title: s.name, fact: s.how, note: s.uncertain ? `Not checked in game: ${s.uncertain}` : undefined })}>{s.name}</span>
+      {#if s.weak_spot}<Badge {@attach tip("The controlling power is weak to it")}>Weak spot</Badge>{/if}
+      {#if s.favoured}<Badge {@attach tip("Your power favours it: bonus merits")}>Ethos</Badge>{/if}
       {#if s.odyssey}<Badge>On foot</Badge>{/if}
       {#if s.uncertain}<span class="unverified" aria-hidden="true">?</span>{/if}
-      <p class="how">{s.how}</p>
-      {#if s.uncertain}<p class="unsure">Not checked in game: {s.uncertain}</p>{/if}
     </li>
   {/each}
 </ul>
-<div class="foot">
-  {#if ethos}<p><Badge>Ethos</Badge> your power favours it: bonus merits</p>{/if}
-  {#if weak}<p><Badge>Weak spot</Badge> the controlling power is weak to it</p>{/if}
-  {#if unverified}<p aria-hidden="true"><span class="key">?</span> not yet checked in game</p>{/if}
-  <p>From community guides, as of {asOf} (rules v{rules.version}); Frontier rebalances Powerplay often.</p>
-</div>
+<p class="foot" {@attach tip("Frontier rebalances Powerplay often: check a surprising line in game")}>Community guides, as of {asOf} (rules v{rules.version})</p>
 
 <style>
   ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
   .name { font-weight: 500; }
   li > :global(.badge) { margin-left: 6px; }
-  .unverified, .key { color: var(--orange-mid); font-size: var(--fs-s); }
-  .unverified { margin-left: 6px; }
-  .unsure { margin: 2px 0 0; color: var(--orange-mid); font-size: var(--fs-s); font-style: italic; }
-  .how { margin: 2px 0 0; color: var(--orange-mid); font-size: var(--fs-s); line-height: 1.4; }
+  .unverified { margin-left: 6px; color: var(--orange-mid); font-size: var(--fs-s); }
   .foot { margin: 14px 0 0; color: var(--orange-mid); font-size: var(--fs-s); line-height: 1.45; }
-  .foot p { margin: 0 0 4px; }
-  .key { display: inline-block; width: 1.2em; text-align: center; }
 </style>

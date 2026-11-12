@@ -111,7 +111,7 @@ describe("ship detail stats", () => {
     override = c;
     render(Build, { fleet, shipId: krait, onback: () => {} });
     const warn = await screen.findByText(/Incomplete: 1 item is not in the ship data/);
-    expect(warn.getAttribute("title")).toBe("MainEngines: int_engine_size9_class9");
+    expect(document.getElementById(warn.getAttribute("aria-describedby")!)?.textContent).toBe("MainEngines: int_engine_size9_class9");
   });
 });
 
@@ -151,11 +151,11 @@ describe("ship detail link-outs", () => {
     const stored = structuredClone(fleet);
     Object.assign(stored.ships[0]!, { current: false, system: "Sol", market_id: 128016640 });
     render(Build, { fleet: stored, shipId: krait, onback: () => {} });
-    await fireEvent.click(await screen.findByTitle("Open the station in Sol on Spansh"));
+    await fireEvent.click(await screen.findByRole("button", { description: "Open the station in Sol on Spansh" }));
     expect(opened.mock.calls.map((c) => c[0])).toEqual(["https://spansh.co.uk/station/128016640"]);
     // Its name is unknown, so there is no Inara station search; the system links stay.
-    expect(screen.queryByTitle("Open the station in Sol on Inara")).toBeNull();
-    expect(screen.getByTitle("Open Sol on Inara")).toBeTruthy();
+    expect(screen.queryByRole("button", { description: "Open the station in Sol on Inara" })).toBeNull();
+    expect(screen.getByRole("button", { description: "Open Sol on Inara" })).toBeTruthy();
     opened.mockRestore();
   });
 
@@ -173,7 +173,7 @@ describe("ship detail with an unknown hull", () => {
     override = { unknown_hull: "mediumtransport01" };
     render(Build, { fleet, shipId: krait, onback: () => {} });
     const warn = await screen.findByText(/Incomplete: this hull is not in the ship data/);
-    expect(warn.getAttribute("title")).toBe("Hull: mediumtransport01");
+    expect(document.getElementById(warn.getAttribute("aria-describedby")!)?.textContent).toBe("Hull: mediumtransport01");
     expect(screen.queryByRole("rowgroup", { name: "Shields" })).toBeNull();
   });
 });

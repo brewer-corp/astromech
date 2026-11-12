@@ -82,7 +82,9 @@ import type { SetFiltersArgs } from "./types/SetFiltersArgs";
 import type { SetFoldersArgs } from "./types/SetFoldersArgs";
 import type { SetMicArgs } from "./types/SetMicArgs";
 import type { SetVoiceArgs } from "./types/SetVoiceArgs";
+import type { SetWindowArgs } from "./types/SetWindowArgs";
 import type { ShellInfo } from "./types/ShellInfo";
+import type { ShipStatus } from "./types/ShipStatus";
 import type { Shopping } from "./types/Shopping";
 import type { ShoppingPlan } from "./types/ShoppingPlan";
 import type { ShoppingSet } from "./types/ShoppingSet";
@@ -105,6 +107,7 @@ import type { UiState } from "./types/UiState";
 import type { UnsoldData } from "./types/UnsoldData";
 import type { VoiceSettings } from "./types/VoiceSettings";
 import type { WantArg } from "./types/WantArg";
+import type { WindowSettings } from "./types/WindowSettings";
 
 /** Every command: what the window sends as `args` (a `string` is the request's text), the
  * reply's `value`, who may call it, and the progress values it sends before the reply. */
@@ -200,7 +203,9 @@ export type Commands = {
   set_ptt: { args: Button | null; reply: Answer<Applies>; exposure: "window" };
   set_search_filters: { args: SetFiltersArgs; reply: null; exposure: "window" };
   set_voice: { args: SetVoiceArgs; reply: Answer<Applies>; exposure: "window" };
+  set_window: { args: SetWindowArgs; reply: Answer<Applies>; exposure: "window" };
   shell_info: { args: null; reply: ShellInfo; exposure: "window" };
+  ship_status: { args: null; reply: Done<ShipStatus>; exposure: "window" };
   shopping_set: { args: string; reply: Answer<ShoppingSet>; exposure: "window" };
   stations_nearby: { args: Near<WantArg<StationWant>>; reply: StationsNearby; exposure: "window" };
   status: { args: null; reply: Done<CoreStatus>; exposure: "window" };
@@ -216,4 +221,5 @@ export type Commands = {
   voice_test_live: { args: LiveRequest; reply: Answer<Ran>; exposure: "window" };
   voice_test_poll: { args: null; reply: Done<Poll>; exposure: "window" };
   voice_test_stop: { args: null; reply: Done<Nothing>; exposure: "window" };
+  window_settings: { args: null; reply: Done<WindowSettings>; exposure: "window" };
 };

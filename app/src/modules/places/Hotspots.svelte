@@ -1,7 +1,7 @@
 <script lang="ts">
   // The Mining hotspots finder (decision astromech-bi94): rings with a hotspot of a mineral,
   // most hotspots first, within the radius of here, the route's next stop or a typed system. The
-  // main input is the mineral; the ring type and the least reserve are choices. The core asks
+  // main input is the mineral; the ring type and the least reserve are choices among the filters. The core asks
   // Spansh for the highest hotspot counts first and picks the ring type itself; the summary says
   // when its requests ran out before the whole radius was ranked.
   // #/places/mining-hotspots/<ore>[?ring=&reserve=] keeps all three on back and reload.
@@ -24,8 +24,8 @@
   const ANY = "any";
   const rings = [...RING_TYPES.map((t) => ({ value: t, label: t })), { value: ANY, label: "Any", ariaLabel: "Any ring type" }];
   const reserves = [
-    { value: "pristine", label: "Pristine", title: "Pristine reserves only" },
-    { value: "major", label: "Major", title: "Major or pristine reserves" },
+    { value: "pristine", label: "Pristine", tip: "Pristine reserves only" },
+    { value: "major", label: "Major", tip: "Major or pristine reserves" },
     { value: ANY, label: "Any", ariaLabel: "Any reserve" },
   ];
 
@@ -75,7 +75,7 @@
     busyText="Asking Spansh…"
     onanswer={(top) => rememberAnswer(finder.id, top && { figure: top.figure, unit: top.figure === "1" ? "hotspot" : "hotspots", context: name, route: hotspotRoute(want) })}
   >
-    {#snippet lead()}
+    {#snippet more()}
       <div class="choices">
         <span class="label">Ring</span>
         <Choice label="Ring type" value={want.ring_type ?? ANY} options={rings} onchange={(v) => go({ ...want, ring_type: v === ANY ? null : (v as RingType) })} />

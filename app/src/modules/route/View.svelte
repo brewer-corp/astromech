@@ -6,6 +6,7 @@
   // plotted there is followed quietly. A route replaced by any of them is parked to resume. The
   // route strip (Strip.svelte) shows the next stop on every page and links here. A failed action
   // or first read is DESIGN.md's hard error: a red "!", the words, and TRY AGAIN.
+  import { tip } from "../../lib/ui/tip";
   import { GAME_SOURCE, backWaypoint, clearRoute, copyNext, getRoute, importRoute, resumeRoute, skipWaypoint, watchRoute, type RouteView } from "../../lib/route";
   import { pollFailure } from "../../lib/ui/errors";
   import Button from "../../lib/ui/Button.svelte";
@@ -103,7 +104,7 @@
     </div>
 
     <div class="actions">
-      <Button onclick={() => run(copyNext)} disabled={done} title="Copy the next waypoint again"><Glyph name="copy" /> Copy</Button>
+      <Button onclick={() => run(copyNext)} disabled={done} {@attach tip("Copy the next waypoint again")}><Glyph name="copy" /> Copy</Button>
       <Button onclick={() => run(skipWaypoint)} disabled={done}>Skip</Button>
       <Button onclick={() => run(backWaypoint)} disabled={route.next === 0}>Back</Button>
       <Button onclick={() => run(clearRoute)}>Clear route</Button>
