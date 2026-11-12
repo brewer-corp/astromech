@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-v4bw
 title: Explanations move from page prose into Tips
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-s
@@ -85,9 +85,14 @@ Captures in `docs/design/`: `tips-powerplay-before.png`, `tips-powerplay-after.p
 `tips-powerplay-hover-after.png`, `tips-exploration-before.png`, `tips-exploration-after.png`,
 `tips-exploration-hover-after.png` (1920 x 1080, browser preview).
 
-Checks: `pnpm check` 0 errors 0 warnings; `pnpm lint` clean; `pnpm test` 80 files, 580 tests
-passed. The browser project once failed to start on "Port 63315 is already in use" (another
+Checks: `pnpm check` 0 errors 0 warnings; `pnpm lint` clean; `pnpm test` passed (577 tests after
+round 1 removed the Suggestions tests). The browser project once failed to start on "Port 63315 is already in use" (another
 checkout's run); a rerun passed. Tests changed: the Suggestions tests read the how, the tag
 meanings and the unverified reason from each target's Tip (`aria-describedby`); the Powerplay
 page test counts one Ethos badge (the key is gone); the old-address test looks for Trade's Places
 line instead of the removed description.
+
+### Responses
+
+- 1-bvka.1: fixed in bb269601: `docs/guide/exploration.md` says a species nobody had logged pays five times.
+- 1-bvka.2: fixed in bb269601: `Suggestions.browser.test.ts` deleted; Tip's own tests cover the description.
