@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-sixj
 title: 'Tip: an instant tooltip in place of the native title'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
 - feature
 priority: medium
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3Ab5fcac56-311f-4ab2-8d10-52e880842435
 ready:
   by: conversion
   at: 2026-11-07T03:00:10.645958844Z
