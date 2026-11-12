@@ -26,6 +26,8 @@ export const PAGE_SIZING = [
   ["src/modules/route/{Title,PlotSetup,ImportDialog}.svelte", "width", "font-size"],
   // astromech-qwvs: the Route page's timeline.
   ["src/modules/route/{View,Timeline}.svelte", "width", "font-size"],
+  // astromech-ok29: the neutron star file's status, in the title's Worked out dropdown.
+  ["src/modules/route/NeutronFile.svelte", "width", "font-size"],
 ];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts
