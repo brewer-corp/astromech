@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-irrv
 title: 'Route page: the title is the plotter'
-status: building
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
