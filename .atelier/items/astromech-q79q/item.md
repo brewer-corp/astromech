@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-q79q
 title: 'Status bar: the ship and the app''s health on every page'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-s
