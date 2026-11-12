@@ -82,7 +82,7 @@
         options={(["S", "M", "L"] as const).map((p) => ({
           value: p,
           label: p,
-          title: `${shipSize === p ? "Your ship · " : ""}${p === "L" ? "L" : `${p} or larger`}`,
+          tip: `${shipSize === p ? "Your ship · " : ""}${p === "L" ? "L" : `${p} or larger`}`,
           ariaLabel: `Pad ${p}${shipSize === p ? ", current ship" : ""}`,
           mark: shipSize === p ? "ship" : undefined,
         }))}

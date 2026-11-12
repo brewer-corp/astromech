@@ -139,8 +139,9 @@ export function tip(arg: TipArg): Attachment<HTMLElement> {
     node.addEventListener("pointerleave", leave);
     node.addEventListener("focus", focus);
     node.addEventListener("blur", leave);
-    // The content changed under the pointer (a cell whose action changed when clicked).
-    if (node.matches(":hover")) enter();
+    // The content changed under the pointer or keyboard focus (a cell whose action changed when
+    // clicked, a copy button that now says "Copied").
+    if (node.matches(":hover, :focus-visible")) enter();
 
     return () => {
       node.removeEventListener("pointerenter", enter);

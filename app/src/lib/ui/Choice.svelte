@@ -2,8 +2,8 @@
   import type { GlyphName } from "./Glyph.svelte";
 
   /** One option. `mark` is a glyph before its label (the ship you are flying on its pad size);
-   * `tip` explains it in a Tip. */
-  export type ChoiceOpt = { value: string; label: string; tip?: string; mark?: GlyphName; ariaLabel?: string };
+   * `tip` explains it in a Tip (`title` is refused, so an old option can't lose its words). */
+  export type ChoiceOpt = { value: string; label: string; tip?: string; title?: never; mark?: GlyphName; ariaLabel?: string };
 </script>
 
 <script lang="ts" generics="V extends string | string[]">

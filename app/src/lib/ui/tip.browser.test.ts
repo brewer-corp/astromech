@@ -6,8 +6,10 @@ import Button from "./Button.svelte";
 import { tip } from "./tip";
 import { createRawSnippet } from "svelte";
 import { createAttachmentKey } from "svelte/attachments";
+import "../../design/tokens.css";
 
-const shown = () => [...document.querySelectorAll<HTMLElement>(".tip")].filter((t) => !t.hidden);
+// What is drawn, with the window's stylesheet: a rule that overrides `hidden` would leave it up.
+const shown = () => [...document.querySelectorAll<HTMLElement>(".tip")].filter((t) => t.checkVisibility());
 const words = (s: string) => createRawSnippet(() => ({ render: () => `<span>${s}</span>` }));
 
 describe("Tip", () => {
@@ -31,17 +33,34 @@ describe("Tip", () => {
     expect(shown()).toEqual([]);
   });
 
-  it("goes on Escape and on scroll", async () => {
+  it("goes on Escape and on scroll, plain or rich", async () => {
     render(IconButton, { icon: "copy", label: "Copy Sol" });
     const copy = screen.getByRole("button");
+    const mark = document.createElement("span");
+    document.body.append(mark);
+    const off = tip({ title: "Coriolis Starport", note: "Large pads", stop: false })(mark);
 
     await fireEvent.pointerEnter(copy);
+    await fireEvent.keyDown(document, { key: "Escape" });
+    expect(shown()).toEqual([]);
+
+    await fireEvent.pointerEnter(mark);
+    expect(shown().map((t) => t.textContent)).toEqual(["Coriolis StarportLarge pads"]);
     await fireEvent.keyDown(document, { key: "Escape" });
     expect(shown()).toEqual([]);
 
     await fireEvent.pointerEnter(copy);
     await fireEvent.scroll(window);
     expect(shown()).toEqual([]);
+    if (off) off();
+    mark.remove();
+  });
+
+  it("keeps showing on keyboard focus when its words change", async () => {
+    const { rerender } = render(IconButton, { icon: "copy", label: "Copy Sol" });
+    await userEvent.tab();
+    await rerender({ icon: "copy", label: "Copy Sol", tip: "Copied" });
+    expect(shown().map((t) => t.textContent)).toEqual(["Copied"]);
   });
 
   it("shows on keyboard focus, and screen readers get the same words", async () => {

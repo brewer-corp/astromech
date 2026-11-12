@@ -102,7 +102,7 @@ input[type="checkbox"] { accent-color: var(--accent); }
 .tip::after { border-width: 5px; border-top-color: var(--surface-hi); }
 .tip.below::before, .tip.below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--orange-mid); }
 .tip.below::after { border-bottom-color: var(--surface-hi); }
-.tip.rich { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-2) var(--sp-3); }
+.tip.rich:not([hidden]) { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-2) var(--sp-3); }
 .tip-title { color: var(--text-hi); font-size: var(--fs); font-weight: 600; }
 .tip-fact { color: var(--accent); }
 .tip-note { color: var(--prose); font-size: var(--fs-s); }

@@ -31,6 +31,11 @@ doing: "Waiting for Elite", "Elite running · Voice ready", "Voice paused", "Kil
 
 Each page has a small **Help** link that opens its page in this guide in your browser.
 
+Point at an icon, a value or a button that has more to say and its explanation appears at once
+beside it: what a button does, the conditions behind a figure ("Full tank and full cargo"), the
+detail of a warning. It moves to the next thing you point at and goes when you move away, scroll
+or press **Esc**. Moving to one with **Tab** shows it too, and screen readers read the same words.
+
 Pages that follow the game (ships, materials, on foot, station, session, exploration, biology,
 mining, colonisation, Powerplay, the logbook, the route, data sharing and diagnostics) read your journal again
 every few seconds, and so do Settings, setup and the engineer trip. If a later read fails, the page keeps what it last showed and adds a line,
