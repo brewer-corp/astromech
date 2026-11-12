@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-dsyu
 title: Icons for star types, body types and station types
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-s
