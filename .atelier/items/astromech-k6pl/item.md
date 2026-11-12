@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-k6pl
 title: Scale the window with its height, and a stronger orange
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
 - feature
 priority: high
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3Ad6aa10d8-5cc9-4785-a6fd-a4e4aa2e7bfb
 ready:
   by: conversion
   at: 2026-11-10T06:03:07.884354190Z
