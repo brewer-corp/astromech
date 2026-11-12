@@ -533,8 +533,8 @@ places content, it never adds any: a sparse page stays sparse.
 
 | Layout | What it holds | Use it when | For example |
 |---|---|---|---|
-| Board | blocks or tiles laid out across the width, each with its own main value | the page is a few answers read at a glance, and nothing on it is selected for a closer look | Now, Powerplay, Places home |
-| List with detail | a list (rows, a tree, a tile grid) and the 320 px side panel after a 1 px orange line, which describes the selected item | the commander picks one item from many and then wants its details | Places finders, Materials, System, Ships, Engineers |
+| Board | blocks or tiles laid out across the width, each with its own main value; where a tile can be selected, the 320 px side panel after a 1 px orange line describes it | the page is answers or tiles read at a glance, laid out by their own shape (a grid of categories and grades, a row of answers) | Now, Powerplay, Places home; Materials, with its side panel |
+| List with detail | a list (rows or a tree) and the 320 px side panel after a 1 px orange line, which describes the selected item | the commander picks one item from many and then wants its details | Places finders, System, Ships, Engineers |
 | Workbench | the inputs on the left, the result on the right | the commander sets up a question and reads one answer that changes as the inputs do | Trade > Commodities |
 | Form | Settings rows in one column: a 200 px label and a cell up to 700 px, 900 px in all | the page is values to set | Settings |
 
