@@ -3,10 +3,12 @@ schema: atelier.mission
 schema_version: 3
 id: astromech-xajc
 title: 'Glow-up: every page reads at a glance and fills the window'
-status: draft
+status: ready
 labels: []
 lead: null
-ready: null
+ready:
+  by: Sumeet
+  at: 2026-11-12T09:32:43.470033653Z
 created_at: 2026-11-10T05:54:16.662362547Z
 ---
 
