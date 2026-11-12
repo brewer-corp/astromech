@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-irtr
 title: 'Increment 1 checkpoint: the foundation and the Route page seen together'
-status: building
+status: in_review
 mission: astromech-xajc
 labels:
 - validation
