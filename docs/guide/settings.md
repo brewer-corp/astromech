@@ -11,6 +11,13 @@ if that stays.
 
 ## General
 
+### Window
+
+- **Text size.** The window grows with its height, as the game's text does: at 1440p it is
+  about 1.4 times its size at 1080p, up to 1.8 times on a 4K screen. A window narrower than it
+  is tall grows only as far as its width allows. **Smaller** and **Larger** make everything in
+  the window about 15 % smaller or larger on top of that, at once. **Normal** is the default.
+
 ### Startup
 
 - **Start with Windows.** On by default after install. astromech starts quietly in the tray and

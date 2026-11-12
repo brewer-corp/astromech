@@ -18,6 +18,7 @@
   import BindDialog from "../../lib/ui/BindDialog.svelte";
   import PresetPicker from "../../lib/ui/PresetPicker.svelte";
   import { previewOption } from "../../lib/transport";
+  import { scale } from "../../lib/scale.svelte";
 
   type Act = { id: string; title: string; actions: { id: string; important: boolean; alternatives: string[] }[] };
   const acts = catalog.activities as Act[];
@@ -153,7 +154,7 @@
     </div>
     <Choice class="acts" label="Activity" value={act?.id ?? "all"} options={[{ value: "all", label: "All" }, ...acts.map((a) => ({ value: a.id, label: a.title }))]} onchange={choose} />
     {#if asking}<p class="ask">Which control did you just press ({keyName(asking.key)})? Click it on the sheet.</p>{/if}
-    <Sheet image={m.image} controls={controls} {cells} width={Math.min(1180, w - 80 - 360 - 28)} dimOthers={!!act} onpick={(c) => void pick(c)} />
+    <Sheet image={m.image} controls={controls} {cells} width={Math.min(1180, w / scale.zoom - 80 - 360 - 28)} dimOthers={!!act} onpick={(c) => void pick(c)} />
     <p class="credit">
       {connected ? "Connected" : "Not connected"} · button numbers from VKB's factory profile{yours ? `, ${yours} set by you` : ""} · sheet © VKB Gaming, design by UntoldForce
     </p>

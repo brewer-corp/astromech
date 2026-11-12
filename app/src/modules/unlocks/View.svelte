@@ -153,7 +153,7 @@
   .spec { font-size: var(--fs-s); }
   .where, .from { font-size: var(--fs-s); color: var(--orange-mid); }
   .left { margin: 0; font-size: var(--fs-s); line-height: 1.45; }
-  @media (max-width: 900px) {
+  @container win (max-width: 900px) {
     .tree { grid-template-columns: 1fr; }
   }
 </style>

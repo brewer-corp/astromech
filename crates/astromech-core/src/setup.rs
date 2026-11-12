@@ -65,6 +65,8 @@ pub enum Edit {
     CalloutEnabled(String, bool),
     /// `[callouts.<id>] cooldown_s`; None goes back to the callout's own cooldown.
     CalloutCooldown(String, Option<f64>),
+    /// `[window] text_size` (Settings → General).
+    TextSize(crate::config::TextSize),
 }
 
 /// What the window sends to the config edits, for its TypeScript types: [`Edit::from_request`]
@@ -128,6 +130,13 @@ pub mod args {
         pub enabled: Option<bool>,
         pub cooldown_s: Option<f64>,
     }
+
+    /// `set_window`: the window's text size.
+    #[derive(Debug, Default, Serialize, Deserialize, ts_rs::TS)]
+    #[ts(rename = "SetWindowArgs")]
+    pub struct Window {
+        pub text_size: crate::config::TextSize,
+    }
 }
 
 /// The longest cooldown Settings accepts (a day).
@@ -142,7 +151,7 @@ impl Edit {
     /// `set_voice` with any of `{speaker, speed, colour}`, `set_eddn` with `{enabled}`, `set_edsm`
     /// with `{enabled}` and/or `{commander}` (its `api_key` goes to the keyring, not here; with
     /// only a key there is nothing to edit), `set_callout` with `{id}` and `enabled` and/or
-    /// `cooldown_s` (null: the callout's own).
+    /// `cooldown_s` (null: the callout's own), `set_window` with `{text_size}`.
     pub fn from_request(cmd: &str, args: Option<&Value>) -> Result<Vec<Edit>> {
         let null = Value::Null;
         let a = args.unwrap_or(&null);
@@ -240,6 +249,12 @@ impl Edit {
                 }
                 v
             }
+            "set_window" => {
+                let size = a.get("text_size").context("expected {text_size}")?;
+                vec![Edit::TextSize(
+                    serde_json::from_value(size.clone()).context("text_size is smaller, normal or larger")?,
+                )]
+            }
             c => bail!("unknown command {c:?}"),
         })
     }
@@ -307,6 +322,7 @@ pub fn apply(text: &str, edits: &[Edit]) -> Result<String> {
             Edit::Eddn(on) => ("eddn", "enabled", Some(toml_edit::value(*on))),
             Edit::Edsm(on) => ("edsm", "enabled", Some(toml_edit::value(*on))),
             Edit::EdsmCommander(c) => ("edsm", "commander", Some(toml_edit::value(c.as_str()))),
+            Edit::TextSize(t) => ("window", "text_size", Some(toml_edit::value(t.as_str()))),
             Edit::CalloutEnabled(..) | Edit::CalloutCooldown(..) => unreachable!("handled above"),
         };
         if !doc.contains_key(table) {
@@ -525,6 +541,22 @@ mod tests {
         for bad in [r#"{"speaker":"xx_nobody"}"#, r#"{"speed":3.0}"#, r#"{"colour":"loud"}"#, "{}"] {
             let j: Value = serde_json::from_str(bad).unwrap();
             assert!(Edit::from_request("set_voice", Some(&j)).is_err(), "{bad}");
+        }
+    }
+
+    /// astromech-k6pl: the text size set in Settings is in the file, so it survives a restart.
+    #[test]
+    fn the_text_size_persists() {
+        use crate::config::TextSize;
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("astromech.toml");
+        std::fs::write(&p, crate::config::SAMPLE).unwrap();
+        let edits = Edit::from_request("set_window", Some(&serde_json::json!({"text_size": "larger"}))).unwrap();
+        write(&p, &edits).unwrap();
+        assert_eq!(Config::load(&p).unwrap().window.text_size, TextSize::Larger);
+        for bad in [r#"{"text_size":"huge"}"#, r#"{"text_size":1.15}"#, "{}"] {
+            let j: Value = serde_json::from_str(bad).unwrap();
+            assert!(Edit::from_request("set_window", Some(&j)).is_err(), "{bad}");
         }
     }
 

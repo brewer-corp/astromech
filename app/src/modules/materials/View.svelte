@@ -235,7 +235,7 @@
   .q { font-size: var(--fs-s); }
   .farm .q { text-align: right; }
   .other { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 8px; align-content: start; }
-  .about { position: sticky; top: 0; align-self: start; max-height: calc(100vh - 150px); overflow-y: auto; border-left: 1px solid var(--accent); padding: 20px 8px 28px 24px; }
+  .about { position: sticky; top: 0; align-self: start; max-height: calc(var(--win-h) - 150px); overflow-y: auto; border-left: 1px solid var(--accent); padding: 20px 8px 28px 24px; }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .about p { margin: 0 0 10px; line-height: 1.45; }
   .qty { color: var(--accent); }
@@ -244,7 +244,7 @@
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .sites a, .link { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .sites a:hover, .link:hover { color: var(--orange-lit); }
-  @media (max-width: 1100px) {
+  @container win (max-width: 1100px) {
     section { display: flex; flex-direction: column; }
     .about { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--accent); padding: 16px 0 20px; }
     .out { padding: 20px 0 8px; }

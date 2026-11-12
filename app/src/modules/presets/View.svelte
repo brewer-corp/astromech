@@ -113,7 +113,7 @@
   aside > :global(.act) { display: flex; width: fit-content; margin: var(--sp-1) 0 0 calc(-1 * var(--sp-2)); }
   .copy { display: flex; gap: 16px; align-items: center; }
   .copy > :global(.grow) { flex: 1; }
-  @media (max-width: 1200px) {
+  @container win (max-width: 1200px) {
     .cols { grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; }
     .head, .row { grid-template-columns: minmax(0, 1fr) repeat(4, 64px) 100px; }
     .row.b { grid-template-columns: minmax(0, 1fr) 120px 100px; }
