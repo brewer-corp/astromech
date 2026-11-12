@@ -76,7 +76,7 @@ Four pages now use the window through a layout instead of a width cap, and a lin
 - Tests are in `app/eslint-rules/pageSizing.test.js`: RuleTester cases for both parts, plus config tests showing the check is on for enrolled files and off for unenrolled and exempt ones.
 - Width is on for: materials/View, places/FinderPage, the nine finder pages, trade/View and trade/Route, and settings/View. Places Home.svelte is left to astromech-gvy0. Font-size is on for no file yet; astromech-z5oh turns it on.
 
-**Captures:** `docs/design/layouts-{materials,sell,commodities,settings}-{1100,1920,2560}-{before,after}.png`, from the browser preview (the "before" set from main at f6ee7806).
+**Captures:** `docs/design/layouts-{materials,sell,commodities,settings}-{1100,1920,2560}-{before,after}.png`, from the browser preview. They were retaken after merging main at 2afdcb11, which brought the root zoom, Tip, collapsed filters and the status bar: the "before" set is main at 2afdcb11, the "after" set is this branch.
 
 - At 1100 x 700 no page scrolls sideways: `main` scrollWidth equals clientWidth on all four pages, Manufactured and Encoded, Outfitting and Services. The Materials and Sell panels sit below the content.
 - At 2560 and 3840 the panel sits right after the grid or list, every row ends with its actions, and Find route ends the inputs.
@@ -92,7 +92,7 @@ Four pages now use the window through a layout instead of a width cap, and a lin
 
 **Round 1 fixes:** a panel action's note and TRY AGAIN now show under the panel's buttons. A hovered or focused selected row keeps On Orange icons. The panel stacks once the content would drop below its minimum beside the panel's full 345 px track.
 
-**Tests:** a new browser test in `places/Market.browser.test.ts` selects a result and checks the panel's facts and Set destination. The guide's Places page (`docs/guide/places.md`, Results) now says how to select a result. `pnpm check` (0 errors, 0 warnings), `pnpm lint` and `pnpm test` (79 files, 590 tests) pass.
+**Tests:** a new browser test in `places/Market.browser.test.ts` selects a result and checks the panel's facts and Set destination. The guide's Places page (`docs/guide/places.md`, Results) now says how to select a result. `pnpm check` (0 errors, 0 warnings), `pnpm lint` and `pnpm test` (83 files, 617 tests after merging main) pass. After the merge, a result's name button takes Tip (`aria-label` plus `tip`) in place of `title`, as main's Tip test requires.
 
 
 ### Responses

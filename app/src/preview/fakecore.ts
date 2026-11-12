@@ -23,12 +23,15 @@
 import type { Biology } from "../lib/api/types/Biology";
 import type { CalibrationStep } from "../lib/api/types/CalibrationStep";
 import type { Colour } from "../lib/api/types/Colour";
+import type { TextSize } from "../lib/api/types/TextSize";
 import type { Done } from "../lib/api/types/Done";
+import type { Fleet } from "../lib/api/types/Fleet";
 import type { EddnHead } from "../lib/api/types/EddnHead";
 import type { Mining } from "../lib/api/types/Mining";
 import type { Ores } from "../lib/api/types/Ores";
 import type { Outbox } from "../lib/api/types/Outbox";
 import type { RouteReply } from "../lib/api/types/RouteReply";
+import type { ShipStatus } from "../lib/api/types/ShipStatus";
 import type { CoreCmd, CoreStatus, Level } from "../lib/core";
 import type { EdsmStatus } from "../lib/edsm";
 import type { Route, RouteView, Waypoint } from "../lib/route";
@@ -37,6 +40,7 @@ import type { DryRun, LearnedPhrase } from "../lib/voice";
 import eddnFixture from "./fixtures/eddn-log.json";
 import biologyFixture from "./fixtures/exobiology.json";
 import miningFixture from "./fixtures/mining.json";
+import shipFixture from "./fixtures/ship-status.json";
 import plotSample from "./fixtures/plot.json";
 import voiceFixture from "./fixtures/voice.json";
 import { previewQuery } from "./query";
@@ -45,6 +49,9 @@ import { labelled, recorded, type Handler, type Handlers } from "./recorded";
 const eddnSample = recorded<Outbox<EddnHead>>(eddnFixture);
 const biologySample = recorded<Done<Biology>>(biologyFixture);
 const miningSample = recorded<Mining>(miningFixture);
+/** The ship world's replies: `flying` is the status bar's sample (`refitted` and its fleet, the same
+ * ship after a refit, are the bar's test's). */
+const shipSample = recorded<{ flying: Done<ShipStatus>; refitted: Done<ShipStatus>; refitted_fleet: Fleet }>(shipFixture).flying;
 
 export type Scenario = "empty" | "new" | "ready";
 
@@ -67,6 +74,8 @@ interface State {
   gates: Record<string, number>;
   run: number | null;
   voice: { speaker: string; speed: number; colour: Colour };
+  /** `[window] text_size`. */
+  textSize: TextSize;
   previews: string[];
   /** Prospector thresholds by ore (null: off), as the core's `prospector_thresholds` lists. */
   prospector: Record<string, number | null>;
@@ -187,6 +196,7 @@ function fresh(scenario: Scenario): State {
     gates: done ? { [MICS[0] ?? ""]: -51 } : {},
     run: null,
     voice: { speaker: "bf_emma", speed: 1, colour: "cockpit" },
+    textSize: "normal",
     previews: [],
     prospector: { ...PROSPECTOR_DEFAULTS },
     callouts: {},
@@ -586,6 +596,12 @@ export const coreHandlers: CoreHandlers = {
     st.voice = { speaker: args.speaker ?? st.voice.speaker, speed: args.speed ?? st.voice.speed, colour: args.colour ?? st.voice.colour };
     return applies();
   },
+  window_settings: (st) => ({ ok: true, text_size: st.textSize }),
+  set_window: (st, args) => {
+    if (!["smaller", "normal", "larger"].includes(args.text_size)) return { ok: false, error: "text_size is smaller, normal or larger" };
+    st.textSize = args.text_size;
+    return applies();
+  },
   voice_preview: (st) => {
     if (!st.models) return { ok: false, error: "download the speech models first (Speech models, above)" };
     st.previews.push(st.voice.speaker);
@@ -644,6 +660,8 @@ export const coreHandlers: CoreHandlers = {
   },
   // Only a session (Elite running) has a system; `ready` is in one.
   exobiology: (st) => (st.scenario === "ready" ? { ...biologySample } : { ok: false, error: "Elite isn't running." }),
+  // The status bar's fuel and cargo: the sample ship's in a session, nothing known outside one.
+  ship_status: (st) => (st.scenario === "ready" ? { ...shipSample } : { ok: true, ship_id: null, ship_name: null, max_jump_range: null, fuel: null, fuel_capacity: null, cargo: null, cargo_capacity: null }),
   // The voice tester answers from sample results in every scenario (see NO_CORE).
   voice_test: (_st, args) => ({ ok: true, result: sampleRun(args) }),
   voice_test_poll: () => ({ ok: true, listening: false, last: null }),

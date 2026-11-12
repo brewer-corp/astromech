@@ -13,6 +13,7 @@
   import Callouts from "./Callouts.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
   import { pollFailure } from "../../lib/ui/errors";
+  import { scale, setTextSize, type TextSize } from "../../lib/scale.svelte";
 
   let status = $state<CoreStatus | null>(null);
   let note = $state("");
@@ -20,6 +21,16 @@
   let calibrating = $state(false);
   let voice = $state<VoiceSettings | null>(null);
   let voiceNote = $state("");
+  let sizeNote = $state("");
+
+  const SIZES: { value: TextSize; label: string }[] = [
+    { value: "smaller", label: "Smaller" },
+    { value: "normal", label: "Normal" },
+    { value: "larger", label: "Larger" },
+  ];
+  async function chooseSize(size: TextSize) {
+    sizeNote = (await setTextSize(size)) ?? "";
+  }
 
   async function loadVoice() {
     const r = await coreCall("voice_settings");
@@ -113,6 +124,15 @@
     <p class="lo">astromech didn't answer, so settings can't be shown. If this stays, see Diagnostics.</p>
   {:else}
     <Stale error={statusErr} />
+    <h3 class="section">Window</h3>
+    <dl>
+      <dt>Text size</dt>
+      <dd class="bare">
+        <Choice label="Text size" value={scale.size} options={SIZES} onchange={(v) => void chooseSize(v)} />
+      </dd>
+    </dl>
+    <p class="hint" class:warn-text={!!sizeNote}>{sizeNote || "The window already grows with its height, as the game's text does; this makes all of it smaller or larger."}</p>
+
     <h3 class="section">Startup</h3>
     <dl>
       <dt>Start with Windows</dt>

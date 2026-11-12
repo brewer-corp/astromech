@@ -73,7 +73,7 @@
   .lo { color: var(--orange-mid); }
   .r { text-align: right; }
   .none { display: block; color: var(--prose); border: 0; }
-  @media (max-width: 900px) {
+  @container win (max-width: 900px) {
     .stored li { grid-template-columns: minmax(0, 1fr) auto; }
     .stored li > :nth-child(2), .stored li > :nth-child(3) { grid-column: 1 / -1; }
   }

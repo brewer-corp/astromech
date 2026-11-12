@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import App from "./App.svelte";
-import { answer, idle, startPreview, watch } from "./test/transport";
+import { answer, idle, previewAnswer, startPreview, watch } from "./test/transport";
 
 const stationsSpy = watch("stations_nearby");
 const hotspotsSpy = watch("mining_hotspots");
@@ -69,7 +69,7 @@ describe("Find or plot in the window", () => {
     render(App);
     const ship = await screen.findByRole("combobox", { name: "Ship" });
     await fireEvent.input(ship, { target: { value: "anaconda" } });
-    await screen.findByText("Anaconda");
+    await screen.findByRole("option", { name: "Anaconda" });
     await fireEvent.keyDown(ship, { key: "Enter" });
     expect(location.hash).toBe("#/places/shipyard/Anaconda");
     await waitFor(() =>
@@ -381,6 +381,9 @@ describe("Places in the window", () => {
     location.hash = "#/places/mining-hotspots/painite";
     render(App);
     await screen.findByText(/^Within 100 ly of Sol/);
+    // Ring type and reserve are filters: they rest in the summary until CHANGE opens them.
+    expect(screen.queryByRole("button", { name: "Metallic" })).toBeNull();
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
     await fireEvent.click(screen.getByRole("button", { name: "Metallic" }));
     expect(location.hash).toBe("#/places/mining-hotspots/painite?ring=metallic");
     await waitFor(() => expect(hotspotsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ want: { ore: "painite", ring_type: "Metallic", reserve: null }, origin: null })));
@@ -388,7 +391,7 @@ describe("Places in the window", () => {
     expect(location.hash).toBe("#/places/mining-hotspots/painite?ring=metallic&reserve=pristine");
     await waitFor(() => expect(hotspotsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ want: { ore: "painite", ring_type: "Metallic", reserve: "pristine" }, origin: null })));
     expect(await screen.findByText("Within 100 ly of Sol · metallic rings · pristine reserves")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Pristine" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: "Pristine" }).getAttribute("aria-pressed")).toBe("true"); // still open
 
     const box = screen.getByRole("combobox", { name: "Mineral" });
     await fireEvent.input(box, { target: { value: "low temp" } });
@@ -401,6 +404,23 @@ describe("Places in the window", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Any ring type" }));
     await fireEvent.click(screen.getByRole("button", { name: "Any reserve" }));
     expect(location.hash).toBe("#/places/mining-hotspots/lowtemperaturediamond");
+  });
+
+  it("names a new radius while its search runs, not the reach of the answer before", async () => {
+    // A fault the recording lacks: Spansh's requests ran out at 32 ly; the next search is held.
+    let calls = 0;
+    answer("mining_hotspots", async (args: unknown) => {
+      if (++calls > 1) return new Promise(() => {});
+      return { ...(await previewAnswer("mining_hotspots", args)), reach_ly: 32 };
+    });
+    location.hash = "#/places/mining-hotspots/painite";
+    render(App);
+    expect(await screen.findByText(/^Within 32 ly of Sol · /)).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
+    await fireEvent.change(screen.getByRole("combobox", { name: "Within" }), { target: { value: "200" } });
+    await fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    expect(await screen.findByText("Asking Spansh…")).toBeTruthy();
+    expect(screen.getByText("Within 200 ly of Sol")).toBeTruthy();
   });
 
   it("leaves every finder opened from its tile by the Places crumb without an error", async () => {

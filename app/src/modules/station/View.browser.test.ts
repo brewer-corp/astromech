@@ -30,10 +30,10 @@ describe("Station", () => {
     const opened = vi.spyOn(window, "open").mockImplementation(() => null);
     render(View);
     await screen.findByText("Test Orbital");
-    await fireEvent.click(screen.getByTitle("Open Test System on Spansh"));
-    await fireEvent.click(screen.getByTitle("Open Test System on Inara"));
-    await fireEvent.click(screen.getByTitle("Open Test Orbital on Spansh"));
-    await fireEvent.click(screen.getByTitle("Open Test Orbital on Inara"));
+    await fireEvent.click(screen.getByRole("button", { description: "Open Test System on Spansh" }));
+    await fireEvent.click(screen.getByRole("button", { description: "Open Test System on Inara" }));
+    await fireEvent.click(screen.getByRole("button", { description: "Open Test Orbital on Spansh" }));
+    await fireEvent.click(screen.getByRole("button", { description: "Open Test Orbital on Inara" }));
     expect(opened.mock.calls.map((c) => c[0])).toEqual([
       "https://spansh.co.uk/search/Test%20System",
       "https://inara.cz/elite/starsystem/?search=Test%20System",
@@ -68,8 +68,8 @@ describe("Station", () => {
     render(View);
     expect(await screen.findByText(/Not docked/)).toBeTruthy();
     expect(screen.getByText("Deciat")).toBeTruthy();
-    await fireEvent.click(screen.getByTitle("Open Deciat on Spansh"));
-    await fireEvent.click(screen.getByTitle("Open Deciat on Inara"));
+    await fireEvent.click(screen.getByRole("button", { description: "Open Deciat on Spansh" }));
+    await fireEvent.click(screen.getByRole("button", { description: "Open Deciat on Inara" }));
     expect(opened.mock.calls.map((c) => c[0])).toEqual([
       "https://spansh.co.uk/search/Deciat",
       "https://inara.cz/elite/starsystem/?search=Deciat",

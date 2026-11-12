@@ -2,6 +2,7 @@
   // Onboarding (docs/V1-DESIGN.md §1.5 #1, §2.2): a full-window flow from install to "gear down"
   // by voice. Shown on first launch until finished or skipped; Settings re-runs it, or one step
   // of it (#/setup/<step>). One line of explanation per step, nothing that isn't needed.
+  import { tip } from "../ui/tip";
   import Button from "../ui/Button.svelte";
   import { coreCall, coreStatus, type CoreStatus } from "../core";
   import { STEPS, type StepId } from "./steps";
@@ -55,7 +56,7 @@
   <header>
     <span class="app">ASTROMECH</span>
     <span class="title">Setup</span>
-    <Button title="Open the setup guide in your browser" onclick={() => void openHelp(SETUP_HELP)}>Help</Button>
+    <Button onclick={() => void openHelp(SETUP_HELP)} {@attach tip("Open the setup guide in your browser")}>Help</Button>
     {#if i < STEPS.length - 1}<Button onclick={finish}>Skip setup</Button>{/if}
   </header>
   <div class="body">
@@ -96,7 +97,7 @@
 </div>
 
 <style>
-  .frame { height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+  .frame { container: win / inline-size; height: var(--win-h); display: grid; grid-template-rows: auto 1fr; }
   header { display: flex; align-items: center; gap: 40px; height: 64px; margin: 0 40px; border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
   /* The area's one top tab, active: Nav caps on a solid orange box. */

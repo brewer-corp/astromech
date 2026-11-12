@@ -6,6 +6,7 @@
  */
 import type { CoreStatus } from "./api/types/CoreStatus";
 import type { Failed } from "./api/types/Failed";
+import type { ShipStatus } from "./api/types/ShipStatus";
 import type { Toast } from "./api/types/Toast";
 import { call, subscribe, type ArgList, type Args, type Reply, type WindowCommand } from "./transport";
 
@@ -14,6 +15,7 @@ export type { CoreStatus } from "./api/types/CoreStatus";
 export type { Found } from "./api/types/Found";
 export type { LevelCheck as Level } from "./api/types/LevelCheck";
 export type { MicList } from "./api/types/MicList";
+export type { ShipStatus } from "./api/types/ShipStatus";
 export type { Progress as HistoryProgress } from "./api/types/Progress";
 export type { Snapshot as UpdateStatus } from "./api/types/Snapshot";
 export type { Toast } from "./api/types/Toast";
@@ -45,6 +47,16 @@ export function freshToasts(list: Toast[], lastSeen: number | null): { show: Toa
 export async function coreStatus(): Promise<Reply<"status"> | null> {
   try {
     return await call("status");
+  } catch {
+    return null;
+  }
+}
+
+/** The ship's fuel and cargo for the status bar, or null when the call fails. Every figure is
+ * null while Elite isn't running. */
+export async function shipStatus(): Promise<ShipStatus | null> {
+  try {
+    return await call("ship_status");
   } catch {
     return null;
   }

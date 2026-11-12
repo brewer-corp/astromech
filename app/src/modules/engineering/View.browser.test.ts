@@ -63,7 +63,7 @@ it("says when the hull is not in the ship data", async () => {
   compared = { unknown_hull: "mediumtransport01" };
   render(View);
   const warn = await screen.findByText(/Incomplete: this hull is not in the ship data/);
-  expect(warn.getAttribute("title")).toBe("Hull: mediumtransport01");
+  expect(document.getElementById(warn.getAttribute("aria-describedby")!)?.textContent).toBe("Hull: mediumtransport01");
 });
 
 it("marks a ship incomplete when the calculations leave something out or don't know the hull", async () => {
@@ -75,7 +75,7 @@ it("marks a ship incomplete when the calculations leave something out or don't k
   compared = c;
   render(View);
   const warn = await screen.findByText(/Incomplete/);
-  expect(warn.getAttribute("title")).toBe("Hull: krait_mkii");
+  expect(document.getElementById(warn.getAttribute("aria-describedby")!)?.textContent).toBe("Hull: krait_mkii");
 });
 
 it("shows a stored ship's system as a chip that copies its name", async () => {

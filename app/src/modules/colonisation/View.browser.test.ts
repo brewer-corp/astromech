@@ -87,7 +87,7 @@ describe("Colonisation", () => {
     buy.mockImplementation(async (_n, o) => answer(o));
     render(View);
     await waitFor(() => expect(buy).toHaveBeenLastCalledWith(expect.anything(), "Wolf 359", expect.anything()));
-    await fireEvent.click(await screen.findByTitle("Search from the current system"));
+    await fireEvent.click(await screen.findByRole("button", { name: "Search from the current system" }));
     await waitFor(() => expect(buy).toHaveBeenLastCalledWith(expect.anything(), null, expect.anything()));
   });
 

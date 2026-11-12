@@ -897,7 +897,7 @@ impl Core {
                     self.apply_voice();
                 }
                 self.notify();
-                let now = matches!(r.cmd.as_str(), "set_voice" | "set_eddn" | "set_edsm");
+                let now = matches!(r.cmd.as_str(), "set_voice" | "set_eddn" | "set_edsm" | "set_window");
                 Answer::ok(Applies { applies_next_session: !now && self.active() })
             }
             Err(e) => Answer::failed(format!("{e:#}")),
@@ -1184,6 +1184,12 @@ impl Core {
             }
             None => Answer::failed("Elite isn't running."),
         });
+        // The status bar's fuel and cargo, from the session's game state (Status.json and the
+        // last `Loadout`); every figure null while Elite isn't running.
+        add::<(), _>(&mut reg, self, &["ship_status"], Window, |c, _| {
+            let ship = c.session.lock().recover().as_ref().map(|s| s.hub.read(ShipStatus::from_state));
+            Done::new(ship.unwrap_or_default())
+        });
         add::<(), _>(&mut reg, self, &["eddn_log"], Window, |c, _| {
             let cfg = c.cfg();
             eddn_log(&cfg.data_dir(&c.paths), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
@@ -1199,6 +1205,10 @@ impl Core {
         add::<crate::setup::args::Voice, _>(&mut reg, self, &["set_voice"], Window, |c, r| c.edit_config(r));
         add::<crate::setup::args::Eddn, _>(&mut reg, self, &["set_eddn"], Window, |c, r| c.edit_config(r));
         add::<crate::setup::args::Callout, _>(&mut reg, self, &["set_callout"], Window, |c, r| c.edit_config(r));
+        add::<crate::setup::args::Window, _>(&mut reg, self, &["set_window"], Window, |c, r| c.edit_config(r));
+        add::<(), _>(&mut reg, self, &["window_settings"], Window, |c, _| {
+            Done::new(WindowSettings { text_size: c.cfg().window.text_size })
+        });
         add::<(), _>(&mut reg, self, &["callouts"], Window, |c, _| crate::callouts::callouts_json(&c.cfg().callouts));
         add::<(), _>(&mut reg, self, &["edsm_status"], Window, |c, _| {
             let cfg = c.cfg();
@@ -1556,6 +1566,12 @@ mod replies {
         pub speeds: [f32; 2],
     }
 
+    /// `window_settings`: the window's text size, which it multiplies its height scale by.
+    #[derive(Debug, Serialize, ts_rs::TS)]
+    pub struct WindowSettings {
+        pub text_size: crate::config::TextSize,
+    }
+
     /// `voice_test`: what the phrase would do.
     #[derive(Debug, Serialize, ts_rs::TS)]
     pub struct Tried {
@@ -1607,6 +1623,41 @@ mod replies {
         pub last_error: Option<astromech_eddn::outbox::LogEntry>,
         pub log: Vec<astromech_eddn::outbox::LogEntry>,
         pub skipped: Vec<astromech_eddn::outbox::LogEntry>,
+    }
+
+    /// `ship_status`: the ship's main tank and hold as the game reports them. A figure is null
+    /// when it isn't known: Elite isn't running, or no `Loadout` or Status.json has said yet.
+    #[derive(Debug, Default, Serialize, ts_rs::TS)]
+    pub struct ShipStatus {
+        /// `ShipID` of the last `Loadout`: the ship these figures are for.
+        pub ship_id: Option<i64>,
+        /// The ship's name and unladen maximum jump range from the last `Loadout`. With
+        /// `ship_id` they tell the window when to read `engineering_fleet` again: another ship,
+        /// or the same one refitted or renamed.
+        pub ship_name: Option<String>,
+        pub max_jump_range: Option<f64>,
+        /// Tonnes in the main tank (Status.json).
+        pub fuel: Option<f64>,
+        /// The main tank's size in tonnes (the last `Loadout`).
+        pub fuel_capacity: Option<f64>,
+        /// Tonnes aboard (Status.json, or `Cargo.json`).
+        pub cargo: Option<f64>,
+        /// The hold's size in tonnes (the last `Loadout`).
+        pub cargo_capacity: Option<i64>,
+    }
+
+    impl ShipStatus {
+        pub fn from_state(g: &astromech_gamestate::GameState) -> Self {
+            Self {
+                ship_id: g.ship_id,
+                ship_name: g.ship_name.clone(),
+                max_jump_range: g.max_jump_range,
+                fuel: g.fuel_main,
+                fuel_capacity: g.fuel_capacity_main,
+                cargo: g.cargo_tonnes,
+                cargo_capacity: g.cargo_capacity,
+            }
+        }
     }
 
     /// `eddn_log`'s switch and whether messages go to the test schemas.

@@ -60,6 +60,11 @@ describe("constraint summary", () => {
     );
   });
 
+  it("names an S pad the commander chose, but not the S of a small ship", () => {
+    expect(summary("Nearest to", "Sol", { ...DEFAULT_FILTERS, pad: "S", pad_set: true }, ["pad"], {}, 0)).toBe("Nearest to Sol · any pad");
+    expect(summary("Nearest to", "Sol", { ...DEFAULT_FILTERS, pad: "S" }, ["pad"], {}, 0)).toBe("Nearest to Sol");
+  });
+
   it("puts a lookup's own constraints after where it searched", () => {
     expect(summary("Nearest to", "Sol", DEFAULT_FILTERS, ["distance"], { distance: 100 }, 0, ["metallic rings", "pristine reserves"])).toBe(
       "Within 100 ly of Sol · metallic rings · pristine reserves",

@@ -12,11 +12,12 @@
     type = "button",
     children,
     class: cls = "",
+    ref = $bindable(null),
     ...rest
-  }: HTMLButtonAttributes & { kind?: "primary" | "secondary"; children: Snippet; class?: string } = $props();
+  }: HTMLButtonAttributes & { kind?: "primary" | "secondary"; children: Snippet; class?: string; ref?: HTMLButtonElement | null } = $props();
 </script>
 
-<button class="btn {kind} {cls}" {type} {...rest}>{@render children()}</button>
+<button bind:this={ref} class="btn {kind} {cls}" {type} {...rest}>{@render children()}</button>
 
 <style>
   .btn { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); flex: none; height: var(--row); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; white-space: nowrap; }

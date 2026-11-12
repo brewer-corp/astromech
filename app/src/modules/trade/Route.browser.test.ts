@@ -15,13 +15,16 @@ const defaults = vi.fn<() => Promise<RouteDefaults>>();
 answer("trade_route", ({ ask, origin, filters }: { ask: RouteAsk; origin: Origin; filters: Filters | null }) => route(ask, origin, filters));
 answer("trade_route_defaults", () => defaults());
 
-// The core resolves the pad for the ship flown now when it loads the filters.
+// The core keeps the filters saved, and resolves the pad for the ship flown now unless the
+// commander set one.
 let shipPad: Filters["pad"] = "M";
-answer("search_filters", () => ({ ...DEFAULT_FILTERS, pad: shipPad }));
-answer("set_search_filters", () => {});
+let stored: Filters = DEFAULT_FILTERS;
+answer("search_filters", () => (stored.pad_set ? stored : { ...stored, pad: shipPad }));
+answer("set_search_filters", ({ filters }: { filters: Filters }) => void (stored = filters));
 
 beforeEach(() => {
   shipPad = "M";
+  stored = DEFAULT_FILTERS;
   localStorage.clear();
   route.mockReset();
   defaults.mockReset();
@@ -117,9 +120,32 @@ describe("Trade route", () => {
     expect((screen.getByRole("button", { name: "Find route" }) as HTMLButtonElement).disabled).toBe(false);
   });
 
+  it("rests its filters as a summary, and Find route asks with an edit at once, open or closed", async () => {
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    expect(await screen.findByText("Medium or large pad · reports up to 30 days old")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /^Pad / })).toBeNull();
+
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
+    await fireEvent.click(screen.getByRole("button", { name: "Pad L" }));
+    expect(screen.getByText("Large pad · reports up to 30 days old")).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    expect(await screen.findByText("200 t Biowaste: buy 110 cr, sell 754 cr")).toBeTruthy();
+    expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad: "L", pad_set: true }));
+    expect(screen.getByRole("button", { name: /^Pad L/ })).toBeTruthy(); // still open
+
+    await fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    await vi.waitFor(() => expect(route).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText("200 t Biowaste: buy 110 cr, sell 754 cr")).toBeTruthy();
+    expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad: "L" }));
+    expect(screen.queryByRole("button", { name: /^Pad L/ })).toBeNull(); // still closed
+  });
+
   it("labels the ship's pad with the ship flown at the last search", async () => {
     render(Route);
     await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    await fireEvent.click(await screen.findByRole("button", { name: "Change filters" }));
     expect(await screen.findByRole("button", { name: "Pad M, current ship" })).toBeTruthy();
     shipPad = "L"; // swapped to an Anaconda
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));

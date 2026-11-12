@@ -228,6 +228,7 @@ fn cases(f: &Folders) -> Vec<Case> {
             .has(json!({"ptt": null, "kill_switch": null, "mic": "", "onboarded": false}))
             .has(json!({"voice_paused": false, "autostart": false}))
             .reads("voice_settings", None, json!({"speaker": "bf_emma", "speed": 1.0, "colour": "cockpit"}))
+            .reads("window_settings", None, json!({"text_size": "normal"}))
             .reads("edsm_status", None, json!({"commander": "Test"})),
         // No crash in the world: its effect, clearing a pending crash, can't be read back.
         ok("ack_crash", None),
@@ -289,6 +290,9 @@ fn cases(f: &Folders) -> Vec<Case> {
         fails("edsm_flight_log", None, "Commander name/API Key not found")
             .sees(http("https://www.edsm.net/api-logs-v1/get-logs?commanderName=<redacted>&apiKey=<redacted>")),
         ok("voice_settings", None).has(json!({"voices": [{"name": "bf_emma"}]})),
+        ok("set_window", Some(json!({"text_size": "larger"})))
+            .reads("window_settings", None, json!({"text_size": "larger"})),
+        ok("window_settings", None).has(json!({"text_size": "larger"})),
         ok("voice_preview", None).sees(said(astromech_core::speech::PREVIEW_LINE)),
         ok("prospector_thresholds", None).has(json!({"ore": "platinum", "threshold": 20})),
         ok("prospector_set", Some(json!(r#"{"ore":"platinum","threshold":35}"#)))
@@ -324,6 +328,8 @@ fn cases(f: &Folders) -> Vec<Case> {
         // nothing to see forgotten.
         ok("learned_forget", Some(json!("nothing"))),
         ok("exobiology", None).has(json!({"system": "Sol"})),
+        // The Asp's tank and hold from the world's `Loadout`, the fuel and cargo from its Status.json.
+        ok("ship_status", None).has(json!({"ship_id": 1, "max_jump_range": 30.0, "fuel": 32.0, "fuel_capacity": 32.0, "cargo": 0.0, "cargo_capacity": 64})),
         // Keybinds.
         ok("binds_state", None).has(json!({"active": ["Mine"], "bindings_found": true})),
         ok("binds_refresh_devices", None).has(json!({"inventory": {"source": "world"}})),

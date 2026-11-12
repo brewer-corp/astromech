@@ -50,8 +50,8 @@ describe("Powerplay page", () => {
     const opened = vi.spyOn(window, "open").mockImplementation(() => null);
     overview.mockResolvedValue({ standing, here: "Deciat", system: null });
     render(View);
-    await fireEvent.click(await screen.findByTitle("Open Deciat on Spansh"));
-    await fireEvent.click(screen.getByTitle("Open Deciat on Inara"));
+    await fireEvent.click(await screen.findByRole("button", { description: "Open Deciat on Spansh" }));
+    await fireEvent.click(screen.getByRole("button", { description: "Open Deciat on Inara" }));
     expect(opened.mock.calls.map((c) => c[0])).toEqual([
       "https://spansh.co.uk/search/Deciat",
       "https://inara.cz/elite/starsystem/?search=Deciat",
