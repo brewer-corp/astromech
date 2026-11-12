@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-mwh5
 title: 'Page layouts: Board, List with detail, Workbench and Form replace the width caps'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -90,5 +90,13 @@ Four pages now use the window through a layout instead of a width cap, and a lin
 
 **Left as it was:** settings/Callouts.svelte and ProspectorThresholds.svelte are on `--form-label` but not enrolled. Their 4.5rem number inputs would fail the width part; astromech-gvy0 enrols what is left. The commodities result keeps its own row layout, which astromech-el3i replaces.
 
-**Tests:** a new browser test in `places/Market.browser.test.ts` selects a result and checks the panel's facts and Set destination. The guide's Places page (`docs/guide/places.md`, Results) now says how to select a result. `pnpm check` (0 errors, 0 warnings), `pnpm lint` and `pnpm test` (78 files, 589 tests) pass.
+**Round 1 fixes:** a panel action's note and TRY AGAIN now show under the panel's buttons. A hovered or focused selected row keeps On Orange icons. The panel stacks once the content would drop below its minimum beside the panel's full 345 px track.
 
+**Tests:** a new browser test in `places/Market.browser.test.ts` selects a result and checks the panel's facts and Set destination. The guide's Places page (`docs/guide/places.md`, Results) now says how to select a result. `pnpm check` (0 errors, 0 warnings), `pnpm lint` and `pnpm test` (79 files, 590 tests) pass.
+
+
+### Responses
+
+- 1-3fjf.1: fixed in a9508970. A panel action's note, failure and TRY AGAIN now show under the panel's buttons; places/Market.browser.test.ts finds the note inside the panel, and failed before the fix.
+- 1-3fjf.2: fixed in a9508970. A hovered selected row's icons are On Orange (rgb(12, 13, 15) in Chromium), and the row's icon buttons focus with an On Orange outline inset 2 px.
+- 1-3fjf.3: fixed in a9508970. stacks() uses the panel's full track, PANEL_TRACK = 320 + 24 + 1; the new lib/ui/layout/layout.test.ts failed before the fix. On Sell at 1410 x 900 the panel stacks and the list keeps all nine columns.
