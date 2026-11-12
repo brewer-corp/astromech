@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-z5oh
 title: 'Type roles: every tile, row and card shows one main value at its DESIGN.md size'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -85,3 +85,8 @@ role instead of a font size.
   settings,exploration,biology,session,mining}-{before,after}.png`.
 - pnpm check, pnpm lint and pnpm test (612) pass; `scripts/check-guide.py` passes.
 
+
+### Responses
+
+1-i1na.1: fixed in f060e9d2 (both warnings are now `hint type-label warn-text`)
+1-i1na.2: fixed in f060e9d2 (recaptured from the submitted source; no overlay)
