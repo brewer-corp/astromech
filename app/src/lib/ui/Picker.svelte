@@ -54,11 +54,15 @@
     if (o.value !== value) onchange(o.value);
   }
 
+  /** The arrows move between options only from the cell or an option: a control under the
+   * options (the Efficiency field) keeps its own. */
+  const onList = (t: EventTarget | null) => t === cell || (t instanceof Element && t.getAttribute("role") === "option");
+
   function key(e: KeyboardEvent) {
     if (e.key === "Escape" && open) {
       open = false;
       cell?.focus();
-    } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && open) {
+    } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && open && onList(e.target)) {
       const all = items();
       const i = all.indexOf(document.activeElement as HTMLButtonElement);
       const n = all.length;

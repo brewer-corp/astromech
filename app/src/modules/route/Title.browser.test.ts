@@ -104,7 +104,10 @@ describe("Route page title: the plot setup", () => {
     const plots = watch("route_plot");
     await openPage();
     await fireEvent.click(screen.getByRole("button", { name: /^Worked out/ }));
-    expect(screen.getByLabelText("Efficiency"), "Spansh plots until the file is there").toBeTruthy();
+    const eff = screen.getByLabelText("Efficiency") as HTMLInputElement;
+    eff.focus();
+    expect(await fireEvent.keyDown(eff, { key: "ArrowUp" }), "the field keeps its own arrows").toBe(true);
+    expect(document.activeElement).toBe(eff);
     await fireEvent.click(screen.getByRole("button", { name: "Download" }));
     expect(await screen.findByText(/Neutron star file: 5,045,154 neutron stars/)).toBeTruthy();
     expect(screen.getByRole("button", { name: /^Worked out\s*On this PC/ })).toBeTruthy();
