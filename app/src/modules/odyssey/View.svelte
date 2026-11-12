@@ -7,6 +7,7 @@
   import Choice from "../../lib/ui/Choice.svelte";
   import Dropdown from "../../lib/ui/Dropdown.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
+  import { tip } from "../../lib/ui/tip";
   import {
     fromGrades,
     hasPick,
@@ -170,6 +171,11 @@
   );
 
   const shortOf = (lines: Need[]) => lines.filter((l) => l.short > 0);
+
+  /** What the barter columns mean, in their heads' Tips. */
+  const BARTER = "What one is worth traded at a bartender (assets only)";
+  /** The Tip on a "(?)" after an engineer's mod. */
+  const UNSURE = "The wiki disagrees with itself on whether this engineer fits this mod";
 </script>
 
 <section>
@@ -206,7 +212,7 @@
     <div class="out">
       <table class="inv">
         <thead>
-          <tr><th>Item</th><th>Ship locker</th><th>Backpack</th><th>Mission</th><th>Barter</th><th>Sells for</th></tr>
+          <tr><th>Item</th><th>Ship locker</th><th>Backpack</th><th {@attach tip("Mission items go back when the mission ends and don't count towards blueprints")}>Mission</th><th {@attach tip(BARTER)}>Barter</th><th {@attach tip("What a bartender pays for one")}>Sells for</th></tr>
         </thead>
         <tbody>
           {#each items as i (i.id)}
@@ -223,7 +229,6 @@
           {/each}
         </tbody>
       </table>
-      <p class="lo note">Barter is what one is worth trading at a bartender (assets); "Sells for" is what a bartender pays. Mission items go back when the mission ends and do not count towards blueprints.</p>
     </div>
   {/if}
 
@@ -296,7 +301,7 @@
                 </ul>
               {/if}
               {#if r.fitted_by.length}
-                <p class="lo">Fitted by: {#each r.fitted_by as f, j (f.name)}{j ? ", " : ""}<span class:fit-on={f.unlocked}>{f.name}{f.unconfirmed ? " (?)" : ""}</span>{/each}</p>
+                <p class="lo">Fitted by: {#each r.fitted_by as f, j (f.name)}{j ? ", " : ""}<span class:fit-on={f.unlocked}>{f.name}</span>{f.unconfirmed ? " " : ""}{#if f.unconfirmed}<span {@attach tip(UNSURE)}>(?)</span>{/if}{/each}</p>
               {:else if r.pick.kind === "upgrade"}
                 <p class="lo">Upgraded at Pioneer Supplies.</p>
               {/if}
@@ -312,7 +317,7 @@
         {#if list.barter_short}· short assets are worth {list.barter_short.toLocaleString()} barter at a bartender{/if}
       </p>
       <table class="inv">
-        <thead><tr><th>Item</th><th>Need</th><th>Have</th><th>Short</th><th>Barter each</th></tr></thead>
+        <thead><tr><th>Item</th><th>Need</th><th>Have</th><th>Short</th><th {@attach tip(BARTER)}>Barter each</th></tr></thead>
         <tbody>
           {#each list.total as l (l.id)}
             <tr class:done={l.short === 0}>
@@ -325,7 +330,7 @@
           {/each}
         </tbody>
       </table>
-      <h3 class="section list">Bartender trade</h3>
+      <h3 class="section list" {@attach tip("Assumes a bartender swaps equal barter value, and trades assets only: the wiki gives barter values for assets only")}>Bartender trade</h3>
       {#if list.trade.swaps.length}
         <ul class="swaps">
           {#each list.trade.swaps as w (w.get_id)}
@@ -345,7 +350,6 @@
       {:else if list.trade.swaps.length}
         <p class="ok">Nothing is short after the trade.</p>
       {/if}
-      <p class="lo note">Assumes a bartender swaps equal barter value and that only assets are traded (the wiki gives barter values for assets only).</p>
       {:else if !shopError}
         <p class="lo">Working out the shopping list…</p>
       {/if}
@@ -363,17 +367,16 @@
           </header>
           <p><SystemChip name={e.system} />{e.colonia ? " · Colonia" : ""}</p>
           {#if e.next}<p class="next">{e.next}</p>{/if}
-          <p class="lo">{e.mods.map((m) => m.name + (m.unconfirmed ? " (?)" : "")).join(" · ")}</p>
+          <p class="lo">{#each e.mods as m, j (j)}{j ? " · " : ""}{m.name}{m.unconfirmed ? " " : ""}{#if m.unconfirmed}<span {@attach tip(UNSURE)}>(?)</span>{/if}{/each}</p>
           {#if e.referred_by.length}<p class="lo">Referred by {e.referred_by.join(", ")}</p>{/if}
           {#if e.refers.length}<p class="lo">Refers {e.refers.join(", ")}{e.referral_task ? `: ${e.referral_task}` : ""}</p>{/if}
         </article>
       {/each}
-      <p class="lo note">(?) the wiki disagrees with itself on whether this engineer fits that mod.</p>
     </div>
   {/if}
 
   {#if view}
-    <p class="lo note foot">Game data: {view.data_source}, {view.data_date}. {view.data_uncertain.length} values are unsure or blank on the wiki.</p>
+    <p class="lo note foot" {@attach tip(`${view.data_uncertain.length} values are unsure or blank on the wiki`)}>Game data: {view.data_source}, {view.data_date}</p>
   {/if}
 </section>
 

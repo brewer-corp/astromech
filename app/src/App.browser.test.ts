@@ -304,7 +304,7 @@ describe("Places in the window", () => {
 
   it("keeps the source pages' old addresses: Trade, Materials and Exploration still open", async () => {
     for (const [page, sees] of [
-      ["#/trade", /most profitable hop/],
+      ["#/trade", /^Where to sell or buy is in Places/],
       ["#/materials", /^Raw sites near you/],
       ["#/materials/protoheatradiators", /^Find the nearest systems$/],
       ["#/exploration", /^Where to sell$/],

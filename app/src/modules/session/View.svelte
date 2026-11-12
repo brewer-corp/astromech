@@ -3,6 +3,7 @@
   // income), from the journal history the core keeps.
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
+  import { tip } from "../../lib/ui/tip";
   import { duration, EARNING_NAMES, loadSession, when, type Session } from "../../lib/logbook";
 
   let s = $state<Session | null>(null);
@@ -24,6 +25,9 @@
   });
 
   const cr = (n: number) => `${n.toLocaleString()} cr`;
+
+  /** What Earned counts, in its tile's Tip. */
+  const EARNED = "Credits paid for what you did: trade sales, data, vouchers handed in, mission rewards, rescue, community goals, Odyssey goods and Powerplay salary. Selling ships, modules or drones isn't counted.";
 </script>
 
 <section>
@@ -36,7 +40,7 @@
       {#if s.source}· {s.source}{/if}
     </p>
     <div class="tiles">
-      <div><span class="k">Earned</span><span class="v">{cr(s.total)}</span></div>
+      <div {@attach tip(EARNED)}><span class="k">Earned</span><span class="v">{cr(s.total)}</span></div>
       <div><span class="k">Per hour</span><span class="v">{s.per_hour === null ? "–" : cr(s.per_hour)}</span></div>
       <div><span class="k">Jumps</span><span class="v">{s.jumps.toLocaleString()}</span></div>
       <div><span class="k">Distance</span><span class="v">{s.distance_ly.toFixed(1)} ly</span></div>
@@ -61,11 +65,10 @@
 
     <h3 class="section">Also</h3>
     <ul class="also">
-      <li>Data sold: {cr(s.data_sold)} <span class="lo">(exploration and organic, included above)</span></li>
-      <li>Bounties awarded: {s.bounties_awarded} worth {cr(s.bounty_value)} <span class="lo">(paid when you hand in the vouchers)</span></li>
-      {#if s.carrier_jumps}<li>Carrier jumps: {s.carrier_jumps} <span class="lo">(not in jumps or distance)</span></li>{/if}
+      <li {@attach tip("Exploration and organic data, included in Earned")}>Data sold: {cr(s.data_sold)}</li>
+      <li {@attach tip("Paid when you hand in the vouchers")}>Bounties awarded: {s.bounties_awarded} worth {cr(s.bounty_value)}</li>
+      {#if s.carrier_jumps}<li {@attach tip("Not in Jumps or Distance")}>Carrier jumps: {s.carrier_jumps}</li>{/if}
     </ul>
-    <p class="lo note">Earnings are credits paid for what you did: trade sales, data, vouchers handed in, mission rewards, rescue, community goals, Odyssey goods and Powerplay salary. Selling ships, modules or drones isn't counted.</p>
   {:else if loaded}
     <p class="sub">No game session in the journal history yet.</p>
   {:else}
@@ -87,5 +90,4 @@
   .num { text-align: right; }
   .lo { color: var(--orange-mid); }
   .also { margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 6px; }
-  .note { margin-top: 18px; font-size: var(--fs-s); max-width: 48rem; }
 </style>

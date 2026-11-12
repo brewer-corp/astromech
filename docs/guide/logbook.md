@@ -81,7 +81,8 @@ opened it: "Open the outfitting screen once and it is kept."
 
 ### Where did I see ...
 
-Type a module ("5a frame shift", "fsd", "pulse laser", "hyperdrive_size5") and see which stations
+Type a module by name, size and rating, or symbol ("5a frame shift", "fsd", "pulse laser",
+"hyperdrive_size5") and see which stations
 you have seen selling it, with price, when you saw it and the distance. It works offline: it searches only the outfitting
 screens you opened while astromech was running.
 

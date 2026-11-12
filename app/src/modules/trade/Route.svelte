@@ -127,7 +127,10 @@
         class="kinds"
         label="Route kind"
         value={kind}
-        options={[{ value: "single", label: "Single hop" }, { value: "loop", label: "Loop" }]}
+        options={[
+          { value: "single", label: "Single hop", tip: "The most profitable hop from a station" },
+          { value: "loop", label: "Loop", tip: "A loop that brings cargo back" },
+        ]}
         onchange={(v) => (kind = v)}
       />
       <div class="pick">

@@ -47,7 +47,7 @@
       <dl>
         <dt>Rank</dt><dd class="q">{st.rank ?? "unknown"}</dd>
         <dt>Merits</dt><dd class="q">{num(st.merits)}</dd>
-        <dt>This week</dt><dd><span class="q">{num(st.week_merits)}</span> <span class="lo">· cycle ends in {until(st.week_ends)}</span></dd>
+        <dt>This week</dt><dd><span class="q" {@attach tip("What the journal logs since Thursday 07:00 UTC; weekly assignment rewards aren’t logged")}>{num(st.week_merits)}</span> <span class="lo">· cycle ends in {until(st.week_ends)}</span></dd>
         <dt>This session</dt><dd class="q">{num(st.session_merits)}</dd>
         <dt>Pledged</dt><dd>{pledged(st.time_pledged_secs)}</dd>
         {#if st.next}
@@ -63,7 +63,6 @@
           </dd>
         {/if}
       </dl>
-      <p class="lo small">Week merits count what the journal logs since Thursday 07:00 UTC; weekly assignment rewards aren’t logged.</p>
     {/if}
   </div>
 
@@ -100,7 +99,7 @@
           {/each}
         {/if}
       </dl>
-      <p class="lo small">As of your last jump. The game shows this in the system map, not on the HUD.</p>
+      <p class="lo small">As of your last jump</p>
     {/if}
   </div>
 

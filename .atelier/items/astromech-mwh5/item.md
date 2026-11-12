@@ -92,7 +92,7 @@ Four pages now use the window through a layout instead of a width cap, and a lin
 
 **Round 1 fixes:** a panel action's note and TRY AGAIN now show under the panel's buttons. A hovered or focused selected row keeps On Orange icons. The panel stacks once the content would drop below its minimum beside the panel's full 345 px track.
 
-**Tests:** a new browser test in `places/Market.browser.test.ts` selects a result and checks the panel's facts and Set destination. The guide's Places page (`docs/guide/places.md`, Results) now says how to select a result. `pnpm check` (0 errors, 0 warnings), `pnpm lint` and `pnpm test` (83 files, 617 tests after merging main) pass. After the merge, a result's name button takes Tip (`aria-label` plus `tip`) in place of `title`, as main's Tip test requires.
+**Tests:** a new browser test in `places/Market.browser.test.ts` selects a result and checks the panel's facts and Set destination. The guide's Places page (`docs/guide/places.md`, Results) now says how to select a result. `pnpm check` (0 errors, 0 warnings), `pnpm lint` and `pnpm test` (82 files, 612 tests after merging main at a807ce47) pass. That merge also dropped the line under the Commodities links, as main moved explanations into Tips; the Commodities captures predate it and still show that line. After the merge, a result's name button takes Tip (`aria-label` plus `tip`) in place of `title`, as main's Tip test requires.
 
 
 ### Responses

@@ -5,6 +5,7 @@
   // drive?" works offline.
   import Badge from "../../lib/ui/Badge.svelte";
   import Input from "../../lib/ui/Input.svelte";
+  import { tip } from "../../lib/ui/tip";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { when } from "../../lib/logbook";
@@ -140,7 +141,7 @@
   <h3 class="section">Where did I see…</h3>
   <label class="search">
     <span>Module</span>
-    <Input class="q" type="search" bind:value={query} placeholder="5a frame shift, fsd, pulse laser, hyperdrive_size5" spellcheck="false" autocomplete="off" />
+    <Input class="q" type="search" {@attach tip("A module's name, size and rating, or symbol")} bind:value={query} placeholder="5a frame shift, fsd, pulse laser, hyperdrive_size5" spellcheck="false" autocomplete="off" />
   </label>
   {#if searchFailed}
     <p class="err">{searchFailed}</p>
@@ -148,7 +149,7 @@
     {#if result.snapshots === 0}
       <p class="lo">No outfitting kept yet. The core keeps each outfitting you open, from now on.</p>
     {:else if !trimmed}
-      <p class="lo">{result.stations.toLocaleString()} {result.stations === 1 ? "station" : "stations"} remembered ({result.snapshots.toLocaleString()} outfitting files). Search for a module by name, size and rating, or symbol.</p>
+      <p class="lo">{result.stations.toLocaleString()} {result.stations === 1 ? "station" : "stations"} remembered ({result.snapshots.toLocaleString()} outfitting files)</p>
     {:else if result.found.length}
       <table aria-label="Stations that sold it">
         <thead><tr><th>Module</th><th>Station</th><th class="num">Price</th><th>Seen</th><th class="num">Distance</th></tr></thead>
