@@ -49,3 +49,10 @@ Hovering or tabbing to an icon, a value or a link now shows its explanation at o
 - **Checks:** `pnpm lint`, `pnpm check`, `pnpm build`, `scripts/check-dist.py` and `scripts/check-guide.py` pass. Vitest node: 131 passed. Vitest browser: 439 passed. Port 63315 was busy from another thread, so the browser run used `--api.port`.
 - **For review:** with no delay, every keybinds and presets cell shows a Tip as the pointer crosses the grid. That follows the item's design, but it may be busy in use. DESIGN.md is also being revised by astromech-b2k3, so the Tip section may need a rebase there.
 
+### Responses
+
+- 1-x9f4.1: fixed in e62cc7fb: `.tip.rich:not([hidden])`; the browser test loads tokens.css and checks drawn visibility, with a rich case.
+- 1-x9f4.2: fixed in e62cc7fb: the Pad options use `tip`, and `ChoiceOpt` now refuses `title`.
+- 1-x9f4.3: fixed in e62cc7fb: a recreated Tip reshows on `:focus-visible` too, with a test for a focused content change.
+- 1-x9f4.4: fixed in e62cc7fb: `docs/guide/using-the-app.md` says how Tips appear, go and reach the keyboard.
+
