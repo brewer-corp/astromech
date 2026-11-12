@@ -1184,6 +1184,12 @@ impl Core {
             }
             None => Answer::failed("Elite isn't running."),
         });
+        // The status bar's fuel and cargo, from the session's game state (Status.json and the
+        // last `Loadout`); every figure null while Elite isn't running.
+        add::<(), _>(&mut reg, self, &["ship_status"], Window, |c, _| {
+            let ship = c.session.lock().recover().as_ref().map(|s| s.hub.read(ShipStatus::from_state));
+            Done::new(ship.unwrap_or_default())
+        });
         add::<(), _>(&mut reg, self, &["eddn_log"], Window, |c, _| {
             let cfg = c.cfg();
             eddn_log(&cfg.data_dir(&c.paths), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
@@ -1607,6 +1613,35 @@ mod replies {
         pub last_error: Option<astromech_eddn::outbox::LogEntry>,
         pub log: Vec<astromech_eddn::outbox::LogEntry>,
         pub skipped: Vec<astromech_eddn::outbox::LogEntry>,
+    }
+
+    /// `ship_status`: the ship's main tank and hold as the game reports them. A figure is null
+    /// when it isn't known: Elite isn't running, or no `Loadout` or Status.json has said yet.
+    #[derive(Debug, Default, Serialize, ts_rs::TS)]
+    pub struct ShipStatus {
+        /// `ShipID` of the last `Loadout`: the ship these figures are for, which the window
+        /// matches with `engineering_fleet`'s current ship.
+        pub ship_id: Option<i64>,
+        /// Tonnes in the main tank (Status.json).
+        pub fuel: Option<f64>,
+        /// The main tank's size in tonnes (the last `Loadout`).
+        pub fuel_capacity: Option<f64>,
+        /// Tonnes aboard (Status.json, or `Cargo.json`).
+        pub cargo: Option<f64>,
+        /// The hold's size in tonnes (the last `Loadout`).
+        pub cargo_capacity: Option<i64>,
+    }
+
+    impl ShipStatus {
+        pub fn from_state(g: &astromech_gamestate::GameState) -> Self {
+            Self {
+                ship_id: g.ship_id,
+                fuel: g.fuel_main,
+                fuel_capacity: g.fuel_capacity_main,
+                cargo: g.cargo_tonnes,
+                cargo_capacity: g.cargo_capacity,
+            }
+        }
     }
 
     /// `eddn_log`'s switch and whether messages go to the test schemas.

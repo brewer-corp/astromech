@@ -475,7 +475,8 @@ game's market columns can; a fact list or a date has no column of quantities to 
 
 ## Layout
 
-The window is a fixed frame: header, route strip, at most one page tab row, then the page.
+The window is a fixed frame: header, route strip, at most one page tab row, the page, then the
+status bar.
 
 ### Spacing scale
 
@@ -488,13 +489,19 @@ wide separations let grouping be seen without boxes.
 
 | Part | Height | Notes |
 |---|---|---|
-| Header | 64 px, or 64 + 44 px | wordmark, top tabs, Find or plot, status, Help; 1 px orange rule under it. Below the width where one row fits (about 1565 px with the usual status, "Waiting for Elite", and the 320 px Find or plot box, remeasured 5 Nov 2026 with the one face; the longest status needs about 1720 px, and Finish setup up to about 1900 px) the top tabs sit on a 44 px second row under the wordmark |
+| Header | 64 px, or 64 + 44 px | wordmark, top tabs, Find or plot, Help; 1 px orange rule under it. Below the width where one row fits (about 1456 px with the 320 px Find or plot box, and about 1606 px with Finish setup, remeasured 12 Nov 2026 once the status moved to the status bar) the top tabs sit on a 44 px second row under the wordmark |
 | Route strip | 36 px | on every page |
 | Page tabs | 44 px | one row, only when the area has more than one page |
 | Page | rest | scrolls; the frame does not |
+| Status bar | 32 px | on every page: the ship, its fuel and cargo, and the core's state |
 
 Side margins 40 px; minimum window width 1100 px. The only width-dependent change in the frame is
 the header's second tab row (decision astromech-ghyo, 5 Nov 2026).
+
+**Height budget.** At the smallest window, 1100 x 700, the fixed parts leave the page at least
+480 px: header 108 (stacked), route strip 36, page tabs 44 and status bar 32 take 220 px, which
+leaves exactly 480 (measured 12 Nov 2026). A fixed part that would take more moves the status bar
+onto the route strip's row at that size instead of shrinking the page.
 
 ### Content widths and rows
 
@@ -706,6 +713,16 @@ should act ("Refuel before the next jump", "Off route"). With no route: "No rout
 Mid and the Find or plot shortcut. Never a second line. *Why:* users of every competing tool
 ask for next stop, n of N and refuel on one line they can keep their eyes on.
 
+### Status bar
+
+A 32 px band at the foot of every page with a 1 px Seam rule over it, Label size, one line. On
+the left the current ship's name in Orange and its type in Orange Mid, then "Jump" with its
+unladen maximum, "Fuel" (main tank | capacity) and "Cargo" (tonnes aboard | capacity) as
+multi-value stats. On the right the core's state ("Elite running · Voice ready"), Orange Mid, or
+Orange when Elite or the core isn't running. Fuel and cargo show only while Elite runs; a failed
+read drops them silently, since the next read on the 2 s tick is the recovery. *Why:* the ship and
+the app's health belong to no one page, and taking the state out of the header gives it room.
+
 ### Find or plot
 
 The header's one search box: an input, 320 px, placeholder "Find or plot", "Ctrl+K" at its
@@ -793,7 +810,7 @@ the variable; never repeat the value. Some variables keep names from before this
 | Result list width | `--list-w` | 1200 px |
 | Side panel | `--panel` | 320 px |
 | Control row, result row | `--row`, `--row-result` | 34, 44 px |
-| Route strip, material tile | `--strip`, `--tile` | 36, 76 px |
+| Route strip, status bar, material tile | `--strip`, `--status-bar`, `--tile` | 36, 32, 76 px |
 | Meta, Label/Section/Action, Body/Name/Nav/Figures | `--fs-xs`, `--fs-s`, `--fs` | 12, 13, 15 px |
 | Value L and wordmark, Title, Value XL | `--fs-l`, `--fs-xl`, `--fs-xxl` | 18, 24, 28 px |
 | Caps tracking | `--caps` | 0.06em |

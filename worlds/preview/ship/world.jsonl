@@ -1,0 +1,4 @@
+{"start": "2026-10-24T20:00:30Z"}
+{"game": "running"}
+{"file": "Status.json", "json": {"timestamp": "2026-10-24T20:01:00Z", "event": "Status", "Flags": 16777240, "Flags2": 0, "Pips": [4, 4, 4], "FireGroup": 0, "GuiFocus": 0, "Fuel": {"FuelMain": 24.6, "FuelReservoir": 0.91}, "Cargo": 120.0, "LegalState": "Clean", "Balance": 250000000}}
+{"mark": "flying"}

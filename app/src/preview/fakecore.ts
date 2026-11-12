@@ -29,6 +29,7 @@ import type { Mining } from "../lib/api/types/Mining";
 import type { Ores } from "../lib/api/types/Ores";
 import type { Outbox } from "../lib/api/types/Outbox";
 import type { RouteReply } from "../lib/api/types/RouteReply";
+import type { ShipStatus } from "../lib/api/types/ShipStatus";
 import type { CoreCmd, CoreStatus, Level } from "../lib/core";
 import type { EdsmStatus } from "../lib/edsm";
 import type { Route, RouteView, Waypoint } from "../lib/route";
@@ -37,6 +38,7 @@ import type { DryRun, LearnedPhrase } from "../lib/voice";
 import eddnFixture from "./fixtures/eddn-log.json";
 import biologyFixture from "./fixtures/exobiology.json";
 import miningFixture from "./fixtures/mining.json";
+import shipFixture from "./fixtures/ship-status.json";
 import plotSample from "./fixtures/plot.json";
 import voiceFixture from "./fixtures/voice.json";
 import { previewQuery } from "./query";
@@ -45,6 +47,7 @@ import { labelled, recorded, type Handler, type Handlers } from "./recorded";
 const eddnSample = recorded<Outbox<EddnHead>>(eddnFixture);
 const biologySample = recorded<Done<Biology>>(biologyFixture);
 const miningSample = recorded<Mining>(miningFixture);
+const shipSample = recorded<Done<ShipStatus>>(shipFixture);
 
 export type Scenario = "empty" | "new" | "ready";
 
@@ -644,6 +647,8 @@ export const coreHandlers: CoreHandlers = {
   },
   // Only a session (Elite running) has a system; `ready` is in one.
   exobiology: (st) => (st.scenario === "ready" ? { ...biologySample } : { ok: false, error: "Elite isn't running." }),
+  // The status bar's fuel and cargo: the sample ship's in a session, nothing known outside one.
+  ship_status: (st) => (st.scenario === "ready" ? { ...shipSample } : { ok: true, ship_id: null, fuel: null, fuel_capacity: null, cargo: null, cargo_capacity: null }),
   // The voice tester answers from sample results in every scenario (see NO_CORE).
   voice_test: (_st, args) => ({ ok: true, result: sampleRun(args) }),
   voice_test_poll: () => ({ ok: true, listening: false, last: null }),
