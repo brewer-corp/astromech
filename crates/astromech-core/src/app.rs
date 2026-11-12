@@ -1619,9 +1619,13 @@ mod replies {
     /// when it isn't known: Elite isn't running, or no `Loadout` or Status.json has said yet.
     #[derive(Debug, Default, Serialize, ts_rs::TS)]
     pub struct ShipStatus {
-        /// `ShipID` of the last `Loadout`: the ship these figures are for, which the window
-        /// matches with `engineering_fleet`'s current ship.
+        /// `ShipID` of the last `Loadout`: the ship these figures are for.
         pub ship_id: Option<i64>,
+        /// The ship's name and unladen maximum jump range from the last `Loadout`. With
+        /// `ship_id` they tell the window when to read `engineering_fleet` again: another ship,
+        /// or the same one refitted or renamed.
+        pub ship_name: Option<String>,
+        pub max_jump_range: Option<f64>,
         /// Tonnes in the main tank (Status.json).
         pub fuel: Option<f64>,
         /// The main tank's size in tonnes (the last `Loadout`).
@@ -1636,6 +1640,8 @@ mod replies {
         pub fn from_state(g: &astromech_gamestate::GameState) -> Self {
             Self {
                 ship_id: g.ship_id,
+                ship_name: g.ship_name.clone(),
+                max_jump_range: g.max_jump_range,
                 fuel: g.fuel_main,
                 fuel_capacity: g.fuel_capacity_main,
                 cargo: g.cargo_tonnes,

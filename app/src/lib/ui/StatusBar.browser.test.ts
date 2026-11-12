@@ -38,6 +38,28 @@ describe("the status bar", () => {
     expect(bar().textContent).toContain("Heavy Lifter");
   });
 
+  it("shows the new jump range after the current ship is refitted, without a ship swap", async () => {
+    // The recorded replies, adjusted as a later Loadout of the same ship 3 would change them.
+    let refitted = false;
+    answer("ship_status", async () => {
+      const s = await previewAnswer("ship_status");
+      return refitted ? { ...s, max_jump_range: 21.4 } : s;
+    });
+    answer("engineering_fleet", async () => {
+      const f = await previewAnswer("engineering_fleet");
+      if (!refitted) return f;
+      return { ...f, ships: f.ships.map((s: { current: boolean }) => (s.current ? { ...s, max_jump_range: 21.4 } : s)) };
+    });
+    render(App);
+    await idle();
+    expect(bar().textContent).toContain("Jump18.0ly");
+
+    refitted = true;
+    await vi.advanceTimersByTimeAsync(2000);
+    await idle();
+    expect(bar().textContent).toContain("Jump21.4ly");
+  });
+
   it("keeps the ship and drops fuel and cargo when the call fails, with no error", async () => {
     answer("ship_status", () => Promise.reject("the core didn't answer"));
     render(App);

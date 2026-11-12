@@ -648,7 +648,7 @@ export const coreHandlers: CoreHandlers = {
   // Only a session (Elite running) has a system; `ready` is in one.
   exobiology: (st) => (st.scenario === "ready" ? { ...biologySample } : { ok: false, error: "Elite isn't running." }),
   // The status bar's fuel and cargo: the sample ship's in a session, nothing known outside one.
-  ship_status: (st) => (st.scenario === "ready" ? { ...shipSample } : { ok: true, ship_id: null, fuel: null, fuel_capacity: null, cargo: null, cargo_capacity: null }),
+  ship_status: (st) => (st.scenario === "ready" ? { ...shipSample } : { ok: true, ship_id: null, ship_name: null, max_jump_range: null, fuel: null, fuel_capacity: null, cargo: null, cargo_capacity: null }),
   // The voice tester answers from sample results in every scenario (see NO_CORE).
   voice_test: (_st, args) => ({ ok: true, result: sampleRun(args) }),
   voice_test_poll: () => ({ ok: true, listening: false, last: null }),

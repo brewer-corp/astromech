@@ -325,7 +325,7 @@ fn cases(f: &Folders) -> Vec<Case> {
         ok("learned_forget", Some(json!("nothing"))),
         ok("exobiology", None).has(json!({"system": "Sol"})),
         // The Asp's tank and hold from the world's `Loadout`, the fuel and cargo from its Status.json.
-        ok("ship_status", None).has(json!({"ship_id": 1, "fuel": 32.0, "fuel_capacity": 32.0, "cargo": 0.0, "cargo_capacity": 64})),
+        ok("ship_status", None).has(json!({"ship_id": 1, "max_jump_range": 30.0, "fuel": 32.0, "fuel_capacity": 32.0, "cargo": 0.0, "cargo_capacity": 64})),
         // Keybinds.
         ok("binds_state", None).has(json!({"active": ["Mine"], "bindings_found": true})),
         ok("binds_refresh_devices", None).has(json!({"inventory": {"source": "world"}})),

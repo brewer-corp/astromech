@@ -6,10 +6,15 @@
  */
 export type ShipStatus = { 
 /**
- * `ShipID` of the last `Loadout`: the ship these figures are for, which the window
- * matches with `engineering_fleet`'s current ship.
+ * `ShipID` of the last `Loadout`: the ship these figures are for.
  */
 ship_id: number | null, 
+/**
+ * The ship's name and unladen maximum jump range from the last `Loadout`. With
+ * `ship_id` they tell the window when to read `engineering_fleet` again: another ship,
+ * or the same one refitted or renamed.
+ */
+ship_name: string | null, max_jump_range: number | null, 
 /**
  * Tonnes in the main tank (Status.json).
  */

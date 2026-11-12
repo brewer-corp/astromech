@@ -2,8 +2,8 @@
   // DESIGN.md Status bar: the foot of every page. On the left the current ship (its name, type and
   // unladen maximum jump range, from engineering_fleet) and, while Elite runs, its fuel and cargo
   // (ship_status); on the right the core's one-line state. App.svelte asks for `status` and `ship`
-  // on its 2 s tick; the fleet is read again only when the game reports another ship, or after a
-  // failed read.
+  // on its 2 s tick; the fleet is read again when the game's view of the ship changes (another
+  // ship, or the same one refitted or renamed), or after a failed read.
   import { untrack } from "svelte";
   import type { Fleet } from "../api/types/Fleet";
   import { headerState, type CoreStatus, type ShipStatus } from "../core";
@@ -13,10 +13,13 @@
 
   let fleet = $state<Fleet | null>(null);
   let reading = false;
+  /** The ship as the game last reported it when the fleet was read (`undefined`: never read). */
+  let readFor: string | undefined;
   const current = $derived(fleet?.ships.find((s) => s.current) ?? null);
 
-  async function read() {
+  async function read(key: string) {
     reading = true;
+    readFor = key;
     try {
       fleet = await loadFleet();
     } catch {
@@ -27,13 +30,15 @@
   }
 
   // Runs once per tick (a new `status` and `ship` each time the core answers), never on the
-  // fleet's own change, so a fleet that still disagrees with the game is read again on the next
-  // tick, not in a loop.
+  // fleet's own change: one read per change the game reports, and a failed read is retried on the
+  // next tick, not in a loop.
   $effect(() => {
     void status;
-    const id = ship?.ship_id ?? null;
+    const key = JSON.stringify([ship?.ship_id ?? null, ship?.ship_name ?? null, ship?.max_jump_range ?? null]);
     untrack(() => {
-      if (!reading && (!fleet || (id !== null && current?.id !== id))) void read();
+      if (reading) return;
+      // Outside a session the game reports no ship: keep the fleet read while it was in one.
+      if (!fleet || (ship?.ship_id != null && key !== readFor)) void read(key);
     });
   });
 

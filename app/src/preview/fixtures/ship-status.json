@@ -3,6 +3,8 @@
   "cargo_capacity": 256,
   "fuel": 24.6,
   "fuel_capacity": 32.0,
+  "max_jump_range": 18.0,
   "ok": true,
-  "ship_id": 3
+  "ship_id": 3,
+  "ship_name": "Heavy Lifter"
 }
