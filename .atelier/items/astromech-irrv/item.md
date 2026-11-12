@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-irrv
 title: 'Route page: the title is the plotter'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -73,6 +73,11 @@ are gone. Commit f7050519.
   own files (Title, PlotSetup, ImportDialog) are enrolled in both parts of the page-sizing check
   and pass. Expect a merge conflict in `View.svelte` with qwvs.
 
+Round 1 fixes (commit abce8aae): the header panel's dropdowns now open in the flow
+(`Picker`/`PlotSetup` `inline`), seen unclipped in the full preview at 1100 x 700 and
+2560 x 1440 with Worked out open; the title drops pending suggestions on Escape, clearing,
+pick, plot and blur, with a deferred-reply test that fails on the old code. 620 tests pass.
+
 Checks: `pnpm lint`, `pnpm check`, and the full vitest run (619 tests, 83 files) pass;
 `scripts/check-guide.py` passes. New tests in `Title.browser.test.ts` cover plotting, replot,
 busy, error and Try again, the file download and engine change, the range line, the shared setup
@@ -80,6 +85,11 @@ with the header panel, and the menu; View, PlotBar, NeutronFile and staleMocked 
 Looked at in the preview at 2560 x 1440 and 1100 x 700 (Worked out open, import dialog); nothing
 clipped. Note for others on this machine: parallel worktrees collide on vitest's browser port
 63315; I ran tests with a scratch config setting `browser.api.port`.
+
+### Responses
+
+1-rw9s.1: fixed in abce8aae
+1-rw9s.2: fixed in abce8aae
 
 ## Links
 
