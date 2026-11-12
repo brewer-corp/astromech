@@ -246,5 +246,5 @@
   .controls > :global(.primary) { margin-left: var(--sp-1); }
   .range { margin-left: var(--sp-3); }
   .range b { color: var(--orange-lit); }
-  .end { display: inline-flex; align-items: center; margin-left: auto; }
+  .end { display: inline-flex; align-items: center; margin-left: var(--sp-3); }
 </style>

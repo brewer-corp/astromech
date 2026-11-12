@@ -1228,6 +1228,18 @@
   },
   {
     "args": {
+      "index": 1,
+      "system": "Colonia"
+    },
+    "cmd": "route_go",
+    "reply": {
+      "error": "Colonia is no longer on the route at that place",
+      "ok": false
+    },
+    "text": null
+  },
+  {
+    "args": {
       "text": " "
     },
     "cmd": "route_set",

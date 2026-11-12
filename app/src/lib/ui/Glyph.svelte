@@ -1,6 +1,6 @@
 <script module lang="ts">
   // DESIGN.md's icon set (Shapes → Icons): one-stroke marks drawn for astromech on a 16 px grid,
-  // 1 px stroke, currentColor, no fill, square ends. Copy, route actions, the dropdown chevron,
+  // 1 px stroke, currentColor, no fill, square ends. Copy, route actions, you-are-here, the dropdown chevron,
   // the ⋯ menu and ? help, station kinds, the ship, the factions, and the star, body and station type sets.
   export type GlyphName =
     | "copy"
@@ -12,6 +12,7 @@
     | "clear"
     | "more"
     | "help"
+    | "here"
     | "settlement"
     | "planetary"
     | "outpost"
@@ -118,6 +119,9 @@
   {:else if name === "help"}
     <path d="M5.5 6a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v1" />
     <path d="M8 12.5v1.5" />
+  {:else if name === "here"}
+    <path d="M8 14.5S3.5 9.8 3.5 6.5a4.5 4.5 0 0 1 9 0c0 3.3-4.5 8-4.5 8z" />
+    <circle cx="8" cy="6.5" r="1.5" />
   {:else if name === "settlement"}
     <rect x="1.5" y="8.5" width="4" height="5" />
     <rect x="6.5" y="4.5" width="3" height="9" />

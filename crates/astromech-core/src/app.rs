@@ -1034,6 +1034,11 @@ impl Core {
         RouteReply { view: self.route.view() }
     }
 
+    /// `route_go`: `{index, system}`, the Route page's Make next.
+    fn route_go(&self, a: RouteGoArgs) -> Answer<RouteReply> {
+        self.route.go_to(a.index, &a.system).map(|view| RouteReply { view }).into()
+    }
+
     /// `route_add`: `{system, label, source}`, a lookup result's Add stop.
     fn route_add(&self, a: RouteAddArgs) -> Answer<RouteReply> {
         let stop =
@@ -1092,6 +1097,10 @@ impl Core {
         });
         add::<RouteAddArgs, _>(&mut reg, self, &["route_add"], Window, |c, r| match parsed(r, "bad stop") {
             Ok(a) => c.route_add(a),
+            Err(e) => e,
+        });
+        add::<RouteGoArgs, _>(&mut reg, self, &["route_go"], Window, |c, r| match parsed(r, "bad stop") {
+            Ok(a) => c.route_go(a),
             Err(e) => e,
         });
         add::<(), _>(&mut reg, self, &["status"], Window, |c, _| c.status());
@@ -1549,6 +1558,14 @@ mod replies {
         pub system: Option<String>,
         pub label: Option<String>,
         pub source: Option<String>,
+    }
+
+    /// `route_go`: the stop to make the next one, by its place on the route and its system, which
+    /// must still be there.
+    #[derive(Debug, Serialize, Deserialize, ts_rs::TS)]
+    pub struct RouteGoArgs {
+        pub index: usize,
+        pub system: String,
     }
 
     /// `save_diagnostics`: the zip written.
@@ -3154,6 +3171,7 @@ mod tests {
             ("route_add", Some(json!({"system": "Deciat", "label": "Farseer", "source": "engineer trip"})), None),
             ("route_skip", None, None),
             ("route_back", None, None),
+            ("route_go", Some(json!({"index": 1, "system": "Colonia"})), None),
             ("route_set", Some(json!({"text": " "})), None),
             ("route_clear", None, None),
             ("route_resume", Some(json!({})), None),

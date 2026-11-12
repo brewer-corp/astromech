@@ -192,6 +192,18 @@ impl Route {
         true
     }
 
+    /// Make waypoint `index` the next one, ahead or behind; `system` is its name as the window
+    /// showed it, so a route that changed since is refused rather than moved to the wrong stop.
+    pub fn go_to(&mut self, index: usize, system: &str) -> Result<(), String> {
+        match self.waypoints.get(index) {
+            Some(w) if same_system(&w.system, system) => {
+                self.next = index;
+                Ok(())
+            }
+            _ => Err(format!("{system} is no longer on the route at that place")),
+        }
+    }
+
     /// Make `stop` the next waypoint. In the same system as the next waypoint, or as the one just
     /// passed, it merges with it (as [`Route::new`] merges neighbours), and that one is next.
     fn add_next(&mut self, stop: Waypoint) {
@@ -811,6 +823,15 @@ impl Desk {
         self.view_of(&st)
     }
 
+    /// Make waypoint `index`, named `system`, the next one (the Route page's Make next), and copy it.
+    pub fn go_to(&self, index: usize, system: &str) -> Result<View, String> {
+        let mut st = self.state.lock().recover();
+        st.0.route.as_mut().ok_or("there is no route")?.go_to(index, system)?;
+        self.copy(&mut st);
+        self.save(&st.0);
+        Ok(self.view_of(&st))
+    }
+
     /// Copy the next waypoint again (something else took the clipboard).
     pub fn copy_next(&self) -> View {
         let mut st = self.state.lock().recover();
@@ -1026,6 +1047,21 @@ mod tests {
         assert_eq!(got.lock().recover().as_slice(), ["A", "B", "B"]);
         assert!(d.clear().route.is_none());
         assert!(d.set(route(&[" ", ""])).is_err());
+    }
+
+    /// Make next moves to any stop, ahead or behind, and copies it; a stop the route no longer has
+    /// there is refused and the route stays where it was.
+    #[test]
+    fn go_to_a_stop() {
+        let (d, got) = desk();
+        assert!(d.go_to(0, "A").is_err(), "no route");
+        d.set(route(&["A", "B", "C"])).unwrap();
+        assert_eq!(d.go_to(2, "c").unwrap().next.unwrap().system, "C");
+        assert_eq!(d.go_to(0, "A").unwrap().next.unwrap().system, "A");
+        assert!(d.go_to(1, "C").is_err());
+        assert!(d.go_to(3, "C").is_err());
+        assert_eq!(d.view().next.unwrap().system, "A");
+        assert_eq!(got.lock().recover().as_slice(), ["A", "C", "A"]);
     }
 
     #[test]
