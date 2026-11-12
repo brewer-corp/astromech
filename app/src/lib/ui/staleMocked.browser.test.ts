@@ -43,6 +43,12 @@ describe("EDSM, first read failing then working", () => {
   });
 });
 
+/** Clear route, from the Route page title's ⋯ menu. */
+async function clear() {
+  await fireEvent.click(screen.getByRole("button", { name: "More route actions" }));
+  await fireEvent.click(screen.getByRole("menuitem", { name: "Clear route" }));
+}
+
 describe("Route, an action failing", () => {
   it("keeps the action's error through good polls until the commander acts again", async () => {
     route.get.mockReset();
@@ -50,16 +56,16 @@ describe("Route, an action failing", () => {
     route.clear.mockReset();
     route.clear.mockRejectedValueOnce("the clipboard is busy");
     render(Route as unknown as Component);
-    await screen.findByText("Colonia run");
+    await screen.findByText("Following Colonia run");
 
-    await fireEvent.click(screen.getByRole("button", { name: "Clear route" }));
+    await clear();
     expect(await screen.findByText("the clipboard is busy")).toBeTruthy();
     await vi.advanceTimersByTimeAsync(6000);
     expect(route.get.mock.calls.length).toBeGreaterThan(3);
     expect(screen.getByText("the clipboard is busy")).toBeTruthy();
 
     route.clear.mockResolvedValueOnce(VIEW);
-    await fireEvent.click(screen.getByRole("button", { name: "Clear route" }));
+    await clear();
     await waitFor(() => expect(screen.queryByText("the clipboard is busy")).toBeNull());
   });
 });

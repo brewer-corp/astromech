@@ -347,10 +347,12 @@ async function neutronDownload(progress: (p: unknown) => void): Promise<NeutronF
   return neutron;
 }
 
-/** Plot from fixtures/plot.json: neutron routes "on this PC" once the file is downloaded (the
+/** Plot from fixtures/plot.json: neutron routes "on this PC" once the file is downloaded, unless
+ * Spansh was asked for (the
  * local route was plotted over the tests' small neutron star sample, so it isn't to Colonia). */
 const routePlot: H<"route_plot"> = async ({ ask }) => {
-  const neutronRoute = neutron.file ? plotSample.local : plotSample.neutron;
+  await previewGate("route_plot");
+  const neutronRoute = neutron.file && ask.engine !== "spansh" ? plotSample.local : plotSample.neutron;
   const plotted = ask.plotter === "neutron" ? neutronRoute : plotSample.exact;
   const r = await coreReply("route_set", { name: plotted.name, source: plotted.source, waypoints: plotted.waypoints, plot: plotted.plot });
   if (!r.ok) throw new Error(r.error);
