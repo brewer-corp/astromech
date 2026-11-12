@@ -3,13 +3,14 @@ schema: atelier.item
 schema_version: 3
 id: astromech-woqv
 title: Route data for the timeline
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
 priority: high
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3A493ed5d0-438d-473a-ae5a-443cdf843127
 ready:
   by: conversion
   at: 2026-11-10T06:03:06.371200258Z
