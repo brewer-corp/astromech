@@ -21,7 +21,6 @@
       Where to sell or buy is in Places:
       {#each links as l, i (l.label)}{#if i}<span aria-hidden="true">{SEP}</span>{/if}<a href="#/{l.route}" {@attach tip(`${l.label} ${l.what}`)}>{l.label}</a>{/each}
     </p>
-    <p class="sub">The most profitable hop from a station, or a loop that brings cargo back.</p>
   </div>
   <Route />
 </section>
@@ -33,5 +32,4 @@
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .moved a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .moved a:hover { color: var(--orange-lit); }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
 </style>

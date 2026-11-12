@@ -3,6 +3,7 @@
   // A run starts at the first limpet, prospect or refine after docking or loading the game.
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
+  import { tip } from "../../lib/ui/tip";
   import { loadMining, oreName, type MiningRun } from "../../lib/mining";
 
   let run = $state<MiningRun | null>(null);
@@ -42,7 +43,7 @@
   {:else}
     <div class="tiles">
       <div><span class="k">Refined</span><span class="v">{run.total} t</span></div>
-      <div><span class="k">Per hour</span><span class="v">{run.per_hour === null ? "–" : `${run.per_hour.toFixed(0)} t/h`}</span></div>
+      <div {@attach tip("Measured to the latest journal line; shows once a minute has passed")}><span class="k">Per hour</span><span class="v">{run.per_hour === null ? "–" : `${run.per_hour.toFixed(0)} t/h`}</span></div>
     </div>
     <h3 class="section">By ore</h3>
     {#if ores.length}
@@ -56,7 +57,7 @@
     {:else}
       <p class="lo">Nothing refined yet.</p>
     {/if}
-    <p class="lo note">Since {run.started.replace("T", " ").replace(/:\d\dZ$/, "")} UTC, measured to the latest journal line. The rate shows once a minute has passed. Docking ends the run.</p>
+    <p class="lo note" {@attach tip("Docking ends the run")}>Since {run.started.replace("T", " ").replace(/:\d\dZ$/, "")} UTC</p>
   {/if}
 </section>
 
