@@ -78,3 +78,8 @@ core's state line has left the header.
   -p astromech-app, cargo clippy on both with -D warnings, cargo fmt --check: all pass.
 - Height scaling (astromech-k6pl) is not done yet; the bar uses the token, so it scales with the
   rest once that lands.
+
+### Responses
+
+1-77tl.1: fixed in 8474debf: ship_status also carries the last Loadout's ship_name and max_jump_range, and the bar reads engineering_fleet again once whenever ship_id, name or range changes; StatusBar.browser.test.ts covers a same-ID range change (18.0 to 21.4 ly).
+1-77tl.2: fixed in 8474debf: docs/guide/using-the-app.md describes the status bar (ship, jump range, fuel and cargo, when they drop out, the 2 s refresh) and the health line in it, and gives the remeasured header widths.
