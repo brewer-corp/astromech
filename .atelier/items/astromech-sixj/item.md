@@ -56,3 +56,4 @@ Hovering or tabbing to an icon, a value or a link now shows its explanation at o
 - 1-x9f4.3: fixed in e62cc7fb: a recreated Tip reshows on `:focus-visible` too, with a test for a focused content change.
 - 1-x9f4.4: fixed in e62cc7fb: `docs/guide/using-the-app.md` says how Tips appear, go and reach the keyboard.
 
+- 3-buf7.1: fixed in fe1dc319: placement measures target and Tip in screen px and writes back divided by the Tip's `currentCSSZoom`; the width cap uses `--win-w`; a browser test at zoom 1.44 checks both placements, and the real app at 2560x1440 puts Help's Tip 12 px below it, inside the window.
