@@ -90,6 +90,12 @@
   }
   const chooseKind = (k: string) => (location.hash = pageHash("materials", { kind: k === "raw" ? null : k }));
 
+  /** Each grade's storage cap, the same for every material of that grade, so the column head
+   * states it once ("Grade 1 · max 300", DESIGN.md Material tile). */
+  const caps = $derived(new Map(kind?.groups.flatMap((g) => g.cells).map((c) => [c.grade, c.capacity]) ?? []));
+  /** What a screen reader says for a tile: its name first, then how many of how many. */
+  const said = (c: Cell) => `${c.name}, ${c.count} of ${c.capacity}`;
+
   /** The board's widest grid: the most grades of any kind, with the row heads. */
   const min = $derived(tilesMin(Math.max(4, ...(inv?.kinds.map((k) => k.grades.length) ?? [])), true));
 </script>
@@ -101,7 +107,7 @@
     <div class="query">
       <div class="bar">
         {#if kinds.length}<Choice label="Kind" options={kinds} value={kindId} onchange={chooseKind} />{/if}
-        <p class="sub">
+        <p class="type-label">
           {#if inv}
             {kindId === "other" ? "Guardian, Thargoid and anything the journal named that is not on a trader." : (kind?.trader ?? "")}
             {#if kindId !== "other" && kind}
@@ -115,7 +121,7 @@
       </div>
       <Stale error={inv ? failed : null} />
       {#if kindId === "manufactured" && inv?.here}
-        <p class="sub here">
+        <p class="type-label here">
           <SystemChip name={inv.here.system} />{inv.here.line.startsWith(inv.here.system) ? inv.here.line.slice(inv.here.system.length) : ` · ${inv.here.line}`} <ExtLinks system={inv.here.system} />
         </p>
       {/if}
@@ -125,26 +131,28 @@
       {#if kindId === "other" && inv}
         <Tiles label="Other materials">
           {#each inv.other as c (c.id)}
-            <button class="cell" class:sel={selId === c.id} style:--track={track(c)} onclick={() => pick(c.id)}>
-              <span class="n">{c.name}</span>
-              <span class="q">{c.count} / {c.capacity}</span>
+            <!-- Off-trader caps differ by material, so each tile's corner mark states its own. -->
+            <button class="cell" class:sel={selId === c.id} class:empty={c.count === 0} style:--track={track(c)} aria-label={said(c)} onclick={() => pick(c.id)}>
+              <span class="type-value-xl q">{c.count}</span>
+              <span class="type-label n">{c.name}</span>
+              <span class="type-meta mark">max {c.capacity}</span>
             </button>
           {:else}
-            <p class="lo">No off-trader materials in the journal.</p>
+            <p class="type-label">No off-trader materials in the journal.</p>
           {/each}
         </Tiles>
       {:else if kind}
         <Tiles cols={kind.grades.length} heads label={kind.title}>
           <div class="corner"></div>
           {#each kind.grades as g (g)}
-            <div class="gh">G{g}</div>
+            <div class="gh type-label">Grade {g}{#if caps.has(g)} · max {caps.get(g)}{/if}</div>
           {/each}
           {#each kind.groups as g (g.name)}
-            <div class="rh">{g.name}</div>
+            <div class="rh type-label">{g.name}</div>
             {#each g.cells as c (c.id)}
-              <button class="cell" class:sel={selId === c.id} class:empty={c.count === 0} style:--track={track(c)} onclick={() => pick(c.id)}>
-                <span class="n">{c.name}</span>
-                <span class="q">{c.count} / {c.capacity}</span>
+              <button class="cell" class:sel={selId === c.id} class:empty={c.count === 0} style:--track={track(c)} aria-label={said(c)} onclick={() => pick(c.id)}>
+                <span class="type-value-xl q">{c.count}</span>
+                <span class="type-label n">{c.name}</span>
               </button>
             {/each}
           {/each}
@@ -153,15 +161,15 @@
           <ul class="farm">
             {#each inv.farm as f (f.id)}
               <li>
-                <button class:on={selId === f.id} onclick={() => pick(f.id)}>{f.name}</button>
-                <span class="q">{f.count}/{f.capacity}</span>
-                <span class="lo">{f.summary}</span>
+                <button class="type-name" class:on={selId === f.id} onclick={() => pick(f.id)}>{f.name}</button>
+                <span class="type-figures fq">{f.count}<span class="type-unit">of {f.capacity}</span></span>
+                <span class="type-label">{f.summary}</span>
               </li>
             {/each}
           </ul>
         {/if}
         {#if kindId === "raw"}
-          <p class="sites">
+          <p class="sites type-label">
             Raw sites near you, in Places:
             {#each SITE_KINDS as k, i (k.id)}{#if i}<span aria-hidden="true">{SEP}</span>{/if}<a href="#/{siteRoute(k.id)}">{k.label}</a>{/each}
           </p>
@@ -175,26 +183,25 @@
 {#snippet about()}
   <div class="about">
     {#if sel}
-      <h3>{sel.name}</h3>
-      <p>Grade {sel.grade} · {sel.rarity}</p>
-      <p>{sel.kind === "raw" ? "Raw" : sel.kind === "encoded" ? "Encoded" : "Manufactured"} · {sel.group}</p>
-      <p class="qty">{sel.count} / {sel.capacity}</p>
+      <h3 class="type-title">{sel.name}</h3>
+      <p class="type-label">{sel.kind === "raw" ? "Raw" : sel.kind === "encoded" ? "Encoded" : "Manufactured"} · grade {sel.grade} · {sel.group} · {sel.rarity}</p>
+      <p class="qty"><span class="type-value-xl">{sel.count}</span><span class="type-unit">of {sel.capacity} held</span></p>
       {#if sel.sources?.length}
         {#each sel.sources as s, i (i)}
           <p>{s.summary}</p>
-          <p class="lo">{s.hint}</p>
+          <p class="type-label">{s.hint}</p>
         {/each}
       {/if}
-      <p class="lo">{sel.trader ? "Shown on the matching material trader." : "Not traded at material traders."}</p>
+      <p class="type-label">{sel.trader ? "Shown on the matching material trader." : "Not traded at material traders."}</p>
       {@const lookup = sel.sources?.find((s) => s.query)?.query}
       {#if lookup}<p><a class="link" href="#/{factionRoute(lookup)}">Find the nearest systems</a></p>{/if}
     {:else}
-      <h3>{kind?.title ?? "Materials"}</h3>
+      <h3 class="type-title">{kind?.title ?? "Materials"}</h3>
       {#if kindId === "other"}
-        <p class="lo">Guardian, Thargoid and anything the journal named that is not on a trader.</p>
+        <p class="type-label">Guardian, Thargoid and anything the journal named that is not on a trader.</p>
       {:else if kind}
-        <p class="qty">{kind.held.toLocaleString()} / {kind.capacity.toLocaleString()}</p>
-        {#if kind.trader}<p class="lo">{kind.trader}</p>{/if}
+        <p class="qty"><span class="type-value-xl">{kind.held.toLocaleString()}</span><span class="type-unit">of {kind.capacity.toLocaleString()} held</span></p>
+        {#if kind.trader}<p class="type-label">{kind.trader}</p>{/if}
       {/if}
     {/if}
   </div>
@@ -205,37 +212,39 @@
   .find { min-width: 0; }
   /* The kind is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). */
   .query { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .query p { margin: 0; }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
   .here { color: var(--accent); }
   .out { padding: var(--sp-6) 0 0; min-width: 0; }
-  .farm { list-style: none; margin: 24px 0 0; padding: 0; display: flex; flex-direction: column; }
-  .farm li { display: grid; grid-template-columns: minmax(10rem, 14rem) 5rem minmax(0, var(--measure)); gap: 10px 18px; align-items: baseline; padding: 14px 8px; border-bottom: 1px solid var(--line); font-size: var(--fs-s); }
-  .farm button { font-weight: 500; }
+  .farm { list-style: none; margin: var(--sp-6) 0 0; padding: 0; display: flex; flex-direction: column; }
+  .farm li { display: grid; grid-template-columns: minmax(10rem, 14rem) 6rem minmax(0, var(--measure)); gap: var(--sp-2) var(--sp-4); align-items: baseline; padding: var(--sp-3) var(--sp-2); border-bottom: 1px solid var(--line); }
   .farm button:hover, .farm .on { color: var(--orange-lit); }
-  .gh, .rh, .corner { min-height: 40px; display: flex; align-items: center; color: var(--orange-mid); font-size: var(--fs-s); }
-  .gh { justify-content: center; }
-  .rh { padding: 0 10px; }
-  /* Read-only tiles on the hull (DESIGN.md Material tile); none held is Void inside a Seam
-     outline, all Orange Dim; the selected one, which the side panel explains, is solid orange. */
-  .cell { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 64px; padding: 10px 12px; text-align: left; background: linear-gradient(90deg, var(--track)) bottom / 100% 2px no-repeat, var(--surface); }
+  .fq { text-align: right; }
+  .gh, .rh, .corner { min-height: 40px; display: flex; align-items: center; }
+  .gh { padding: 0 var(--sp-3); }
+  .rh { padding: 0 var(--sp-3) 0 0; }
+  /* DESIGN.md Material tile: a 76 px Hull tile, the count in Value XL top left, the name below in
+     Label size and Orange, at most one Meta corner mark top right, and the 2 px track along the
+     bottom edge. None held is Void inside a Seam outline, all Orange Dim; the selected one, which
+     the side panel explains, is solid orange with no track. */
+  .cell { position: relative; display: grid; grid-template-rows: auto 1fr; height: var(--tile); padding: 10px var(--sp-3); text-align: left; background: linear-gradient(90deg, var(--track)) bottom / 100% 2px no-repeat, var(--surface); }
+  .n { align-self: end; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mark { position: absolute; top: 10px; right: var(--sp-3); color: var(--accent); }
   .cell:hover { background-color: var(--row-hover); }
   .cell.empty { background: var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
-  .cell.empty .n, .cell.empty .q { color: var(--orange-dim); }
+  .cell.empty :is(.n, .q, .mark) { color: var(--orange-dim); }
   /* The Seam outline must not hide the focus ring or the hover (review astromech-hdht). */
   .cell.empty:hover { background: var(--row-hover); }
   .cell.empty:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .cell.sel, .cell.sel:hover { background: var(--accent); outline: 0; }
-  .cell.sel :is(.n, .q) { color: var(--on-accent); }
+  .cell.sel :is(.n, .q, .mark) { color: var(--on-accent); }
   .cell.sel:focus-visible { outline: 1px solid var(--on-accent); outline-offset: -3px; }
-  .n { font-size: var(--fs-s); line-height: 1.25; }
-  .q { font-size: var(--fs-s); }
-  .farm .q { text-align: right; }
-  .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
-  .about p { margin: 0 0 10px; line-height: 1.45; }
-  .qty { color: var(--accent); }
-  .lo { color: var(--orange-mid); }
-  .sites { margin: 24px 0 0; padding: 0 8px; font-size: var(--fs-s); color: var(--orange-mid); }
+  /* DESIGN.md Side panel: the title in white, the key value in white, facts in Orange. */
+  .about h3 { margin: 0 0 var(--sp-1); }
+  .about p { margin: 0 0 10px; }
+  .about .qty { margin: var(--sp-4) 0; }
+  .qty .type-value-xl { color: var(--text-hi); }
+  .sites { margin: var(--sp-6) 0 0; }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .sites a, .link { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .sites a:hover, .link:hover { color: var(--orange-lit); }

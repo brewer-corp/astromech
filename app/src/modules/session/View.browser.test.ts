@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/svelte";
+import { statValue } from "../../test/stat";
 import View from "./View.svelte";
 
 // Outside the app the summary is the sample history's latest session (worlds/preview/history,
@@ -7,10 +8,11 @@ import View from "./View.svelte";
 describe("Session summary", () => {
   it("shows the session's totals", async () => {
     render(View);
-    await screen.findByText("7,221,500 cr");
+    await screen.findByText("Earned");
+    expect(statValue("Earned")).toBe("7,221,500 cr");
     expect(screen.getByText(/2026-09-03 10:00 to 2026-09-03 10:30 UTC \(29 min\)/)).toBeTruthy();
-    expect(screen.getByText("14,483,231 cr")).toBeTruthy();
-    expect(screen.getByText("0.0 ly")).toBeTruthy();
+    expect(statValue("Per hour")).toBe("14,483,231 cr");
+    expect(statValue("Distance")).toBe("0.0 ly");
     const rows = screen.getAllByRole("row").map((r) => r.textContent?.replace(/\s+/g, " ").trim());
     expect(rows).toEqual([
       "Organic data5,000,000 cr1 payment",

@@ -964,6 +964,7 @@ in tokens.css only until the last page using it moves onto a layout.
 | Meta, Label/Section/Action, Body/Name/Nav/Figures | `--fs-xs`, `--fs-s`, `--fs` | 12, 13, 15 px |
 | Value L and wordmark, Title, Value XL | `--fs-l`, `--fs-xl`, `--fs-xxl` | 18, 24, 28 px |
 | Caps tracking | `--caps` | 0.06em |
+| Each Hierarchy role (Typography) | `.type-wordmark`, `.type-title`, `.type-value-xl`, `.type-value-l`, `.type-nav`, `.type-name`, `.type-body`, `.type-figures`, `.type-label`, `.type-meta`, `.type-action`; Section is `.section` | a class setting the role's size, weight, line height, case and colour; a page names the role and sets no font size. A unit after its number is `.type-unit` |
 | The root zoom (The Height Scale Rule) | `--zoom` | set by `lib/scale.svelte.ts`; 1 to 1.8, times the text size |
 | The window's height, 1 % of its width, under the zoom | `--win-h`, `--win-w` | `100vh / --zoom`, `1vw / --zoom` |
 | The frame's side margins | `--side` | 16 to 40 px: 3 % of the window's width |

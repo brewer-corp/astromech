@@ -13,11 +13,15 @@ import pageSizing from "./eslint-rules/pageSizing.js";
  */
 export const PAGE_SIZING = [
   // astromech-mwh5: one page per layout.
-  ["src/modules/materials/View.svelte", "width"],
+  ["src/modules/materials/View.svelte", "width", "font-size"],
   ["src/modules/places/FinderPage.svelte", "width"],
   ["src/modules/places/{Market,Cargo,Services,Outfitting,Shipyard,Traders,RawSites,FactionStates,Hotspots}.svelte", "width"],
   ["src/modules/trade/{View,Route}.svelte", "width"],
-  ["src/modules/settings/View.svelte", "width"],
+  ["src/modules/settings/View.svelte", "width", "font-size"],
+  // astromech-z5oh: the files that name type roles and set no font size of their own.
+  ["src/modules/places/Home.svelte", "font-size"],
+  ["src/modules/settings/{Callouts,ProspectorThresholds}.svelte", "font-size"],
+  ["src/modules/{session,mining}/View.svelte", "font-size"],
 ];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts

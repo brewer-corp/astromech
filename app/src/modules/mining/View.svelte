@@ -4,6 +4,7 @@
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { tip } from "../../lib/ui/tip";
+  import Stat from "../../lib/ui/Stat.svelte";
   import { loadMining, oreName, type MiningRun } from "../../lib/mining";
 
   let run = $state<MiningRun | null>(null);
@@ -33,17 +34,17 @@
 <section>
   <Stale error={run ? failed : null} />
   {#if !loaded}
-    <p class="sub">Reading the run…</p>
+    <p class="type-label sub">Reading the run…</p>
   {:else if failed && !run}
-    <p class="sub err" role="alert">{failed}</p>
+    <p class="type-label sub err" role="alert">{failed}</p>
   {:else if !run}
-    <p class="sub">No mining run yet.</p>
+    <p class="type-label sub">No mining run yet.</p>
   {:else if !run.started}
-    <p class="sub">No mining yet. The run starts at your first limpet, prospect or refined ton after docking.</p>
+    <p class="type-label sub">No mining yet. The run starts at your first limpet, prospect or refined ton after docking.</p>
   {:else}
     <div class="tiles">
-      <div><span class="k">Refined</span><span class="v">{run.total} t</span></div>
-      <div {@attach tip("Measured to the latest journal line; shows once a minute has passed")}><span class="k">Per hour</span><span class="v">{run.per_hour === null ? "–" : `${run.per_hour.toFixed(0)} t/h`}</span></div>
+      <Stat label="Refined" value={run.total} unit="t" />
+      <Stat label="Per hour" value={run.per_hour === null ? "–" : run.per_hour.toFixed(0)} unit={run.per_hour === null ? "" : "t/h"} {@attach tip("Measured to the latest journal line; shows once a minute has passed")} />
     </div>
     <h3 class="section">By ore</h3>
     {#if ores.length}
@@ -57,23 +58,20 @@
     {:else}
       <p class="lo">Nothing refined yet.</p>
     {/if}
-    <p class="lo note" {@attach tip("Docking ends the run")}>Since {run.started.replace("T", " ").replace(/:\d\dZ$/, "")} UTC</p>
+    <p class="type-label note" {@attach tip("Docking ends the run")}>Since {run.started.replace("T", " ").replace(/:\d\dZ$/, "")} UTC</p>
   {/if}
 </section>
 
 <style>
   section { padding: 8px 0 28px; min-height: 0; }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 14px 0; }
+  .sub { margin: 14px 0; }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-top: 14px; }
-  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--surface); } /* read-only tiles: hull */
-  .k { color: var(--orange-mid); font-size: var(--fs-s); }
-  .v { color: var(--orange-lit); font-size: var(--fs-l); }
   h3 { margin: 22px 0 8px; }
   table { border-collapse: collapse; }
   td { padding: 4px 18px 4px 0; }
   .num { text-align: right; }
   .lo { color: var(--orange-mid); }
-  .note { font-size: var(--fs-s); margin-top: 14px; }
+  .note { margin-top: 14px; }
 </style>

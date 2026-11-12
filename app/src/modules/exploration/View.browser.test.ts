@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/svelte";
 import { answer, previewAnswer } from "../../test/transport";
+import { statValue } from "../../test/stat";
 import View from "./View.svelte";
 
 // Outside the app the view is the sample system (worlds/preview/explorer: the Rust replay test's
@@ -26,10 +27,11 @@ describe("Exploration system view", () => {
 
   it("shows the unsold data, with no reminder while it is under the risky mark", async () => {
     render(View);
-    await screen.findByText("33.3 M cr");
-    expect(screen.getAllByText("4.8 M cr").length).toBeGreaterThan(0);
+    await screen.findByText("Organic");
+    expect(statValue("Organic")).toBe("33.3 M cr");
+    expect(statValue("Cartographic")).toBe("4.8 M cr");
     expect(screen.getByText("5 bodies in 1 systems")).toBeTruthy();
-    expect(screen.getByText("38.1 M cr")).toBeTruthy();
+    expect(statValue("Total")).toBe("38.1 M cr");
     expect(screen.getByText(/unsold since 2026-10-17 11:00 UTC/)).toBeTruthy();
     // Under the 50 M cr the core calls risky, so no reminder.
     expect(screen.queryByRole("alert")).toBeNull();
@@ -39,7 +41,8 @@ describe("Exploration system view", () => {
     const unsold = await previewAnswer("exploration_unsold");
     answer("exploration_unsold", () => ({ ...unsold, organic: 74_635_746, total: 79_436_307, risky: true }));
     render(View);
-    await screen.findByText("79.4 M cr");
+    await screen.findByText("Organic");
+    expect(statValue("Total")).toBe("79.4 M cr");
     expect(screen.getByRole("alert").textContent).toContain("79.4 M cr aboard. Dying loses all of it");
   });
 });
