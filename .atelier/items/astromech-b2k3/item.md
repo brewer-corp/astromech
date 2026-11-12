@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-b2k3
 title: 'DESIGN.md revision 4: the Glow-up amendments'
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-s
