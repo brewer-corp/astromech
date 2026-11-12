@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-irrv
 title: 'Route page: the title is the plotter'
-status: approved
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -79,6 +79,11 @@ Round 1 fixes (commit abce8aae): the header panel's dropdowns now open in the fl
 pick, plot and blur, with a deferred-reply test that fails on the old code. 620 tests pass.
 Round 2 fix (406bbb1c): Picker moves between options on Up and Down only from its cell or an
 option, so Efficiency keeps its arrows; a test checks focus and the key's default stay.
+
+Merge of main (5363e6df): astromech-qwvs's timeline landed first. View.svelte keeps the timeline under
+the title; its Clear route button, import box and on-page help go (they are in ⋯ and ?). The
+title's ? and ⋯ now follow the controls, since the full-width Board put them at the window's far
+edge. Tests from both items updated (route names read "Following …"; Clear via ⋯); 627 pass.
 
 Checks: `pnpm lint`, `pnpm check`, and the full vitest run (619 tests, 83 files) pass;
 `scripts/check-guide.py` passes. New tests in `Title.browser.test.ts` cover plotting, replot,
