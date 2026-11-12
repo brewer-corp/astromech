@@ -60,7 +60,8 @@ The system's biology, ranked by value, live while Elite runs.
 - **Reported by other players**: bodies Spansh knows have biology, with genera, species and
   values, for when you arrive before scanning. It is from Spansh, sent to EDDN by other players.
 
-Values are Vista Genomics base values, before the first-logged bonus.
+Values are Vista Genomics base values, before the first-logged bonus: a species nobody had logged
+before pays five times. Point at a Value heading for the same.
 
 Spoken help: on a sample, **"Far enough for sample 2."** (the `sampling` callout), a summary after the
 FSS and the DSS (the `biology` callout), and an Earth-like or terraformable find from the `discovery`
