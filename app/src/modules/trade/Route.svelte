@@ -5,6 +5,7 @@
   // `trade.route`, and rest as their summary line until CHANGE opens them; an edit changes what
   // Find route will ask at once. Spansh works the route out as a job, so it runs only on "Find
   // route", which leaves the filters open or closed as they were.
+  import { tip } from "../../lib/ui/tip";
   import Failure from "../../lib/ui/Failure.svelte";
   import Button from "../../lib/ui/Button.svelte";
   import Choice from "../../lib/ui/Choice.svelte";
@@ -184,7 +185,7 @@
           <span class="pair"><span class="k">{res.route.kind === "loop" ? "A round" : "A trip"}</span> <span class="q">{credits(res.route.profit)} cr</span></span>
           <span class="pair"><span class="k">About</span> <span class="q">{credits(res.route.per_hour)} cr/h</span></span>
         </div>
-        <p class="lo small" title={`Spansh gives no profit per hour. Estimate: ${ROUTE_ESTIMATE}.`}>
+        <p class="lo small" {@attach tip(`Spansh gives no profit per hour. Estimate: ${ROUTE_ESTIMATE}.`)}>
           Estimated: {minutes(res.route.minutes)} a round trip{res.route.kind === "single" ? " (flying back empty)" : ""} at {res.route.range.toFixed(1)} ly per jump · Spansh, {ago(new Date(res.route.fetched_at * 1000).toISOString())}.
         </p>
       {/if}
@@ -231,10 +232,10 @@
   .warn::before { content: "! "; font-weight: 600; }
   .small { font-size: var(--fs-s); margin: 0 8px; }
   p { margin: 0 0 8px; }
-  @media (max-width: 1100px) {
+  @container win (max-width: 1100px) {
     .fields { grid-template-columns: minmax(0, 1fr); }
   }
-  @media (max-width: 900px) {
+  @container win (max-width: 900px) {
     .form-grid { grid-template-columns: minmax(0, 1fr); }
     .form-grid > :global(.kinds) { grid-column: 1; grid-row: auto; }
     li { grid-template-columns: minmax(0, 1fr); }

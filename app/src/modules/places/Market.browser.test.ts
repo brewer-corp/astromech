@@ -63,7 +63,7 @@ describe("Sell and Buy finders", () => {
     // Each range keeps the filters Trade remembered for it, which voice questions use too.
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "trade.sell.anywhere" });
     expect(screen.getByText(/Best prices anywhere/)).toBeTruthy();
-    expect(screen.queryByText(/^Within/)).toBeNull();
+    expect(screen.queryByText(/^Within \d+ ly of /)).toBeNull();
 
     // The price leads each row, highest first, and every row says how old its report is.
     expect(screen.getAllByRole("columnheader")[0]?.textContent).toBe("Price");

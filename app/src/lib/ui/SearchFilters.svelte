@@ -124,7 +124,7 @@
             options={(["S", "M", "L"] as const).map((p) => ({
               value: p,
               label: p,
-              title: `${shipSize === p ? "Your ship · " : ""}${p === "L" ? "L" : `${p} or larger`}`,
+              tip: `${shipSize === p ? "Your ship · " : ""}${p === "L" ? "L" : `${p} or larger`}`,
               ariaLabel: `Pad ${p}${shipSize === p ? ", current ship" : ""}`,
               mark: shipSize === p ? "ship" : undefined,
             }))}
@@ -148,8 +148,8 @@
             label="Include"
             value={included}
             options={[
-              ...(offers.includes("carriers") ? [{ value: "carriers", label: "Carriers", title: "Include fleet carriers" }] : []),
-              ...(offers.includes("odyssey") ? [{ value: "odyssey", label: "Odyssey", title: "Include Odyssey settlements" }] : []),
+              ...(offers.includes("carriers") ? [{ value: "carriers", label: "Carriers", tip: "Include fleet carriers" }] : []),
+              ...(offers.includes("odyssey") ? [{ value: "odyssey", label: "Odyssey", tip: "Include Odyssey settlements" }] : []),
             ]}
             onchange={include}
           />

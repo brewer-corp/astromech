@@ -64,3 +64,6 @@ test = false                  # send to EDDN's /test schemas instead (debug buil
 [edsm]
 enabled = false               # upload your journal to your EDSM account (flight log, map; live play only)
 commander = ""                # your commander name as registered on EDSM; the API key goes in the OS keyring (Settings)
+
+[window]
+text_size = "normal"          # smaller | normal | larger: on top of the scale the window takes from its height

@@ -103,7 +103,7 @@
   .each li { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(12rem, 1.4fr) minmax(10rem, 1fr) auto; gap: 8px 18px; align-items: start; padding: 14px 8px; border-bottom: 1px solid var(--line); font-size: var(--fs-s); line-height: 1.35; }
   .who { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs); font-weight: 500; }
   .facts { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; min-width: 0; text-align: right; } /* a column of figures */
-  @media (max-width: 900px) {
+  @container win (max-width: 900px) {
     .each li { grid-template-columns: minmax(0, 1fr); }
     .facts { align-items: flex-start; text-align: left; }
   }

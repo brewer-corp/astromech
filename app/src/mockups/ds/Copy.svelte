@@ -1,7 +1,8 @@
 <script lang="ts">
-  // The copy icon button beside a system name: always visible, tooltip and label.
+  // The copy icon button beside a system name: always visible, Tip and label.
+  import { tip } from "../../lib/ui/tip";
   import Glyph from "../../lib/ui/Glyph.svelte";
   let { what = "system name" }: { what?: string } = $props();
 </script>
 
-<button class="ibtn" title="Copy {what}" aria-label="Copy {what}"><Glyph name="copy" /></button>
+<button class="ibtn" aria-label="Copy {what}" {@attach tip(`Copy ${what}`)}><Glyph name="copy" /></button>

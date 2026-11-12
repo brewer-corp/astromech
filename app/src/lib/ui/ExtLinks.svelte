@@ -1,6 +1,7 @@
 <script lang="ts">
   // Spansh and Inara buttons for a system, or for a station in it. Opens in the browser through
   // the core; shows its own error so a failed open is not silent.
+  import { tip } from "./tip";
   import Button from "./Button.svelte";
   import Glyph from "./Glyph.svelte";
   import { openUrl } from "../core";
@@ -25,8 +26,8 @@
 </script>
 
 <span class="ext">
-  <Button title="Open {what} on Spansh" onclick={() => void open(spansh)}>Spansh <Glyph name="external" /></Button>
-  {#if station || !marketId}<Button title="Open {what} on Inara" onclick={() => void open(inara)}>Inara <Glyph name="external" /></Button>{/if}
+  <Button onclick={() => void open(spansh)} {@attach tip(`Open ${what} on Spansh`)}>Spansh <Glyph name="external" /></Button>
+  {#if station || !marketId}<Button onclick={() => void open(inara)} {@attach tip(`Open ${what} on Inara`)}>Inara <Glyph name="external" /></Button>{/if}
   {#if err}<span class="err" role="alert"><b>!</b> {err}</span>{/if}
 </span>
 
