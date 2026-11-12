@@ -106,8 +106,8 @@
         label="Include"
         value={included}
         options={[
-          ...(offers.includes("carriers") ? [{ value: "carriers", label: "Carriers", title: "Include fleet carriers" }] : []),
-          ...(offers.includes("odyssey") ? [{ value: "odyssey", label: "Odyssey", title: "Include Odyssey settlements" }] : []),
+          ...(offers.includes("carriers") ? [{ value: "carriers", label: "Carriers", tip: "Include fleet carriers" }] : []),
+          ...(offers.includes("odyssey") ? [{ value: "odyssey", label: "Odyssey", tip: "Include Odyssey settlements" }] : []),
         ]}
         onchange={include}
       />

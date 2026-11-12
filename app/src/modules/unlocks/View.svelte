@@ -1,6 +1,7 @@
 <script lang="ts">
   // Engineer unlocks as access-level cards. Columns follow who introduces whom; hovering a
   // card lights the engineers who have to introduce them first.
+  import { tip } from "../../lib/ui/tip";
   import { failure } from "../../lib/ui/errors";
   import { columns, loadUnlocks, type Status, type UnlockNode, type UnlockTree } from "../../lib/unlocks";
   import { specialties } from "../../lib/engineerSpecialties";
@@ -87,7 +88,7 @@
               >
                 <div class="top">
                   <span class="name">{n.name}</span>
-                  <span class="access" role="img" title={a.label} aria-label={a.label}>
+                  <span class="access" role="img" aria-label={a.label} {@attach tip({ title: a.label, stop: false })}>
                     {#if a.mark === "unlocked"}
                       {#each Array.from({ length: a.count }, (_, i) => i) as i (i)}
                         <span class="badge" aria-hidden="true"></span>

@@ -517,7 +517,7 @@ fact would wrap, the column is wrong or the fact should go.
 
 ## Elevation & Depth
 
-Flat and tonal: Void, then Hull, then Hull Raised for popovers. No shadows, blur or glow;
+Flat and tonal: Void, then Hull, then Hull Raised for popovers and the Tip. No shadows, blur or glow;
 state changes are instant. *Why:* the game's panels are flat planes; its glow comes from the
 cockpit and the HUD, which a desktop window does not need, and motion would draw the eye
 away from the game on the other screen.
@@ -526,8 +526,9 @@ away from the game on the other screen.
 
 Square corners everywhere (the scrollbar thumb excepted). Borders are rare: Seam for
 popovers, badges, column heads, empty tiles and section rules; 1 px orange for focus, the
-header rule and the side-panel separator. No coloured side borders on cards. *Why:* the game
-is square-cornered and nearly line-free; the trader's only lines are the section rules.
+header rule and the side-panel separator; Orange Mid for the Tip. No coloured side borders on
+cards. *Why:* the game is square-cornered and nearly line-free; the trader's only lines are the
+section rules.
 
 ### Icons
 
@@ -542,7 +543,7 @@ icons out and needs no licence; one stroke matches the game's thin line icons.
 **The Icon Or Word Rule.**
 
 - *Icons* for frequent, repeated, recognisable actions and facts: copy, add stop, set
-  destination, open external, station type. Every icon button has a tooltip and an
+  destination, open external, station type. Every icon button has a Tip and an
   accessible label naming the action ("Add Diaguandri as a stop"). *Why:* a column of
   repeated words ("ADD STOP REPLACE ROUTE" on every row) is noise; an icon repeated down a
   column is learned once.
@@ -631,7 +632,7 @@ the game fills the chosen option; the old Carriers/Odyssey toggles were drawn in
 - **Secondary (text action):** an orange caps verb, no fill, 34 px hit area. Hover: a Row
   Hover background. Disabled: Orange Dim.
 - **Icon button:** a 28 px square holding one icon, Orange Mid at rest, Orange Lit on hover,
-  tooltip and label always.
+  a Tip and a label always.
 - **Links** to somewhere else (Help, a guide page): Orange text with a 1 px Orange Mid
   underline.
 
@@ -643,6 +644,29 @@ the game fills the chosen option; the old Carriers/Odyssey toggles were drawn in
   underline. *Why:* one step down from the top row, so the two levels never look alike, and
   only one tab fill per view.
 - Maximum two rows (The Two Tab Rows Rule).
+
+### Tip
+
+The window's one tooltip, in place of the native title, which takes about a second to appear,
+is small and is ignored. One shared Tip (`app/src/lib/ui/tip.ts`, styled in `tokens.css`):
+
+- **When:** at once on hover or keyboard focus; its content swaps in place when the pointer
+  moves to the next target; gone when the pointer leaves, on scroll or on Escape. No delay or
+  fade (Elevation & Depth: state changes are instant).
+- **Look:** Hull Raised with a 1 px Orange Mid border and a pointer at the target. Above the
+  target, below it near the top edge, always inside the window.
+- **Plain:** one line in Body, Orange. **Rich:** a title in white, a fact line in Orange and a
+  note in Label, Prose Grey.
+- **Where:** every icon button (its label is its Tip unless it says more), and anything whose
+  explanation is not on screen: a value's conditions ("Full tank and full cargo"), a warning's
+  detail, a station type icon. Not on text that only repeats itself, such as a name cut short by
+  an ellipsis.
+- **Access:** screen readers get the same words through `aria-describedby` (not when they only
+  repeat the target's label). A target the keyboard can't reach gets a tab stop, except a mark
+  repeated down a column whose words are already its accessible name.
+
+A `title=` on an interactive element fails `app/src/lib/ui/tip.test.ts`. *Why:* the commander
+glances over from the game; an explanation has to be there the moment the pointer is.
 
 ### Badge
 
@@ -829,7 +853,7 @@ Each place we depart from Elite's UI, what we do instead, and why.
 - **Do** fill the selected tab, row, tile or option with solid orange and dark text.
 - **Do** keep changeable values in ember cells and read-only things on Hull or Void.
 - **Do** use white only for titles, the current section and the selected item's key value.
-- **Do** use icons for repeated row actions, with a tooltip and a label, and words for
+- **Do** use icons for repeated row actions, with a Tip and a label, and words for
   primary and one-off actions.
 - **Do** set numbers in tabular figures, right-aligned, units in Orange Mid.
 - **Do** keep the route strip on every page and a copy icon beside every system name.

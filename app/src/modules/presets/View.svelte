@@ -2,6 +2,7 @@
   // Presets (docs/V1-DESIGN.md §2.3): every preset in the Bindings folder and the game's built-in
   // ones, which is active per context (StartPreset), the health check's problems, copies,
   // switching, and astromech's backups with restore.
+  import { tip } from "../../lib/ui/tip";
   import Button from "../../lib/ui/Button.svelte";
   import Input from "../../lib/ui/Input.svelte";
   import { binds } from "../../lib/store.svelte";
@@ -39,7 +40,7 @@
       <div class="row" class:sel={p?.path === x.path}>
         <button class="name" onclick={() => (sel = x.path)}>{x.name}{#if x.source === "built-in"}<span class="lo"> · built-in</span>{/if}</button>
         {#each CONTEXTS as c, i (c)}
-          <button class="cell" class:on={x.active_for.includes(c)} title="Use {x.name} for {c}" onclick={() => void useFor(x, i)}>{x.active_for.includes(c) ? "Active" : ""}</button>
+          <button class="cell" class:on={x.active_for.includes(c)} {@attach tip(`Use ${x.name} for ${c}`)} onclick={() => void useFor(x, i)}>{x.active_for.includes(c) ? "Active" : ""}</button>
         {/each}
         <span class="mark">{x.problems.length ? `! ${x.problems.length} issue${x.problems.length > 1 ? "s" : ""}` : ""}</span>
       </div>

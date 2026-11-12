@@ -4,6 +4,7 @@
   // one-line core state. Opens on My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
   // at #/setup or #/setup/<step>. The header's Find or plot box (PlotBar) finds a page, finder,
   // material, module or ship, or plots to a system, from any page; Ctrl+K puts the cursor in it.
+  import { tip } from "./lib/ui/tip";
   import { groups, groupModules, findModule, modules } from "./lib/modules";
   import { MOVED_FINDERS } from "./lib/places";
   import { collect } from "./lib/palette";
@@ -117,12 +118,12 @@
     </nav>
     <PlotBar load={paletteItems} onpick={go} />
     {#if showSetup}
-      <Button title={setup.join(", ")} onclick={() => go("setup/health")}>Finish setup</Button>
+      <Button onclick={() => go("setup/health")} {@attach tip(setup.join(", "))}>Finish setup</Button>
     {/if}
     <span class="right">
       <span class="state" class:warn={!status || status.game === "not_running"}>{headerState(status)}</span>
       {#if current}
-        <button class="help" title="Open this page's guide in your browser" onclick={() => void openHelp(current.help)}>Help</button>
+        <button class="help" onclick={() => void openHelp(current.help)} {@attach tip("Open this page's guide in your browser")}>Help</button>
       {/if}
     </span>
   </header>
@@ -130,7 +131,7 @@
   {#if pages.length > 1}
     <nav class="sub">
       {#each pages as m (m.id)}
-        <button class:on={m.id === current?.id} title={m.summary} onclick={() => go(m.id)}>{m.title}</button>
+        <button class:on={m.id === current?.id} onclick={() => go(m.id)} {@attach tip(m.summary)}>{m.title}</button>
       {/each}
     </nav>
   {/if}
