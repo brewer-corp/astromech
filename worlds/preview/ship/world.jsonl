@@ -2,3 +2,5 @@
 {"game": "running"}
 {"file": "Status.json", "json": {"timestamp": "2026-10-24T20:01:00Z", "event": "Status", "Flags": 16777240, "Flags2": 0, "Pips": [4, 4, 4], "FireGroup": 0, "GuiFocus": 0, "Fuel": {"FuelMain": 24.6, "FuelReservoir": 0.91}, "Cargo": 120.0, "LegalState": "Clean", "Balance": 250000000}}
 {"mark": "flying"}
+{"journal": {"timestamp": "2026-10-24T20:05:00Z", "event": "Loadout", "Ship": "anaconda", "ShipID": 3, "ShipName": "Heavy Lifter", "ShipIdent": "HL-03", "HullValue": 140000000, "ModulesValue": 25000000, "HullHealth": 1.0, "CargoCapacity": 256, "MaxJumpRange": 21.4, "FuelCapacity": {"Main": 32.0, "Reserve": 1.07}, "Rebuy": 12000000, "Modules": [{"Slot": "Armour", "Item": "Anaconda_Armour_Grade1", "On": true, "Priority": 1, "Health": 1.0}, {"Slot": "FrameShiftDrive", "Item": "Int_Hyperdrive_Size6_Class5", "On": true, "Priority": 0, "Health": 1.0}, {"Slot": "Slot01_Size7", "Item": "Int_CargoRack_Size7_Class1", "On": true, "Priority": 1, "Health": 1.0}]}}
+{"mark": "refitted"}

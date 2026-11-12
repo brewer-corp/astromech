@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/svelte";
 import App from "../../App.svelte";
+import ship from "../../preview/fixtures/ship-status.json";
 import { answer, idle, previewAnswer, startPreview } from "../../test/transport";
 
 // The status bar in the window's frame, against the recorded core (`?core=ready`): the engineering
@@ -39,17 +40,10 @@ describe("the status bar", () => {
   });
 
   it("shows the new jump range after the current ship is refitted, without a ship swap", async () => {
-    // The recorded replies, adjusted as a later Loadout of the same ship 3 would change them.
+    // The ship world's replies after its refit step: ship 3's next Loadout at 21.4 ly.
     let refitted = false;
-    answer("ship_status", async () => {
-      const s = await previewAnswer("ship_status");
-      return refitted ? { ...s, max_jump_range: 21.4 } : s;
-    });
-    answer("engineering_fleet", async () => {
-      const f = await previewAnswer("engineering_fleet");
-      if (!refitted) return f;
-      return { ...f, ships: f.ships.map((s: { current: boolean }) => (s.current ? { ...s, max_jump_range: 21.4 } : s)) };
-    });
+    answer("ship_status", () => (refitted ? ship.refitted : previewAnswer("ship_status")));
+    answer("engineering_fleet", () => (refitted ? ship.refitted_fleet : previewAnswer("engineering_fleet")));
     render(App);
     await idle();
     expect(bar().textContent).toContain("Jump18.0ly");

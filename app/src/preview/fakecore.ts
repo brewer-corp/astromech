@@ -24,6 +24,7 @@ import type { Biology } from "../lib/api/types/Biology";
 import type { CalibrationStep } from "../lib/api/types/CalibrationStep";
 import type { Colour } from "../lib/api/types/Colour";
 import type { Done } from "../lib/api/types/Done";
+import type { Fleet } from "../lib/api/types/Fleet";
 import type { EddnHead } from "../lib/api/types/EddnHead";
 import type { Mining } from "../lib/api/types/Mining";
 import type { Ores } from "../lib/api/types/Ores";
@@ -47,7 +48,9 @@ import { labelled, recorded, type Handler, type Handlers } from "./recorded";
 const eddnSample = recorded<Outbox<EddnHead>>(eddnFixture);
 const biologySample = recorded<Done<Biology>>(biologyFixture);
 const miningSample = recorded<Mining>(miningFixture);
-const shipSample = recorded<Done<ShipStatus>>(shipFixture);
+/** The ship world's replies: `flying` is the status bar's sample (`refitted` and its fleet, the same
+ * ship after a refit, are the bar's test's). */
+const shipSample = recorded<{ flying: Done<ShipStatus>; refitted: Done<ShipStatus>; refitted_fleet: Fleet }>(shipFixture).flying;
 
 export type Scenario = "empty" | "new" | "ready";
 

@@ -1,6 +1,8 @@
 # The browser preview's status bar sample (app/src-tauri/tests/preview_fixtures.rs): in game in
 # the engineering world's current ship, the Anaconda Heavy Lifter (its `Loadout` is that world's,
 # re-dated: 32 t main tank, 256 t hold), in supercruise in Sol with 24.6 t of fuel and 120 t aboard.
-# The LoadGame, Location and Status.json lines are written for this world.
+# Then the same ship's next `Loadout` (mark "refitted") has an unladen maximum of 21.4 ly, as a
+# refit would give it; only the range and timestamp differ. The LoadGame, Location, Status.json
+# and refit lines are written for this world.
 [eddn]
 enabled = false
