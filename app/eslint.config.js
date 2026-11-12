@@ -22,6 +22,8 @@ export const PAGE_SIZING = [
   ["src/modules/places/Home.svelte", "font-size"],
   ["src/modules/settings/{Callouts,ProspectorThresholds}.svelte", "font-size"],
   ["src/modules/{session,mining}/View.svelte", "font-size"],
+  // astromech-qwvs: the Route page's timeline.
+  ["src/modules/route/{View,Timeline}.svelte", "width", "font-size"],
 ];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts

@@ -69,6 +69,7 @@ import type { QueryArg } from "./types/QueryArg";
 import type { Ran } from "./types/Ran";
 import type { Recorded } from "./types/Recorded";
 import type { RouteAddArgs } from "./types/RouteAddArgs";
+import type { RouteGoArgs } from "./types/RouteGoArgs";
 import type { RoutePlotted } from "./types/RoutePlotted";
 import type { RouteReply } from "./types/RouteReply";
 import type { RouteSetArgs } from "./types/RouteSetArgs";
@@ -185,6 +186,7 @@ export type Commands = {
   route_clear: { args: null; reply: Done<RouteReply>; exposure: "window" };
   route_copy: { args: null; reply: Done<RouteReply>; exposure: "window" };
   route_details: { args: null; reply: Done<RouteReply>; exposure: "window" };
+  route_go: { args: RouteGoArgs; reply: Answer<RouteReply>; exposure: "window" };
   route_plot: { args: AskArg<PlotAsk>; reply: RoutePlotted; exposure: "window" };
   route_plot_ship: { args: null; reply: PlotShip; exposure: "window" };
   route_replot: { args: null; reply: RoutePlotted; exposure: "window" };

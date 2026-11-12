@@ -422,7 +422,9 @@ fn cases(f: &Folders) -> Vec<Case> {
         ),
         ok("route_skip", None).reads("route", None, json!({"view": {"next": {"system": "Colonia"}}})),
         ok("route_back", None).reads("route", None, json!({"view": {"next": {"system": "Deciat"}}})),
-        ok("route_copy", None).sees(json!({"kind": "clipboard", "text": "Deciat"})),
+        ok("route_go", Some(json!({"index": 2, "system": "Colonia"})))
+            .reads("route", None, json!({"view": {"next": {"system": "Colonia"}}})),
+        ok("route_copy", None).sees(json!({"kind": "clipboard", "text": "Colonia"})),
         ok("route_clear", None).reads("route", None, json!({"view": {"route": null, "remaining": 0}})),
         fails("route_resume", None, "no route to resume"),
         ok("route_plot_ship", None).has(json!({"ship": {"name": "Asp Explorer", "fsd": {"tank_size": 32}}})),

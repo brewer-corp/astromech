@@ -369,7 +369,8 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
     // Colonia plotted by Spansh's recorded job; then the first leg plotted in the galaxy map and
     // two of its jumps made, so the flown leg lists its jumps (systems and star classes from
     // NavRoute.json) and the commander's place on it, the leg after it has only a count, and the
-    // stops' details come from Spansh (all three are inhabited).
+    // stops' details come from Spansh (all three are inhabited). Then the leg is plotted again
+    // from where the commander is (/replotted), and a route set to the leg's end (/first).
     t.insert(
         "route.json",
         vec![
@@ -391,6 +392,32 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
                     at: Some("flying"),
                     cmd: "route_details",
                     args: Value::Null,
+                    pick: "/view",
+                    keep: &[],
+                },
+            },
+            // Plotted again in the galaxy map from Alrai Sector LH-V b2-4, two jumps along: the
+            // flown leg now starts there, not at Sol.
+            Part {
+                key: "/replotted",
+                from: From::Core {
+                    world: "route",
+                    at: Some("replotted"),
+                    cmd: "route",
+                    args: Value::Null,
+                    pick: "/view",
+                    keep: &[],
+                },
+            },
+            // A route whose first waypoint is the end of the leg plotted in the galaxy map, as a
+            // Set destination makes: the flown leg comes before waypoint 0.
+            Part {
+                key: "/first",
+                from: From::Core {
+                    world: "route",
+                    at: Some("replotted"),
+                    cmd: "route_set",
+                    args: json!({"name": "PSR J1752-2806", "source": "search", "waypoints": [{"system": "PSR J1752-2806"}, {"system": "Colonia"}]}),
                     pick: "/view",
                     keep: &[],
                 },
