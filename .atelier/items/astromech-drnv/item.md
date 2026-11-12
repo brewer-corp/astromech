@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-drnv
 title: Finder filters collapse to their summary line
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-s
@@ -83,3 +83,4 @@ full suite ran as `pnpm exec vitest run --browser.api.port 63417`: 77 files, 568
 1-l9pq.1: fixed in 9a4f6133
 1-l9pq.2: fixed in 9a4f6133
 1-l9pq.3: fixed in 9a4f6133
+2-72am.4: fixed in 21321e97
