@@ -52,13 +52,14 @@ describe("eslint.config.js page-sizing", () => {
     return r.messages.map((m) => m.ruleId).filter((id) => id?.startsWith("page-sizing/"));
   };
 
-  it("checks an enrolled page's width", async () => {
-    expect(await lint("src/modules/materials/View.svelte")).toEqual(["page-sizing/width"]);
+  it("checks an enrolled page's width and font size, each part only where it is on", async () => {
+    expect(await lint("src/modules/materials/View.svelte")).toEqual(["page-sizing/width", "page-sizing/font-size"]);
     expect(await lint("src/modules/places/Market.svelte")).toEqual(["page-sizing/width"]);
+    expect(await lint("src/modules/places/Home.svelte")).toEqual(["page-sizing/font-size"]);
   });
 
   it("leaves a page not yet enrolled, Controls and the frame's parts alone", async () => {
-    for (const f of ["src/modules/places/Home.svelte", "src/modules/controller/View.svelte", "src/modules/route/Strip.svelte", "src/modules/route/PlotBar.svelte"]) {
+    for (const f of ["src/modules/exploration/View.svelte", "src/modules/controller/View.svelte", "src/modules/route/Strip.svelte", "src/modules/route/PlotBar.svelte"]) {
       expect(await lint(f), f).toEqual([]);
     }
   });

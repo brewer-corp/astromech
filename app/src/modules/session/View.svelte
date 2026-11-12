@@ -4,6 +4,7 @@
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { tip } from "../../lib/ui/tip";
+  import Stat from "../../lib/ui/Stat.svelte";
   import { duration, EARNING_NAMES, loadSession, when, type Session } from "../../lib/logbook";
 
   let s = $state<Session | null>(null);
@@ -35,15 +36,15 @@
   {#if failed && !s}
     <p class="err">{failed}</p>
   {:else if s}
-    <p class="sub">
+    <p class="type-label sub">
       CMDR {s.commander.name} · {s.latest ? "Latest session" : "Session"} from {when(s.start)} to {when(s.end)} UTC ({duration(s.duration_secs)})
       {#if s.source}· {s.source}{/if}
     </p>
     <div class="tiles">
-      <div {@attach tip(EARNED)}><span class="k">Earned</span><span class="v">{cr(s.total)}</span></div>
-      <div><span class="k">Per hour</span><span class="v">{s.per_hour === null ? "–" : cr(s.per_hour)}</span></div>
-      <div><span class="k">Jumps</span><span class="v">{s.jumps.toLocaleString()}</span></div>
-      <div><span class="k">Distance</span><span class="v">{s.distance_ly.toFixed(1)} ly</span></div>
+      <Stat label="Earned" value={s.total.toLocaleString()} unit="cr" {@attach tip(EARNED)} />
+      <Stat label="Per hour" value={s.per_hour === null ? "–" : s.per_hour.toLocaleString()} unit={s.per_hour === null ? "" : "cr"} />
+      <Stat label="Jumps" value={s.jumps.toLocaleString()} />
+      <Stat label="Distance" value={s.distance_ly.toFixed(1)} unit="ly" />
     </div>
 
     <h3 class="section">Credits by activity</h3>
@@ -70,20 +71,17 @@
       {#if s.carrier_jumps}<li {@attach tip("Not in Jumps or Distance")}>Carrier jumps: {s.carrier_jumps}</li>{/if}
     </ul>
   {:else if loaded}
-    <p class="sub">No game session in the journal history yet.</p>
+    <p class="type-label sub">No game session in the journal history yet.</p>
   {:else}
-    <p class="sub">Reading the journal history…</p>
+    <p class="type-label sub">Reading the journal history…</p>
   {/if}
 </section>
 
 <style>
   section { padding: 8px 0 28px; min-height: 0; }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 14px 0 14px; }
+  .sub { margin: 14px 0 14px; }
   .err { color: var(--accent); }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
-  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--surface); } /* read-only tiles: hull */
-  .k { color: var(--orange-mid); font-size: var(--fs-s); }
-  .v { color: var(--orange-lit); font-size: var(--fs-l); }
   h3 { margin: 22px 0 8px; }
   table { border-collapse: collapse; max-width: 48rem; width: 100%; }
   td { padding: 5px 16px 5px 0; border-top: 1px solid var(--line); }

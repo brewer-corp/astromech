@@ -37,7 +37,7 @@
 
 <dl>
   {#each ores.filter((o) => o.default !== null || o.threshold !== null) as o (o.ore)}
-    <dt>{o.name}</dt>
+    <dt class="type-name">{o.name}</dt>
     <dd>
       <label>
         <Input
@@ -49,7 +49,7 @@
           placeholder="Off"
           onchange={(e) => change(o, e.currentTarget.value, e.currentTarget)}
         />
-        <span class="lo">% or more</span>
+        <span class="type-label">% or more</span>
       </label>
       {#if o.threshold !== o.default}
         <Button onclick={() => change(o, "reset")}>Reset to {o.default ?? "off"}{o.default !== null ? "%" : ""}</Button>
@@ -58,7 +58,7 @@
   {/each}
 </dl>
 <!-- Always there, so a screen reader announces each error, repeats included. -->
-<p class="hint" class:warn-text={error} aria-live="polite">{error}</p>
+<p class="hint type-label" class:warn-text={error} aria-live="polite">{error}</p>
 
 <style>
   dl { display: grid; grid-template-columns: var(--form-label) minmax(0, 1fr); gap: var(--gap); margin: 0; }
@@ -68,8 +68,7 @@
   dd { padding: 0; gap: var(--sp-3); }
   label { display: flex; align-items: center; gap: 8px; }
   label > :global(.num) { width: 4.5rem; }
-  .lo { color: var(--orange-mid); font-size: var(--fs-s); }
-  .hint { color: var(--prose); margin: 8px 0 0 calc(var(--form-label) + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .hint { color: var(--prose); margin: 8px 0 0 calc(var(--form-label) + var(--gap)); }
   .hint:empty { margin: 0; }
   /* A failed save or a refused value: a red "!" and plain words under the field. */
   .warn-text { color: var(--alarm); }

@@ -253,7 +253,7 @@ describe("Places in the window", () => {
     expect(tile.getAttribute("href")).toBe("#/places/services/black_market");
     expect(within(tile).getByText("Black market")).toBeTruthy();
     expect(within(tile).getByText(/jumps?$/)).toBeTruthy();
-    expect(tile.querySelector(".v")?.textContent).toMatch(/^~?\d+$/);
+    expect(tile.querySelector(".type-value-l")?.textContent).toMatch(/^~?\d+$/);
     expect(within(screen.getByRole("link", { name: /^Shipyard/ })).queryByText(/jumps?$/)).toBeNull();
   });
 
@@ -374,7 +374,7 @@ describe("Places in the window", () => {
     expect(tile.getAttribute("href")).toBe("#/places/mining-hotspots/painite");
     expect(within(tile).getByText("Painite")).toBeTruthy();
     expect(within(tile).getByText("hotspots")).toBeTruthy();
-    expect(tile.querySelector(".v")?.textContent).toBe("10");
+    expect(tile.querySelector(".type-value-l")?.textContent).toBe("10");
   });
 
   it("keeps the Mining hotspots mineral, ring type and reserve in the address and searches again", async () => {

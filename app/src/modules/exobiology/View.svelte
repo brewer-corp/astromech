@@ -6,6 +6,7 @@
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { tip } from "../../lib/ui/tip";
+  import Stat from "../../lib/ui/Stat.svelte";
   import { loadBiology, millions, shortName, valueRange, type BiologyView } from "../../lib/exobiology";
 
   let v = $state<BiologyView | null>(null);
@@ -55,21 +56,21 @@
       {@const c = s.clearance}
       <h3 class="section">Sampling</h3>
       <div class="tiles" aria-label="Sampling">
-        <div><span class="k">Species</span><span class="v">{s.species}</span></div>
-        <div><span class="k">Samples</span><span class="v">{s.count} of 3</span></div>
+        <Stat label="Species" value={s.species} />
+        <Stat label="Samples" value={s.count} unit="of 3" />
         {#if s.complete}
-          <div><span class="k">Status</span><span class="v">Analysed</span></div>
+          <Stat label="Status" value="Analysed" />
         {:else if c}
-          <div class:go={c.far_enough}>
-            <span class="k">From the nearest sample</span>
-            <span class="v">{Math.round(c.nearest_m)} m of {c.colony_range_m} m</span>
-          </div>
-          <div class:go={c.far_enough} {@attach tip("Sample again at least the colony range from every earlier sample")}>
-            <span class="k">Sample {c.next}</span>
-            <span class="v">{c.far_enough ? "Far enough" : `${Math.max(0, Math.ceil(c.colony_range_m - c.nearest_m))} m to go`}</span>
-          </div>
+          <Stat label="From the nearest sample" value={Math.round(c.nearest_m)} unit="m of {c.colony_range_m} m" go={c.far_enough} />
+          <Stat
+            label="Sample {c.next}"
+            value={c.far_enough ? "Far enough" : Math.max(0, Math.ceil(c.colony_range_m - c.nearest_m))}
+            unit={c.far_enough ? "" : "m to go"}
+            go={c.far_enough}
+            {@attach tip("Sample again at least the colony range from every earlier sample")}
+          />
         {:else if s.colony_range_m !== null}
-          <div><span class="k">Colony range</span><span class="v">{s.colony_range_m} m</span></div>
+          <Stat label="Colony range" value={s.colony_range_m} unit="m" />
         {/if}
       </div>
       {#if sampledBody}<p class="lo">On {short(sampledBody.name)}</p>{/if}
@@ -139,11 +140,6 @@
   .err::before { content: "! "; font-weight: 600; }
   h3 { margin: 22px 0 8px; }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
-  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--surface); } /* read-only tiles: hull */
-  .tiles div.go { outline: 1px solid var(--accent); }
-  .tiles div.go .v { color: var(--accent); }
-  .k { color: var(--orange-mid); font-size: var(--fs-s); }
-  .v { color: var(--orange-lit); font-size: var(--fs-l); }
   table { border-collapse: collapse; width: 100%; max-width: 60rem; margin-top: 6px; }
   th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
   td { padding: 5px 12px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }

@@ -17,12 +17,12 @@
         {#each finders as f (f.id)}
           {@const a = lastAnswer(f.id)}
           <a class="tile" href="#/{a?.route ?? placesRoute(f.id)}">
-            <span class="name">{f.title}</span>
-            <span class="label">{f.what}</span>
+            <span class="type-name">{f.title}</span>
+            <span class="type-label">{f.what}</span>
             {#if a}
               <span class="answer"
-                ><span class="label context" title={a.context}>{a.context}</span><span class="fig"
-                  ><span class="v">{a.figure}</span>{#if a.unit}<span class="unit">{a.unit}</span>{/if}</span
+                ><span class="type-label context" title={a.context}>{a.context}</span><span class="fig"
+                  ><span class="type-value-l">{a.figure}</span>{#if a.unit}<span class="type-unit">{a.unit}</span>{/if}</span
                 ></span
               >
             {/if}
@@ -41,11 +41,7 @@
   .tile { display: grid; grid-template-rows: auto auto 1fr; gap: var(--sp-1); min-height: 104px; padding: var(--sp-3); background: var(--surface); color: var(--accent); text-decoration: none; }
   .tile:hover { background: var(--row-hover); }
   .tile:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
-  .name { font-size: var(--fs); font-weight: 500; }
-  .label { font-size: var(--fs-s); color: var(--orange-mid); }
   .answer { align-self: end; display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-2); min-width: 0; }
   .context { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fig { flex: none; white-space: nowrap; }
-  .v { font-size: var(--fs-l); font-weight: 600; color: var(--orange-lit); }
-  .unit { margin-left: 3px; font-size: var(--fs-s); color: var(--orange-mid); }
 </style>

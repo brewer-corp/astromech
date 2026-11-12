@@ -5,7 +5,8 @@
   import Badge from "../../lib/ui/Badge.svelte";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
-  import { credits, loadSystem, loadUnsold, type Body, type SystemView, type Unsold } from "../../lib/exploration";
+  import { creditParts, credits, loadSystem, loadUnsold, type Body, type SystemView, type Unsold } from "../../lib/exploration";
+  import Stat from "../../lib/ui/Stat.svelte";
   import { when } from "../../lib/logbook";
   import { serviceRoute } from "../../lib/places";
   import { tip } from "../../lib/ui/tip";
@@ -88,9 +89,11 @@
       </span>
       {#if view.source}<span class="lo">· {view.source}</span>{/if}
     </p>
+    {@const [now, nowUnit] = creditParts(view.value)}
+    {@const [best, bestUnit] = creditParts(view.value_if_mapped)}
     <div class="tiles">
-      <div {@attach tip(ESTIMATE)}><span class="k">Value now</span><span class="v">{credits(view.value)}</span></div>
-      <div {@attach tip("Once you map every body worth mapping")}><span class="k">Mapping the best</span><span class="v">{credits(view.value_if_mapped)}</span></div>
+      <Stat label="Value now" value={now} unit={nowUnit} {@attach tip(ESTIMATE)} />
+      <Stat label="Mapping the best" value={best} unit={bestUnit} {@attach tip("Once you map every body worth mapping")} />
     </div>
 
     {#if view.bodies.length}
@@ -127,16 +130,13 @@
   {#if unsoldFailed && !unsold}
     <p class="err">{unsoldFailed}</p>
   {:else if unsold}
+    {@const [carto, cartoUnit] = creditParts(unsold.cartographic)}
+    {@const [organic, organicUnit] = creditParts(unsold.organic)}
+    {@const [total, totalUnit] = creditParts(unsold.total)}
     <div class="tiles">
-      <div>
-        <span class="k">Cartographic</span><span class="v">{credits(unsold.cartographic)}</span>
-        <span class="lo small">{unsold.bodies.toLocaleString()} bodies in {unsold.systems.toLocaleString()} systems</span>
-      </div>
-      <div>
-        <span class="k">Organic</span><span class="v">{credits(unsold.organic)}</span>
-        <span class="lo small">{unsold.samples} samples{unsold.unknown_samples ? `, ${unsold.unknown_samples} of unknown value` : ""}</span>
-      </div>
-      <div><span class="k">Total</span><span class="v">{credits(unsold.total)}</span></div>
+      <Stat label="Cartographic" value={carto} unit={cartoUnit}>{unsold.bodies.toLocaleString()} bodies in {unsold.systems.toLocaleString()} systems</Stat>
+      <Stat label="Organic" value={organic} unit={organicUnit}>{unsold.samples} samples{unsold.unknown_samples ? `, ${unsold.unknown_samples} of unknown value` : ""}</Stat>
+      <Stat label="Total" value={total} unit={totalUnit} />
     </div>
     <p class="sub">
       CMDR {unsold.commander.name}{unsold.since ? ` · unsold since ${when(unsold.since)} UTC` : ""}{unsold.source ? ` · ${unsold.source}` : ""}
@@ -166,9 +166,6 @@
   .err::before { content: "! "; font-weight: 600; }
   .lo { color: var(--orange-mid); }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-bottom: 18px; }
-  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--surface); } /* read-only tiles: hull */
-  .k { color: var(--orange-mid); font-size: var(--fs-s); }
-  .v { color: var(--orange-lit); font-size: var(--fs-l); }
   table { border-collapse: collapse; width: 100%; }
   th { text-align: left; color: var(--orange-mid); font-weight: 400; font-size: var(--fs-s); padding: 0 14px 6px 0; }
   td { padding: 5px 14px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
@@ -178,7 +175,6 @@
   .note { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--fs-s); }
   tr.worth .name { color: var(--orange-lit); }
   h3 { margin: 28px 0 10px; }
-  .small { font-size: var(--fs-s); }
   /* A warning: an orange "!" and plain words, never a filled block (DESIGN.md States). */
   .risk { color: var(--accent); max-width: 52rem; }
   .risk b { font-weight: 600; }

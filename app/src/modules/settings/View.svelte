@@ -121,21 +121,21 @@
 
 <Form>
   {#if !status}
-    <p class="lo">astromech didn't answer, so settings can't be shown. If this stays, see Diagnostics.</p>
+    <p class="type-body">astromech didn't answer, so settings can't be shown. If this stays, see Diagnostics.</p>
   {:else}
     <Stale error={statusErr} />
     <h3 class="section">Window</h3>
     <dl>
-      <dt>Text size</dt>
+      <dt class="type-name">Text size</dt>
       <dd class="bare">
         <Choice label="Text size" value={scale.size} options={SIZES} onchange={(v) => void chooseSize(v)} />
       </dd>
     </dl>
-    <p class="hint" class:warn-text={!!sizeNote}>{sizeNote || "The window already grows with its height, as the game's text does; this makes all of it smaller or larger."}</p>
+    <p class="hint type-label" class:warn-text={!!sizeNote}>{sizeNote || "The window already grows with its height, as the game's text does; this makes all of it smaller or larger."}</p>
 
     <h3 class="section">Startup</h3>
     <dl>
-      <dt>Start with Windows</dt>
+      <dt class="type-name">Start with Windows</dt>
       <dd class="bare">
         <Choice
           label="Start with Windows"
@@ -146,47 +146,47 @@
           }}
         />
       </dd>
-      <dt>Setup</dt>
+      <dt class="type-name">Setup</dt>
       <dd class="value">
         <span>{status.onboarded === false ? "Not finished" : "Done"}</span>
         <Button onclick={() => (location.hash = "#/setup")}>Run again</Button>
       </dd>
     </dl>
-    <p class="hint">Starts quietly in the tray and waits for Elite, so voice is ready when you launch the game.</p>
+    <p class="hint type-label">Starts quietly in the tray and waits for Elite, so voice is ready when you launch the game.</p>
 
     <h3 class="section">Voice</h3>
     <dl>
-      <dt>Push-to-talk</dt>
+      <dt class="type-name">Push-to-talk</dt>
       <dd class="value" class:warn={!status.ptt}>
         <span>{button(status.ptt) ?? "Not set"}</span>
         <Button onclick={() => (location.hash = "#/setup/buttons")}>Change</Button>
       </dd>
-      <dt>Kill switch</dt>
+      <dt class="type-name">Kill switch</dt>
       <dd class="value">
         <span>{button(status.kill_switch) ?? "Not set"}</span>
         <Button onclick={() => (location.hash = "#/setup/buttons")}>Change</Button>
       </dd>
-      <dt>Speech models</dt>
+      <dt class="type-name">Speech models</dt>
       <dd class:value={status.models_missing && !status.models_progress} class:warn={status.models_missing && !status.models_progress}>
         <span>{status.models_progress ?? (status.models_missing ? "Not downloaded (about 800 MB)" : "Installed")}</span>
         {#if status.models_missing && !status.models_progress}
           <Button onclick={() => run("download_models")}>Download</Button>
         {/if}
       </dd>
-      <dt>Voice</dt>
+      <dt class="type-name">Voice</dt>
       <dd class="value">
         <span>{status.voice_paused ? "Paused" : "Listening while Elite runs"}</span>
         <Button onclick={() => run(status?.voice_paused ? "resume_voice" : "pause_voice")}>{status.voice_paused ? "Resume" : "Pause"}</Button>
       </dd>
     </dl>
     {#if !status.ptt}
-      <p class="hint">Push-to-talk isn't set, so voice can't listen. <a href="#/setup">Run setup</a> to pick a button.</p>
+      <p class="hint type-label">Push-to-talk isn't set, so voice can't listen. <a href="#/setup">Run setup</a> to pick a button.</p>
     {/if}
 
     {#if voice}
       <h3 class="section">Voice responses</h3>
       <dl>
-        <dt>Speaker</dt>
+        <dt class="type-name">Speaker</dt>
         <dd class="bare">
           <Dropdown class="grow" aria-label="Speaker" value={voice.speaker} onchange={(e) => setVoice({ speaker: e.currentTarget.value })}>
             {#each ["British", "American"] as accent (accent)}
@@ -199,11 +199,11 @@
             {#snippet end()}<Button onclick={preview}>Preview</Button>{/snippet}
           </Dropdown>
         </dd>
-        <dt>Colour</dt>
+        <dt class="type-name">Colour</dt>
         <dd class="bare">
           <Choice label="Colour" value={voice.colour} options={COLOURS.map((c) => ({ value: c.id, label: c.label }))} onchange={(v) => setVoice({ colour: v })} />
         </dd>
-        <dt>Speed</dt>
+        <dt class="type-name">Speed</dt>
         <dd class="bare">
           <Dropdown class="grow" aria-label="Speed" value={shownSpeed} onchange={(e) => setVoice({ speed: Number(e.currentTarget.value) })}>
             {#each speeds as x (x)}
@@ -212,39 +212,39 @@
           </Dropdown>
         </dd>
       </dl>
-      <p class="hint">{voiceNote || "Cockpit sounds like the ship's PA, close to Elite's own voice. Changes apply to the next reply."}</p>
+      <p class="hint type-label">{voiceNote || "Cockpit sounds like the ship's PA, close to Elite's own voice. Changes apply to the next reply."}</p>
     {/if}
 
     <h3 class="section">Microphone</h3>
     <dl>
-      <dt>Device</dt>
+      <dt class="type-name">Device</dt>
       <dd class="value" class:warn={!!mics && !mics.names.length}>
         <span>{mics ? (mics.setting ? (mics.chosen ?? `${mics.setting} (not connected)`) : `Windows default${mics.default ? ` · ${mics.default}` : ""}`) : "—"}</span>
         <Button onclick={() => (location.hash = "#/setup/mic")}>Change</Button>
       </dd>
-      <dt>Calibration</dt>
+      <dt class="type-name">Calibration</dt>
       <dd class="value" class:warn={gate == null}>
         <span>{gate != null ? `Ignores clips quieter than ${gate.toFixed(0)} dBFS` : "Not calibrated"}</span>
         <Button onclick={() => (calibrating = true)}>{gate != null ? "Run again" : "Calibrate"}</Button>
       </dd>
     </dl>
-    <p class="hint">Calibration measures the room and your voice on this mic, so quiet speech isn't dropped and background noise isn't heard as words.</p>
+    <p class="hint type-label">Calibration measures the room and your voice on this mic, so quiet speech isn't dropped and background noise isn't heard as words.</p>
     <h3 class="section">Callouts</h3>
     <Callouts />
-    <p class="hint">Spoken lines astromech says on its own as you play. Off means never; the cooldown is how long one stays silent after it speaks. Changes apply from the next session.</p>
+    <p class="hint type-label">Spoken lines astromech says on its own as you play. Off means never; the cooldown is how long one stays silent after it speaks. Changes apply from the next session.</p>
 
     <h3 class="section">Prospector callouts</h3>
     <ProspectorThresholds />
-    <p class="hint">A prospected rock with at least this much of an ore is read out ("Platinum 34%."). Leave a box empty to turn that ore off. A motherlode is always read out.</p>
+    <p class="hint type-label">A prospected rock with at least this much of an ore is read out ("Platinum 34%."). Leave a box empty to turn that ore off. A motherlode is always read out.</p>
 
     <h3 class="section">Updates</h3>
     <dl>
-      <dt>Version</dt>
+      <dt class="type-name">Version</dt>
       <dd>
         <span>{status.version}</span>
         <Button onclick={() => openUrl("https://github.com/brewer-corp/astromech/releases")}>Release notes</Button>
       </dd>
-      <dt>Updates</dt>
+      <dt class="type-name">Updates</dt>
       <dd class="value" class:warn={u?.status === "error"}>
         <span>{updateLine()}</span>
         {#if u?.ready && u.status !== "applying"}
@@ -257,19 +257,19 @@
     {#if u?.apply_error}
       <p class="hint warn-text">The last update didn't install: {u.apply_error}. Try again, or run the setup.exe from the release page.</p>
     {:else}
-      <p class="hint">Installing closes astromech for a few seconds and reopens it. Elite can keep running.</p>
+      <p class="hint type-label">Installing closes astromech for a few seconds and reopens it. Elite can keep running.</p>
     {/if}
 
     <h3 class="section">Files</h3>
     <dl>
-      <dt>Config file</dt>
-      <dd><span class="path">{status.config}</span><Button onclick={() => run("open_config")}>Open</Button></dd>
-      <dt>Logs</dt>
-      <dd><span class="path">{status.log_dir}</span><Button onclick={() => status && openUrl(status.log_dir)}>Open folder</Button></dd>
+      <dt class="type-name">Config file</dt>
+      <dd><span class="path type-label">{status.config}</span><Button onclick={() => run("open_config")}>Open</Button></dd>
+      <dt class="type-name">Logs</dt>
+      <dd><span class="path type-label">{status.log_dir}</span><Button onclick={() => status && openUrl(status.log_dir)}>Open folder</Button></dd>
     </dl>
     {#if status.config_note}<p class="hint warn-text">{status.config_note}</p>{/if}
   {/if}
-  {#if note}<p class="note err" role="alert">{note}</p>{/if}
+  {#if note}<p class="note err type-label" role="alert">{note}</p>{/if}
 </Form>
 
 {#if calibrating}
@@ -289,16 +289,15 @@
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
-  .path { font-size: var(--fs-s); overflow-wrap: anywhere; }
-  .hint { color: var(--prose); margin: 8px 0 0 calc(var(--form-label) + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .path { color: var(--accent); overflow-wrap: anywhere; }
+  .hint { color: var(--prose); margin: 8px 0 0 calc(var(--form-label) + var(--gap)); }
   .warn-text { color: var(--accent); }
   .warn-text::before { content: "! "; font-weight: 600; }
-  .lo { color: var(--prose); }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
   /* A row whose value is its own control (a choice or a dropdown) has no cell around it. */
   dd.bare { padding: 0; background: none; }
   dd.bare > :global(.grow) { flex: 1; }
   .hint a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
-  .note { font-size: var(--fs-s); margin-top: 20px; }
+  .note { margin-top: 20px; }
 </style>

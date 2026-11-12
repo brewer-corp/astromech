@@ -15,9 +15,11 @@ the page says "Could not read the materials" and gives the reason. It never show
 Choose a kind at the top: **Raw**, **Manufactured**, **Encoded** or **Other**. The chosen one is
 filled orange.
 
-- Each tile is a material, with how many you hold out of its cap. The line along its bottom
-  fills towards the cap; a material you have none of is dim, in an outline. The one you click is
-  filled orange. Caps are 300, 250, 200, 150 and 100 for grades 1 to 5.
+- Each tile is a material: how many you hold, large, with its name below. A grade's cap is the
+  same for every material in it, so the column head says it once ("Grade 1 · max 300"). The line
+  along a tile's bottom fills towards the cap; a material you have none of is dim, in an outline.
+  The one you click is filled orange. Caps are 300, 250, 200, 150 and 100 for grades 1 to 5. On
+  **Other**, where caps differ, each tile's top right corner gives its own.
 - The line beside the kinds says which trader trades this kind, and the total held out of the
   total capacity.
 - **Other** lists materials not on a trader: Guardian, Thargoid and anything else the journal

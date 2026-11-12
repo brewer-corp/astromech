@@ -18,9 +18,14 @@ export async function loadSystem(): Promise<SystemView> {
 
 /** "4.4 M cr", "720 k cr", "3,153 cr". */
 export function credits(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} M cr`;
-  if (n >= 10_000) return `${Math.round(n / 1000).toLocaleString()} k cr`;
-  return `${n.toLocaleString()} cr`;
+  return creditParts(n).join(" ");
+}
+
+/** credits() as its figure and its unit, for a value shown with the unit set apart: ["4.4", "M cr"]. */
+export function creditParts(n: number): [string, string] {
+  if (n >= 1_000_000) return [(n / 1_000_000).toFixed(1), "M cr"];
+  if (n >= 10_000) return [Math.round(n / 1000).toLocaleString(), "k cr"];
+  return [n.toLocaleString(), "cr"];
 }
 
 /** `null`: no commander in the history yet. */

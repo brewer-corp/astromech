@@ -51,7 +51,7 @@
 
 <dl>
   {#each list as c (c.id)}
-    <dt>{c.title}</dt>
+    <dt class="type-name">{c.title}</dt>
     <dd>
       <Choice
         label={`${c.title} on or off`}
@@ -70,7 +70,7 @@
           value={c.cooldown_s}
           onchange={(e) => setCooldown(c, e.currentTarget)}
         />
-        <span class="lo">s quiet after it speaks</span>
+        <span class="type-label">s quiet after it speaks</span>
       </label>
       {#if c.cooldown_s !== c.default_cooldown_s}
         <Button onclick={() => change(c, { cooldown_s: null })}>Reset to {c.default_cooldown_s} s</Button>
@@ -79,7 +79,7 @@
   {/each}
 </dl>
 <!-- Always there, so a screen reader announces each "Saved" or error, repeats included. -->
-<p class="hint" class:warn-text={warn} aria-live="polite">{status}</p>
+<p class="hint type-label" class:warn-text={warn} aria-live="polite">{status}</p>
 
 <style>
   dl { display: grid; grid-template-columns: var(--form-label) minmax(0, 1fr); gap: var(--gap); margin: 0; }
@@ -89,8 +89,7 @@
   dd { padding: 0; gap: var(--sp-3); }
   label { display: flex; align-items: center; gap: 8px; }
   label > :global(.num) { width: 4.5rem; }
-  .lo { color: var(--orange-mid); font-size: var(--fs-s); }
-  .hint { color: var(--prose); margin: 8px 0 0 calc(var(--form-label) + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .hint { color: var(--prose); margin: 8px 0 0 calc(var(--form-label) + var(--gap)); }
   .hint:empty { margin: 0; }
   /* A failed save or a refused value: a red "!" and plain words under the field. */
   .warn-text { color: var(--alarm); }
