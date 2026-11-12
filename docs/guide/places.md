@@ -141,9 +141,10 @@ Serendibite, Osmium, Palladium, Bromellite or Tritium. The rings with a hotspot 
 
 - **Around:** where to search from. Empty means here. Click the box to pick the route's **next
   stop** (it then says "Next stop: Deciat"), or **Here** to go back; or type a system.
-- **Ring:** Metallic, Metal Rich, Rocky, Icy or **Any**.
-- **Reserve:** **Pristine**, **Major** (major or pristine) or **Any**.
-- **Within:** the search radius, 100 light years unless you pick another.
+- Filters, under **Change** ([How searches work](#how-searches-work)):
+  - **Ring:** Metallic, Metal Rich, Rocky, Icy or **Any**.
+  - **Reserve:** **Pristine**, **Major** (major or pristine) or **Any**.
+  - **Within:** the search radius, 100 light years unless you pick another.
 
 Each row shows the ring's hotspots of the mineral, the ring and its system, **Also** (its
 hotspots of other minerals, "Platinum 1"), the ring type, the reserve level, then distance, jumps

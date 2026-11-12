@@ -10,6 +10,7 @@
   import Button from "./Button.svelte";
   import Choice from "./Choice.svelte";
   import Dropdown from "./Dropdown.svelte";
+  import type { Snippet } from "svelte";
 
   let {
     filters,
@@ -17,6 +18,7 @@
     hints = {},
     shipPad,
     summary,
+    extra,
     onchange,
   }: {
     filters: Filters;
@@ -26,6 +28,8 @@
     shipPad?: Pad | null;
     /** The constraints in force, one line: "Within 100 ly of Sol · large pad · reports up to 30 days old". */
     summary: string;
+    /** The finder's own filters (a ring type, a reserve), first among the controls. */
+    extra?: Snippet;
     onchange: (f: Filters) => void;
   } = $props();
 
@@ -77,12 +81,13 @@
 <div class="search-filters" bind:this={root}>
   <p class="summary">
     <span class="text">{summary}</span>
-    {#if offers.length}
+    {#if offers.length || extra}
       <Button bind:ref={toggle} aria-expanded={open} aria-controls={`${id}-filters`} aria-label="Change filters" onclick={() => (open = !open)}>Change</Button>
     {/if}
   </p>
   {#if open}
     <div class="filters" id={`${id}-filters`} role="group" aria-label="Filters">
+      {#if extra}{@render extra()}{/if}
       {#if offers.includes("distance")}
         <label>
           <span>Within</span>

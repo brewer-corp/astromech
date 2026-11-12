@@ -57,6 +57,7 @@
     notes = [],
     header,
     lead,
+    more,
     onanswer,
   }: {
     /** Stable id of the lookup: filters are remembered under it, and a change re-runs the search. */
@@ -84,6 +85,8 @@
     header?: Snippet;
     /** What to find, rendered in the query band (service, module, commodity…). */
     lead?: Snippet;
+    /** The lookup's own filters (ring type, reserve), shown with the others when CHANGE opens them. */
+    more?: Snippet;
     /**
      * Each answer as shown: the first row's ranked value and its unit, or null when nothing was
      * found. A Places finder keeps it for its tile.
@@ -246,9 +249,16 @@
    * it failed, the system typed for it (else the last answer's), so a new origin shows at once.
    */
   const where = $derived(res && !busy ? res.origin : (origin ?? searched ?? "here"));
-  /** The filters' summary line. It follows each edit at once; the radius reached, the hidden count
-   * and the source's notes come from the latest answer. */
-  const line = $derived(summary(`${title} ${joiner}`, where, filters, offers, hints, hidden, [...notes, ...(res?.notes ?? [])], res?.reach ?? null));
+  /** The answer the summary may describe: none while a search runs or after one failed. */
+  const shownAnswer = $derived(busy || err ? null : res);
+  /**
+   * The filters' summary line. It follows each edit at once. The radius an answer reached, the
+   * hidden count and the source's notes describe that answer, so they show only once it is in:
+   * while the next search runs, the line names the filters it asks with.
+   */
+  const line = $derived(
+    summary(`${title} ${joiner}`, where, filters, offers, hints, shownAnswer ? hidden : 0, [...notes, ...(shownAnswer?.notes ?? [])], shownAnswer?.reach ?? null),
+  );
   /** The one constraint an empty answer can relax, and how. */
   const widen = $derived(widening(filters, offers, hints));
 
@@ -273,7 +283,7 @@
   <div class="out" bind:this={out}>
     {#if saved}
       <div class="constraints">
-        <SearchFilters {filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} summary={line} onchange={(f) => void change(f)} />
+        <SearchFilters {filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} summary={line} extra={more} onchange={(f) => void change(f)} />
         {#if filterErr && unsaved}<Failure text={filterErr} onaction={retrySave} />{/if}
       </div>
     {/if}

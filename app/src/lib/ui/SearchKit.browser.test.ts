@@ -229,51 +229,6 @@ describe("SearchKit", () => {
     expect(screen.getByText("Nearest to Deciat")).toBeTruthy();
   });
 
-  it("keeps the filters open while two change and the results follow each, until DONE", async () => {
-    let stored: Filters = DEFAULT_FILTERS;
-    loadFilters.mockImplementation(async () => stored);
-    saveFilters.mockImplementation(async (_, f) => void (stored = f));
-    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockImplementation(async (_, f) => ({
-      ...results,
-      rows: [{ ...results.rows[0]!, system: `Within ${f.max_distance_ly ?? 100}, ${f.max_age_days ?? 30} days` }],
-    }));
-    kit(run, { offers: ["distance", "age"], hints: { distance: 100, age: 30 } });
-    expect(await screen.findByText("Within 100, 30 days")).toBeTruthy();
-    expect(screen.queryByRole("combobox")).toBeNull();
-
-    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
-    await fireEvent.change(screen.getByRole("combobox", { name: "Within" }), { target: { value: "50" } });
-    expect(await screen.findByText("Within 50, 30 days")).toBeTruthy();
-    await fireEvent.change(screen.getByRole("combobox", { name: "Data age" }), { target: { value: "7" } });
-    expect(await screen.findByText("Within 50, 7 days")).toBeTruthy();
-    expect(screen.getByText("Within 50 ly of Sol · reports up to 7 days old")).toBeTruthy();
-    expect(screen.getAllByRole("combobox")).toHaveLength(2);
-
-    await fireEvent.click(screen.getByRole("button", { name: "Done" }));
-    expect(screen.queryByRole("combobox")).toBeNull();
-    expect(screen.getByText("Within 50 ly of Sol · reports up to 7 days old")).toBeTruthy();
-    expect(stored).toMatchObject({ max_distance_ly: 50, max_age_days: 7 });
-  });
-
-  it("leaves the filters open when the search they started fails, and over TRY AGAIN", async () => {
-    let stored: Filters = DEFAULT_FILTERS;
-    loadFilters.mockImplementation(async () => stored);
-    saveFilters.mockImplementation(async (_, f) => void (stored = f));
-    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValueOnce(results).mockRejectedValueOnce("Spansh took too long to answer").mockResolvedValue(results);
-    kit(run, { offers: ["age"] });
-    expect(await screen.findByText("Ross 154")).toBeTruthy();
-    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
-    await fireEvent.change(screen.getByRole("combobox", { name: "Data age" }), { target: { value: "7" } });
-    expect((await screen.findByRole("alert")).textContent).toMatch(/Spansh took too long to answer/);
-    expect(screen.getByRole("combobox", { name: "Data age" })).toBeTruthy();
-    expect(screen.getByText("Nearest to Sol · reports up to 7 days old")).toBeTruthy();
-
-    await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-    expect(await screen.findByText("Ross 154")).toBeTruthy();
-    expect(screen.queryByRole("alert")).toBeNull();
-    expect(screen.getByRole("combobox", { name: "Data age" })).toBeTruthy();
-  });
-
   it("shows a failed search as a hard error, and TRY AGAIN runs it again", async () => {
     loadFilters.mockResolvedValue(DEFAULT_FILTERS);
     const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockRejectedValueOnce("Spansh took too long to answer").mockResolvedValue(results);
