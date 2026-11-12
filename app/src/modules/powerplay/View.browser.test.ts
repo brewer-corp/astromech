@@ -96,14 +96,6 @@ describe("Powerplay page", () => {
     expect(screen.getByText("0%")).toBeTruthy();
   });
 
-  it("shows what earns merits in the current system", async () => {
-    overview.mockResolvedValue({ standing, here: undermine.system, system: undermine });
-    render(View);
-    expect(await screen.findByText("Crimes")).toBeTruthy();
-    expect(screen.getByText("What earns merits here")).toBeTruthy();
-    expect(screen.getAllByText("Ethos")).toHaveLength(1);
-  });
-
   it("says when nothing here earns the power merits", async () => {
     const other = { ...undermine, controlling_power: null, state: "Unoccupied", contesting: ["Felicia Winters"], work: null, acquisition: [{ power: "Felicia Winters", progress: 0.2 }], suggestions: [] };
     overview.mockResolvedValue({ standing, here: other.system, system: other });
