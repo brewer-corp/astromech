@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-sixj
 title: 'Tip: an instant tooltip in place of the native title'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
