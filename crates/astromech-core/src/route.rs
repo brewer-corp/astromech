@@ -510,7 +510,8 @@ impl JumpView {
 ///
 /// The leg being flown (to `route.next`) lists its jumps from `NavRoute.json` instead, when the
 /// route the commander plotted in the galaxy map ends at this stop (`hops_from: nav_route`): its
-/// systems with their star classes, which give the stop its class too. Otherwise a leg lists the
+/// systems with their star classes, which give the stop its class too; a jump it gives no class
+/// keeps the plotter's flags for that system, where the plotter listed it. Otherwise a leg lists the
 /// plotter's jumps if it has them, and is count-only if not. A scoopable that neither a class
 /// nor a flag gives is `unknown`.
 #[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
@@ -567,8 +568,25 @@ fn timeline(
                 }
                 (None, None) => (None, None, None),
             };
-            if let (true, Some(start), Some(hops), Some(here)) = (flown, start, hops, here) {
-                let systems = std::iter::once(start).chain(hops.iter().map(|h| h.system.as_str()));
+            // NavRoute's jumps and classes first; where it gives no class, the plotter's flags for
+            // the same system (an exact route's) still say what is known.
+            let hops: Option<Vec<JumpView>> = hops.map(|list| {
+                list.iter()
+                    .map(|h| match (from, &w.hops) {
+                        (Some(HopsFrom::NavRoute), Some(plotted)) => {
+                            let p = plotted.iter().find(|p| same_system(&p.system, &h.system));
+                            JumpView::of(&Hop {
+                                scoopable: h.scoopable.or(p.and_then(|p| p.scoopable)),
+                                neutron: h.neutron.or(p.and_then(|p| p.neutron)),
+                                ..h.clone()
+                            })
+                        }
+                        _ => JumpView::of(h),
+                    })
+                    .collect()
+            });
+            if let (true, Some(start), Some(hops), Some(here)) = (flown, start, &hops, here) {
+                let systems = std::iter::once(start).chain(hops.iter().map(|h: &JumpView| h.system.as_str()));
                 position = systems.collect::<Vec<_>>().iter().rposition(|s| same_system(s, here));
             }
             let class = w.star_class.clone().or_else(|| nav.and_then(|n| n.last()).and_then(|h| h.star_class.clone()));
@@ -580,7 +598,7 @@ fn timeline(
                 star_class: class,
                 jumps: w.jumps,
                 ly: w.ly,
-                hops: hops.map(|h| h.iter().map(JumpView::of).collect()),
+                hops,
                 hops_from: from,
                 details: details.get(&key(&w.system)).cloned().flatten(),
             }
@@ -1656,5 +1674,40 @@ mod tests {
         assert!(!std::fs::read_to_string(&p).unwrap().contains("Erh Longo"), "not saved");
         let v = Desk::open(Some(p), Box::new(|_| Ok(()))).view();
         assert_eq!((v.stops[1].hops.as_ref(), v.position), (None, None), "until the game's file is read again");
+    }
+
+    /// The exact route's first leg flown with a galaxy-map route that leaves out the stop's star
+    /// class (RouteHop.star_class is optional): the jump keeps Spansh's flags, as the stop does.
+    #[test]
+    fn a_galaxy_map_jump_with_no_class_keeps_the_plotters_flags() {
+        let (d, _) = desk();
+        d.on_system("Sol");
+        let hop = Hop {
+            system: "Tascheter Sector MN-T b3-6".into(),
+            star_class: None,
+            scoopable: Some(true),
+            neutron: Some(false),
+        };
+        let w = |s: &str| Waypoint { jumps: Some(1), ..Waypoint::new(s) };
+        let tascheter = Waypoint {
+            scoopable: Some(true),
+            neutron: Some(false),
+            hops: Some(vec![hop]),
+            ..w("Tascheter Sector MN-T b3-6")
+        };
+        d.set(Route::new(
+            "Sol to Maia",
+            "exact plotter",
+            vec![Waypoint::new("Sol"), tascheter, w("Tascheter Sector LS-T a3-0")],
+        ))
+        .unwrap();
+        d.known(&nav(&[("Sol", "G"), ("Tascheter Sector MN-T b3-6", "")]));
+        let v = d.view();
+        let leg = &v.stops[1];
+        assert_eq!(leg.hops_from, Some(HopsFrom::NavRoute));
+        let j = &leg.hops.as_ref().unwrap()[0];
+        assert_eq!((j.star_class.as_ref(), j.scoopable, j.neutron), (None, Scoop::Yes, Some(false)));
+        assert_eq!(leg.scoopable, j.scoopable, "the stop and its jump agree");
+        assert_eq!(v.position, Some(0));
     }
 }

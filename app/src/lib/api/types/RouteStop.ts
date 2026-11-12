@@ -19,7 +19,8 @@ import type { StopDetails } from "./StopDetails";
  *
  * The leg being flown (to `route.next`) lists its jumps from `NavRoute.json` instead, when the
  * route the commander plotted in the galaxy map ends at this stop (`hops_from: nav_route`): its
- * systems with their star classes, which give the stop its class too. Otherwise a leg lists the
+ * systems with their star classes, which give the stop its class too; a jump it gives no class
+ * keeps the plotter's flags for that system, where the plotter listed it. Otherwise a leg lists the
  * plotter's jumps if it has them, and is count-only if not. A scoopable that neither a class
  * nor a flag gives is `unknown`.
  */
