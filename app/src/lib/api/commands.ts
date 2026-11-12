@@ -84,6 +84,7 @@ import type { SetMicArgs } from "./types/SetMicArgs";
 import type { SetVoiceArgs } from "./types/SetVoiceArgs";
 import type { SetWindowArgs } from "./types/SetWindowArgs";
 import type { ShellInfo } from "./types/ShellInfo";
+import type { ShipStatus } from "./types/ShipStatus";
 import type { Shopping } from "./types/Shopping";
 import type { ShoppingPlan } from "./types/ShoppingPlan";
 import type { ShoppingSet } from "./types/ShoppingSet";
@@ -202,6 +203,7 @@ export type Commands = {
   set_voice: { args: SetVoiceArgs; reply: Answer<Applies>; exposure: "window" };
   set_window: { args: SetWindowArgs; reply: Answer<Applies>; exposure: "window" };
   shell_info: { args: null; reply: ShellInfo; exposure: "window" };
+  ship_status: { args: null; reply: Done<ShipStatus>; exposure: "window" };
   shopping_set: { args: string; reply: Answer<ShoppingSet>; exposure: "window" };
   stations_nearby: { args: Near<WantArg<StationWant>>; reply: StationsNearby; exposure: "window" };
   status: { args: null; reply: Done<CoreStatus>; exposure: "window" };

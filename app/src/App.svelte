@@ -1,7 +1,7 @@
 <script lang="ts">
   // The window frame (docs/V1-DESIGN.md §2.2, §4; DESIGN.md Frame): title, plain text tabs for
-  // the areas, one orange rule, the route strip, the area's pages as sub-tabs, the page, and a
-  // one-line core state. Opens on My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
+  // the areas, one orange rule, the route strip, the area's pages as sub-tabs, the page, and the
+  // status bar (the ship and the core's one-line state). Opens on My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
   // at #/setup or #/setup/<step>. The header's Find or plot box (PlotBar) finds a page, finder,
   // material, module or ship, or plots to a system, from any page; Ctrl+K puts the cursor in it.
   import { tip } from "./lib/ui/tip";
@@ -9,7 +9,8 @@
   import { MOVED_FINDERS } from "./lib/places";
   import { collect } from "./lib/palette";
   import Button from "./lib/ui/Button.svelte";
-  import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
+  import { coreStatus, onRoute, shipStatus, type CoreStatus, type ShipStatus } from "./lib/core";
+  import StatusBar from "./lib/ui/StatusBar.svelte";
   import Toasts from "./lib/ui/Toasts.svelte";
   import Onboarding from "./lib/onboarding/Onboarding.svelte";
   import { openHelp } from "./lib/help";
@@ -37,12 +38,13 @@
   const current = $derived(findModule(route.split(/[/?]/)[0] ?? "") ?? findModule(DEFAULT));
   const pages = $derived(current ? groupModules(current.group) : []);
   let status = $state<CoreStatus | null>(null);
+  let ship = $state<ShipStatus | null>(null);
   const setup = $derived(status?.setup_needed ?? []);
   const showSetup = $derived(setup.length > 0 && current?.id !== "settings");
 
-  // DESIGN.md Frame: one 64 px header row while the name, tabs, Find or plot, status and Help fit
-  // on it (the status runs from "Not running" to "Waiting for Elite · Voice paused · Kill switch
-  // on"); in a narrower window the tabs take a 44 px row of their own under the name.
+  // DESIGN.md Frame: one 64 px header row while the name, tabs, Find or plot and Help fit on it
+  // (with Finish setup while setup is unfinished); in a narrower window the tabs take a 44 px row
+  // of their own under the name.
   let header = $state<HTMLElement>();
   let stacked = $state(false);
   /** The header's width on one row: each part at its own width (the tabs at their buttons', Find
@@ -99,7 +101,10 @@
 
   $effect(() => {
     onRoute((r) => go(r));
-    const tick = async () => (status = await coreStatus());
+    // The status bar's fuel and cargo follow the game's Status.json writes on the same tick.
+    const tick = async () => {
+      [status, ship] = await Promise.all([coreStatus(), shipStatus()]);
+    };
     void tick();
     const t = setInterval(() => void tick(), 2000);
     return () => clearInterval(t);
@@ -124,12 +129,9 @@
     {#if showSetup}
       <Button onclick={() => go("setup/health")} {@attach tip(setup.join(", "))}>Finish setup</Button>
     {/if}
-    <span class="right">
-      <span class="state" class:warn={!status || status.game === "not_running"}>{headerState(status)}</span>
-      {#if current}
-        <button class="help" onclick={() => void openHelp(current.help)} {@attach tip("Open this page's guide in your browser")}>Help</button>
-      {/if}
-    </span>
+    {#if current}
+      <button class="help" onclick={() => void openHelp(current.help)} {@attach tip("Open this page's guide in your browser")}>Help</button>
+    {/if}
   </header>
   <Strip />
   {#if pages.length > 1}
@@ -146,14 +148,18 @@
       {/await}
     {/if}
   </main>
+  <StatusBar {status} {ship} />
   <Toasts {status} />
 </div>
 {/if}
 
 <style>
-  /* The frame is the container a page's narrow-window rules ask (`@container win`): under the
-     root zoom it measures the layout, where a media query would measure the screen. */
-  .frame { container: win / inline-size; height: var(--win-h); display: grid; grid-template-rows: auto auto auto 1fr; grid-template-columns: minmax(0, 1fr); }
+  /* DESIGN.md Frame: the fixed parts, then the page, which takes the rest and scrolls. The frame is
+     the container a page's narrow-window rules ask (`@container win`): under the root zoom it
+     measures the layout, where a media query would measure the screen. */
+  .frame { container: win / inline-size; height: var(--win-h); display: flex; flex-direction: column; }
+  .frame > :global(*) { flex: none; }
+  .frame > main { flex: 1 1 0; }
   /* DESIGN.md Frame: a 64 px row with the 1 px orange rule under it; stacked, the tabs add 44 px. */
   header { box-sizing: border-box; display: flex; align-items: center; gap: clamp(16px, 2.5 * var(--win-w), 40px); height: 64px; margin: 0 var(--side); border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
@@ -174,9 +180,6 @@
   /* A link to somewhere else (DESIGN.md Buttons → Links): Orange text, a 1 px Orange Mid underline. */
   .help { color: var(--accent); font-size: var(--fs-s); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .help:hover { color: var(--orange-lit); }
-  .right { display: flex; align-items: baseline; gap: 16px; }
-  .state { color: var(--orange-mid); font-size: var(--fs-s); white-space: nowrap; }
-  .state.warn { color: var(--accent); }
   main { min-height: 0; overflow: auto; padding: 0 var(--side); scrollbar-gutter: stable; }
   header.stacked { height: 108px; flex-wrap: wrap; align-content: flex-start; row-gap: 0; }
   header.stacked .app { display: flex; align-items: center; height: 63px; margin-right: auto; }

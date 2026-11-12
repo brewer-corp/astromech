@@ -47,6 +47,7 @@
   --gap: 2px; /* between value cells, like the game */
   --row-result: 44px; /* one lookup result row */
   --strip: 36px; /* the route strip */
+  --status-bar: 32px; /* the status bar at the foot of every page */
   --tile: 76px; /* a material tile */
 
   /* Spacing scale (DESIGN.md Layout): use only these */

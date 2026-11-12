@@ -69,7 +69,7 @@ describe("Find or plot in the window", () => {
     render(App);
     const ship = await screen.findByRole("combobox", { name: "Ship" });
     await fireEvent.input(ship, { target: { value: "anaconda" } });
-    await screen.findByText("Anaconda");
+    await screen.findByRole("option", { name: "Anaconda" });
     await fireEvent.keyDown(ship, { key: "Enter" });
     expect(location.hash).toBe("#/places/shipyard/Anaconda");
     await waitFor(() =>

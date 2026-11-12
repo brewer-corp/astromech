@@ -411,6 +411,27 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
     // Two colonisation projects in Wolf 359, one built, from the colonisation world's synthetic
     // depot visits, with 90 t of Insulating Membrane aboard a 784 t Type-9.
     t.insert("colonisation.json", whole(core("colonisation", None, "colonisation_projects", Value::Null)));
+    // The status bar: in game in the engineering world's current ship (the ship world), 24.6 of
+    // 32 t of fuel and 120 of 256 t aboard; then the same ship refitted to 21.4 ly, with the fleet
+    // as the window reads it again.
+    t.insert(
+        "ship-status.json",
+        vec![
+            Part { key: "/flying", from: core("ship", Some("flying"), "ship_status", Value::Null) },
+            Part { key: "/refitted", from: core("ship", Some("refitted"), "ship_status", Value::Null) },
+            Part {
+                key: "/refitted_fleet",
+                from: From::Core {
+                    world: "ship",
+                    at: Some("refitted"),
+                    cmd: "engineering_fleet",
+                    args: Value::Null,
+                    pick: "",
+                    keep: &["/source"],
+                },
+            },
+        ],
+    );
     // In game in Synthetic Sector AB-C d1 (the exobiology world): two bodies with biological
     // signals, A 2 mapped with its genera, and a first Stratum Tectonicas sample with the
     // commander about 210 m from it.
