@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-woqv
 title: Route data for the timeline
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-m
