@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-qwvs
 title: 'Route page: the timeline'
-status: in_review
+status: changes_requested
 mission: astromech-xajc
 labels:
 - size-m
