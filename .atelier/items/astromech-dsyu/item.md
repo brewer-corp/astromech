@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-dsyu
 title: Icons for star types, body types and station types
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-s
 priority: medium
 blocked_by:
 - astromech-b2k3
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3A209be274-1659-4d4c-ac5c-80d4ed74e66c
 ready:
   by: conversion
   at: 2026-11-10T05:54:59.775498338Z
