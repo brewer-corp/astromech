@@ -3,6 +3,8 @@
 
 /** The side panel's content width (DESIGN.md Side panel), as --panel in tokens.css. */
 export const PANEL = 320;
+/** The side panel's whole track: its content, its 24 px padding and its 1 px orange line. */
+export const PANEL_TRACK = PANEL + 24 + 1;
 /** Between the content and the side panel, or the inputs and the result. */
 export const GUTTER = 48;
 /** A tile column's width when a side panel sits beside the tiles (DESIGN.md: 200–240 px). */
@@ -19,5 +21,5 @@ export function tilesMin(cols: number, heads = false): number {
 
 /** Whether a side panel goes below the content: a `width` too narrow for `min` beside the panel. */
 export function stacks(width: number, min: number): boolean {
-  return width > 0 && width < min + GUTTER + PANEL;
+  return width > 0 && width < min + GUTTER + PANEL_TRACK;
 }

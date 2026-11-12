@@ -60,8 +60,9 @@ describe("Sell and Buy finders", () => {
     expect(panel.getAllByRole("term").map((d) => d.textContent)).toEqual(
       expect.arrayContaining(["Distance", "Pad", "Updated"]),
     );
+    // What the panel's action did shows beside its buttons, not under a list that may be off screen.
     await fireEvent.click(panel.getByRole("button", { name: "Set destination" }));
-    expect(await screen.findByText(/Following\. .+ is on your clipboard\./)).toBeTruthy();
+    expect(await panel.findByText(/Following\. .+ is on your clipboard\./)).toBeTruthy();
   });
 
   it("opens Sell on painite near you, and switches to the best prices anywhere, in price order with data age and no radius filter", async () => {

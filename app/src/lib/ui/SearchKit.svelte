@@ -109,6 +109,8 @@
   let busy = $state(false);
   /** What Add stop or Set destination did, or why it failed. */
   let goNote = $state<FollowNote | null>(null);
+  /** Where the action that wrote the note was: its row's list, or the side panel, so the note sits beside its button. */
+  let noteAt = $state<"list" | "panel">("list");
   let asked = 0;
   let changed = 0; // filter changes made, so a slow earlier one can't overwrite a later one
 
@@ -173,20 +175,22 @@
   }
 
   /** Add stop: the result becomes the next stop of the route followed. */
-  async function add(r: Results["rows"][number]) {
+  async function add(r: Results["rows"][number], from: "list" | "panel" = "list") {
+    noteAt = from;
     try {
       goNote = addedNote(await addStop(stop(r), "search"));
     } catch (e) {
-      goNote = failedNote("Couldn't add it", e, () => void add(r));
+      goNote = failedNote("Couldn't add it", e, () => void add(r, from));
     }
   }
 
   /** Set destination: a one-stop route to the result; the route it replaces is parked. */
-  async function destination(r: Results["rows"][number]) {
+  async function destination(r: Results["rows"][number], from: "list" | "panel" = "list") {
+    noteAt = from;
     try {
       goNote = followedNote(await followRoute(r.system, "search", [stop(r)]));
     } catch (e) {
-      goNote = failedNote("Couldn't follow it", e, () => void destination(r));
+      goNote = failedNote("Couldn't follow it", e, () => void destination(r, from));
     }
   }
 
@@ -294,9 +298,10 @@
       {/each}
     </dl>
     <div class="pacts">
-      <Button kind="primary" onclick={() => void destination(r)}>Set destination</Button>
-      <Button onclick={() => void add(r)}>Add stop</Button>
+      <Button kind="primary" onclick={() => void destination(r, "panel")}>Set destination</Button>
+      <Button onclick={() => void add(r, "panel")}>Add stop</Button>
     </div>
+    {#if noteAt === "panel"}<FollowNoteLine bind:note={goNote} />{/if}
   {/if}
 {/snippet}
 
@@ -369,7 +374,7 @@
           {/if}
         </p>
       {/if}
-      <FollowNoteLine bind:note={goNote} />
+      {#if noteAt === "list"}<FollowNoteLine bind:note={goNote} />{/if}
       <p class="line foot">At {figure(res.range, 1)} ly per jump · {res.source}, {ago(res.fetched)}{res.rows.some((r) => !r.exact) ? " · ~ = straight-line estimate" : ""}</p>
     {/if}
   </div>
@@ -422,7 +427,8 @@
   /* Selected: solid orange with On Orange text, while the side panel shows it (DESIGN.md States). */
   .result.sel, .result.sel:hover { background: var(--accent); }
   .result.sel, .result.sel :is(.v, .unit, .sys, .fact, .none) { color: var(--on-accent); }
-  .result.sel :global(:is(.ibtn, .kind)) { color: var(--on-accent); }
+  .result.sel :global(:is(.ibtn, .kind)), .result.sel:hover .acts :global(.ibtn) { color: var(--on-accent); }
+  .result.sel :global(.ibtn:focus-visible) { outline-color: var(--on-accent); outline-offset: -2px; }
   .result.sel .pick:focus-visible { outline-color: var(--on-accent); }
 
   /* The side panel. */
