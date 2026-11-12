@@ -68,7 +68,7 @@
   const file = $derived(status?.file ?? null);
 </script>
 
-<div class="neutron" aria-label="Neutron star file">
+<div class="neutron type-label" aria-label="Neutron star file">
   {#if downloading}
     <p>
       Downloading the neutron star file…
@@ -99,11 +99,12 @@
 </div>
 
 <style>
-  .neutron { display: flex; flex-direction: column; gap: var(--sp-1); font-size: var(--fs-s); }
+  /* The Label role sets the size; the text keeps the dropdown's colour. */
+  .neutron { display: flex; flex-direction: column; gap: var(--sp-1); color: inherit; }
   p { margin: 0; }
   .lo { color: var(--prose); }
   .neutron > :global(.act) { align-self: flex-start; margin-left: calc(-1 * var(--sp-2)); }
-  progress { width: 100%; max-width: 24rem; height: 6px; accent-color: var(--accent); }
+  progress { width: 100%; height: 6px; accent-color: var(--accent); }
   .err { color: var(--alarm); }
   .err b { font-weight: 600; }
 </style>
