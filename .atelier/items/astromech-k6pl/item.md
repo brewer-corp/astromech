@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-k6pl
 title: Scale the window with its height, and a stronger orange
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-m
