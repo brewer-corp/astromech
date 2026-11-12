@@ -12,6 +12,9 @@ import type { Plotted } from "./api/types/Plotted";
 import type { PlotAsk } from "./api/types/PlotAsk";
 import type { PlotShip } from "./api/types/PlotShip";
 import type { RouteView } from "./api/types/RouteView";
+import type { RouteStop } from "./api/types/RouteStop";
+import type { Scoop } from "./api/types/Scoop";
+import type { StarGlyph } from "./ui/Glyph.svelte";
 import type { Waypoint } from "./api/types/Waypoint";
 import { coreCall } from "./core";
 import { call, type ArgList } from "./transport";
@@ -24,6 +27,8 @@ export type { Waypoint } from "./api/types/Waypoint";
  * index of the next waypoint (waypoints.length once finished). */
 export type Route = FollowedRoute;
 export type { RouteView } from "./api/types/RouteView";
+export type { RouteStop } from "./api/types/RouteStop";
+export type { RouteJump } from "./api/types/RouteJump";
 export type { Plotted } from "./api/types/Plotted";
 export type { PlotAsk } from "./api/types/PlotAsk";
 export type { Plotter } from "./api/types/Plotter";
@@ -50,7 +55,7 @@ export function watchRoute(fn: () => void): () => void {
 }
 
 /** The route commands; each replies with the route's view. */
-type RouteCmd = "route" | "route_set" | "route_add" | "route_skip" | "route_back" | "route_clear" | "route_copy" | "route_resume";
+type RouteCmd = "route" | "route_details" | "route_set" | "route_add" | "route_skip" | "route_back" | "route_go" | "route_clear" | "route_copy" | "route_resume";
 
 async function routeCall<K extends RouteCmd>(mutate: boolean, cmd: K, ...args: ArgList<K>): Promise<RouteView> {
   const r = await coreCall(cmd, ...args);
@@ -60,11 +65,15 @@ async function routeCall<K extends RouteCmd>(mutate: boolean, cmd: K, ...args: A
 }
 
 export const getRoute = () => routeCall(false, "route");
+/** The route with its inhabited stops' details, looked up on Spansh once per stop this run. */
+export const getRouteDetails = () => routeCall(false, "route_details");
 export const skipWaypoint = () => routeCall(true, "route_skip");
 export const backWaypoint = () => routeCall(true, "route_back");
 export const clearRoute = () => routeCall(true, "route_clear");
 export const copyNext = () => routeCall(true, "route_copy");
 export const resumeRoute = () => routeCall(true, "route_resume");
+/** Make stop `index` (named `system`, as the page showed it) the next one, and copy it. */
+export const makeNext = (index: number, system: string) => routeCall(true, "route_go", { index, system });
 
 /** Follow these stops. The first is copied straight away. */
 export function followRoute(name: string, source: string, waypoints: Waypoint[]): Promise<RouteView> {
@@ -132,4 +141,58 @@ export async function plotRoute(ask: PlotAsk): Promise<{ plotted: Plotted; view:
   // `view` is route_set's reply, which the command layer can't name (astromech-se44's JsonValue
   // allow-list).
   return { plotted: r.plotted, view: r.view as RouteView };
+}
+
+/** A star on the timeline as the route's sources know it: its class from `NavRoute.json` where
+ * the game listed it, else the plotter's scoopable and neutron flags, else nothing. */
+export interface StarFacts {
+  star_class: string | null;
+  scoopable: Scoop;
+  neutron: boolean | null;
+}
+
+/** What a star is, for its icon, the word beside it and its Tip. */
+export interface StarKind {
+  glyph: StarGlyph;
+  /** Its accessible name and Tip fact: "Class K star", "Neutron star", "Unknown star". */
+  name: string;
+  /** What it means for the commander. */
+  note: string;
+}
+
+const GIANTS: Record<string, string> = {
+  A_BlueWhiteSuperGiant: "Blue-white supergiant",
+  F_WhiteSuperGiant: "White supergiant",
+  M_RedSuperGiant: "Red supergiant",
+  M_RedGiant: "Red giant",
+  K_OrangeGiant: "Orange giant",
+};
+const SCOOP = "Scoopable: refuel here.";
+const DRY = "Not scoopable.";
+
+/** The star's type icon (DESIGN.md Icons: Stars), name and note. A class names its type; a star
+ * with no class is told by its plotter's flags, and one with neither is the unknown star. */
+export function starKind(s: StarFacts): StarKind {
+  const c = s.star_class;
+  if (c === "N" || (c == null && s.neutron === true))
+    return { glyph: "star-neutron", name: "Neutron star", note: `${DRY} Fly into a beam and your next jump has four times the range.` };
+  if (c == null) {
+    if (s.scoopable === "yes") return { glyph: "star-scoopable", name: "Scoopable star", note: SCOOP };
+    if (s.scoopable === "no") return { glyph: "star-other", name: "Non-scoopable star", note: DRY };
+    return { glyph: "star-unknown", name: "Unknown star", note: "No source says what this star is, so it may not be scoopable." };
+  }
+  if (c.startsWith("D")) return { glyph: "star-white-dwarf", name: "White dwarf", note: `${DRY} Its beams boost a jump 1.5 times but can damage your FSD.` };
+  if (c === "L" || c === "T" || c === "Y") return { glyph: "star-brown-dwarf", name: `Class ${c} brown dwarf`, note: DRY };
+  if (c === "H" || c === "SupermassiveBlackHole") return { glyph: "star-black-hole", name: "Black hole", note: DRY };
+  const name = GIANTS[c] ?? (c === "TTS" ? "T Tauri star" : c.startsWith("W") ? "Wolf-Rayet star" : `Class ${c} star`);
+  return s.scoopable === "yes" ? { glyph: "star-scoopable", name, note: SCOOP } : { glyph: "star-other", name, note: DRY };
+}
+
+/** Whether a leg is known to have nowhere to scoop: its jumps (the last landing on its stop) are
+ * all listed, there are two or more, and every star is known not to be scoopable. A leg with a
+ * missing jump or an unknown star never claims it. */
+export function noScoop(leg: Pick<RouteStop, "hops" | "jumps">): boolean {
+  const hops = leg.hops;
+  if (!hops || hops.length < 2 || (leg.jumps != null && leg.jumps !== hops.length)) return false;
+  return hops.every((h) => h.scoopable === "no");
 }

@@ -33,17 +33,38 @@ With no route it says **No route**, and **Find or plot** puts the cursor in the 
 box. A finished route says **Route finished**. When the route you were following has ended and
 another one is paused, the strip shows it with **Resume**.
 
-Click the destination for the **Route** page, also in [Find or plot](using-the-app.md#find-or-plot):
+Click the destination for the **Route** page, also in [Find or plot](using-the-app.md#find-or-plot).
+It shows the route's name, where it came from and how many waypoints are left, then the route as a
+timeline from top to bottom:
 
-- its name, where it came from, and how many waypoints are left;
-- the **next waypoint**, with what is there (an engineer, "fuel", "neutron boost"), and whether
-  it is **on your clipboard**. If the clipboard could not be written, it says "Not on the
-  clipboard" and why, with **Try again**;
-- every stop, with the ones behind you struck out and **you are here** next to the first stop
-  when you are in it;
-- **Copy** (something else took the clipboard), **Skip**, **Back** and **Clear route**;
-- **Paused** and **Resume** when another route took over from one you had not finished
-  ([One route at a time](#one-route-at-a-time)).
+- Each stop is drawn as its star's type: a plain disc for a star you can scoop, and its own
+  icons for a neutron star, a white dwarf, a brown dwarf, any other star you can't scoop, and a
+  dashed circle for a star astromech knows nothing about. Hover over an icon for what it is and
+  whether you can refuel there. Stops behind you are dimmed.
+- The **next stop** is raised: a larger name, **Next stop** and how many jumps away it is, where
+  that is known. Its copy button puts it on your clipboard again, and turns to a check for a
+  moment when it worked. If the clipboard could not be written, a red **!** says why, with
+  **Try again**.
+- Every other stop has a copy button too, and **Make next** when you hover over it or tab to it:
+  it makes that stop, ahead or behind, the next one and puts it on your clipboard. A route
+  plotted in the galaxy map has no Make next, since the game has the route plotted.
+- Stops in inhabited systems have a second line: allegiance and government, security,
+  population, and the controlling faction with its state. astromech looks these up on Spansh
+  once per stop when the page opens, so it needs internet; without it the line is left out.
+- **The leg you are flying** (the jumps to the next stop) opens out one row a jump, each with
+  its star's icon and type, once the game lists the jumps: when you plot the leg in the galaxy
+  map, or on an exact route, which lists every jump. Your row is marked with a map pin and
+  **You are here**. Until then the leg shows its jump count and says the stars appear once it is
+  plotted in the galaxy map. A neutron plotter only gives a count for each leg.
+- **A leg ahead** shows the stars it passes where the route lists its jumps, and its jump count
+  where it doesn't. An orange **!** *No scoopable star for N jumps* warns of a leg where every
+  jump is listed and none of the stars can be scooped. A leg with a star astromech doesn't know,
+  or a jump it doesn't list, never says this, since there may be somewhere to scoop.
+- **Clear route** under the timeline, and **Paused** with **Resume** above it when another route
+  took over from one you had not finished ([One route at a time](#one-route-at-a-time)).
+
+Skipping a stop and going back one are voice commands ([Voice commands](#voice-commands)); on
+the page, Make next does both.
 
 [Import](#import-a-route) sits under the live route.
 
@@ -164,9 +185,9 @@ When you plot a route in the galaxy map, astromech reads it from the game (`NavR
   nothing changes. This is how you fly a neutron route: paste the next neutron star, plot to it,
   and astromech keeps the neutron route.
 - **Anything else** becomes the route astromech follows, named "Route to" its destination, with
-  every jump as a waypoint. The page says **Next jump** and *Plotted in the galaxy map*. It moves
-  on as you jump, but astromech says nothing and copies nothing: the game already has the route
-  plotted and shows the next jump. Copy, Skip and Back still copy when you press them.
+  every jump as a waypoint. It moves on as you jump, but astromech says nothing and copies
+  nothing: the game already has the route plotted and shows the next jump. The copy button and
+  the voice commands still copy when you use them.
 - **A detour.** If you were following a route of your own (a neutron route, say) and it isn't
   finished, it is **paused**, not lost. The Route page shows it with **Resume**, which follows it
   again and puts its next waypoint on your clipboard. Plotting in the galaxy map to one of its

@@ -422,7 +422,7 @@ function copies(st: State): State {
 
 const routeHandlers: Pick<
   CoreHandlers,
-  "route" | "route_details" | "route_set" | "route_add" | "route_skip" | "route_back" | "route_clear" | "route_copy" | "route_resume"
+  "route" | "route_details" | "route_set" | "route_add" | "route_skip" | "route_back" | "route_go" | "route_clear" | "route_copy" | "route_resume"
 > = {
   route: viewed,
   // The recorded timeline has its stops' details; another route's stops have none here.
@@ -452,6 +452,15 @@ const routeHandlers: Pick<
   route_back: (st) => {
     const r = copies(changed(st)).route;
     if (r) r.next = Math.max(r.next - 1, 0);
+    return viewed(st);
+  },
+  route_go: (st, args) => {
+    const r = st.route;
+    const w = r?.waypoints[args.index];
+    if (!r) return { ok: false, error: "there is no route" };
+    if (!w || !sameSystem(w.system, args.system)) return { ok: false, error: `${args.system} is no longer on the route at that place` };
+    copies(changed(st));
+    r.next = args.index;
     return viewed(st);
   },
   route_clear: (st) => {

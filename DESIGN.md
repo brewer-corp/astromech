@@ -638,7 +638,7 @@ section rules.
 One set of one-stroke icons drawn for astromech: 16 px on a 16 px grid, 1 px stroke,
 `currentColor`, no fill, square ends. They live in `app/src/lib/ui/Glyph.svelte`: copy and
 copied, **add stop** (a route with a plus), **set destination** (a flag; replaces the route),
-**open external** (a box with an arrow out), **chevron** (dropdowns), **clear** (an ×, the end
+**open external** (a box with an arrow out), **you are here** (a map pin, the commander's row on the Route page), **chevron** (dropdowns), **clear** (an ×, the end
 action that empties an input), ship and the factions. *Why:* own-drawn keeps Frontier's icons
 out and needs no licence; one stroke matches the game's thin line icons.
 
