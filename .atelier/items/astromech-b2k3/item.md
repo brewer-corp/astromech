@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-b2k3
 title: 'DESIGN.md revision 4: the Glow-up amendments'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-s
@@ -81,3 +81,6 @@ For the reviewer:
 - `SystemChip.svelte` reverts its copy check after 1200 ms, not 1.5 s. Code is out of this
   item's scope; whichever item next touches the copy button should match the rule.
 
+### Responses
+
+1-2yq6.1: fixed in 1bf194e3: Board now carries the side panel for a selected tile, and Materials is its example, as astromech-mwh5 and astromech-z5oh require.
