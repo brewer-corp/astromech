@@ -12,6 +12,8 @@
   import DsFinder from "./ds/Finder.svelte";
   import DsPlacesHome from "./ds/PlacesHome.svelte";
   import DsSettings from "./ds/Settings.svelte";
+  // Glow-up mockups (docs/design/glow-up-*.png)
+  import GlowIcons from "./GlowIcons.svelte";
   const pages = { activities: ActivityView, ship: ShipDiagram, keybinds: KeybindsList, controller: MyController, settings: Settings, tray: TrayMenu };
   const read = () => location.hash.replace("#/mockup/", "");
   let id = $state(read());
@@ -27,6 +29,8 @@
   <DsPlacesHome />
 {:else if id === "ds-settings"}
   <DsSettings />
+{:else if id === "glow-icons"}
+  <GlowIcons />
 {:else}
   <div class="first-draft"><Page /></div>
 {/if}
