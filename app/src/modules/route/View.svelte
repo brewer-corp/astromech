@@ -1,22 +1,23 @@
 <script lang="ts">
   // Route (docs/PLOTTING.md, layer 1): the route the core follows. Its next waypoint is on the
-  // clipboard for the galaxy map's search box; jumping into it copies the one after. Routes come
-  // from the top bar's plotter (PlotBar), the engineer trip, a search result's Add stop or Set
-  // destination, an import (a Spansh CSV, or a list of systems) or the galaxy map itself: a route
-  // plotted there is followed quietly. A route replaced by any of them is parked to resume. The
-  // route strip (Strip.svelte) shows the next stop on every page and links here. A failed action
-  // or first read is DESIGN.md's hard error: a red "!", the words, and TRY AGAIN.
+  // clipboard for the galaxy map's search box; jumping into it copies the one after. The page's
+  // title is the plotter (Title.svelte): plot, replot, the plot setup, and Import, Open on Spansh
+  // and Clear route in its ⋯ menu. Routes also come from the header's Find or plot (PlotBar),
+  // the engineer trip, a search result's Add stop or Set destination, or the galaxy map itself: a
+  // route plotted there is followed quietly. A route replaced by any of them is parked to resume.
+  // The route strip (Strip.svelte) shows the next stop on every page and links here. A failed
+  // action or first read is DESIGN.md's hard error: a red "!", the words, and TRY AGAIN.
   import { tip } from "../../lib/ui/tip";
-  import { GAME_SOURCE, backWaypoint, clearRoute, copyNext, getRoute, importRoute, resumeRoute, skipWaypoint, watchRoute, type RouteView } from "../../lib/route";
+  import { GAME_SOURCE, backWaypoint, copyNext, getRoute, resumeRoute, skipWaypoint, watchRoute, type RouteView } from "../../lib/route";
   import { pollFailure } from "../../lib/ui/errors";
   import Button from "../../lib/ui/Button.svelte";
   import Failure from "../../lib/ui/Failure.svelte";
-  import Input from "../../lib/ui/Input.svelte";
   import Glyph from "../../lib/ui/Glyph.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
+  import Title from "./Title.svelte";
 
   let view = $state<RouteView | null>(null);
-  /** The last action (Copy, Skip, Back, Clear, import) failed; it stays until the next action. */
+  /** The last action (Copy, Skip, Back, Clear) failed; it stays until the next action. */
   let err = $state<string | null>(null);
   /** That action again, for TRY AGAIN. */
   let again = $state<(() => void) | null>(null);
@@ -24,8 +25,6 @@
   let readErr = $state<string | null>(null);
   /** The last poll failed while a route is shown: the route stays, with a line saying so. */
   let stale = $state<string | null>(null);
-  let name = $state("");
-  let text = $state("");
 
   async function run(f: () => Promise<RouteView>, polled = false) {
     try {
@@ -54,11 +53,6 @@
     };
   });
 
-  async function start() {
-    await run(() => importRoute(name.trim() || "Imported route", text));
-    if (!err) text = "";
-  }
-
   const route = $derived(view?.route ?? null);
   const done = $derived(route ? route.next >= route.waypoints.length : false);
   const fromGame = $derived(route?.source === GAME_SOURCE);
@@ -66,6 +60,7 @@
 </script>
 
 <section>
+  {#if view}<Title {view} onview={(v) => { view = v; err = null; }} run={(f) => run(f)} />{/if}
   {#if err}<Failure text={err} onaction={() => again?.()} />{/if}
   {#if readErr}<Failure text={readErr} onaction={() => void run(getRoute, true)} />{/if}
   <Stale error={stale} />
@@ -79,7 +74,6 @@
 
   {#if route}
     <div class="head">
-      <h3>{route.name}</h3>
       <span class="lo">{route.source ? `${route.source} · ` : ""}{view?.remaining} of {route.waypoints.length} waypoints left</span>
     </div>
 
@@ -107,7 +101,6 @@
       <Button onclick={() => run(copyNext)} disabled={done} {@attach tip("Copy the next waypoint again")}><Glyph name="copy" /> Copy</Button>
       <Button onclick={() => run(skipWaypoint)} disabled={done}>Skip</Button>
       <Button onclick={() => run(backWaypoint)} disabled={route.next === 0}>Back</Button>
-      <Button onclick={() => run(clearRoute)}>Clear route</Button>
     </div>
 
     <ol class="stops">
@@ -119,29 +112,12 @@
       {/each}
     </ol>
   {:else if view}
-    <p class="lo empty">No route. Search a system in the top bar to plot one, plot in the galaxy map, follow the engineer trip, add a search result as a stop or make it the destination, or import one.</p>
+    <p class="lo empty">No route. Type a destination above to plot one, or plot in the galaxy map, follow the engineer trip, or add a search result as a stop.</p>
   {/if}
-
-  <div class="how">
-    <h4 class="section">In the galaxy map</h4>
-    <p>Select the search box, then say <span class="q">“paste”</span> or press your paste button (<span class="setting">controls.paste</span> in the config). astromech sends Ctrl+V and Enter, only while the galaxy map is open. Then plot the route as usual.</p>
-    <p>When you jump into the waypoint, the next one is copied and read out. Say <span class="q">“next waypoint”</span> to hear it again, <span class="q">“skip waypoint”</span> or <span class="q">“clear route”</span>.</p>
-  </div>
-
-  <div class="import">
-    <h4 class="section">Import</h4>
-    <Input aria-label="Route name" placeholder="Name (optional)" bind:value={name} />
-    <Input rows={6} aria-label="Route" placeholder="Paste a Spansh CSV (neutron, road to riches, carrier…) or one system name per line" bind:value={text} />
-    <div class="actions">
-      <Button kind="primary" onclick={start} disabled={!text.trim()}>Follow this route</Button>
-    </div>
-  </div>
 </section>
 
 <style>
   section { padding: 28px 0; max-width: 60rem; display: flex; flex-direction: column; gap: 20px; }
-  h3 { margin: 0; color: var(--text-hi); font-weight: 600; font-size: var(--fs-xl); line-height: 1.2; }
-  h4 { margin: 0 0 var(--sp-3); }
   p { margin: 0 0 6px; }
   .head { display: flex; flex-direction: column; gap: 4px; }
   /* The next waypoint is a read-only fact: hull (DESIGN.md Surfaces and cells). */
@@ -156,9 +132,5 @@
   .stops .current .sys { color: var(--orange-lit); }
   .lo { color: var(--orange-mid); }
   .empty { line-height: 1.45; color: var(--prose); }
-  .q { color: var(--accent); }
-  .setting { font-size: var(--fs-s); }
-  .how p { color: var(--prose); font-size: var(--fs-s); line-height: 1.45; }
-  .import { display: flex; flex-direction: column; gap: 8px; }
   .parked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 0; border-bottom: 1px solid var(--line); color: var(--accent); font-size: var(--fs-s); }
 </style>

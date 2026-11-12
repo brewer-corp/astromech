@@ -166,7 +166,8 @@ describe("Find or plot", () => {
     await search("Maia");
     expect(await screen.findByText(/Asp Explorer: 36\.48 ly a jump with a full tank/)).toBeTruthy();
     expect(screen.getByText("Sol to")).toBeTruthy();
-    await fireEvent.click(screen.getByRole("button", { name: "Exact" }));
+    await fireEvent.click(screen.getByRole("button", { name: /^Plotter/ }));
+    await fireEvent.click(screen.getByRole("option", { name: /^Exact/ }));
     await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
     expect(await screen.findByText(/^Following Sol to Maia: 9 jumps · 452 ly · 1 neutron boost · 3 refuel stops, at 36\.48 ly a jump\. Plotted by Spansh\./)).toBeTruthy();
     const v = (await previewAnswer("route")).view;
@@ -177,6 +178,7 @@ describe("Find or plot", () => {
   it("plots a neutron route with Spansh until the neutron star file is downloaded, then on this PC, with Enter", async () => {
     setup();
     const box = await search("Colonia");
+    await fireEvent.click(await screen.findByRole("button", { name: /^Worked out/ }));
     expect(await screen.findByText(/Neutron star file: not downloaded\./)).toBeTruthy();
     expect(screen.getByLabelText("Efficiency"), "Spansh's setting").toBeTruthy();
     await screen.findByText(/36\.48 ly a jump/);

@@ -1,15 +1,13 @@
 <script lang="ts">
-  // The neutron star file in the top bar's plot panel, under Neutron (docs/guide/routes.md): whether it is
-  // in the data folder and its build date, Download with progress, and Check for a newer file.
-  // Nothing downloads until the commander presses Download. With the file there, neutron routes
-  // are plotted on this PC (`onlocal`); `refresh` changes after a plot, which may have found the
-  // file can't be read.
+  // The neutron star file, under Worked out in the plot setup (PlotSetup.svelte,
+  // docs/guide/routes.md): whether it is in the data folder and its build date, Download with
+  // progress, and Check for a newer file. Nothing downloads until the commander presses Download.
+  // Its status lives in the shared plot setup (lib/plot.svelte.ts), so On this PC can be picked
+  // once it is there.
   import Button from "../../lib/ui/Button.svelte";
-  import { DISK_MB, DOWNLOAD_MB, checkNeutron, downloadNeutron, neutronFile, watchDownload, type NeutronFile, type NeutronProgress, type Watch } from "../../lib/neutron";
+  import { DISK_MB, DOWNLOAD_MB, checkNeutron, downloadNeutron, watchDownload, type NeutronProgress, type Watch } from "../../lib/neutron";
+  import { setup } from "../../lib/plot.svelte";
 
-  let { onlocal, refresh = 0 }: { onlocal?: (local: boolean) => void; refresh?: number } = $props();
-
-  let status = $state<NeutronFile | null>(null);
   let downloading = $state(false);
   let progress = $state<NeutronProgress | null>(null);
   let err = $state<string | null>(null);
@@ -18,6 +16,7 @@
   let stopWatching: (() => void) | null = null;
 
   const message = (e: unknown) => String(e instanceof Error ? e.message : e);
+  const status = $derived(setup.file);
 
   async function follow(w: Watch) {
     stopWatching?.();
@@ -25,7 +24,7 @@
     downloading = true;
     progress = w.progress;
     try {
-      status = await w.promise;
+      setup.file = await w.promise;
       newer = null;
     } catch (e) {
       err = message(e);
@@ -37,18 +36,11 @@
   }
 
   $effect(() => {
-    void refresh;
-    neutronFile()
-      .then((s) => (status = s))
-      .catch((e) => (err = message(e)));
+    void setup.readFile();
   });
 
   $effect(() => {
-    if (status) onlocal?.(!!status.file);
-  });
-
-  $effect(() => {
-    // A download started before this page was opened is still running in the core.
+    // A download started before this was opened is still running in the core.
     const w = watchDownload((p) => (progress = p));
     if (w) void follow(w);
     return () => stopWatching?.();
@@ -100,16 +92,14 @@
     {#if status.error}<p class="lo">The file there can't be read: {status.error}</p>{/if}
     <Button class="act" onclick={download}>Download</Button>
   {/if}
-  {#if file}
-    <p class="lo">Neutron routes are plotted on this PC with it, in seconds.</p>
-  {:else if status || downloading}
+  {#if !file && (status || downloading)}
     <p class="lo">Until it is downloaded, Spansh plots neutron routes.</p>
   {/if}
-  {#if err}<p class="err" role="alert"><b>!</b> {err}</p>{/if}
+  {#if err ?? setup.fileError}<p class="err" role="alert"><b>!</b> {err ?? setup.fileError}</p>{/if}
 </div>
 
 <style>
-  .neutron { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 6px; font-size: var(--fs-s); }
+  .neutron { display: flex; flex-direction: column; gap: var(--sp-1); font-size: var(--fs-s); }
   p { margin: 0; }
   .lo { color: var(--prose); }
   .neutron > :global(.act) { align-self: flex-start; margin-left: calc(-1 * var(--sp-2)); }

@@ -45,11 +45,16 @@ describe("Route → neutron star file", () => {
     expect(screen.getByText(/Neutron star file: not downloaded\./)).toBeTruthy();
   });
 
-  it("shows only under the neutron plotter in the plot panel", async () => {
+  it("shows under Worked out for a neutron route only, in the plot panel", async () => {
     startPreview("/?core=ready");
     render(Plot, { to: "Colonia" });
+    await fireEvent.click(await screen.findByRole("button", { name: /^Worked out/ }));
     expect(await screen.findByText(/Neutron star file: not downloaded\./)).toBeTruthy();
-    await fireEvent.click(screen.getByRole("button", { name: "Exact" }));
+    expect(screen.getByRole("option", { name: /On this PC/ }).getAttribute("aria-disabled"), "needs the file").toBe("true");
+    await fireEvent.click(screen.getByRole("button", { name: /^Plotter/ }));
+    await fireEvent.click(screen.getByRole("option", { name: /^Exact/ }));
+    expect(screen.queryByRole("button", { name: /^Worked out/ }), "an exact route is always Spansh's").toBeNull();
+    expect(screen.getByText("By Spansh")).toBeTruthy();
     expect(screen.queryByText(/Neutron star file/)).toBeNull();
   });
 });

@@ -50,7 +50,7 @@ describe("Route, an action failing", () => {
     route.skip.mockReset();
     route.skip.mockRejectedValueOnce("the clipboard is busy");
     render(Route as unknown as Component);
-    await screen.findByText("Colonia run");
+    await screen.findByText("Following Colonia run");
 
     await fireEvent.click(screen.getByRole("button", { name: "Skip" }));
     expect(await screen.findByText("the clipboard is busy")).toBeTruthy();

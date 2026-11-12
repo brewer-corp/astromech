@@ -33,19 +33,24 @@ With no route it says **No route**, and **Find or plot** puts the cursor in the 
 box. A finished route says **Route finished**. When the route you were following has ended and
 another one is paused, the strip shows it with **Resume**.
 
-Click the destination for the **Route** page, also in [Find or plot](using-the-app.md#find-or-plot):
+Click the destination for the **Route** page, also in [Find or plot](using-the-app.md#find-or-plot).
+Its title is where you plot: **Sol to Maia**, from your current system to the route's
+destination ([Plot a route](#plot-a-route)). Under it:
 
-- its name, where it came from, and how many waypoints are left;
+- where the route came from, and how many waypoints are left (a route that wasn't plotted in
+  astromech also says **Following** and its name above the title);
 - the **next waypoint**, with what is there (an engineer, "fuel", "neutron boost"), and whether
   it is **on your clipboard**. If the clipboard could not be written, it says "Not on the
   clipboard" and why, with **Try again**;
 - every stop, with the ones behind you struck out and **you are here** next to the first stop
   when you are in it;
-- **Copy** (something else took the clipboard), **Skip**, **Back** and **Clear route**;
+- **Copy** (something else took the clipboard), **Skip** and **Back**;
 - **Paused** and **Resume** when another route took over from one you had not finished
   ([One route at a time](#one-route-at-a-time)).
 
-[Import](#import-a-route) sits under the live route.
+The **⋯** button at the end of the title has **Import a route…** ([Import a route](#import-a-route)),
+**Open on Spansh** (the destination's page on Spansh's site) and **Clear route**. The **?** next
+to it says how to use the route in the galaxy map ([Paste into the galaxy map](#paste-into-the-galaxy-map)).
 
 A route comes from:
 
@@ -55,7 +60,7 @@ A route comes from:
 - the two buttons at the end of every search result (Services, Outfitting, Shipyard, Trade,
   Exploration, Colonisation, Powerplay targets and the material sites): see
   [From a search result](#from-a-search-result);
-- **Import** on this page.
+- the Route page's title, which plots, and its **⋯** menu's **Import a route…**.
 
 ### From a search result
 
@@ -78,7 +83,8 @@ and a new one-stop route is finished straight away with nothing copied.
 ### One route at a time
 
 astromech follows one route at a time. Setting a new one (**Set destination**, **Follow** on
-the engineer trip, **Plot and follow**, **Follow this route** for an import) **pauses** the
+the engineer trip, **Plot and follow**, **Plot route** and **Replot from here** on the Route page, **Follow this
+route** for an import) **pauses** the
 route it replaces, if that route is not finished. The line under the button says *Replaced*
 and the route's name, with **Resume**, and the Route page shows it as **Paused** with
 **Resume**. Resume follows it again and puts its next waypoint on your clipboard; the route
@@ -183,26 +189,40 @@ not followed either. Setting a new route in astromech pauses the one it replaces
 Type a system into **Find or plot** in the header, on any page (**Ctrl+K** puts the cursor
 there). Suggestions come from Spansh as you type, listed with any pages and finders that match;
 pick one with the arrow keys and Enter, a click or its **Plot** button. A panel opens under the
-box: choose the plotter and press **Plot and follow**, or press Enter again. astromech plots a
+box: check the **Plotter** and **Worked out** dropdowns and press **Plot and follow**, or press
+Enter again. astromech plots a
 route from your current system for the ship you are flying and follows it straight away: the
 first jump is next and on your clipboard. **Show the route** opens the Route page. The panel
 also has the system's **Spansh** and **Inara** pages. Escape or a click elsewhere closes it.
 
-- **Neutron** boosts from neutron stars on the way. The waypoints are the neutron stars and the
+On the **Route page**, the title does the same: click the destination after "to", type a system
+(Spansh suggests names) and press Enter or **Plot route**. When the box names the route's own
+destination, the button is **Replot from here**: it plots the route again from where you are now,
+with the dropdowns as they are, for example after a detour or a ship change. Escape puts the
+route's destination back in the box. While a route is being plotted the button says
+**Plotting…**; a failed plot shows why, with **Try again**.
+
+The panel and the Route page share one setup: change the plotter in one and the other shows it.
+Opening the Route page shows what the route you follow was plotted with.
+
+- **Plotter: Neutron** boosts from neutron stars on the way. The waypoints are the neutron stars and the
   destination: plot each leg in the galaxy map. With the [neutron star file](#the-neutron-star-file)
-  downloaded, astromech works the route out on this PC in a second or two. Without it, Spansh
-  plots it, and **Efficiency** (1 to 100, 60 by default) is how far Spansh may stray from the
+  downloaded, astromech works the route out on this PC in a second or two: **Worked out: On
+  this PC**. Without it, or with **Worked out: By Spansh** picked, Spansh plots it, and
+  **Efficiency** (under Worked out) (1 to 100, 60 by default) is how far Spansh may stray from the
   straight line to use neutron stars. Routes plotted on this PC have no such setting: they take
   the fewest jumps astromech can find.
-- **Exact** has every jump as a waypoint, worked out by Spansh for your frame shift drive, fuel
+- **Plotter: Exact** has every jump as a waypoint, always worked out by Spansh, for your frame shift drive, fuel
   tank and mass. Waypoints marked **fuel** are where to scoop. **Refuel at every scoopable star**
-  (on by default) tops up whenever it can; turn it off to stop only where the tank needs it.
+  (under Plotter, on by default) tops up whenever it can; turn it off to stop only where the tank needs it.
 
 Routes always start from your current system, as the journal last reported it. Above the
 button is the jump range used: your ship's range with a full tank and the cargo aboard now,
 worked out from its last loadout in the journal, engineering and a Guardian FSD booster
 included. It updates within a few seconds when you swap ships or your cargo changes. If some
-modules are not known, it says the range may be off. Both plotters use your drive's own neutron
+modules are not known, it says the range may be off. On the Route page, when your range now
+differs from the range the route was plotted at, a line says both: *Your range is 48.21 ly now;
+this route was plotted at 41.90.* Replot from here plots at the range you have now. Both plotters use your drive's own neutron
 boost: six times the range with the size 8 Mk II supercharge-optimised drive, four times with any
 other.
 
@@ -243,9 +263,9 @@ Limits:
 
 ### The neutron star file
 
-Under **Neutron**, the plot panel also shows the **neutron star file**: a list of every known neutron
+Under **Worked out**, on the Route page and in the plot panel, is the **neutron star file**: a list of every known neutron
 star (about 5 million), built from Spansh's neutron star data, for plotting neutron routes on
-this PC instead of on Spansh. Until it is downloaded, Spansh plots neutron routes.
+this PC instead of on Spansh. Until it is downloaded, Spansh plots neutron routes and **On this PC** can't be picked.
 
 - **Download** fetches it once: about 71 MB, unpacked to about 184 MB as `neutron.bin` in
   astromech's data folder (the folder that holds `galaxy.db`; `data_dir` in `astromech.toml`
@@ -263,9 +283,10 @@ this PC instead of on Spansh. Until it is downloaded, Spansh plots neutron route
 
 ## Import a route
 
-**Import** takes a pasted list. Paste a Spansh CSV export (neutron, road to riches, fleet
+**Import a route…** in the Route page's **⋯** menu opens a dialog for a pasted list. Paste a Spansh CSV export (neutron, road to riches, fleet
 carrier or any other: astromech reads its "System Name" column) or one system name per line,
-give it a name if you like, and press **Follow this route**. Where the export has a "Jumps"
+give it a name if you like, and press **Follow this route**. If the list can't be read, the dialog says why and keeps what
+you pasted; **Cancel** or Escape closes it. Where the export has a "Jumps"
 column (neutron, road to riches and others), the route strip counts the jumps left instead of
 the stops.
 

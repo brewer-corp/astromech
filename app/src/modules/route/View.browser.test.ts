@@ -1,21 +1,25 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/svelte";
+import { fireEvent, render, screen, within } from "@testing-library/svelte";
 import { fakeClipboard, fakePlotInGame } from "../../preview/fakecore";
 import { followRoute } from "../../lib/route";
 import View from "./View.svelte";
 import { previewAnswer, startPreview } from "../../test/transport";
 
 describe("Galaxy → Route", () => {
-  it("imports a route, skips, goes back and clears it through the core", async () => {
+  it("imports a route from the ⋯ menu's dialog, skips, goes back and clears it through the core", async () => {
     startPreview("/?core=ready");
     render(View);
     expect(await screen.findByText(/No route\./)).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "More route actions" }));
+    await fireEvent.click(screen.getByRole("menuitem", { name: /Import a route/ }));
+    const dialog = screen.getByRole("dialog", { name: "Import a route" });
     // The preview commander is in Sol, the first stop: the route starts at the second.
-    await fireEvent.input(screen.getByPlaceholderText(/Paste a Spansh CSV/), {
+    await fireEvent.input(within(dialog).getByPlaceholderText(/Paste a Spansh CSV/), {
       target: { value: '"System Name","Jumps"\n"Sol","0"\n"Shinrarta Dezhra","3"\n"Colonia","40"\n' },
     });
-    await fireEvent.click(screen.getByRole("button", { name: "Follow this route" }));
+    await fireEvent.click(within(dialog).getByRole("button", { name: "Follow this route" }));
     expect(await screen.findByText("On your clipboard")).toBeTruthy();
+    expect(screen.queryByRole("dialog"), "following closes the dialog").toBeNull();
     const next = () => document.querySelector(".next .sys")?.textContent;
     expect(next()).toBe("Shinrarta Dezhra");
     await fireEvent.click(screen.getByRole("button", { name: "Skip" }));
@@ -23,16 +27,33 @@ describe("Galaxy → Route", () => {
     expect(next()).toBe("Colonia");
     await fireEvent.click(screen.getByRole("button", { name: "Back" }));
     await screen.findByText("2 of 3 waypoints left", { exact: false });
-    await fireEvent.click(screen.getByRole("button", { name: "Clear route" }));
+    await fireEvent.click(screen.getByRole("button", { name: "More route actions" }));
+    await fireEvent.click(screen.getByRole("menuitem", { name: "Clear route" }));
     expect(await screen.findByText(/No route\./)).toBeTruthy();
     expect((await previewAnswer("route")).view.route).toBeNull();
+  });
+
+  it("keeps a failed import in its dialog with the text, and Cancel closes it", async () => {
+    startPreview("/?core=ready&fail=route_set");
+    render(View);
+    await screen.findByText(/No route\./);
+    await fireEvent.click(screen.getByRole("button", { name: "More route actions" }));
+    await fireEvent.click(screen.getByRole("menuitem", { name: /Import a route/ }));
+    const dialog = screen.getByRole("dialog", { name: "Import a route" });
+    const box = within(dialog).getByPlaceholderText(/Paste a Spansh CSV/) as HTMLTextAreaElement;
+    await fireEvent.input(box, { target: { value: "Deciat\nKuk" } });
+    await fireEvent.click(within(dialog).getByRole("button", { name: "Follow this route" }));
+    expect((await within(dialog).findByRole("alert")).textContent).toMatch(/^! preview: route_set failed on purpose/);
+    expect(box.value).toBe("Deciat\nKuk");
+    await fireEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("shows a failed action as a hard error, never a filled block, and TRY AGAIN repeats it", async () => {
     startPreview("/?core=ready&fail=route_skip");
     await followRoute("Trip", "test", [{ system: "Deciat" }, { system: "Kuk" }, { system: "Colonia" }]);
     render(View);
-    expect(await screen.findByText("Trip")).toBeTruthy();
+    expect(await screen.findByText("Following Trip")).toBeTruthy();
     await fireEvent.click(screen.getByRole("button", { name: "Skip" }));
     const alert = await screen.findByRole("alert");
     expect(alert.textContent).toMatch(/^! preview: route_skip failed on purpose \(\?fail=\)\s*Try again$/);
@@ -72,7 +93,7 @@ describe("Galaxy → Route", () => {
       { system: "Kuk", label: "Ram Tah" },
     ]);
     render(View);
-    expect(await screen.findByText("Engineer trip")).toBeTruthy();
+    expect(await screen.findByText("Following Engineer trip")).toBeTruthy();
     // Two engineers in one system are one stop.
     expect(screen.getAllByText("Felicity Farseer, Professor Palin").length).toBeGreaterThan(0);
     expect(screen.getByText("engineer trip · 2 of 2 waypoints left")).toBeTruthy();
@@ -85,20 +106,20 @@ describe("Galaxy → Route", () => {
     fakePlotInGame(["Sol", "A", "N1"]);
     vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] }); // the route poll; the test moves its clock
     render(View);
-    expect(await screen.findByText("Sol to Colonia")).toBeTruthy();
+    expect(await screen.findByText("Following Sol to Colonia")).toBeTruthy();
     expect(screen.queryByText("Paused")).toBeNull();
 
     fakePlotInGame(["Sol", "Wolf 359", "Ross 128"]);
     // The page sees it on its next read of the route.
     await vi.advanceTimersByTimeAsync(2000);
-    expect(await screen.findByText("Route to Ross 128")).toBeTruthy();
+    expect(await screen.findByText("Following Route to Ross 128")).toBeTruthy();
     expect(screen.getByText("Next jump")).toBeTruthy();
     expect(screen.queryByText("On your clipboard"), "the game has the route plotted").toBeNull();
     expect(screen.getByText("Paused")).toBeTruthy();
     expect(screen.getByText("Sol to Colonia · 2 waypoints left", { exact: false })).toBeTruthy();
 
     await fireEvent.click(screen.getByRole("button", { name: "Resume" }));
-    expect(await screen.findByText("Sol to Colonia")).toBeTruthy();
+    expect(await screen.findByText("Following Sol to Colonia")).toBeTruthy();
     expect(screen.queryByText("Paused")).toBeNull();
     expect(screen.getByText("On your clipboard")).toBeTruthy();
 
