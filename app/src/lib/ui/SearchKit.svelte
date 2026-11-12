@@ -4,9 +4,10 @@
   // DESIGN.md's Lookup result row: the value the list is ranked by first and largest (price,
   // score, or jumps at the current range), the place with its copy icon, the lookup's own fact
   // columns, then distance, jumps, pad, arrival and report age, each under a column head. A
-  // one-line summary of the constraints sits above the heads, and the list shows DESIGN.md's
-  // states: stale reports stepped down, loading, empty with one way to widen, and a failure
-  // with TRY AGAIN. Each result has two actions for the core's route follower
+  // one-line summary of the constraints sits above the heads, as the filters' resting state
+  // (SearchFilters: CHANGE opens the controls), and the list shows DESIGN.md's states: stale
+  // reports stepped down, loading, empty with one way to widen, and a failure with TRY AGAIN.
+  // Each result has two actions for the core's route follower
   // (docs/PLOTTING.md): Add stop makes it the next stop of the route followed, and Set
   // destination follows it on its own, parking the route it replaces for Resume. Either way its
   // system goes on the clipboard for the galaxy map.
@@ -97,6 +98,8 @@
   /** The current ship's pad as of the last search (the core resolves it on every search). */
   let ship = $state<{ lookup: string; pad: Pad | null } | null>(null);
   let res = $state<Results | null>(null);
+  /** The system the last answer was measured from, kept when a later search fails. */
+  let searched = $state<string | null>(null);
   let err = $state<string | null>(null);
   let filterErr = $state<string | null>(null);
   /** The filter change that couldn't be saved, for TRY AGAIN. */
@@ -142,7 +145,9 @@
     void followShip(lookup, n);
     run(o, s.filters)
       .then((r) => {
-        if (n === asked) res = r;
+        if (n !== asked) return;
+        res = r;
+        searched = r.origin;
       })
       .catch((e: unknown) => {
         if (n !== asked) return;
@@ -236,6 +241,14 @@
   );
   const shown = $derived(compact ? [] : columns);
   const PLACE_HEADS = { station: "Station", body: "Body", ring: "Ring", system: "System" } as const;
+  /**
+   * Where the search ran from: the answer's system once it is in; while a search runs or after
+   * it failed, the system typed for it (else the last answer's), so a new origin shows at once.
+   */
+  const where = $derived(res && !busy ? res.origin : (origin ?? searched ?? "here"));
+  /** The filters' summary line. It follows each edit at once; the radius reached, the hidden count
+   * and the source's notes come from the latest answer. */
+  const line = $derived(summary(`${title} ${joiner}`, where, filters, offers, hints, hidden, [...notes, ...(res?.notes ?? [])], res?.reach ?? null));
   /** The one constraint an empty answer can relax, and how. */
   const widen = $derived(widening(filters, offers, hints));
 
@@ -255,17 +268,19 @@
     {#if header}{@render header()}{/if}
     {#if lead}{@render lead()}{/if}
     <OriginInput {origin} {around} onchange={(o) => (origin = o)} />
-    {#if saved && offers.length}<SearchFilters filters={saved.filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} onchange={(f) => void change(f)} />{/if}
-    {#if filterErr && unsaved}<Failure text={filterErr} onaction={retrySave} />{/if}
   </div>
 
   <div class="out" bind:this={out}>
+    {#if saved}
+      <div class="constraints">
+        <SearchFilters {filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} summary={line} onchange={(f) => void change(f)} />
+        {#if filterErr && unsaved}<Failure text={filterErr} onaction={retrySave} />{/if}
+      </div>
+    {/if}
     {#if err}
       <Failure text={err} onaction={() => attempt++} />
     {:else if busy}
       <p class="line">{busyText}</p>
-    {:else if res}
-      <p class="line">{summary(`${title} ${joiner}`, res.origin, filters, offers, hints, hidden, [...notes, ...(res.notes ?? [])], res.reach)}</p>
     {/if}
     {#if res && !err}
       {#if res.warning}<p class="line warn"><b>!</b> {res.warning}</p>{/if}
@@ -329,6 +344,7 @@
   .query :global(.origin) { margin: 0; }
   .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; max-width: var(--list-w); }
   p { margin: 0; }
+  .constraints { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0 0 var(--sp-3); }
 
   /* Label lines: the summary above the heads, loading, a warning and the source line below. */
   .line { margin: 0 0 var(--sp-3); font-size: var(--fs-s); color: var(--orange-mid); }

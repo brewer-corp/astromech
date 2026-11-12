@@ -52,7 +52,8 @@ describe("SearchKit", () => {
 
     expect(await screen.findByText("Ross 154")).toBeTruthy();
     expect(run).toHaveBeenCalledExactlyOnceWith(null, DEFAULT_FILTERS);
-    expect(screen.getByRole("combobox")).toBeTruthy(); // the data-age filter still shows
+    expect(screen.getByText("Nearest to Sol · reports of any age")).toBeTruthy(); // the data-age filter still shows
+    expect(screen.getByRole("button", { name: "Change filters" })).toBeTruthy();
   });
 
   it("keeps the later filter change when an earlier save fails after it", async () => {
@@ -68,7 +69,8 @@ describe("SearchKit", () => {
     );
     const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(results);
     render(SearchKit, { lookup: "faction.famine", offers: ["age"], run });
-    const select = (await screen.findByRole("combobox")) as HTMLSelectElement;
+    await fireEvent.click(await screen.findByRole("button", { name: "Change filters" }));
+    const select = screen.getByRole("combobox") as HTMLSelectElement;
 
     await fireEvent.change(select, { target: { value: "7" } });
     await fireEvent.change(select, { target: { value: "30" } });
@@ -88,6 +90,7 @@ describe("SearchKit", () => {
     loadFilters.mockImplementation(async () => ({ ...DEFAULT_FILTERS, pad }));
     const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(results);
     render(SearchKit, { lookup: "stations.service", offers: ["pad", "carriers", "odyssey"], run });
+    await fireEvent.click(await screen.findByRole("button", { name: "Change filters" }));
     expect(await screen.findByRole("button", { name: "Pad M, current ship" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Carriers" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByRole("button", { name: "Odyssey" }).getAttribute("aria-pressed")).toBe("true");
@@ -222,7 +225,53 @@ describe("SearchKit", () => {
     expect(await screen.findByText("Asking Spansh…")).toBeTruthy();
     expect(screen.getByText("Ross 154")).toBeTruthy();
     expect(screen.getByRole("table").getAttribute("aria-busy")).toBe("true");
-    expect(screen.queryByText(/^Nearest to/)).toBeNull();
+    // The summary stays, naming the system now searched from.
+    expect(screen.getByText("Nearest to Deciat")).toBeTruthy();
+  });
+
+  it("keeps the filters open while two change and the results follow each, until DONE", async () => {
+    let stored: Filters = DEFAULT_FILTERS;
+    loadFilters.mockImplementation(async () => stored);
+    saveFilters.mockImplementation(async (_, f) => void (stored = f));
+    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockImplementation(async (_, f) => ({
+      ...results,
+      rows: [{ ...results.rows[0]!, system: `Within ${f.max_distance_ly ?? 100}, ${f.max_age_days ?? 30} days` }],
+    }));
+    kit(run, { offers: ["distance", "age"], hints: { distance: 100, age: 30 } });
+    expect(await screen.findByText("Within 100, 30 days")).toBeTruthy();
+    expect(screen.queryByRole("combobox")).toBeNull();
+
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
+    await fireEvent.change(screen.getByRole("combobox", { name: "Within" }), { target: { value: "50" } });
+    expect(await screen.findByText("Within 50, 30 days")).toBeTruthy();
+    await fireEvent.change(screen.getByRole("combobox", { name: "Data age" }), { target: { value: "7" } });
+    expect(await screen.findByText("Within 50, 7 days")).toBeTruthy();
+    expect(screen.getByText("Within 50 ly of Sol · reports up to 7 days old")).toBeTruthy();
+    expect(screen.getAllByRole("combobox")).toHaveLength(2);
+
+    await fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    expect(screen.queryByRole("combobox")).toBeNull();
+    expect(screen.getByText("Within 50 ly of Sol · reports up to 7 days old")).toBeTruthy();
+    expect(stored).toMatchObject({ max_distance_ly: 50, max_age_days: 7 });
+  });
+
+  it("leaves the filters open when the search they started fails, and over TRY AGAIN", async () => {
+    let stored: Filters = DEFAULT_FILTERS;
+    loadFilters.mockImplementation(async () => stored);
+    saveFilters.mockImplementation(async (_, f) => void (stored = f));
+    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValueOnce(results).mockRejectedValueOnce("Spansh took too long to answer").mockResolvedValue(results);
+    kit(run, { offers: ["age"] });
+    expect(await screen.findByText("Ross 154")).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
+    await fireEvent.change(screen.getByRole("combobox", { name: "Data age" }), { target: { value: "7" } });
+    expect((await screen.findByRole("alert")).textContent).toMatch(/Spansh took too long to answer/);
+    expect(screen.getByRole("combobox", { name: "Data age" })).toBeTruthy();
+    expect(screen.getByText("Nearest to Sol · reports up to 7 days old")).toBeTruthy();
+
+    await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByText("Ross 154")).toBeTruthy();
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByRole("combobox", { name: "Data age" })).toBeTruthy();
   });
 
   it("shows a failed search as a hard error, and TRY AGAIN runs it again", async () => {
@@ -243,9 +292,11 @@ describe("SearchKit", () => {
     loadFilters.mockImplementation(async () => stored);
     saveFilters.mockRejectedValueOnce(new Error("database is locked")).mockImplementation(async (_, f) => void (stored = f));
     kit(vi.fn().mockResolvedValue(results), { offers: ["age"] });
-    const select = (await screen.findByRole("combobox")) as HTMLSelectElement;
+    await fireEvent.click(await screen.findByRole("button", { name: "Change filters" }));
+    const select = screen.getByRole("combobox") as HTMLSelectElement;
     await fireEvent.change(select, { target: { value: "7" } });
     expect((await screen.findByRole("alert")).textContent).toMatch(/Couldn't save the filter: database is locked/);
+    expect(screen.getByRole("combobox")).toBe(select); // the controls stay open
     await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     await waitFor(() => expect(stored.max_age_days).toBe(7));
     await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());

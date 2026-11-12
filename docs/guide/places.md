@@ -170,8 +170,14 @@ Colonisation, Powerplay and a ship's build plan (Engineering).
 - **From.** Empty means your current system. Type to search from another system: names are
   suggested as you type (Spansh), and Enter or a click picks one. The **x** goes back to your
   current system. Mining hotspots calls it **Around** and also offers the route's next stop.
-- **Filters.** Only those that make sense for the list are shown, and they are **remembered**
-  for each kind of search. Voice lookups use the same remembered filters, so set them here once.
+- **Filters.** They rest as one line above the results that sums them up ("Within 100 ly of Sol
+  · large pad · reports up to 30 days old"), with **Change** after it. A filter you have changed
+  from its default is always named there. **Change** opens the controls under the line. Each
+  edit searches again at once and the controls stay open, so you can change several; **Done**,
+  **Esc** or **Change** again closes them. What you search for (commodity, module, service)
+  stays above the line. Only the filters that make sense for the list are shown, and they are
+  **remembered** for each kind of search. Voice lookups use the same remembered filters, so set
+  them here once.
   - **Pad:** **S**, **M** or **L** (S is any pad). Your ship's size is marked with a ship glyph
     and is selected until you pick another.
   - **Include:** **Carriers** and **Odyssey** are filled orange when those stations are
@@ -180,8 +186,7 @@ Colonisation, Powerplay and a ship's build plan (Engineering).
   - **Arrival:** hide stations or bodies further than 1,000, 5,000 or 25,000 light seconds from the star.
   - **Within** and **volume:** the search radius (20 to 500 ly) and minimum demand or stock, on trade lists.
 - **Results.** Up to eight (sites, trade, faction states) or ten (stations, colonisation, Powerplay).
-  A line above the list sums up the search ("Within 100 ly of Sol · large pad · reports up to 30
-  days old"). Each result is one row under column heads. It starts with what the list is ranked
+  The filters' line above the list sums up the search. Each result is one row under column heads. It starts with what the list is ranked
   by, in the largest figures: the price (trade), the High Grade Emissions score, or the jumps
   (everything else, nearest first; "~" marks a straight-line estimate). Then the station or body
   and its system with a copy mark, the facts that list has (demand, faction, bodies, ...), and the

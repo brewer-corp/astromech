@@ -54,7 +54,7 @@ describe("Sell and Buy finders", () => {
     expect((screen.getByRole("combobox", { name: "Commodity" }) as HTMLInputElement).value).toBe("Painite");
     expect(near).toHaveBeenLastCalledWith(expect.objectContaining({ side: "sell", commodities: ["painite"], origin: null }));
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "trade.sell" });
-    expect(screen.getByText("Within")).toBeTruthy();
+    expect(screen.getByText(/^Within 100 ly of Sol/)).toBeTruthy();
 
     await fireEvent.click(screen.getByRole("button", { name: "Anywhere" }));
     expect(location.hash).toBe("#/places/sell/painite?range=anywhere");
@@ -63,7 +63,7 @@ describe("Sell and Buy finders", () => {
     // Each range keeps the filters Trade remembered for it, which voice questions use too.
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "trade.sell.anywhere" });
     expect(screen.getByText(/Best prices anywhere/)).toBeTruthy();
-    expect(screen.queryByText("Within")).toBeNull();
+    expect(screen.queryByText(/^Within/)).toBeNull();
 
     // The price leads each row, highest first, and every row says how old its report is.
     expect(screen.getAllByRole("columnheader")[0]?.textContent).toBe("Price");

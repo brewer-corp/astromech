@@ -244,11 +244,22 @@ export function summary(
   notes: string[] = [],
   reach: number | null = null,
 ): string {
-  const has = (k: FilterKey) => offers.includes(k);
   const radius = reach ?? filters.max_distance_ly ?? hints.distance ?? null;
-  const parts = [has("distance") && radius != null ? `Within ${figure(radius)} ly of ${origin}` : `${lead} ${origin}`, ...notes];
+  const parts = [offers.includes("distance") && radius != null ? `Within ${figure(radius)} ly of ${origin}` : `${lead} ${origin}`, ...notes, ...filterParts(filters, offers, hints)];
+  if (hidden > 0) parts.push(`${figure(hidden)} older report${hidden === 1 ? "" : "s"} hidden`);
+  return parts.join(" · ");
+}
+
+/**
+ * What the filters a lookup offers hold, other than the radius, each as a summary phrase: "large
+ * pad", "reports up to 30 days old". A filter away from its default is always named.
+ */
+export function filterParts(filters: Filters, offers: FilterKey[], hints: FilterHints): string[] {
+  const has = (k: FilterKey) => offers.includes(k);
+  const parts: string[] = [];
   if (has("volume") && filters.min_volume != null) parts.push(`${(hints.volume ?? "volume").toLowerCase()} at least ${figure(filters.min_volume)} t`);
-  if (has("pad") && filters.pad && PAD_NAMES[filters.pad]) parts.push(PAD_NAMES[filters.pad]);
+  // S is any pad: unnamed when it is the ship's, named when the commander chose it over a bigger ship's.
+  if (has("pad") && filters.pad && (PAD_NAMES[filters.pad] || filters.pad_set)) parts.push(PAD_NAMES[filters.pad] || "any pad");
   if (has("arrival") && filters.max_arrival_ls != null) parts.push(`arrival up to ${figure(filters.max_arrival_ls)} ls`);
   if (has("carriers") && filters.exclude_carriers) parts.push("no carriers");
   if (has("odyssey") && filters.exclude_odyssey) parts.push("no Odyssey settlements");
@@ -256,8 +267,7 @@ export function summary(
     const days = ageLimit(filters, hints);
     parts.push(days == null ? "reports of any age" : `reports up to ${figure(days)} day${days === 1 ? "" : "s"} old`);
   }
-  if (hidden > 0) parts.push(`${figure(hidden)} older report${hidden === 1 ? "" : "s"} hidden`);
-  return parts.join(" · ");
+  return parts;
 }
 
 /** An empty search's one way forward: what held it back, and the filters with that relaxed. */
