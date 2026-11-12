@@ -3,7 +3,7 @@
   // Board and ListDetail. The panel sits right after the content. Where the content can't keep `min` beside the panel (the 1100 x 700
   // minimum), the panel moves below it; text never shrinks to fit. A new `selected` brings a
   // panel that sits below the content into view, since it may be off screen.
-  import { untrack, type Snippet } from "svelte";
+  import type { Snippet } from "svelte";
   import { stacks } from "./layout";
 
   let {
@@ -28,11 +28,14 @@
   let aside = $state<HTMLElement>();
   const stacked = $derived(stacks(width, min));
 
+  /** The selection last brought into view, so it is scrolled to once, not on every resize. */
+  let shown: unknown = null;
   $effect(() => {
-    if (selected == null) return;
-    untrack(() => {
-      if (stacked) aside?.scrollIntoView({ block: "nearest" });
-    });
+    // The panel may only now be mounted (the first selection in a list), so this waits on it.
+    if (selected == null || !aside || !stacked) return void (selected == null && (shown = null));
+    if (selected === shown) return;
+    shown = selected;
+    aside.scrollIntoView({ block: "nearest" });
   });
 </script>
 
