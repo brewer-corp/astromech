@@ -255,7 +255,7 @@
       </dd>
     </dl>
     {#if u?.apply_error}
-      <p class="hint warn-text">The last update didn't install: {u.apply_error}. Try again, or run the setup.exe from the release page.</p>
+      <p class="hint type-label warn-text">The last update didn't install: {u.apply_error}. Try again, or run the setup.exe from the release page.</p>
     {:else}
       <p class="hint type-label">Installing closes astromech for a few seconds and reopens it. Elite can keep running.</p>
     {/if}
@@ -267,7 +267,7 @@
       <dt class="type-name">Logs</dt>
       <dd><span class="path type-label">{status.log_dir}</span><Button onclick={() => status && openUrl(status.log_dir)}>Open folder</Button></dd>
     </dl>
-    {#if status.config_note}<p class="hint warn-text">{status.config_note}</p>{/if}
+    {#if status.config_note}<p class="hint type-label warn-text">{status.config_note}</p>{/if}
   {/if}
   {#if note}<p class="note err type-label" role="alert">{note}</p>{/if}
 </Form>
