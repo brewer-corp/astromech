@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-drnv
 title: Finder filters collapse to their summary line
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-s
@@ -11,7 +11,8 @@ labels:
 priority: medium
 blocked_by:
 - astromech-b2k3
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3A92dbf88b-8c8d-4672-8898-5edce30d46ab
 ready:
   by: conversion
   at: 2026-11-10T06:04:05.615896996Z
