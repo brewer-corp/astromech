@@ -20,7 +20,9 @@
  * `?core=ready&route=exact` starts on a route, for the route strip: fixtures/plot.json's exact
  * route, with the commander in its third waypoint. `?core=ready&route=timeline` starts on
  * fixtures/route.json's: a neutron route whose flown leg lists its jumps from the galaxy map,
- * with inhabited stops' details, answered as recorded until a command changes the route. Without
+ * with inhabited stops' details, answered as recorded until a command changes the route;
+ * `route=replotted` is that leg plotted again two jumps along, and `route=first` a route whose
+ * first waypoint ends the leg. Without
  * either the preview has no route.
  */
 import type { Biology } from "../lib/api/types/Biology";
@@ -55,7 +57,13 @@ import { labelled, recorded, type Handler, type Handlers } from "./recorded";
 const eddnSample = recorded<Outbox<EddnHead>>(eddnFixture);
 const biologySample = recorded<Done<Biology>>(biologyFixture);
 const miningSample = recorded<Mining>(miningFixture);
-const routeSample = recorded<{ plotted: Plotted; view: RouteView }>(routeFixture);
+const routeSample = recorded<{ plotted: Plotted; view: RouteView; replotted: RouteView; first: RouteView }>(routeFixture);
+/** The recorded timelines by `?route=`: fixtures/route.json's view, the leg plotted again two jumps
+ * along, and a route whose first waypoint ends the leg. */
+function recordedTimeline(): RouteView | null {
+  const sc = previewQuery().get("route");
+  return sc === "timeline" ? routeSample.view : sc === "replotted" ? routeSample.replotted : sc === "first" ? routeSample.first : null;
+}
 const exactSample = recorded<Plotted>(plotSample.exact);
 /** The ship world's replies: `flying` is the status bar's sample (`refitted` and its fleet, the same
  * ship after a refit, are the bar's test's). */
@@ -214,7 +222,7 @@ function fresh(scenario: Scenario): State {
     edsm: { enabled: false, commander: "", key: false },
     route: done ? startingRoute() : null,
     parked: null,
-    timeline: done && previewQuery().get("route") === "timeline" ? structuredClone(routeSample.view) : null,
+    timeline: done && recordedTimeline() ? structuredClone(recordedTimeline()) : null,
     here: done ? startingHere() : null,
     clipFails: null,
     clipError: null,
@@ -225,7 +233,8 @@ function fresh(scenario: Scenario): State {
  * waypoint, so the fourth is next. */
 function startingRoute(): Route | null {
   const scenario = previewQuery().get("route");
-  if (scenario === "timeline") return structuredClone(routeSample.view.route);
+  const sample = recordedTimeline();
+  if (sample) return structuredClone(sample.route);
   if (scenario !== "exact") return null;
   const { name, source, waypoints, plot } = exactSample;
   return { name, source, waypoints: structuredClone(waypoints), next: 3, plot };
@@ -233,7 +242,8 @@ function startingRoute(): Route | null {
 
 /** Where the commander starts: the recorded timeline's system, or the exact route's third stop. */
 function startingHere(): string {
-  if (previewQuery().get("route") === "timeline") return routeSample.view.here ?? "Sol";
+  const sample = recordedTimeline();
+  if (sample) return sample.here ?? "Sol";
   return startingRoute()?.waypoints[2]?.system ?? "Sol";
 }
 

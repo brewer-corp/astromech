@@ -29,8 +29,10 @@
   type At = "past" | "here" | "ahead";
   type Row =
     | { kind: "stop"; key: string; i: number; stop: RouteStop; at: "past" | "next" | "ahead"; here: boolean }
-    | { kind: "jump"; key: string; hop: RouteJump; n: number; of: number; at: At }
-    | { kind: "leg"; key: string; stop: RouteStop; at: "past" | "next" | "ahead"; stars: RouteJump[] | null; unlisted: boolean; dry: boolean };
+    /** A jump of the flown leg; `start` is the system the galaxy map's plot starts from, when the
+     * commander is still in it and it is no stop of the route (plotted again partway along). */
+    | { kind: "jump"; key: string; hop: RouteJump; n: number; of: number; at: At; start?: boolean }
+    | { kind: "leg"; key: string; stop: RouteStop; at: "past" | "next" | "ahead"; stars: RouteJump[] | null; count: boolean; unlisted: boolean; dry: boolean };
 
   const same = (a: string | null | undefined, b: string | null | undefined) => !!a && !!b && a.trim().toLowerCase() === b.trim().toLowerCase();
   const plural = (n: number, one: string, many = `${one}s`) => (n === 1 ? one : many);
@@ -39,30 +41,40 @@
   const next = $derived(route.next);
   const fromGame = $derived(route.source === GAME_SOURCE);
   const flown = $derived(view.stops[next] ?? null);
-  /** How many of the flown leg's listed jumps are behind the commander (0: still in the stop before). */
+  /** How many of the flown leg's listed jumps are behind the commander: 0 is the system its list
+   * starts from, which after a plot partway along is not the stop before. */
   const position = $derived(flown?.hops ? view.position : null);
-  /** The stop the commander is in: the one the flown leg starts from, while still there. */
-  const hereStop = $derived(position === 0 || (position == null && same(view.here, view.stops[next - 1]?.system)) ? next - 1 : -1);
+  /** The commander is in the stop before the leg (none before waypoint 0). */
+  const inPrev = $derived(position !== null && position > 0 ? false : same(view.here, view.stops[next - 1]?.system));
+  /** The commander is where the leg's list starts, and that is no stop of the route. */
+  const atStart = $derived(position === 0 && !inPrev && !!view.here);
   /** Jumps to the next stop, where they are known. */
-  const away = $derived(flown?.hops && position != null ? flown.hops.length - position : hereStop === next - 1 ? (flown?.jumps ?? null) : null);
+  const away = $derived(flown?.hops && position != null ? flown.hops.length - position : inPrev ? (flown?.jumps ?? null) : null);
 
   const rows = $derived.by(() => {
     const out: Row[] = [];
     view.stops.forEach((stop, i) => {
       const at = i < next ? "past" : i === next ? "next" : "ahead";
-      if (i > 0) {
+      // Waypoint 0 has a leg only while it is next: the way there from wherever the commander is.
+      if (i > 0 || at === "next") {
         const between = stop.hops ? stop.hops.slice(0, -1) : null;
+        const dry = at !== "past" && noScoop(stop);
         if (at === "next" && between) {
+          if (dry) out.push({ kind: "leg", key: `l${i}`, stop, at, stars: null, count: false, unlisted: false, dry });
+          if (atStart) {
+            const hop: RouteJump = { system: view.here!, star_class: null, scoopable: "unknown", neutron: null };
+            out.push({ kind: "jump", key: `j${i}-start`, hop, n: 0, of: stop.hops!.length, at: "here", start: true });
+          }
           between.forEach((hop, j) => {
             const where: At = position == null || j >= position ? "ahead" : j === position - 1 ? "here" : "past";
             out.push({ kind: "jump", key: `j${i}-${j}`, hop, n: j + 1, of: stop.hops!.length, at: where });
           });
         } else if (between?.length || stop.jumps == null || stop.jumps > 1) {
           const unlisted = !between && at === "next";
-          out.push({ kind: "leg", key: `l${i}`, stop, at, stars: between?.length ? between : null, unlisted, dry: at !== "past" && noScoop(stop) });
+          out.push({ kind: "leg", key: `l${i}`, stop, at, stars: between?.length ? between : null, count: true, unlisted, dry });
         }
       }
-      out.push({ kind: "stop", key: `s${i}`, i, stop, at, here: i === hereStop });
+      out.push({ kind: "stop", key: `s${i}`, i, stop, at, here: i === next - 1 && inPrev });
     });
     return out;
   });
@@ -114,7 +126,7 @@
       {@const s = row.stop}
       {@const k = starKind(s)}
       {@const cur = row.at === "next"}
-      <li class="stop {row.at}" class:first={row.i === 0} class:last={row.i === view.stops.length - 1} class:here={row.here}>
+      <li class="stop {row.at}" class:first={row === rows[0]} class:last={row === rows.at(-1)} class:here={row.here}>
         <span class="sp">
           {#if row.here}
             <span class="node pin"><Glyph name="here" size={24} label="You are here" /></span>
@@ -155,16 +167,16 @@
     {:else if row.kind === "jump"}
       {@const h = row.hop}
       {@const k = starKind(h)}
-      <li class="jump {row.at}" class:sc={h.scoopable === "yes"}>
+      <li class="jump {row.at}" class:first={row === rows[0]} class:sc={h.scoopable === "yes"}>
         <span class="sp">
-          <span class="node" class:pin={row.at === "here"} {@attach tip(starTip(h, h.system, `Jump ${row.n} of ${row.of}`))}>
+          <span class="node" class:pin={row.at === "here"} {@attach tip(row.start ? null : starTip(h, h.system, `Jump ${row.n} of ${row.of}`))}>
             {#if row.at === "here"}<Glyph name="here" size={24} label="You are here" />{:else}<Glyph name={k.glyph} label={k.name} />{/if}
           </span>
         </span>
         <div class="main">
-          {#if row.at === "here"}<span class="inl"><Glyph name={k.glyph} label={k.name} /></span>{/if}
+          {#if row.at === "here" && !row.start}<span class="inl"><Glyph name={k.glyph} label={k.name} /></span>{/if}
           <span class="type-name jn">{h.system}</span>
-          <span class="type-label">{k.name}</span>
+          {#if !row.start}<span class="type-label">{k.name}</span>{/if}
           {#if row.at === "here"}<span class="type-label you">You are here</span>{/if}
         </div>
         <div></div>
@@ -172,10 +184,10 @@
     {:else}
       {@const s = row.stop}
       {@const n = s.hops?.length ?? s.jumps}
-      <li class="leg {row.at}" aria-label={n != null ? `${n} ${plural(n, "jump")}` : "Jumps not listed"}>
+      <li class="leg {row.at}" class:first={row === rows[0]} aria-label={n != null ? `${n} ${plural(n, "jump")}` : "Jumps not listed"}>
         <span class="sp"></span>
         <div class="main">
-          {#if n != null && (!row.stars || n > 5)}<span class="type-label"><span class="type-figures count">{n}</span> {plural(n, "jump")}</span>{/if}
+          {#if row.count && n != null && (!row.stars || n > 5)}<span class="type-label"><span class="type-figures count">{n}</span> {plural(n, "jump")}</span>{/if}
           {#if row.stars}
             <span class="stars">
               {#each row.stars as h, j (j)}

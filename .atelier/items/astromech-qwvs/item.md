@@ -71,3 +71,13 @@ Choices a reviewer may question:
 - **Left as they were.** The title, the import box, the galaxy-map help and Clear route are astromech-irrv's to rework. I only moved them onto type roles.
 - **Not built.** The mockup's legend was left out (Tips name every icon, per "a page that says less"). The "here" row shares the next stop's Hull fill, since DESIGN.md bans coloured side borders, so the pin and white text set it apart.
 
+### Round 2
+
+All three findings of review 1 are fixed, including the deferred one:
+
+1. **First waypoint.** The flown leg before waypoint 0 now opens out. Waypoint 0 gets a leg while it is next.
+2. **Replot partway.** Position 0 marks the stop before only when `here` is that stop. Otherwise (plotted again partway along) the leg starts with a row for `here`, holding the pin and "You are here", and Sol stays unmarked.
+3. **Flown-leg warning.** A known dry flown leg keeps its "No scoopable star" warning, in a row above its jumps.
+
+The tests use real core replies: `worlds/preview/route` gains a replot from Alrai after the two jumps (mark `replotted`), and fixtures/route.json gains `/replotted` (`route` there) and `/first` (a `route_set` to PSR J1752-2806 and Colonia there), recorded with `ASTROMECH_UPDATE_FIXTURES=1`. The preview takes them as `?route=replotted` and `?route=first`. The new browser tests cover both cases and the flown-leg warning. `pnpm test` passes 619 tests, and `preview_fixtures` passes.
+

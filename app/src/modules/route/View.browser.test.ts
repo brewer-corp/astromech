@@ -104,6 +104,32 @@ describe("Galaxy → Route", () => {
     expect(within(row("Colonia")).getByText("Expansion", { selector: ".state" })).toBeTruthy();
   });
 
+  it("marks the commander where the leg was plotted again partway along, not at the stop before", async () => {
+    startPreview("/?core=ready&route=replotted");
+    render(View);
+    // fixtures/route.json's /replotted: two jumps along, the leg plotted again from Alrai Sector
+    // LH-V b2-4, so the core's position 0 is Alrai, and Sol is only the stop before.
+    expect(await screen.findByText("Next stop · 9 jumps away")).toBeTruthy();
+    const here = row("Alrai Sector LH-V b2-4");
+    expect(here.classList.contains("here")).toBe(true);
+    expect(within(here).getByText("You are here")).toBeTruthy();
+    expect(row("Sol").classList.contains("here")).toBe(false);
+    expect(row("Erh Longo").classList.contains("ahead")).toBe(true);
+  });
+
+  it("opens the flown leg before the route's first waypoint", async () => {
+    startPreview("/?core=ready&route=first");
+    render(View);
+    // fixtures/route.json's /first: a route set to PSR J1752-2806 and Colonia while the galaxy map
+    // has the leg to PSR J1752-2806 plotted from Alrai Sector LH-V b2-4.
+    expect(await screen.findByText("Next stop · 9 jumps away")).toBeTruthy();
+    const items = screen.getAllByRole("listitem");
+    expect(items[0]).toBe(row("Alrai Sector LH-V b2-4"));
+    expect(within(items[0]!).getByText("You are here")).toBeTruthy();
+    expect(items.filter((li) => li.classList.contains("jump")), "Alrai, then the eight jumps between").toHaveLength(9);
+    expect(row("PSR J1752-2806").classList.contains("next")).toBe(true);
+  });
+
   it("gives a leg whose jumps aren't listed its count, and says when the flown leg's stars will appear", async () => {
     startPreview("/?core=ready");
     await followRoute("Neutron run", "neutron plotter", [
@@ -124,7 +150,8 @@ describe("Galaxy → Route", () => {
     const dry = (system: string) => ({ system, scoopable: false });
     await followRoute("Exact-ish", "exact plotter", [
       { system: "Sol", jumps: 0 },
-      { system: "A", jumps: 1 },
+      // The leg being flown: its jumps are rows, and it keeps its warning.
+      { system: "A", jumps: 2, hops: [dry("A1"), dry("A")] },
       { system: "B", jumps: 2, hops: [dry("B1"), dry("B")] },
       // One star the plotter didn't flag: it may be scoopable.
       { system: "C", jumps: 2, hops: [{ system: "C1" }, dry("C")] },
@@ -134,7 +161,9 @@ describe("Galaxy → Route", () => {
     ]);
     render(View);
     await screen.findByText("Exact-ish");
-    const legs = screen.getAllByRole("listitem").filter((li) => li.classList.contains("leg"));
+    const [flown, ...legs] = screen.getAllByRole("listitem").filter((li) => li.classList.contains("leg"));
+    expect(flown!.textContent!.trim()).toBe("! No scoopable star for 2 jumps");
+    expect(row("A1").classList.contains("jump")).toBe(true);
     expect(legs.map((l) => l.querySelectorAll(".pass").length)).toEqual([1, 1, 1, 1]);
     expect(within(legs[1]!).getByRole("img", { name: "Unknown star" })).toBeTruthy();
     expect(within(legs[3]!).getByRole("img", { name: "Scoopable star" })).toBeTruthy();
