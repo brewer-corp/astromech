@@ -26,7 +26,7 @@ describe("Colonies", () => {
     // Measured from the colony that puts it in range; no bodies scanned yet.
     expect(screen.getByText(/bodies not on Spansh · 6\.2 ly from Greae Phoea EM-K d9-373/)).toBeTruthy();
     // The radius defaults to 30 ly.
-    expect(screen.getByRole("option", { name: "30 ly" })).toBeTruthy();
+    expect(screen.getByText(/^Within 30 ly of /)).toBeTruthy();
 
     await fireEvent.click(screen.getByRole("button", { name: "Rings" }));
     await waitFor(() => expect(asked).toHaveBeenLastCalledWith({ interest: "rings", origin: null, filters: DEFAULT_FILTERS }));

@@ -2,7 +2,9 @@
   // A trade route from here (or a typed system): the best single hop, or a loop that brings the
   // best cargo back, for the hold, credits, pad and hop distance. The numbers start from the
   // current ship and the journal and can be changed; the filters are remembered as
-  // `trade.route`. Spansh works the route out as a job, so it runs only on "Find route".
+  // `trade.route`, and rest as their summary line until CHANGE opens them; an edit changes what
+  // Find route will ask at once. Spansh works the route out as a job, so it runs only on "Find
+  // route", which leaves the filters open or closed as they were.
   import { tip } from "../../lib/ui/tip";
   import Failure from "../../lib/ui/Failure.svelte";
   import Button from "../../lib/ui/Button.svelte";
@@ -10,7 +12,7 @@
   import Input from "../../lib/ui/Input.svelte";
   import { changeFilters, openFilters, type FilterStore } from "../../lib/filterstate";
   import { ago, jumps } from "../../lib/galaxy";
-  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type Filters, type Origin, type Pad } from "../../lib/search";
+  import { arrivalLabel, DEFAULT_FILTERS, filterParts, loadFilters, padLabel, saveFilters, type FilterKey, type Filters, type Origin, type Pad } from "../../lib/search";
   import { credits, DEFAULT_MAX_AGE_DAYS, ROUTE_ESTIMATE, tradeRoute, tradeRouteDefaults, type RouteKind, type RouteSearch } from "../../lib/trade";
   import OriginInput from "../../lib/ui/OriginInput.svelte";
   import SearchFilters from "../../lib/ui/SearchFilters.svelte";
@@ -97,6 +99,14 @@
     }
   }
 
+  const OFFERS = ["pad", "age", "arrival", "carriers"] as const satisfies FilterKey[];
+  const HINTS = { age: DEFAULT_MAX_AGE_DAYS };
+  /** The filters as one line: "Large pad · reports up to 30 days old". */
+  const line = $derived.by(() => {
+    const s = filters ? filterParts(filters, [...OFFERS], HINTS).join(" · ") : "";
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  });
+
   const num = (v: string): number | null => (v.trim() === "" ? null : Number(v));
   const minutes = (m: number) => (m < 1 ? "under a minute" : `${Math.round(m)} min`);
 </script>
@@ -123,7 +133,7 @@
       </div>
     </div>
     <div class="tools">
-      {#if filters}<SearchFilters {filters} {shipPad} offers={["pad", "age", "arrival", "carriers"]} hints={{ age: DEFAULT_MAX_AGE_DAYS }} onchange={(f) => void changeFilter(f)} />{/if}
+      {#if filters}<SearchFilters {filters} {shipPad} offers={[...OFFERS]} hints={HINTS} summary={line} onchange={(f) => void changeFilter(f)} />{/if}
       <Button kind="primary" class="go" disabled={!ready || busy} onclick={() => void find()}>{busy ? "Finding…" : "Find route"}</Button>
     </div>
     {#if defaultsErr}<p class="warn">{defaultsErr}</p>{/if}
@@ -197,8 +207,8 @@
   .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; grid-column: 1; min-width: 0; }
   label { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); align-items: center; gap: 8px; font-size: var(--fs-s); min-width: 0; }
   label > span { color: var(--orange-mid); }
-  .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
-  .tools :global(.filters) { flex: 1 1 auto; }
+  .tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 18px; }
+  .tools :global(.search-filters) { flex: 1 1 auto; }
   .tools :global(.go) { margin-left: auto; }
   .out { padding: 24px 8px 28px; }
   /* The answer's title: white, mixed case (system names carry meaning in their case). */
