@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-ok29
 title: 'Route page redesign: the title is the plotter, the route a timeline'
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-l
