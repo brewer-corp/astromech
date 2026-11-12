@@ -61,5 +61,5 @@
 </FinderPage>
 
 <style>
-  .about { margin: 0; max-width: 68ch; font-size: var(--fs-s); color: var(--orange-mid); }
+  .about { margin: 0; max-width: var(--measure); font-size: var(--fs-s); color: var(--orange-mid); }
 </style>

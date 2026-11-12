@@ -2,7 +2,6 @@
   // Journal-fed trader grids: the in-game inventory is a flat list with no grades. Where to
   // find raw sites and the systems a material's source needs are Places finders: this page
   // links into them with the site kind or faction state filled in (decision astromech-g8d5, item 5).
-  import { tick } from "svelte";
   import { pollFailure } from "../../lib/ui/errors";
   import Choice from "../../lib/ui/Choice.svelte";
   import { hashParam, pageHash } from "../../lib/hashstate";
@@ -12,6 +11,9 @@
   import { SITE_KINDS } from "../../lib/sites";
   import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
+  import Board from "../../lib/ui/layout/Board.svelte";
+  import Tiles from "../../lib/ui/layout/Tiles.svelte";
+  import { tilesMin } from "../../lib/ui/layout/layout";
 
   /** Between the raw-site links (a literal space at a tag edge would be trimmed). */
   const SEP = ", ";
@@ -83,24 +85,18 @@
     return `${ink} ${vis * 100}%, var(--line) ${vis * 100}%`;
   }
 
-  let about: HTMLElement | undefined = $state();
-
   function pick(id: string) {
     location.hash = `#/materials/${encodeURIComponent(id)}`;
   }
   const chooseKind = (k: string) => (location.hash = pageHash("materials", { kind: k === "raw" ? null : k }));
 
-  // The detail sits below the grid; on a short window it is off screen, so bring it up once per pick.
-  let shownId: string | null = null;
-  $effect(() => {
-    if (!sel) return void (shownId = null);
-    if (sel.id === shownId) return;
-    shownId = sel.id;
-    void tick().then(() => about?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
-  });
+  /** The board's widest grid: the most grades of any kind, with the row heads. */
+  const min = $derived(tilesMin(Math.max(4, ...(inv?.kinds.map((k) => k.grades.length) ?? [])), true));
 </script>
 
-<section>
+<!-- DESIGN.md Board with its side panel: the grid of grades and categories, and the selected
+     material, or the kind when none is selected. -->
+<Board panel={about} selected={sel?.id} {min}>
   <div class="find">
     <div class="query">
       <div class="bar">
@@ -127,7 +123,7 @@
 
     <div class="out">
       {#if kindId === "other" && inv}
-        <div class="other">
+        <Tiles label="Other materials">
           {#each inv.other as c (c.id)}
             <button class="cell" class:sel={selId === c.id} style:--track={track(c)} onclick={() => pick(c.id)}>
               <span class="n">{c.name}</span>
@@ -136,9 +132,9 @@
           {:else}
             <p class="lo">No off-trader materials in the journal.</p>
           {/each}
-        </div>
+        </Tiles>
       {:else if kind}
-        <div class="grid" style:--cols={kind.grades.length}>
+        <Tiles cols={kind.grades.length} heads label={kind.title}>
           <div class="corner"></div>
           {#each kind.grades as g (g)}
             <div class="gh">G{g}</div>
@@ -152,7 +148,7 @@
               </button>
             {/each}
           {/each}
-        </div>
+        </Tiles>
         {#if kindId === "manufactured" && inv?.farm && inv.farm.length}
           <ul class="farm">
             {#each inv.farm as f (f.id)}
@@ -174,7 +170,10 @@
     </div>
   </div>
 
-  <aside class="about" bind:this={about}>
+</Board>
+
+{#snippet about()}
+  <div class="about">
     {#if sel}
       <h3>{sel.name}</h3>
       <p>Grade {sel.grade} · {sel.rarity}</p>
@@ -198,24 +197,22 @@
         {#if kind.trader}<p class="lo">{kind.trader}</p>{/if}
       {/if}
     {/if}
-  </aside>
-</section>
+  </div>
+{/snippet}
 
 <style>
-  section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem); gap: 0; min-height: 0; padding: 0 0 28px; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .find { min-width: 0; }
   /* The kind is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). */
-  .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 0; }
+  .query { display: flex; flex-direction: column; gap: var(--sp-3); }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
   .here { color: var(--accent); }
-  .out { padding: var(--sp-6) 8px 8px 0; min-width: 0; }
+  .out { padding: var(--sp-6) 0 0; min-width: 0; }
   .farm { list-style: none; margin: 24px 0 0; padding: 0; display: flex; flex-direction: column; }
-  .farm li { display: grid; grid-template-columns: minmax(10rem, 14rem) 5rem 1fr; gap: 10px 18px; align-items: baseline; padding: 14px 8px; border-bottom: 1px solid var(--line); font-size: var(--fs-s); }
+  .farm li { display: grid; grid-template-columns: minmax(10rem, 14rem) 5rem minmax(0, var(--measure)); gap: 10px 18px; align-items: baseline; padding: 14px 8px; border-bottom: 1px solid var(--line); font-size: var(--fs-s); }
   .farm button { font-weight: 500; }
   .farm button:hover, .farm .on { color: var(--orange-lit); }
-  .grid { display: grid; grid-template-columns: 10rem repeat(var(--cols), minmax(7.5rem, 1fr)); gap: 8px; align-content: start; }
   .gh, .rh, .corner { min-height: 40px; display: flex; align-items: center; color: var(--orange-mid); font-size: var(--fs-s); }
   .gh { justify-content: center; }
   .rh { padding: 0 10px; }
@@ -234,8 +231,6 @@
   .n { font-size: var(--fs-s); line-height: 1.25; }
   .q { font-size: var(--fs-s); }
   .farm .q { text-align: right; }
-  .other { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 8px; align-content: start; }
-  .about { position: sticky; top: 0; align-self: start; max-height: calc(var(--win-h) - 150px); overflow-y: auto; border-left: 1px solid var(--accent); padding: 20px 8px 28px 24px; }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .about p { margin: 0 0 10px; line-height: 1.45; }
   .qty { color: var(--accent); }
@@ -244,9 +239,4 @@
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .sites a, .link { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .sites a:hover, .link:hover { color: var(--orange-lit); }
-  @container win (max-width: 1100px) {
-    section { display: flex; flex-direction: column; }
-    .about { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--accent); padding: 16px 0 20px; }
-    .out { padding: 20px 0 8px; }
-  }
 </style>

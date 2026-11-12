@@ -5,7 +5,8 @@
   import { coreCall, coreStatus, openUrl, type BareCoreCmd, type CoreStatus, type MicList, type VoiceSettings, type Colour } from "../../lib/core";
   import { control } from "../../lib/format";
   import Button from "../../lib/ui/Button.svelte";
-  import Calibration from "../../lib/ui/Calibration.svelte";
+  import CalibrationDialog from "../../lib/ui/CalibrationDialog.svelte";
+  import Form from "../../lib/ui/layout/Form.svelte";
   import Choice from "../../lib/ui/Choice.svelte";
   import Dropdown from "../../lib/ui/Dropdown.svelte";
   import ProspectorThresholds from "./ProspectorThresholds.svelte";
@@ -118,7 +119,7 @@
   }
 </script>
 
-<section>
+<Form>
   {#if !status}
     <p class="lo">astromech didn't answer, so settings can't be shown. If this stays, see Diagnostics.</p>
   {:else}
@@ -269,24 +270,16 @@
     {#if status.config_note}<p class="hint warn-text">{status.config_note}</p>{/if}
   {/if}
   {#if note}<p class="note err" role="alert">{note}</p>{/if}
-</section>
+</Form>
 
 {#if calibrating}
-  <div class="shade" role="presentation">
-    <div class="dlg" role="dialog" aria-modal="true" aria-label="Calibrate the microphone">
-      <div class="lbl">Microphone · Calibration</div>
-      <h2>{mics?.calibration.device ?? "Microphone"}</h2>
-      <Calibration primary ondone={() => void loadMics()} />
-      <div class="close"><Button onclick={() => (calibrating = false)}>Close</Button></div>
-    </div>
-  </div>
+  <CalibrationDialog device={mics?.calibration.device ?? "Microphone"} ondone={() => void loadMics()} onclose={() => (calibrating = false)} />
 {/if}
 
 <style>
-  section { padding: 28px 0; max-width: 60rem; }
   h3 { margin: 28px 0 10px; }
   h3:first-child { margin-top: 0; }
-  dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
+  dl { display: grid; grid-template-columns: var(--form-label) minmax(0, 1fr); gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
@@ -297,7 +290,7 @@
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
   .path { font-size: var(--fs-s); overflow-wrap: anywhere; }
-  .hint { color: var(--prose); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .hint { color: var(--prose); margin: 8px 0 0 calc(var(--form-label) + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .warn-text { color: var(--accent); }
   .warn-text::before { content: "! "; font-weight: 600; }
   .lo { color: var(--prose); }
@@ -306,11 +299,6 @@
   /* A row whose value is its own control (a choice or a dropdown) has no cell around it. */
   dd.bare { padding: 0; background: none; }
   dd.bare > :global(.grow) { flex: 1; }
-  .shade { position: fixed; inset: 0; background: rgb(0 0 0 / 0.7); display: grid; place-items: center; z-index: 10; }
-  .dlg { width: 600px; background: var(--bg); border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); padding: 22px 28px; }
-  .lbl { color: var(--orange-mid); font-size: var(--fs-s); }
-  h2 { margin: 6px 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); }
-  .close { margin-top: 20px; }
   .hint a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .note { font-size: var(--fs-s); margin-top: 20px; }
 </style>

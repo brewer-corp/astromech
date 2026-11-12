@@ -61,7 +61,7 @@
 <p class="hint" class:warn-text={error} aria-live="polite">{error}</p>
 
 <style>
-  dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
+  dl { display: grid; grid-template-columns: var(--form-label) minmax(0, 1fr); gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* The threshold is a control of its own, so the row has no cell around it. */
@@ -69,7 +69,7 @@
   label { display: flex; align-items: center; gap: 8px; }
   label > :global(.num) { width: 4.5rem; }
   .lo { color: var(--orange-mid); font-size: var(--fs-s); }
-  .hint { color: var(--prose); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .hint { color: var(--prose); margin: 8px 0 0 calc(var(--form-label) + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .hint:empty { margin: 0; }
   /* A failed save or a refused value: a red "!" and plain words under the field. */
   .warn-text { color: var(--alarm); }

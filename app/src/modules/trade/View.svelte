@@ -15,19 +15,17 @@
   ];
 </script>
 
-<section>
-  <div class="query">
+<!-- DESIGN.md Workbench: Route lays out the inputs, under this lead, and the answer. -->
+<Route>
+  {#snippet lead()}
     <p class="moved">
       Where to sell or buy is in Places:
       {#each links as l, i (l.label)}{#if i}<span aria-hidden="true">{SEP}</span>{/if}<a href="#/{l.route}" {@attach tip(`${l.label} ${l.what}`)}>{l.label}</a>{/each}
     </p>
-  </div>
-  <Route />
-</section>
+  {/snippet}
+</Route>
 
 <style>
-  section { padding: 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; height: 100%; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 0; }
   .moved { margin: 0; font-size: var(--fs-s); color: var(--orange-mid); }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .moved a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
