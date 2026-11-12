@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-ok29
 title: 'Route page redesign: the title is the plotter, the route a timeline'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-l
 - feature
 priority: high
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Ac95b33ef-c19f-4414-ad69-248cbccdf307%3Adelegate-task%3Ab936fcf5-741d-4f09-9f7a-efe41cb63279
 ready:
   by: conversion
   at: 2026-11-10T06:03:07.099931163Z
