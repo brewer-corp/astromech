@@ -993,7 +993,7 @@ fn the_route_lines_keep_to_the_copy_guide() {
     let w = |system: &str, label: Option<&str>| Waypoint {
         system: system.into(),
         label: label.map(Into::into),
-        jumps: None,
+        ..Waypoint::default()
     };
     let mut callouts = vec![];
     let (mut replies, mut answers) = (vec![], vec![]);

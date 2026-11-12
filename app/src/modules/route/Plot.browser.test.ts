@@ -13,7 +13,18 @@ vi.mock("../../lib/route", async (orig) => ({ ...(await orig<typeof import("../.
 // The preview's ship (fixtures/plot.json), and the same with 64 t aboard.
 const asp = sample.ship as PlotSetup;
 const laden: PlotSetup = { ...asp, ship: { ...asp.ship!, range: 31.2, cargo: 64 } };
-const plotted: Plotted = { name: "Sol to Maia", source: "exact plotter", waypoints: [], jumps: 12, ly: 452, neutrons: 0, refuels: 2, range: 31.2, local: false };
+const plotted: Plotted = {
+  name: "Sol to Maia",
+  source: "exact plotter",
+  waypoints: [],
+  jumps: 12,
+  ly: 452,
+  neutrons: 0,
+  refuels: 2,
+  range: 31.2,
+  local: false,
+  plot: { ...(sample.exact.plot as Plotted["plot"]), range: 31.2 },
+};
 const VIEW = { route: null, here: "Sol", next: null, remaining: 0, clipboard_error: null, parked: null };
 const TO = "Maia";
 

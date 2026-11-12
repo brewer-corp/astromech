@@ -21,6 +21,7 @@ pub mod powerplay;
 pub mod remote;
 pub mod sites;
 pub mod stations;
+pub mod stops;
 pub mod store;
 pub mod visits;
 

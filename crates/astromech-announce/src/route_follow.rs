@@ -26,9 +26,9 @@ pub trait Follower: Send + Sync {
     /// A replayed event put the commander in `system`: remember it, nothing else (the route
     /// doesn't move and the clipboard isn't written).
     fn here(&self, system: &str);
-    /// The commander plotted a route in the galaxy map (live): `systems` from `NavRoute.json`,
-    /// the current system first.
-    fn plotted(&self, systems: &[String]);
+    /// The commander plotted a route in the galaxy map (live): `NavRoute.json`'s systems with
+    /// their star classes, the current system first.
+    fn plotted(&self, hops: &[astromech_journal::RouteHop]);
     /// The commander cleared the galaxy map's route (live `NavRouteClear`).
     fn cleared(&self);
 }
@@ -86,7 +86,7 @@ impl Rule for RouteFollow {
                 return None;
             }
             Input::Route(r) => {
-                f.plotted(&r.systems);
+                f.plotted(&r.hops);
                 return None;
             }
             // The clear is ignored while the route file last read still has hops: `NavRoute.json`
@@ -133,7 +133,8 @@ mod tests {
         fn here(&self, system: &str) {
             self.0.lock().unwrap().push(format!("here {system}"));
         }
-        fn plotted(&self, systems: &[String]) {
+        fn plotted(&self, hops: &[astromech_journal::RouteHop]) {
+            let systems: Vec<&str> = hops.iter().map(|h| h.system.as_str()).collect();
             self.0.lock().unwrap().push(format!("plotted {}", systems.join(">")));
         }
         fn cleared(&self) {

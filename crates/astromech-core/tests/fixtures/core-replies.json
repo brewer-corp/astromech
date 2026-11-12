@@ -911,8 +911,10 @@
         "jumps_left": null,
         "next": null,
         "parked": null,
+        "position": null,
         "remaining": 0,
-        "route": null
+        "route": null,
+        "stops": []
       }
     },
     "text": null
@@ -943,6 +945,7 @@
           "system": "Sol"
         },
         "parked": null,
+        "position": null,
         "remaining": 2,
         "route": {
           "name": "Trip",
@@ -958,7 +961,33 @@
               "system": "Colonia"
             }
           ]
-        }
+        },
+        "stops": [
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": null,
+            "label": null,
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Sol"
+          },
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": 3,
+            "label": "x",
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Colonia"
+          }
+        ]
       }
     },
     "text": null
@@ -981,6 +1010,7 @@
           "system": "Deciat"
         },
         "parked": null,
+        "position": null,
         "remaining": 3,
         "route": {
           "name": "Trip",
@@ -1000,7 +1030,45 @@
               "system": "Colonia"
             }
           ]
-        }
+        },
+        "stops": [
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": null,
+            "label": "Farseer",
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Deciat"
+          },
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": null,
+            "label": null,
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Sol"
+          },
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": 3,
+            "label": "x",
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Colonia"
+          }
+        ]
       }
     },
     "text": null
@@ -1018,6 +1086,7 @@
           "system": "Sol"
         },
         "parked": null,
+        "position": null,
         "remaining": 2,
         "route": {
           "name": "Trip",
@@ -1037,7 +1106,45 @@
               "system": "Colonia"
             }
           ]
-        }
+        },
+        "stops": [
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": null,
+            "label": "Farseer",
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Deciat"
+          },
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": null,
+            "label": null,
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Sol"
+          },
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": 3,
+            "label": "x",
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Colonia"
+          }
+        ]
       }
     },
     "text": null
@@ -1056,6 +1163,7 @@
           "system": "Deciat"
         },
         "parked": null,
+        "position": null,
         "remaining": 3,
         "route": {
           "name": "Trip",
@@ -1075,7 +1183,45 @@
               "system": "Colonia"
             }
           ]
-        }
+        },
+        "stops": [
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": null,
+            "label": "Farseer",
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Deciat"
+          },
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": null,
+            "label": null,
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Sol"
+          },
+          {
+            "details": null,
+            "hops": null,
+            "hops_from": null,
+            "jumps": 3,
+            "label": "x",
+            "ly": null,
+            "neutron": null,
+            "scoopable": "unknown",
+            "star_class": null,
+            "system": "Colonia"
+          }
+        ]
       }
     },
     "text": null
@@ -1102,8 +1248,10 @@
         "jumps_left": null,
         "next": null,
         "parked": null,
+        "position": null,
         "remaining": 0,
-        "route": null
+        "route": null,
+        "stops": []
       }
     },
     "text": null

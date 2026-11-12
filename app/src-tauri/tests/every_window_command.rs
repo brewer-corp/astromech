@@ -425,6 +425,12 @@ fn cases(f: &Folders) -> Vec<Case> {
             Some(json!({"ask": {"plotter": "exact", "to": "Maia", "efficiency": 60, "refuel_every_scoopable": true}})),
         )
         .has(json!({"plotted": {"name": "Sol to Maia", "waypoints": [{"system": "Tascheter Sector MN-T b3-6"}]}})),
+        // The plotted route's stops, looked up on Spansh: Sol is inhabited.
+        ok("route_details", None).has(json!({"view": {"stops": [{"system": "Sol", "details": {"government": "Democracy"}}]}})),
+        // Plotted again from Sol with what it was plotted with.
+        ok("route_replot", None)
+            .has(json!({"plotted": {"name": "Sol to Maia", "plot": {"to": "Maia", "plotter": "exact"}}}))
+            .reads("route", None, json!({"view": {"route": {"plot": {"to": "Maia"}}}})),
         ok("neutron_file", None).has(json!({"file": null})),
         fails("neutron_check", None, "503"),
         fails("neutron_download", None, "503"),

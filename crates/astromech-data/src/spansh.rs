@@ -366,6 +366,15 @@ pub struct System {
     #[serde(default)]
     pub allegiance: Option<String>,
     #[serde(default)]
+    pub government: Option<String>,
+    #[serde(default)]
+    pub security: Option<String>,
+    #[serde(default)]
+    pub controlling_minor_faction: Option<String>,
+    /// The controlling faction's state ("None" when it has none).
+    #[serde(default)]
+    pub controlling_minor_faction_state: Option<String>,
+    #[serde(default)]
     pub controlling_power: Option<String>,
     #[serde(default)]
     pub power_state: Option<String>,

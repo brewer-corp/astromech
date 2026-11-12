@@ -30,7 +30,7 @@ Research sources (read 15 Oct 2026): COVAS:NEXT `Plotter.py`, Directive 47 (d47)
 | Paste button: `controls.paste = { device, key }`, read with the same Raw Input listener as push-to-talk | `controls.rs`, `config.rs` |
 | Voice: "next waypoint", "skip waypoint", "previous waypoint", "clear route", "paste" | `astromech-intent` MVP grammar, `Assistant::route_command` |
 | Galaxy-map routes: a live new `NavRoute.json` (the engine's `Input::Route`) and a live `NavRouteClear` go to the same rule, which hands them to the follower (`Follower::plotted`, `cleared`) | `astromech_announce::route_follow`, `Desk::plotted`, `Desk::cleared_in_game` |
-| Control API: `route`, `route_set`, `route_add` (`{system, label, source}`), `route_skip`, `route_back`, `route_clear`, `route_copy`, `route_resume` | `Core::route_cmd`; `window` commands in the registry, so the window may send them |
+| Control API: `route`, `route_set`, `route_add` (`{system, label, source}`), `route_skip`, `route_back`, `route_clear`, `route_copy`, `route_resume`, `route_details` (looks up the stops on Spansh once, then the view) | `Core::route_cmd`, `Core::route_details`; `window` commands in the registry, so the window may send them |
 | UI: the header's **Find or plot** box (every page: Plot, Add stop and Set destination on a system); the route strip under the header on every page (Resume once the route followed has ended) and the Route page with Resume; **Follow** on the engineer trip; **Add stop** and **Set destination** on every search-kit result; "Replaced *name*" with Resume under each of them and the plot panel | `app/src/modules/route` (`PlotBar.svelte`, `Plot.svelte`, `Strip.svelte`, `View.svelte`), `lib/route.ts`, `lib/ui/SearchKit.svelte`, `lib/ui/FollowNote.svelte` |
 
 Behaviour:
@@ -83,6 +83,11 @@ Behaviour:
   lookup's stop), so the route strip says "N stops left" instead. Add stop clears the jumps of
   the stop after the one it inserts, whose leg now starts at the new stop. `route.json` from
   before the field loads as it did, with no jump counts.
+- A waypoint may also carry the leg's light years, its star's class, the plotter's scoopable and
+  neutron flags, and the leg's jumps as the plotter listed them; the view's `stops` is the Route
+  page's timeline built from them and from the galaxy map's route for the leg being flown.
+  What each source gives is in docs/ARCHITECTURE.md (Route data for the timeline) and on
+  `StopView`.
 - The clipboard is written only on these events, never on a timer, so it doesn't fight you for
   the clipboard.
 
@@ -94,7 +99,9 @@ hands it to the follower (`route_set`), so it is followed the same way as any ot
 `astromech_galaxy::plot::plot_route` picks the plotter: a neutron route is plotted on this PC
 when the neutron star file is in the data folder and loads, else by Spansh's `/api/route`; a
 file that won't load falls back to Spansh and the result's `fallback` says why. Exact routes
-always come from Spansh.
+always come from Spansh. `Ask::engine` `spansh` asks Spansh even with the file there, and
+`Ask::range` plots a neutron route for that range instead of the ship's (`route_replot` sends
+both from the route's plot settings).
 
 | Piece | Where |
 |---|---|
@@ -104,7 +111,7 @@ always come from Spansh.
 | Local neutron routes: the search over the neutron star file (A*, then a guided A* for long routes), the stops' names from disk; `local`, `fewest` on the result | `astromech_galaxy::neutron_plot` (`route`, `plot`) |
 | The neutron star file: reader, download from the `neutron` pre-release, and `Kept`, which the shell holds: loaded on the first local plot or after a download (0.1–0.2 s, about 80 MB), kept, and loaded again when the file on disk is no longer the one loaded | `astromech_galaxy::neutron` |
 | Start and destination for a local route: the start is always the commander's journal position; the destination comes from `Galaxy::locate` (the local star map, then Spansh's system-name autocomplete, the only network a local route needs) | `astromech_galaxy::plot::plot_route` |
-| The window: `route_plot_ship` (range and ship for the page), `route_plot` (plots on a blocking worker in the shell, one at a time, then `route_set` on the core), `neutron_file`, `neutron_download`, `neutron_check` | `app/src-tauri/src/main.rs`, `app/src/modules/route/PlotBar.svelte`, `Plot.svelte`, `NeutronFile.svelte` |
+| The window: `route_plot_ship` (range and ship for the page), `route_plot` (plots on a blocking worker in the shell, one at a time, then `route_set` on the core, with the plot settings), `route_replot` (plots the route followed again from the commander's system with its settings), `neutron_file`, `neutron_download`, `neutron_check` | `app/src-tauri/src/main.rs`, `app/src/modules/route/PlotBar.svelte`, `Plot.svelte`, `NeutronFile.svelte` |
 
 The core's pipeline thread is not involved: the shell plots and only the finished route reaches
 the core, through the control API. A route plotted while the window is left still gets followed.

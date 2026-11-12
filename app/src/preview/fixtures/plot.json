@@ -5,51 +5,148 @@
     "ly": 451.55119323730503,
     "name": "Sol to Maia",
     "neutrons": 1,
+    "plot": {
+      "efficiency": 60,
+      "engine": "spansh",
+      "plotter": "exact",
+      "range": 36.47957788162236,
+      "refuel_every_scoopable": true,
+      "to": "Maia"
+    },
     "range": 36.47957788162236,
     "refuels": 3,
     "source": "exact plotter",
     "waypoints": [
       {
         "jumps": 0,
+        "ly": 0.0,
         "system": "Sol"
       },
       {
+        "hops": [
+          {
+            "neutron": false,
+            "scoopable": true,
+            "system": "Tascheter Sector MN-T b3-6"
+          }
+        ],
         "jumps": 1,
         "label": "fuel",
+        "ly": 38.2943229675293,
+        "neutron": false,
+        "scoopable": true,
         "system": "Tascheter Sector MN-T b3-6"
       },
       {
+        "hops": [
+          {
+            "neutron": false,
+            "scoopable": false,
+            "system": "Tascheter Sector LS-T a3-0"
+          }
+        ],
         "jumps": 1,
+        "ly": 39.2609100341797,
+        "neutron": false,
+        "scoopable": false,
         "system": "Tascheter Sector LS-T a3-0"
       },
       {
+        "hops": [
+          {
+            "neutron": false,
+            "scoopable": false,
+            "system": "Arietis Sector LD-H a11-1"
+          }
+        ],
         "jumps": 1,
+        "ly": 40.34814453125,
+        "neutron": false,
+        "scoopable": false,
         "system": "Arietis Sector LD-H a11-1"
       },
       {
+        "hops": [
+          {
+            "neutron": false,
+            "scoopable": false,
+            "system": "Arietis Sector UE-O a7-1"
+          }
+        ],
         "jumps": 1,
+        "ly": 40.7573432922363,
+        "neutron": false,
+        "scoopable": false,
         "system": "Arietis Sector UE-O a7-1"
       },
       {
+        "hops": [
+          {
+            "neutron": false,
+            "scoopable": false,
+            "system": "Arietis Sector EG-V a3-1"
+          }
+        ],
         "jumps": 1,
+        "ly": 40.1151428222656,
+        "neutron": false,
+        "scoopable": false,
         "system": "Arietis Sector EG-V a3-1"
       },
       {
+        "hops": [
+          {
+            "neutron": false,
+            "scoopable": true,
+            "system": "Hyades Sector DB-W b2-6"
+          }
+        ],
         "jumps": 1,
         "label": "fuel",
+        "ly": 40.1925773620605,
+        "neutron": false,
+        "scoopable": true,
         "system": "Hyades Sector DB-W b2-6"
       },
       {
+        "hops": [
+          {
+            "neutron": false,
+            "scoopable": false,
+            "system": "Hyades Sector XJ-Z b3"
+          }
+        ],
         "jumps": 1,
+        "ly": 39.9024925231934,
+        "neutron": false,
+        "scoopable": false,
         "system": "Hyades Sector XJ-Z b3"
       },
       {
+        "hops": [
+          {
+            "neutron": true,
+            "scoopable": true,
+            "system": "98 k Tauri"
+          }
+        ],
         "jumps": 1,
         "label": "neutron boost and fuel",
+        "ly": 35.9862442016602,
+        "neutron": true,
+        "scoopable": true,
         "system": "98 k Tauri"
       },
       {
+        "hops": [
+          {
+            "neutron": false,
+            "system": "Maia"
+          }
+        ],
         "jumps": 1,
+        "ly": 136.69401550293,
+        "neutron": false,
         "system": "Maia"
       }
     ]
@@ -61,21 +158,33 @@
     "ly": 423.0222837381767,
     "name": "Sol to HR 3230",
     "neutrons": 1,
+    "plot": {
+      "efficiency": 60,
+      "engine": "local",
+      "plotter": "neutron",
+      "range": 39.87,
+      "refuel_every_scoopable": true,
+      "to": "HR 3230"
+    },
     "range": 39.87,
     "refuels": 0,
     "source": "neutron plotter (this PC)",
     "waypoints": [
       {
         "jumps": 0,
+        "ly": 0.0,
         "system": "Sol"
       },
       {
         "jumps": 5,
         "label": "neutron boost",
+        "ly": 174.00574703152768,
+        "neutron": true,
         "system": "Jackson's Lighthouse"
       },
       {
         "jumps": 4,
+        "ly": 255.27982693323517,
         "system": "HR 3230"
       }
     ]
@@ -86,21 +195,34 @@
     "ly": 22000.4740453411,
     "name": "Sol to Colonia",
     "neutrons": 1,
+    "plot": {
+      "efficiency": 60,
+      "engine": "spansh",
+      "plotter": "neutron",
+      "range": 36.48,
+      "refuel_every_scoopable": false,
+      "to": "Colonia"
+    },
     "range": 36.48,
     "refuels": 0,
     "source": "neutron plotter",
     "waypoints": [
       {
         "jumps": 0,
+        "ly": 0.0,
         "system": "Sol"
       },
       {
         "jumps": 10,
         "label": "neutron boost",
+        "ly": 407.486400990496,
+        "neutron": true,
         "system": "PSR J1752-2806"
       },
       {
         "jumps": 1,
+        "ly": 113.169815881102,
+        "neutron": false,
         "system": "Colonia"
       }
     ]

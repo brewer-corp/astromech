@@ -97,7 +97,7 @@ fn sol() -> Here {
 }
 
 fn ask(plotter: Plotter, to: &str) -> Ask {
-    Ask { plotter, to: to.into(), efficiency: 60, refuel_every_scoopable: true }
+    Ask { plotter, to: to.into(), efficiency: 60, refuel_every_scoopable: true, engine: None, range: None }
 }
 
 /// A data folder holding `file` as `neutron.bin` (none if `None`).

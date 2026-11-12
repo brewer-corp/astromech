@@ -1,0 +1,28 @@
+{
+ "exchanges": [
+  {
+   "url": "https://spansh.co.uk/api/route",
+   "method": "POST",
+   "status": 202,
+   "from": "../../../crates/astromech-data/tests/fixtures/spansh-route-queued.json"
+  },
+  {
+   "url": "https://spansh.co.uk/api/results/00000000-0000-0000-0000-000000000001",
+   "in_turn": [
+    {
+     "status": 202,
+     "from": "../../../crates/astromech-data/tests/fixtures/spansh-route-pending.json"
+    },
+    {
+     "from": "../../../crates/astromech-data/tests/fixtures/spansh-route-result.json"
+    }
+   ]
+  },
+  {
+   "url": "https://spansh.co.uk/api/systems/search",
+   "method": "POST",
+   "sent": "PSR J1752-2806",
+   "from": "../../../crates/astromech-galaxy/tests/fixtures/spansh-route-stops.json"
+  }
+ ]
+}
