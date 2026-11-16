@@ -4,7 +4,7 @@
   import Frame, { type RouteMode, type Skin } from "./Frame.svelte";
   import Glyph, { type GlyphName } from "../../lib/ui/Glyph.svelte";
 
-  let { route = "open", skin = "page" }: { route?: RouteMode; skin?: Skin } = $props();
+  let { route = "open", skin = "page", tone = 0 }: { route?: RouteMode; skin?: Skin; tone?: number } = $props();
 
   type Row = { price: string; kind: GlyphName; kindName: string; place: string; system: string; demand: string; ly: string; jumps: string; pad: string; ls: string; age: string };
   const rows: Row[] = [
@@ -20,7 +20,7 @@
   const selected = "Good Landing";
 </script>
 
-<Frame top="Places" {route} {skin}>
+<Frame top="Places" {route} {skin} {tone}>
   <div class="page">
     <section>
       <span class="crumb label">Places</span>

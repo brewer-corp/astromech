@@ -1,0 +1,146 @@
+/* Tone concepts (spike/nav-rework): four toned-down versions of the Variant B window, as overrides
+   on the mockups' own rules. Each concept remaps the orange variables inside a region (the page,
+   the route sidebar, the status bar, the header's tabs), then gives orange back to what it keeps.
+   Contrast on Void / Hull: orange-low #b86a32 4.8 / 4.5; label grey #8c8c8c 5.8 / 5.5;
+   prose grey #c4c4c4 11.1; options grey #e0e0e0 14.7; Orange Mid #d97a34 6.3 / 5.9. */
+.glow.frame[class*="tone-"] {
+  --o-lit: #ffa04a;
+  --o: #ff7100;
+  --o-mid: #d97a34;
+  --o-low: #b86a32; /* new: the ladder's lowest readable orange */
+  --g-hi: #e0e0e0; /* Options Grey */
+  --g: #c4c4c4; /* Prose Grey */
+  --g-lo: #8c8c8c; /* new: a label grey */
+}
+
+/* ---------- 1. Brightness ladder: all orange, most of it two steps down ---------- */
+.tone-1 main, .tone-1 .route, .tone-1 footer {
+  --orange-lit: var(--o-mid);
+  --accent: var(--o-mid);
+  --orange-mid: var(--o-low);
+  font-weight: 400;
+  color: var(--accent);
+}
+.tone-1 header .top span { color: var(--o-low) !important; font-weight: 400 !important; }
+.tone-1 header .top span.on { color: var(--on-accent) !important; font-weight: 500 !important; }
+.tone-1 main .row .price { font-weight: 500 !important; }
+.tone-1 main .row.sel { background: var(--o) !important; }
+.tone-1 main .primary { background: var(--o) !important; }
+.tone-1 main .cell { color: var(--o) !important; }
+.tone-1 main .key .vxl, .tone-1 main .best .bname + .pips ~ .label { color: var(--o-lit) !important; }
+.tone-1 main aside .key .vxl { color: var(--o-lit) !important; }
+.tone-1 main .best .dist .vl { color: var(--o-lit) !important; }
+.tone-1 .route .stop.next .name, .tone-1 .route .stop.next .node { color: var(--o-lit) !important; }
+.tone-1 .route .stop.next .note { color: var(--o) !important; }
+.tone-1 .route .stop.next .ibtn { color: var(--o-mid) !important; }
+.tone-1 .route .cell { color: var(--o-mid) !important; }
+.tone-1 main .ibtn, .tone-1 .route .ibtn { color: var(--o-low); }
+.tone-1 main .pips > span.on { background: var(--o-mid) !important; border-color: var(--o-mid) !important; }
+
+/* ---------- 2. Neutral data, orange means act ---------- */
+.tone-2 main, .tone-2 .route, .tone-2 footer {
+  --orange-lit: var(--g-hi);
+  --accent: var(--g);
+  --orange-mid: var(--g-lo);
+  font-weight: 400;
+  color: var(--accent);
+}
+/* What can be acted on or changed stays orange. */
+.tone-2 main .cell, .tone-2 .route .cell { color: var(--o) !important; }
+.tone-2 main .act, .tone-2 .route .act, .tone-2 main .crumb { color: var(--o) !important; }
+.tone-2 main .crumb { text-decoration-color: var(--o-mid) !important; }
+.tone-2 main .ibtn, .tone-2 .route .ibtn { color: var(--o-mid) !important; }
+.tone-2 main .clear { color: var(--o) !important; }
+.tone-2 main .input.filled { outline-color: var(--o) !important; }
+.tone-2 main .primary { background: var(--o) !important; color: var(--on-accent) !important; }
+.tone-2 main .row.sel { background: var(--o) !important; }
+.tone-2 main .row.sel * { color: var(--on-accent) !important; }
+.tone-2 main .row .price { color: var(--g-hi) !important; font-weight: 500 !important; }
+.tone-2 main .row.sel .price { color: var(--on-accent) !important; }
+/* The single main value of the page: the panel's price, or the engineer to go to. */
+.tone-2 main aside .key .vxl { color: var(--o-lit) !important; }
+.tone-2 main .best .dist .vl { color: var(--o-lit) !important; }
+.tone-2 main .pips > span.on { background: var(--g) !important; border-color: var(--g) !important; }
+.tone-2 main .pips > span { border-color: var(--g-lo) !important; }
+.tone-2 .route .stop.next .name { color: var(--o-lit) !important; }
+.tone-2 .route .stop.next .node { color: var(--o-lit) !important; }
+.tone-2 .route .stop.next .note { color: var(--o) !important; }
+.tone-2 .route .sp::before { border-left-color: var(--g-lo) !important; }
+.tone-2 .route .past .sp::before { border-left-color: #3a3a3a !important; }
+.tone-2 .route .stop.past .name, .tone-2 .route .stop.past .node, .tone-2 .route .jump.past .jn, .tone-2 .route .jump.past .node, .tone-2 .route .leg.past .label { color: #6a6a6a !important; }
+.tone-2 .route .facts .state { color: var(--g-hi) !important; }
+.tone-2 header .top span { color: var(--o-mid) !important; font-weight: 400 !important; }
+.tone-2 header .top span.on { color: var(--on-accent) !important; font-weight: 500 !important; }
+.tone-2 .col nav.page span { color: var(--o-mid); }
+.tone-2 .col nav.page span.on { color: var(--o-lit); }
+.tone-2 footer .ship { color: var(--g-hi); }
+
+/* ---------- 3. Quiet frame, quieter selection ---------- */
+.tone-3 .route, .tone-3 footer {
+  --accent: var(--g);
+  --orange-mid: var(--g-lo);
+  font-weight: 400;
+  color: var(--accent);
+}
+.tone-3 header .top span { color: var(--g-lo) !important; font-weight: 400 !important; }
+.tone-3 header .top span.on { color: var(--on-accent) !important; font-weight: 500 !important; }
+.tone-3 header .find, .tone-3 header .help { opacity: 1; }
+.tone-3 .route .stop.past .name, .tone-3 .route .stop.past .node, .tone-3 .route .jump.past .jn, .tone-3 .route .jump.past .node, .tone-3 .route .leg.past .label { color: #6a6a6a !important; }
+.tone-3 .route .sp::before { border-left-color: var(--g-lo) !important; }
+.tone-3 .route .past .sp::before { border-left-color: #3a3a3a !important; }
+.tone-3 .route .stop.next .name, .tone-3 .route .stop.next .node { color: var(--o-lit) !important; }
+.tone-3 .route .stop.next .note { color: var(--o) !important; }
+.tone-3 .route .stop.next .ibtn { color: var(--o-mid) !important; }
+.tone-3 .route .ibtn { color: var(--g-lo); }
+.tone-3 .route .act { color: var(--o-mid) !important; }
+.tone-3 .route .cell { color: var(--o) !important; }
+.tone-3 footer .ship { color: var(--g-hi); }
+/* The page keeps its orange; only the best price is a large lit figure. */
+.tone-3 main .row .price { font-size: var(--fs) !important; font-weight: 500 !important; color: var(--o) !important; }
+.tone-3 main .row:nth-child(2) .price { font-size: var(--fs-l) !important; font-weight: 600 !important; color: var(--o-lit) !important; }
+.tone-3 main .row .vl { font-size: var(--fs) !important; font-weight: 500 !important; color: var(--o) !important; }
+/* Selection: Hull Raised, a 3 px orange bar at its left edge, lit text. */
+.tone-3 main .row.sel { background: linear-gradient(to right, var(--o) 3px, var(--surface-hi) 3px) !important; }
+.tone-3 main .row.sel * { color: var(--o-lit) !important; }
+.tone-3 main .row.sel .unit, .tone-3 main .row.sel .sys, .tone-3 main .row.sel .kind { color: var(--o-mid) !important; }
+.tone-3 main .row.sel .ibtn { color: var(--o) !important; }
+
+/* ---------- 4. One orange column ---------- */
+.tone-4 main, .tone-4 .route, .tone-4 footer {
+  --orange-lit: var(--g-hi);
+  --accent: var(--g);
+  --orange-mid: var(--g-lo);
+  font-weight: 400;
+  color: var(--accent);
+}
+.tone-4 header .top span { color: var(--g-lo) !important; font-weight: 400 !important; }
+.tone-4 header .top span.on { background: var(--o) !important; color: var(--on-accent) !important; font-weight: 500 !important; }
+/* The column the list is ranked by is the one orange column; the panel's value is the one lit. */
+.tone-4 main .row .price, .tone-4 main .row .vl { color: var(--o) !important; font-weight: 600 !important; }
+.tone-4 main aside .key .vxl, .tone-4 main .best .dist .vl { color: var(--o-lit) !important; }
+.tone-4 main .best .bname { color: var(--text-hi) !important; }
+/* Controls stay orange, actions quieter. */
+.tone-4 main .cell, .tone-4 .route .cell { color: var(--o) !important; }
+.tone-4 main .act, .tone-4 .route .act, .tone-4 main .crumb { color: var(--o) !important; }
+.tone-4 main .crumb { text-decoration-color: var(--o-mid) !important; }
+.tone-4 main .clear { color: var(--o) !important; }
+.tone-4 main .input.filled { outline-color: var(--o) !important; }
+.tone-4 main .ibtn, .tone-4 .route .ibtn { color: var(--g-lo) !important; }
+.tone-4 main .primary { background: var(--o) !important; color: var(--on-accent) !important; }
+/* Selection without the slab: Hull Raised and lifted text; the panel says which. */
+.tone-4 main .row.sel { background: var(--surface-hi) !important; }
+.tone-4 main .row.sel * { color: var(--g-hi) !important; }
+.tone-4 main .row.sel .price { color: var(--o-lit) !important; }
+.tone-4 main .row.sel .unit, .tone-4 main .row.sel .sys, .tone-4 main .row.sel .kind { color: var(--g) !important; }
+.tone-4 main .row.sel .ibtn { color: var(--o-mid) !important; }
+.tone-4 main .pips > span.on { background: var(--g) !important; border-color: var(--g) !important; }
+.tone-4 main .pips > span { border-color: var(--g-lo) !important; }
+.tone-4 .route .stop.next .name, .tone-4 .route .stop.next .node { color: var(--o-lit) !important; }
+.tone-4 .route .stop.next .note { color: var(--o) !important; }
+.tone-4 .route .stop.next .ibtn { color: var(--o-mid) !important; }
+.tone-4 .route .sp::before { border-left-color: var(--g-lo) !important; }
+.tone-4 .route .past .sp::before { border-left-color: #3a3a3a !important; }
+.tone-4 .route .stop.past .name, .tone-4 .route .stop.past .node, .tone-4 .route .jump.past .jn, .tone-4 .route .jump.past .node, .tone-4 .route .leg.past .label { color: #6a6a6a !important; }
+.tone-4 .col nav.page span { color: var(--g-lo); }
+.tone-4 .col nav.page span.on { color: var(--g-hi); border-bottom-color: var(--o) !important; }
+.tone-4 footer .ship { color: var(--g-hi); }

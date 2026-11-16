@@ -21,11 +21,12 @@
   // and DESIGN.md's Frame, and the one root zoom of The Height Scale Rule.
   import type { Snippet } from "svelte";
   import "../glow/glow.css";
+  import "./tone.css";
   import Glyph from "../../lib/ui/Glyph.svelte";
   import RouteSide from "./RouteSide.svelte";
   import Strip from "./Strip.svelte";
 
-  let { top, tabs = [], tab = "", route = "open", skin = "page", children }: { top: string; tabs?: string[]; tab?: string; route?: RouteMode; skin?: Skin; children: Snippet } = $props();
+  let { top, tabs = [], tab = "", route = "open", skin = "page", tone = 0, children }: { top: string; tabs?: string[]; tab?: string; route?: RouteMode; skin?: Skin; tone?: number; children: Snippet } = $props();
   const framed = $derived(skin !== "page");
 
   let w = $state(window.innerWidth);
@@ -47,7 +48,7 @@
 
 {#snippet tabsRow()}{#each NAV as n (n)}<span class:on={n === top}>{n}</span>{/each}{/snippet}
 
-<div class="glow frame skin-{skin}" class:framed class:stacked style="zoom: {zoom}; width: {lw}px; height: {h / zoom}px; --side: {Math.max(16, Math.min(40, 0.03 * lw))}px; --hgap: {Math.max(16, Math.min(40, 0.025 * lw))}px" data-need={need} data-lw={Math.round(lw)}>
+<div class="glow frame skin-{skin} tone-{tone}" class:framed class:stacked style="zoom: {zoom}; width: {lw}px; height: {h / zoom}px; --side: {Math.max(16, Math.min(40, 0.03 * lw))}px; --hgap: {Math.max(16, Math.min(40, 0.025 * lw))}px" data-need={need} data-lw={Math.round(lw)}>
   <header bind:clientWidth={room}>
     <span class="mark">ASTROMECH</span>
     {#if !stacked}<nav class="top">{@render tabsRow()}</nav>{:else}<span class="grow"></span>{/if}

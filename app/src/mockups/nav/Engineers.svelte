@@ -8,7 +8,7 @@
   import Frame, { type RouteMode, type Skin } from "./Frame.svelte";
   import Glyph from "../../lib/ui/Glyph.svelte";
 
-  let { query = "", route = "open", skin = "page" }: { query?: string; route?: RouteMode; skin?: Skin } = $props();
+  let { query = "", route = "open", skin = "page", tone = 0 }: { query?: string; route?: RouteMode; skin?: Skin; tone?: number } = $props();
 
   type Eng = { name: string; state: "unlocked" | "known" | "hidden"; rank?: number; at?: string; step?: string; kids?: Eng[]; also?: string[] };
   const ship: Eng[] = [
@@ -100,7 +100,7 @@
 
 {#snippet pips(g: number)}<span class="pips">{#each [1, 2, 3, 4, 5] as i (i)}<span class:on={i <= g}></span>{/each}</span>{/snippet}
 
-<Frame top="Engineering" tabs={["Materials", "Engineers"]} tab="Engineers" {route} {skin}>
+<Frame top="Engineering" tabs={["Materials", "Engineers"]} tab="Engineers" {route} {skin} {tone}>
   <div class="page">
     <div class="search">
       <span class="cell input" class:filled={!!query} aria-label="Engineers for a module">

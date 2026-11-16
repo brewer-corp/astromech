@@ -29,7 +29,12 @@ SHOTS=(activities:1920x1080 ship:1440x900 keybinds:1440x900 controller:1440x900 
   nav-panel:1590x900:nav-spike/header-stacked-1590
   hier-A-sell:2560x1440:nav-spike/hier-A-sell-2560 hier-A-engineers:2560x1440:nav-spike/hier-A-engineers-2560
   hier-A-over:1100x700:nav-spike/hier-A-over-page-1100 hier-B-sell:2560x1440:nav-spike/hier-B-sell-2560
-  hier-B-engineers:2560x1440:nav-spike/hier-B-engineers-2560 hier-B-collapsed:2560x1440:nav-spike/hier-B-collapsed-2560)
+  hier-B-engineers:2560x1440:nav-spike/hier-B-engineers-2560 hier-B-collapsed:2560x1440:nav-spike/hier-B-collapsed-2560
+  tone-0-sell:2560x1440:nav-spike/tone-0-current-sell-2560 tone-1-sell:2560x1440:nav-spike/tone-1-sell-2560
+  tone-2-sell:2560x1440:nav-spike/tone-2-sell-2560 tone-3-sell:2560x1440:nav-spike/tone-3-sell-2560
+  tone-4-sell:2560x1440:nav-spike/tone-4-sell-2560 tone-2-engineers:2560x1440:nav-spike/tone-2-engineers-2560
+  tone-4-engineers:2560x1440:nav-spike/tone-4-engineers-2560)
+# tone-compare-sell.png is the five tone-*-sell shots in a labelled grid, put together by hand.
 # The nav-* ones are the nav spike (branch spike/nav-rework): the route as a left sidebar, SHIPS split from ENGINEERING.
 # The last is DESIGN.md's one-row header at its 1100 px minimum window width (astromech-pey5).
 for p in "${SHOTS[@]}"; do

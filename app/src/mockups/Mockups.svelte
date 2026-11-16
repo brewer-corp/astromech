@@ -63,6 +63,10 @@
   <NavSell route="over" skin="A" />
 {:else if id === "hier-B-collapsed"}
   <NavSell route="collapsed" skin="B" />
+{:else if /^tone-\d-sell$/.test(id)}
+  <NavSell skin="B" tone={Number(id[5])} />
+{:else if /^tone-\d-engineers$/.test(id)}
+  <NavEngineers query="laser" skin="B" tone={Number(id[5])} />
 {:else if id === "nav-engineers-laser"}
   <NavEngineers query="laser" />
 {:else}
