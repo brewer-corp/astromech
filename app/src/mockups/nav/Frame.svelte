@@ -10,6 +10,9 @@
    * 320 and two 40 px gutters. Below that the route is the strip, and opens over the page. 16:9
    * screens from 1920 x 1080 up are 1778 layout px wide, so they dock. */
   export const DOCK_AT = 1700;
+  /** page: the first spike, the sidebar on the window like a page column. A: the sidebar on the
+   * frame's Hull, flush left, with a frame heading. B: as A, joined to a Hull status bar in an L. */
+  export type Skin = "page" | "A" | "B";
 </script>
 
 <script lang="ts">
@@ -22,7 +25,8 @@
   import RouteSide from "./RouteSide.svelte";
   import Strip from "./Strip.svelte";
 
-  let { top, tabs = [], tab = "", route = "open", children }: { top: string; tabs?: string[]; tab?: string; route?: RouteMode; children: Snippet } = $props();
+  let { top, tabs = [], tab = "", route = "open", skin = "page", children }: { top: string; tabs?: string[]; tab?: string; route?: RouteMode; skin?: Skin; children: Snippet } = $props();
+  const framed = $derived(skin !== "page");
 
   let w = $state(window.innerWidth);
   let h = $state(window.innerHeight);
@@ -43,7 +47,7 @@
 
 {#snippet tabsRow()}{#each NAV as n (n)}<span class:on={n === top}>{n}</span>{/each}{/snippet}
 
-<div class="glow frame" class:stacked style="zoom: {zoom}; width: {lw}px; height: {h / zoom}px; --side: {Math.max(16, Math.min(40, 0.03 * lw))}px; --hgap: {Math.max(16, Math.min(40, 0.025 * lw))}px" data-need={need} data-lw={Math.round(lw)}>
+<div class="glow frame skin-{skin}" class:framed class:stacked style="zoom: {zoom}; width: {lw}px; height: {h / zoom}px; --side: {Math.max(16, Math.min(40, 0.03 * lw))}px; --hgap: {Math.max(16, Math.min(40, 0.025 * lw))}px" data-need={need} data-lw={Math.round(lw)}>
   <header bind:clientWidth={room}>
     <span class="mark">ASTROMECH</span>
     {#if !stacked}<nav class="top">{@render tabsRow()}</nav>{:else}<span class="grow"></span>{/if}
@@ -59,7 +63,7 @@
 
   <div class="body">
     {#if docked}
-      <aside class="route" aria-label="Route"><RouteSide /></aside>
+      <aside class="route" aria-label="Route"><RouteSide frame={framed} /></aside>
     {:else if route === "none"}
       <!-- No route: nothing reserved but the gutter, which holds the way to plot one. -->
       <div class="rail">
@@ -72,7 +76,10 @@
       {#if tabs.length}<nav class="page">{#each tabs as t (t)}<span class:on={t === tab}>{t}</span>{/each}</nav>{/if}
       <main>{@render children()}</main>
     </div>
-    {#if over}<aside class="route over" aria-label="Route"><RouteSide overlay /></aside>{/if}
+    {#if over}
+      {#if framed}<div class="scrim" aria-hidden="true"></div>{/if}
+      <aside class="route over" aria-label="Route"><RouteSide overlay frame={framed} /></aside>
+    {/if}
   </div>
 
   <footer>
@@ -119,6 +126,21 @@
   footer .stat { display: flex; align-items: baseline; gap: var(--sp-2); }
   footer .sep { color: var(--orange-mid); margin: 0 var(--sp-1); }
   footer .state { margin-left: auto; color: var(--orange-mid); }
+
+  /* Variants A and B: the route is frame, not page. The header's orange rule runs the full width
+     over it; the sidebar takes the strip's Hull, flush to the window's left edge, with its own
+     padding inside and a Seam rule on its right; the page column keeps Void and its gutter. */
+  .framed header { margin: 0; padding: 0 var(--side); }
+  .framed .route { background: var(--surface); border-right-color: var(--line); }
+  /* Opened over the page (1100 x 700): an overlay, so the page behind steps down to Dim
+     brightness under a Void scrim, and the panel's edge is the 1 px orange separator line. */
+  .framed .route.over { background: var(--surface); border-right: 1px solid var(--accent); }
+  .scrim { position: absolute; inset: 0; z-index: 25; background: var(--bg); opacity: 0.72; }
+  /* B: the status bar takes the same Hull and the sidebar runs into it with no rule, so the
+     sidebar and the bar are one L of frame; the page is the inset, edged by one Seam L inside. */
+  .skin-B footer { background: var(--surface); border-top: none; }
+  .skin-B .col { border-bottom: 1px solid var(--line); }
+  .skin-B .route { border-right-color: var(--line); }
 
   /* The Tip, drawn open (DESIGN.md Tip: Hull Raised, a 1 px Orange Mid border, a pointer). */
   .tip { position: absolute; z-index: 40; width: max-content; max-width: 420px; padding: var(--sp-2) var(--sp-3); background: var(--surface-hi); border: 1px solid var(--orange-mid); color: var(--accent); font-weight: 400; line-height: 1.4; white-space: normal; }

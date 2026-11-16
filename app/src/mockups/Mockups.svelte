@@ -55,6 +55,14 @@
   <NavMaterials kind="foot" />
 {:else if id === "nav-engineers"}
   <NavEngineers />
+{:else if id === "hier-A-sell" || id === "hier-B-sell"}
+  <NavSell skin={id === "hier-A-sell" ? "A" : "B"} />
+{:else if id === "hier-A-engineers" || id === "hier-B-engineers"}
+  <NavEngineers query="laser" skin={id === "hier-A-engineers" ? "A" : "B"} />
+{:else if id === "hier-A-over"}
+  <NavSell route="over" skin="A" />
+{:else if id === "hier-B-collapsed"}
+  <NavSell route="collapsed" skin="B" />
 {:else if id === "nav-engineers-laser"}
   <NavEngineers query="laser" />
 {:else}

@@ -1,10 +1,10 @@
 <script lang="ts">
   // PLACES > Sell with a result selected, beside the route sidebar: the left sidebar and the right
   // detail panel on screen together. Rows are the real Sell page's (docs/design/increment1).
-  import Frame, { type RouteMode } from "./Frame.svelte";
+  import Frame, { type RouteMode, type Skin } from "./Frame.svelte";
   import Glyph, { type GlyphName } from "../../lib/ui/Glyph.svelte";
 
-  let { route = "open" }: { route?: RouteMode } = $props();
+  let { route = "open", skin = "page" }: { route?: RouteMode; skin?: Skin } = $props();
 
   type Row = { price: string; kind: GlyphName; kindName: string; place: string; system: string; demand: string; ly: string; jumps: string; pad: string; ls: string; age: string };
   const rows: Row[] = [
@@ -20,7 +20,7 @@
   const selected = "Good Landing";
 </script>
 
-<Frame top="Places" route={route}>
+<Frame top="Places" {route} {skin}>
   <div class="page">
     <section>
       <span class="crumb label">Places</span>
@@ -93,7 +93,7 @@
   .key { display: flex; align-items: baseline; margin: var(--sp-6) 0 var(--sp-2); }
   dl { display: grid; grid-template-columns: 80px 1fr; gap: var(--sp-2) var(--sp-3); margin: var(--sp-6) 0 var(--sp-8); color: var(--accent); }
   .acts-panel { display: flex; align-items: center; gap: var(--sp-4); }
-  @container (max-width: 1000px) {
+  @container (max-width: 1300px) {
     .page { grid-template-columns: minmax(0, 1fr); }
     aside { border-left: none; border-top: 1px solid var(--accent); padding: var(--sp-6) 0 0; }
   }

@@ -8,15 +8,24 @@
   import Glyph from "../../lib/ui/Glyph.svelte";
   import { ROUTE, ROWS } from "./route";
 
-  let { overlay = false, tips = false }: { overlay?: boolean; tips?: boolean } = $props();
+  let { overlay = false, tips = false, frame = false }: { overlay?: boolean; tips?: boolean; frame?: boolean } = $props();
   const first = 0, last = ROWS.length - 1;
 </script>
 
-<div class="side">
+<div class="side" class:frame>
+  {#if frame}
+    <!-- A frame heading, not a page Title: the page keeps the only Title on screen. -->
+    <div class="fhead">
+      <span class="flabel">Route</span>
+      <span class="ibtn fold" aria-label={overlay ? "Close the route" : "Collapse the route to a strip"}><span class="chev"><Glyph name="chevron" /></span></span>
+    </div>
+    <div class="dline"><span>{ROUTE.from}</span> <span class="to">to</span> <span class="dest">{ROUTE.to}</span></div>
+  {:else}
   <div class="head">
     <h1 class="title"><span>{ROUTE.from}</span> <span class="to">to</span> <span class="dest">{ROUTE.to}</span></h1>
     <span class="ibtn fold" aria-label={overlay ? "Close the route" : "Collapse the route to a strip"}><span class="chev"><Glyph name="chevron" /></span></span>
   </div>
+  {/if}
   <div class="tools">
     <span class="cell dd" aria-label="Plotter">{ROUTE.plotter}<Glyph name="chevron" /></span>
     <span class="cell dd" aria-label="Worked out">{ROUTE.by}<Glyph name="chevron" /></span>
@@ -113,6 +122,17 @@
   .leg > .main { min-height: 32px; padding-block: 0; }
   .leg .count { color: var(--accent); }
   .leg.past .count, .leg.past .label { color: var(--orange-dim); }
+
+  /* On the frame's Hull: a Nav-role caps label like the header's tabs, the plan in Name size,
+     controls at Label size; raised rows step up to Hull Raised, and the spine's node masks match. */
+  .frame { padding-top: var(--sp-3); gap: var(--sp-2); }
+  .fhead { display: flex; align-items: center; justify-content: space-between; height: var(--row); margin-right: -4px; }
+  .flabel { font-weight: 500; letter-spacing: var(--caps); text-transform: uppercase; color: var(--orange-mid); }
+  .dline { font-weight: 500; color: var(--accent); }
+  .frame .tools .dd { font-size: var(--fs-s); }
+  .frame .sum { margin-bottom: var(--sp-3); }
+  .frame .node { background: var(--surface); }
+  .frame .stop.next::after, .frame .jump.here::after { background: var(--surface-hi); }
 
   .tip { position: absolute; z-index: 40; width: max-content; max-width: 250px; padding: var(--sp-2) var(--sp-3); background: var(--surface-hi); border: 1px solid var(--orange-mid); color: var(--accent); font-size: var(--fs-s); font-weight: 400; line-height: 1.4; white-space: normal; }
   .tip :global(b) { color: var(--text-hi); font-weight: 600; }

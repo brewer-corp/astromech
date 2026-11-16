@@ -26,7 +26,10 @@ SHOTS=(activities:1920x1080 ship:1440x900 keybinds:1440x900 controller:1440x900 
   nav-suits:2560x1440:nav-spike/6-suits-2560 nav-materials:2560x1440:nav-spike/7-materials-on-foot-2560
   nav-engineers:2560x1440:nav-spike/8-engineers-2560 nav-engineers:1100x700:nav-spike/8-engineers-1100
   nav-engineers-laser:2560x1440:nav-spike/9-engineers-laser-2560 nav-engineers-laser:1100x700:nav-spike/9-engineers-laser-1100
-  nav-panel:1590x900:nav-spike/header-stacked-1590)
+  nav-panel:1590x900:nav-spike/header-stacked-1590
+  hier-A-sell:2560x1440:nav-spike/hier-A-sell-2560 hier-A-engineers:2560x1440:nav-spike/hier-A-engineers-2560
+  hier-A-over:1100x700:nav-spike/hier-A-over-page-1100 hier-B-sell:2560x1440:nav-spike/hier-B-sell-2560
+  hier-B-engineers:2560x1440:nav-spike/hier-B-engineers-2560 hier-B-collapsed:2560x1440:nav-spike/hier-B-collapsed-2560)
 # The nav-* ones are the nav spike (branch spike/nav-rework): the route as a left sidebar, SHIPS split from ENGINEERING.
 # The last is DESIGN.md's one-row header at its 1100 px minimum window width (astromech-pey5).
 for p in "${SHOTS[@]}"; do

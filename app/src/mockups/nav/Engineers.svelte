@@ -5,10 +5,10 @@
   // who reaches the highest grade, raised, then every engineer for those modules with their grade
   // per module, the commander's rank, system and distance. Grades and systems are the app's
   // catalog's (data/catalog/engineering.json, engineers.json); distances are from Sol.
-  import Frame from "./Frame.svelte";
+  import Frame, { type RouteMode, type Skin } from "./Frame.svelte";
   import Glyph from "../../lib/ui/Glyph.svelte";
 
-  let { query = "" }: { query?: string } = $props();
+  let { query = "", route = "open", skin = "page" }: { query?: string; route?: RouteMode; skin?: Skin } = $props();
 
   type Eng = { name: string; state: "unlocked" | "known" | "hidden"; rank?: number; at?: string; step?: string; kids?: Eng[]; also?: string[] };
   const ship: Eng[] = [
@@ -100,7 +100,7 @@
 
 {#snippet pips(g: number)}<span class="pips">{#each [1, 2, 3, 4, 5] as i (i)}<span class:on={i <= g}></span>{/each}</span>{/snippet}
 
-<Frame top="Engineering" tabs={["Materials", "Engineers"]} tab="Engineers" route="open">
+<Frame top="Engineering" tabs={["Materials", "Engineers"]} tab="Engineers" {route} {skin}>
   <div class="page">
     <div class="search">
       <span class="cell input" class:filled={!!query} aria-label="Engineers for a module">
