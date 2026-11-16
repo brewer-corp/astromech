@@ -19,7 +19,15 @@ SHOTS=(activities:1920x1080 ship:1440x900 keybinds:1440x900 controller:1440x900 
   ds-mining:1600x1000:design-system-places-mining-after ds-places:1600x1000:design-system-places-home-after
   ds-settings:1600x1000:design-system-settings-after
   ds-settings:1100x700:design-system-header-1100
-  glow-icons:1400x640:glow-up-icons)
+  glow-icons:1400x640:glow-up-icons
+  nav-route:2560x1440:nav-spike/1-sidebar-materials-2560 nav-route-over:1100x700:nav-spike/1-route-over-page-1100
+  nav-panel:2560x1440:nav-spike/2-sidebar-and-detail-panel-2560 nav-collapsed:2560x1440:nav-spike/3-collapsed-strip-2560
+  nav-noroute:2560x1440:nav-spike/4-no-route-2560 nav-ships:2560x1440:nav-spike/5-ships-2560
+  nav-suits:2560x1440:nav-spike/6-suits-2560 nav-materials:2560x1440:nav-spike/7-materials-on-foot-2560
+  nav-engineers:2560x1440:nav-spike/8-engineers-2560 nav-engineers:1100x700:nav-spike/8-engineers-1100
+  nav-engineers-laser:2560x1440:nav-spike/9-engineers-laser-2560 nav-engineers-laser:1100x700:nav-spike/9-engineers-laser-1100
+  nav-panel:1590x900:nav-spike/header-stacked-1590)
+# The nav-* ones are the nav spike (branch spike/nav-rework): the route as a left sidebar, SHIPS split from ENGINEERING.
 # The last is DESIGN.md's one-row header at its 1100 px minimum window width (astromech-pey5).
 for p in "${SHOTS[@]}"; do
   IFS=: read -r id size file <<<"$p"

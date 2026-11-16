@@ -14,6 +14,12 @@
   import DsSettings from "./ds/Settings.svelte";
   // Glow-up mockups (docs/design/glow-up-*.png)
   import GlowIcons from "./GlowIcons.svelte";
+  // Nav spike mockups (spike/nav-rework; docs/design/nav-spike/*.png)
+  import NavMaterials from "./nav/Materials.svelte";
+  import NavSell from "./nav/Sell.svelte";
+  import NavShips from "./nav/Ships.svelte";
+  import NavSuits from "./nav/Suits.svelte";
+  import NavEngineers from "./nav/Engineers.svelte";
   const pages = { activities: ActivityView, ship: ShipDiagram, keybinds: KeybindsList, controller: MyController, settings: Settings, tray: TrayMenu };
   const read = () => location.hash.replace("#/mockup/", "");
   let id = $state(read());
@@ -31,6 +37,26 @@
   <DsSettings />
 {:else if id === "glow-icons"}
   <GlowIcons />
+{:else if id === "nav-route"}
+  <NavMaterials route="open" />
+{:else if id === "nav-route-over"}
+  <NavMaterials route="over" />
+{:else if id === "nav-panel"}
+  <NavSell route="open" />
+{:else if id === "nav-collapsed"}
+  <NavMaterials route="collapsed" />
+{:else if id === "nav-noroute"}
+  <NavSell route="none" />
+{:else if id === "nav-ships"}
+  <NavShips />
+{:else if id === "nav-suits"}
+  <NavSuits />
+{:else if id === "nav-materials"}
+  <NavMaterials kind="foot" />
+{:else if id === "nav-engineers"}
+  <NavEngineers />
+{:else if id === "nav-engineers-laser"}
+  <NavEngineers query="laser" />
 {:else}
   <div class="first-draft"><Page /></div>
 {/if}
