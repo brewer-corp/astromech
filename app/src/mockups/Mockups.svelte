@@ -20,6 +20,8 @@
   import NavShips from "./nav/Ships.svelte";
   import NavSuits from "./nav/Suits.svelte";
   import NavEngineers from "./nav/Engineers.svelte";
+  import Sell5 from "./nav/Sell5.svelte";
+  import Engineers5 from "./nav/Engineers5.svelte";
   const pages = { activities: ActivityView, ship: ShipDiagram, keybinds: KeybindsList, controller: MyController, settings: Settings, tray: TrayMenu };
   const read = () => location.hash.replace("#/mockup/", "");
   let id = $state(read());
@@ -67,6 +69,14 @@
   <NavSell skin="B" tone={Number(id[5])} />
 {:else if /^tone-\d-engineers$/.test(id)}
   <NavEngineers query="laser" skin="B" tone={Number(id[5])} />
+{:else if id === "tone5-sell"}
+  <Sell5 />
+{:else if id === "tone5-engineers-laser"}
+  <Engineers5 query="laser" />
+{:else if id === "tone5-engineers-rest"}
+  <Engineers5 />
+{:else if id === "tone5-suits"}
+  <NavSuits tone={5} />
 {:else if id === "nav-engineers-laser"}
   <NavEngineers query="laser" />
 {:else}

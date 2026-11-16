@@ -38,7 +38,7 @@
     {#each ROWS as r, i (i)}
       {#if r.kind === "stop"}
         <li class="stop {r.at}" class:first={i === first} class:last={i === last}>
-          <span class="sp"><span class="node"><Glyph name={r.star} size={r.at === "next" ? 24 : 16} label={r.type} /></span></span>
+          <span class="sp"><span class="node {r.star}"><Glyph name={r.star} size={r.at === "next" ? 24 : 16} label={r.type} /></span></span>
           <div class="main">
             {#if r.at === "next"}<span class="label">Next stop · {ROUTE.away} jumps away</span>{/if}
             <div class="nameline">
@@ -46,12 +46,12 @@
               <span class="ibtn copy" aria-label="Copy {r.name}"><Glyph name="copy" /></span>
             </div>
             {#if r.note}<span class="note">{r.note}</span>{/if}
-            {#if r.facts}<span class="facts label">{r.facts.join(" · ")}{#if r.state} · <span class="state">{r.state}</span>{/if}</span>{/if}
+            {#if r.facts}<span class="facts label">{#each r.facts as f, k (f)}{k ? " · " : ""}<span class:sec-low={f === "Low security"} class:sec-anarchy={f === "Anarchy"}>{f}</span>{/each}{#if r.state} · <span class="state">{r.state}</span>{/if}</span>{/if}
           </div>
         </li>
       {:else if r.kind === "jump"}
         <li class="jump {r.at}">
-          <span class="sp"><span class="node">{#if r.at === "here"}<Glyph name="here" size={20} label="You are here" />{:else}<Glyph name={r.star} label={r.type} />{/if}</span></span>
+          <span class="sp"><span class="node {r.star}">{#if r.at === "here"}<Glyph name="here" size={20} label="You are here" />{:else}<Glyph name={r.star} label={r.type} />{/if}</span></span>
           <div class="main">
             {#if r.at === "here"}<span class="inl"><Glyph name={r.star} label={r.type} /></span>{/if}
             <span class="jn">{r.name}</span>

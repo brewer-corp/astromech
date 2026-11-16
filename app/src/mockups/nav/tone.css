@@ -144,3 +144,43 @@
 .tone-4 .col nav.page span { color: var(--g-lo); }
 .tone-4 .col nav.page span.on { color: var(--g-hi); border-bottom-color: var(--o) !important; }
 .tone-4 footer .ship { color: var(--g-hi); }
+
+/* ---------- 5. One orange column, revised (Sumeet, after concept 4) ----------
+   The page components (Sell5, Engineers5, Suits5) set their own colours from these; the frame,
+   the route sidebar and the page tabs are toned here. New colours, contrast on Void / Hull:
+   red-low #c86455 5.0 / 4.7 (demand short of the hold, an unfit pad, anarchy); it is duller
+   than alarm red #f0412e and never carries the "!". */
+.glow.frame.tone-5 {
+  --o-lit: #ffa04a; --o: #ff7100; --o-mid: #d97a34;
+  --g-hi: #e0e0e0; --g: #c4c4c4; --g-lo: #8c8c8c; --g-dim: #6a6a6a;
+  --red-low: #c86455;
+}
+.tone-5 .route, .tone-5 footer {
+  --orange-lit: var(--g-hi); --accent: var(--g); --orange-mid: var(--g-lo);
+  font-weight: 400; color: var(--accent);
+}
+.tone-5 header .top span { color: var(--g-lo) !important; font-weight: 400 !important; }
+.tone-5 header .top span.on { background: var(--o) !important; color: var(--on-accent) !important; font-weight: 500 !important; }
+.tone-5 .col nav.page span { color: var(--g-lo); }
+.tone-5 .col nav.page span.on { color: var(--g-hi); border-bottom-color: var(--o) !important; }
+.tone-5 footer .ship { color: var(--g-hi); }
+.tone-5 .route .cell { color: var(--o) !important; }
+.tone-5 .route .act { color: var(--o) !important; }
+.tone-5 .route .ibtn { color: var(--g-lo) !important; }
+.tone-5 .route .stop.next .name { color: var(--o-lit) !important; }
+.tone-5 .route .stop.next .note { color: var(--o) !important; }
+.tone-5 .route .stop.next .ibtn { color: var(--o-mid) !important; }
+.tone-5 .route .sp::before { border-left-color: var(--g-lo) !important; }
+.tone-5 .route .past .sp::before { border-left-color: #3a3a3a !important; }
+.tone-5 .route .stop.past .name, .tone-5 .route .jump.past .jn, .tone-5 .route .leg.past .label { color: var(--g-dim) !important; }
+/* Star type icons carry what the commander does there: scoop (Orange Mid), boost (white),
+   nothing (grey). Past stops stay dim whatever their star. */
+.tone-5 .route .node.star-scoopable { color: var(--o-mid) !important; }
+.tone-5 .route .node.star-neutron { color: #ffffff !important; }
+.tone-5 .route .node:is(.star-other, .star-brown-dwarf, .star-white-dwarf, .star-unknown) { color: var(--g-lo) !important; }
+.tone-5 .route .past .node { color: #4f4a45 !important; }
+.tone-5 .route .jump.here .node { color: #ffffff !important; }
+/* Security on an inhabited stop: low in Orange Mid, anarchy in red-low. */
+.tone-5 .route .sec-low { color: var(--o-mid); }
+.tone-5 .route .sec-anarchy { color: var(--red-low); }
+.tone-5 .route .stop.next .node { color: var(--o-lit) !important; }
