@@ -45,10 +45,8 @@
      "waitText": "arrivals"
     },
     {
-     "type": [
-      "input[type=search]",
-      "hutton"
-     ]
+     "type": "input[type=search]",
+     "text": "hutton"
     },
     {
      "waitText": "MATCHING"
@@ -63,10 +61,8 @@
      "waitText": "arrivals"
     },
     {
-     "type": [
-      "input[type=search]",
-      "Colonia"
-     ]
+     "type": "input[type=search]",
+     "text": "Colonia"
     },
     {
      "waitText": "No visited system"
