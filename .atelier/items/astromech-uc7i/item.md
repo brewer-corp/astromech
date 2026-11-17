@@ -158,6 +158,12 @@ so asking for the sidebar over a route doesn't keep it once the route is cleared
 clearing test now opens `#/route` over a route, waits for it to be handled, and clears the
 route. That test fails without the fix.
 
+**Round 3 (review 3-ll87), finding 2: a cold `#/route` lost when the saved Text size undocks the
+window.** This was fixed. The cold link now waits for the first read of the saved Text size
+(`startScale()` settling) before it shows the sidebar, so it opens docked or as the overlay to
+match the size the window ends up at. A new test holds `window_settings`, answers 115 percent at
+1920 px and expects the overlay. That test fails without the fix.
+
 ### Responses
 
-2-3tmk.3: fixed in b6c8915c
+3-ll87.2: fixed in a21ce3c3
