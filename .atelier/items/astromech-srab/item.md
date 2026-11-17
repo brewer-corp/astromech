@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-srab
 title: 'Finder rows: station names line up with or without a type icon, and folded units keep their width'
-status: building
+status: in_review
 mission: astromech-xajc
 labels:
 - feature
@@ -32,8 +32,39 @@ Taken from deferred finding astromech-3ca6/1-79uh.2, in .atelier/items/astromech
 
 ## Done when
 
-- [ ] The place group reserves one type-icon slot on every row, so station and system names start at the same x whether or not a row has an icon; a browser test on Sell anywhere (carriers mixed with stations) checks it.
-- [ ] On a narrow row (Colonisation at 1100 x 700 and at 145 percent) long stock text is what shrinks or wraps; the trip's units and the report's age keep their width (finding astromech-3ca6/2-ppw4.2).
-- [ ] Captures of Sell anywhere and Colonisation at 1100 x 700, before and after.
+- [x] The place group reserves one type-icon slot on every row, so station and system names start at the same x whether or not a row has an icon; a browser test on Sell anywhere (carriers mixed with stations) checks it.
+- [x] On a narrow row (Colonisation at 1100 x 700 and at 145 percent) long stock text is what shrinks or wraps; the trip's units and the report's age keep their width (finding astromech-3ca6/2-ppw4.2).
+- [x] Captures of Sell anywhere and Colonisation at 1100 x 700, before and after.
 
 ## Scope
+
+## Report
+
+Folded rows keep their trip whole. On Colonisation at 1100 x 700 and 145 percent, the Hah
+Industrial Moulding row used to clip "42 d old" to "42 d olc". It now shows it in full, and its
+stock text ("Odyssey" becomes "Odyss…") is what gives way.
+
+- **Folded line.** `SearchKit.svelte` puts the folded line's own facts in `.fown`, which shrinks
+  and ellipsizes, and the trip in `.ftrip`, which is `flex: none`. Before, every child of the line
+  could shrink to zero while its text overflowed. The case in
+  `colonisation/View.browser.test.ts` now also checks that no folded line overflows, that the age
+  ends inside it, and that some stock text is ellipsized. It failed before the change (965 > 964)
+  and passes after. That file now loads `tokens.css` so the row has its real widths; its other
+  cases pass with the tokens loaded.
+- **Icon slot.** No code change was needed. Commit 052c792f (in astromech-3ca6) already reserves
+  the slot in station lists. With the tokens loaded, every name and system on Sell anywhere
+  starts at x=184. The review's 217 vs 193 figures were measured before that commit. The new
+  `places/MarketRows.browser.test.ts` checks it, and it fails (168 vs 184) when the slot's width
+  is removed. It is a separate file because loading the tokens into `Market.browser.test.ts`
+  breaks that file's side-panel test, which assumes the unstyled layout (its panel ends at 574 px
+  in a 500 px window). I left that test alone.
+- **No row got wider.** The sidebar's dock width is unaffected, so I did not merge main for
+  astromech-7obs.
+- **Captures** are in `docs/design/finder-row-align/`: Sell anywhere and Colonisation at
+  1100 x 700, and Colonisation at 1100 x 700 and 145 percent scrolled to the Hah row, before and
+  after. Sell anywhere and Colonisation at 100 percent look the same before and after.
+
+Checks: `pnpm lint`, `pnpm check`, `pnpm build` with `scripts/check-dist.py`. `pnpm test`: 751 of
+752 pass. The one failure is the dock-width test in `App.browser.test.ts`, which fails the same
+way without this change (astromech-7obs).
+
