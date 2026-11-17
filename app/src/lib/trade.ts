@@ -7,6 +7,7 @@
 import catalog from "../../../data/catalog/commodities.json";
 import type { CargoSale as CargoSearch } from "./api/types/CargoSale";
 import type { Defaults as RouteDefaults } from "./api/types/Defaults";
+import type { Load } from "./api/types/Load";
 import type { MarketComparison as MarketCompare } from "./api/types/MarketComparison";
 import type { Search as TradeSearch } from "./api/types/Search";
 import type { TradeRoute as RouteSearch } from "./api/types/TradeRoute";
@@ -124,9 +125,18 @@ export async function tradeCargo(origin: Origin = null, filters: Filters | null 
   return await call("trade_cargo", { origin, filters });
 }
 
+/**
+ * How much of the hold a station takes, in tonnes: "all 600" when it takes the whole load, else
+ * "20 of 200". Shown beside its total wherever a station's offer for the hold is, so an offer
+ * for part of the hold never reads as what the hold would fetch.
+ */
+export function takes(sold: number, load: Load[]): string {
+  const carried = load.reduce((n, l) => n + l.tonnes, 0);
+  return sold === carried ? `all ${credits(carried)}` : `${credits(sold)} of ${credits(carried)}`;
+}
+
 /** The whole-load stations as the search kit's rows: what each pays for the load, and how much of it it takes. */
 export function cargoResults(s: CargoSearch): Results {
-  const carried = s.plan.load.reduce((n, l) => n + l.tonnes, 0);
   return {
     origin: s.here.system,
     range: s.range,
@@ -146,7 +156,7 @@ export function cargoResults(s: CargoSearch): Results {
       arrival_ls: x.arrival_ls,
       updated_at: x.updated_at,
       main: credits(x.total),
-      facts: { takes: x.sold === carried ? `all ${credits(carried)}` : `${credits(x.sold)} of ${credits(carried)}` },
+      facts: { takes: takes(x.sold, s.plan.load) },
       station_type: x.fleet_carrier ? "Drake-Class Carrier" : x.odyssey ? "Settlement" : null,
     })),
   };

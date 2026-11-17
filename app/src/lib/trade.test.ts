@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_FILTERS } from "./search";
-import { cargoResults, credits, findCommodity, suggestCommodities, toResults, tradeAnywhere, tradeCargo, tradeSearch } from "./trade";
+import { cargoResults, credits, takes, findCommodity, suggestCommodities, toResults, tradeAnywhere, tradeCargo, tradeSearch } from "./trade";
 
 describe("trade lookups", () => {
   it("finds commodities by name, alias or symbol", () => {
@@ -45,5 +45,17 @@ describe("trade lookups", () => {
     expect(buy.origin).toBe("Colonia");
     expect(buy.rows[0]).toMatchObject({ station: "Piceous Elicitation Ltd", main: "40,596" });
     expect(buy.rows.every((x, i) => i === 0 || Number(x.main?.replace(/\D/g, "")) >= Number(buy.rows[i - 1]?.main?.replace(/\D/g, "")))).toBe(true);
+  });
+});
+
+describe("how much of the hold a station takes", () => {
+  const load = (...t: [string, number][]) => t.map(([symbol, tonnes]) => ({ symbol, name: symbol, tonnes }));
+  it.each([
+    { what: "the whole hold", sold: 600, hold: load(["lowtemperaturediamond", 300], ["painite", 200], ["platinum", 100]), says: "all 600" },
+    { what: "part of one commodity", sold: 20, hold: load(["painite", 200]), says: "20 of 200" },
+    { what: "one commodity of a mixed hold", sold: 200, hold: load(["lowtemperaturediamond", 300], ["painite", 200], ["platinum", 100]), says: "200 of 600" },
+    { what: "thousands", sold: 1200, hold: load(["gold", 1500]), says: "1,200 of 1,500" },
+  ])("$what: $says", ({ sold, hold, says }) => {
+    expect(takes(sold, hold)).toBe(says);
   });
 });
