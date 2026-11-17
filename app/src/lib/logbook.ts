@@ -4,6 +4,7 @@
  */
 import type { Logbook as Book } from "./api/types/Logbook";
 import type { Session as Played } from "./api/types/Session";
+import type { Payment } from "./api/types/Payment";
 import type { Visit } from "./api/types/Visit";
 import { call, type Sampled } from "./transport";
 
@@ -82,4 +83,32 @@ export function byDay(timeline: Visit[]): Day[] {
 /** "10:25" from a journal timestamp. */
 export function clock(ts: string): string {
   return ts.slice(11, 16);
+}
+
+/** A mark on the session's band: one kind's payments in one minute, the precision its Tip shows. */
+export interface Mark {
+  /** The first payment's time. */
+  ts: string;
+  payments: Payment[];
+  amount: number;
+}
+
+/**
+ * The session's band: a row per kind in `kinds`' order (the totals'), each with its marks in
+ * time order. Payments of a kind in the same minute share a mark, since they would draw on the
+ * same spot and the later would hide the earlier (selling several goods at once pays together).
+ */
+export function bandRows(kinds: string[], timeline: Payment[]): { kind: string; marks: Mark[] }[] {
+  return kinds.map((kind) => {
+    const marks: Mark[] = [];
+    for (const p of timeline) {
+      if (p.kind !== kind) continue;
+      const last = marks.at(-1);
+      if (last && last.ts.slice(0, 16) === p.ts.slice(0, 16)) {
+        last.payments.push(p);
+        last.amount += p.amount;
+      } else marks.push({ ts: p.ts, payments: [p], amount: p.amount });
+    }
+    return { kind, marks };
+  });
 }

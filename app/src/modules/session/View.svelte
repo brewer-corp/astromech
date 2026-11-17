@@ -8,7 +8,7 @@
   import Stale from "../../lib/ui/Stale.svelte";
   import { tip } from "../../lib/ui/tip";
   import Board from "../../lib/ui/layout/Board.svelte";
-  import { clock, duration, EARNED, EARNING_NAMES, loadSession, when, type Session } from "../../lib/logbook";
+  import { bandRows, clock, duration, EARNED, EARNING_NAMES, loadSession, when, type Mark, type Session } from "../../lib/logbook";
 
   let s = $state<Session | null>(null);
   let loaded = $state(false);
@@ -39,10 +39,20 @@
     const span = Date.parse(s.end) - from;
     return (ts: string) => (span > 0 ? Math.min(100, Math.max(0, ((Date.parse(ts) - from) / span) * 100)) : 0);
   });
-  /** The band's rows: one per activity, in the totals' order, each with its payments. */
-  const rows = $derived.by(() => {
-    const v = s;
-    return v ? v.earnings.map((e) => ({ kind: e.kind, marks: v.timeline.filter((p) => p.kind === e.kind) })) : [];
+  /** The band's rows: one per activity, in the totals' order, each with its marks. */
+  const rows = $derived(s ? bandRows(s.earnings.map((e) => e.kind), s.timeline) : []);
+  /** A mark's words: its amount, and each payment's when it holds several. */
+  const markName = (kind: string, m: Mark) => {
+    const several = m.payments.length > 1;
+    const each = m.payments.map((p) => `${n(p.amount)} cr`);
+    const list = each.length > 2 ? `${each.slice(0, -1).join(", ")} and ${each.at(-1)}` : each.join(" and ");
+    return `${name(kind)}, ${several ? `${m.payments.length} payments, ` : ""}${n(m.amount)} cr at ${clock(m.ts)} UTC${several ? `: ${list}` : ""}`;
+  };
+  const markTip = (kind: string, m: Mark) => ({
+    title: `${n(m.amount)} cr`,
+    fact: m.payments.length > 1 ? `${name(kind)}, ${m.payments.length} payments: ${m.payments.map((p) => n(p.amount)).join(" + ")} cr` : name(kind),
+    note: `${clock(m.ts)} UTC`,
+    stop: false as const,
   });
 </script>
 
@@ -102,14 +112,8 @@
             {#each rows as r (r.kind)}
               <span class="type-label kind">{name(r.kind)}</span>
               <span class="track">
-                {#each r.marks as p, i (`${p.ts}:${i}`)}
-                  <span
-                    class="mark"
-                    style:left={`${at(p.ts)}%`}
-                    role="img"
-                    aria-label={`${name(p.kind)}, ${n(p.amount)} cr at ${clock(p.ts)} UTC`}
-                    {@attach tip({ title: `${n(p.amount)} cr`, fact: name(p.kind), note: `${clock(p.ts)} UTC`, stop: false })}
-                  ></span>
+                {#each r.marks as m (m.ts)}
+                  <span class="mark" style:left={`${at(m.ts)}%`} role="img" aria-label={markName(r.kind, m)} {@attach tip(markTip(r.kind, m))}></span>
                 {/each}
               </span>
             {/each}

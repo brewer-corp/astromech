@@ -1,5 +1,5 @@
 {
- "commit": "63ed7b70",
+ "commit": "cad259a6",
  "captures": {
   "session-1100x700": {
    "url": "http://localhost:5391/?core=ready&route=exact&textsize=100#/session",
@@ -50,7 +50,7 @@
      "weight": 13,
      "texts": [
       "Session",
-      "7,300,500",
+      "7,301,500",
       "0",
       "0.0",
       "Organic data",
@@ -88,7 +88,7 @@
      "weight": 2,
      "texts": [
       "Arietis Sector LD-H a11-1",
-      "14,641,671"
+      "14,643,677"
      ]
     },
     {
@@ -106,7 +106,7 @@
       "80,000",
       "40,000",
       "15,000",
-      "10,500",
+      "11,500",
       "5,000",
       "Waiting for Elite"
      ]
@@ -271,7 +271,7 @@
      "weight": 13,
      "texts": [
       "Session",
-      "7,300,500",
+      "7,301,500",
       "0",
       "0.0",
       "Organic data",
@@ -327,7 +327,7 @@
      "sidebar": false,
      "weight": 1,
      "texts": [
-      "14,641,671"
+      "14,643,677"
      ]
     }
    ],
@@ -450,7 +450,7 @@
      "weight": 13,
      "texts": [
       "Session",
-      "7,300,500",
+      "7,301,500",
       "0",
       "0.0",
       "Organic data",
@@ -506,7 +506,7 @@
      "sidebar": false,
      "weight": 1,
      "texts": [
-      "14,641,671"
+      "14,643,677"
      ]
     }
    ],

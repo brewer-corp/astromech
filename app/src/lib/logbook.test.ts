@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { byDay, type Visit } from "./logbook";
+import { bandRows, byDay, type Payment, type Visit } from "./logbook";
 
 const v = (ts: string, kind: "system" | "station", via: string): Visit => ({
   ts,
@@ -35,5 +35,31 @@ describe("byDay", () => {
   ];
   it.each(cases)("$name", ({ timeline, want }) => {
     expect(byDay(timeline).map((d) => [d.date, d.jumps, d.dockings, d.visits.length])).toEqual(want);
+  });
+});
+
+describe("bandRows", () => {
+  const pay = (t: string, kind: string, amount: number): Payment => ({ ts: `2026-09-03T${t}Z`, kind, amount });
+  const cases: { name: string; kinds: string[]; timeline: Payment[]; want: [string, [string, number[]][]][] }[] = [
+    { name: "nothing earned", kinds: [], timeline: [], want: [] },
+    {
+      name: "a row per kind in the totals' order; payments in one minute share a mark",
+      kinds: ["trade", "bounty"],
+      timeline: [
+        pay("10:05:00", "bounty", 20000),
+        pay("10:18:00", "trade", 1500),
+        pay("10:18:00", "trade", 1000),
+        pay("10:18:59", "trade", 500),
+        pay("10:19:00", "trade", 3000),
+      ],
+      want: [
+        ["trade", [["10:18", [1500, 1000, 500]], ["10:19", [3000]]]],
+        ["bounty", [["10:05", [20000]]]],
+      ],
+    },
+  ];
+  it.each(cases)("$name", ({ kinds, timeline, want }) => {
+    const rows = bandRows(kinds, timeline);
+    expect(rows.map((r) => [r.kind, r.marks.map((m) => [m.ts.slice(11, 16), m.payments.map((p) => p.amount)])])).toEqual(want);
   });
 });

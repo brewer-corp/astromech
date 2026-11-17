@@ -44,8 +44,8 @@
       "kind": "micro_resources"
     },
     {
-      "amount": 10500,
-      "count": 3,
+      "amount": 11500,
+      "count": 4,
       "kind": "trade"
     },
     {
@@ -57,7 +57,7 @@
   "end": "2026-09-03T10:30:00Z",
   "jumps": 0,
   "latest": true,
-  "per_hour": 14641671,
+  "per_hour": 14643677,
   "start": "2026-09-03T10:00:05Z",
   "timeline": [
     {
@@ -101,6 +101,11 @@
       "ts": "2026-09-03T10:18:00Z"
     },
     {
+      "amount": 1000,
+      "kind": "trade",
+      "ts": "2026-09-03T10:18:00Z"
+    },
+    {
       "amount": 3000,
       "kind": "trade",
       "ts": "2026-09-03T10:26:00Z"
@@ -121,6 +126,6 @@
       "ts": "2026-09-03T10:29:00Z"
     }
   ],
-  "total": 7300500,
-  "trade_profit": 10500
+  "total": 7301500,
+  "trade_profit": 11500
 }
