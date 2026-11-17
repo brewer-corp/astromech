@@ -1,0 +1,13 @@
+{
+ "out": "docs/design/engineers",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 1920, "h": 1080, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 }
+ ],
+ "shots": [
+  { "name": "engineers-before", "hash": "unlocks", "steps": [{ "waitSel": "article.eng" }] },
+  { "name": "engineers-suit-before", "hash": "unlocks?kind=suit", "steps": [{ "waitSel": "article.eng" }] }
+ ]
+}
