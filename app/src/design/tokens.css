@@ -20,6 +20,7 @@
   --accent: #ff7100; /* DESIGN.md "orange": the ranked value, values in cells, actions, links, the primary button. 7.0:1 */
   --text-hi: #ffffff; /* DESIGN.md "white": titles, the current section, a key value */
   --on-accent: #0c0d0f; /* text on an orange fill */
+  --scrim: #000000b3; /* black at 70 %: the shade behind a dialog, over the page it covers */
 
   --orange-lit: #ffa04a; /* the one main value of a page or panel; the ranked value on a selected row. 9.6:1 on --bg */
   --orange-mid: #d97a34; /* a stale row's ranked value, a link's underline, the Tip's border, the list's middle meanings. 6.3:1; never on a cell */

@@ -24,11 +24,11 @@
 .setup-step .warn-text { color: var(--accent); font-weight: 500; }
 .setup-step .err { color: var(--alarm); }
 .setup-step :is(.warn-text, .err)::before { content: "! "; font-weight: 600; }
-.setup-step .acts { display: flex; gap: 1.75rem; align-items: center; }
+.setup-step .acts { display: flex; gap: var(--sp-6); align-items: center; }
 .setup-step .grow { flex: 1; }
 /* The live press or level readout is read-only: hull. Step 3's press-to-bind box is a binding slot
    (.slot): Ember Empty until a button is caught, then an ember cell. */
-.setup-step .press { height: 3rem; display: flex; align-items: center; padding: 0 0.875rem; outline: 1px solid var(--line); outline-offset: -1px; color: var(--label-grey); font-size: var(--fs-l); }
+.setup-step .press { height: 3rem; display: flex; align-items: center; padding: 0 var(--sp-3); outline: 1px solid var(--line); outline-offset: -1px; color: var(--label-grey); font-size: var(--fs-l); }
 .setup-step .press.got { color: var(--orange-lit); }
 .setup-step .press.slot { background: var(--cell-empty); }
 .setup-step .press.slot.got { background: var(--cell); }

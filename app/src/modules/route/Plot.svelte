@@ -94,7 +94,7 @@
   a:hover { color: var(--orange-lit); }
   p { margin: 0; font-size: var(--fs-s); }
   .kinds { margin: 0 0 var(--sp-2); }
-  .plot > :global(.go) { align-self: flex-start; margin: 0.375rem 0 var(--sp-1); }
+  .plot > :global(.go) { align-self: flex-start; margin: var(--sp-1) 0 var(--sp-1); }
   .lo { color: var(--prose); }
   .busy { color: var(--label-grey); }
   .ok { color: var(--prose); }

@@ -221,7 +221,7 @@
   .last .sp::before { bottom: 50%; }
   .past .sp::before { border-left-color: var(--mark-off); }
   .ahead .sp::before { border-left-style: dashed; }
-  .node { position: relative; z-index: 1; display: grid; place-items: center; padding: 0.1875rem; background: var(--bg); color: var(--label-grey); }
+  .node { position: relative; z-index: 1; display: grid; place-items: center; padding: var(--gap); background: var(--bg); color: var(--label-grey); }
   .node:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
 
   .main { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding-block: var(--sp-2); }

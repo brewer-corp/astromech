@@ -273,7 +273,7 @@
 {/if}
 
 <style>
-  h3 { margin: 1.75rem 0 0.625rem; }
+  h3 { margin: var(--sp-6) 0 var(--sp-2); }
   h3:first-child { margin-top: 0; }
   dl { display: grid; grid-template-columns: var(--form-label) minmax(0, 1fr); gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 var(--sp-3); min-height: var(--row); display: flex; align-items: center; }
@@ -296,5 +296,5 @@
   dd.bare { padding: 0; background: none; }
   dd.bare > :global(.grow) { flex: 1; }
   .hint a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
-  .note { margin-top: 1.25rem; }
+  .note { margin-top: var(--sp-4); }
 </style>

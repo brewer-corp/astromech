@@ -315,12 +315,12 @@
     <p class="psub">
       {#if r.station}<StationKind type={r.station_type} /><span>{r.station_type ? `${r.station_type} in` : "In"}</span> <SystemChip name={r.system} />{:else}<SystemChip name={r.system} icon />{/if}
     </p>
-    <p class="pmain"><span class="v">{top}</span><span class="unit">{res.main ? (res.main.unit ?? "") : /^~?1$/.test(top) ? "jump" : "jumps"}</span></p>
+    <p class="pmain"><span class="v">{top}</span><span class="unit type-unit">{res.main ? (res.main.unit ?? "") : /^~?1$/.test(top) ? "jump" : "jumps"}</span></p>
     <dl class="pfacts">
       {#each columns as c (c.key)}
         {@const cell = c.cell(r, now)}
         <dt>{c.head}</dt>
-        <dd class:none={cell.value === "—"}>{cell.value}{#if cell.unit}<span class="unit">{cell.unit}</span>{/if}</dd>
+        <dd class:none={cell.value === "—"}>{cell.value}{#if cell.unit}<span class="unit type-unit">{cell.unit}</span>{/if}</dd>
       {/each}
     </dl>
     <div class="pacts">
@@ -364,7 +364,7 @@
             <!-- The keyboard selects a row with its name, a button; a click anywhere on the row does too. -->
             <!-- svelte-ignore a11y_interactive_supports_focus, a11y_click_events_have_key_events -->
             <div class="row result" class:stale={limit == null && isStale(r, STALE_DAYS, asOf)} class:sel={chosen?.key === r.key} role="row" onclick={() => detail && (picked = r.key)}>
-              <span class="r main" role="cell"><span class="v">{r.main ?? jumpsFigure(r)}</span>{#if res.main?.unit}<span class="unit">{res.main.unit}</span>{/if}</span>
+              <span class="r main" role="cell"><span class="v">{r.main ?? jumpsFigure(r)}</span>{#if res.main?.unit}<span class="unit type-unit">{res.main.unit}</span>{/if}</span>
               <span class="place" role="cell">
                 {#if r.station}
                   <StationKind type={r.station_type} />
@@ -380,7 +380,7 @@
                 {#if cell.text}
                   <span class="fact text" class:age={c.key === "age"} role="cell" title={cell.value}>{cell.value}</span>
                 {:else}
-                  <span class="fact r" class:age={c.key === "age"} class:none={cell.value === "—"} role="cell">{cell.value}{#if cell.unit}<span class="unit">{cell.unit}</span>{/if}</span>
+                  <span class="fact r" class:age={c.key === "age"} class:none={cell.value === "—"} role="cell">{cell.value}{#if cell.unit}<span class="unit type-unit">{cell.unit}</span>{/if}</span>
                 {/if}
               {/each}
               <span class="acts" role="cell">
@@ -412,7 +412,7 @@
   /* As wide as the query's controls or the list's columns, whichever is wider: spare width stays
      empty (DESIGN.md The Next To It Rule). */
   .kit { display: flex; flex-direction: column; gap: 0; min-width: 0; width: fit-content; max-width: 100%; }
-  .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: 1.125rem 1.25rem 1.25rem; border-bottom: 1px solid var(--line); }
+  .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-4); border-bottom: 1px solid var(--line); }
   .query :global(.origin) { margin: 0; }
   .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; }
   p { margin: 0; }
@@ -438,7 +438,7 @@
   .r { text-align: right; }
   /* The value the list is ranked by is its one orange column (DESIGN.md The Orange Means Act Rule). */
   .main .v { color: var(--accent); font-size: var(--fs-l); font-weight: 600; }
-  .unit { margin-left: 0.1875rem; color: var(--label-grey); font-size: var(--fs-s); }
+  /* .unit is the Unit role (.type-unit); the class stays for the state rules below. */
   .place { display: flex; align-items: center; gap: var(--sp-2); overflow: hidden; }
   .place :global(.kind) { color: var(--label-grey); flex: none; }
   .name { color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; }

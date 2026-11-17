@@ -112,7 +112,7 @@
   .steps li { display: flex; justify-content: space-between; min-height: 1.875rem; align-items: center; padding: 0 var(--sp-3); outline: 1px solid var(--line); outline-offset: -1px; color: var(--label-grey); }
   .steps li.past { color: var(--prose); }
   .steps li.now { color: var(--orange-lit); }
-  .prompt { min-height: 3rem; display: flex; align-items: center; padding: 0 0.875rem; background: var(--surface-hi); color: var(--orange-lit); font-size: var(--fs-l); }
+  .prompt { min-height: 3rem; display: flex; align-items: center; padding: 0 var(--sp-3); background: var(--surface-hi); color: var(--orange-lit); font-size: var(--fs-l); }
   dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 var(--sp-3); min-height: 1.875rem; display: flex; align-items: center; }
   dt { color: var(--options-grey); }

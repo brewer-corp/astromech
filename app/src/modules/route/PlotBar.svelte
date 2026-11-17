@@ -317,5 +317,5 @@
   .line { margin: 0; padding: 0 var(--sp-3); line-height: var(--row); font-size: var(--fs-s); color: var(--label-grey); }
   .panel { position: absolute; z-index: 20; top: 100%; right: 0; margin: var(--gap) 0 0; border: 1px solid var(--line); width: min(26.25rem, calc(100vw - 2rem)); padding: var(--sp-4); background: var(--surface-hi); max-height: calc(100vh - 7.5rem); overflow: auto; }
   .panel > :global(.note) { margin: 0; }
-  .links { margin-top: 0.625rem; padding-top: 0.625rem; border-top: 1px solid var(--line); }
+  .links { margin-top: var(--sp-2); padding-top: var(--sp-2); border-top: 1px solid var(--line); }
 </style>
