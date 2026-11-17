@@ -46,7 +46,7 @@ export interface Column {
   unit?: string;
   /** Prose (factions, bodies, a module): left-aligned, truncated, sharing the row's spare width with the place. */
   text?: boolean;
-  /** A figure column's width in px; on a prose column, a fixed width instead of a share (a ring type). */
+  /** A figure column's width in px at 100 percent Text size (drawn in rem); on a prose column, a fixed width instead of a share (a ring type). */
   width?: number;
 }
 

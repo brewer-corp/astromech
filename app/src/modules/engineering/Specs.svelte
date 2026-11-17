@@ -139,29 +139,29 @@
 
 <style>
   /* Read-only facts: the bands and blocks are hull, never cells (DESIGN.md Surfaces and cells). */
-  .specs { padding: 8px 8px 28px; display: flex; flex-direction: column; gap: 28px; }
+  .specs { padding: 0.5rem 0.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.75rem; }
   .lo { color: var(--orange-mid); margin: 0; }
   .warn { margin: 0; line-height: 1.4; }
   .mark { color: var(--accent); font-weight: 600; }
-  .band { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 20px 28px; padding: 8px 12px 4px; background: var(--surface); }
-  .stat { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .band { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.25rem 1.75rem; padding: 0.5rem 0.75rem 0.25rem; background: var(--surface); }
+  .stat { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
-  .v { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+  .v { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.375rem; }
   .q { font-size: var(--fs-l); line-height: 1.2; color: var(--accent); }
   .sep { color: var(--orange-mid); }
   .u { color: var(--orange-mid); font-size: var(--fs-s); }
   .power { grid-column: 1 / -1; }
-  @container win (min-width: 1100px) {
+  @container win (min-width: 68.75rem) {
     .power { grid-column: auto; }
   }
-  .prow { display: grid; grid-template-columns: 7rem minmax(6rem, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-s); color: var(--orange-mid); }
-  .prow.tot { margin-top: 4px; }
+  .prow { display: grid; grid-template-columns: 6.5625rem minmax(5.625rem, 1fr) auto; gap: 0.625rem; align-items: center; font-size: var(--fs-s); color: var(--orange-mid); }
+  .prow.tot { margin-top: 0.25rem; }
   .prow .q { font-size: var(--fs); }
-  .pbar { height: 6px; background: var(--line); }
+  .pbar { height: 0.375rem; background: var(--line); }
   .pbar i { display: block; height: 100%; background: var(--accent); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 8px 28px; }
-  .block { padding: 14px 16px; background: var(--surface); display: flex; flex-direction: column; gap: 6px; }
-  h4 { margin: 0 0 6px; color: var(--orange-mid); font-weight: 500; font-size: var(--fs-s); }
-  .row { display: flex; justify-content: space-between; gap: 12px; font-size: var(--fs-s); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.5rem 1.75rem; }
+  .block { padding: 0.875rem 1rem; background: var(--surface); display: flex; flex-direction: column; gap: 0.375rem; }
+  h4 { margin: 0 0 0.375rem; color: var(--orange-mid); font-weight: 500; font-size: var(--fs-s); }
+  .row { display: flex; justify-content: space-between; gap: 0.75rem; font-size: var(--fs-s); }
   .row .q { font-size: var(--fs); }
 </style>

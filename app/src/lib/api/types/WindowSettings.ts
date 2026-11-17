@@ -2,6 +2,7 @@
 import type { TextSize } from "./TextSize";
 
 /**
- * `window_settings`: the window's text size, which it multiplies its height scale by.
+ * `window_settings`: the window's text size as saved; null when the commander hasn't chosen
+ * one yet, and a legacy word until the window has turned it into a step.
  */
-export type WindowSettings = { text_size: TextSize, };
+export type WindowSettings = { text_size: TextSize | null, };

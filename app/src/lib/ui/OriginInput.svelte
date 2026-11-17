@@ -129,7 +129,7 @@
 </div>
 
 <style>
-  .origin { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--fs); }
+  .origin { display: flex; align-items: center; gap: 0.5rem; margin: 0; font-size: var(--fs); }
   .lbl { color: var(--orange-mid); font-size: var(--fs-s); min-width: 5.5em; }
   .origin :global(.box) { flex: 1; }
 </style>

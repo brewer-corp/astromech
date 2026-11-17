@@ -129,17 +129,17 @@
 </section>
 
 <style>
-  section { padding: 8px 0 28px; min-height: 0; }
+  section { padding: 0.5rem 0 1.75rem; min-height: 0; }
   .pick { padding: var(--sp-4) 0 var(--sp-1); }
   /* DESIGN.md's result-list width, so the lookups' rows keep every column; prose stays at 68ch. */
   .main { max-width: var(--list-w); }
   .main > p, .main > .list { max-width: var(--measure); }
-  h3 { margin: 14px 0 2px; color: var(--text-hi); font-weight: 500; }
-  h4 { margin: 14px 0 6px; }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0 0 10px; }
-  .list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: max-content max-content 1fr; column-gap: 18px; row-gap: 3px; font-size: var(--fs-s); }
+  h3 { margin: 0.875rem 0 0.125rem; color: var(--text-hi); font-weight: 500; }
+  h4 { margin: 0.875rem 0 0.375rem; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0 0 0.625rem; }
+  .list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: max-content max-content 1fr; column-gap: 1.125rem; row-gap: 0.1875rem; font-size: var(--fs-s); }
   .list li { display: contents; }
   .q { color: var(--accent); text-align: right; }
-  .total { font-size: var(--fs-s); margin: 8px 0 14px; }
+  .total { font-size: var(--fs-s); margin: 0.5rem 0 0.875rem; }
   .lo { color: var(--orange-mid); }
 </style>

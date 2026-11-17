@@ -4,7 +4,8 @@
   // minimum), the panel moves below it; text never shrinks to fit. A new `selected` brings a
   // panel that sits below the content into view, since it may be off screen.
   import type { Snippet } from "svelte";
-  import { stacks } from "./layout";
+  import { at100, stacks } from "./layout";
+  import { scale } from "../../scale.svelte";
 
   let {
     children,
@@ -26,7 +27,7 @@
 
   let width = $state(0);
   let aside = $state<HTMLElement>();
-  const stacked = $derived(stacks(width, min));
+  const stacked = $derived(stacks(at100(width, scale.step), min));
 
   /** The selection last brought into view, so it is scrolled to once, not on every resize. */
   let shown: unknown = null;

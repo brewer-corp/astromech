@@ -188,41 +188,41 @@
 {#if bind}<BindDialog row={bind.row} slot={bind.slot} onclose={() => (bind = null)} />{/if}
 
 <style>
-  .cols { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; height: 100%; padding-top: 18px; min-height: 0; }
+  .cols { display: grid; grid-template-columns: minmax(0, 1fr) 22.5rem; gap: 1.75rem; height: 100%; padding-top: 1.125rem; min-height: 0; }
   .list { display: flex; flex-direction: column; min-height: 0; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .row { display: grid; grid-template-columns: 1fr 200px 200px 190px; gap: var(--gap); align-items: center; min-height: var(--row); }
-  .filters { display: flex; gap: var(--sp-4); margin: 12px 0 6px; }
+  .row { display: grid; grid-template-columns: 1fr 12.5rem 12.5rem 11.875rem; gap: var(--gap); align-items: center; min-height: var(--row); }
+  .filters { display: flex; gap: var(--sp-4); margin: 0.75rem 0 0.375rem; }
   .sp { flex: 1; }
-  .pressed { padding: 6px 0 6px 34px; color: var(--orange-lit); }
-  .head { display: grid; grid-template-columns: 1fr 200px 200px 190px; gap: var(--gap); padding: 6px 0 6px 34px; color: var(--orange-mid); font-size: var(--fs-s); }
-  .head span:nth-child(2), .head span:nth-child(3) { padding-left: 12px; }
-  .scroll { overflow: auto; min-height: 0; flex: 1; padding-bottom: 20px; }
-  .grp { grid-template-columns: 22px 1fr 190px; gap: 12px; width: 100%; }
-  .box { width: 18px; height: 18px; border: 1.5px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-weight: 600; line-height: 1; }
+  .pressed { padding: 0.375rem 0 0.375rem 2.125rem; color: var(--orange-lit); }
+  .head { display: grid; grid-template-columns: 1fr 12.5rem 12.5rem 11.875rem; gap: var(--gap); padding: 0.375rem 0 0.375rem 2.125rem; color: var(--orange-mid); font-size: var(--fs-s); }
+  .head span:nth-child(2), .head span:nth-child(3) { padding-left: 0.75rem; }
+  .scroll { overflow: auto; min-height: 0; flex: 1; padding-bottom: 1.25rem; }
+  .grp { grid-template-columns: 1.375rem 1fr 11.875rem; gap: 0.75rem; width: 100%; }
+  .box { width: 1.125rem; height: 1.125rem; border: 1.5px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-weight: 600; line-height: 1; }
   .gname { font-weight: 500; }
   .grp:hover .gname { color: var(--orange-lit); }
   .iss { color: var(--orange-mid); font-size: var(--fs-s); }
   .item { margin-bottom: var(--gap); }
-  .item .name { padding-left: 34px; height: var(--row); display: flex; align-items: center; color: var(--options-grey); }
+  .item .name { padding-left: 2.125rem; height: var(--row); display: flex; align-items: center; color: var(--options-grey); }
   .item:hover .name { color: var(--accent); }
-  .cell { height: var(--row); display: flex; align-items: center; padding: 0 12px; background: var(--cell); color: var(--options-grey); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .cell { height: var(--row); display: flex; align-items: center; padding: 0 0.75rem; background: var(--cell); color: var(--options-grey); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .cell.wide { grid-column: span 2; }
   /* An empty slot's "Set" is what the commander clicks to bind it, so it is Orange Mid (4.7:1 on
      Ember Empty), not Dim. An ignored binding is struck through and Dim. */
   .cell.empty { background: var(--cell-empty); color: var(--orange-mid); }
   .cell.bad { text-decoration: line-through; color: var(--orange-dim); }
   .cell:hover { background: var(--cell-hover); }
-  .mark { color: var(--accent); font-size: var(--fs-s); padding-left: 10px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mark { color: var(--accent); font-size: var(--fs-s); padding-left: 0.625rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .item.sel .name, .item.hit .name { color: var(--accent); }
   .item.sel .cell { outline: 1px solid var(--accent); outline-offset: -1px; }
   .lo { color: var(--orange-mid); }
   .warn { color: var(--accent); }
-  .pad { padding-left: 34px; }
-  .id { margin-top: 24px; font-size: var(--fs-s); }
-  @container win (max-width: 1200px) {
-    .cols { grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; }
-    .row, .head { grid-template-columns: minmax(0, 1fr) 120px 120px 110px; }
-    .grp { grid-template-columns: 22px minmax(0, 1fr) 110px; }
+  .pad { padding-left: 2.125rem; }
+  .id { margin-top: 1.5rem; font-size: var(--fs-s); }
+  @container win (max-width: 75rem) {
+    .cols { grid-template-columns: minmax(0, 1fr) 16.25rem; gap: 1.25rem; }
+    .row, .head { grid-template-columns: minmax(0, 1fr) 7.5rem 7.5rem 6.875rem; }
+    .grp { grid-template-columns: 1.375rem minmax(0, 1fr) 6.875rem; }
   }
 </style>

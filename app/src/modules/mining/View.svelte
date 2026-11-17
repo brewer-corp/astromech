@@ -63,15 +63,15 @@
 </section>
 
 <style>
-  section { padding: 8px 0 28px; min-height: 0; }
-  .sub { margin: 14px 0; }
+  section { padding: 0.5rem 0 1.75rem; min-height: 0; }
+  .sub { margin: 0.875rem 0; }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
-  .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-top: 14px; }
-  h3 { margin: 22px 0 8px; }
+  .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-top: 0.875rem; }
+  h3 { margin: 1.375rem 0 0.5rem; }
   table { border-collapse: collapse; }
-  td { padding: 4px 18px 4px 0; }
+  td { padding: 0.25rem 1.125rem 0.25rem 0; }
   .num { text-align: right; }
   .lo { color: var(--orange-mid); }
-  .note { margin-top: 14px; }
+  .note { margin-top: 0.875rem; }
 </style>

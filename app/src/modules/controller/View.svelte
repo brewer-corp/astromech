@@ -31,7 +31,8 @@
   let picked = $state<MapControl | null>(null);
   let unknown = $state<Press | null>(null);
   let asking = $state<Press | null>(null);
-  let w = $state(1600);
+  // The sheet fills its column, up to 1180 px at 100 percent Text size (73.75rem).
+  let w = $state(1180);
   /** "all" or an activity id. */
   const ACTIVITY_KEY = "astromech.activity";
   let actId = $state(previewOption("activity") ?? localStorage.getItem(ACTIVITY_KEY) ?? "all");
@@ -143,10 +144,8 @@
   const yours = $derived(Object.keys(ov[m.device_id] ?? {}).length);
 </script>
 
-<svelte:window bind:innerWidth={w} />
-
 <div class="cols">
-  <section>
+  <section bind:clientWidth={w}>
     <div class="top">
       <!-- The stick is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). -->
       <Choice label="Stick" options={maps.map((x) => ({ value: x.device_id, label: `${x.title} · ${x.device_id}` }))} value={m.device_id} onchange={(v) => { dev = v; picked = null; selId = null; }} />
@@ -154,7 +153,7 @@
     </div>
     <Choice class="acts" label="Activity" value={act?.id ?? "all"} options={[{ value: "all", label: "All" }, ...acts.map((a) => ({ value: a.id, label: a.title }))]} onchange={choose} />
     {#if asking}<p class="ask">Which control did you just press ({keyName(asking.key)})? Click it on the sheet.</p>{/if}
-    <Sheet image={m.image} controls={controls} {cells} width={Math.min(1180, w / scale.zoom - 80 - 360 - 28)} dimOthers={!!act} onpick={(c) => void pick(c)} />
+    <Sheet image={m.image} controls={controls} {cells} width={Math.min(1180 * scale.step / 100, w)} dimOthers={!!act} onpick={(c) => void pick(c)} />
     <p class="credit">
       {connected ? "Connected" : "Not connected"} · button numbers from VKB's factory profile{yours ? `, ${yours} set by you` : ""} · sheet © VKB Gaming, design by UntoldForce
     </p>
@@ -242,20 +241,20 @@
 
 <style>
   button { all: unset; cursor: pointer; }
-  .cols { display: grid; grid-template-columns: 1fr 360px; gap: 28px; padding-top: 14px; }
-  .top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-  section > :global(.acts) { margin: 12px 0 8px; }
-  .band { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 14px; }
-  h3 { margin: 0 0 8px; }
-  h3.gap { margin-top: 18px; }
-  .row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 30px; margin-bottom: 4px; padding: 0 12px; background: var(--surface); } /* read-only rows: hull */
+  .cols { display: grid; grid-template-columns: minmax(0, 73.75rem) 22.5rem; gap: 1.75rem; padding-top: 0.875rem; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+  section > :global(.acts) { margin: 0.75rem 0 0.5rem; }
+  .band { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 0.875rem; }
+  h3 { margin: 0 0 0.5rem; }
+  h3.gap { margin-top: 1.125rem; }
+  .row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 1.875rem; margin-bottom: 0.25rem; padding: 0 0.75rem; background: var(--surface); } /* read-only rows: hull */
   button.row:hover { background: var(--row-hover); }
   .row.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
   .row.sel .n { color: var(--accent); }
   .row { color: var(--options-grey); }
   .warn { color: var(--accent); }
-  .more { margin-top: 10px; font-size: var(--fs-s); line-height: 1.5; }
-  .ask { color: var(--orange-lit); background: var(--surface); padding: 8px 12px; margin: 0 0 8px; }
+  .more { margin-top: 0.625rem; font-size: var(--fs-s); line-height: 1.5; }
+  .ask { color: var(--orange-lit); background: var(--surface); padding: 0.5rem 0.75rem; margin: 0 0 0.5rem; }
   .credit { color: var(--orange-mid); font-size: var(--fs-s); }
   .lo { color: var(--orange-mid); }
 </style>

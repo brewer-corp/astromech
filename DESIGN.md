@@ -291,8 +291,8 @@ at dea5f0bb, with the captures in docs/design/nav-spike/: orange means act and d
 and grey, with the list of colours that carry a meaning; selection as a raised row; result
 rows in two-line groups; Elite's own symbols; the route sidebar in the frame; the new top
 tabs; text size in rem in place of the height zoom; input values Orange at 500. The app
-catches up item by item, and until each lands the app differs from this document there:
-text size (astromech-b2cz), colours, selection and tiles off Hull (astromech-3kf5), the lint
+catches up item by item (text size landed with astromech-b2cz), and until each lands the
+app differs from this document there: colours, selection and tiles off Hull (astromech-3kf5), the lint
 for raw colours and sizes (astromech-4wi1), the route sidebar and PLACES (astromech-uc7i),
 the tabs (astromech-5a01), the grouped result rows and demand colours (astromech-3ca6), the
 hexagon component (astromech-7did). -->
@@ -701,7 +701,7 @@ this sort of solution feels very wrong". A window grown to see more should show 
 size of text is a reading choice like any web page's. The first-run step keeps a 1440p display
 at the size of the approved captures (145 percent there matches the old 1.44 zoom) without
 leaving a 1080p display cramped. It replaces revision 4's Height Scale Rule, its root `zoom`,
-`--zoom`, `--win-h` and `--win-w` (astromech-b2cz removes them).
+`--zoom`, `--win-h` and `--win-w`, which astromech-b2cz removed.
 
 **The Tabular Rule.** Every number uses tabular figures, and a column of quantities is
 right-aligned. A tile's value sits where its tile spec puts it (the material tile's count top
@@ -1291,7 +1291,7 @@ not have yet: the item named adds them, and the rows it replaces stay until then
 | Value L and wordmark, Title, Value XL | `--fs-l`, `--fs-xl`, `--fs-xxl` | 18, 24, 28 px |
 | Caps tracking | `--caps` | 0.06em |
 | Each Hierarchy role (Typography) | `.type-wordmark`, `.type-title`, `.type-value-xl`, `.type-value-l`, `.type-nav`, `.type-name`, `.type-body`, `.type-figures`, `.type-cell` (new, astromech-3kf5), `.type-label`, `.type-meta`, `.type-action`; Section is `.section` | a class setting the role's size, weight, line height, case and colour; a page names the role and sets no font size. A unit after its number is `.type-unit` |
-| Text size (The Text Size Rule) | the `html` font size | 100 to 180 % of 16 px, set by `lib/scale.svelte.ts` from the commander's choice. Revision 4's `--zoom`, `--win-h` and `--win-w` go with astromech-b2cz |
+| Text size (The Text Size Rule) | the `html` font size | 100 to 180 % of 16 px, set by `lib/scale.svelte.ts` from the commander's choice. Revision 4's `--zoom`, `--win-h` and `--win-w` went with astromech-b2cz |
 | The frame's side margins | `--side` | 16 to 40 px: 3 % of the window's width |
 | The face | `--face`, `--face-stretch` | Saira Variable at 87.5 % |
 

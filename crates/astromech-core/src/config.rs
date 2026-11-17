@@ -129,32 +129,37 @@ pub struct Edsm {
     pub commander: String,
 }
 
-/// The window's text size (Settings → General): a step on top of the scale the window takes from
-/// its height (DESIGN.md Typography).
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
-#[serde(rename_all = "lowercase")]
+/// The steps of Text size (Settings → General, DESIGN.md The Text Size Rule): percent of a 16 px
+/// root font size.
+pub const TEXT_SIZE_STEPS: [u16; 6] = [100, 115, 130, 145, 160, 180];
+
+/// The window's text size as saved: a step of [`TEXT_SIZE_STEPS`], or the word an install from
+/// before DESIGN.md revision 5 saved, which the window turns into the nearest step on its first
+/// start and saves (astromech-b2cz).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+#[serde(untagged)]
 pub enum TextSize {
-    Smaller,
-    #[default]
-    Normal,
-    Larger,
+    Percent(u16),
+    Legacy(LegacyTextSize),
 }
 
-impl TextSize {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            TextSize::Smaller => "smaller",
-            TextSize::Normal => "normal",
-            TextSize::Larger => "larger",
-        }
-    }
+/// The old text sizes: a factor of 0.85, 1 or 1.15 on the window's height zoom (astromech-k6pl).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ts_rs::TS)]
+#[serde(rename_all = "lowercase")]
+pub enum LegacyTextSize {
+    Smaller,
+    Normal,
+    Larger,
 }
 
 /// The app window's own settings.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Window {
-    pub text_size: TextSize,
+    /// None: the commander hasn't chosen one yet, and the window picks a step from the
+    /// display's height and saves it.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text_size: Option<TextSize>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -483,6 +488,25 @@ mod tests {
         // A clean file reports nothing; a file that isn't TOML is still an error.
         assert!(Config::parse_report(SAMPLE).unwrap().1.is_empty());
         assert!(Config::parse_report("[controls\nptt = ").is_err());
+    }
+
+    /// astromech-b2cz: no text size is "not chosen yet" (the sample leaves it unset, so a new
+    /// install's window picks one), a percentage is a step, and the old words still parse so the
+    /// window can turn them into the nearest step.
+    #[test]
+    fn text_size_is_a_percentage_absent_or_an_old_word() {
+        use super::{LegacyTextSize as L, TextSize as T};
+        let size = |text: &str| Config::parse_report(text).unwrap().0.window.text_size;
+        assert_eq!(Config::parse(SAMPLE).unwrap().window.text_size, None);
+        assert_eq!(size(""), None);
+        assert_eq!(size("[window]\n"), None);
+        assert_eq!(size("[window]\ntext_size = 160\n"), Some(T::Percent(160)));
+        assert_eq!(size("[window]\ntext_size = \"smaller\"\n"), Some(T::Legacy(L::Smaller)));
+        assert_eq!(size("[window]\ntext_size = \"normal\"\n"), Some(T::Legacy(L::Normal)));
+        assert_eq!(size("[window]\ntext_size = \"larger\"\n"), Some(T::Legacy(L::Larger)));
+        // A value that is neither is dropped and reported, as any bad value is.
+        let (c, problems) = Config::parse_report("[window]\ntext_size = \"huge\"\n").unwrap();
+        assert_eq!((c.window.text_size, problems.len()), (None, 1));
     }
 
     #[test]

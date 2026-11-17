@@ -140,13 +140,13 @@
 {/if}
 
 <style>
-  h3 { margin: 28px 0 10px; }
-  dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
-  dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
+  h3 { margin: 1.75rem 0 0.625rem; }
+  dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0; }
+  dt, dd { margin: 0; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
      cell (.value); a status with no such action is a fact, outside a cell. */
-  dd { color: var(--accent); gap: 24px; justify-content: space-between; }
+  dd { color: var(--accent); gap: 1.5rem; justify-content: space-between; }
   dd.value { background: var(--cell); }
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
@@ -157,10 +157,10 @@
   /* A row whose value is a box of its own has no cell around it. */
   dd.bare { padding: 0; background: none; }
   dd.bare > :global(.grow) { flex: 1; }
-  .hint { color: var(--prose); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
-  .text { color: var(--prose); line-height: 1.6; max-width: 46rem; margin-top: 16px; }
-  .text p { margin: 0 0 10px; }
-  table { border-collapse: collapse; margin: 12px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); }
-  th { color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; text-align: left; padding: 4px 16px 4px 0; }
-  td { padding: 4px 16px 4px 0; }
+  .hint { color: var(--prose); margin: 0.5rem 0 0 calc(13.125rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .text { color: var(--prose); line-height: 1.6; max-width: 43.125rem; margin-top: 1rem; }
+  .text p { margin: 0 0 0.625rem; }
+  table { border-collapse: collapse; margin: 0.75rem 0 0 calc(13.125rem + var(--gap)); font-size: var(--fs-s); }
+  th { color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; text-align: left; padding: 0.25rem 1rem 0.25rem 0; }
+  td { padding: 0.25rem 1rem 0.25rem 0; }
 </style>

@@ -239,36 +239,36 @@
   .err { margin: 0; color: var(--alarm); font-size: var(--fs-s); }
   .err b { font-weight: 600; }
   .stage { flex: 1 1 auto; min-width: 0; min-height: 0; overflow: auto; }
-  .ship { display: grid; grid-template-columns: auto minmax(12rem, 1.4fr) minmax(12rem, 1fr); gap: 18px 28px; align-items: start; padding: 18px 20px 4px; }
-  .art { display: grid; place-items: center; min-width: 12rem; }
-  .who h2 { margin: 0 0 4px; color: var(--text-hi); font-size: var(--fs-xl); font-weight: 500; }
-  .id { font-size: var(--fs-s); margin: 0 0 8px; }
-  .type { margin: 0 0 8px; font-size: var(--fs-l); }
-  .where { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 4px; margin: 0; font-size: var(--fs); color: var(--orange-mid); }
+  .ship { display: grid; grid-template-columns: auto minmax(11.25rem, 1.4fr) minmax(11.25rem, 1fr); gap: 1.125rem 1.75rem; align-items: start; padding: 1.125rem 1.25rem 0.25rem; }
+  .art { display: grid; place-items: center; min-width: 11.25rem; }
+  .who h2 { margin: 0 0 0.25rem; color: var(--text-hi); font-size: var(--fs-xl); font-weight: 500; }
+  .id { font-size: var(--fs-s); margin: 0 0 0.5rem; }
+  .type { margin: 0 0 0.5rem; font-size: var(--fs-l); }
+  .where { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.25rem; margin: 0; font-size: var(--fs); color: var(--orange-mid); }
   .lo { color: var(--orange-mid); }
   .mark { color: var(--accent); }
   .accent { color: var(--accent); }
-  .more { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 18px; min-width: 0; padding-top: 8px; }
-  .pair { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+  .more { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.625rem 1.125rem; min-width: 0; padding-top: 0.5rem; }
+  .pair { display: inline-flex; align-items: baseline; gap: 0.375rem; white-space: nowrap; }
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .q { font-size: var(--fs-l); }
   .eng { align-items: center; }
-  .bar { flex: 1 1 6rem; min-width: 4rem; height: 4px; background: var(--line); align-self: center; }
+  .bar { flex: 1 1 5.625rem; min-width: 3.75rem; height: 0.25rem; background: var(--line); align-self: center; }
   .bar i { display: block; height: 100%; background: var(--accent); }
-  .none { color: var(--prose); padding: 28px 20px; }
-  .rail { display: flex; gap: 8px; overflow-x: auto; flex: none; padding: 12px 12px 16px; border-top: 1px solid var(--line); }
+  .none { color: var(--prose); padding: 1.75rem 1.25rem; }
+  .rail { display: flex; gap: 0.5rem; overflow-x: auto; flex: none; padding: 0.75rem 0.75rem 1rem; border-top: 1px solid var(--line); }
   /* The ship rail is read-only navigation on the hull: the ship shown reads like an active page
      tab (Orange Lit name, a 2 px orange underline), so the page keeps one fill. */
-  .pick { display: flex; align-items: center; gap: 12px; min-width: 13rem; padding: 10px 12px; background: var(--surface); color: inherit; text-decoration: none; }
+  .pick { display: flex; align-items: center; gap: 0.75rem; min-width: 12.1875rem; padding: 0.625rem 0.75rem; background: var(--surface); color: inherit; text-decoration: none; }
   .pick:hover { background-color: var(--row-hover); }
   .pick.on { background: linear-gradient(var(--accent), var(--accent)) bottom / 100% 2px no-repeat, var(--surface); }
   .pick.on:hover { background-color: var(--row-hover); }
-  .pick-who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .pick-who { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
   .pick-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pick.on .pick-name { color: var(--orange-lit); }
   .pick-type, .pick-now { font-size: var(--fs-s); color: var(--orange-mid); }
   .pick.now .pick-now { color: var(--accent); }
-  @container win (max-width: 900px) {
+  @container win (max-width: 56.25rem) {
     .ship { grid-template-columns: minmax(0, 1fr); }
     .art { justify-content: start; }
   }

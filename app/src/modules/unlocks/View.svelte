@@ -123,30 +123,30 @@
 </section>
 
 <style>
-  section { padding: 0 0 28px; }
+  section { padding: 0 0 1.75rem; }
   /* Ship or suit is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). */
   .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 0; }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
-  .out { padding: var(--sp-6) 0 8px; }
-  .tree { display: grid; grid-template-columns: repeat(var(--cols), minmax(16rem, 1fr)); gap: 8px 20px; align-items: start; }
-  .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .out { padding: var(--sp-6) 0 0.5rem; }
+  .tree { display: grid; grid-template-columns: repeat(var(--cols), minmax(15rem, 1fr)); gap: 0.5rem 1.25rem; align-items: start; }
+  .col { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; }
   /* Read-only cards on the hull (DESIGN.md Surfaces and cells), with no side border: state is
      brightness. An unlocked engineer's name is Orange Lit; one you can work on now (next) stays
      Orange; one not introduced or barred steps down to Orange Mid. */
-  .eng { padding: 16px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); outline: 1px solid transparent; outline-offset: -1px; }
+  .eng { padding: 1rem; display: flex; flex-direction: column; gap: 0.375rem; background: var(--surface); outline: 1px solid transparent; outline-offset: -1px; }
   .eng.unlocked .name { color: var(--orange-lit); }
   /* Still readable one step down, since what is left to do is on the card. */
   .eng:is(.locked, .barred):not(.next) { color: var(--orange-mid); }
   .eng.hot { background: var(--row-hover); }
   /* The engineers who introduce the hovered one. */
   .eng.pred { outline-color: var(--accent); }
-  .top { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+  .top { display: flex; justify-content: space-between; gap: 0.75rem; align-items: start; }
   .name { font-size: var(--fs-l); font-weight: 500; }
-  .access { display: inline-flex; align-items: center; gap: 3px; flex: none; }
+  .access { display: inline-flex; align-items: center; gap: 0.1875rem; flex: none; }
   .gate { font-size: var(--fs-s); color: var(--orange-dim); }
   .eng.known .gate, .eng.invited .gate { color: var(--accent); }
-  .access > :is(.badge, .outline, .barred, .mail) { width: 12px; height: 14px; flex: none; }
+  .access > :is(.badge, .outline, .barred, .mail) { width: 0.75rem; height: 0.875rem; flex: none; }
   .access > .badge { background: currentColor; color: var(--accent); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; }
   .access > .outline { color: var(--orange-dim); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; background: currentColor; }
   .access > .mail { color: var(--accent); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; background: currentColor; }
@@ -154,7 +154,7 @@
   .spec { font-size: var(--fs-s); }
   .where, .from { font-size: var(--fs-s); color: var(--orange-mid); }
   .left { margin: 0; font-size: var(--fs-s); line-height: 1.45; }
-  @container win (max-width: 900px) {
+  @container win (max-width: 56.25rem) {
     .tree { grid-template-columns: 1fr; }
   }
 </style>

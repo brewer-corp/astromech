@@ -381,42 +381,42 @@
 </section>
 
 <style>
-  section { padding: 0 0 28px; min-height: 0; }
+  section { padding: 0 0 1.75rem; min-height: 0; }
   .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 0; }
   .acts { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; }
   .acts > :global(.tog) { margin-left: auto; }
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
-  .out { padding: var(--sp-6) 0 8px; min-width: 0; }
+  .out { padding: var(--sp-6) 0 0.5rem; min-width: 0; }
   .lo { color: var(--orange-mid); }
-  .note { font-size: var(--fs-s); margin-top: 16px; }
-  .foot { padding: 0 8px; }
+  .note { font-size: var(--fs-s); margin-top: 1rem; }
+  .foot { padding: 0 0.5rem; }
   table.inv { border-collapse: collapse; width: 100%; font-size: var(--fs); }
-  .inv th { text-align: left; color: var(--orange-mid); font-weight: 400; font-size: var(--fs-s); padding: 0 12px 10px 8px; }
-  .inv td { padding: 14px 12px 14px 8px; border-top: 1px solid var(--line); }
+  .inv th { text-align: left; color: var(--orange-mid); font-weight: 400; font-size: var(--fs-s); padding: 0 0.75rem 0.625rem 0.5rem; }
+  .inv td { padding: 0.875rem 0.75rem 0.875rem 0.5rem; border-top: 1px solid var(--line); }
   .inv tbody tr:hover { background: var(--row-hover); }
   .q { text-align: right; }
   .inv th:not(:first-child) { text-align: right; }
   .inv tr.done td { color: var(--orange-dim); }
   .short { color: var(--accent); }
-  .picker { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 20px; }
-  .picker label { color: var(--orange-mid); display: inline-flex; gap: 6px; align-items: center; }
+  .picker { display: flex; flex-wrap: wrap; gap: 0.625rem; align-items: center; margin: 0 0 1.25rem; }
+  .picker label { color: var(--orange-mid); display: inline-flex; gap: 0.375rem; align-items: center; }
   .picks { display: flex; flex-direction: column; }
-  .pick, .eng { padding: 16px 8px; border-bottom: 1px solid var(--line); }
-  .pick header, .eng header { display: flex; gap: 16px; align-items: baseline; }
+  .pick, .eng { padding: 1rem 0.5rem; border-bottom: 1px solid var(--line); }
+  .pick header, .eng header { display: flex; gap: 1rem; align-items: baseline; }
   .pick h3, .eng h3 { margin: 0; font-size: var(--fs-l); font-weight: 500; flex: 1; }
   .pick.ready h3 { color: var(--orange-lit); }
-  .missing { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-s); }
-  .missing li { display: grid; grid-template-columns: 1fr 4.5rem 3.5rem; gap: 12px; }
+  .missing { list-style: none; margin: 0.625rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.375rem; font-size: var(--fs-s); }
+  .missing li { display: grid; grid-template-columns: 1fr 4.21875rem 3.28125rem; gap: 0.75rem; }
   .ok { color: var(--accent); font-size: var(--fs-s); }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
   .pick.bad h3 { color: var(--orange-mid); }
-  .pick p, .eng p { margin: 8px 0 0; font-size: var(--fs-s); }
+  .pick p, .eng p { margin: 0.5rem 0 0; font-size: var(--fs-s); }
   .fit-on { color: var(--accent); }
-  .swaps { margin: 8px 0 12px; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 10px; font-size: var(--fs-s); }
-  h3.list { margin: 32px 8px 8px; }
+  .swaps { margin: 0.5rem 0 0.75rem; padding-left: 1.125rem; display: flex; flex-direction: column; gap: 0.625rem; font-size: var(--fs-s); }
+  h3.list { margin: 2rem 0.5rem 0.5rem; }
   .engs { display: flex; flex-direction: column; }
   .eng .state { color: var(--orange-mid); font-size: var(--fs-s); }
   .eng.unlocked .state { color: var(--accent); }
-  .owned { margin-bottom: 16px; }
+  .owned { margin-bottom: 1rem; }
 </style>

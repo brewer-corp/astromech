@@ -134,19 +134,19 @@
 </section>
 
 <style>
-  section { padding: 8px 0 28px; min-height: 0; }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 14px 0 14px; }
+  section { padding: 0.5rem 0 1.75rem; min-height: 0; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0.875rem 0 0.875rem; }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
-  h3 { margin: 22px 0 8px; }
+  h3 { margin: 1.375rem 0 0.5rem; }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
-  table { border-collapse: collapse; width: 100%; max-width: 60rem; margin-top: 6px; }
-  th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
-  td { padding: 5px 12px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
+  table { border-collapse: collapse; width: 100%; max-width: 56.25rem; margin-top: 0.375rem; }
+  th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 0.75rem 0.375rem 0; }
+  td { padding: 0.3125rem 0.75rem 0.3125rem 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   .num { text-align: right; white-space: nowrap; }
   .body { font-weight: 500; white-space: nowrap; }
-  .genera { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
-  .genera li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .genera { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.125rem; }
+  .genera li { display: flex; gap: 0.625rem; align-items: baseline; flex-wrap: wrap; }
   .guess .genus { color: var(--orange-mid); font-style: italic; }
   .lo { color: var(--orange-mid); }
   .small { font-size: var(--fs-s); }

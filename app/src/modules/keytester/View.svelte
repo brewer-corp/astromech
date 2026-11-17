@@ -40,25 +40,25 @@
 </section>
 
 <style>
-  section { padding: 28px 0; }
+  section { padding: 1.75rem 0; }
   p { margin: 0; }
-  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; margin-top: 20px; }
-  .head, .row { display: grid; grid-template-columns: 260px 240px 1fr; gap: var(--gap); }
-  .head { color: var(--orange-mid); font-size: var(--fs-s); padding-bottom: 6px; }
-  .row { min-height: 30px; margin-bottom: var(--gap); }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 23.75rem; gap: 2.5rem; margin-top: 1.25rem; }
+  .head, .row { display: grid; grid-template-columns: 16.25rem 15rem 1fr; gap: var(--gap); }
+  .head { color: var(--orange-mid); font-size: var(--fs-s); padding-bottom: 0.375rem; }
+  .row { min-height: 1.875rem; margin-bottom: var(--gap); }
   /* The press log and the device list are read-only: hull, and the newest press is Orange Lit. */
-  .row > span { background: var(--surface); padding: 0 12px; display: flex; align-items: center; color: var(--options-grey); }
+  .row > span { background: var(--surface); padding: 0 0.75rem; display: flex; align-items: center; color: var(--options-grey); }
   .row.new > span { color: var(--orange-lit); }
   .row.empty { grid-template-columns: 1fr; }
   /* Listening (DESIGN.md States): the cell filled orange, On Orange caps. */
   .row.empty > span { background: var(--accent); color: var(--on-accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; }
   .row.empty .lo { color: var(--on-accent); }
-  .dev { display: grid; gap: 2px; padding: 8px 12px; background: var(--surface); margin-bottom: var(--gap); }
+  .dev { display: grid; gap: 0.125rem; padding: 0.5rem 0.75rem; background: var(--surface); margin-bottom: var(--gap); }
   .id { font-size: var(--fs-s); }
   .lo { color: var(--orange-mid); }
   p.lo { color: var(--prose); }
-  @container win (max-width: 1200px) {
-    .grid { grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; }
-    .head, .row { grid-template-columns: 150px 150px minmax(0, 1fr); }
+  @container win (max-width: 75rem) {
+    .grid { grid-template-columns: minmax(0, 1fr) 17.5rem; gap: 1.5rem; }
+    .head, .row { grid-template-columns: 9.375rem 9.375rem minmax(0, 1fr); }
   }
 </style>

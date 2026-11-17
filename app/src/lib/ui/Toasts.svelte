@@ -32,7 +32,7 @@
 {/if}
 
 <style>
-  .toasts { position: fixed; right: 40px; bottom: 32px; display: grid; gap: 8px; max-width: 360px; pointer-events: none; }
+  .toasts { position: fixed; right: 2.5rem; bottom: 2rem; display: grid; gap: 0.5rem; max-width: 22.5rem; pointer-events: none; }
   /* A popover (DESIGN.md Elevation): Hull Raised with a Seam border, words in Orange. */
-  p { margin: 0; padding: 10px 14px; background: var(--surface-hi); color: var(--accent); border: 1px solid var(--line); font-size: var(--fs-s); }
+  p { margin: 0; padding: 0.625rem 0.875rem; background: var(--surface-hi); color: var(--accent); border: 1px solid var(--line); font-size: var(--fs-s); }
 </style>

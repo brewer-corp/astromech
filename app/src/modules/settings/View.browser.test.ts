@@ -1,9 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/svelte";
 import View from "./View.svelte";
 import App from "../../App.svelte";
 import { fakePreviews, type Scenario } from "../../preview/fakecore";
-import { previewAnswer, startPreview } from "../../test/transport";
+import { answer, idle, previewAnswer, startPreview, watch } from "../../test/transport";
+import { startScale } from "../../lib/scale.svelte";
 
 function on(scenario: Scenario, hash = "") {
   startPreview(`/?core=${scenario}${hash}`);
@@ -80,17 +81,63 @@ describe("Settings → Voice responses", () => {
 });
 
 describe("Settings → General → Window, Text size", () => {
-  it("scales the window at once and saves the size", async () => {
+  const root = document.documentElement;
+  // The display, a boundary: the step a first run picks comes from its height.
+  function display(width: number, height: number) {
+    vi.spyOn(window.screen, "width", "get").mockReturnValue(width);
+    vi.spyOn(window.screen, "height", "get").mockReturnValue(height);
+  }
+  afterEach(() => vi.restoreAllMocks());
+
+  it("sets the root size at once and saves the step", async () => {
     on("ready", "#/settings");
     render(App);
-    const root = document.documentElement;
-    // The tests' 1200 x 800 window is under the height scale's 1000 px: Normal is 1.
-    await waitFor(() => expect(root.style.zoom).toBe("1"));
-    await fireEvent.click(await screen.findByRole("button", { name: "Larger" }));
-    expect(root.style.zoom).toBe("1.15");
-    expect((await previewAnswer("window_settings")).text_size).toBe("larger");
-    expect(screen.getByRole("button", { name: "Larger" }).getAttribute("aria-pressed")).toBe("true");
-    root.style.zoom = "";
+    await fireEvent.click(await screen.findByRole("button", { name: "160%" }));
+    expect(root.style.fontSize).toBe("160%");
+    expect((await previewAnswer("window_settings")).text_size).toBe(160);
+    expect(screen.getByRole("button", { name: "160%" }).getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("with none saved, picks a step from the display, saves it once, and a resize changes nothing", async () => {
+    display(2560, 1440);
+    startPreview("/?core=ready&textsize=none#/settings");
+    const saved = watch("set_window");
+    render(App);
+    await waitFor(() => expect(saved).toHaveBeenCalledWith({ text_size: 145 }));
+    expect(root.style.fontSize).toBe("145%");
+    window.dispatchEvent(new Event("resize"));
+    await idle();
+    expect(root.style.fontSize).toBe("145%");
+    expect(saved).toHaveBeenCalledTimes(1);
+  });
+
+  it("turns an old normal on a 1440p display into 145 and saves it", async () => {
+    display(2560, 1440);
+    startPreview("/?core=ready&textsize=normal#/settings");
+    render(App);
+    await waitFor(() => expect(root.style.fontSize).toBe("145%"));
+    expect((await previewAnswer("window_settings")).text_size).toBe(145);
+  });
+
+  it("asks again when the core wasn't up yet", async () => {
+    startPreview("/?core=ready&textsize=130");
+    answer("window_settings", () => ({ ok: false, error: "the core isn't running" }));
+    expect(await startScale()).toBe(false);
+    expect(root.style.fontSize).toBe("100%");
+    answer("window_settings", () => previewAnswer("window_settings"));
+    expect(await startScale()).toBe(true);
+    expect(root.style.fontSize).toBe("130%");
+  });
+
+  it("tries the first-run save again when the config couldn't be written", async () => {
+    display(2560, 1440);
+    startPreview("/?core=ready&textsize=none");
+    answer("set_window", () => ({ ok: false, error: "couldn't write astromech.toml" }));
+    expect(await startScale()).toBe(false);
+    expect((await previewAnswer("window_settings")).text_size).toBe(null);
+    answer("set_window", (a) => previewAnswer("set_window", a));
+    expect(await startScale()).toBe(true);
+    expect((await previewAnswer("window_settings")).text_size).toBe(145);
   });
 });
 

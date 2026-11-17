@@ -13,6 +13,8 @@
   // system goes on the clipboard for the galaxy map. Inside a ListDetail (a Places finder) a
   // row can be selected, and the side panel shows all of its facts with the same two actions.
   import { ago } from "../galaxy";
+  import { scale } from "../scale.svelte";
+  import { at100 } from "./layout/layout";
   import { changeFilters, openFilters, type FilterStore } from "../filterstate";
   import { addedNote, addStop, failedNote, followedNote, followRoute, type FollowNote, type Waypoint } from "../route";
   import {
@@ -235,7 +237,7 @@
     return () => ro.disconnect();
   });
   /**
-   * The narrowest the full row fits in. Text columns share what the place leaves (the place
+   * The narrowest the full row fits in, in px at 100 percent Text size. Text columns share what the place leaves (the place
    * first) and give way to nothing; below this, the facts go.
    */
   const fits = $derived(112 + 240 + 64 + columns.reduce((n, c) => n + (c.width ?? 0), 0) + 12 * (columns.length + 2));
@@ -243,11 +245,11 @@
    * Too narrow for the facts (a side panel): the ranked value, the place and the actions only,
    * by The Aligned Columns Rule (a fact that would wrap goes).
    */
-  const compact = $derived(width > 0 && width < fits);
+  const compact = $derived(width > 0 && at100(width, scale.step) < fits);
   const template = $derived(
     compact
-      ? "max-content minmax(0, 1fr) 64px"
-      : ["112px", "minmax(240px, 400px)", ...columns.map((c) => (c.text && !c.width ? "minmax(0, 240px)" : `${c.width ?? 0}px`)), "64px"].join(" "),
+      ? "max-content minmax(0, 1fr) 4rem"
+      : ["7rem", "minmax(15rem, 25rem)", ...columns.map((c) => (c.text && !c.width ? "minmax(0, 15rem)" : `${(c.width ?? 0) / 16}rem`)), "4rem"].join(" "),
   );
   const shown = $derived(compact ? [] : columns);
   const PLACE_HEADS = { station: "Station", body: "Body", ring: "Ring", system: "System" } as const;
@@ -410,7 +412,7 @@
   /* As wide as the query's controls or the list's columns, whichever is wider: spare width stays
      empty (DESIGN.md The Next To It Rule). */
   .kit { display: flex; flex-direction: column; gap: 0; min-width: 0; width: fit-content; max-width: 100%; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; border-bottom: 1px solid var(--line); }
+  .query { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.125rem 1.25rem 1.25rem; border-bottom: 1px solid var(--line); }
   .query :global(.origin) { margin: 0; }
   .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; }
   p { margin: 0; }
@@ -428,12 +430,12 @@
   .list { display: grid; grid-template-columns: var(--cols); column-gap: var(--sp-3); width: fit-content; max-width: 100%; }
   .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; height: var(--row-result); white-space: nowrap; color: var(--accent); font-size: var(--fs); }
   .row > * { min-width: 0; }
-  .heads { height: 28px; border-bottom: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); }
+  .heads { height: 1.75rem; border-bottom: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); }
   .result:hover { background: var(--row-hover); }
   .result:hover .acts :global(.ibtn) { color: var(--orange-lit); }
   .r { text-align: right; }
   .main .v { color: var(--orange-lit); font-size: var(--fs-l); font-weight: 600; }
-  .unit { margin-left: 3px; color: var(--orange-mid); font-size: var(--fs-s); }
+  .unit { margin-left: 0.1875rem; color: var(--orange-mid); font-size: var(--fs-s); }
   .place { display: flex; align-items: center; gap: var(--sp-2); overflow: hidden; }
   .place :global(.kind) { color: var(--orange-mid); flex: none; }
   .name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; }

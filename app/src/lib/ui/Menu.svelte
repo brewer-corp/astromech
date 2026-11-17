@@ -79,7 +79,7 @@
 
 <style>
   .menu { position: relative; display: inline-flex; }
-  .pop { position: absolute; z-index: 20; right: 0; top: 100%; margin-top: var(--gap); width: max-content; max-width: min(24rem, calc(var(--win-w) * 100 - 32px)); background: var(--surface-hi); border: 1px solid var(--line); }
+  .pop { position: absolute; z-index: 20; right: 0; top: 100%; margin-top: var(--gap); width: max-content; max-width: min(22.5rem, calc(100vw - 2rem)); background: var(--surface-hi); border: 1px solid var(--line); }
   .item { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: var(--row); padding: var(--sp-2) var(--sp-3); color: var(--accent); }
   .item:hover:not(:disabled) { background: var(--row-hover); }
   .item:focus-visible { outline: 1px solid var(--accent); outline-offset: -2px; }

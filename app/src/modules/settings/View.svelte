@@ -13,7 +13,7 @@
   import Callouts from "./Callouts.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
   import { pollFailure } from "../../lib/ui/errors";
-  import { scale, setTextSize, type TextSize } from "../../lib/scale.svelte";
+  import { scale, setTextSize, STEPS } from "../../lib/scale.svelte";
 
   let status = $state<CoreStatus | null>(null);
   let note = $state("");
@@ -23,13 +23,9 @@
   let voiceNote = $state("");
   let sizeNote = $state("");
 
-  const SIZES: { value: TextSize; label: string }[] = [
-    { value: "smaller", label: "Smaller" },
-    { value: "normal", label: "Normal" },
-    { value: "larger", label: "Larger" },
-  ];
-  async function chooseSize(size: TextSize) {
-    sizeNote = (await setTextSize(size)) ?? "";
+  const SIZES = STEPS.map((s) => ({ value: String(s), label: `${s}%` }));
+  async function chooseSize(size: string) {
+    sizeNote = (await setTextSize(Number(size))) ?? "";
   }
 
   async function loadVoice() {
@@ -128,10 +124,10 @@
     <dl>
       <dt class="type-name">Text size</dt>
       <dd class="bare">
-        <Choice label="Text size" value={scale.size} options={SIZES} onchange={(v) => void chooseSize(v)} />
+        <Choice label="Text size" value={String(scale.step)} options={SIZES} onchange={(v) => void chooseSize(v)} />
       </dd>
     </dl>
-    <p class="hint type-label" class:warn-text={!!sizeNote}>{sizeNote || "The window already grows with its height, as the game's text does; this makes all of it smaller or larger."}</p>
+    <p class="hint type-label" class:warn-text={!!sizeNote}>{sizeNote || "The size of all text in the window. A bigger window shows more; it doesn't make the text bigger."}</p>
 
     <h3 class="section">Startup</h3>
     <dl>
@@ -277,20 +273,20 @@
 {/if}
 
 <style>
-  h3 { margin: 28px 0 10px; }
+  h3 { margin: 1.75rem 0 0.625rem; }
   h3:first-child { margin-top: 0; }
   dl { display: grid; grid-template-columns: var(--form-label) minmax(0, 1fr); gap: var(--gap); margin: 0; }
-  dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
+  dt, dd { margin: 0; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
      cell (.value); a status with no such action is a fact, outside a cell. */
-  dd { color: var(--accent); gap: 24px; justify-content: space-between; }
+  dd { color: var(--accent); gap: 1.5rem; justify-content: space-between; }
   dd.value { background: var(--cell); }
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
   .path { color: var(--accent); overflow-wrap: anywhere; }
-  .hint { color: var(--prose); margin: 8px 0 0 calc(var(--form-label) + var(--gap)); }
+  .hint { color: var(--prose); margin: 0.5rem 0 0 calc(var(--form-label) + var(--gap)); }
   .warn-text { color: var(--accent); }
   .warn-text::before { content: "! "; font-weight: 600; }
   .err { color: var(--alarm); }
@@ -299,5 +295,5 @@
   dd.bare { padding: 0; background: none; }
   dd.bare > :global(.grow) { flex: 1; }
   .hint a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
-  .note { margin-top: 20px; }
+  .note { margin-top: 1.25rem; }
 </style>

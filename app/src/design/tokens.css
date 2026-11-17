@@ -34,51 +34,49 @@
   /* Type */
   --face: "Saira Variable", "Bahnschrift", "Segoe UI", sans-serif; /* DESIGN.md's one face */
   --face-stretch: 87.5%; /* semi condensed; the "font" shorthand resets it, so set it after */
-  --fs-s: 13px;
-  --fs: 15px; /* rows: larger than the game's ~11 px at 1080p */
-  --fs-l: 18px;
-  --fs-xl: 24px; /* titles */
-  --fs-xs: 12px; /* meta corner marks; nothing smaller */
-  --fs-xxl: 28px; /* the one value of a tile */
+  --fs-s: 0.8125rem;
+  --fs: 0.9375rem; /* rows: larger than the game's ~11 px at 1080p */
+  --fs-l: 1.125rem;
+  --fs-xl: 1.5rem; /* titles */
+  --fs-xs: 0.75rem; /* meta corner marks; nothing smaller */
+  --fs-xxl: 1.75rem; /* the one value of a tile */
   --caps: 0.06em; /* only with uppercase: top tabs, section heads, action words */
 
   /* Rhythm */
-  --row: 34px;
-  --gap: 2px; /* between value cells, like the game */
-  --row-result: 44px; /* one lookup result row */
-  --strip: 36px; /* the route strip */
-  --status-bar: 32px; /* the status bar at the foot of every page */
-  --tile: 76px; /* a material tile */
+  --row: 2.125rem;
+  --gap: 0.125rem; /* between value cells, like the game */
+  --row-result: 2.75rem; /* one lookup result row */
+  --strip: 2.25rem; /* the route strip */
+  --status-bar: 2rem; /* the status bar at the foot of every page */
+  --tile: 4.75rem; /* a material tile */
 
   /* Spacing scale (DESIGN.md Layout): use only these */
-  --sp-1: 4px;
-  --sp-2: 8px;
-  --sp-3: 12px;
-  --sp-4: 16px;
-  --sp-6: 24px;
-  --sp-8: 32px;
-  --sp-12: 48px;
-  --gutter: 40px; /* page side margins at full width */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-12: 3rem;
+  --gutter: 2.5rem; /* page side margins at full width */
 
-  /* The window under the root zoom (DESIGN.md The Height Scale Rule; lib/scale.svelte.ts sets
-     --zoom). CSS zoom scales vh and vw as well, so a size taken from the window uses these. */
-  --zoom: 1;
-  --win-h: calc(100vh / var(--zoom)); /* the window's height */
-  --win-w: calc(1vw / var(--zoom)); /* 1 % of the window's width */
-  --side: clamp(16px, 3 * var(--win-w), 40px); /* the frame's side margins: the gutter, less in a narrow window */
+  --side: clamp(1rem, 3vw, 2.5rem); /* the frame's side margins: the gutter, less in a narrow window */
 
   /* Content widths */
   --measure: 68ch; /* prose */
-  --form-w: 900px; /* settings and forms: a 200 px label and a cell up to 700 px */
-  --list-w: 1200px; /* result lists */
-  --panel: 320px; /* side panel */
+  --form-w: 56.25rem; /* settings and forms: a 200 px label and a cell up to 700 px */
+  --list-w: 75rem; /* result lists */
+  --panel: 20rem; /* side panel */
 }
 
 * { box-sizing: border-box; }
 /* The one face everywhere. Figures are tabular throughout (DESIGN.md, The Tabular Rule), as in
    the DESIGN.md mockups; the type scale uses 400, 500 and 600 only, so <b> is 600. Text is 500
    unless its role says 400 (Body, Label, Meta: DESIGN.md Hierarchy). */
-html, body { margin: 0; background: var(--bg); color: var(--accent); font: 500 var(--fs) var(--face); font-stretch: var(--face-stretch); font-variant-numeric: tabular-nums; }
+html, body { margin: 0; background: var(--bg); color: var(--accent); }
+/* The root font size is Text size's alone (DESIGN.md The Text Size Rule; lib/scale.svelte.ts sets
+   it on html), so every rem is a share of it; the page's own size goes on body. */
+body { font: 500 var(--fs) var(--face); font-stretch: var(--face-stretch); font-variant-numeric: tabular-nums; }
 b, strong { font-weight: 600; }
 input[type="checkbox"] { accent-color: var(--accent); }
 :focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
@@ -104,7 +102,7 @@ input[type="checkbox"] { accent-color: var(--accent); }
 .type-meta { font-size: var(--fs-xs); font-weight: 400; line-height: 1.2; font-variant-numeric: tabular-nums; color: var(--orange-mid); }
 .type-action { font-size: var(--fs-s); font-weight: 600; line-height: 1; letter-spacing: var(--caps); text-transform: uppercase; color: var(--accent); }
 /* A unit after its number: Label size and Orange Mid ("390,780 cr"), with a small gap. */
-.type-unit { margin-left: 3px; font-size: var(--fs-s); font-weight: 400; color: var(--orange-mid); }
+.type-unit { margin-left: 0.1875rem; font-size: var(--fs-s); font-weight: 400; color: var(--orange-mid); }
 
 /* DESIGN.md's section heading: Orange caps with a Seam rule to the right. The current section
    (the one holding the item a side panel describes) is white with an orange rule. */
@@ -115,7 +113,7 @@ input[type="checkbox"] { accent-color: var(--accent); }
 
 /* A finder's typed or dropped-down main input is 320 px, as Find or plot; a choice keeps its
    cells' width. The width is the design system's, so a finder page sets none (page-sizing). */
-.finder-main > :is(.field, .dropdown) { width: 320px; }
+.finder-main > :is(.field, .dropdown) { width: 20rem; }
 
 /* Scrollbars: a thin Orange Dim thumb on no track, like the game's lists; it brightens up the
    ramp under the pointer and while dragged. (Seam at rest was 1.4:1 on Void, nearly invisible.) */
@@ -130,13 +128,13 @@ input[type="checkbox"] { accent-color: var(--accent); }
    target (--tip-x from its left edge), above the target or below it near the top edge. Plain is
    one Orange line in Body; rich is a white title, an Orange fact line and a Prose Grey note in Label. It never
    takes the pointer, so moving across targets swaps it in place. */
-.tip { position: fixed; z-index: 1000; max-width: min(360px, calc(100 * var(--win-w) - 16px)); padding: var(--sp-1) var(--sp-2); background: var(--surface-hi); border: 1px solid var(--orange-mid); color: var(--accent); font-size: var(--fs); line-height: 1.35; white-space: pre-line; pointer-events: none; }
+.tip { position: fixed; z-index: 1000; max-width: min(22.5rem, calc(100vw - 1rem)); padding: var(--sp-1) var(--sp-2); background: var(--surface-hi); border: 1px solid var(--orange-mid); color: var(--accent); font-size: var(--fs); line-height: 1.35; white-space: pre-line; pointer-events: none; }
 .tip[hidden] { display: none; }
-.tip::before, .tip::after { content: ""; position: absolute; left: var(--tip-x, 50%); top: 100%; border: 6px solid transparent; border-top-color: var(--orange-mid); transform: translateX(-50%); }
-.tip::after { border-width: 5px; border-top-color: var(--surface-hi); }
+.tip::before, .tip::after { content: ""; position: absolute; left: var(--tip-x, 50%); top: 100%; border: 0.375rem solid transparent; border-top-color: var(--orange-mid); transform: translateX(-50%); }
+.tip::after { border-width: 0.3125rem; border-top-color: var(--surface-hi); }
 .tip.below::before, .tip.below::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--orange-mid); }
 .tip.below::after { border-bottom-color: var(--surface-hi); }
-.tip.rich:not([hidden]) { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-2) var(--sp-3); }
+.tip.rich:not([hidden]) { display: flex; flex-direction: column; gap: 0.125rem; padding: var(--sp-2) var(--sp-3); }
 .tip-title { color: var(--text-hi); font-size: var(--fs); font-weight: 600; }
 .tip-fact { color: var(--accent); }
 .tip-note { color: var(--prose); font-size: var(--fs-s); }

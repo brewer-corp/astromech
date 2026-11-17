@@ -27,9 +27,9 @@
 <p class="foot" {@attach tip("Frontier rebalances Powerplay often: check a surprising line in game")}>Community guides, as of {asOf} (rules v{rules.version})</p>
 
 <style>
-  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.625rem; }
   .name { font-weight: 500; }
-  li > :global(.badge) { margin-left: 6px; }
-  .unverified { margin-left: 6px; color: var(--orange-mid); font-size: var(--fs-s); }
-  .foot { margin: 14px 0 0; color: var(--orange-mid); font-size: var(--fs-s); line-height: 1.45; }
+  li > :global(.badge) { margin-left: 0.375rem; }
+  .unverified { margin-left: 0.375rem; color: var(--orange-mid); font-size: var(--fs-s); }
+  .foot { margin: 0.875rem 0 0; color: var(--orange-mid); font-size: var(--fs-s); line-height: 1.45; }
 </style>

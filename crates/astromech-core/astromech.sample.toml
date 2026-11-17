@@ -66,4 +66,4 @@ enabled = false               # upload your journal to your EDSM account (flight
 commander = ""                # your commander name as registered on EDSM; the API key goes in the OS keyring (Settings)
 
 [window]
-text_size = "normal"          # smaller | normal | larger: on top of the scale the window takes from its height
+# text_size = 130              # percent of a 16 px root: 100, 115, 130, 145, 160 or 180. Unset, the window picks one from the display's height

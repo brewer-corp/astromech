@@ -6,12 +6,13 @@
  *
  * `answer` called at a test file's top level holds for every test in the file; called in a test or
  * a `beforeEach`, it holds until the next test. Before each test the watches and `sent` are
- * cleared, real timers are back, the page query is emptied and the fake core, the neutron file
- * and the shared plot setup start over; `startPreview` sets a query.
+ * cleared, real timers are back, the page query is emptied and the fake core, the neutron file,
+ * the shared plot setup and the window's Text size start over; `startPreview` sets a query.
  */
 import { tick } from "svelte";
 import { beforeEach, vi, type Mock } from "vitest";
 import { setup as plotSetup } from "../lib/plot.svelte";
+import { resetScale } from "../lib/scale.svelte";
 import { setTransport } from "../lib/transport";
 import { resetFakeCore } from "../preview/fakecore";
 import { resetPreviewNeutron } from "../preview/shell";
@@ -84,4 +85,5 @@ beforeEach(() => {
   startPreview("/");
   resetPreviewNeutron();
   plotSetup.reset();
+  resetScale();
 });

@@ -88,11 +88,12 @@
 </script>
 
 <script lang="ts">
-  // size is the drawn size in px: 16 in a row, 24 beside a title (DESIGN.md). The grid stays 16.
+  // size is the drawn size in px at 100 percent Text size: 16 in a row, 24 beside a title
+  // (DESIGN.md). It is drawn in rem, so it grows with the text. The grid stays 16.
   let { name, label, size = 16 }: { name: GlyphName; label?: string; size?: number } = $props();
 </script>
 
-<svg class="glyph" viewBox="0 0 16 16" width={size} height={size} role={label ? "img" : undefined} aria-hidden={label ? undefined : true} aria-label={label}>
+<svg class="glyph" viewBox="0 0 16 16" style:width="{size / 16}rem" style:height="{size / 16}rem" role={label ? "img" : undefined} aria-hidden={label ? undefined : true} aria-label={label}>
   {#if name === "copy"}
     <rect x="5.5" y="2.5" width="7" height="9" />
     <path d="M3.5 5.5h6v8h-6z" />

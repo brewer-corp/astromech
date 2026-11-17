@@ -13,10 +13,12 @@ if that stays.
 
 ### Window
 
-- **Text size.** The window grows with its height, as the game's text does: at 1440p it is
-  about 1.4 times its size at 1080p, up to 1.8 times on a 4K screen. A window narrower than it
-  is tall grows only as far as its width allows. **Smaller** and **Larger** make everything in
-  the window about 15 % smaller or larger on top of that, at once. **Normal** is the default.
+- **Text size.** The size of all text in the window, from **100%** to **180%**, applied at
+  once. Making the window bigger shows more; it never makes the text bigger. On first start
+  astromech picks a size from your screen's height: 100% on a 1080p screen, 145% at 1440p and
+  180% on a 4K screen. With Windows display scaling on, it uses the height after that
+  scaling, so a 4K screen at 150% scaling counts as 1440p and gets 145%. After that it only changes when you change it. If you used an earlier
+  version, your old Smaller, Normal or Larger becomes the nearest size.
 
 ### Startup
 

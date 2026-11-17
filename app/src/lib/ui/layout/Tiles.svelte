@@ -11,7 +11,7 @@
 <div class="tiles" class:fixed={cols != null} class:heads style:--n={cols} role={label ? "group" : undefined} aria-label={label}>{@render children()}</div>
 
 <style>
-  .tiles { display: grid; gap: var(--sp-2); grid-template-columns: repeat(auto-fill, minmax(200px, 240px)); align-content: start; }
-  .fixed { grid-template-columns: repeat(var(--n), minmax(160px, 240px)); }
-  .fixed.heads { grid-template-columns: max-content repeat(var(--n), minmax(160px, 240px)); }
+  .tiles { display: grid; gap: var(--sp-2); grid-template-columns: repeat(auto-fill, minmax(12.5rem, 15rem)); align-content: start; }
+  .fixed { grid-template-columns: repeat(var(--n), minmax(10rem, 15rem)); }
+  .fixed.heads { grid-template-columns: max-content repeat(var(--n), minmax(10rem, 15rem)); }
 </style>

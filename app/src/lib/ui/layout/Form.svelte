@@ -9,5 +9,5 @@
 <div class="form">{@render children()}</div>
 
 <style>
-  .form { --form-label: 200px; max-width: var(--form-w); padding: var(--sp-6) 0 var(--sp-12); }
+  .form { --form-label: 12.5rem; max-width: var(--form-w); padding: var(--sp-6) 0 var(--sp-12); }
 </style>

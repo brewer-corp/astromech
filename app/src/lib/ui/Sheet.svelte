@@ -56,6 +56,8 @@
   .sheet { position: relative; }
   img { width: 100%; height: 100%; display: block; }
   .num, .txt { position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; }
+  /* The labels follow the image's scale (--k, from the width the page gives it), not Text size:
+     the page already sizes the sheet in rem, so these stay px. */
   .num { justify-content: center; font-size: calc(9.5px * var(--k)); font-weight: 600; color: var(--orange-mid); pointer-events: none; }
   .txt { all: unset; position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; box-sizing: border-box; padding: 0 calc(4px * var(--k)); gap: calc(6px * var(--k)); font-size: calc(10px * var(--k)); color: var(--options-grey); cursor: pointer; }
   .txt.dim { color: var(--orange-dim); }

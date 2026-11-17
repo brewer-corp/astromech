@@ -111,15 +111,15 @@
 {/if}
 
 <style>
-  .head { display: flex; align-items: baseline; gap: 18px; max-width: 60rem; }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 8px 0; flex: 1; }
+  .head { display: flex; align-items: baseline; gap: 1.125rem; max-width: 56.25rem; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0.5rem 0; flex: 1; }
   .err { color: var(--accent); }
   .lo { color: var(--orange-mid); }
   .name { white-space: nowrap; }
   .up { color: var(--accent); }
-  table { border-collapse: collapse; width: 100%; max-width: 60rem; margin-top: 6px; }
-  th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
-  td { padding: 5px 12px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
+  table { border-collapse: collapse; width: 100%; max-width: 56.25rem; margin-top: 0.375rem; }
+  th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 0.75rem 0.375rem 0; }
+  td { padding: 0.3125rem 0.75rem 0.3125rem 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   td .lo { font-size: var(--fs-s); }
   .num { text-align: right; white-space: nowrap; }
 </style>

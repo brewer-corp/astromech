@@ -65,8 +65,8 @@ pub enum Edit {
     CalloutEnabled(String, bool),
     /// `[callouts.<id>] cooldown_s`; None goes back to the callout's own cooldown.
     CalloutCooldown(String, Option<f64>),
-    /// `[window] text_size` (Settings → General).
-    TextSize(crate::config::TextSize),
+    /// `[window] text_size` (Settings → General): a step of `TEXT_SIZE_STEPS`.
+    TextSize(u16),
 }
 
 /// What the window sends to the config edits, for its TypeScript types: [`Edit::from_request`]
@@ -131,11 +131,11 @@ pub mod args {
         pub cooldown_s: Option<f64>,
     }
 
-    /// `set_window`: the window's text size.
+    /// `set_window`: the window's text size, a percentage step (`TEXT_SIZE_STEPS`).
     #[derive(Debug, Default, Serialize, Deserialize, ts_rs::TS)]
     #[ts(rename = "SetWindowArgs")]
     pub struct Window {
-        pub text_size: crate::config::TextSize,
+        pub text_size: u16,
     }
 }
 
@@ -250,10 +250,12 @@ impl Edit {
                 v
             }
             "set_window" => {
+                let steps = crate::config::TEXT_SIZE_STEPS;
                 let size = a.get("text_size").context("expected {text_size}")?;
-                vec![Edit::TextSize(
-                    serde_json::from_value(size.clone()).context("text_size is smaller, normal or larger")?,
-                )]
+                match size.as_u64().and_then(|n| u16::try_from(n).ok()) {
+                    Some(n) if steps.contains(&n) => vec![Edit::TextSize(n)],
+                    _ => bail!("text_size is one of {steps:?}"),
+                }
             }
             c => bail!("unknown command {c:?}"),
         })
@@ -322,7 +324,7 @@ pub fn apply(text: &str, edits: &[Edit]) -> Result<String> {
             Edit::Eddn(on) => ("eddn", "enabled", Some(toml_edit::value(*on))),
             Edit::Edsm(on) => ("edsm", "enabled", Some(toml_edit::value(*on))),
             Edit::EdsmCommander(c) => ("edsm", "commander", Some(toml_edit::value(c.as_str()))),
-            Edit::TextSize(t) => ("window", "text_size", Some(toml_edit::value(t.as_str()))),
+            Edit::TextSize(t) => ("window", "text_size", Some(toml_edit::value(i64::from(*t)))),
             Edit::CalloutEnabled(..) | Edit::CalloutCooldown(..) => unreachable!("handled above"),
         };
         if !doc.contains_key(table) {
@@ -544,17 +546,18 @@ mod tests {
         }
     }
 
-    /// astromech-k6pl: the text size set in Settings is in the file, so it survives a restart.
+    /// astromech-b2cz: the step set in Settings is in the file as a percentage, so it survives a
+    /// restart, the migrated one from an old word included; only the six steps are accepted.
     #[test]
     fn the_text_size_persists() {
         use crate::config::TextSize;
         let d = tempfile::tempdir().unwrap();
         let p = d.path().join("astromech.toml");
-        std::fs::write(&p, crate::config::SAMPLE).unwrap();
-        let edits = Edit::from_request("set_window", Some(&serde_json::json!({"text_size": "larger"}))).unwrap();
+        std::fs::write(&p, "[window]\ntext_size = \"normal\"\n").unwrap();
+        let edits = Edit::from_request("set_window", Some(&serde_json::json!({"text_size": 145}))).unwrap();
         write(&p, &edits).unwrap();
-        assert_eq!(Config::load(&p).unwrap().window.text_size, TextSize::Larger);
-        for bad in [r#"{"text_size":"huge"}"#, r#"{"text_size":1.15}"#, "{}"] {
+        assert_eq!(Config::load(&p).unwrap().window.text_size, Some(TextSize::Percent(145)));
+        for bad in [r#"{"text_size":"normal"}"#, r#"{"text_size":120}"#, r#"{"text_size":1.15}"#, "{}"] {
             let j: Value = serde_json::from_str(bad).unwrap();
             assert!(Edit::from_request("set_window", Some(&j)).is_err(), "{bad}");
         }
