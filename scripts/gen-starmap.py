@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the star map preload (SQLite) and the ship engineers' locations from Spansh's systems
+"""Build the star map preload (SQLite) and the engineers' locations from Spansh's systems
 dump (https://downloads.spansh.co.uk/systems.json.gz, community EDDN data, ~6.4 GB).
 
 Usage:
@@ -8,6 +8,7 @@ Usage:
   scripts/gen-starmap.py --empty --out starmap.db      # schema only (CI builds of the shell)
 
 Keeps every system within --radius ly of Sol, plus the engineer systems wherever they are.
+--engineers-json gets the ship engineers (`engineers`) and the on-foot engineers (`onfoot`).
 Coordinates are stored as integers in 1/32 ly (the game's grid). The schema must match
 crates/astromech-galaxy/src/store.rs.
 """
@@ -21,7 +22,8 @@ CREATE TABLE IF NOT EXISTS coverage(id INTEGER PRIMARY KEY, x REAL NOT NULL, y R
 CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 """
 
-SHIP_ENGINEER_IDS = range(300000, 400000)  # 3000xx: ship engineers; 4000xx: on-foot (Odyssey)
+SHIP_ENGINEER_IDS = range(300000, 400000)  # 3000xx: ship engineers
+ONFOOT_ENGINEER_IDS = range(400000, 500000)  # 4000xx: on-foot (Odyssey)
 
 
 def open_db(path):
@@ -56,7 +58,7 @@ def main():
     engineers = {}
     if a.engineers_csv:
         for r in csv.DictReader(open(a.engineers_csv, encoding="utf-8")):
-            if int(r["id"]) in SHIP_ENGINEER_IDS:
+            if int(r["id"]) in SHIP_ENGINEER_IDS or int(r["id"]) in ONFOOT_ENGINEER_IDS:
                 engineers[int(r["system_address"])] = engineers.get(int(r["system_address"]), []) + [r]
     eng_sys = {}
 
@@ -101,23 +103,30 @@ def main():
     print(f"{n:,} systems of {seen:,} -> {a.out} ({os.path.getsize(a.out) / 1e6:.1f} MB)")
 
     if a.engineers_json:
-        out = []
+        ship, onfoot = [], []
         for id64, rs in engineers.items():
             for r in rs:
                 name, x, y, z = eng_sys.get(id64, (None, None, None, None))
                 if name is None:
                     print(f"warning: no system {id64} for {r['name']}", file=sys.stderr)
                     continue
-                out.append({
-                    "id": int(r["id"]), "name": r["name"], "system": name, "id64": id64,
-                    "market_id": int(r["market_id"]) if r["market_id"] else None,
-                    "coords": [x, y, z], "colonia": math.dist((x, y, z), (-9530.5, -910.28125, 19808.125)) < 1000,
-                })
-        out.sort(key=lambda e: e["id"])
+                e = {"id": int(r["id"]), "name": r["name"], "system": name, "id64": id64}
+                if int(r["id"]) in SHIP_ENGINEER_IDS:
+                    e["market_id"] = int(r["market_id"]) if r["market_id"] else None
+                    e["coords"] = [x, y, z]
+                    e["colonia"] = math.dist((x, y, z), (-9530.5, -910.28125, 19808.125)) < 1000
+                    ship.append(e)
+                else:
+                    e["coords"] = [x, y, z]
+                    onfoot.append(e)
+        ship.sort(key=lambda e: e["id"])
+        onfoot.sort(key=lambda e: e["id"])
+        source = ("EDCD/FDevIDs engineers.csv + Spansh systems dump (scripts/gen-starmap.py): "
+                  "`engineers` are the ship engineers (ids 3000xx), `onfoot` the on-foot engineers (ids 4000xx)")
         with open(a.engineers_json, "w", encoding="utf-8") as f:
-            json.dump({"source": "EDCD/FDevIDs engineers.csv + Spansh systems dump (scripts/gen-starmap.py)", "engineers": out}, f, indent=1, ensure_ascii=False)
+            json.dump({"source": source, "engineers": ship, "onfoot": onfoot}, f, indent=1, ensure_ascii=False)
             f.write("\n")
-        print(f"{len(out)} ship engineers -> {a.engineers_json}")
+        print(f"{len(ship)} ship and {len(onfoot)} on-foot engineers -> {a.engineers_json}")
 
 
 if __name__ == "__main__":

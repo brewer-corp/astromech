@@ -36,6 +36,8 @@ pub struct EngineerLine {
     pub id: i64,
     pub name: String,
     pub system: String,
+    /// The system's position, light years (Sol is the origin).
+    pub coords: [f64; 3],
     pub colonia: bool,
     /// From the journal, or `Unknown` when the game has not mentioned them.
     pub progress: String,
@@ -93,6 +95,8 @@ pub fn lines(progress: &Progress) -> Vec<EngineerLine> {
                 id: e.id,
                 name: e.name.clone(),
                 system: e.system.clone(),
+                // Compiled-in data; the catalog test checks every engineer has them.
+                coords: crate::catalog::coords(e.id).expect("on-foot engineer coordinates"),
                 colonia: e.colonia,
                 progress: state,
                 mods: e
