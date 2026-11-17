@@ -86,13 +86,23 @@ something the page shows today:
   the panel says "mapped, over the efficiency target" when it was not.
 - The `source` label ("Sample system") at the end of the head's Label line.
 
+**Badge Tips.** Each badge's meaning is in a Tip with `stop: false`.
+
+- Screen readers still get it through `aria-describedby` on the badge.
+- The keyboard does not get a tab stop per badge. The sample has 25 badges, and the treegrid
+  keeps one tab stop with the arrow keys moving between rows.
+- The old page's one tab stop on "Worth mapping" goes. What it said (at least 500 k cr mapped) is
+  in the guide, and the row's mapped value shows it.
+- The column head's Tip (the mapped-value rule) and the head values' Tips keep their tab stops.
+
 **Selection.** The selection is held by body name, so it survives the 3 s poll and drops on a
 jump. Nothing is selected at first. The tree is a `treegrid`: rows carry `aria-level`, and the
 arrow keys, Home and End move the selection.
 
 **Layout.** Unsold data and Where to sell are rendered after the ListDetail, not inside it. At
 1100 the stacked panel then sits right under the tree instead of after the unsold tiles.
-`TREE_MIN` is 800 px: the tree's rigid columns plus room for one line of tags.
+`TREE_MIN` is 800 px: the tree's rigid columns plus room for one line of tags. The body name keeps
+a common start for classes within a level with `min-width: var(--sp-12)`.
 
 **Captures and audit.** The plan and the captures are in `docs/design/system-tree/`:
 
@@ -106,16 +116,32 @@ arrow keys, Home and End move the selection.
 - At 1100 the frame is the strip and the panel goes below the tree. At 1920 and 2560 the sidebar
   is docked and the panel sits beside the tree. At 3840 the rows keep their own width and the
   panel follows them.
-- The page's `bright` list leads with White: the system title and the selected body's name, as
-  DESIGN.md gives titles White. Then comes Options Grey data. The only Orange Lit on the page is
-  the main value (10,510,589 cr if mapped) and the panel's value. OPEN IN BIOLOGY is Orange.
+- The page's `bright` list, the sidebar apart, ranks by luminance. It leads with White: the
+  wordmark, the system title and the selected body's name, which DESIGN.md makes White. Then come
+  Options Grey names and figures (the value now, the names, the worth-mapping values) and Prose
+  Grey data. Among the orange, Orange Lit holds only the main value (10,510,589 cr if mapped) and
+  the panel's value. Orange holds OPEN IN BIOLOGY and the two sell links.
+- By luminance White and grey always outrank orange, so this ordering is not a fault. The selected
+  row is the only Hull Raised row. The tree has no orange column because it is not ranked. This is
+  the reading astromech-rj6i's Report gave for Powerplay.
+- `report.json` is from b5ef36d5, the page as submitted.
 - The sample is under the risky mark, so nothing on the page needs the commander. The orange
   reminder line is checked by its browser test, not in a capture.
 
-**Known trade-off.** At exactly the dock width (1659 x 900, sidebar docked), the busiest row (A 4 a,
-with six tags) wraps its tags onto a second line beside the panel. The Aligned Columns Rule calls a
-wrap a sign the group is wrong. Every tag on that row is one the item asks for, so I let them wrap
-there instead of dropping one. From 1920 up and at 3840, no row wraps.
+**Known trade-off: tags wrap when room is short.** Measured in the sample, in px at 100 percent
+Text size, with A 4 a selected and the sidebar docked:
+
+| Window | Tree's natural width | Room beside the panel | Result |
+|---|---|---|---|
+| 1659 x 900 (the dock width) | 947 | 856 | A 4 a's six tags wrap onto a second line |
+| 1920 x 1080 | 947 | 1,117 | no wrap, 170 px to spare |
+| 2560 x 1440 at 145 percent | 943 | 966 | no wrap, 23 px to spare |
+
+So at 2560 a system with a longer class name or one more tag on its busiest row also wraps. The
+Aligned Columns Rule calls a wrap a sign the group is wrong. Every tag is one the item asks for, so
+the tags wrap inside their own cell rather than being cut or pushing the panel below.
+
+At 1100 the panel goes below the tree, since the 641 px beside it is under `TREE_MIN`.
 
 **Other changes.**
 
@@ -128,6 +154,10 @@ there instead of dropping one. From 1920 up and at 3840, no row wraps.
 - `cargo fmt --all` and `cargo clippy --workspace --all-targets -- -D warnings`;
 - `cargo test -p astromech-exploration`, the `preview_fixtures` drift test, the core's
   `bindings` test and `copy`;
-- `pnpm check`, `pnpm lint` and `pnpm test` (801 tests);
+- `cargo test -p astromech-api`;
+- `pnpm check`, `pnpm lint` and `pnpm test` (801 tests, at b5ef36d5). An earlier full run at load
+  average 52 failed three timing-sensitive cases in `App.browser.test.ts` and
+  `tabrows.browser.test.ts`, which this change does not touch. Both files then passed alone and
+  in the full rerun;
 - `pnpm exec tsc -p journeys` and `node --test 'journeys/*.journey.ts'` (7 of 7).
 
