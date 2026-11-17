@@ -795,13 +795,13 @@ and of two mockups, Variant B.
   strip's No route state offers the same two actions as the rail. See
   [hier-A-over-page-1100.png](docs/design/nav-spike/hier-A-over-page-1100.png) (Variant A's
   surfaces, the old colours; the overlay is the same in B).
-- **The dock width** is the narrowest window at which a List with detail page (the Sell finder
-  with a row selected) keeps its rows clear of its side panel beside the sidebar. The spike
-  measured about 1,700 px under the old zoom: the Sell row at its narrowest (about 930 px), the
-  320 px panel, the sidebar's 320 px and two gutters. astromech-uc7i measured it at every Text
-  size step: 1,756 px at 100 percent (109.75rem), so a 1920 x 1080 display at 100 percent and a
-  2560 x 1440 one at its 145 percent both dock. It is `DOCK` in
-  `app/src/lib/ui/layout/layout.ts`, and a browser test fails when the Sell row outgrows it.
+- **The dock width** is the narrowest window at which every List with detail page (the Places
+  finders, each with a row selected) keeps its full rows clear of its side panel beside the
+  sidebar. The widest finder row sets it: Mining hotspots, whose own group is text and which has
+  a trip (856 px; Sell's grouped row is 672). astromech-7obs measured it at every Text size step:
+  1,659 px at 100 percent (103.69rem), 1,655 at 180, so a 1920 x 1080 display at 100 and 115
+  percent and a 2560 x 1440 one at its 145 percent all dock. It is `DOCK` in
+  `app/src/lib/ui/layout/layout.ts`, and a browser test fails when any finder's row outgrows it.
 
 ### Page layouts
 
