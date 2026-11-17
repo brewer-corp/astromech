@@ -41,7 +41,7 @@ export function candidateResults(r: Candidates): Results {
     fetched: r.fetched,
     warning: r.warning,
     place: "system",
-    columns: [{ key: "detail", head: "Bodies", text: true }],
+    columns: [{ key: "detail", head: "Bodies", text: true, at: "row" }],
     rows: r.hits.map((h) => ({
       key: h.id64,
       system: h.name,

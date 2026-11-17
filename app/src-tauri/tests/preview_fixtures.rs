@@ -333,6 +333,11 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
                 key: "/route/loop",
                 from: From::Not("no recorded Spansh answer to a loop search: spansh-trade-result.json is a single hop"),
             },
+            // The hold the samples are measured against (the Sell and Buy finders' demand
+            // colours): the mixed hold above once Elite is running, then the same Asp once the
+            // hold is emptied. Last, since the world's steps come after every other part from it.
+            Part { key: "/ship", from: core("sol", Some("aboard"), "ship_status", Value::Null) },
+            Part { key: "/ship_emptied", from: core("sol", Some("emptied"), "ship_status", Value::Null) },
         ],
     );
     // The Route page: the ship, and routes plotted from Sol by Spansh's recorded answers.

@@ -1,4 +1,46 @@
 {
+  "ship": {
+    "cargo": 652.0,
+    "cargo_capacity": 200,
+    "cargo_free": 0,
+    "fuel": 32.0,
+    "fuel_capacity": 32.0,
+    "max_jump_range": 31.5,
+    "ok": true,
+    "pad": "M",
+    "sellable": [
+      {
+        "name": "Low Temperature Diamonds",
+        "symbol": "lowtemperaturediamond",
+        "tonnes": 300
+      },
+      {
+        "name": "Painite",
+        "symbol": "painite",
+        "tonnes": 200
+      },
+      {
+        "name": "Platinum",
+        "symbol": "platinum",
+        "tonnes": 100
+      }
+    ],
+    "ship_id": 1,
+    "ship_name": null
+  },
+  "ship_emptied": {
+    "cargo": 0.0,
+    "cargo_capacity": 200,
+    "cargo_free": 200,
+    "fuel": 32.0,
+    "fuel_capacity": 32.0,
+    "max_jump_range": 31.5,
+    "ok": true,
+    "pad": "M",
+    "sellable": [],
+    "ship_id": 1,
+    "ship_name": null
+  },
   "anywhere": {
     "buy": {
       "here": {

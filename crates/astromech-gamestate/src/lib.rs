@@ -103,6 +103,9 @@ pub struct GameState {
     pub cargo_stolen: i64,
     /// `Cargo.json`'s lines with their symbols (for "where should I sell my cargo?").
     pub cargo_inventory: Vec<astromech_journal::CargoItem>,
+    /// A `Cargo.json` has been read, so `cargo_inventory` is the hold's contents: an empty
+    /// inventory is an empty hold, not one the game hasn't described yet.
+    pub cargo_known: bool,
     pub legal_state: Option<String>,
     pub credits: Option<i64>,
     pub rebuy: Option<i64>,
@@ -412,6 +415,7 @@ impl GameState {
         self.cargo_tonnes = Some(c.count as f64);
         self.cargo_items = c.items.clone();
         self.cargo_inventory = c.inventory.clone();
+        self.cargo_known = true;
         self.cargo_stolen = c.inventory.iter().map(|i| i.stolen.max(0)).sum();
     }
 

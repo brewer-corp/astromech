@@ -2,20 +2,48 @@
   "flying": {
     "cargo": 120.0,
     "cargo_capacity": 256,
+    "cargo_free": 136,
     "fuel": 24.6,
     "fuel_capacity": 32.0,
     "max_jump_range": 18.0,
     "ok": true,
+    "pad": "L",
+    "sellable": [
+      {
+        "name": "Painite",
+        "symbol": "painite",
+        "tonnes": 100
+      },
+      {
+        "name": "Low Temperature Diamonds",
+        "symbol": "lowtemperaturediamond",
+        "tonnes": 20
+      }
+    ],
     "ship_id": 3,
     "ship_name": "Heavy Lifter"
   },
   "refitted": {
     "cargo": 120.0,
     "cargo_capacity": 256,
+    "cargo_free": 136,
     "fuel": 24.6,
     "fuel_capacity": 32.0,
     "max_jump_range": 21.4,
     "ok": true,
+    "pad": "L",
+    "sellable": [
+      {
+        "name": "Painite",
+        "symbol": "painite",
+        "tonnes": 100
+      },
+      {
+        "name": "Low Temperature Diamonds",
+        "symbol": "lowtemperaturediamond",
+        "tonnes": 20
+      }
+    ],
     "ship_id": 3,
     "ship_name": "Heavy Lifter"
   },

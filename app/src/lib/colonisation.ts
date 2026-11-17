@@ -58,7 +58,7 @@ export function buyResults(s: BuySearch, listed: number): Results {
     warning: notes.length ? notes.join(" ") : undefined,
     place: "station",
     main: { head: "Sells" },
-    columns: [{ key: "stock", head: "Stock", text: true }],
+    columns: [{ key: "stock", head: "Stock", text: true, at: "row" }],
     rows: s.plan.stations.map((x) => ({
       key: x.market_id,
       system: x.system,

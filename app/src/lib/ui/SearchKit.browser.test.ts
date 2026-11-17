@@ -105,21 +105,23 @@ describe("SearchKit", () => {
     expect(screen.queryByRole("button", { name: "Pad M, current ship" })).toBeNull();
   });
 
-  it("lays out a result as DESIGN.md's row: the ranked value first, the place, the facts under heads, the actions", async () => {
+  it("lays out a result as DESIGN.md's grouped row: the price over demand, the station over its system, the trip, the actions", async () => {
     loadFilters.mockResolvedValue({ ...DEFAULT_FILTERS, pad: "L" });
     const sell: Results = {
       ...results,
       place: "station",
       main: { head: "Price", unit: "cr" },
-      columns: [{ key: "volume", head: "Demand", unit: "t", width: 88 }],
+      columns: [{ key: "volume", head: "Demand", unit: "t", at: "qual", bars: true }],
       rows: [
-        { key: 2, system: "Diaguandri", station: "Parekh Chemical Holdings", ly: 127.3, jumps: 7, exact: true, pad: "L", arrival_ls: 775, station_type: "Coriolis Starport", updated_at: daysAgo(10), main: "313,239", facts: { volume: "15" } },
+        { key: 2, system: "Diaguandri", station: "Parekh Chemical Holdings", ly: 127.3, jumps: 7, exact: true, pad: "L", arrival_ls: 775, station_type: "Coriolis Starport", updated_at: daysAgo(10), main: "313,239", facts: { volume: "15" }, volume: 15 },
       ],
     };
     kit(vi.fn().mockResolvedValue(sell), { offers: ["distance", "pad", "age"], hints: { distance: 100, age: 30 } });
     expect(await screen.findByText("Parekh Chemical Holdings")).toBeTruthy();
-    expect(heads()).toEqual(["Price", "Station", "Demand", "Distance", "Jumps", "Pad", "Arrival", "Updated", ""]);
-    expect(cells()).toEqual([["313,239cr", "Parekh Chemical Holdings Diaguandri", "15t", "127.3ly", "7", "L", "775ls", "10d", ""]]);
+    expect(heads()).toEqual(["Price · demand", "Station · pad · arrival", "Trip", ""]);
+    // With no side panel, the report's age stays in the trip group, grey while fresh.
+    expect(cells()).toEqual([["313,239cr 15t", "Parekh Chemical Holdings L 775ls Diaguandri", "7jumps 127.3ly · 10 d old", ""]]);
+    expect(screen.getByText("10 d old").classList.contains("old")).toBe(false);
     // The ranked value is the row's one Value L figure, in Orange Lit.
     expect(screen.getByText("313,239").closest(".main")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Copy Diaguandri" })).toBeTruthy();
@@ -127,7 +129,7 @@ describe("SearchKit", () => {
     expect(screen.getByText("Within 100 ly of Sol · large pad · reports up to 30 days old")).toBeTruthy();
   });
 
-  it("keeps the ranked value, the place and the actions in a panel too narrow for the facts", async () => {
+  it("keeps the ranked value, the place and the actions in a column too narrow for the groups", async () => {
     loadFilters.mockResolvedValue(DEFAULT_FILTERS);
     // A 320 px side panel: the row needs 112 + 240 + 64 px plus its fact columns.
     const width = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(297);
@@ -144,8 +146,9 @@ describe("SearchKit", () => {
     try {
       kit(vi.fn().mockResolvedValue(results), { offers: ["age"] });
       expect(await screen.findByText("Ross 154")).toBeTruthy();
-      await waitFor(() => expect(heads()).toEqual(["Jumps", "System", ""]));
-      expect(cells()).toEqual([["1", "Ross 154", ""]]);
+      // No side panel to hold the facts: the first two groups keep their second lines.
+      await waitFor(() => expect(heads()).toEqual(["Trip", "System · faction", ""]));
+      expect(cells()).toEqual([["1jump 9.7ly · 2 h old", "Ross 154 Ross 154 Boys", ""]]);
       expect(screen.getByRole("button", { name: "Set Ross 154 as the destination" })).toBeTruthy();
     } finally {
       width.mockRestore();
@@ -153,18 +156,18 @@ describe("SearchKit", () => {
     }
   });
 
-  it("ranks by jumps when nothing else ranks, and gives a system lookup no pad or arrival column", async () => {
+  it("ranks by jumps when nothing else ranks, and gives a system its fact as its second line, with no pad or arrival", async () => {
     loadFilters.mockResolvedValue(DEFAULT_FILTERS);
     const r = { ...results, rows: [{ ...results.rows[0]!, updated_at: daysAgo(2), exact: false }] };
     kit(vi.fn().mockResolvedValue(r), { offers: ["age"] });
     expect(await screen.findByText("Ross 154")).toBeTruthy();
-    expect(heads()).toEqual(["Jumps", "System", "Faction", "Distance", "Updated", ""]);
-    expect(cells()).toEqual([["~1", "Ross 154", "Ross 154 Boys", "9.7ly", "2d", ""]]);
+    expect(heads()).toEqual(["Trip", "System · faction", ""]);
+    expect(cells()).toEqual([["~1jump 9.7ly · 2 d old", "Ross 154 Ross 154 Boys", ""]]);
     expect(screen.getByText("Nearest to Sol · reports of any age")).toBeTruthy();
     expect(screen.getByText(/~ = straight-line estimate/)).toBeTruthy();
   });
 
-  it("steps a stale report down with its age in Orange when there is no age filter", async () => {
+  it("steps a report older than 30 days down with its age in Orange", async () => {
     loadFilters.mockResolvedValue(DEFAULT_FILTERS);
     const r: Results = {
       ...results,
@@ -179,7 +182,34 @@ describe("SearchKit", () => {
     expect(await screen.findByText("Old")).toBeTruthy();
     const stale = screen.getAllByRole("row").filter((row) => row.classList.contains("stale"));
     expect(stale.map((row) => row.textContent)).toEqual([expect.stringContaining("Old")]);
-    expect(stale[0]!.querySelector(".age")?.textContent).toBe("212d");
+    expect(stale[0]!.querySelector(".age.old")?.textContent).toBe("212 d old");
+  });
+
+  it("fits a far, old report's distance and age on the trip line of a list with no side panel", async () => {
+    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
+    const far = { ...results.rows[0]!, ly: 1426.2, jumps: 46, exact: false, updated_at: daysAgo(2070) };
+    kit(vi.fn().mockResolvedValue({ ...results, rows: [far] }), { offers: ["age"] });
+    expect(await screen.findByText("2,070 d old")).toBeTruthy();
+    const line = document.querySelector(".first .l2") as HTMLElement;
+    expect(line.textContent?.replace(/\s+/g, " ")).toBe("1,426.2ly · 2,070 d old");
+    expect(line.scrollWidth).toBeLessThanOrEqual(line.clientWidth);
+  });
+
+  it("marks a report older than 30 days that a longer age filter lets through", async () => {
+    loadFilters.mockResolvedValue({ ...DEFAULT_FILTERS, max_age_days: 90 });
+    const r: Results = {
+      ...results,
+      fetched: new Date(NOW).toISOString(),
+      rows: [
+        { key: 1, system: "Recent", ly: 1, jumps: 1, exact: true, updated_at: daysAgo(10) },
+        { key: 2, system: "Older", ly: 2, jumps: 1, exact: true, updated_at: daysAgo(45) },
+      ],
+    };
+    kit(vi.fn().mockResolvedValue(r), { offers: ["age"] });
+    expect(await screen.findByText("Older")).toBeTruthy();
+    const stale = screen.getAllByRole("row").filter((row) => row.classList.contains("stale"));
+    expect(stale.map((row) => row.textContent)).toEqual([expect.stringContaining("Older")]);
+    expect(stale[0]!.querySelector(".age.old")?.textContent).toBe("45 d old");
   });
 
   it("hides reports older than the age filter and counts the ones that came back", async () => {

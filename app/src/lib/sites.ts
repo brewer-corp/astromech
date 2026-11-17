@@ -50,7 +50,7 @@ export function siteResults(r: Sites): Results {
     fetched: r.fetched,
     warning: r.warning,
     place: "body",
-    columns: [{ key: "detail", head: "Site", text: true }],
+    columns: [{ key: "detail", head: "Site", text: true, at: "row", same: (v) => v }],
     rows: r.hits.map((h) => ({
       key: h.body,
       system: h.system,

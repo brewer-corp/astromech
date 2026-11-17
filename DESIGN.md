@@ -294,8 +294,8 @@ tabs; text size in rem in place of the height zoom; input values Orange at 500. 
 catches up item by item (text size landed with astromech-b2cz; colours, selection and tiles
 off Hull with astromech-3kf5), and until each lands the app differs from this document there: the lint
 for raw colours and sizes (astromech-4wi1), the route sidebar and PLACES (astromech-uc7i),
-the tabs (astromech-5a01), the grouped result rows and demand colours (astromech-3ca6), the
-hexagon component (astromech-7did). -->
+the tabs (astromech-5a01), the hexagon component (astromech-7did). The grouped result rows and
+demand colours landed with astromech-3ca6. -->
 
 ## Overview
 
@@ -556,7 +556,7 @@ are read; colour that means nothing is what made every page loud.
 | Supply on Buy when free space is unknown (cargo or capacity not known) | Prose Grey bars, no warning colour | as above | as above; an empty hold with a known capacity is not this case: it is measured against its free space like any other ("256 t free") |
 | Supply on Buy with no free space (a full hold) | Prose Grey bars, no warning colour | nothing more fits, so no seller is short | the page says the hold is full |
 | A pad too small for the current ship | Red Low letter and outline | won't fit | struck through; its accessible name says why |
-| A stale report (older than the finder's age filter) | its age in Orange; the ranked value steps to Orange Mid | do not trust this | the age in words ("34 d old") |
+| A stale report (older than 30 days when the source answered) | its age in Orange; the ranked value steps to Orange Mid | do not trust this | the age in words ("34 d old") |
 | A star in the route | scoopable Orange Mid; neutron star White; any other Label Grey; past stops Mark Off | what you do there: refuel, boost, nothing | the star type icon and its Tip |
 | The next stop in the route | Orange Lit name; its note (Fuel) in Orange | where to go now, and what to do there | raised, and "Next stop" above it |
 | Security of an inhabited stop | low Orange Mid; anarchy Red Low; others Prose Grey | how risky the stop is | the word ("Low security", "Anarchy") |
@@ -823,12 +823,15 @@ measure the page column, not the window, so the sidebar's width is already taken
 
 Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps; control row 34 px;
 result row 60 px, two lines in groups ([Lookup result row](#lookup-result-row)); material tile
-76 px. Rows visible: at 1100 x 700 at 100 percent, 5 whole rows show
-([tone5-sell-1100.png](docs/design/nav-spike/tone5-sell-1100.png)); at 2560 x 1440 at 145
-percent the capture has 8 rows and room below them, which works out at about 11
-([tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-2560.png)), a figure computed from the
-free space, not counted. Revision 4's one-line 44 px rows fitted about 18 on a 1000 px window,
-and the 65 to 100 px rows before them 8. astromech-3ca6 measures the built row. *Why:* fewer rows that each read as an answer beat more rows that read as a spreadsheet;
+76 px. Rows visible, measured on the built row (astromech-3ca6, Sell anywhere in the preview, no route
+sidebar): at 1100 x 700 at 100 percent, 2 whole rows show when the page opens under the
+finder's input, origin and summary, and 7 once the list is scrolled to the top of the page
+column (worked out from the column's height, not counted); at 2560 x 1440 at 145 percent, 8 on
+opening and 13 scrolled
+([sell-1100-after.png](docs/design/grouped-rows/sell-1100-after.png),
+[sell-2560-after.png](docs/design/grouped-rows/sell-2560-after.png)). Revision 4's one-line
+44 px rows showed 3 and 10 at 1100 x 700 and 11 and 17 at 2560 x 1440. The spike's 5 at
+1100 x 700 had no origin box above the list. *Why:* fewer rows that each read as an answer beat more rows that read as a spreadsheet;
 the commander picks from the top few, and the list scrolls.
 
 ### Named Rules
@@ -1115,8 +1118,8 @@ at the smallest window, [tone5-sell-1100.png](docs/design/nav-spike/tone5-sell-1
 1. **The value and what qualifies it** (first, about 136 px, right-aligned): the value the list
    is ranked by in Value L, Orange, its unit in Label, Label Grey; under it, in Label, the fact
    that says whether it holds for this commander. On Sell, price over demand with the demand
-   bars, coloured by [the list](#colours-that-carry-a-meaning). Each other finder's groups are
-   settled when it adopts the row (astromech-3ca6).
+   bars, coloured by [the list](#colours-that-carry-a-meaning). Where jumps rank the list, this
+   group is the trip (jumps over light years) and there is no trip group after the place.
 2. **The place and what you need to dock** (flexible, about 280 to 400 px): the station's type
    icon, its name in Name, Options Grey, its pad as a badge (always shown for stations; struck
    through in Red Low when too small for the ship) and its arrival distance in Label, Prose
@@ -1128,9 +1131,25 @@ at the smallest window, [tone5-sell-1100.png](docs/design/nav-spike/tone5-sell-1
    age, in Label Grey when fresh.
 4. **Actions:** icon buttons for add stop and set destination, at the row's end.
 
-Facts the commander does not choose a row by (when the report was made, the faction, the
-market's other figures) go to the side panel, and stay on the row only where the list has
-none. A text fact that is the same on every row is left out and said once in the summary line.
+Between the place and the trip, a finder may add its own group: the facts the commander picks a
+row by, the first over the rest. A system has no pad or arrival, so its first such fact is the
+place's second line instead ("Ross 154" over "Ross 154 Boys (Independent, Famine)"). Facts the
+commander does not choose a row by (when the report was made, the faction, the market's other
+figures) go to the side panel, and stay on the row, in the finder's own group, only where the
+list has none. A text fact that is the same on every row is left out and said once in the
+summary line. Each finder's groups:
+
+| Finder | Ranked value over | Place | Own group | Side panel |
+|---|---|---|---|---|
+| Sell, Buy | price over demand or stock, with the bars | station · pad · arrival | none | report age |
+| Sell my cargo | total over the tonnes it takes | station · pad · arrival | none | report age |
+| Outfitting, Shipyard | trip | station · pad · arrival | module over price | faction, report age |
+| Services, Material traders | trip | station · pad · arrival | none | faction, report age |
+| Mining hotspots | hotspots | ring · arrival | ring type over reserve | other hotspots |
+| Raw sites | trip | body · arrival | the site | report age |
+| Faction states | trip, or score over population for a High Grade Emissions pool | system over its factions in the state | none | report age |
+| Powerplay's targets, Colonisation candidates (no panel) | trip, with the report's age | system over its Powerplay state or bodies | none | none |
+| Colonisation's where to buy (no panel) | how many of the list it sells | station · pad · arrival | the stock of each | none; the age is in the trip |
 
 Rows are 60 px, no zebra, no separators. Group heads ("Price · demand", "Station · pad ·
 arrival", "Trip") sit above a Seam hairline in Label, Label Grey. Hover: Row Hover. Selected:
@@ -1155,7 +1174,9 @@ named them.
 
 Where a group's line has no room, it truncates with an ellipsis rather than wrap. Where even
 that leaves no room, as in a side panel, the row is **compact**: the first two groups' first
-lines and the actions, one line, no heads. *Why:* the Aligned Columns Rule drops the fact
+lines and the actions, one line, no heads. A list with no side panel keeps those two groups'
+second lines when compact, since nothing else would show them (Powerplay's Where to work
+column). *Why:* the Aligned Columns Rule drops the fact
 before it wraps the row; a 320 px panel cannot hold the groups, and its lookups become links
 into their finder later (decision astromech-g8d5, item 5).
 
@@ -1235,9 +1256,10 @@ setting" panel.
 | Conflict, ignored binding | orange "!" + "Also: <action>"; ignored text struck through, Orange Dim | a warning, not a failure |
 | Overlay open | the page behind under a Void scrim ([The Dimmed Page Rule](#named-rules-2)) | says what has focus |
 
-A report is stale when it is older than the finder's age filter (30 days by default). With the
-filter at "Any age", stale rows are shown stepped down with their age in Orange; otherwise
-they are hidden and the summary line names the limit ("reports up to 30 days old"). Sources
+A report is stale when it is older than 30 days. Reports older than the finder's age filter
+(30 days by default) are hidden and the summary line names the limit ("reports up to 30 days
+old"); a stale report the filter lets through ("Any age", or up to 90 days) is shown stepped
+down with its age in Orange. Sources
 apply the age filter in the query, so the window cannot count what they left out; it counts
 only rows that came back past the limit. Staleness is judged as of the answer's fetch time
 (when the source applied the filter); the age shown is measured from now.
@@ -1288,7 +1310,7 @@ not have yet: the item named adds them, and the rows it replaces stay until then
 | Prose width | `--measure` | 68ch |
 | Form layout width | `--form-w` | 900 px |
 | Side panel (List with detail) | `--panel` | 320 px |
-| Control row, result row | `--row`, `--row-result` | 34, 60 px (44 until astromech-3ca6) |
+| Control row, result row | `--row`, `--row-result` | 34, 60 px |
 | Route sidebar, no-route rail (new, astromech-uc7i) | `--sidebar`, `--rail` | 320, 48 px |
 | Route strip, status bar, material tile | `--strip`, `--status-bar`, `--tile` | 36, 32, 76 px |
 | Meta, Label/Section/Action, Body/Name/Nav/Figures/Cell | `--fs-xs`, `--fs-s`, `--fs` | 12, 13, 15 px |

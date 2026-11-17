@@ -1663,7 +1663,8 @@ mod replies {
         pub skipped: Vec<astromech_eddn::outbox::LogEntry>,
     }
 
-    /// `ship_status`: the ship's main tank and hold as the game reports them. A figure is null
+    /// `ship_status`: the ship's main tank and hold as the game reports them, and what the finders
+    /// measure results against (the pad it needs, what it can sell, the room left). A figure is null
     /// when it isn't known: Elite isn't running, or no `Loadout` or Status.json has said yet.
     #[derive(Debug, Default, Serialize, ts_rs::TS)]
     pub struct ShipStatus {
@@ -1682,6 +1683,16 @@ mod replies {
         pub cargo: Option<f64>,
         /// The hold's size in tonnes (the last `Loadout`).
         pub cargo_capacity: Option<i64>,
+        /// Tonnes the hold can still take: `cargo_capacity` less everything aboard (limpets
+        /// and mission cargo take room too). Null unless both are known; 0 when full.
+        pub cargo_free: Option<i64>,
+        /// The tonnes of each commodity aboard that are the commander's to sell, by the rules
+        /// of the Sell my cargo lookup (mission cargo, stolen goods and limpets left out), most
+        /// first. Null until a `Cargo.json` has been read; empty for an empty hold.
+        pub sellable: Option<Vec<astromech_market::cargo::Load>>,
+        /// The landing pad the ship needs (the last `Loadout`'s ship type), as the voice
+        /// lookups resolve it.
+        pub pad: Option<astromech_galaxy::Pad>,
     }
 
     impl ShipStatus {
@@ -1694,6 +1705,12 @@ mod replies {
                 fuel_capacity: g.fuel_capacity_main,
                 cargo: g.cargo_tonnes,
                 cargo_capacity: g.cargo_capacity,
+                cargo_free: match (g.cargo_capacity, g.cargo_tonnes) {
+                    (Some(cap), Some(t)) => Some((cap - t.ceil() as i64).max(0)),
+                    _ => None,
+                },
+                sellable: g.cargo_known.then(|| astromech_market::cargo::sellable(&g.cargo_inventory).0),
+                pad: g.ship.as_deref().and_then(astromech_galaxy::Pad::for_ship),
             }
         }
     }
@@ -2157,6 +2174,27 @@ mod tests {
         assert_eq!(page_of("http://tauri.localhost/index.html"), None);
         // A window whose first navigation hasn't committed (what the upgrade job read).
         assert_eq!(page_of("about:blank"), None);
+    }
+
+    /// `ship_status`'s hold for the finders' demand colours: unknown until a Cargo.json is read,
+    /// then what the commander may sell (the preview sol world's mixed hold: mission gold,
+    /// stolen gold and limpets left out) and the room left, an empty hold included.
+    #[test]
+    fn ship_status_tells_an_unknown_hold_from_an_empty_one() {
+        let mut g = astromech_gamestate::GameState { cargo_capacity: Some(200), ..Default::default() };
+        let s = ShipStatus::from_state(&g);
+        assert_eq!((s.sellable, s.cargo_free), (None, None));
+
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../worlds/preview/sol/game/Cargo.json");
+        g.apply_cargo(&astromech_journal::parse_cargo(&std::fs::read(root).unwrap()).unwrap());
+        let s = ShipStatus::from_state(&g);
+        let held: Vec<(String, i64)> = s.sellable.unwrap().into_iter().map(|l| (l.symbol, l.tonnes)).collect();
+        assert_eq!(held, [("lowtemperaturediamond".into(), 300), ("painite".into(), 200), ("platinum".into(), 100)]);
+
+        let empty = br#"{ "event":"Cargo", "Vessel":"Ship", "Count":0, "Inventory":[] }"#;
+        g.apply_cargo(&astromech_journal::parse_cargo(empty).unwrap());
+        let s = ShipStatus::from_state(&g);
+        assert_eq!((s.sellable, s.cargo_free), (Some(vec![]), Some(200)));
     }
     use astromech_voice::{catalog, download, models};
 

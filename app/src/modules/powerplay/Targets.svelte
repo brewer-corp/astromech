@@ -22,7 +22,7 @@
       fetched: r.fetched,
       warning: r.warning,
       place: "system",
-      columns: [{ key: "power", head: "Powerplay", text: true }],
+      columns: [{ key: "power", head: "Powerplay", text: true, at: "row" }],
       rows: r.hits.map((h) => ({ key: h.id64, system: h.name, ly: h.ly, jumps: h.jumps, exact: h.exact, updated_at: h.updated_at, facts: { power: targetDetail(h, r.power) } })),
     };
   }

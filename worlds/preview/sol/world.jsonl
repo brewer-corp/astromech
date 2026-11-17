@@ -1,1 +1,5 @@
 {"start": "2026-10-16T22:00:00Z"}
+{"game": "running"}
+{"mark": "aboard"}
+{"file": "Cargo.json", "json": {"timestamp": "2026-10-16T22:01:00Z", "event": "Cargo", "Vessel": "Ship", "Count": 0, "Inventory": []}}
+{"mark": "emptied"}
