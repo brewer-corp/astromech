@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-vbz3
 title: Engineers search cuts the step left to unlock an engineer at every window size
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - bug
