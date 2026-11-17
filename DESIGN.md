@@ -1183,7 +1183,9 @@ Where a group's line has no room, it truncates with an ellipsis rather than wrap
 that leaves no room, as in a side panel, the row is **compact**: the first two groups' first
 lines and the actions, one line, no heads. A list with no side panel keeps those two groups'
 second lines when compact, since nothing else would show them (Powerplay's Where to work
-column). *Why:* the Aligned Columns Rule drops the fact
+column). The room is the width the list is given, never the rows' own width, so the groups
+come back when the window widens; beside a side panel a row is never compact, since the panel
+goes below a list too narrow for its groups. *Why:* the Aligned Columns Rule drops the fact
 before it wraps the row; a 320 px panel cannot hold the groups, and its lookups become links
 into their finder later (decision astromech-g8d5, item 5).
 
