@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-unak
 title: Powerplay cycle time reads '0 h 0 min left' once the recorded cycle end has passed
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - bug
 - size-s
 priority: medium
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3A8886d38c-8090-446d-9a27-b64ec70a6289
 ready:
   by: the lead of astromech-xajc
   at: 2026-11-17T11:48:22.652698126Z
