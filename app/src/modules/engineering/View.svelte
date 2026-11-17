@@ -208,6 +208,7 @@
   <p class="type-label state">{fleetErr ?? "Reading the journal…"}</p>
 {:else if !ship}
   <p class="type-body state">No ships in the journal yet.</p>
+  <Stale error={fleetErr} />
 {:else}
   {@const p = progress(ship)}
   <div class="page">

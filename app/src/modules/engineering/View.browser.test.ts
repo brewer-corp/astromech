@@ -11,8 +11,12 @@ let headlines: Record<string, Headline> = {};
 let fleet: Fleet;
 let headlinesFail: string | null = null;
 let compared: Compared | null = null;
+let fleetFail: string | null = null;
 
-answer("engineering_fleet", () => fleet);
+answer("engineering_fleet", () => {
+  if (fleetFail) throw new Error(fleetFail);
+  return fleet;
+});
 answer("engineering_headlines", () => {
   if (headlinesFail) throw new Error(headlinesFail);
   return headlines;
@@ -35,6 +39,7 @@ beforeEach(() => {
   headlines = structuredClone(ships.headlines) as unknown as Record<string, Headline>;
   fleet = structuredClone(ships.fleet) as unknown as Fleet;
   headlinesFail = null;
+  fleetFail = null;
   compared = emptyStats();
 });
 afterEach(cleanup);
@@ -147,4 +152,13 @@ it("says a ship never flown while a journal was kept has unknown modules, and sh
   render(View);
   expect(await screen.findByText(/its modules are unknown/)).toBeTruthy();
   expect(screen.queryByRole("region", { name: "Core" })).toBeNull();
+});
+
+it("keeps an empty fleet and says when a later read of it fails", async () => {
+  fleet = { ...fleet, ships: [] };
+  render(View);
+  expect(await screen.findByText("No ships in the journal yet.")).toBeTruthy();
+  fleetFail = "journal folder not found: C:\\nowhere";
+  expect(await screen.findByText(/^Could not refresh: .*journal folder not found/, {}, { timeout: 2500 })).toBeTruthy();
+  expect(screen.getByText("No ships in the journal yet.")).toBeTruthy();
 });

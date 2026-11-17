@@ -232,6 +232,16 @@ describe("a module in the side panel", () => {
     expect(screen.getByRole("img", { name: "Grade 3 of 5, grade 4 planned" })).toBeTruthy();
   });
 
+  it("a plan for another blueprint keeps the row's fitted grade", async () => {
+    render(View);
+    await module("Power distributor");
+    const row = screen.getByRole("button", { name: /^Power distributor: / });
+    expect(within(row).getByRole("img", { name: "Grade 5 of 5" })).toBeTruthy();
+    await pick("Power distributor blueprint", "PowerDistributor_HighFrequency");
+    expect(within(row).getByRole("img", { name: "Grade 5 of 5, Charge enhanced grade 5 planned" })).toBeTruthy();
+    expect(row.textContent).toContain("Weapon focused");
+  });
+
   it("ADD TO PLAN opens the blueprint choice for a module not yet engineered", async () => {
     location.hash = "#/engineering/7";
     render(View);

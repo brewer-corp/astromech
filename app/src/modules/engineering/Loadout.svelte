@@ -46,11 +46,14 @@
   function grade(m: Fitted) {
     const t = sp.target(m.slot);
     const e = m.engineering;
-    // A different blueprint starts again at grade 1.
-    const now = e && (!t || t.blueprint === e.blueprint) ? e.grade : 0;
-    const of = maxGrade(fleet, m, t?.blueprint ?? e?.blueprint);
-    const label = `Grade ${now} of ${of}${t ? `, grade ${t.grade} planned` : ""}`;
-    return { now, to: t?.grade ?? 0, of, label, shown: !!e || !!t };
+    // The hexagons are the fitted blueprint's: a plan on the same blueprint lights the grades it
+    // reaches; a plan for another blueprint (which starts again at grade 1) is named beside them.
+    const same = !!t && (!e || t.blueprint === e.blueprint);
+    const now = e?.grade ?? 0;
+    const of = maxGrade(fleet, m, same ? t.blueprint : e?.blueprint);
+    const other = t && !same ? (fleet.groups[m.group ?? ""]?.blueprints.find((b) => b.id === t.blueprint)?.name ?? t.blueprint) : null;
+    const planned = t ? `, ${other ? `${other} ` : ""}grade ${t.grade} planned` : "";
+    return { now, to: same ? t.grade : 0, of, label: `Grade ${now} of ${of}${planned}`, shown: !!e || !!t, other, otherGrade: t?.grade };
   }
 </script>
 
@@ -69,7 +72,7 @@
                 <span class="type-name name">{name}</span>
                 <span class="hx">{#if gr.shown}<Hexes n={gr.now} to={gr.to} of={gr.of} tone="grade" label={gr.label} />{/if}</span>
                 <span class="bp">
-                  {#if m.engineering}{m.engineering.blueprint_name}{#if m.engineering.experimental_name}<span class="x">· {m.engineering.experimental_name}</span>{/if}{/if}
+                  {#if m.engineering}{m.engineering.blueprint_name}{#if m.engineering.experimental_name}<span class="x">· {m.engineering.experimental_name}</span>{/if}{/if}{#if gr.other}<span class="x planned">→ {gr.other} G{gr.otherGrade}</span>{/if}
                 </span>
               </button>
             {/each}
@@ -100,4 +103,6 @@
   .row.sel .cls, .row.sel .bp { color: var(--options-grey); }
   .bp { color: var(--prose); }
   .x { margin-left: var(--sp-1); }
+  /* A plan for another blueprint: Orange Mid, as a planned grade not reached (DESIGN.md's list). */
+  .planned { color: var(--orange-mid); }
 </style>

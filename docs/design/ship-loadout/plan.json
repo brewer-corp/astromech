@@ -119,6 +119,14 @@
    "query": "core=empty",
    "sizes": [
     "1100x700"
+   ],
+   "steps": [
+    {
+     "click": ".frame > header > button:last-of-type"
+    },
+    {
+     "waitText": "No ships in the journal yet."
+    }
    ]
   },
   {
