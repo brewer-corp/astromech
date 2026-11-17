@@ -159,7 +159,7 @@ describe("Now", () => {
     const sale = await block("Sell your cargo");
     expect(await sale.findByText(/Could not ask Ardent Insight/)).toBeTruthy();
     expect(sale.getByRole("button", { name: "Try again" })).toBeTruthy();
-    expect(await (await block("This session")).findByText("14.5")).toBeTruthy();
+    expect(await (await block("This session")).findByText("14.6")).toBeTruthy();
     // Whatever day the test runs: the block's figure depends on the cycle the clock is in.
     expect(await (await block("Powerplay")).findByText(/^Li Yong-Rui · rank 9/)).toBeTruthy();
   });
@@ -177,7 +177,7 @@ describe("Now", () => {
     render(View);
     expect(await screen.findByRole("heading", { name: "Elite isn't running" })).toBeTruthy();
     expect(await screen.findByText("Last docked at Test Orbital, Test System")).toBeTruthy();
-    expect(await (await block("Last session")).findByText("14.5")).toBeTruthy();
+    expect(await (await block("Last session")).findByText("14.6")).toBeTruthy();
     await idle();
     expect(screen.queryByRole("region", { name: "Sell your cargo" })).toBeNull();
     expect(screen.queryByRole("list", { name: "Services" })).toBeNull();
@@ -211,7 +211,7 @@ describe("Now", () => {
     startPreview("/?core=ready");
     location.hash = "#/session";
     render(App);
-    await screen.findByText("Earned");
+    await screen.findByText("Latest session");
     expect(within(screen.getByRole("banner")).getByRole("button", { name: "Now" }).classList.contains("on")).toBe(true);
     expect(location.hash).toBe("#/session");
     location.hash = "";

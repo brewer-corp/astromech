@@ -70,7 +70,7 @@
               <button class="row" class:sel={m.slot === selected} aria-pressed={m.slot === selected} aria-label="{m.slot_name}: {m.name}" onclick={() => onselect(m)}>
                 <span class="type-figures cls">{cls}</span>
                 <span class="type-name name">{name}</span>
-                <span class="hx">{#if gr.shown}<Hexes n={gr.now} to={gr.to} of={gr.of} tone="grade" label={gr.label} />{/if}</span>
+                <span class="hx">{#if gr.shown}<Hexes n={gr.now} plan={gr.to} of={gr.of} label={gr.label} />{/if}</span>
                 <span class="bp">
                   {#if m.engineering}{m.engineering.blueprint_name}{#if m.engineering.experimental_name}<span class="x">· {m.engineering.experimental_name}</span>{/if}{/if}{#if gr.other}<span class="x planned">→ {gr.other} G{gr.otherGrade}</span>{/if}
                 </span>

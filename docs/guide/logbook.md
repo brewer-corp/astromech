@@ -15,16 +15,20 @@ history is added to the first.
 
 ## Logbook
 
-Every system and station you have visited.
+Every system and station you have visited, and your travel day by day.
 
-- A line at the top: your commander (and "Legacy" if the journal is from the Legacy game) and
-  the totals: systems, stations, arrivals and dockings.
-- **Search** by system or station name. It searches as you type.
-- **Places**: each visited place with the number of visits, the first and the last time. Stations
-  show with their system. It lists the most recent first, and says "Showing the N most recent of M" when there
-  are more; search to narrow it down.
-- **Timeline**: arrivals ("Arrived in", or "Carrier jumped to", with the distance) and dockings, newest
-  first.
+- At the top: your commander (and "Legacy" if the journal is from the Legacy game) and the totals:
+  systems, stations, arrivals and dockings.
+- **Search** by system or station name. It searches as you type, and narrows both lists.
+- **Places**: each visited place, the most recent first, with its number of visits and the first and
+  last time. Stations show with their system. It says "Showing the N most recent of M" when there are
+  more; search to narrow it down.
+- **Days**: your arrivals and dockings, newest first, grouped by day (UTC), each day with its jumps
+  and dockings counted. Each row is the time, the system (or the station and its system), and the
+  jump's distance, or "carrier jump". The counts are of the rows listed: the logbook lists your 200
+  latest arrivals and dockings.
+
+On a wide window the places and the days sit side by side; on a narrow one the places come first.
 
 The arrival briefing uses this history for "Visited 2 times. Last here 3 days ago." and for your landings
 (see [Callouts](callouts.md#arrival-briefing)).

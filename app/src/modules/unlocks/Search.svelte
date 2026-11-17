@@ -76,7 +76,7 @@
 
 {#snippet reach(h: SearchHit)}
   {#if ship}
-    <Hexes n={h.today} to={h.best} tone="grade" label={h.today ? `Grade ${h.today} today, reaches ${h.best}` : `Reaches grade ${h.best}`} />
+    <Hexes n={h.today} offers={h.best} label={h.today ? `Grade ${h.today} today, reaches ${h.best}` : `Reaches grade ${h.best}`} />
     <span class="type-label gl">{gradeLine(h.grades, n)}</span>
   {:else}
     <span class="type-name mods">{@render modList(h)}</span>
@@ -110,7 +110,7 @@
       </div>
       {#if ship}
         <div class="bline">
-          <Hexes n={main.today} to={main.best} tone="grade" label={main.today ? `Grade ${main.today} today` : `Reaches grade ${main.best}`} />
+          <Hexes n={main.today} offers={main.best} label={main.today ? `Grade ${main.today} today` : `Reaches grade ${main.best}`} />
           <span class="type-label gl">{mainLine(main)}</span>
         </div>
       {:else}
