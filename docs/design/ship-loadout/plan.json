@@ -1,0 +1,162 @@
+{
+ "out": "docs/design/ship-loadout",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  {
+   "w": 1100,
+   "h": 700,
+   "step": 100
+  },
+  {
+   "w": 1920,
+   "h": 1080,
+   "step": 100
+  },
+  {
+   "w": 2560,
+   "h": 1440,
+   "step": 145
+  },
+  {
+   "w": 3840,
+   "h": 2160,
+   "step": 180
+  },
+  {
+   "w": 2400,
+   "h": 1350,
+   "step": 100
+  }
+ ],
+ "shots": [
+  {
+   "name": "krait-stats",
+   "hash": "engineering/1",
+   "steps": [
+    {
+     "waitText": "Top speed"
+    },
+    {
+     "gap": [
+      "main .head h2",
+      ".head .open"
+     ],
+     "label": "openGap"
+    }
+   ],
+   "sizes": [
+    "1100x700",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+   ]
+  },
+  {
+   "name": "krait-module",
+   "hash": "engineering/7",
+   "steps": [
+    {
+     "click": "button.row[aria-label^='Frame shift drive']"
+    },
+    {
+     "waitSel": "aside[aria-label=Details] [role=table]"
+    },
+    {
+     "gap": [
+      "main .head h2",
+      ".head .open"
+     ],
+     "label": "openGap"
+    }
+   ],
+   "sizes": [
+    "1100x700",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+   ]
+  },
+  {
+   "name": "krait-plan",
+   "hash": "engineering/7/plan",
+   "steps": [
+    {
+     "waitSel": "section[aria-label='Shopping list']"
+    }
+   ],
+   "sizes": [
+    "1100x700",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+   ]
+  },
+  {
+   "name": "anaconda",
+   "hash": "engineering/3",
+   "steps": [
+    {
+     "waitText": "Top speed"
+    }
+   ],
+   "sizes": [
+    "1100x700",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+   ]
+  },
+  {
+   "name": "unknown-loadout",
+   "hash": "engineering/12",
+   "sizes": [
+    "1100x700"
+   ]
+  },
+  {
+   "name": "no-fleet",
+   "hash": "engineering",
+   "query": "core=empty",
+   "sizes": [
+    "1100x700"
+   ],
+   "steps": [
+    {
+     "click": ".frame > header > button:last-of-type"
+    },
+    {
+     "waitSel": "div.frame > header > nav > button"
+    },
+    {
+     "click": "div.frame > header > nav > button:first-child"
+    },
+    {
+     "waitText": "No ships in the journal yet."
+    }
+   ]
+  },
+  {
+   "name": "krait-module-wide-no-route",
+   "hash": "engineering/1",
+   "query": "core=ready",
+   "sizes": [
+    "2400x1350"
+   ],
+   "steps": [
+    {
+     "click": "button.row[aria-label^='Medium hardpoint 1']"
+    },
+    {
+     "waitSel": "aside[aria-label=Details]"
+    },
+    {
+     "gap": [
+      "main .head h2",
+      ".head .open"
+     ],
+     "label": "openGap"
+    }
+   ]
+  }
+ ]
+}

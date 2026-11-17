@@ -24,6 +24,8 @@ export const PAGE_SIZING = [
   ["src/modules/places/Home.svelte", "font-size"],
   ["src/modules/settings/{Callouts,ProspectorThresholds}.svelte", "font-size"],
   ["src/modules/{session,mining}/View.svelte", "font-size"],
+  // astromech-8wr4: Ships > Ships as a loadout.
+  ["src/modules/engineering/{View,Build,Stats,Loadout,ModulePanel}.svelte", "width", "font-size"],
   // astromech-nnn0: Ships > Suits as a loadout, on List with detail.
   ["src/modules/suits/**", "width", "font-size"],
   // astromech-irrv: the Import a route dialog, a page part opened from the frame.
@@ -74,7 +76,6 @@ export const TOKENS_EXEMPT = [
   },
   // Pending: the page is rebuilt on a layout by the item named, which takes it off this list.
   { files: ["src/modules/colonisation/**"], off: ["spacing"], until: "astromech-m07p", why: "Rebuilds Colonisation." },
-  { files: ["src/modules/engineering/**"], off: ["spacing"], until: "astromech-8wr4", why: "Rebuilds Ships as a loadout." },
   { files: ["src/modules/unlocks/**"], off: ["spacing"], until: "astromech-m6gw", why: "Rebuilds Engineers." },
   { files: ["src/modules/exobiology/**"], off: ["spacing"], until: "astromech-evj3", why: "Rebuilds Biology." },
   { files: ["src/modules/exploration/**"], off: ["spacing"], until: "astromech-dpaz", why: "Rebuilds System." },

@@ -17,22 +17,23 @@ the page says "Could not read the fleet" and gives the reason. It never shows ma
 
 ## The fleet
 
-The page opens on the ship you are flying (or the first ship in the journal). Choose what to
-show at the top:
+The page opens on the ship you are flying (or the first ship in the journal). Its head gives the
+ship's name, then its type, ID, how many of its engineerable modules are engineered, where it is
+(**flying now**, stored at a system with a copy button and its Spansh and Inara links, with the
+station's link when it is known, or in transit to a system), its **value** and its **rebuy**.
+Four figures follow: **Jump range** (one jump's fuel, no cargo), **Shields**, **Top speed** and
+**Power used** of what the power plant gives. Hover a figure for what it counts, or for why it
+shows "–". "Incomplete", with a tooltip, lists items that are not in astromech's ship data and
+were left out.
 
-- **Info** — name and ID, type, where it is (**Flying now**, stored at a system with a copy
-  button, "In transit to" a system, or "Stored"), **Value** and **Rebuy**, and **Engineered**
-  (how many of the ship's engineerable modules have a blueprint). The rest of the pane is ship
-  specs: **Speed** (top | boost), **Approximate pitch / roll / yaw**, **Jump** min / current / max (laden,
-  unladen, and one-jump fuel), and **Power** (retracted, deployed, and the plant's total), then
-  shields, weapons and hull, distributor and mass. Speed, jump, power, shields and the rest
-  come from the same Coriolis-based calculations as [Ship stats](#ship-stats). Pitch / roll / yaw
-  are a stand-in by hull until those calculations include handling. "Incomplete" with a tooltip
-  lists items that are not in astromech's ship data and were left out.
-- **Engineering** — the build planner for that ship.
+Choose what to show under the head:
 
-A rail at the bottom of the page lists every ship you own, with a cartoon of the hull. Click
-one to switch. Ship drawings are CMDR Qohen Leth's cartoon vectors, credited in NOTICE.md.
+- **Loadout**: the ship's modules, as in the game's outfitting.
+- **Plan**: what the ship's build plan costs (see [Build planner](#build-planner)).
+
+A strip at the bottom lists every ship you own, the one you are flying first, with a cartoon of the
+hull, its type and where it is ("Here" for the ship you are flying). Click one to switch. Ship
+drawings are CMDR Qohen Leth's cartoon vectors, credited in NOTICE.md.
 
 ## Stored modules
 
@@ -80,22 +81,40 @@ offered again.
 
 ## A ship's page
 
-Modules are as of the last time the game saved a loadout for it ("modules as of ...").
-The page can open the loadout in **Coriolis** or **EDSY** in your browser. If you engineered a module
-since the game last saved the loadout, the link would show the old build, so astromech says to
-re-dock or relog to refresh it.
+Modules are as of the last time the game saved a loadout for it (hover "modules engineered" for
+the date). A ship never flown since your oldest journal file has no modules to show, and the page
+says its modules are unknown. The head can open the loadout in **Coriolis** or **EDSY** in your
+browser. If you engineered a module since the game last saved the loadout, the link would show the
+old build, so astromech says to re-dock or relog to refresh it.
+
+### Loadout
+
+The **Loadout** lists every fitted module under **Hardpoints**, **Utility**, **Core** and
+**Optional**, as the game's outfitting does (military slots are with Optional). Fixed and cosmetic
+slots, such as the planetary approach suite, are left out. Each row gives the module's class and
+rating ("5A"), its name, its grade as engineer hexagons, and its blueprint and experimental. A grade
+your plan reaches is lit to it in a darker orange.
+
+Click a module to see it in the side panel:
+
+- what it has now, and the plan's target for it if there is one: the planned grade, the rolls
+  still to do at each grade, each material it needs against what you hold (a "!" marks one the
+  plan is short of), and the engineers who apply its top grade;
+- the plan's **blueprint**, **grade** and **experimental** for it. "No change" takes the module out
+  of the plan. A different blueprint starts again at grade 1, and a grade must be finished before
+  the next one opens;
+- **Add to plan**: plans one grade up on its blueprint (or on the blueprint already planned). For
+  a module not engineered yet, it opens the blueprint choice;
+- **Engineers**: opens [Engineers](engineering.md#engineers) searched for that kind of module.
 
 ### Build planner
 
-Modules that can be engineered are grouped by type (hardpoints, utility, core internals, military,
-optional internals) as a grid of cards. For each:
+The **Plan** view shows what the plan made on the Loadout costs:
 
-- Choose a **blueprint**, a **grade** and an **experimental**. "No change" leaves the module alone.
-- A different blueprint starts again at grade 1. A grade must be finished before the next one
-  opens.
-- Each roll costs one full grade recipe, and how many rolls a grade takes depends on engineer
-  rank and luck. The planner uses an estimate of 1, 2, 3, 4 and 5 rolls for grades 1 to 5. Change
-  them in the side panel if your experience differs; **Reset to 1-5** returns to the default.
+- **Now and with the plan**: the [ship stats](#ship-stats) now, with the plan done, and the change.
+- **Rolls per grade.** Each roll costs one full grade recipe, and how many rolls a grade takes
+  depends on engineer rank and luck. The planner uses an estimate of 1, 2, 3, 4 and 5 rolls for
+  grades 1 to 5. Change them if your experience differs; **Reset to 1-5** returns to the default.
 
 Your plan for each ship is saved on this PC by the app window and comes back next time.
 
@@ -104,7 +123,7 @@ From the plan it works out:
 - **Shopping list.** Each material, with what you **need**, **have**, are **short**, and a
   trade that would cover it (**Trade**). A warning mark means the plan needs more than you can
   store at once: do it in batches. Click a material for where it comes from and a
-  **nearby search** for it.
+  **nearby search** for it in the side panel; click it again to close the panel.
 - **Trade at a material trader.** Swaps from your surplus. Trader rates: 6 for 1 up a grade, 1 for
   3 down a grade, and across categories 6 times worse. Trades only spend what the plan does not need.
 - **Still to collect.** What to farm, with the amount, where from, and what to trade it into.
@@ -115,14 +134,13 @@ From the plan it works out:
   straight-line estimate. Experimentals are always in person. Grades can also be rolled remotely
   with a blueprint pinned at a rank 5 engineer, but the game does not log pins, so these only get
   a note.
-- **Ship stats.** Now, with the plan, and the change.
 
 What the plan still has to collect also feeds the [arrival briefing](callouts.md#arrival-briefing):
 if a system's faction state gives a material you are short of, astromech says so on arrival.
 
 ## Ship stats
 
-The side panel compares the ship **now** with the ship **when the plan is done**:
+The Plan view compares the ship **now** with the ship **when the plan is done**:
 
 | Group | Rows |
 |---|---|
@@ -130,7 +148,8 @@ The side panel compares the ship **now** with the ship **when the plan is done**
 | Shields | Strength (MJ), explosive, kinetic, thermal |
 | Distributor | WEP capacity and recharge, weapon draw, time to drain, SYS and ENG recharge |
 | Weapons and hull | DPS (burst, while firing; sustained DPS is not shown), armour, explosive, kinetic and thermal resistance |
-| Ship | Speed, boost, mass, power use with hardpoints deployed, power plant output |
+| Ship | Speed, boost, mass unladen and laden, hull mass, cargo and fuel capacity, power use with hardpoints retracted and deployed, power plant output |
+| Handling (°/s) | Pitch, roll and yaw: a stand-in by hull at four pips to engines until the calculations include handling, the same now and with the plan |
 
 The numbers are a port of **Coriolis**'s calculations with the same base stats. They are
 tested against Coriolis's own code on reference builds, and the figures shown match to the last digit Coriolis shows (Coriolis

@@ -10,7 +10,10 @@
  * { "click": css } (the first match), { "waitSel": css }, { "waitText": text },
  * { "clickText": text } (the first button or link whose own text is that, ignoring case: a
  * control with no selector of its own, such as Skip setup or a top tab), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
- * { "rows": css } (count the whole rows of that selector in view; with scrollTop, once more after it).
+ * { "rows": css } (count the whole rows of that selector in view; with scrollTop, once more after it),
+ * { "gap": [from, to], "label"? } (once the page is quiet: the layout px from the right edge of the
+ * first match of `from` to the left edge of the first match of `to`, for an action that is not at a
+ * row's end, which `far` does not measure).
  * Each capture loads fresh in its own browser context, so no state (a collapsed sidebar, a row
  * gone compact) carries over. Writes <out>/<name>-<w>x<h>.png and <out>/report.json.
  *
@@ -337,6 +340,21 @@ async function rowsInView(page, sel) {
   }, sel);
 }
 
+/** Layout px from the right edge of `from` to the left edge of `to` (negative: `to` starts first). */
+async function gapBetween(page, [from, to]) {
+  return page.evaluate(
+    (a, b) => {
+      const step = parseFloat(getComputedStyle(document.documentElement).fontSize) / 16;
+      const ra = document.querySelector(a)?.getBoundingClientRect();
+      const rb = document.querySelector(b)?.getBoundingClientRect();
+      if (!ra || !rb) return null;
+      return Math.round(((rb.left - ra.right) / step) * 10) / 10;
+    },
+    from,
+    to,
+  );
+}
+
 async function capture(browser, base, plan, shot, size, outDir) {
   const ctx = await browser.createBrowserContext();
   const page = await ctx.newPage();
@@ -379,6 +397,7 @@ async function capture(browser, base, plan, shot, size, outDir) {
         requestAnimationFrame(tick);
       }),
   );
+  for (const s of shot.steps ?? []) if (s.gap) extra[s.label ?? "gap"] = await gapBetween(page, s.gap);
   await page.mouse.move(0, size.h - 1);
   const name = `${shot.name}-${size.w}x${size.h}`;
   const file = join(outDir, `${name}.png`);
