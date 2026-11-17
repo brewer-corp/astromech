@@ -164,3 +164,7 @@ Notes for review:
   the pad from the engineering fleet's current ship (`filters::current_pad`). Both read the same
   Loadout, but they are two derivations.
 
+### Responses
+
+1-79uh.1: fixed in 052c792f: a compact row in a list with no side panel folds its own group and the trip into a third line under the place; a browser test on the recorded Colonisation list at 1100 x 700 and 145 percent checks the stock, trip and age.
+1-79uh.2: fixed in 052c792f: station lists keep the type icon's slot, so names and systems start at the same x on every row (217/217 on Sell anywhere at 1100 x 700).
