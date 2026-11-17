@@ -82,7 +82,11 @@ cargo and the figures onto one row of prose fragments.
   that each search already makes (`followShip`), falls back to the filters it asked with, and keeps
   it with the answer (`need`). A later edit or ship swap then doesn't re-mark an old answer. My
   first version used the pad the page loaded with, which was wrong after a ship swap. A ninth test,
-  written failing first, covers that ("measures a stop's pad against the ship flown at the search"). SearchKit and Now's `Sale.svelte`
+  written failing first, covers that ("measures a stop's pad against the ship flown at the search").
+  After round 1, a pad the commander set is measured as it was sent with the search, and only the
+  ship's own pad comes from the reload. A filter edit can be searched before its save lands, so the
+  reload can name the old pad. A tenth test, also failing first, holds the save while the search
+  completes. SearchKit and Now's `Sale.svelte`
   still have their own copies of the badge. Moving them would touch SearchKit's busy-state greying,
   so I left them for a follow-up item (to file from a backlog branch: "Pad letter: SearchKit and
   Now's Sale use PadLetter.svelte").
@@ -96,10 +100,10 @@ cargo and the figures onto one row of prose fragments.
   inputs under it sit 2 px higher. The `.tools` gap is on the scale now (`--sp-3 --sp-4`, from 10
   and 18 px).
 
-**Tests.** The eight cases in `Route.browser.test.ts` keep their behaviour, and there is the ninth above. Only the strings they
+**Tests.** The eight cases in `Route.browser.test.ts` keep their behaviour, and there are the ninth and tenth above. Only the strings they
 read changed to the new markup, and the pad is asserted through its accessible name. The loop
 case also checks that the first station is drawn twice. The age is matched as `/^Spansh, .* ago$/`,
-so the test doesn't depend on the wall clock. `pnpm check`, `pnpm lint` and `pnpm test` (898 tests)
+so the test doesn't depend on the wall clock. `pnpm check`, `pnpm lint` and `pnpm test` (899 tests after round 1)
 pass, and so does `python3 scripts/check-guide.py`. The 7 journeys pass with
 `ASTROMECH_CORE=/home/supadava/projects/astromech/target/debug/astromech-core`, the main
 checkout's debug core, as Station did. This worktree has no core build, and there is no core change
@@ -132,3 +136,6 @@ commander in the recordings, and no colour is outside DESIGN.md's list.
 `trade.json`, so I did not invent fixtures for them. The tests cover them (the warning and the
 struck pad by its accessible name, and "Fly back empty"), and the captures do not show them.
 
+### Responses
+
+1-sh7u.1: fixed in 28201cda
