@@ -1,0 +1,37 @@
+{
+ "out": "docs/design/final/glance",
+ "query": "core=ready&route=exact",
+ "clock": "2026-10-20T11:23:00Z",
+ "sizes": [
+  {
+   "w": 2560,
+   "h": 1440,
+   "step": 145
+  }
+ ],
+ "shots": [
+  {
+   "name": "now-space",
+   "hash": "now",
+   "query": "core=ready&route=exact&game=running&docked=no",
+   "steps": [
+    {
+     "waitText": "takes"
+    }
+   ]
+  },
+  {
+   "name": "now-not-running",
+   "hash": "now",
+   "steps": [
+    {
+     "waitText": "Last "
+    }
+   ]
+  },
+  {
+   "name": "engineers-laser",
+   "hash": "unlocks?q=laser"
+  }
+ ]
+}
