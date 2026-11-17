@@ -2,7 +2,8 @@
 //! designed and checked at, and the size a new window opens at. A display whose work area
 //! leaves less room than either gets the window at the room it has instead, and the page
 //! scrolls; tao sets the minimum as asked, so a minimum larger than the display would hold the
-//! window partly off screen (astromech-7o1g).
+//! window partly off screen (astromech-7o1g). The minimum is worked out again when the window
+//! moves to another display or its scale changes ([`Minimum`]).
 
 /// DESIGN.md's minimum window (Frame).
 pub const MINIMUM: (f64, f64) = (1100.0, 700.0);
@@ -22,6 +23,26 @@ pub struct Fit {
     pub start: (f64, f64),
 }
 
+/// The minimum the window has now, which follows the room of the display it is on: moved to a
+/// display with the room, it is DESIGN.md's again; moved to one without, it relaxes to that
+/// display's room. Starts at [`MINIMUM`], the window's minimum as built.
+#[derive(Debug)]
+pub struct Minimum(pub (f64, f64));
+
+impl Minimum {
+    /// The new minimum for a window on a display with `room`, or `None` when it is the same.
+    /// Setting a minimum re-checks the window's size, so the host sets it only on a change, not
+    /// on every move while the window is dragged.
+    pub fn refit(&mut self, room: (f64, f64)) -> Option<(f64, f64)> {
+        let min = fit(room).min;
+        if min == self.0 {
+            return None;
+        }
+        self.0 = min;
+        Some(min)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -35,5 +56,17 @@ mod tests {
     #[test]
     fn a_short_display_gets_the_window_at_its_room() {
         assert_eq!(fit((1350.0, 697.0)), Fit { min: (1100.0, 697.0), start: (1200.0, 697.0) });
+    }
+
+    /// Moved from a short display to one with the room the window gets DESIGN.md's minimum back,
+    /// and moved back it relaxes again; moves within a display change nothing.
+    #[test]
+    fn the_minimum_follows_the_display_the_window_is_on() {
+        let mut m = Minimum(MINIMUM);
+        assert_eq!(m.refit((1350.0, 697.0)), Some((1100.0, 697.0)));
+        assert_eq!(m.refit((1350.0, 697.0)), None);
+        assert_eq!(m.refit((1920.0, 1009.0)), Some(MINIMUM));
+        assert_eq!(m.refit((2560.0, 1369.0)), None);
+        assert_eq!(m.refit((1280.0, 657.0)), Some((1100.0, 657.0)));
     }
 }
