@@ -27,7 +27,7 @@ export const PAGE_SIZING = [
   // astromech-irrv: the Import a route dialog, a page part opened from the frame.
   ["src/modules/route/ImportDialog.svelte", "width", "font-size"],
   // astromech-m6gw: Engineers as the unlock tree, on List with detail.
-  ["src/modules/unlocks/{View,Search}.svelte", "width", "font-size"],
+  ["src/modules/unlocks/{View,Search,Tree,Trees,Panel}.svelte", "width", "font-size"],
 ];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts

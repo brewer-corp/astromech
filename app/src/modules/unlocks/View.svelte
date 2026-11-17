@@ -9,7 +9,7 @@
   // On foot link, #/unlocks?kind=suit, opens this page too.
   import { failure } from "../../lib/ui/errors";
   import { loadEngineers } from "../../lib/engineering";
-  import { lightYears, loadUnlocks, searchEngineers, treeSummary, type EngineerSearch, type UnlockTree } from "../../lib/unlocks";
+  import { engineerKey, lightYears, loadUnlocks, searchEngineers, treeSummary, type EngineerSearch, type UnlockTree } from "../../lib/unlocks";
   import Failure from "../../lib/ui/Failure.svelte";
   import { hashParam, pageHash } from "../../lib/hashstate";
   import { loadOdyssey, type EngineerLine } from "../../lib/odyssey";
@@ -46,12 +46,12 @@
       .then((v) => (ships = v))
       .catch(() => {});
   });
-  /** The suit engineers' Odyssey lines (coordinates, referral task), by name. A failed read
+  /** The suit engineers' Odyssey lines (coordinates, referral task), by `engineerKey`. A failed read
    * leaves the panel without the referral task and the suit engineers without distances. */
   let suit = $state<Map<string, EngineerLine> | null>(null);
   $effect(() => {
     loadOdyssey()
-      .then((v) => (suit = new Map(v.engineers.map((e) => [e.name, e]))))
+      .then((v) => (suit = new Map(v.engineers.map((e) => [engineerKey(e.name), e]))))
       .catch(() => {});
   });
 
@@ -59,8 +59,8 @@
   const chosen = $derived(tree?.nodes.find((n) => n.name === selected) ?? null);
   const shipNodes = $derived(tree?.nodes.filter((n) => n.kind === "ship") ?? []);
   const suitNodes = $derived(tree?.nodes.filter((n) => n.kind === "suit") ?? []);
-  const shipInfo = $derived(chosen?.kind === "ship" ? ships?.engineers.find((e) => e.name === chosen.name) : undefined);
-  const suitLine = $derived(chosen?.kind === "suit" ? suit?.get(chosen.name) : undefined);
+  const shipInfo = $derived(chosen?.kind === "ship" ? ships?.engineers.find((e) => engineerKey(e.name) === engineerKey(chosen.name)) : undefined);
+  const suitLine = $derived(chosen?.kind === "suit" ? suit?.get(engineerKey(chosen.name)) : undefined);
   const distance = $derived.by(() => {
     const here = ships?.here?.pos;
     const at = shipInfo?.coords ?? suitLine?.coords;

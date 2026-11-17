@@ -1319,6 +1319,7 @@ not have yet: the item named adds them, and the rows it replaces stay until then
 | Prose width | `--measure` | 68ch |
 | Form layout width | `--form-w` | 900 px |
 | Side panel (List with detail) | `--panel` | 320 px |
+| A page's own search box (Engineers), an engineer tree's node (astromech-m6gw) | `.field.page-search`, `--node` | 440, 200 px |
 | Control row, result row | `--row`, `--row-result` | 34, 60 px |
 | Route sidebar, no-route rail (new, astromech-uc7i) | `--sidebar`, `--rail` | 320, 48 px |
 | Route strip, status bar, material tile | `--strip`, `--status-bar`, `--tile` | 36, 32, 76 px |

@@ -73,6 +73,12 @@ export function treeSummary(t: UnlockTree): string {
   return `${unlocked(ship)} of ${ship.length} ship and ${unlocked(suit)} of ${suit.length} suit engineers unlocked · ${work} to work on`;
 }
 
+/** An engineer's name as the core matches it across catalogs (astromech_engineering::engineers::key):
+ * lowercase letters and digits, so 'Tod "The Blaster" McQuinn' finds "Tod 'The Blaster' McQuinn". */
+export function engineerKey(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
 /** Straight-line light years between two positions. */
 export function lightYears(a: [number, number, number], b: [number, number, number]): number {
   return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);

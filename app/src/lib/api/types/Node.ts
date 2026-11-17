@@ -16,8 +16,8 @@ introduced_by: Array<string>, status: EngineerStatus, rank: number | null,
  */
 left: string | null, 
 /**
- * Every step from here to the workshop, in order, starting with what `left` says; empty
- * once unlocked.
+ * Every step from here to the workshop, in order: introducers to unlock first, then the
+ * introductions or referrals, the invitation and the workshop unlock; empty once unlocked.
  */
 steps: Array<string>, 
 /**

@@ -85,6 +85,9 @@ it("describes the selected engineer: steps to unlock, what they work on and the 
   await fireEvent.click(node("Elvira Martuuk"));
   expect(within(panel()).getByRole("img", { name: "Grade 2 today, reaches 5" })).toBeTruthy();
   expect(panel().querySelector("ol")).toBeNull();
+  // Tod's name is spelt differently in the engineer locations: he still gets his distance.
+  await fireEvent.click(node('Tod "The Blaster" McQuinn'));
+  expect(panel().textContent).toMatch(/\d ly/);
 });
 
 it("answers a module search with the best grade today, and clearing it brings the tree back", async () => {

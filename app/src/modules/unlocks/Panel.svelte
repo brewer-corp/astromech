@@ -114,6 +114,8 @@
 <style>
   h2 { margin: 0 0 var(--sp-2); }
   .where { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); margin: 0; }
+  /* The system name centred on its copy button, in line with the facts after it. */
+  .where :global(.chip) { align-items: center; }
   .pmain { margin: var(--sp-4) 0 0; }
   .status { display: flex; align-items: center; gap: var(--sp-2); margin: var(--sp-4) 0 0; color: var(--prose); }
   .status.barred { color: var(--red-low); }

@@ -95,8 +95,8 @@ pub struct Node {
     pub rank: Option<u8>,
     /// What can be done next toward unlocking this engineer; `None` once unlocked.
     pub left: Option<String>,
-    /// Every step from here to the workshop, in order, starting with what `left` says; empty
-    /// once unlocked.
+    /// Every step from here to the workshop, in order: introducers to unlock first, then the
+    /// introductions or referrals, the invitation and the workshop unlock; empty once unlocked.
     pub steps: Vec<String>,
     /// Can be worked on now (known, invited, or every introducer unlocked).
     pub next: bool,
