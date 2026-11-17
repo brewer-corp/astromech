@@ -3,6 +3,7 @@
     {
       "from": 1,
       "gear": "maverick",
+      "item": 1700000000001,
       "kind": "upgrade",
       "to": 3
     },
@@ -14,6 +15,7 @@
     {
       "from": 1,
       "gear": "karmap15",
+      "item": 1710000000004,
       "kind": "upgrade",
       "to": 2
     }
@@ -78,6 +80,7 @@
         "pick": {
           "from": 1,
           "gear": "maverick",
+          "item": 1700000000001,
           "kind": "upgrade",
           "to": 3
         },
@@ -212,6 +215,7 @@
         "pick": {
           "from": 1,
           "gear": "karmap15",
+          "item": 1710000000004,
           "kind": "upgrade",
           "to": 2
         },
@@ -3155,6 +3159,152 @@
         "value": 25000
       }
     ],
+    "loadouts": [
+      {
+        "id": 4293000001,
+        "name": "Explore",
+        "slots": [
+          {
+            "item": {
+              "gear": "karmaar50",
+              "grade": 2,
+              "id": 1710000000001,
+              "kind": "weapon",
+              "maker": "kinematic",
+              "mods": [
+                "magazinesize",
+                "stability"
+              ],
+              "name": "Karma AR-50"
+            },
+            "slot": "PrimaryWeapon1"
+          },
+          {
+            "item": {
+              "gear": "tkaphelion",
+              "grade": 3,
+              "id": 1710000000002,
+              "kind": "weapon",
+              "maker": "takada",
+              "mods": [
+                "greaterrange",
+                "improvedhipfireaccuracy",
+                "stability"
+              ],
+              "name": "TK Aphelion"
+            },
+            "slot": "PrimaryWeapon2"
+          },
+          {
+            "item": {
+              "gear": "karmap15",
+              "grade": 1,
+              "id": 1710000000004,
+              "kind": "weapon",
+              "maker": "kinematic",
+              "mods": [
+                "stability"
+              ],
+              "name": "Karma P-15"
+            },
+            "slot": "SecondaryWeapon"
+          }
+        ],
+        "suit": {
+          "gear": "maverick",
+          "grade": 1,
+          "id": 1700000000001,
+          "kind": "suit",
+          "maker": null,
+          "mods": [
+            "increasedairreserves",
+            "nightvision"
+          ],
+          "name": "Maverick Suit"
+        },
+        "worn": true
+      },
+      {
+        "id": 4293000002,
+        "name": "Raid",
+        "slots": [
+          {
+            "item": {
+              "gear": "tkaphelion",
+              "grade": 3,
+              "id": 1710000000002,
+              "kind": "weapon",
+              "maker": "takada",
+              "mods": [
+                "greaterrange",
+                "improvedhipfireaccuracy",
+                "stability"
+              ],
+              "name": "TK Aphelion"
+            },
+            "slot": "PrimaryWeapon1"
+          }
+        ],
+        "suit": {
+          "gear": "maverick",
+          "grade": 1,
+          "id": 1700000000001,
+          "kind": "suit",
+          "maker": null,
+          "mods": [
+            "increasedairreserves",
+            "nightvision"
+          ],
+          "name": "Maverick Suit"
+        },
+        "worn": false
+      },
+      {
+        "id": 4293000003,
+        "name": "Fight",
+        "slots": [],
+        "suit": {
+          "gear": "dominator",
+          "grade": 2,
+          "id": 1700000000002,
+          "kind": "suit",
+          "maker": null,
+          "mods": [],
+          "name": "Dominator Suit"
+        },
+        "worn": false
+      },
+      {
+        "id": 4293000004,
+        "name": "Spare",
+        "slots": [
+          {
+            "item": {
+              "gear": "karmap15",
+              "grade": 1,
+              "id": 1710000000004,
+              "kind": "weapon",
+              "maker": "kinematic",
+              "mods": [
+                "stability"
+              ],
+              "name": "Karma P-15"
+            },
+            "slot": "SecondaryWeapon"
+          }
+        ],
+        "suit": {
+          "gear": "maverick",
+          "grade": 1,
+          "id": 1700000000005,
+          "kind": "suit",
+          "maker": null,
+          "mods": [],
+          "name": "Maverick Suit"
+        },
+        "worn": false
+      }
+    ],
     "locker_ts": "2026-10-14T12:05:00Z",
     "mods": [
       {
@@ -3378,6 +3528,7 @@
       {
         "gear": "maverick",
         "grade": 1,
+        "id": 1700000000001,
         "kind": "suit",
         "maker": null,
         "mods": [
@@ -3388,7 +3539,17 @@
       },
       {
         "gear": "maverick",
+        "grade": 1,
+        "id": 1700000000005,
+        "kind": "suit",
+        "maker": null,
+        "mods": [],
+        "name": "Maverick Suit"
+      },
+      {
+        "gear": "maverick",
         "grade": 3,
+        "id": 1700000000004,
         "kind": "suit",
         "maker": null,
         "mods": [
@@ -3401,6 +3562,7 @@
       {
         "gear": "dominator",
         "grade": 2,
+        "id": 1700000000002,
         "kind": "suit",
         "maker": null,
         "mods": [],
@@ -3409,6 +3571,7 @@
       {
         "gear": "karmaar50",
         "grade": 2,
+        "id": 1710000000001,
         "kind": "weapon",
         "maker": "kinematic",
         "mods": [
@@ -3418,8 +3581,20 @@
         "name": "Karma AR-50"
       },
       {
+        "gear": "karmap15",
+        "grade": 1,
+        "id": 1710000000004,
+        "kind": "weapon",
+        "maker": "kinematic",
+        "mods": [
+          "stability"
+        ],
+        "name": "Karma P-15"
+      },
+      {
         "gear": "tkaphelion",
         "grade": 3,
+        "id": 1710000000002,
         "kind": "weapon",
         "maker": "takada",
         "mods": [

@@ -427,7 +427,7 @@ export function shellCommands(publish: (topic: string, payload: unknown) => void
     },
     odyssey_view: () =>
       previewData("odyssey_view", () => odysseySample.view, () => ({
-        ...odysseySample.view, source: "No journal yet", locker_ts: null, backpack_ts: null, items: [], owned: [],
+        ...odysseySample.view, source: "No journal yet", locker_ts: null, backpack_ts: null, items: [], owned: [], loadouts: [],
       })),
     // Only the sample picks have a shopping list.
     odyssey_shopping: ({ picks }) => forPlan("odyssey_shopping", samePicks(picks, odysseySample.picks) ? odysseySample.shopping : undefined, NO_SHOPPING, NO_SHOPPING),

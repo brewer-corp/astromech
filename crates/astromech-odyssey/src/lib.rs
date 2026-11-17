@@ -18,7 +18,7 @@ pub mod shopping;
 pub use catalog::catalog;
 pub use engineers::{EngineerLine, Progress};
 pub use inventory::{Holdings, ItemLine};
-pub use owned::{Log, Owned, OwnedGear};
+pub use owned::{LoadoutSlot, Log, Owned, OwnedGear, SuitLoadout};
 pub use shopping::{shopping, Pick, Shopping};
 
 use serde::Serialize;
@@ -59,6 +59,8 @@ pub struct OdysseyView {
     pub gear: Vec<GearRef>,
     /// The suits and weapons the commander owns, with grade and fitted mods (from the journal).
     pub owned: Vec<OwnedGear>,
+    /// The suit loadouts, in `LoadoutID` order, with the one worn (from the journal).
+    pub loadouts: Vec<SuitLoadout>,
     pub mods: Vec<ModRef>,
     /// Where the game data is from, when it was fetched, and what it is unsure of.
     pub data_source: String,
@@ -148,6 +150,7 @@ pub fn view(h: &Holdings, state: &JournalState, source: &str) -> OdysseyView {
         engineers: engineers::lines(progress),
         gear,
         owned,
+        loadouts: state.owned.loadouts(),
         mods,
         data_source: c.source.clone(),
         data_date: c.generated.clone(),
@@ -199,7 +202,7 @@ mod tests {
         let (h, p) = sample();
         // Maverick grade 1 → 2 needs 1 Suit Schematic, 1 Health Monitor, 1 Manufacturing
         // Instructions, 2 Carbon Fibre Plating, 2 Graphene and 600,000 CR.
-        let pick = Pick::Upgrade { gear: "maverick".into(), from: 1, to: 2 };
+        let pick = Pick::Upgrade { gear: "maverick".into(), from: 1, to: 2, item: None };
         let s = shopping(std::slice::from_ref(&pick), &h, &p.progress);
         let r = &s.picks[0];
         assert_eq!(r.title, "Maverick Suit grade 1 → 2");
@@ -210,7 +213,7 @@ mod tests {
         assert_eq!(short, [("carbonfibreplating", 2)]);
         assert!(!r.ready);
         // Grade 1 → 5 adds up every step.
-        let all = shopping(&[Pick::Upgrade { gear: "maverick".into(), from: 1, to: 5 }], &h, &p.progress);
+        let all = shopping(&[Pick::Upgrade { gear: "maverick".into(), from: 1, to: 5, item: None }], &h, &p.progress);
         let graphene = all.picks[0].lines.iter().find(|l| l.id == "graphene").unwrap();
         let steps: i64 = catalog().gear("maverick").unwrap().upgrades.iter().map(|u| u.materials["graphene"]).sum();
         assert_eq!((graphene.need, graphene.have), (steps, 9));
@@ -220,9 +223,9 @@ mod tests {
     fn modifications_and_the_shopping_list() {
         let (h, p) = sample();
         let picks = [
-            Pick::Mod { id: "nightvision".into(), maker: None },
-            Pick::Mod { id: "headshotdamage".into(), maker: Some("takada".into()) },
-            Pick::Upgrade { gear: "karmap15".into(), from: 2, to: 3 },
+            Pick::Mod { id: "nightvision".into(), maker: None, item: None },
+            Pick::Mod { id: "headshotdamage".into(), maker: Some("takada".into()), item: None },
+            Pick::Upgrade { gear: "karmap15".into(), from: 2, to: 3, item: None },
         ];
         let s = shopping(&picks, &h, &p.progress);
         assert_eq!(s.picks[1].title, "Headshot Damage (Takada weapons)");
@@ -244,14 +247,14 @@ mod tests {
     #[test]
     fn a_bad_pick_is_reported_on_its_own_and_the_rest_still_count() {
         let (h, p) = sample();
-        let good = Pick::Upgrade { gear: "maverick".into(), from: 1, to: 2 };
+        let good = Pick::Upgrade { gear: "maverick".into(), from: 1, to: 2, item: None };
         let alone = shopping(std::slice::from_ref(&good), &h, &p.progress);
         let picks = [
-            Pick::Mod { id: "headshotdamage".into(), maker: None },
+            Pick::Mod { id: "headshotdamage".into(), maker: None, item: None },
             good,
-            Pick::Upgrade { gear: "maverick".into(), from: 3, to: 3 },
-            Pick::Upgrade { gear: "nope".into(), from: 1, to: 2 },
-            Pick::Mod { id: "renamedmod".into(), maker: Some("takada".into()) },
+            Pick::Upgrade { gear: "maverick".into(), from: 3, to: 3, item: None },
+            Pick::Upgrade { gear: "nope".into(), from: 1, to: 2, item: None },
+            Pick::Mod { id: "renamedmod".into(), maker: Some("takada".into()), item: None },
         ];
         let s = shopping(&picks, &h, &p.progress);
         let errors: Vec<Option<&str>> = s.picks.iter().map(|r| r.error.as_deref()).collect();
@@ -323,6 +326,140 @@ mod tests {
             (g[0].gear.as_str(), g[0].grade, g[0].mods.as_slice()),
             ("dominator", 4, ["damageresistance".to_string()].as_slice())
         );
+    }
+
+    /// A loadout event in the shape of the journal lines in
+    /// `worlds/preview/odyssey/game/Journal.2026-10-14T130000.01.log` (13 to 16).
+    fn loadout_line(event: &str, id: i64, name: &str, suit: (i64, &str), modules: &[(&str, i64, &str, u8)]) -> String {
+        let modules: Vec<String> = modules
+            .iter()
+            .map(|(slot, mid, module, class)| {
+                format!(
+                    r#"{{"SlotName":"{slot}", "SuitModuleID":{mid}, "ModuleName":"{module}", "ModuleName_Localised":"x", "Class":{class}, "WeaponMods":[]}}"#
+                )
+            })
+            .collect();
+        format!(
+            r#"{{ "timestamp":"2026-10-14T13:03:00Z", "event":"{event}", "SuitID":{}, "SuitName":"{}", "SuitName_Localised":"$x;", "SuitMods":[], "LoadoutID":{id}, "LoadoutName":"{name}", "Modules":[{}]}}"#,
+            suit.0,
+            suit.1,
+            modules.join(", ")
+        )
+    }
+
+    #[test]
+    fn loadouts_from_the_journal() {
+        const AR50: &str = "wpn_m_assaultrifle_kinetic_fauto";
+        const P15: &str = "wpn_s_pistol_kinetic_sauto";
+        const MAV1: (i64, &str) = (11, "utilitysuit_class1");
+        const MAV1B: (i64, &str) = (12, "utilitysuit_class1");
+        const DOM2: (i64, &str) = (13, "tacticalsuit_class2");
+        const FLIGHT: (i64, &str) = (19, "flightsuit");
+        let buy_mav = r#"{ "timestamp":"2026-10-14T13:00:10Z", "event":"BuySuit", "Name":"UtilitySuit_Class1", "Price":150000, "SuitID":11, "SuitMods":[]}"#.to_string();
+        let buy_ar = r#"{ "timestamp":"2026-10-14T13:02:00Z", "event":"BuyWeapon", "Name":"Wpn_M_AssaultRifle_Kinetic_FAuto", "Class":1, "Price":100000, "SuitModuleID":21, "WeaponMods":[]}"#.to_string();
+        // (loadout id, name, worn, suit id and gear, [(slot, weapon id, gear)]).
+        type Seen = (i64, String, bool, (i64, String), Vec<(String, i64, String)>);
+        let cases: Vec<(&str, Vec<String>, Vec<Seen>)> = vec![
+            (
+                "three loadouts created and switched: the worn one follows the latest switch",
+                vec![
+                    buy_mav.clone(),
+                    loadout_line("SuitLoadout", 3, "Explore", MAV1, &[]),
+                    loadout_line("CreateSuitLoadout", 1, "Raid", DOM2, &[]),
+                    loadout_line("SwitchSuitLoadout", 1, "Raid", DOM2, &[]),
+                    loadout_line("CreateSuitLoadout", 2, "Spare", MAV1B, &[]),
+                ],
+                vec![
+                    (1, "Raid".into(), true, (13, "dominator".into()), vec![]),
+                    (2, "Spare".into(), false, (12, "maverick".into()), vec![]),
+                    (3, "Explore".into(), false, (11, "maverick".into()), vec![]),
+                ],
+            ),
+            (
+                "a weapon moved between slots: the latest event states the loadout",
+                vec![
+                    buy_mav.clone(),
+                    buy_ar.clone(),
+                    loadout_line("SuitLoadout", 1, "Explore", MAV1, &[("PrimaryWeapon1", 21, AR50, 1)]),
+                    loadout_line(
+                        "SwitchSuitLoadout",
+                        1,
+                        "Explore",
+                        MAV1,
+                        &[("SecondaryWeapon", 22, P15, 1), ("PrimaryWeapon2", 21, AR50, 1)],
+                    ),
+                ],
+                vec![(
+                    1,
+                    "Explore".into(),
+                    true,
+                    (11, "maverick".into()),
+                    vec![
+                        ("PrimaryWeapon2".into(), 21, "karmaar50".into()),
+                        ("SecondaryWeapon".into(), 22, "karmap15".into()),
+                    ],
+                )],
+            ),
+            (
+                "a loadout naming gear never bought: the gear comes from the event",
+                vec![loadout_line("SuitLoadout", 1, "Explore", MAV1B, &[("PrimaryWeapon1", 23, AR50, 2)])],
+                vec![(
+                    1,
+                    "Explore".into(),
+                    true,
+                    (12, "maverick".into()),
+                    vec![("PrimaryWeapon1".into(), 23, "karmaar50".into())],
+                )],
+            ),
+            (
+                "one suit in two loadouts is one item",
+                vec![
+                    buy_mav.clone(),
+                    loadout_line("CreateSuitLoadout", 1, "Explore", MAV1, &[]),
+                    loadout_line("CreateSuitLoadout", 2, "Scout", MAV1, &[]),
+                ],
+                vec![
+                    (1, "Explore".into(), false, (11, "maverick".into()), vec![]),
+                    (2, "Scout".into(), false, (11, "maverick".into()), vec![]),
+                ],
+            ),
+            (
+                "the Flight Suit's loadout is left out, and on it no kept loadout is worn",
+                vec![
+                    buy_mav.clone(),
+                    loadout_line("SuitLoadout", 1, "Explore", MAV1, &[]),
+                    loadout_line("SuitLoadout", 4293000000, "Flight", FLIGHT, &[]),
+                ],
+                vec![(1, "Explore".into(), false, (11, "maverick".into()), vec![])],
+            ),
+        ];
+        for (name, lines, want) in cases {
+            let mut o = Owned::default();
+            for l in &lines {
+                o.apply(&serde_json::from_str(l).unwrap(), &|_| {});
+            }
+            let got: Vec<Seen> = o
+                .loadouts()
+                .into_iter()
+                .map(|l| {
+                    (
+                        l.id,
+                        l.name,
+                        l.worn,
+                        (l.suit.id, l.suit.gear),
+                        l.slots.into_iter().map(|s| (s.slot, s.item.id, s.item.gear)).collect(),
+                    )
+                })
+                .collect();
+            assert_eq!(got, want, "{name}");
+            // Every item in a loadout is owned gear, once, under the same id.
+            let owned = o.gear();
+            for l in o.loadouts() {
+                for item in std::iter::once(&l.suit).chain(l.slots.iter().map(|s| &s.item)) {
+                    assert_eq!(owned.iter().filter(|g| *g == item).count(), 1, "{name}: {}", item.id);
+                }
+            }
+        }
     }
 
     #[test]

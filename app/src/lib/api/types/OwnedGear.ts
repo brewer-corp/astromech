@@ -5,6 +5,10 @@
  */
 export type OwnedGear = { 
 /**
+ * The game's id for this one item: `SuitID` for a suit, `SuitModuleID` for a weapon.
+ */
+id: number, 
+/**
  * Catalogue suit or weapon id (`maverick`, `karmaar50`).
  */
 gear: string, name: string, 
