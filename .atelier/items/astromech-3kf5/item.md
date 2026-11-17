@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-3kf5
 title: 'Calmer pages: data in white and grey, orange for the ranked value and what you can act on'
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-l
