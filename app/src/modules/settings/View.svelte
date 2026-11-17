@@ -273,21 +273,21 @@
 {/if}
 
 <style>
-  h3 { margin: 1.75rem 0 0.625rem; }
+  h3 { margin: var(--sp-6) 0 var(--sp-2); }
   h3:first-child { margin-top: 0; }
   dl { display: grid; grid-template-columns: var(--form-label) minmax(0, 1fr); gap: var(--gap); margin: 0; }
-  dt, dd { margin: 0; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; }
+  dt, dd { margin: 0; padding: 0 var(--sp-3); min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
      cell (.value); a status with no such action is a fact, outside a cell. */
-  dd { color: var(--prose); gap: 1.5rem; justify-content: space-between; }
+  dd { color: var(--prose); gap: var(--sp-6); justify-content: space-between; }
   dd.value { background: var(--cell); color: var(--accent); font-weight: 500; }
   dd.warn { color: var(--accent); font-weight: 500; }
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
   .path { overflow-wrap: anywhere; }
-  .hint { color: var(--prose); margin: 0.5rem 0 0 calc(var(--form-label) + var(--gap)); }
+  .hint { color: var(--prose); margin: var(--sp-2) 0 0 calc(var(--form-label) + var(--gap)); }
   .warn-text { color: var(--accent); font-weight: 500; }
   .warn-text::before { content: "! "; font-weight: 600; }
   .err { color: var(--alarm); }
@@ -296,5 +296,5 @@
   dd.bare { padding: 0; background: none; }
   dd.bare > :global(.grow) { flex: 1; }
   .hint a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
-  .note { margin-top: 1.25rem; }
+  .note { margin-top: var(--sp-4); }
 </style>

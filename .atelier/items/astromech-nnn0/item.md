@@ -24,6 +24,7 @@ A suit loadout reads as a ship does: what is fitted, how far each item is engine
 
 ## Done when
 
+- [ ] (provisional) The page's files leave `TOKENS_EXEMPT` in `app/eslint.config.js` (astromech-4wi1): the rebuilt page uses only tokens and role classes for colour, font size and spacing.
 - [ ] (provisional) Ships > Suits shows the selected loadout's suit and weapons with grade hexagons, modifications and the planned next step; the shopping list with short items marked; the other loadouts as a strip; a side panel for the selected item's next step, as `tone5-suits-2560.png`.
 - [ ] (provisional) Built on a layout component and the type roles with no page-level width or font size; captures at 1100 x 700 and 2560 x 1440; the guide page updated.
 

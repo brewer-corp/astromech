@@ -63,14 +63,14 @@
 </section>
 
 <style>
-  section { padding: 0.5rem 0 1.75rem; min-height: 0; }
+  section { padding: var(--sp-2) 0 1.75rem; min-height: 0; }
   .sub { margin: 0.875rem 0; }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-top: 0.875rem; }
-  h3 { margin: 1.375rem 0 0.5rem; }
+  h3 { margin: 1.375rem 0 var(--sp-2); }
   table { border-collapse: collapse; }
-  td { padding: 0.25rem 1.125rem 0.25rem 0; }
+  td { padding: var(--sp-1) 1.125rem var(--sp-1) 0; }
   .num { text-align: right; }
   /* Ores are ranked by tonnes: it is the table's one orange column. */
   .ranked { color: var(--accent); font-weight: 500; }

@@ -128,8 +128,8 @@
   .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 0; }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
   .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0; }
-  .out { padding: var(--sp-6) 0 0.5rem; }
-  .tree { display: grid; grid-template-columns: repeat(var(--cols), minmax(15rem, 1fr)); gap: 0.5rem 1.25rem; align-items: start; }
+  .out { padding: var(--sp-6) 0 var(--sp-2); }
+  .tree { display: grid; grid-template-columns: repeat(var(--cols), minmax(15rem, 1fr)); gap: var(--sp-2) 1.25rem; align-items: start; }
   .col { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; }
   /* Read-only cards in a Seam outline (DESIGN.md Surfaces and cells: Hull is the frame's), with no
      side border. State is DESIGN.md's engineer colours: unlocked, the name Options Grey and the
@@ -137,7 +137,7 @@
      to unlock Prose Grey; barred, the name and reason Red Low; not introduced, the name and its
      state Grey Dim, unless you can work on them now. What is left to do stays readable: Grey Dim
      never carries text needed to act. */
-  .eng { padding: 1rem; display: flex; flex-direction: column; gap: 0.375rem; outline: 1px solid var(--line); outline-offset: -1px; }
+  .eng { padding: var(--sp-4); display: flex; flex-direction: column; gap: 0.375rem; outline: 1px solid var(--line); outline-offset: -1px; }
   .eng .name { color: var(--options-grey); }
   .eng:is(.known, .invited) .name { color: var(--orange-mid); }
   .eng.barred :is(.name, .gate) { color: var(--red-low); }
@@ -145,7 +145,7 @@
   .eng.hot { background: var(--row-hover); }
   /* The engineers who introduce the hovered one. */
   .eng.pred { outline-color: var(--accent); }
-  .top { display: flex; justify-content: space-between; gap: 0.75rem; align-items: start; }
+  .top { display: flex; justify-content: space-between; gap: var(--sp-3); align-items: start; }
   .name { font-size: var(--fs-l); font-weight: 500; }
   .access { display: inline-flex; align-items: center; gap: 0.1875rem; flex: none; }
   .gate { font-size: var(--fs-s); color: var(--prose); }

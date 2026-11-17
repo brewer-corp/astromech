@@ -105,18 +105,18 @@
 </div>
 
 <style>
-  .shade { position: fixed; inset: 0; background: rgb(0 0 0 / 0.7); display: grid; place-items: center; z-index: 10; }
-  .dlg { width: 35rem; background: var(--bg); border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); padding: 1.375rem 1.75rem; }
+  .shade { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: center; z-index: 10; }
+  .dlg { width: 35rem; background: var(--bg); border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); padding: var(--sp-6); }
   .lbl { color: var(--label-grey); font-size: var(--fs-s); }
-  h2 { margin: 0.375rem 0 0.25rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
-  p { margin: 0.5rem 0; line-height: 1.45; }
+  h2 { margin: var(--sp-1) 0 var(--sp-1); color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
+  p { margin: var(--sp-2) 0; line-height: 1.45; }
   .lo { color: var(--prose); }
   .warn { color: var(--accent); font-weight: 500; }
   .err { color: var(--alarm); }
   b { font-weight: 600; }
-  .press { margin: 1rem 0; height: 3rem; display: flex; align-items: center; padding: 0 0.875rem; background: var(--accent); color: var(--on-accent); font-size: var(--fs-l); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); }
+  .press { margin: var(--sp-4) 0; height: 3rem; display: flex; align-items: center; padding: 0 var(--sp-3); background: var(--accent); color: var(--on-accent); font-size: var(--fs-l); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); }
   .press.got { background: var(--cell); color: var(--options-grey); text-transform: none; letter-spacing: 0; font-weight: 500; }
   .press.got .lo { color: var(--accent); }
-  .copy { display: grid; gap: 0.375rem; margin: 0.75rem 0; }
-  .acts { display: flex; align-items: center; gap: var(--sp-4); margin-top: 1.125rem; }
+  .copy { display: grid; gap: var(--sp-1); margin: var(--sp-3) 0; }
+  .acts { display: flex; align-items: center; gap: var(--sp-4); margin-top: var(--sp-4); }
 </style>

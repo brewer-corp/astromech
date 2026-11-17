@@ -140,12 +140,12 @@
 <style>
   /* Read-only facts: the bands and blocks are Seam outlines, never Hull or cells (DESIGN.md Surfaces
      and cells). */
-  .specs { padding: 0.5rem 0.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.75rem; }
+  .specs { padding: var(--sp-2) var(--sp-2) 1.75rem; display: flex; flex-direction: column; gap: 1.75rem; }
   .lo { color: var(--label-grey); margin: 0; }
   .warn { margin: 0; line-height: 1.4; }
   .mark { color: var(--accent); font-weight: 600; }
-  .band { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.25rem 1.75rem; padding: 0.5rem 0.75rem 0.25rem; outline: 1px solid var(--line); outline-offset: -1px; }
-  .stat { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+  .band { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.25rem 1.75rem; padding: var(--sp-2) var(--sp-3) var(--sp-1); outline: 1px solid var(--line); outline-offset: -1px; }
+  .stat { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
   .k { color: var(--label-grey); font-size: var(--fs-s); }
   .v { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.375rem; }
   .q { font-size: var(--fs-l); line-height: 1.2; color: var(--options-grey); }
@@ -156,13 +156,13 @@
     .power { grid-column: auto; }
   }
   .prow { display: grid; grid-template-columns: 6.5625rem minmax(5.625rem, 1fr) auto; gap: 0.625rem; align-items: center; font-size: var(--fs-s); color: var(--label-grey); }
-  .prow.tot { margin-top: 0.25rem; }
+  .prow.tot { margin-top: var(--sp-1); }
   .prow .q { font-size: var(--fs); }
   .pbar { height: 0.375rem; background: var(--mark-off); }
   .pbar i { display: block; height: 100%; background: var(--prose); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.5rem 1.75rem; }
-  .block { padding: 0.875rem 1rem; outline: 1px solid var(--line); outline-offset: -1px; display: flex; flex-direction: column; gap: 0.375rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: var(--sp-2) 1.75rem; }
+  .block { padding: 0.875rem var(--sp-4); outline: 1px solid var(--line); outline-offset: -1px; display: flex; flex-direction: column; gap: 0.375rem; }
   h4 { margin: 0 0 0.375rem; color: var(--label-grey); font-weight: 500; font-size: var(--fs-s); }
-  .row { display: flex; justify-content: space-between; gap: 0.75rem; font-size: var(--fs-s); }
+  .row { display: flex; justify-content: space-between; gap: var(--sp-3); font-size: var(--fs-s); }
   .row .q { font-size: var(--fs); }
 </style>

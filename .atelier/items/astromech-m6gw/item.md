@@ -25,6 +25,7 @@ The engineers read as the tree they are: nodes joined from whoever introduces th
 
 ## Done when
 
+- [ ] (provisional) The page's files leave `TOKENS_EXEMPT` in `app/eslint.config.js` (astromech-4wi1): the rebuilt page uses only tokens and role classes for colour, font size and spacing.
 - [ ] (provisional) The ship and suit engineer trees render side by side from referred_by and refers, under the search box astromech-7did built; selecting an engineer shows system, specialities and steps.
 - [ ] (provisional) Built on the layout components and type roles with no page-level width or font size; captures at 1100 x 700 and 2560 x 1440 in docs/design/; the page's guide in docs/guide updated.
 

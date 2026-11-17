@@ -15,6 +15,7 @@
     "tauri": "tauri"
   },
   "devDependencies": {
+    "@eslint/css": "2.0.1",
     "@eslint/js": "^9.39.0",
     "@fontsource-variable/saira": "^5.3.0",
     "@sveltejs/vite-plugin-svelte": "^6.2.0",

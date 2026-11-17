@@ -1,13 +1,13 @@
 /* Shared by the onboarding steps (Onboarding.svelte imports it): the Settings list look. */
-.setup-step { display: grid; gap: 1rem; }
+.setup-step { display: grid; gap: var(--sp-4); }
 .setup-step p { margin: 0; line-height: 1.5; color: var(--prose); }
 .setup-step dl { display: grid; grid-template-columns: 11.25rem 1fr; gap: var(--gap); margin: 0; }
-.setup-step dt, .setup-step dd { margin: 0; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; }
+.setup-step dt, .setup-step dd { margin: 0; padding: 0 var(--sp-3); min-height: var(--row); display: flex; align-items: center; }
 .setup-step dt { color: var(--options-grey); }
 /* As DESIGN.md's Settings row: a value the commander changes with its action word is an ember cell
    (.value); a found folder or a check's result is a fact, outside a cell. The microphone list is a
    choice: each option a cell, the chosen one filled. */
-.setup-step dd { color: var(--prose); gap: 1.5rem; justify-content: space-between; }
+.setup-step dd { color: var(--prose); gap: var(--sp-6); justify-content: space-between; }
 .setup-step dd.value { background: var(--cell); color: var(--accent); font-weight: 500; }
 .setup-step dd.warn { color: var(--accent); font-weight: 500; }
 /* The chosen option is marked, not filled (DESIGN.md Choice): Orange Lit at 600, a 2 px orange underline. */
@@ -15,7 +15,7 @@
 .setup-step dd.warn > :first-child::before { content: "! "; font-weight: 600; }
 .setup-step dd > span { min-width: 0; overflow-wrap: anywhere; }
 .setup-step dd > span + span { flex: none; white-space: nowrap; }
-.setup-step dd { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.setup-step dd { padding-top: var(--sp-1); padding-bottom: var(--sp-1); }
 .setup-step :is(.path, .id) { font-size: var(--fs-s); }
 .setup-step .lo { color: var(--prose); }
 .setup-step dd .lo { color: var(--label-grey); }
@@ -24,11 +24,11 @@
 .setup-step .warn-text { color: var(--accent); font-weight: 500; }
 .setup-step .err { color: var(--alarm); }
 .setup-step :is(.warn-text, .err)::before { content: "! "; font-weight: 600; }
-.setup-step .acts { display: flex; gap: 1.75rem; align-items: center; }
+.setup-step .acts { display: flex; gap: var(--sp-6); align-items: center; }
 .setup-step .grow { flex: 1; }
 /* The live press or level readout is read-only: hull. Step 3's press-to-bind box is a binding slot
    (.slot): Ember Empty until a button is caught, then an ember cell. */
-.setup-step .press { height: 3rem; display: flex; align-items: center; padding: 0 0.875rem; outline: 1px solid var(--line); outline-offset: -1px; color: var(--label-grey); font-size: var(--fs-l); }
+.setup-step .press { height: 3rem; display: flex; align-items: center; padding: 0 var(--sp-3); outline: 1px solid var(--line); outline-offset: -1px; color: var(--label-grey); font-size: var(--fs-l); }
 .setup-step .press.got { color: var(--orange-lit); }
 .setup-step .press.slot { background: var(--cell-empty); }
 .setup-step .press.slot.got { background: var(--cell); }

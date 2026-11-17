@@ -129,17 +129,17 @@
 </section>
 
 <style>
-  section { padding: 0.5rem 0 1.75rem; min-height: 0; }
+  section { padding: var(--sp-2) 0 1.75rem; min-height: 0; }
   .pick { padding: var(--sp-4) 0 var(--sp-1); }
   /* DESIGN.md's result-list width, so the lookups' rows keep every column; prose stays at 68ch. */
   .main { max-width: var(--list-w); }
   .main > p, .main > .list { max-width: var(--measure); }
-  h3 { margin: 0.875rem 0 0.125rem; color: var(--text-hi); font-weight: 500; }
+  h3 { margin: 0.875rem 0 var(--gap); color: var(--text-hi); font-weight: 500; }
   h4 { margin: 0.875rem 0 0.375rem; }
   .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0 0 0.625rem; }
   .list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: max-content max-content 1fr; column-gap: 1.125rem; row-gap: 0.1875rem; font-size: var(--fs-s); }
   .list li { display: contents; }
   .q { color: var(--accent); font-weight: 500; text-align: right; }
-  .total { font-size: var(--fs-s); margin: 0.5rem 0 0.875rem; }
+  .total { font-size: var(--fs-s); margin: var(--sp-2) 0 0.875rem; }
   .lo { color: var(--label-grey); }
 </style>
