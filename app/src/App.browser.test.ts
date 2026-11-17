@@ -1,6 +1,6 @@
 // The design tokens, for the frame's real widths (the route sidebar, the dock width).
 import "./design/tokens.css";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import App from "./App.svelte";
@@ -318,17 +318,25 @@ describe("route sidebar in the frame", () => {
   it("opens a cold #/route over the page when the saved Text size, read after the window draws, puts it below the dock width", async () => {
     // 1920 px docks at 100 percent, the size the window draws at before the core answers, and is
     // below the dock width at a saved 115 percent (1,670 px at 100).
+    // The first read fails (the core not ready), and the window tries again on the next status
+    // poll, whose reply the test holds.
     let reply: (r: { ok: true; text_size: number }) => void = () => {};
-    answer("window_settings", () => new Promise((r) => (reply = r)));
+    let reads = 0;
+    answer("window_settings", () => (++reads === 1 ? { ok: false, error: "core not ready" } : new Promise((r) => (reply = r))));
+    answer("status", async () => (await previewAnswer("status")));
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] }); // the 2 s status poll
     await page.viewport(WIDE, 1080);
     startPreview("/?core=ready&route=exact");
     location.hash = "#/route";
     render(App);
     // The route is drawn (the strip, or without the fix the docked sidebar) before the reply.
     await waitFor(() => expect(document.querySelector('[aria-label="Route"]')).toBeTruthy());
+    await vi.advanceTimersByTimeAsync(2000);
+    await waitFor(() => expect(reads).toBe(2));
     reply({ ok: true, text_size: 115 });
-    expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
-    expect(scrim(), "over the page").toBeTruthy();
+    await waitFor(() => expect(scrim(), "the sidebar over the page").toBeTruthy());
+    expect(sidebar()).toBeTruthy();
+    expect(document.documentElement.style.fontSize).toBe("115%");
     expect(location.hash).toBe("#/controller");
   });
 
