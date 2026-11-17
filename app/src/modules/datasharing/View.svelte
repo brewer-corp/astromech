@@ -47,7 +47,8 @@
   {#if !loaded}
     <p class="type-body">Reading the sharing log…</p>
   {:else if !eddn}
-    <p class="type-body">{failed}</p>
+    <!-- A hard error: the page reads again on its own, so the next read is the recovery (DESIGN.md States). -->
+    <p class="type-body failed" role="alert">{failed}</p>
   {:else}
     <h3 class="section">EDDN</h3>
     <dl>
@@ -106,6 +107,8 @@
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
   .err { overflow-wrap: anywhere; }
+  .failed { color: var(--alarm); }
+  .failed::before { content: "! "; font-weight: 600; }
   .hint { color: var(--prose); margin: var(--sp-2) 0 0 calc(var(--form-label) + var(--gap)); }
   .hint.err { color: var(--alarm); }
   .hint.err::before { content: "! "; font-weight: 600; }

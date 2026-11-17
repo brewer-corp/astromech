@@ -136,7 +136,7 @@
     </p>
   </div>
 {:else if readErr}
-  <p class="type-body">{readErr}</p>
+  <p class="type-body failed" role="alert">{readErr}</p>
 {/if}
 
 <style>
@@ -153,7 +153,8 @@
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
   .err { overflow-wrap: anywhere; }
-  .hint.err { color: var(--alarm); }
+  .hint.err, .failed { color: var(--alarm); }
+  .failed::before { content: "! "; font-weight: 600; }
   .hint.err::before { content: "! "; font-weight: 600; }
   /* A row whose value is a box of its own has no cell around it. */
   dd.bare { padding: 0; background: none; }

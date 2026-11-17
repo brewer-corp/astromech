@@ -133,7 +133,9 @@ core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`wo
   written as a length other than 0 fails too: use `--sp-*`, `--gap` or `--gutter`. A file that
   must keep its own value goes in `TOKENS_EXEMPT` in `app/eslint.config.js`, with the reason
   and, for a page still to be rebuilt, the item that takes it off. The page-sizing check
-  (`PAGE_SIZING`) also stops an enrolled page from setting its own width or font size.
+  (`PAGE_SIZING`) also stops every page under `app/src/modules/` from setting its own width or
+  font size, except the Controls pages and the route's frame parts (`PAGE_SIZING_EXEMPT`): a page
+  is built on a layout in `app/src/lib/ui/layout/` and names type roles.
   Run the Vite app (`cd app && pnpm dev`) and check it with headless Chrome:
   `scripts/ui --url http://127.0.0.1:5173/#/materials --wait Iron --screenshot /tmp/materials.png --text`.
   Needs Google Chrome (or `CHROME` pointing at Chromium). `scripts/app-shots.sh` and

@@ -19,8 +19,8 @@
 
   let fleet = $state<Fleet | null>(null);
   let fleetErr = $state<string | null>(null);
-  /** The selected module's index in the reply's list. */
-  let sel = $state<number | null>(null);
+  /** The selected module, by key: the module itself, and which of identical ones it is. */
+  let sel = $state<string | null>(null);
 
   $effect(() => {
     let key = "";
@@ -32,7 +32,7 @@
           if (k !== key) {
             key = k;
             fleet = f;
-            if (sel !== null && sel >= f.stored_modules.length) sel = null;
+            if (sel !== null && !keyed(f.stored_modules).some((x) => x.k === sel)) sel = null;
           }
         })
         .catch((e: unknown) => (fleetErr = pollFailure("read the stored modules", e, fleet !== null)));
@@ -42,18 +42,29 @@
     return () => clearInterval(t);
   });
 
+  type Row = { m: Module; k: string };
+  /** Each module with its key, which stays the same while it is in storage, whatever moves around it. */
+  function keyed(mods: Module[]): Row[] {
+    const seen: Record<string, number> = {};
+    return mods.map((m) => {
+      const id = JSON.stringify(m);
+      const n = seen[id] ?? 0;
+      seen[id] = n + 1;
+      return { m, k: `${id}#${n}` };
+    });
+  }
   /** The modules by where they are, in the order each place first appears; in transit last. */
   const groups = $derived.by(() => {
-    const out: [string, { m: Module; i: number }[]][] = [];
-    (fleet?.stored_modules ?? []).forEach((m, i) => {
-      const k = m.system ?? TRANSIT;
-      const g = out.find(([p]) => p === k);
-      if (g) g[1].push({ m, i });
-      else out.push([k, [{ m, i }]]);
-    });
+    const out: [string, Row[]][] = [];
+    for (const r of keyed(fleet?.stored_modules ?? [])) {
+      const place = r.m.system ?? TRANSIT;
+      const g = out.find(([p]) => p === place);
+      if (g) g[1].push(r);
+      else out.push([place, [r]]);
+    }
     return out.sort(([a], [b]) => Number(a === TRANSIT) - Number(b === TRANSIT));
   });
-  const chosen = $derived(sel === null ? null : (fleet?.stored_modules[sel] ?? null));
+  const chosen = $derived(sel === null ? null : (keyed(fleet?.stored_modules ?? []).find((r) => r.k === sel)?.m ?? null));
 
   function cr(n: number | null): string {
     if (n === null) return "–";
@@ -65,13 +76,18 @@
 </script>
 
 <ListDetail panel={chosen ? about : null} selected={sel} min={MIN}>
-  <p class="type-label sub" {@attach tip(fleet?.source ?? null)}>
-    {#if !fleet}
-      {fleetErr ?? "Reading the journal…"}
-    {:else}
-      {fleet.stored_modules.length} stored {fleet.stored_modules.length === 1 ? "module" : "modules"}
-    {/if}
-  </p>
+  {#if !fleet && fleetErr}
+    <!-- A hard error: the page reads again on its own, so the next read is the recovery (DESIGN.md States). -->
+    <p class="type-body sub err" role="alert">{fleetErr}</p>
+  {:else}
+    <p class="type-label sub" {@attach tip(fleet?.source ?? null)}>
+      {#if !fleet}
+        Reading the journal…
+      {:else}
+        {fleet.stored_modules.length} stored {fleet.stored_modules.length === 1 ? "module" : "modules"}
+      {/if}
+    </p>
+  {/if}
   <Stale error={fleet ? fleetErr : null} />
   {#if fleet && !fleet.stored_modules.length}
     <p class="type-body">No modules in storage.</p>
@@ -81,10 +97,10 @@
   {/if}
   {#each groups as [place, mods] (place)}
     <section aria-label={place}>
-      <h3 class="section" class:current={mods.some((x) => x.i === sel)}>{place}<span class="type-label count">{mods.length}</span></h3>
+      <h3 class="section" class:current={mods.some((x) => x.k === sel)}>{place}<span class="type-label count">{mods.length}</span></h3>
       <div class="rows">
-        {#each mods as { m, i } (i)}
-          <button class="row" class:sel={sel === i} aria-current={sel === i ? "true" : undefined} onclick={() => (sel = sel === i ? null : i)}>
+        {#each mods as { m, k } (k)}
+          <button class="row" class:sel={sel === k} aria-current={sel === k ? "true" : undefined} onclick={() => (sel = sel === k ? null : k)}>
             <span class="what">
               <span class="type-name name">{m.name}</span>
               {#if m.blueprint_name}
@@ -127,6 +143,8 @@
 <style>
   p { margin: 0; }
   .sub { margin-bottom: var(--sp-6); }
+  .err { color: var(--alarm); }
+  .err::before { content: "! "; font-weight: 600; }
   section { margin-top: var(--sp-6); }
   section > .section { margin-bottom: var(--sp-3); }
   .count { margin-left: calc(-1 * var(--sp-1)); letter-spacing: 0; text-transform: none; }
