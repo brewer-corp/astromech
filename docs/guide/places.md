@@ -101,7 +101,7 @@ above the list names it once instead.
 - It opens on a Frame Shift Drive class 5, rating A.
 - **Find or plot** finds a module by name ("outfitting fsd") and opens it here. So do the
   modules fitted on your ships, at their size.
-- The Station page's [Where did I see ...](logbook.md#station) searches the outfitting you have
+- The Station page's [Where did I see ...](now.md#station) searches the outfitting you have
   opened yourself, offline.
 
 ## Shipyard

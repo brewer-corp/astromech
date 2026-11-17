@@ -5,7 +5,7 @@ const manifest: ModuleManifest = {
   group: "now",
   title: "Station",
   summary: "The station you are docked at, its market against nearby prices, and where you saw a module before (offline)",
-  help: "logbook.md#station",
+  help: "now.md#station",
   order: 10,
   api: ["history", "trade"],
   load: () => import("./View.svelte"),

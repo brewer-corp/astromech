@@ -1,6 +1,6 @@
 # Mining
 
-**Logbook, Mining** shows the current mining run: how much has been refined, by ore, and the rate.
+**Now, Mining** shows the current mining run: how much has been refined, by ore, and the rate.
 It follows your journal live while you mine.
 
 **What it needs:** Elite running, or the journal from your last run. No network.
@@ -19,7 +19,7 @@ docking or loading the game. Other limpets, such as repair or fuel, don't start 
 the run.** Until then the page says "No mining yet".
 
 It counts what the refinery has made, not what is in the hold or what you sold. For earnings from
-selling, see [Session](logbook.md#session). To sell, the [Sell](places.md#sell-and-buy) finder finds the best price.
+selling, see [Session](now.md#session). To sell, the [Sell](places.md#sell-and-buy) finder finds the best price.
 
 ## Finding hotspots
 
