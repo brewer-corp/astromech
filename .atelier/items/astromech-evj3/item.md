@@ -131,3 +131,9 @@ working tree just before the commit, so its `commit` field is the parent.
 
 **Checks.** `pnpm check`, `pnpm lint` and `pnpm test` pass in one full run (901 tests). The
 journeys pass (7 of 7). The audit was retaken after the last markup change.
+
+**After round 1's approval: main merged in.** `app/eslint.config.js` conflicted with
+astromech-fzhp, which enrolled Session and Logbook in `PAGE_SIZING` and took their entry off
+`TOKENS_EXEMPT` in the same places. Both enrolments are kept, and neither exemption remains.
+After the merge, `pnpm lint`, `pnpm check` and `pnpm test` pass (906 tests), and so do the
+journeys (7 of 7).
