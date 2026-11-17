@@ -188,12 +188,13 @@ with an approved mockup: astromech-coq6, 8wr4, nnn0, m6gw, dpaz and rj6i (priori
 then astromech-7vxi, which reuses coq6's station head. 8wr4, nnn0 and rj6i also carry the
 checkpoint's three bugs on their pages (astromech-5g9w, 8og8 and lf3a). The two core items
 astromech-w1lj (suit loadouts, before nnn0) and astromech-70ts (suit engineers' coordinates,
-before m6gw; it reads the 6.4 GB Spansh dump on boat) wait on nothing and can run before
-8e22 merges. Increment 4 is astromech-evj3, el3i, m07p and fzhp (priority medium); fzhp waits
+before m6gw; it reads the 6.4 GB Spansh dump on boat) can run before 8e22 merges, w1lj first:
+both change `odyssey_view` and dump `odyssey.json` again, so 70ts waits on it. Increment 4 is astromech-evj3, el3i, m07p and fzhp (priority medium); fzhp waits
 on coq6, which moves Session. astromech-zaqh (the Sell panel test with real sizes) waits on
 nothing. astromech-gvy0 waits on every screen item and zaqh, and astromech-crxa on gvy0.
-At most four implementers run at once: a sensible first wave after 8e22 is coq6, 8wr4, rj6i
-and dpaz, with w1lj and 70ts done before it; then nnn0, m6gw, 7vxi, then increment 4.
+At most four implementers run at once: the first wave after 8e22 is coq6, 8wr4, rj6i and
+nnn0 (the last three carry the checkpoint's bugs), with w1lj done before it; then dpaz, m6gw
+(after 70ts) and 7vxi; then increment 4.
 
 *Shared files.* The screens touch different modules. What they share: `app/eslint.config.js`
 (each item edits only its own `PAGE_SIZING` and `TOKENS_EXEMPT` entries), DESIGN.md (coq6's

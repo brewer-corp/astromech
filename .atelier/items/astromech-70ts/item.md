@@ -9,7 +9,8 @@ labels:
 - size-s
 - feature
 priority: high
-blocked_by: []
+blocked_by:
+- astromech-w1lj
 implementers: []
 ready: null
 trivial: null
@@ -32,7 +33,7 @@ Round 2's finding astromech-7did/2-85d3.5 is the same and was dropped as taken h
 
 ## Done when
 
-- [ ] Each on-foot engineer (EDCD/FDevIDs `engineers.csv` ids 4000xx, the 13 in `data/catalog/odyssey.json`'s `engineers`) has its system's coordinates in a committed catalog file, read from the Spansh systems dump by the engineer's `id64` the way `scripts/gen-starmap.py` reads the ship engineers' (it filters to `SHIP_ENGINEER_IDS` at line 24 and 59 today). The file's `source` says so.
+- [ ] Each on-foot engineer (EDCD/FDevIDs `engineers.csv` ids 4000xx, the 13 in `data/catalog/odyssey.json`'s `engineers`) has its system's coordinates in `data/catalog/engineers.json`, in a new `onfoot` list beside `engineers` (id, name, system, id64, coords), written by `scripts/gen-starmap.py` from the Spansh systems dump the way it writes the ship engineers' (it filters to `SHIP_ENGINEER_IDS` at lines 24 and 59 today). `engineers` stays ship engineers only, so `engineering_engineers` and the engineer trip are unchanged. The file's `source` says so.
 - [ ] `odyssey_view`'s engineers (`EngineerLine`, `app/src/lib/api/types/EngineerLine.ts`) carry `coords`, and `engineering_search` gives suit hits a `distance_ly` from the commander's current system, so equal suit hits order nearest first, as ship hits do.
 - [ ] A row in the search's existing table tests (`search.rs`) covers two suit engineers of equal status ordered by distance, and the test that every engineer resolves (`search.rs`'s check over `engineers.json` and the unlock data) also checks every suit engineer has coordinates.
 - [ ] The recorded fixtures that show suit engineers are dumped again (`engineer-search.json`'s range search and `odyssey.json`, `ASTROMECH_UPDATE_FIXTURES=1 cargo test -p astromech-app --test preview_fixtures`); the drift test passes.
@@ -45,4 +46,4 @@ The coordinates, the reply field and the search's distances. The Engineers tree 
 
 ## Context
 
-The dump is `https://downloads.spansh.co.uk/systems.json.gz` (about 6.4 GB; Spansh's dumps are public and fine to process). Reading it is a long single job, so it runs on boat (the `boat` skill), not on this machine, which serves T3 Code; only the regenerated catalog file is committed. Either script may write the field: `gen-starmap.py` already reads the dump and `engineers.csv`; `gen-odyssey.py` writes the rest of each suit engineer's entry and their `id64` (line 334). Ship-only users of `engineers.json` (`engineering_engineers`, the engineer trip) must keep seeing only ship engineers.
+The dump is `https://downloads.spansh.co.uk/systems.json.gz` (about 6.4 GB; Spansh's dumps are public and fine to process). Reading it is a long single job, so it runs on boat (the `boat` skill), not on this machine, which serves T3 Code; only the regenerated catalog file is committed. `gen-starmap.py` writes the coordinates because it already reads the dump and `engineers.csv`; `gen-odyssey.py` (which writes the rest of each suit engineer's entry, and their `id64` at line 334) regenerates `odyssey.json` whole and would drop a field another script added there.
