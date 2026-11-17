@@ -296,13 +296,16 @@ describe("engineer progress poll (astromech-cvxf)", () => {
   it("says beside the trip when engineer progress could not be refreshed, and clears it on the next good read", async () => {
     history.replaceState(null, "", "/");
     location.hash = "#/engineering/7/plan";
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] }); // the engineer poll; the test moves its clock
     render(View);
     await screen.findByRole("region", { name: "Engineer trip" });
     history.replaceState(null, "", "/?fail=engineering_engineers#/engineering/7/plan");
-    expect(await screen.findByText("Could not refresh: preview: engineering_engineers failed on purpose (?fail=).", {}, { timeout: 2500 })).toBeTruthy();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(await screen.findByText("Could not refresh: preview: engineering_engineers failed on purpose (?fail=).")).toBeTruthy();
     expect(screen.getByRole("region", { name: "Engineer trip" })).toBeTruthy();
     history.replaceState(null, "", "/#/engineering/7/plan");
-    await waitFor(() => expect(screen.queryByText(/Could not refresh/)).toBeNull(), { timeout: 2500 });
+    await vi.advanceTimersByTimeAsync(1000);
+    await waitFor(() => expect(screen.queryByText(/Could not refresh/)).toBeNull());
   });
 
   it("says so when it could not read engineer progress at all", async () => {
