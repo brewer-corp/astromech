@@ -1,5 +1,5 @@
 {
- "commit": "c248958b",
+ "commit": "7ffd2f47",
  "captures": {
   "sell-selected-1100x700": {
    "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/places/sell/painite",
@@ -8681,7 +8681,7 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 38,
+     "weight": 37,
      "texts": [
       "1,632",
       "L",
@@ -8734,7 +8734,7 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 81,
+     "weight": 80,
      "texts": [
       "Ships",
       "Engineering",
@@ -8745,11 +8745,11 @@
       "Controls",
       "Settings",
       "No route",
+      "Price · demand",
+      "Station · pad · arrival",
+      "Trip",
       "cr",
-      "t",
-      "ls",
-      "Chamaeleon Sector HR-W d1-42",
-      "jumps"
+      "t"
      ]
     },
     {

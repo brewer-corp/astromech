@@ -50,7 +50,7 @@ Mission astromech-xajc. This checkpoint does not stop the mission: the screens s
 
 ## Report
 
-**Increment 2 mostly holds together, but five pages fail a check and are filed as bugs.** The frame, the colours and the new tabs hold at all four sizes. Five pages cut text, put an action far from its row, or draw text too small: Powerplay, Engineers, Suits, Ships and My controller. The bugs are astromech-lf3a, vbz3, 8og8, 5g9w and wo8s, all on main. This item says each failure is fixed before it closes, so the second Done when line stays open until they merge and the captures are taken again.
+**Increment 2 mostly holds together, but five pages fail a check, and this item now holds twelve screen items behind five fixes.** The frame, the colours and the new tabs hold at all four sizes. Five pages cut text, put an action far from its row, or draw text too small: Powerplay, Engineers, Suits, Ships and My controller. The bugs are astromech-lf3a, vbz3, 8og8, 5g9w and wo8s, all on main. This item says each failure is fixed before it closes, so the second Done when line stays open until they merge and the captures are taken again. The bugs are drafts that the lead has to make ready. astromech-rj6i, nnn0 and 8wr4 would rebuild Powerplay, Suits and Ships, but they wait on this item. So the lead either has those three fixed on the current pages, or amends this item to hand their cases to the rebuilds.
 
 **Captures.** There are 35 captures in `docs/design/increment2/`, taken in headless Chrome at device scale 1 from `pnpm dev` with `?core=ready&route=exact&textsize=<step>`:
 
@@ -85,13 +85,13 @@ DESIGN.md marks Grey Dim, Orange Dim and Placeholder as state rather than text t
 
 By eye, five pages fail:
 
-- **Powerplay (astromech-lf3a, caused by uc7i).** At 1920 x 1080 beside the docked sidebar, This system's name and every Where to work system and state end in "...". One state is still cut at 3840 x 2160.
+- **Powerplay (astromech-lf3a, caused by uc7i).** At 1920 x 1080 beside the docked sidebar, This system's name and every Where to work system and state end in "...". At 3840 x 2160 one system and two states are still cut. At 2560 x 1440, Where to work sits under My standing and nothing is cut.
 - **Engineers (astromech-vbz3, caused by 7did).** Mel Brandon's step left to unlock ("Introduction from Elvira Martuuk: raise your rank with them past ...") is cut at every size. The full text is only in a Tip.
 - **Suits (astromech-8og8).** Plan blocks run the full column width, so Remove is about 1,100 layout px from its plan's name at 2560 and about 1,650 at 3840. The shopping list spreads its columns the same way. The 360 px check misses this because the blocks are not rows; the 3840 capture shows it.
 - **Ships (astromech-5g9w).** Open in Coriolis and EDSY sit about 1,000 layout px from the ship's name at 2560 and further at 3840. The stat bands stretch too.
 - **My controller (astromech-wo8s, low).** At 1100 x 700 the sheet's bound actions draw at 8 px. The sheet scales with its width, not with Text size, so it reads at 14 px at 1920 and 18 px at 2560. Those two sizes show up in `small` only because the check divides by the step. This predates increment 2.
 
-astromech-rj6i, nnn0 and 8wr4 rebuild Powerplay, Suits and Ships. Each bug says it can close as covered if the rebuild lands first and keeps the rule.
+Judged and not filed: on Engineers, Set destination ends the nearest-to-unlock card about 620 layout px right of "Wyrd 75.5 ly", at every size. The card is the list's width and does not grow with the window, and the button acts on the card's engineer, as a side panel's actions do. Every capture was opened by eye at 1100 and 3840, and every page at 2560.
 
 **Brightness.** No page has something out-shining its main value, what can change, or what needs the commander, so nothing was filed:
 
@@ -116,11 +116,11 @@ astromech-rj6i, nnn0 and 8wr4 rebuild Powerplay, Suits and Ships. Each bug says 
 
 - **Header.** It is 108 px (stacked) at 1100 x 700 and 64 px at the other three sizes. One row measured from 1529, 2216 and 2750 px at 100, 145 and 180 percent, by binary search on fresh loads. DESIGN.md has 2751 at 180, which is within rounding of 95.5 rem, so I left it.
 - **Dock width.** The sidebar is a strip at 1100 and docked at 1920, 2560 and 3840. It docks from 1659, 2406 and 2987 px (1659 at 100 percent), as DOCK says.
-- **Rows visible.** These did not match, and DESIGN.md is corrected. On opening, 5 rows show at 1100 and 11 at 2560, as written. Scrolled, the captures show 8 at 1100, in a 524 px column of 60 px rows, not 7. At 2560 they give 14 (897 px column) where DESIGN.md had 13. The 2560 sample's 12 rows all fit, so 14 is worked out from the column's height.
+- **Rows visible.** These did not match, and DESIGN.md is corrected. On opening, 5 rows show at 1100 and 11 at 2560, as written. Scrolled with the list's head row still in view, the captures show 8 at 1100, in a 524 px column of 60 px rows, not 7. At 2560 they give 14 (897 px column) where DESIGN.md had 13. The 2560 sample's 12 rows all fit, so 14 is worked out from the column's height. astromech-3ca6 counted 7 and 13 before the route sidebar and strip changed the frame, and astromech-fom5 re-measured only the opening counts.
 
 **Links.** Both are built with `scripts/preview-publish --query route=exact` and checked to open on their page:
 
 - Sell finder: https://claude.ai/artifact/QNYTRUABGUvbUkhYyEfsEb
 - Engineers with "laser": https://claude.ai/artifact/2As2BUSDRzaNU8F7mgDJGB
 
-They are recorded with the capture paths as a `[note]` in `.atelier/missions/astromech-xajc/notes.md`. Both are private until shared.
+They are recorded with the capture paths as a `[note]` in `.atelier/missions/astromech-xajc/notes.md`, which reaches main when this item merges. Both are private until shared.

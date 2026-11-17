@@ -17,6 +17,6 @@
   { "name": "powerplay", "hash": "powerplay" },
   { "name": "settings", "hash": "settings" },
   { "name": "controller", "hash": "controller" },
-  { "name": "sell-anywhere-no-route", "hash": "places/sell/painite?range=anywhere", "query": "core=ready", "sizes": ["1100x700", "2560x1440"], "steps": [{ "waitSel": "[role=table][aria-label=Results] .row.result" }, { "rows": "[role=table][aria-label=Results] .row.result", "label": "rowsOnOpen" }, { "scrollTop": "[role=table][aria-label=Results] .row.result" }, { "rows": "[role=table][aria-label=Results] .row.result", "label": "rowsScrolled" }] }
+  { "name": "sell-anywhere-no-route", "hash": "places/sell/painite?range=anywhere", "query": "core=ready", "sizes": ["1100x700", "2560x1440"], "steps": [{ "waitSel": "[role=table][aria-label=Results] .row.result" }, { "rows": "[role=table][aria-label=Results] .row.result", "label": "rowsOnOpen" }, { "scrollTop": "[role=table][aria-label=Results]" }, { "rows": "[role=table][aria-label=Results] .row.result", "label": "rowsScrolled" }] }
  ]
 }
