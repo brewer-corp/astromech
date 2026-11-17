@@ -23,3 +23,17 @@ without the route panel question. Row 2 expects "the mining rate, 18 t per hour"
 | B | No single value stands out. The orange "18 t per hour" under MINING draws the eye first, but the page seems to be about "183,674,700 cr" under SELL YOUR CARGO, since it is first and leads the row. | fail |
 
 Both put the cargo total, the first block in the row, against the orange rate in the fourth.
+
+### With the blocks reordered: Mining, Sell your cargo, This session, Powerplay
+
+The blocks now stand in the order the main value is picked, so the block that holds it leads
+the row. Two new readers, the same prompt, the new capture:
+
+| Reader | Answer, verbatim (main value \| can change \| needs you) | Main value mark |
+|---|---|---|
+| C | 18 t per hour (the orange Mining figure) \| none: Mining, Sell my cargo, Session and Powerplay are only links, and the icons next to "Test System" and "LHS 1827" look like copy buttons \| none | pass |
+| D | 18 t per hour (the orange mining rate under MINING; other figures compete with it: 183,674,700 cr, 14.6 M cr per hour, 1,829 merits) \| the two icon buttons after "Good Landing · LHS 1827 · 1 jump" (add as a waypoint, set as destination) and the copy icons beside "Test System" and "LHS 1827" \| none | pass |
+
+Reader C's can change answer, "none", misses the Add stop and Set destination icons beside Good
+Landing, which row 2 expects. Those icons are unchanged by this item, and that question passed
+in both of astromech-crxa's rounds.

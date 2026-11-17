@@ -9,7 +9,8 @@
   // summarises does. The page's one main value is the first block that shows a figure of: the
   // mining run's tons per hour, the hold's best total, the session's credits per hour. Only that
   // block draws its value in Value XL, Orange Lit; every other block's value steps down to
-  // Value L, Options Grey (DESIGN.md Board), so size and colour agree on which one leads.
+  // Value L, Options Grey (DESIGN.md Board), so size and colour agree on which one leads. The
+  // blocks stand in that same order, so the main value's block comes first in the row.
   import { useFrame } from "../../lib/frame.svelte";
   import { creditParts, loadUnsold, type Unsold } from "../../lib/exploration";
   import { failure } from "../../lib/ui/errors";
@@ -116,6 +117,15 @@
       </div>
 
       <Blocks>
+        <!-- In the order the main value is picked: the block that can hold it leads the row. -->
+        {#if mining && run}
+          <Block title="Mining" href="#/mining" link="Mining" stale={statusReason}>
+            <p class="value">
+              <span class={main === "mining" ? "type-value-xl main" : "type-value-l"}>{run.per_hour == null ? "–" : run.per_hour.toFixed(0)}</span><span class="type-unit">t per hour</span>
+            </p>
+            <p class="type-label">{run.total.toLocaleString("en")} t refined</p>
+          </Block>
+        {/if}
         <!-- Asked once where the commander is is known, so opening the page asks once. -->
         {#if hold && ship && here.loaded}
           <Sale {ship} system={at?.system ?? null} main={main === "sale"} stale={shipReason} onfigure={(f) => (saleFigure = f)} />
@@ -163,14 +173,6 @@
                 {st.power}{#if st.rank != null}{` · rank ${st.rank}`}{/if}{#if st.next}{` · ${num(st.next.to_go)} merits to rank ${st.next.rank}`}{/if}
               </p>
             {/if}
-          </Block>
-        {/if}
-        {#if mining && run}
-          <Block title="Mining" href="#/mining" link="Mining" stale={statusReason}>
-            <p class="value">
-              <span class={main === "mining" ? "type-value-xl main" : "type-value-l"}>{run.per_hour == null ? "–" : run.per_hour.toFixed(0)}</span><span class="type-unit">t per hour</span>
-            </p>
-            <p class="type-label">{run.total.toLocaleString("en")} t refined</p>
           </Block>
         {/if}
       </Blocks>
