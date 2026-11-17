@@ -78,6 +78,12 @@ pub fn offers(engineer: &str, blueprint: &str, group: &str) -> u8 {
         .unwrap_or(0)
 }
 
+/// Highest grade `engineer` offers on modules of `group`, over all its blueprints (0 if none).
+pub fn best_grade(engineer: &str, group: &str) -> u8 {
+    let Some(g) = data::group(group) else { return 0 };
+    g.blueprints.iter().map(|b| offers(engineer, b, group)).max().unwrap_or(0)
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct EngineerView {
     pub id: i64,
