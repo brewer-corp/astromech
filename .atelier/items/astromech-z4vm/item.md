@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-z4vm
 title: Header tabs run off a narrow window at large Text sizes, and the page scrolls sideways
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - bug
