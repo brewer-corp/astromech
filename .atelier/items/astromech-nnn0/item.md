@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-nnn0
 title: Ships > Suits as a loadout
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-m
