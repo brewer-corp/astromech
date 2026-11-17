@@ -271,7 +271,7 @@
   /* Below the dock width, the sidebar over the page, under the strip: a 1 px orange line on its
      open edge and the page dimmed behind it (The Dimmed Page Rule). */
   .scrim, .over { position: absolute; top: var(--strip); bottom: 0; z-index: 30; }
-  .scrim { left: 0; right: 0; background: var(--scrim); }
+  .scrim { left: 0; right: 0; background: var(--scrim-route); }
   .over { left: 0; width: var(--sidebar); border-right: 1px solid var(--accent); }
   /* DESIGN.md Frame: a 64 px row with the 1 px orange rule under it; stacked, the tabs add 44 px. */
   /* The rule runs the full width of the window, over the route sidebar (The Full-Width Header Rule). */

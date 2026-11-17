@@ -1272,6 +1272,7 @@ not have yet: the item named adds them, and the rows it replaces stay until then
 | placeholder | `--placeholder` | #ff7100bf (Orange at 75 %) |
 | on-orange | `--on-accent` | #0c0d0f |
 | scrim | `--scrim` | #000000b3 (black at 70 %), behind a dialog only |
+| scrim, route | `--scrim-route` | Void at 72 %, the page behind the route sidebar open over it ([The Dimmed Page Rule](#named-rules-2)) |
 | white | `--text-hi` | #ffffff |
 | options-grey | `--options-grey` | #e0e0e0 |
 | prose-grey | `--prose` | #c4c4c4 |
