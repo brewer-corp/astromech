@@ -67,7 +67,7 @@
       <span class="type-label">Unlocked</span>
     {/if}
   {:else}
-    <span class="type-label step {h.status}" {@attach tip(h.left ?? "")}>{h.left}</span>
+    <span class="type-label step {h.status}">{h.left}</span>
   {/if}
 {/snippet}
 
@@ -177,6 +177,8 @@
   .row.heads { min-height: 1.75rem; border-bottom: 1px solid var(--line); margin-bottom: var(--sp-1); }
   .grp { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: var(--sp-1); min-width: 0; }
   .grp > :global(*) { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* The step left is what the commander does next, so it wraps rather than cut (astromech-vbz3). */
+  .grp > .step { white-space: normal; text-wrap: pretty; }
   .acts { display: flex; gap: var(--sp-1); }
   .rownote { padding: 0 var(--sp-3) var(--sp-2); }
   @container win (max-width: 56.25rem) {
