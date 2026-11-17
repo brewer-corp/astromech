@@ -9,7 +9,7 @@
 //! ends its WebView2 processes; the app stays in the tray. Every call the page makes goes
 //! through one Tauri command, [`call`], into the core's command registry in this process.
 
-use crate::tray;
+use crate::{tray, window_size};
 use astromech_api::{control, Registry};
 use astromech_core::app::{self, Core, Opts, Ui, UiState, WindowState};
 use astromech_core::logging::log;
@@ -69,6 +69,8 @@ pub struct Host {
     opening: Mutex<()>,
     /// The window's press listener runs until this is set (when the window is destroyed).
     input_stop: Mutex<Option<Arc<AtomicBool>>>,
+    /// The window's minimum now, for the room of the display it is on.
+    minimum: Mutex<window_size::Minimum>,
 }
 
 impl Host {
@@ -113,8 +115,8 @@ impl Host {
         let loaded = AtomicBool::new(false);
         let mut b = WebviewWindowBuilder::new(&self.app, LABEL, WebviewUrl::App(page.into()))
             .title(TITLE)
-            .inner_size(1200.0, 800.0)
-            .min_inner_size(800.0, 500.0)
+            .inner_size(window_size::START.0, window_size::START.1)
+            .min_inner_size(window_size::MINIMUM.0, window_size::MINIMUM.1)
             .on_page_load(move |_, p| {
                 if p.event() == tauri::webview::PageLoadEvent::Finished && !loaded.swap(true, Ordering::SeqCst) {
                     // Real time: the cold-start line measures this process's own start.
@@ -133,12 +135,43 @@ impl Host {
             ));
         }
         let w = b.build().map_err(|e| format!("building the window: {e}"))?;
+        // A new window has the minimum it was built with.
+        *self.minimum.lock().unwrap_or_else(|e| e.into_inner()) = window_size::Minimum(window_size::MINIMUM);
+        self.fit_display(&w);
         #[cfg(windows)]
         self.watch_process_failed(&w);
         #[cfg(not(windows))]
         let _ = w;
         self.start_input();
         Ok(())
+    }
+
+    /// Bring the window's minimum and size down to the room its display's work area leaves,
+    /// where that is less than DESIGN.md's 1100 x 700 or the 1200 x 800 it opens at
+    /// ([`window_size::fit`]), and move it to the work area's corner so none of it is off
+    /// screen. On a display with the room, nothing changes.
+    fn fit_display(&self, w: &tauri::WebviewWindow) {
+        let Some((room, corner)) = room(w) else { return };
+        if room.0 >= window_size::START.0 && room.1 >= window_size::START.1 {
+            return;
+        }
+        log(&format!("window: the display leaves {:.0} x {:.0}, below the design's size", room.0, room.1));
+        self.refit_minimum(w);
+        let start = window_size::fit(room).start;
+        let _ = w.set_size(tauri::LogicalSize::new(start.0, start.1));
+        let _ = w.set_position(corner);
+    }
+
+    /// Set the window's minimum for the room of the display it is on now, when that differs
+    /// from the one it has: on start, and after a move to another display or a scale change.
+    /// Only the minimum: the window keeps its size and place.
+    fn refit_minimum(&self, w: &tauri::WebviewWindow) {
+        let Some((room, _)) = room(w) else { return };
+        let changed = self.minimum.lock().unwrap_or_else(|e| e.into_inner()).refit(room);
+        if let Some(min) = changed {
+            log(&format!("window: minimum {:.0} x {:.0}", min.0, min.1));
+            let _ = w.set_min_size(Some(tauri::LogicalSize::new(min.0, min.1)));
+        }
     }
 
     /// The window was destroyed (closed, or rebuilt after a crash): its WebView2 processes are
@@ -260,6 +293,21 @@ impl Host {
             Err(e) => log(&format!("window: couldn't rebuild it: {e}")),
         }
     }
+}
+
+/// The inner size, in logical px, that the work area of the window's display leaves once the
+/// window's frame (title bar, borders) is taken off, and the work area's corner.
+fn room(w: &tauri::WebviewWindow) -> Option<((f64, f64), tauri::PhysicalPosition<i32>)> {
+    let (Ok(Some(m)), Ok(outer), Ok(inner)) = (w.current_monitor(), w.outer_size(), w.inner_size()) else {
+        return None;
+    };
+    let scale = m.scale_factor();
+    let area = m.work_area();
+    let room = (
+        f64::from(area.size.width.saturating_sub(outer.width.saturating_sub(inner.width))) / scale,
+        f64::from(area.size.height.saturating_sub(outer.height.saturating_sub(inner.height))) / scale,
+    );
+    Some((room, area.position))
 }
 
 /// The page's presses, until `stop` is set: the window's subscription to the input source.
@@ -390,6 +438,7 @@ pub fn run(opts: Opts) -> i32 {
         refresh_queued: AtomicBool::new(false),
         debug_port: opts.webview_debug_port,
         opening: Mutex::new(()),
+        minimum: Mutex::new(window_size::Minimum(window_size::MINIMUM)),
         input_stop: Mutex::new(None),
     });
     // The core starts only now, after Builder::build. tao registers keyboard and mouse Raw
@@ -410,10 +459,18 @@ pub fn run(opts: Opts) -> i32 {
     app::open_at_start(&opts, &booted.core);
 
     let mut held = Some((booted, begun));
-    tauri_app.run(move |_, e| match e {
+    tauri_app.run(move |handle, e| match e {
         // Closing the window asks to exit with no code; the app stays in the tray.
         RunEvent::ExitRequested { code: None, api, .. } => api.prevent_exit(),
         RunEvent::WindowEvent { label, event: WindowEvent::Destroyed, .. } if label == LABEL => host.window_destroyed(),
+        // Moved to another display, or its scale changed: the minimum follows that display's room.
+        RunEvent::WindowEvent {
+            label, event: WindowEvent::Moved(_) | WindowEvent::ScaleFactorChanged { .. }, ..
+        } if label == LABEL => {
+            if let Some(w) = handle.get_webview_window(LABEL) {
+                host.refit_minimum(&w);
+            }
+        }
         // Quit (the tray, the `quit` command, an update's restart): the session ends and held
         // keys are released, then the control API's endpoint file goes and the mutex with it.
         RunEvent::Exit => {
