@@ -26,7 +26,7 @@ import type { StationsNearby } from "../lib/stations";
 import { DEFAULT_DISTANCE_LY, DEFAULT_MAX_AGE_DAYS, type CargoPlan, type CargoSearch, type MarketCompare, type Offer, type RouteDefaults, type RouteKind, type RouteSearch, type Side, type TradeRoute, type TradeSearch } from "../lib/trade";
 import type { WindowCommand } from "../lib/transport";
 import type { EngineerSearch, UnlockTree } from "../lib/unlocks";
-import { coreReply, fakeScenario, previewData, previewGate, previewLookup } from "./fakecore";
+import { coreReply, fakeInSpace, fakeScenario, previewData, previewGate, previewLookup } from "./fakecore";
 import coloniesFixture from "./fixtures/colonies.json";
 import projectsFixture from "./fixtures/colonisation.json";
 import engineeringFixture from "./fixtures/engineering.json";
@@ -71,7 +71,7 @@ const targetsSample = recorded<Record<Target, Targets>>(targetsFixture);
 const sessionSample = recorded<Session>(sessionFixture);
 const shipsSample = recorded<{ cases: { plan: Plan; stats: StatsComparison }[]; fleet: Fleet; headlines: Record<number, Headline> }>(shipsFixture);
 const sitesSample = recorded<Record<string, Sites | undefined>>(sitesFixture);
-const stationSample = recorded<{ here: DockedHere; book: OutfittingSearch }>(stationFixture);
+const stationSample = recorded<{ here: DockedHere; book: OutfittingSearch; undocked: DockedHere }>(stationFixture);
 const moduleSample = recorded<StationsNearby>(moduleFixture);
 const shipSample = recorded<StationsNearby>(shipFixture);
 const stationsSample = recorded<StationsNearby>(stationsFixture);
@@ -275,6 +275,15 @@ const NOT_DOCKED: DockedHere = {
   government: null, allegiance: null, landing_pads: null, dist_from_star_ls: null, max_pad: null, ship: null, outfitting: null,
 };
 
+/** The sample docking, or in space after undocking: in the system a jump reached (fakeJump), or
+ * the recorded reply's own under `?docked=no`. */
+function dockedHere(): DockedHere {
+  const space = fakeInSpace();
+  if (!space) return labelled(stationSample.here, "Sample docking");
+  const { undocked } = stationSample;
+  return labelled({ ...undocked, system: space.system ?? undocked.system }, "Sample docking");
+}
+
 /** The same layout with nothing held, no snapshot and nowhere known. */
 function nothingHeld(): Inventory {
   // `here` is absent when nowhere is known (the core skips it).
@@ -397,7 +406,7 @@ export function shellCommands(publish: (topic: string, payload: unknown) => void
     colony_candidates: colonyCandidates,
     logbook: ({ query }) => previewData("logbook", () => searchLogbook(query), () => noHistory(query)),
     session_summary: () => previewData("session_summary", () => labelled(sessionSample, "Sample journal history"), () => null),
-    docked_here: () => previewData("docked_here", () => labelled(stationSample.here, "Sample docking"), () => NOT_DOCKED),
+    docked_here: () => previewData("docked_here", dockedHere, () => NOT_DOCKED),
     outfitting_search: ({ query }) => previewData("outfitting_search", () => searchOutfitting(query), () => ({ stations: 0, snapshots: 0, found: [] })),
     exploration_system: () =>
       previewData("exploration_system", () => labelled(explorationSample.system, "Sample system"), (): SystemView => ({
