@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-3ca6
 title: 'Finder results read as results: grouped two-line rows, demand against your hold'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-l
