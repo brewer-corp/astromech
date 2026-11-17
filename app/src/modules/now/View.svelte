@@ -34,7 +34,17 @@
   const unsold = new Poll<Unsold | null>(loadUnsold, "read your unsold data", 15000);
   for (const p of [here, session, power, unsold]) $effect(() => p.start());
 
-  const running = $derived(frame.status?.game === "running");
+  // A failed frame read keeps the last answer, as the page's own polls do: one missed read
+  // neither hides the blocks nor makes Sell your cargo ask again with nothing changed.
+  let status = $state<typeof frame.status>(null);
+  let shipKept = $state<typeof frame.ship>(null);
+  $effect(() => {
+    if (frame.status) status = frame.status;
+  });
+  $effect(() => {
+    if (frame.ship) shipKept = frame.ship;
+  });
+  const running = $derived(status?.game === "running");
   /** The frame has read the status once: until then, whether Elite runs isn't known. */
   const known = $derived(frame.read);
   const at = $derived(here.value);
@@ -43,9 +53,9 @@
   const docked = $derived(running && !!at?.docked && !!at.station);
   const inSpace = $derived(running && !!at && !at.docked && !!at.system);
 
-  const ship = $derived(frame.ship);
+  const ship = $derived(shipKept);
   const hold = $derived(running && !!ship?.sellable?.length);
-  const run = $derived(running ? (frame.status?.mining ?? null) : null);
+  const run = $derived(running ? (status?.mining ?? null) : null);
   const mining = $derived(!!run?.started);
   const pledged = $derived(power.value?.standing.power != null);
   const showPower = $derived(!power.loaded || pledged);
@@ -91,14 +101,6 @@
       </div>
 
       <Blocks>
-        {#if mining && run}
-          <Block title="Mining" href="#/mining" link="Mining">
-            <p class="value">
-              <span class="type-value-xl" class:main={main === "mining"}>{run.per_hour == null ? "–" : run.per_hour.toFixed(0)}</span><span class="type-unit">t per hour</span>
-            </p>
-            <p class="type-label">{run.total.toLocaleString("en")} t refined</p>
-          </Block>
-        {/if}
         <!-- Asked once where the commander is is known, so opening the page asks once. -->
         {#if hold && ship && here.loaded}
           <Sale {ship} system={at?.system ?? null} main={main === "sale"} onfigure={(f) => (saleFigure = f)} />
@@ -142,6 +144,14 @@
                 {st.power}{#if st.rank != null}{` · rank ${st.rank}`}{/if}{#if st.next}{` · ${num(st.next.to_go)} merits to rank ${st.next.rank}`}{/if}
               </p>
             {/if}
+          </Block>
+        {/if}
+        {#if mining && run}
+          <Block title="Mining" href="#/mining" link="Mining">
+            <p class="value">
+              <span class="type-value-xl" class:main={main === "mining"}>{run.per_hour == null ? "–" : run.per_hour.toFixed(0)}</span><span class="type-unit">t per hour</span>
+            </p>
+            <p class="type-label">{run.total.toLocaleString("en")} t refined</p>
           </Block>
         {/if}
       </Blocks>

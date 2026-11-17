@@ -12,6 +12,9 @@ import View from "./View.svelte";
 // world's standing. `?game=running` says Elite is running; without it the status waits for Elite.
 const block = async (name: string) => within(await screen.findByRole("region", { name }));
 const DESTINATION = { name: "Set LHS 1827 as the destination" };
+/** DESIGN.md Grey Dim, as the browser computes it. */
+const GREY_DIM = "rgb(106, 106, 106)";
+const colour = (el: HTMLElement) => getComputedStyle(el).color;
 
 describe("Now", () => {
   afterEach(() => {
@@ -63,13 +66,34 @@ describe("Now", () => {
     await vi.advanceTimersByTimeAsync(5000); // the docked_here poll sees the jump
     await waitFor(() => expect(asks).toHaveBeenCalledTimes(2));
     expect(await sale.findByText("Asking Ardent…")).toBeTruthy();
-    expect(sale.getByText("183,674,700"), "the old answer stays").toBeTruthy();
+    expect(colour(sale.getByText("183,674,700")), "the old answer stays, dimmed").toBe(GREY_DIM);
     expect(sale.getByRole("button", DESTINATION)).toHaveProperty("disabled", true);
     expect(screen.getByRole("heading", { name: /^Deciat/ }), "in space in the new system").toBeTruthy();
 
     release();
     await waitFor(() => expect(sale.queryByText("Asking Ardent…")).toBeNull());
     expect(sale.getByRole("button", DESTINATION)).toHaveProperty("disabled", false);
+    expect(colour(sale.getByText("183,674,700"))).not.toBe(GREY_DIM);
+  });
+
+  it("a failed status or ship read keeps the blocks and asks nothing again", async () => {
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
+    startPreview("/?core=ready&game=running");
+    const asks = watch("trade_cargo");
+    render(View);
+    const sale = await block("Sell your cargo");
+    await sale.findByText("takes all 600 t");
+    await idle();
+    let fail = true;
+    answer("ship_status", async () => (fail ? Promise.reject("the core didn't answer") : previewAnswer("ship_status")));
+    answer("status", async () => (fail ? Promise.reject("the core didn't answer") : previewAnswer("status")));
+    await vi.advanceTimersByTimeAsync(2000);
+    await idle();
+    expect(screen.getByRole("region", { name: "Sell your cargo" })).toBeTruthy();
+    fail = false;
+    await vi.advanceTimersByTimeAsync(2000);
+    await idle();
+    expect(asks).toHaveBeenCalledTimes(1);
   });
 
   it("with no station in reach, says so and offers no destination", async () => {

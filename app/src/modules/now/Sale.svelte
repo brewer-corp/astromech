@@ -8,7 +8,7 @@
   import { jumps } from "../../lib/galaxy";
   import { saleKey } from "../../lib/now";
   import { addedNote, addStop, failedNote, followedNote, followRoute, type FollowNote, type Waypoint } from "../../lib/route";
-  import { DEFAULT_FILTERS, loadFilters } from "../../lib/search";
+  import { loadFilters } from "../../lib/search";
   import type { ShipStatus } from "../../lib/core";
   import { credits, DEFAULT_DISTANCE_LY, takes, tradeCargo, type CargoSearch, type StationSale } from "../../lib/trade";
   import { failure } from "../../lib/ui/errors";
@@ -52,7 +52,7 @@
     err = null;
     note = null;
     try {
-      const filters = await loadFilters("trade.cargo").catch(() => DEFAULT_FILTERS);
+      const filters = await loadFilters("trade.cargo");
       const r = await tradeCargo(null, filters);
       if (n !== seq) return;
       answer = r;
@@ -104,7 +104,7 @@
       <div class="answer" class:dim={busy}>
         {#if best}
           <p class="value">
-            <span class="type-value-xl" class:main>{credits(best.total)}</span><span class="type-unit">cr</span>
+            <span class="type-value-xl" class:main={main && !busy}>{credits(best.total)}</span><span class="type-unit">cr</span>
             <span class="type-label takes">takes {takes(best.sold, answer.plan.load)} t</span>
           </p>
           <p class="place">
