@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-fzhp
 title: Session and Logbook as time
-status: building
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
