@@ -9,7 +9,9 @@
  * "shots": [{ "name", "hash", "query"?, "sizes"?, "steps"?: [action] }] }. An action is one of
  * { "click": css } (the first match), { "waitSel": css }, { "waitText": text },
  * { "clickText": text } (the first button or link whose own text is that, ignoring case: a
- * control with no selector of its own, such as Skip setup or a top tab), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
+ * control with no selector of its own, such as Skip setup or a top tab), { "select": css, "option": text }
+ * (choose the option whose text starts with that in the first matching <select>, as the commander
+ * would: a dropdown has no option to click), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
  * { "rows": css } (count the whole rows of that selector in view; with scrollTop, once more after it).
  * Each capture loads fresh in its own browser context, so no state (a collapsed sidebar, a row
  * gone compact) carries over. Writes <out>/<name>-<w>x<h>.png and <out>/report.json.
@@ -359,6 +361,21 @@ async function capture(browser, base, plan, shot, size, outDir) {
       const find = (t) => [...document.querySelectorAll("button, a")].find((el) => el.textContent.trim().toLowerCase() === t.toLowerCase());
       await page.waitForFunction(find, {}, s.clickText);
       await page.evaluate((t) => [...document.querySelectorAll("button, a")].find((el) => el.textContent.trim().toLowerCase() === t.toLowerCase()).click(), s.clickText);
+    }
+    if (s.select) {
+      await page.waitForSelector(s.select);
+      const picked = await page.$eval(
+        s.select,
+        (el, t) => {
+          const o = [...el.options].find((x) => x.textContent.trim().startsWith(t));
+          if (!o) return false;
+          el.value = o.value;
+          el.dispatchEvent(new Event("change", { bubbles: true }));
+          return true;
+        },
+        s.option,
+      );
+      if (!picked) throw new Error(`${s.select} has no option starting "${s.option}"`);
     }
     if (s.rows) extra[s.label ?? "rows"] = await rowsInView(page, s.rows);
     if (s.scrollTop)
