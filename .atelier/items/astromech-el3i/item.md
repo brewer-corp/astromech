@@ -139,6 +139,12 @@ commander in the recordings, and no colour is outside DESIGN.md's list.
 `trade.json`, so I did not invent fixtures for them. The tests cover them (the warning and the
 struck pad by its accessible name, and "Fly back empty"), and the captures do not show them.
 
+**After round 4.** `atelier merge` refused because main had moved, and `app/eslint.config.js`
+conflicted. Main had taken Biology (astromech-evj3) off `TOKENS_EXEMPT` while this branch took
+Trade off, so neither line stays. Nothing in the trade page, `PadLetter.svelte`, the captures or
+the guide changed in the merge. On the merged head, `pnpm check`, `pnpm lint`, `pnpm test`
+(914 tests) and the 7 journeys pass.
+
 ### Responses
 
 1-sh7u.1: fixed in 28201cda
