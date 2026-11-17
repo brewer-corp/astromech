@@ -53,7 +53,7 @@ The tabs now say what is in them, and On foot is gone as a page with nothing it 
 **On foot's parts.**
 - Ships > Suits is `modules/suits`, which is `modules/odyssey` moved with `git mv`. It keeps the owned gear line, picker, pick cards, shopping list and bartender trade unchanged, and drops only the view choice. Its `TOKENS_EXEMPT` entry moves with it, until astromech-nnn0.
 - Materials > On foot is a kind added after Other. It has a tile section per ShipLocker category, Held only and All items, and the held total with what a bartender pays. A mission count is a tile's corner mark. The locker, backpack, mission, barter and sale lines are in the side panel. The table became tiles because Materials is a Board of tiles, as in the approved `7-materials-on-foot-2560.png`. I left out that capture's "need N" marks and "Wanted by" panel: they cross-reference plans, which is new design work. These parts are written lint-clean, so Materials needs no exemption. `odyssey_view` is polled only while On foot is chosen. Selection is `#/materials/onfoot/<id>`, so an item id can never select a material.
-- Engineers > Suit engineers cards list every mod from the Odyssey data, with the "(?)" Tip, and Colonia. If the read fails, the cards fall back to the two-item specialties. This was astromech-eq5k's first part. I did not move On foot's "next step" and "refers" lines: the unlock tree already shows each referral task on the referred engineer's card.
+- Engineers > Suit engineers cards list every mod from the Odyssey data, with the "(?)" Tip, and Colonia. If the read fails, the cards fall back to the two-item specialties. This was astromech-eq5k's first part. Each suit card also says what that engineer asks to refer the next ("Refers Wellington Beck: Provide 5 Settlement Defence Plans"). The tree shows only "Unlock <name> first" on the referred card until the introducer is unlocked, so this line is how the items can be collected ahead. On foot's "next step" line did not move: the tree's own line covers it.
 
 **Old links.** `App.svelte` maps `#/odyssey` and `?view=inventory` to `materials?kind=onfoot`, `?view=blueprints` to `suits`, and `?view=engineers` to `unlocks?kind=suit`. `#/engineering` and `#/stored` keep their ids. Find or plot lists every page by manifest and gains an "On foot" entry that opens the kind. No Rust code or journey uses these routes. A test checks each old address against the top tab and page tab it lands on.
 
@@ -65,8 +65,15 @@ The tabs now say what is in them, and On foot is gone as a page with nothing it 
 
 **Captures**, 2560 x 1440 at Text size 145, in `docs/design/`:
 - after: `tabs-ships-2560-after.png`, `tabs-suits-2560-after.png`, `tabs-materials-on-foot-2560-after.png`, `tabs-materials-on-foot-selected-2560-after.png`, `tabs-engineers-suit-2560-after.png`;
+- Stored modules: `tabs-stored-2560-before.png` and `tabs-stored-2560-after.png`;
 - before, from `main`: `tabs-ships-2560-before.png`, `tabs-on-foot-{inventory,blueprints,engineers}-2560-before.png`, `tabs-engineers-suit-2560-before.png`;
 - the stacked header at 1100 x 700: `tabs-header-1100-after.png`.
 
 **Checks.** `pnpm lint && pnpm check && pnpm build && pnpm test` pass (86 files, 723 tests), and so do `scripts/check-dist.py` and `scripts/check-guide.py`. No Rust changed, so I did not run cargo.
+
+### Responses
+
+1-l4sg.1: fixed in 2242b5dd, with a test that fails without it (ShipLocker pending, then failed, with the ship materials answered).
+1-l4sg.2: fixed in 8937386b, with a check that Hero Ferrari's card says "Refers Wellington Beck: Provide 5 Settlement Defence Plans" before Hero is unlocked.
+1-l4sg.3: fixed in 6cc109e7; the before captures from `main` draw in a fallback font, but the content and tabs are the same.
 
