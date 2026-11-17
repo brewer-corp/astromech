@@ -94,7 +94,7 @@ export function onRoute(cb: (route: string) => void): () => void {
   return subscribe<string>("route", cb);
 }
 
-/** One-line summary for the header. */
+/** The core's one-line state, on the right of the status bar (StatusBar.svelte). */
 export function headerState(s: CoreStatus | null): string {
   if (!s) return "Not running";
   if (s.starting) return "Starting voice…";
