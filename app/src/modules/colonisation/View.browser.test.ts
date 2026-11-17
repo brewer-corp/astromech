@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import "../../design/tokens.css";
 import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import { page } from "vitest/browser";
 import projectsSample from "../../preview/fixtures/colonisation.json";
@@ -100,6 +101,15 @@ describe("Colonisation", () => {
         return f;
       });
       expect(folded.textContent?.replace(/\s+/g, " ")).toMatch(/^Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2,120 t · 1jump · 8.6ly · \d+ d old$/);
+      // Where a line is too narrow, the stock is what gives way: the trip's units and the report's
+      // age keep their width, inside the line (finding astromech-3ca6/2-ppw4.2).
+      const lines = [...document.querySelectorAll<HTMLElement>(".result .folded")];
+      expect(lines.some((f) => [...f.querySelectorAll<HTMLElement>(".text")].some((t) => t.scrollWidth > t.clientWidth))).toBe(true);
+      for (const f of lines) {
+        expect(f.scrollWidth).toBeLessThanOrEqual(f.clientWidth);
+        const age = f.querySelector(".age")!;
+        expect(age.getBoundingClientRect().right).toBeLessThanOrEqual(f.getBoundingClientRect().right);
+      }
     } finally {
       resetScale();
       await page.viewport(1200, 800);
