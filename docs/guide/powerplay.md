@@ -1,39 +1,52 @@
 # Powerplay
 
-The **Powerplay** page is for daily use: your standing, the state of the system you are in, what earns
-merits here, and where your power wants work nearby.
+The **Powerplay** page answers three questions at a glance: how far you are from the next rank,
+how long the cycle has left, and what the system you are in wants. Your power's name heads the
+page, with how long you have been pledged and your rank.
 
 **What it needs:** the journal (your pledge, rank and merits, and the system's Powerplay state from
 your last jump), and for **Where to work** a network connection (Spansh). If you are not pledged
-to a power, the page says so and only shows the system.
+to a power, the page says **Not pledged** and how to pledge, and shows only the system.
 
-## My standing
+## Next rank
 
-Your power, **rank**, **merits** (lifetime), merits **this week** and when the cycle ends, merits
-**this session**, how long you have been **pledged**, and the **next rank** with its reward and
-the merits to go. Point at the week's merits for what they count. Week merits count what the journal logs since Thursday 07:00 UTC. Weekly
-assignment rewards are not logged, so they are not in the count. The game sometimes logs one
-award twice but counts it once; the count drops back by that award at your next award or login.
+The merits still to earn for the next rank, the page's main figure, with a bar from what your
+current rank needed to what the next one needs, filled to your lifetime merits. Under it, what the
+next rank needs and its reward. Below rank 1 the page says to complete the five initial
+assignments instead.
+
+## This cycle
+
+How long the weekly cycle has left ("2 d 14 h left") and when it ends, in UTC ("Ends Thursday
+07:00 UTC").
+
+## Your merits
+
+Merits this cycle, with this session's and your lifetime total under them. Point at the cycle's
+figure for what it counts: what the journal logs since the cycle began. Weekly assignment rewards
+are not logged, so they are not in the count. The game sometimes logs one award twice but counts
+it once; the count drops back by that award at your next award or login.
 
 ## This system
 
-For the system of your last jump or login: who controls it, its state and a **control** bar
-showing progress through the band, this cycle's **reinforcement** and **undermining**, and any
-other powers active there. For a system no power controls it shows its state (unoccupied, or
-contested) and who is acquiring it and how far.
+The system of your last jump or login (point at its name), with a copy button and Spansh and
+Inara links, then its state and who controls it, and what your power can do here: reinforce,
+undermine or acquire. The game shows this only in the system and galaxy maps, not on the HUD.
 
-When the system is one your power could work, a line says what: reinforce, undermine or acquire.
-The game shows this only in the system and galaxy maps, not on the HUD. The values are as of
-your last jump.
+In a controlled system, one bar shows this cycle's reinforcement against undermining, with both
+figures under it and a line saying which is ahead and by how much. A thin bar under that shows
+the progress through the state's band; point at its percentage for which band. In a system no
+power controls, each power acquiring it has a bar with its progress. Other powers active here are
+named last.
 
 ## What earns merits here
 
 What earns your power merits in this system, in a short list. Point at an activity for how to
-do it. The power's ethos activities come first, tagged **ethos** (bonus merits), and the
-controlling power's **weak spots** tagged too. A small "?" marks a rule not yet checked in game;
-the activity's explanation gives the reason. The rules come from community guides and are dated
-at the foot of the list ("as of ... rules v..."). Frontier rebalances Powerplay often, so check a
-surprising line in game.
+do it. The power's ethos activities come first, tagged **Ethos** (bonus merits), and the
+controlling power's **Weak spots** tagged too; **On foot** marks an activity done on foot. A small
+"?" marks a rule not yet checked in game; pointing at the activity gives the reason. The rules come
+from community guides and are dated at the foot of the list ("as of ... rules v..."). Frontier
+rebalances Powerplay often, so check a surprising line in game.
 
 It lists reinforcing (when your power controls the system), undermining (another power's system) and acquiring (an unoccupied system your power is acquiring). Only an unoccupied system your power is not acquiring has nothing, and the page says so.
 
@@ -45,8 +58,8 @@ Nearby systems where your power wants work, on the usual search ([Places](places
 - **Reinforce.** Your power's systems.
 - **Undermine.** Other powers' systems.
 
-Choose how far to look: 20, 40 or 80 light years (40 by default). Each row has the jumps,
-the system, its Powerplay state and the distance. The filters, under **Change**, are this radius and the age of the data. Source: Spansh.
+Choose how far to look: 20, 40 or 80 light years (40 by default). Each row has the jumps and the distance,
+the system and its Powerplay state (with how many other powers are active there; point at it for which), and for a controlled system this cycle's reinforcement over its undermining. The filters, under **Change**, are this radius and the age of the data. Source: Spansh.
 
 ## By voice and as callouts
 

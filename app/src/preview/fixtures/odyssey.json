@@ -3,17 +3,20 @@
     {
       "from": 1,
       "gear": "maverick",
+      "item": 1700000000001,
       "kind": "upgrade",
       "to": 3
     },
     {
       "id": "nightvision",
+      "item": 1700000000001,
       "kind": "mod",
       "maker": null
     },
     {
       "from": 1,
       "gear": "karmap15",
+      "item": 1710000000004,
       "kind": "upgrade",
       "to": 2
     }
@@ -78,6 +81,7 @@
         "pick": {
           "from": 1,
           "gear": "maverick",
+          "item": 1700000000001,
           "kind": "upgrade",
           "to": 3
         },
@@ -151,6 +155,7 @@
         ],
         "pick": {
           "id": "nightvision",
+          "item": 1700000000001,
           "kind": "mod",
           "maker": null
         },
@@ -212,6 +217,7 @@
         "pick": {
           "from": 1,
           "gear": "karmap15",
+          "item": 1710000000004,
           "kind": "upgrade",
           "to": 2
         },
@@ -446,6 +452,11 @@
     "engineers": [
       {
         "colonia": false,
+        "coords": [
+          0.9375,
+          -47.8125,
+          46.28125
+        ],
         "id": 400001,
         "invite": "Complete 10 Restore or Reactivation missions",
         "mods": [
@@ -492,6 +503,11 @@
       },
       {
         "colonia": false,
+        "coords": [
+          -31.0,
+          93.96875,
+          -3.5625
+        ],
         "id": 400002,
         "invite": "Travel 100ly in Apex Interstellar Transport shuttles",
         "mods": [
@@ -538,6 +554,11 @@
       },
       {
         "colonia": false,
+        "coords": [
+          131.0625,
+          -73.59375,
+          -11.25
+        ],
         "id": 400003,
         "invite": "Complete 10 Conflict Zone (On Foot)",
         "mods": [
@@ -584,6 +605,11 @@
       },
       {
         "colonia": false,
+        "coords": [
+          -60.65625,
+          82.4375,
+          -45.0625
+        ],
         "id": 400004,
         "invite": "Sell 5 Opinion Polls to Bartenders",
         "mods": [
@@ -632,6 +658,11 @@
       },
       {
         "colonia": false,
+        "coords": [
+          100.1875,
+          -41.34375,
+          -78.0
+        ],
         "id": 400005,
         "invite": "Sell 15 total Classic Entertainment, Multimedia Entertainment, and/or Cat Media to Bartenders",
         "mods": [
@@ -680,6 +711,11 @@
       },
       {
         "colonia": false,
+        "coords": [
+          -16.28125,
+          -44.53125,
+          94.375
+        ],
         "id": 400006,
         "invite": "Complete 6 Covert Heist or Covert Theft missions",
         "mods": [
@@ -728,6 +764,11 @@
       },
       {
         "colonia": false,
+        "coords": [
+          93.875,
+          -9.25,
+          -32.53125
+        ],
         "id": 400007,
         "invite": "Reach unfriendly rep with Sirius Corporation",
         "mods": [
@@ -774,6 +815,11 @@
       },
       {
         "colonia": false,
+        "coords": [
+          -113.5,
+          -4.9375,
+          66.84375
+        ],
         "id": 400008,
         "invite": "Sell 20 total Biological Sample, Employee Genetic Data, and Genetic Research to Bartenders",
         "mods": [
@@ -820,6 +866,11 @@
       },
       {
         "colonia": false,
+        "coords": [
+          -19.96875,
+          117.625,
+          -90.46875
+        ],
         "id": 400009,
         "invite": "Sell 5 Smear Campaign Plans to Bartenders",
         "mods": [
@@ -872,6 +923,11 @@
       },
       {
         "colonia": true,
+        "coords": [
+          -9520.3125,
+          -909.5,
+          19808.75
+        ],
         "id": 400010,
         "invite": "Friendly reputation with Colonia Council",
         "mods": [
@@ -930,6 +986,11 @@
       },
       {
         "colonia": true,
+        "coords": [
+          -9534.21875,
+          -912.21875,
+          19792.375
+        ],
         "id": 400011,
         "invite": "Visit 5 Settlements in Colonia",
         "mods": [
@@ -988,6 +1049,11 @@
       },
       {
         "colonia": true,
+        "coords": [
+          -9513.09375,
+          -908.84375,
+          19814.28125
+        ],
         "id": 400012,
         "invite": "Sell 10 total Culinary Recipes or Cocktail Recipes to Bartenders in Colonia",
         "mods": [
@@ -1046,6 +1112,11 @@
       },
       {
         "colonia": true,
+        "coords": [
+          -9557.8125,
+          -880.1875,
+          19801.5625
+        ],
         "id": 400013,
         "invite": "Complete all referral tasks for Baltanos, Eleanor Bresa, & Rosa Dayette",
         "mods": [
@@ -3155,6 +3226,150 @@
         "value": 25000
       }
     ],
+    "loadouts": [
+      {
+        "id": 4293000001,
+        "name": "Explore",
+        "slots": [
+          {
+            "item": {
+              "gear": "karmaar50",
+              "grade": 2,
+              "id": 1710000000001,
+              "kind": "weapon",
+              "maker": "kinematic",
+              "mods": [
+                "magazinesize",
+                "stability"
+              ],
+              "name": "Karma AR-50"
+            },
+            "slot": "PrimaryWeapon1"
+          },
+          {
+            "item": {
+              "gear": "tkaphelion",
+              "grade": 3,
+              "id": 1710000000002,
+              "kind": "weapon",
+              "maker": "takada",
+              "mods": [
+                "greaterrange",
+                "improvedhipfireaccuracy",
+                "stability"
+              ],
+              "name": "TK Aphelion"
+            },
+            "slot": "PrimaryWeapon2"
+          },
+          {
+            "item": {
+              "gear": "karmap15",
+              "grade": 1,
+              "id": 1710000000004,
+              "kind": "weapon",
+              "maker": "kinematic",
+              "mods": [
+                "stability"
+              ],
+              "name": "Karma P-15"
+            },
+            "slot": "SecondaryWeapon"
+          }
+        ],
+        "suit": {
+          "gear": "maverick",
+          "grade": 1,
+          "id": 1700000000001,
+          "kind": "suit",
+          "maker": null,
+          "mods": [
+            "increasedairreserves"
+          ],
+          "name": "Maverick Suit"
+        },
+        "worn": true
+      },
+      {
+        "id": 4293000002,
+        "name": "Raid",
+        "slots": [
+          {
+            "item": {
+              "gear": "tkaphelion",
+              "grade": 3,
+              "id": 1710000000002,
+              "kind": "weapon",
+              "maker": "takada",
+              "mods": [
+                "greaterrange",
+                "improvedhipfireaccuracy",
+                "stability"
+              ],
+              "name": "TK Aphelion"
+            },
+            "slot": "PrimaryWeapon1"
+          }
+        ],
+        "suit": {
+          "gear": "maverick",
+          "grade": 1,
+          "id": 1700000000001,
+          "kind": "suit",
+          "maker": null,
+          "mods": [
+            "increasedairreserves"
+          ],
+          "name": "Maverick Suit"
+        },
+        "worn": false
+      },
+      {
+        "id": 4293000003,
+        "name": "Fight",
+        "slots": [],
+        "suit": {
+          "gear": "dominator",
+          "grade": 2,
+          "id": 1700000000002,
+          "kind": "suit",
+          "maker": null,
+          "mods": [],
+          "name": "Dominator Suit"
+        },
+        "worn": false
+      },
+      {
+        "id": 4293000004,
+        "name": "Spare",
+        "slots": [
+          {
+            "item": {
+              "gear": "karmap15",
+              "grade": 1,
+              "id": 1710000000004,
+              "kind": "weapon",
+              "maker": "kinematic",
+              "mods": [
+                "stability"
+              ],
+              "name": "Karma P-15"
+            },
+            "slot": "SecondaryWeapon"
+          }
+        ],
+        "suit": {
+          "gear": "maverick",
+          "grade": 1,
+          "id": 1700000000005,
+          "kind": "suit",
+          "maker": null,
+          "mods": [],
+          "name": "Maverick Suit"
+        },
+        "worn": false
+      }
+    ],
     "locker_ts": "2026-10-14T12:05:00Z",
     "mods": [
       {
@@ -3378,17 +3593,27 @@
       {
         "gear": "maverick",
         "grade": 1,
+        "id": 1700000000001,
         "kind": "suit",
         "maker": null,
         "mods": [
-          "increasedairreserves",
-          "nightvision"
+          "increasedairreserves"
         ],
         "name": "Maverick Suit"
       },
       {
         "gear": "maverick",
+        "grade": 1,
+        "id": 1700000000005,
+        "kind": "suit",
+        "maker": null,
+        "mods": [],
+        "name": "Maverick Suit"
+      },
+      {
+        "gear": "maverick",
         "grade": 3,
+        "id": 1700000000004,
         "kind": "suit",
         "maker": null,
         "mods": [
@@ -3401,6 +3626,7 @@
       {
         "gear": "dominator",
         "grade": 2,
+        "id": 1700000000002,
         "kind": "suit",
         "maker": null,
         "mods": [],
@@ -3409,6 +3635,7 @@
       {
         "gear": "karmaar50",
         "grade": 2,
+        "id": 1710000000001,
         "kind": "weapon",
         "maker": "kinematic",
         "mods": [
@@ -3418,8 +3645,20 @@
         "name": "Karma AR-50"
       },
       {
+        "gear": "karmap15",
+        "grade": 1,
+        "id": 1710000000004,
+        "kind": "weapon",
+        "maker": "kinematic",
+        "mods": [
+          "stability"
+        ],
+        "name": "Karma P-15"
+      },
+      {
         "gear": "tkaphelion",
         "grade": 3,
+        "id": 1710000000002,
         "kind": "weapon",
         "maker": "takada",
         "mods": [

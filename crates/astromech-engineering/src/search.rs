@@ -245,7 +245,10 @@ fn nearer(a: &SearchHit, b: &SearchHit) -> Ordering {
 }
 
 fn hit(n: &Node, here: Option<[f64; 3]>) -> SearchHit {
-    let coords = engineers::info(&n.name).map(|e| e.coords);
+    let coords = match n.kind.as_str() {
+        "suit" => engineers::onfoot_info(&n.name).map(|e| e.coords),
+        _ => engineers::info(&n.name).map(|e| e.coords),
+    };
     SearchHit {
         name: n.name.clone(),
         kind: n.kind.clone(),
@@ -381,6 +384,7 @@ mod tests {
 
     /// Every module type in the table is in the catalog, and every engineer the catalog names
     /// on one resolves to a located engineer and an unlock node: the search joins them by name.
+    /// Every suit engineer in the unlock data is located too.
     #[test]
     fn the_table_and_the_catalogs_agree() {
         let unlocks = crate::unlocks::catalog();
@@ -393,6 +397,9 @@ mod tests {
                     assert!(unlocks.iter().any(|u| key(&u.name) == key(name)), "{name} ({id}) has no unlock data");
                 }
             }
+        }
+        for n in unlocks.iter().filter(|u| u.kind == "suit") {
+            assert!(engineers::onfoot_info(&n.name).is_some(), "{} (suit) has no coordinates", n.name);
         }
         let mut words: Vec<&String> = table().entries.iter().flat_map(|e| &e.words).collect();
         let n = words.len();
@@ -509,6 +516,22 @@ mod tests {
         // a weapon word that is no modification: nothing, and the page says why
         let p = search("pistol", &t, None, &suits);
         assert!(p.hits.is_empty() && p.suit_word && p.kind.is_none());
+    }
+
+    #[test]
+    fn equal_suit_engineers_go_nearest_first() {
+        // From Shinrarta Dezhra, Uma Laszlo (Xuane, 75.76 ly) is nearer than Domino Green
+        // (Orishis, 119.57 ly), though Domino Green comes first by name.
+        let suits = [
+            SuitOffer { engineer: "Domino Green", mods: vec!["Greater Range"], unsure: vec![] },
+            SuitOffer { engineer: "Uma Laszlo", mods: vec!["Greater Range"], unsure: vec![] },
+        ];
+        for st in [Status::Unlocked, Status::Known] {
+            let t = with(tree(), &[("Domino Green", st, None), ("Uma Laszlo", st, None)]);
+            let s = search("range", &t, Some(HERE), &suits);
+            let r: Vec<(&str, Option<f64>)> = s.hits.iter().map(|h| (h.name.as_str(), h.distance_ly)).collect();
+            assert_eq!(r, [("Uma Laszlo", Some(75.76)), ("Domino Green", Some(119.57))], "{st:?}");
+        }
     }
 
     #[test]

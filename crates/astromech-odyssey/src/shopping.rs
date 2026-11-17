@@ -12,12 +12,25 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Pick {
     /// Upgrade a suit or weapon from grade `from` to grade `to` (each step in between).
-    Upgrade { gear: String, from: u8, to: u8 },
+    Upgrade {
+        gear: String,
+        from: u8,
+        to: u8,
+        /// The owned suit or weapon it is for, by its journal id (`OwnedGear::id`); none for a
+        /// pick not tied to one (every pick saved before picks could be).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        item: Option<i64>,
+    },
     /// A modification; `maker` picks the weapon maker's cost for weapon mods.
     Mod {
         id: String,
         #[serde(default)]
         maker: Option<String>,
+        /// As for `Upgrade`.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        item: Option<i64>,
     },
 }
 
@@ -121,7 +134,7 @@ fn cost(pick: &Pick, progress: &Progress) -> Result<(Materials, i64, bool, Strin
     let mut credits = 0;
     let mut partial = false;
     match pick {
-        Pick::Upgrade { gear, from, to } => {
+        Pick::Upgrade { gear, from, to, .. } => {
             let g = c.gear(gear).ok_or_else(|| format!("unknown suit or weapon `{gear}`"))?;
             if !(1..=4).contains(from) || !(2..=5).contains(to) || from >= to {
                 return Err(format!("{}: can't upgrade from grade {from} to {to}", g.name));
@@ -133,7 +146,7 @@ fn cost(pick: &Pick, progress: &Progress) -> Result<(Materials, i64, bool, Strin
             }
             Ok((m, credits, partial, format!("{} grade {from} → {to}", g.name), vec![]))
         }
-        Pick::Mod { id, maker } => {
+        Pick::Mod { id, maker, .. } => {
             let md = c.modification(id).ok_or_else(|| format!("unknown modification `{id}`"))?;
             let cost = md.cost(maker.as_deref()).ok_or_else(|| match maker {
                 Some(mk) => format!("{}: no cost for {} weapons", md.name, maker_title(mk)),
@@ -166,14 +179,15 @@ fn cost(pick: &Pick, progress: &Progress) -> Result<(Materials, i64, bool, Strin
 /// A title for a pick that can't be costed, from its ids alone.
 fn raw_title(p: &Pick) -> String {
     match p {
-        Pick::Upgrade { gear, from, to } => format!("{gear} grade {from} → {to}"),
-        Pick::Mod { id, maker: Some(mk) } => format!("{id} ({mk})"),
-        Pick::Mod { id, maker: None } => id.clone(),
+        Pick::Upgrade { gear, from, to, .. } => format!("{gear} grade {from} → {to}"),
+        Pick::Mod { id, maker: Some(mk), .. } => format!("{id} ({mk})"),
+        Pick::Mod { id, maker: None, .. } => id.clone(),
     }
 }
 
-/// What each pick needs against `h`, and the shopping list for all of them. A pick that can't be
-/// costed is reported on its own result and left out of the list.
+/// What each pick needs against `h`, and the shopping list for all of them. Each pick is costed
+/// once: two picks of one recipe (for two items, or tied to none) cost twice, and a pick for an
+/// item worn in several loadouts once, as it is one item. A pick that can't be costed is reported on its own result and left out of the list.
 pub fn shopping(picks: &[Pick], h: &Holdings, progress: &Progress) -> Shopping {
     let mut all = Materials::new();
     let mut credits = 0;
@@ -215,4 +229,33 @@ pub fn shopping(picks: &[Pick], h: &Holdings, progress: &Progress) -> Shopping {
     let barter_short = total.iter().filter_map(|l| l.barter.map(|b| b * l.short)).sum();
     let trade = barter::plan(&total, h);
     Shopping { picks: results, total, credits, credits_partial, barter_short, trade }
+}
+
+#[cfg(test)]
+#[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
+mod tests {
+    use super::*;
+
+    #[test]
+    fn each_pick_is_costed_once_whatever_item_it_is_for() {
+        let (h, p) = crate::sample();
+        let up = |item: Option<i64>| Pick::Upgrade { gear: "maverick".into(), from: 1, to: 2, item };
+        let one = shopping(&[up(None)], &h, &p.progress);
+        // (case, picks, how many times the one recipe's cost the list comes to).
+        let cases = [
+            ("a pick for one item, even one worn in two loadouts", vec![up(Some(11))], 1),
+            ("two picks of one recipe for two items", vec![up(Some(11)), up(Some(12))], 2),
+            ("a pick with no item beside one with an item", vec![up(None), up(Some(11))], 2),
+        ];
+        for (name, picks, times) in cases {
+            let s = shopping(&picks, &h, &p.progress);
+            assert_eq!(s.credits, times * one.credits, "{name}");
+            let need: std::collections::BTreeMap<&str, i64> = s.total.iter().map(|l| (l.id.as_str(), l.need)).collect();
+            let want: std::collections::BTreeMap<&str, i64> =
+                one.total.iter().map(|l| (l.id.as_str(), times * l.need)).collect();
+            assert_eq!(need, want, "{name}");
+            // Each result carries its pick's item back.
+            assert_eq!(s.picks.iter().map(|r| r.pick.clone()).collect::<Vec<_>>(), picks, "{name}");
+        }
+    }
 }
