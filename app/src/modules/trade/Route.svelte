@@ -17,7 +17,6 @@
   import { arrivalLabel, DEFAULT_FILTERS, filterParts, loadFilters, saveFilters, type FilterKey, type Filters, type Origin, type Pad } from "../../lib/search";
   import { credits, DEFAULT_MAX_AGE_DAYS, ROUTE_ESTIMATE, tradeRoute, tradeRouteDefaults, type RouteKind, type RouteLeg, type RouteSearch, type TradeRoute } from "../../lib/trade";
   import { padTooSmall } from "../../lib/demand";
-  import { shipStatus } from "../../lib/core";
   import PadLetter from "../../lib/ui/PadLetter.svelte";
   import OriginInput from "../../lib/ui/OriginInput.svelte";
   import SearchFilters from "../../lib/ui/SearchFilters.svelte";
@@ -70,30 +69,18 @@
     void openFilters(store, LOOKUP, DEFAULT_FILTERS).then((st) => (filters = st.filters));
   });
 
+  /** Filter changes still on their way to storage; a search waits for them, so the filters it
+   * sends are the saved ones. */
+  let saving: Promise<unknown> = Promise.resolve();
+
   async function changeFilter(next: Filters) {
     const prev = filters ?? DEFAULT_FILTERS;
     filters = next;
-    const st = await changeFilters(store, LOOKUP, prev, next);
+    const change = changeFilters(store, LOOKUP, prev, next);
+    saving = Promise.all([saving, change]);
+    const st = await change;
     filterErr = st.error;
     filters = st.filters;
-  }
-
-  /** The pad label follows the ship the search ran with, not the ship the filters loaded with. */
-  async function followShip() {
-    try {
-      const f = await store.load(LOOKUP);
-      if (!f.pad_set) shipPad = f.pad;
-    } catch {
-      // the label keeps what it shows; the search does not depend on this
-    }
-  }
-
-  /** The pad a search with `sent` was measured against, as the core resolves it: the one the
-   * commander set, else the ship flown now (from the ship, not the saved filters, whose save may
-   * still be on its way); null when unknown, which marks no pad. */
-  async function measuredPad(sent: Filters): Promise<Pad | null> {
-    if (sent.pad_set) return sent.pad;
-    return (await shipStatus())?.pad ?? null;
   }
 
   /** The station to start from: typed, else the docked one when starting from here. */
@@ -105,15 +92,20 @@
     const n = ++asked;
     busy = true;
     err = null;
-    void followShip();
+    const ask = { kind, station: start, capacity: Math.floor(capacity), credits: Math.floor(cash), max_hop_ly: hop };
     try {
-      const sent = filters;
-      const ask = { kind, station: start, capacity: Math.floor(capacity), credits: Math.floor(cash), max_hop_ly: hop };
-      const r = await tradeRoute(ask, origin, filters);
-      const pad = await measuredPad(sent);
+      await saving;
+      const sent = filters ?? DEFAULT_FILTERS;
+      // The saved filters, read as the search starts, resolve the pad as the core resolves the
+      // search's (the commander's, else the current ship's from the journal, Elite running or
+      // not). Read at the start: a ship swap during Spansh's minute doesn't change the answer.
+      const saved = store.load(LOOKUP).catch(() => null);
+      const r = await tradeRoute(ask, origin, sent);
+      const now = await saved;
+      if (now && !now.pad_set) shipPad = now.pad; // the pad label follows the ship the search ran with
       if (n === asked) {
         res = r;
-        need = pad;
+        need = sent.pad_set || !now || now.pad_set ? sent.pad : now.pad;
       }
     } catch (e) {
       if (n === asked) {

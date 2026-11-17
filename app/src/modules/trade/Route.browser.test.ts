@@ -21,7 +21,9 @@ let shipPad: Filters["pad"] = "M";
 let stored: Filters = DEFAULT_FILTERS;
 answer("search_filters", () => (stored.pad_set ? stored : { ...stored, pad: shipPad }));
 // The ship flown now, as the status bar and the finders read it.
-answer("ship_status", () => ({ ...(sample as unknown as { ship: object }).ship, pad: shipPad }));
+// It is null with Elite closed, though the journal still knows the ship (search_filters).
+let statusPad: Filters["pad"] = "M";
+answer("ship_status", () => ({ ...(sample as unknown as { ship: object }).ship, pad: statusPad }));
 
 /** A filter save answers once this settles (a test holds it to keep a save pending). */
 let saving: Promise<void> = Promise.resolve();
@@ -32,6 +34,7 @@ answer("set_search_filters", async ({ filters }: { filters: Filters }) => {
 
 beforeEach(() => {
   shipPad = "M";
+  statusPad = "M";
   stored = DEFAULT_FILTERS;
   saving = Promise.resolve();
   localStorage.clear();
@@ -144,9 +147,9 @@ describe("Trade route", () => {
     saving = new Promise((r) => (release = r));
     await fireEvent.click(screen.getByRole("button", { name: /^Pad M/ }));
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
-    expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad: "M", pad_set: true }));
-    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
     release();
+    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
+    expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad: "M", pad_set: true }));
   });
 
   it("measures a stop's pad against the ship when a set pad is cleared while its save is pending", async () => {
@@ -161,9 +164,35 @@ describe("Trade route", () => {
     saving = new Promise((r) => (release = r));
     await fireEvent.click(screen.getByRole("button", { name: /^Pad S/ })); // back to the ship's pad
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
-    expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad_set: false }));
-    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
     release();
+    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
+    expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad_set: false }));
+  });
+
+  it("measures a stop's pad against the ship the journal knows with Elite closed", async () => {
+    statusPad = null;
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    route.mockResolvedValueOnce({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "S" } }] } });
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
+  });
+
+  it("keeps the pad the search started with when the ship changes while Spansh works", async () => {
+    let answerRoute: (r: RouteSearch) => void = () => {};
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    route.mockImplementationOnce(() => new Promise((r) => (answerRoute = r)));
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    await vi.waitFor(() => expect(route).toHaveBeenCalledOnce());
+    shipPad = "S"; // swapped to a small ship while the route is worked out
+    statusPad = "S";
+    answerRoute({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "S" } }] } });
+    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
   });
 
   it("can't search without a hold or credits", async () => {
