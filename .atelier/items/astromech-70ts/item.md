@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-70ts
 title: 'Suit engineers get distances: their systems'' coordinates in the catalog'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-s
@@ -11,7 +11,8 @@ labels:
 priority: high
 blocked_by:
 - astromech-w1lj
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3Aaf0def7e-3fd3-4188-9338-4a38284d0387
 ready:
   by: Sumeet
   at: 2026-11-17T10:51:58.242665710Z
