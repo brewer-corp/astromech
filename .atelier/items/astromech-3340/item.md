@@ -27,4 +27,4 @@ Text size (astromech-b2cz) and the calmer colours (astromech-3kf5) were built an
 
 ## Done when
 
-- [ ] On Sumeet's PC, in a release that has astromech-k6pl: text is comfortably readable at his usual window size, the Text size setting changes it, nothing is clipped at the smallest window, and the orange no longer looks washed out.
+- [ ] On Sumeet's PC, in a release that has astromech-b2cz and astromech-3kf5: the step the first run picked (or migrated to) is comfortably readable from his seat; the six Text size steps change it and resizing or maximising the window does not; Windows display scaling adds to it as expected; nothing is clipped at the smallest window; and the pages read calm, with orange where it matters.

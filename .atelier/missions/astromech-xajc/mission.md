@@ -30,8 +30,8 @@ seeing his binds on his own stick. The window lets them down. An audit of all 24
   Mining) are filed under Logbook.
 - **Explanations are printed on the page**: 13 paragraphs on Powerplay, footnotes elsewhere.
 
-The Route page redesign agreed on 6 Nov (astromech-ok29) is the model for the fix and has not
-been built.
+The Route page redesign agreed on 6 Nov (astromech-ok29) was the model for the fix. It was
+built in increment 1, with the foundation, and merged by 12 Nov 2026.
 
 **Amended 17 Nov 2026, from Sumeet's answer at the planned stop** (16 and 17 Nov, in
 conversation, on the increment 1 previews and the `spike/nav-rework` mockups). He liked
@@ -55,18 +55,20 @@ Controls uses the window well at any size from 1100 x 700 to 4K, shows one obvio
 per element, and uses a screen built for its job where a table was. On each page the
 brightest things are the main value, what can be changed and what needs the commander. A sparse page stays
 sparse: a layout places content, it never adds any. Text is readable from a seat next to the game.
-Worth shipping on its own: the foundation (scale, orange, type scale, layouts, tooltip, status
-bar) and the Route page.
+Shipped on its own in increment 1: the foundation (scale, orange, type scale, layouts,
+tooltip, status bar) and the Route page. Worth shipping on its own next, as increment 2: the
+calmer colours, the text size, the route sidebar and the new tabs.
 
 ## Success criteria
 
 Both cover every page outside Controls (My controller, All keybinds, Presets, Key tester),
-which already read best and get only the frame, the scale and Tip.
+which already read best and get only the frame, the text size, the colours and Tip.
 
 - fills-the-window: every page is built on one of the four layout components and passes the
   page-sizing check (no page file sets its own width or font size). Shown by the check
-  being on for every page file except the Controls ones and the frame's two parts in the
-  route module, and by captures of every page at
+  being on for every page file except the Controls ones and the frame's parts in the
+  route module (the strip, the header's Find or plot and, from astromech-uc7i, the sidebar's
+  files), and by captures of every page at
   1100 x 700, 1920 x 1080, 2560 x 1440 and 3840 x 2160 with nothing clipped and no action
   further than one column from what it acts on. Since the window no longer zooms
   (astromech-b2cz), each size is captured at the Text size a display of that height starts
@@ -77,7 +79,10 @@ which already read best and get only the frame, the scale and Tip.
   astromech-crxa: expected answers are written per page first ("none" where a page has
   nothing to change or nothing needing attention), a fresh agent answers from the
   2560 x 1440 screenshots alone, and every page passes. A failing page is fixed and asked
-  again; one left failing leaves the criterion unmet.
+  again; one left failing leaves the criterion unmet. The three answers are for the page's
+  own job: the route sidebar is on every screenshot and is frame, so it is scored once, as
+  its own entry on the sheet, and never counts as a page's main value, its changeable thing
+  or the thing that needs the commander.
 
 ## Scope
 

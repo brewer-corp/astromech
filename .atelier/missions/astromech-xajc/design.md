@@ -9,8 +9,10 @@ last_changed: "2026-11-17: amended from Sumeet's answer at the increment 1 stop:
   screen at a time.
 - Value: high. The pages are in daily use, and the owner named their look as the app's
   weakest part.
-- Risk: low. Changes are visual, show at once in the preview, and revert per page. The scale
-  rule is the one part that could misbehave in WebView2 only.
+- Risk: low for the visual changes, which show at once in the preview and revert per page.
+  Two parts of increment 2 can be wrong without looking wrong, and carry tests for it: the
+  engineer search's grade advice (astromech-7did) and the demand colours (astromech-3ca6).
+  Text size must not shrink an existing install (astromech-b2cz).
 
 It is worth its cost because features that already work are being undersold by pages nobody
 enjoys reading. The cheaper alternative, fixing only the scale and orange (astromech-k6pl),
@@ -82,8 +84,9 @@ They replace amendments 1 and 6 above and change 2 and 3.
 **The reworked foundation (increment 2).** In order, because the first three touch every
 component: DESIGN.md revision 5 (astromech-n41x), text size (astromech-b2cz), colours
 (astromech-3kf5). Then in parallel: the lint for raw colours and sizes (astromech-4wi1), the
-route sidebar (astromech-uc7i), the tabs (astromech-5a01) and after them the engineer search
-(astromech-7did), and the grouped result rows (astromech-3ca6). astromech-8e22 closes the
+route sidebar (astromech-uc7i) and after it the tabs (astromech-5a01), which both edit the
+tab groups, then the engineer search (astromech-7did); and the grouped result rows
+(astromech-3ca6). astromech-8e22 closes the
 increment. The spike is reference only: items write fresh against the real components,
 except the hexagon component, which astromech-7did may bring over and rework.
 
@@ -147,7 +150,7 @@ with unknown jumps shows its jump count. A leg's jumps come from NavRoute first,
 plotter's own list, then not at all; the page says there is nowhere to scoop only when every
 jump is listed and known not to be scoopable.
 
-**Now page (increment 2).** A new module `app/src/modules/now/` in a new first nav group. It
+**Now page (increment 3, after astromech-8e22).** A new module `app/src/modules/now/` in a new first nav group. It
 composes replies the window already has: `DockedHere` (station, services), the route view, the
 cargo sale comparison, Powerplay standing, and `Session`. It follows the game's state: docked,
 in a system, or not running. Station, Session and Mining leave the Logbook group; their old
@@ -227,18 +230,21 @@ eyes on it early and cheaply:
    already agreed in detail, so it tests the foundation (scale, layouts, Tip, icons) without
    also testing a new idea. Its page items are blocked on the foundation items, so it cannot
    finish first.
-3. astromech-irtr closes increment 1: an agent that built none of it checks every converted
-   page at four sizes and publishes preview links. The mission then stops for Sumeet to
-   look. This is its one planned stop, reserved in Authority, and the screens in increments
-   2 to 4 are planned from what he says.
+3. astromech-irtr closed increment 1: an agent that built none of it checked every converted
+   page at four sizes and published preview links, and the mission stopped for Sumeet to
+   look. That was its one planned stop. His answer (16 and 17 Nov 2026) became increment 2,
+   each change seen as a mockup on `spike/nav-rework` before it was planned.
+4. astromech-8e22 closes increment 2 the same way but does not stop the mission: the
+   screens start when it merges.
 
 The second risk is that the plotters can't feed the timeline as drawn. The planning review
 found that already, and astromech-woqv now starts from a contract of what each source knows.
 
-The third is the scale rule in WebView2, which only Windows can show. It is a residual risk,
-not a gate: astromech-3340 is a check on Sumeet's PC that waits on a release and blocks
-nothing. If it goes wrong, the Text size setting and the cap are the levers, and the scale is
-one root rule to change.
+The third is how the window reads in WebView2 on Sumeet's monitor, which only Windows can
+show: the text size a first run picks, and the new colours. It is a residual risk, not a
+gate: astromech-3340 is a check on his PC that waits on a release and blocks nothing. The
+height zoom this risk was first written about is removed by astromech-b2cz; the lever now is
+the Text size setting.
 
 # Risks and Unknowns
 
@@ -249,7 +255,7 @@ one root rule to change.
 
 - A screen needs data the core doesn't give (body parents are the known case). It becomes a
   core task in that screen's increment; the screen ships after it.
-- Scaling changes how much fits at 1100 x 700. If a page can't fit, its layout drops its
+- A larger Text size changes how much fits at 1100 x 700. If a page can't fit, its layout drops its
   detail panel below the content at that size; it never shrinks text.
 - Sumeet dislikes a built screen. It reverts to its old body per page; the foundation stays.
 - The page-sizing check would flag existing pages. Each part is turned on file by file as a

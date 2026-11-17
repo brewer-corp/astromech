@@ -32,7 +32,7 @@ The reworked foundation is seen whole before the screens are built on it: the ne
 
 - [ ] An agent that built none of increment 2 captures, in the browser preview, the Sell finder (a result selected, sidebar open), Materials, Engineers with "laser" searched, Ships, Suits, Powerplay, Settings and My controller at 1100 x 700 and 1920 x 1080 (100 percent), 2560 x 1440 (145 percent) and 3840 x 2160 (180 percent), into `docs/design/increment2/`.
 - [ ] Each capture is measured as astromech-irtr's were: no sideways scroll, no clipped or overlapping text, no readable text under 4.5:1, no action further than one column from what it acts on. A failure is filed as a bug in the mission and fixed before this item closes.
-- [ ] On each page the brightest things are the main value, what can be changed and what needs the commander; a page where something else out-shines them is filed.
+- [ ] On each page the brightest things are the main value, what can be changed and what needs the commander; a page where something else on the page out-shines them is filed. The sidebar is judged once, as frame: its next stop is its brightest thing and it has no fill.
 - [ ] Preview links for the Sell finder and Engineers are published with `scripts/preview-publish` and recorded with the capture paths as a note on the mission.
 - [ ] The measured dock width, header second-row width and rows-visible figures in DESIGN.md match what the captures show.
 

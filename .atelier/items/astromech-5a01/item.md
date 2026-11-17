@@ -11,6 +11,7 @@ labels:
 priority: high
 blocked_by:
 - astromech-3kf5
+- astromech-uc7i
 implementers: []
 ready:
   by: Sumeet
@@ -29,13 +30,13 @@ The tabs say what is in them. ENGINEERING today holds Ships, Stored modules, Eng
 - [ ] Top tabs in order: SHIPS, ENGINEERING, PLACES, TRADE, EXPLORATION, POWERPLAY, LOGBOOK, CONTROLS, SETTINGS (NOW joins at the front with astromech-coq6). SHIPS holds Ships, Stored modules and Suits; ENGINEERING holds Materials and Engineers.
 - [ ] On foot is no longer a page. Its parts move whole, restyled only as far as their new page needs: loadouts, blueprints, the shopping list and the bartender trade to Ships > Suits; the inventory to Materials as an On foot kind beside Raw, Manufactured and Encoded; the suit engineers to Engineers, beside the ship engineers (this takes in astromech-eq5k's first part).
 - [ ] Old links land: `#/odyssey` and each `?view=` go to the page that now holds that part; `#/engineering`, `#/stored` and the palette's entries still open their pages under the new tab.
-- [ ] The header's second tab row comes in at the width the ten tabs need, measured at each Text size step, and DESIGN.md's header widths are updated with the measurement.
+- [ ] The header's second tab row comes in at the width the nine tabs this item ships need, measured at each Text size step, and DESIGN.md's header widths are updated with the measurement. astromech-coq6 measures again when NOW joins.
 - [ ] `app/src/tabrows.test.ts` passes for the new tree and excludes the Ships rail and the Presets grid by role, not by markup (astromech-eq5k's second part).
 - [ ] The guide's pages follow the pages: an On foot guide page no longer exists as such, and Ships, Materials and Engineers say what moved in. Captures of each moved page at 2560 x 1440.
 
 ## Scope
 
-Where pages live. The Suits screen's redesign is astromech-nnn0, the engineer tree astromech-m6gw, the engineer search astromech-7did.
+Where pages live. The GALAXY to PLACES rename is astromech-uc7i's, which lands first. The Suits screen's redesign is astromech-nnn0, the engineer tree astromech-m6gw, the engineer search astromech-7did.
 
 ## Context
 
