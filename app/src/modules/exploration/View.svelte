@@ -299,7 +299,8 @@
   .icon { position: relative; display: flex; align-items: center; align-self: stretch; color: var(--label-grey); }
   /* A body with children: its line leaves the icon downward to the first child's elbow. */
   .icon.kids::after { content: ""; position: absolute; left: var(--sp-2); top: calc(50% + var(--sp-2) + var(--gap)); bottom: 0; border-left: 1px solid var(--line); }
-  .name { min-width: 3.5rem; margin-left: var(--sp-2); }
+  /* Names keep a common start for their classes within a level (most are "A 1"-short). */
+  .name { min-width: var(--sp-12); margin-left: var(--sp-2); }
   .cls { margin-left: var(--sp-4); }
   .tags { display: flex; flex-wrap: wrap; gap: var(--sp-1); padding-block: var(--sp-1); }
   /* Selected, while the side panel shows it (DESIGN.md States): Hull Raised, the name White,
