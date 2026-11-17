@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-b2cz
 title: Text size you choose replaces the window zoom
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-l
@@ -11,7 +11,8 @@ labels:
 priority: high
 blocked_by:
 - astromech-n41x
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A40e7bd6a-75d7-481f-bc07-e18b62a688e1%3Adelegate-task%3A8587c77f-b791-4383-a444-92fd4885a6f8
 ready:
   by: Sumeet
   at: 2026-11-17T05:23:28.056709303Z
