@@ -741,7 +741,9 @@ the calmer colours in [tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-256
 | Status bar | 32 px | on every page, Hull: the ship, its fuel and cargo, and the core's state |
 
 Side margins 16 to 40 px (3 % of the window's width); minimum window 1100 × 700 at 100
-percent Text size. Every size here is CSS px at 100 percent and in rem in `tokens.css` ([The
+percent Text size. The window enforces it: it cannot be made smaller
+(`app/src-tauri/src/window_size.rs`). Only a display whose work area leaves less room than
+1100 x 700 gets a smaller window, at the room it has, and there the page scrolls. Every size here is CSS px at 100 percent and in rem in `tokens.css` ([The
 Text Size Rule](#named-rules-1)), so the widths at which the frame changes (the header's
 second row, the dock width) are widths in rem and come sooner at a larger step.
 
@@ -771,10 +773,9 @@ test Chromium, a fresh window at each step once its fonts had loaded (astromech-
 At 1100 x 700 that leaves the page 318 px at 145 percent (382 px on a page with no page tabs, such
 as Places) and 226 px at 180 percent (305 px without page tabs), under the route strip; the page
 scrolls ([header-wrap-1100x700-145-after.png](docs/design/header-wrap-1100x700-145-after.png),
-[header-wrap-1100x700-180-after.png](docs/design/header-wrap-1100x700-180-after.png)). The
-window itself lets the commander go down to 800 x 500 (`app/src-tauri/src/host.rs`), below this
-design's 1100 x 700 minimum. There the Materials page keeps 157 px at 130 percent, 54 at 145 and
-8 at 160; at 180 percent the frame's fixed parts are taller than the window and the status bar
+[header-wrap-1100x700-180-after.png](docs/design/header-wrap-1100x700-180-after.png)). Below the
+minimum, which only a display too small for it gets, at 800 x 500 the Materials page keeps
+157 px at 130 percent, 54 at 145 and 8 at 160; at 180 percent the frame's fixed parts are taller than the window and the status bar
 covers the page tabs
 ([header-wrap-800x500-180-after.png](docs/design/header-wrap-800x500-180-after.png)); with Finish
 setup showing at 180 percent, Finish setup and Help take a second line of the name row.

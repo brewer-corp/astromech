@@ -788,8 +788,8 @@ describe("Places in the window", () => {
 
 describe("header in a narrow window", () => {
   // DESIGN.md Frame: the header fits the window at every Text size (astromech-z4vm). The window's
-  // own minimum (app/src-tauri/src/host.rs, 800 x 500) is smaller than the design's 1100 x 700,
-  // so both are checked.
+  // minimum is the design's 1100 x 700, but a display with less room gets a smaller window
+  // (app/src-tauri/src/window_size.rs), so 800 x 500 is checked too.
   afterEach(async () => {
     cleanup();
     resetScale();

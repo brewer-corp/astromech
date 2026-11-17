@@ -9,7 +9,7 @@
 //! ends its WebView2 processes; the app stays in the tray. Every call the page makes goes
 //! through one Tauri command, [`call`], into the core's command registry in this process.
 
-use crate::tray;
+use crate::{tray, window_size};
 use astromech_api::{control, Registry};
 use astromech_core::app::{self, Core, Opts, Ui, UiState, WindowState};
 use astromech_core::logging::log;
@@ -113,8 +113,8 @@ impl Host {
         let loaded = AtomicBool::new(false);
         let mut b = WebviewWindowBuilder::new(&self.app, LABEL, WebviewUrl::App(page.into()))
             .title(TITLE)
-            .inner_size(1200.0, 800.0)
-            .min_inner_size(800.0, 500.0)
+            .inner_size(window_size::START.0, window_size::START.1)
+            .min_inner_size(window_size::MINIMUM.0, window_size::MINIMUM.1)
             .on_page_load(move |_, p| {
                 if p.event() == tauri::webview::PageLoadEvent::Finished && !loaded.swap(true, Ordering::SeqCst) {
                     // Real time: the cold-start line measures this process's own start.
@@ -133,6 +133,7 @@ impl Host {
             ));
         }
         let w = b.build().map_err(|e| format!("building the window: {e}"))?;
+        fit_display(&w);
         #[cfg(windows)]
         self.watch_process_failed(&w);
         #[cfg(not(windows))]
@@ -260,6 +261,30 @@ impl Host {
             Err(e) => log(&format!("window: couldn't rebuild it: {e}")),
         }
     }
+}
+
+/// Bring the window's minimum and size down to the room its display's work area leaves, where
+/// that is less than DESIGN.md's 1100 x 700 or the 1200 x 800 it opens at
+/// ([`window_size::fit`]), and move it to the work area's corner so none of it is off screen.
+/// On a display with the room, nothing changes.
+fn fit_display(w: &tauri::WebviewWindow) {
+    let (Ok(Some(m)), Ok(outer), Ok(inner)) = (w.current_monitor(), w.outer_size(), w.inner_size()) else {
+        return;
+    };
+    let scale = m.scale_factor();
+    let area = m.work_area();
+    let room = (
+        f64::from(area.size.width.saturating_sub(outer.width.saturating_sub(inner.width))) / scale,
+        f64::from(area.size.height.saturating_sub(outer.height.saturating_sub(inner.height))) / scale,
+    );
+    if room.0 >= window_size::START.0 && room.1 >= window_size::START.1 {
+        return;
+    }
+    let fit = window_size::fit(room);
+    log(&format!("window: the display leaves {:.0} x {:.0}, below the design's size", room.0, room.1));
+    let _ = w.set_min_size(Some(tauri::LogicalSize::new(fit.min.0, fit.min.1)));
+    let _ = w.set_size(tauri::LogicalSize::new(fit.start.0, fit.start.1));
+    let _ = w.set_position(area.position);
 }
 
 /// The page's presses, until `stop` is set: the window's subscription to the input source.
