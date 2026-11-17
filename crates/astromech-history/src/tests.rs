@@ -494,6 +494,72 @@ fn session_summary_totals() {
     assert!(h.session(None, Some("2020-01-01T00:00:00Z")).unwrap().is_none());
 }
 
+/// A session's payments one by one, oldest first (astromech-fzhp): every kind, and nothing
+/// from the next session.
+#[test]
+fn session_timeline_lists_its_payments_in_time_order() {
+    let head = |t: &str| {
+        format!(
+            r#"{{"timestamp":"2026-09-05T{t}Z","event":"LoadGame","FID":"F9","Commander":"Timer","Ship":"Python","ShipID":4,"Credits":1000,"Loan":0}}"#
+        )
+    };
+    let trade = |t: &str, n: i64| {
+        format!(
+            r#"{{"timestamp":"2026-09-05T{t}Z","event":"MarketSell","MarketID":1,"Type":"gold","Count":1,"SellPrice":{n},"TotalSale":{n}}}"#
+        )
+    };
+    let mission = |t: &str, n: i64| {
+        format!(
+            r#"{{"timestamp":"2026-09-05T{t}Z","event":"MissionCompleted","Faction":"F","Name":"Mission_Delivery_name","MissionID":1,"Reward":{n}}}"#
+        )
+    };
+    let bounty = |t: &str, n: i64| {
+        format!(r#"{{"timestamp":"2026-09-05T{t}Z","event":"RedeemVoucher","Type":"bounty","Amount":{n}}}"#)
+    };
+    let pay = |t: &str, kind: &str, amount: i64| Payment { ts: format!("2026-09-05T{t}Z"), kind: kind.into(), amount };
+    struct Case {
+        name: &'static str,
+        lines: Vec<String>,
+        at: &'static str,
+        want: Vec<Payment>,
+    }
+    let cases = [
+        Case {
+            name: "three kinds, in time order whatever their totals",
+            lines: vec![
+                head("10:00:00"),
+                trade("10:05:00", 1000),
+                mission("10:10:00", 50000),
+                bounty("10:15:00", 20000),
+                trade("10:20:00", 3000),
+            ],
+            at: "10:30:00",
+            want: vec![
+                pay("10:05:00", "trade", 1000),
+                pay("10:10:00", "mission", 50000),
+                pay("10:15:00", "bounty", 20000),
+                pay("10:20:00", "trade", 3000),
+            ],
+        },
+        Case {
+            name: "a later LoadGame starts the next session: its payments are left out",
+            lines: vec![head("10:00:00"), bounty("10:05:00", 20000), head("11:00:00"), trade("11:05:00", 1000)],
+            at: "10:30:00",
+            want: vec![pay("10:05:00", "bounty", 20000)],
+        },
+    ];
+    for case in cases {
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(dir.path().join("Journal.2026-09-05T100000.01.log"), case.lines.join("\r\n") + "\r\n").unwrap();
+        let mut h = History::in_memory().unwrap();
+        h.import(dir.path(), &ImportOptions::default()).unwrap();
+        let s = h.session(Some("F9"), Some(&format!("2026-09-05T{}Z", case.at))).unwrap().unwrap();
+        assert_eq!(s.timeline, case.want, "{}", case.name);
+        let paid: i64 = s.timeline.iter().map(|p| p.amount).sum();
+        assert_eq!(paid, s.total, "{}: the timeline holds what the totals count", case.name);
+    }
+}
+
 /// Part 2 of a session (`Fileheader` `part: 2` after `Continued`) doesn't name the commander;
 /// its lines still belong to the one part 1 named, on import and when commanders are
 /// recomputed from the stored lines.

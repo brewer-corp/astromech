@@ -59,6 +59,48 @@
   "latest": true,
   "per_hour": 14483231,
   "start": "2026-09-03T10:00:05Z",
+  "timeline": [
+    {
+      "amount": 5000000,
+      "kind": "organic",
+      "ts": "2026-09-03T10:11:00Z"
+    },
+    {
+      "amount": 100000,
+      "kind": "exploration",
+      "ts": "2026-09-03T10:12:00Z"
+    },
+    {
+      "amount": 40000,
+      "kind": "search_and_rescue",
+      "ts": "2026-09-03T10:13:00Z"
+    },
+    {
+      "amount": 2000000,
+      "kind": "community_goal",
+      "ts": "2026-09-03T10:14:00Z"
+    },
+    {
+      "amount": 15000,
+      "kind": "micro_resources",
+      "ts": "2026-09-03T10:15:00Z"
+    },
+    {
+      "amount": 60000,
+      "kind": "combat_bond",
+      "ts": "2026-09-03T10:16:00Z"
+    },
+    {
+      "amount": 5000,
+      "kind": "voucher",
+      "ts": "2026-09-03T10:17:00Z"
+    },
+    {
+      "amount": 1500,
+      "kind": "trade",
+      "ts": "2026-09-03T10:18:00Z"
+    }
+  ],
   "total": 7221500,
   "trade_profit": 1500
 }
