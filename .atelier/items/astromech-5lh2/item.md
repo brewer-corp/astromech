@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-5lh2
 title: 'Three journeys fail on main: their selectors point at the Route page and header as they were before increment 1'
-status: ready
+status: building
 mission: null
 labels:
 - bug
 - size-s
 priority: high
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Af257f609-54d7-4e2e-bfce-45bbbe671617%3Adelegate-task%3A87df7a9b-2f2a-4ed9-8aa8-1f0d594e4129
 ready:
   by: the lead of astromech-xajc
   at: 2026-11-17T07:00:31.053192082Z
