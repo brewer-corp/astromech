@@ -1603,10 +1603,11 @@ mod replies {
         pub speeds: [f32; 2],
     }
 
-    /// `window_settings`: the window's text size, which it multiplies its height scale by.
+    /// `window_settings`: the window's text size as saved; null when the commander hasn't chosen
+    /// one yet, and a legacy word until the window has turned it into a step.
     #[derive(Debug, Serialize, ts_rs::TS)]
     pub struct WindowSettings {
-        pub text_size: crate::config::TextSize,
+        pub text_size: Option<crate::config::TextSize>,
     }
 
     /// `voice_test`: what the phrase would do.
