@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-3kf5
 title: 'Calmer pages: data in white and grey, orange for the ranked value and what you can act on'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-l
@@ -11,7 +11,8 @@ labels:
 priority: high
 blocked_by:
 - astromech-b2cz
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3Af257f609-54d7-4e2e-bfce-45bbbe671617%3Adelegate-task%3A2e53a792-ff91-43d6-9a1d-43aa21aef462
 ready:
   by: Sumeet
   at: 2026-11-17T05:23:28.056709303Z
