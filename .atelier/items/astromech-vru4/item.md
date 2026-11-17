@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-vru4
 title: 'Glance test: Station''s main value is outshouted by For sale here''s larger ranked profit'
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - bug
