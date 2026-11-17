@@ -6,10 +6,11 @@
   // when its requests ran out before the whole radius was ranked.
   // #/places/mining-hotspots/<ore>[?ring=&reserve=] keeps all three on back and reload.
   import { ORES, RING_TYPES, hotspotResults, hotspots, oreNamed, wantNotes, type Reserve, type RingType, type Want } from "../../lib/hotspots";
-  import { hotspotRoute, parseHotspotRoute, rememberAnswer, showing, type Finder } from "../../lib/places";
+  import { hotspotRoute, parseHotspotRoute, rememberAnswer, type Finder } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import Choice from "../../lib/ui/Choice.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
+  import { followAddress } from "../../lib/finderAddress.svelte";
   import FinderPage from "./FinderPage.svelte";
   import MainInput from "./MainInput.svelte";
 
@@ -29,22 +30,8 @@
     { value: ANY, label: "Any", ariaLabel: "Any reserve" },
   ];
 
-  /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => showing("mining-hotspots");
-
-  $effect(() => {
-    const onHash = () => {
-      if (here()) want = parseHotspotRoute(location.hash) ?? DEFAULT;
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  });
-
   // The address always names the mineral and choices, so back and the tile reopen them.
-  $effect(() => {
-    const to = `#/${hotspotRoute(want)}`;
-    if (here() && location.hash !== to) history.replaceState(null, "", to);
-  });
+  followAddress("mining-hotspots", { read: () => parseHotspotRoute(location.hash) ?? DEFAULT, route: hotspotRoute, get: () => want, set: (q) => (want = q) });
 
   /** A new mineral or choice: searched at once (a second click before the hash change lands keeps the first). */
   function go(w: Want) {

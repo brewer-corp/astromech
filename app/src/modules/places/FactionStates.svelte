@@ -6,10 +6,11 @@
   // #/places/faction-states/<id> keeps it on back and reload. Each keeps the filters it was
   // remembered under on Materials (`faction.<id>`), which its voice query uses too.
   import { FACTION_STATES, nearby, nearbyResults } from "../../lib/galaxy";
-  import { factionRoute, parseFactionRoute, rememberAnswer, showing, type Finder } from "../../lib/places";
+  import { factionRoute, parseFactionRoute, rememberAnswer, type Finder } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import Dropdown from "../../lib/ui/Dropdown.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
+  import { followAddress } from "../../lib/finderAddress.svelte";
   import FinderPage from "./FinderPage.svelte";
 
   let { finder }: { finder: Finder } = $props();
@@ -18,22 +19,8 @@
   let query = $state(parseFactionRoute(location.hash) ?? DEFAULT);
   const current = $derived(FACTION_STATES.find((q) => q.id === query) ?? FACTION_STATES[0]);
 
-  /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => showing("faction-states");
-
-  $effect(() => {
-    const onHash = () => {
-      if (here()) query = parseFactionRoute(location.hash) ?? DEFAULT;
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  });
-
   // The address always names the lookup, so back and the tile reopen it.
-  $effect(() => {
-    const want = `#/${factionRoute(query)}`;
-    if (here() && location.hash !== want) history.replaceState(null, "", want);
-  });
+  followAddress("faction-states", { read: () => parseFactionRoute(location.hash) ?? DEFAULT, route: factionRoute, get: () => query, set: (q) => (query = q) });
 
   // A new function per lookup, so the kit searches again when it changes.
   const run = $derived.by(() => {

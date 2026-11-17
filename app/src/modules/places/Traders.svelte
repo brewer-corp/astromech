@@ -2,11 +2,12 @@
   // The Material traders finder: the Services lookup on the raw, manufactured and encoded trader
   // services (or any of them). The main input is the trader kind;
   // #/places/material-traders/<kind> keeps it on back and reload.
-  import { TRADERS, parseTraderRoute, rememberAnswer, showing, traderRoute, type Finder, type TraderKind } from "../../lib/places";
+  import { TRADERS, parseTraderRoute, rememberAnswer, traderRoute, type Finder, type TraderKind } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import { stations, toResults } from "../../lib/stations";
   import Choice from "../../lib/ui/Choice.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
+  import { followAddress } from "../../lib/finderAddress.svelte";
   import FinderPage from "./FinderPage.svelte";
 
   let { finder }: { finder: Finder } = $props();
@@ -16,22 +17,8 @@
   const trader = $derived(TRADERS.find((t) => t.kind === kind) ?? TRADERS[0]);
   const options = TRADERS.map((t) => ({ value: t.kind, label: t.label, ariaLabel: t.name }));
 
-  /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => showing("material-traders");
-
-  $effect(() => {
-    const onHash = () => {
-      if (here()) kind = parseTraderRoute(location.hash) ?? DEFAULT;
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  });
-
   // The address always names the kind, so back and the tile reopen it.
-  $effect(() => {
-    const want = `#/${traderRoute(kind)}`;
-    if (here() && location.hash !== want) history.replaceState(null, "", want);
-  });
+  followAddress("material-traders", { read: () => parseTraderRoute(location.hash) ?? DEFAULT, route: traderRoute, get: () => kind, set: (q) => (kind = q) });
 
   // A new function per kind, so the kit searches again when it changes.
   const run = $derived.by(() => {

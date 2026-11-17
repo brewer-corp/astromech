@@ -1,11 +1,12 @@
 <script lang="ts">
   // The Services finder: the nearest stations with a service, on the search kit. The main input
   // is the service; #/places/services/<id> keeps it on back and reload.
-  import { parseServiceRoute, rememberAnswer, serviceRoute, showing, type Finder } from "../../lib/places";
+  import { parseServiceRoute, rememberAnswer, serviceRoute, type Finder } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import { SERVICES, stations, toResults, type ServiceId } from "../../lib/stations";
   import Dropdown from "../../lib/ui/Dropdown.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
+  import { followAddress } from "../../lib/finderAddress.svelte";
   import FinderPage from "./FinderPage.svelte";
 
   let { finder }: { finder: Finder } = $props();
@@ -14,22 +15,8 @@
   let service = $state<ServiceId>(parseServiceRoute(location.hash) ?? DEFAULT);
   const label = $derived(SERVICES.find((s) => s.id === service)?.label ?? service);
 
-  /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => showing("services");
-
-  $effect(() => {
-    const onHash = () => {
-      if (here()) service = parseServiceRoute(location.hash) ?? DEFAULT;
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  });
-
   // The address always names the service, so back and the tile reopen it.
-  $effect(() => {
-    const want = `#/${serviceRoute(service)}`;
-    if (here() && location.hash !== want) history.replaceState(null, "", want);
-  });
+  followAddress("services", { read: () => parseServiceRoute(location.hash) ?? DEFAULT, route: serviceRoute, get: () => service, set: (q) => (service = q) });
 
   function pick(id: ServiceId) {
     location.hash = `#/${serviceRoute(id)}`;
