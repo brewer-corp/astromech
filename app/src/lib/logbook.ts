@@ -4,9 +4,11 @@
  */
 import type { Logbook as Book } from "./api/types/Logbook";
 import type { Session as Played } from "./api/types/Session";
+import type { Visit } from "./api/types/Visit";
 import { call, type Sampled } from "./transport";
 
 export type { Commander } from "./api/types/Commander";
+export type { Payment } from "./api/types/Payment";
 export type { Place } from "./api/types/Place";
 export type { Visit } from "./api/types/Visit";
 export type Logbook = Sampled<Book>;
@@ -51,4 +53,33 @@ export function duration(secs: number): string {
   const h = Math.floor(secs / 3600);
   const m = Math.floor((secs % 3600) / 60);
   return h ? `${h} h ${String(m).padStart(2, "0")} min` : `${m} min`;
+}
+
+/** One day of the logbook's timeline: its date (UTC) and its arrivals and dockings, as given. */
+export interface Day {
+  /** "2026-09-03", the UTC date of the journal's timestamps. */
+  date: string;
+  /** FSD jumps that day; carrier jumps and logins (`Location`) are not the commander's jumps. */
+  jumps: number;
+  dockings: number;
+  visits: Visit[];
+}
+
+/** The timeline grouped by its UTC day, in the order given (the core sends newest first). */
+export function byDay(timeline: Visit[]): Day[] {
+  const days: Day[] = [];
+  for (const v of timeline) {
+    const date = v.ts.slice(0, 10);
+    let day = days.at(-1);
+    if (day?.date !== date) days.push((day = { date, jumps: 0, dockings: 0, visits: [] }));
+    day.visits.push(v);
+    if (v.kind === "station") day.dockings++;
+    else if (v.via === "FSDJump") day.jumps++;
+  }
+  return days;
+}
+
+/** "10:25" from a journal timestamp. */
+export function clock(ts: string): string {
+  return ts.slice(11, 16);
 }

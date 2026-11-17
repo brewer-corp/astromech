@@ -194,7 +194,7 @@ describe("Now", () => {
     startPreview("/?core=ready");
     location.hash = "#/session";
     render(App);
-    await screen.findByText("Earned");
+    await screen.findByText("Latest session");
     expect(within(screen.getByRole("banner")).getByRole("button", { name: "Now" }).classList.contains("on")).toBe(true);
     expect(location.hash).toBe("#/session");
     location.hash = "";
