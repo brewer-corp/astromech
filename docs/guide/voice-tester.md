@@ -8,8 +8,7 @@ command it matched, how sure it is and what it would do. Find it under **Setting
 
 - **Type** a phrase, such as "gear down", and press **Test**.
 - Or **use push-to-talk** with the page open and visible. The result appears as you speak.
-  While it is in test mode a line above the box says so; point at the box for a reminder of
-  how to test by voice.
+  A line above the box says whether push-to-talk is in test mode; it needs Elite running.
 
 While the page is open and visible, push-to-talk is in **test mode**: whatever you say is
 tested, and astromech does not act on it. The game cannot show this, so astromech says so: the

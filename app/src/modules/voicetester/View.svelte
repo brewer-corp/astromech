@@ -140,15 +140,14 @@
 </script>
 
 <Board>
-  {#if listening}<p class="type-body state">Push-to-talk is in test mode while this page is open. Nothing is sent to the game.</p>{/if}
+  <!-- Whether push-to-talk is being tested: a state, so a line, not a Tip. -->
+  {#if listening}
+    <p class="type-body state">Push-to-talk is in test mode while this page is open. Nothing is sent to the game.</p>
+  {:else}
+    <p class="type-label state">Push-to-talk testing needs Elite running.</p>
+  {/if}
   <form class="ask" onsubmit={test}>
-    <Input
-      class="page-search"
-      bind:value={text}
-      placeholder="Type a phrase, e.g. gear down"
-      aria-label="Phrase"
-      {@attach tip(listening ? "Or speak a command with push-to-talk: it shows here" : "Push-to-talk can be tested here while Elite is running")}
-    >
+    <Input class="page-search" bind:value={text} placeholder="Type a phrase, e.g. gear down" aria-label="Phrase">
       {#snippet end()}<Button type="submit" disabled={!text.trim()}>Test</Button>{/snippet}
     </Input>
   </form>

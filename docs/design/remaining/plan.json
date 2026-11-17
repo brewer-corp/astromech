@@ -151,6 +151,76 @@
   {
    "name": "finder-hotspots",
    "hash": "places/mining-hotspots"
+  },
+  {
+   "name": "stored-loading",
+   "hash": "stored",
+   "query": "core=ready&route=exact&slow=never:engineering_fleet",
+   "steps": [
+    {
+     "waitText": "Reading the journal"
+    }
+   ]
+  },
+  {
+   "name": "stored-failed",
+   "hash": "stored",
+   "query": "core=ready&route=exact&fail=engineering_fleet",
+   "steps": [
+    {
+     "waitText": "Could not"
+    }
+   ]
+  },
+  {
+   "name": "mining-loading",
+   "hash": "mining",
+   "query": "core=ready&route=exact&slow=never:mining_status",
+   "steps": [
+    {
+     "waitText": "Reading the run"
+    }
+   ]
+  },
+  {
+   "name": "mining-failed",
+   "hash": "mining",
+   "query": "core=ready&route=exact&fail=mining_status",
+   "steps": [
+    {
+     "waitText": "Could not"
+    }
+   ]
+  },
+  {
+   "name": "datasharing-loading",
+   "hash": "datasharing",
+   "query": "core=ready&route=exact&slow=never:eddn_log",
+   "steps": [
+    {
+     "waitText": "Reading the sharing log"
+    }
+   ]
+  },
+  {
+   "name": "datasharing-failed",
+   "hash": "datasharing",
+   "query": "core=ready&route=exact&fail=eddn_log",
+   "steps": [
+    {
+     "waitText": "Could not"
+    }
+   ]
+  },
+  {
+   "name": "diagnostics-failed",
+   "hash": "diagnostics",
+   "query": "core=ready&route=exact&fail=eddn_log",
+   "steps": [
+    {
+     "waitText": "Could not"
+    }
+   ]
   }
  ]
 }

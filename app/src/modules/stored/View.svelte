@@ -14,7 +14,7 @@
   type Module = Fleet["stored_modules"][number];
 
   /** The rows' full width, in px at 100 percent Text size: the panel goes below them when it can't sit beside. */
-  const MIN = 448;
+  const MIN = 464;
   const TRANSIT = "In transit";
 
   let fleet = $state<Fleet | null>(null);

@@ -1323,8 +1323,8 @@ Each name in this document and the `app/src/design/tokens.css` variable that hol
 the variable; never repeat the value. Some variables keep names from before this document
 (`--accent`, `--bg`, `--cell`) because the pages already use them. `--row-hover` was a grey
 (#16171a) before revision 3; it is now DESIGN.md's warm Row Hover for every page. `--list-w`
-(1200 px) is the result-list cap that revision 4 drops: it is not a DESIGN.md name, and it stays
-in tokens.css only until the last page using it moves onto a layout.
+(1200 px) is the result-list cap that revision 4 drops: it is not a DESIGN.md name, and since
+astromech-gvy0 no page uses it; it stays in tokens.css only for the old mockups in `src/mockups/ds/`.
 
 Sizes are listed in px at 100 percent Text size; `tokens.css` holds each in rem (px / 16),
 except 1 px rules and borders. Rows marked "(new)" are revision 5's, which `tokens.css` does
@@ -1363,7 +1363,7 @@ not have yet: the item named adds them, and the rows it replaces stay until then
 | Prose width | `--measure` | 68ch |
 | Form layout width | `--form-w` | 900 px |
 | Side panel (List with detail) | `--panel` | 320 px |
-| A page's own search box (Engineers), an engineer tree's node (astromech-m6gw) | `.field.page-search`, `--node` | 440, 200 px |
+| A page's own search box (Engineers; the Voice tester's phrase box), an engineer tree's node (astromech-m6gw) | `.field.page-search`, `--node` | 440, 200 px |
 | Control row, result row | `--row`, `--row-result` | 34, 60 px |
 | Route sidebar, no-route rail (new, astromech-uc7i) | `--sidebar`, `--rail` | 320, 48 px |
 | Route strip, status bar, material tile | `--strip`, `--status-bar`, `--tile` | 36, 32, 76 px |
