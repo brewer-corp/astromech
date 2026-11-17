@@ -30,6 +30,9 @@
  * `route=replotted` is that leg plotted again two jumps along, and `route=first` a route whose
  * first waypoint ends the leg. Without
  * either the preview has no route.
+ *
+ * `?clock=2026-10-20T11:23:00Z` starts the preview's clock at that moment (clock.ts), so pages that
+ * tell time, such as the Powerplay cycle's, draw the same on any day; the captures use it.
  */
 import type { Biology } from "../lib/api/types/Biology";
 import type { CalibrationStep } from "../lib/api/types/CalibrationStep";

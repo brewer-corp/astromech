@@ -8,7 +8,7 @@
   import Stale from "../../lib/ui/Stale.svelte";
   import Meter from "../../lib/ui/Meter.svelte";
   import Board from "../../lib/ui/layout/Board.svelte";
-  import { endsAt, loadOverview, num, pct, pledged, timeLeft, WORK_LABEL, type Overview } from "../../lib/powerplay";
+  import { cycleMerits, endsAt, loadOverview, num, pct, pledged, timeLeft, WORK_LABEL, type Overview } from "../../lib/powerplay";
   import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import Suggestions from "./Suggestions.svelte";
@@ -16,7 +16,8 @@
 
   let ov = $state<Overview | null>(null);
   let err = $state<string | null>(null);
-  /** The clock the time left is told from: the moment of the last read. */
+  /** The clock the cycle is told from: the moment the last read settled, answered or failed, so
+   * the cycle turns over while the core is silent too. */
   let now = $state(Date.now());
 
   $effect(() => {
@@ -27,7 +28,10 @@
           err = null;
           now = Date.now();
         })
-        .catch((e: unknown) => (err = pollFailure("read your Powerplay standing", e, ov !== null)));
+        .catch((e: unknown) => {
+          err = pollFailure("read your Powerplay standing", e, ov !== null);
+          now = Date.now();
+        });
     void load();
     const t = setInterval(() => void load(), 2000);
     return () => clearInterval(t);
@@ -92,7 +96,7 @@
           <p class="type-label">{waiting}</p>
         {:else}
           <p><span class="type-value-xl">{timeLeft(st.week_ends, now)}</span><span class="type-unit">left</span></p>
-          <p class="type-label">Ends {endsAt(st.week_ends)}</p>
+          <p class="type-label">Ends {endsAt(st.week_ends, now)}</p>
         {/if}
       </section>
 
@@ -102,7 +106,7 @@
           <p class="type-label">{waiting}</p>
         {:else}
           <p>
-            <span class="type-value-xl" {@attach tip("What the journal logs since the cycle began; weekly assignment rewards aren’t logged")}>{num(st.week_merits)}</span><span class="type-unit">this cycle</span>
+            <span class="type-value-xl" {@attach tip("What the journal logs since the cycle began; weekly assignment rewards aren’t logged")}>{num(cycleMerits(st, now))}</span><span class="type-unit">this cycle</span>
           </p>
           <p class="type-label"><span>{num(st.session_merits)}</span> this session · <span>{num(st.merits)}</span> since you pledged</p>
         {/if}

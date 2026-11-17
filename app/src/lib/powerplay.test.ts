@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { endsAt, timeLeft } from "./powerplay";
+import { cycleAt, endsAt, timeLeft } from "./powerplay";
 
 afterEach(() => vi.useRealTimers());
 
@@ -13,8 +13,11 @@ describe("the cycle's time left", () => {
     ["2026-10-22T01:47:30Z", "5 h 12 min"],
     ["2026-10-22T06:00:00Z", "1 h 0 min"],
     ["2026-10-22T06:48:00Z", "12 min"],
-    ["2026-10-22T07:00:00Z", "0 min"],
-    ["2026-10-23T09:00:00Z", "0 min"],
+    ["2026-10-22T06:59:00Z", "1 min"],
+    // Once the end has passed, the next Thursday 07:00 UTC: the core's answer is from before it.
+    ["2026-10-22T07:00:00Z", "7 d 0 h"],
+    ["2026-10-22T07:01:00Z", "6 d 23 h"],
+    ["2026-11-12T09:00:00Z", "6 d 22 h"],
   ])("at %s is %s", (now, words) => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(Date.parse(now));
@@ -23,5 +26,13 @@ describe("the cycle's time left", () => {
 
   it("says when it ends in UTC", () => {
     expect(endsAt(END)).toBe("Thursday 07:00 UTC");
+  });
+
+  it.each([
+    ["2026-10-22T06:59:00Z", false],
+    ["2026-10-22T07:01:00Z", true],
+    ["2026-11-12T09:00:00Z", true],
+  ])("at %s, whether the answer's cycle is over: %s", (now, over) => {
+    expect(cycleAt(END, Date.parse(now)).over).toBe(over);
   });
 });
