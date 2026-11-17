@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-7vxi
 title: 'Station: the docked station''s market and outfitting read as answers'
-status: approved
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -137,3 +137,7 @@ conflicted in its header comment only, where main added the `gap` step beside th
 **After round 2.** Main moved again, adding a `select` step to `audit.mjs` (astromech-m07p). It
 conflicted with this branch's `type` step in the header comment and the action loop. The merge
 keeps both steps. After it, `pnpm check`, `pnpm lint` and `pnpm test` (847 tests) pass.
+
+**After round 3.** Main moved again. Its astromech-m6gw added a `PAGE_SIZING` entry for Engineers
+on the line where this branch adds Station's, in `app/eslint.config.js`. The merge keeps both
+entries. After it, `pnpm check`, `pnpm lint` and `pnpm test` (850 tests) pass.
