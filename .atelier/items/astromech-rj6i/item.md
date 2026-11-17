@@ -59,7 +59,11 @@ Replies: `Overview.ts` (`standing`, `here`, `system`), `StandingView.ts` (`power
 
 Powerplay is now one Board. The merits to the next rank (Value XL, Orange Lit) lead three answers across the top: Next rank, This cycle and Your merits. This system, What earns merits here and Where to work sit under them. Nothing on the page is cut at any size I measured, astromech-lf3a included.
 
-**The audit.** `node scripts/browser/audit.mjs --plan docs/design/powerplay/plan.json` captured the page pledged on Acquire at four sizes: 1100 x 700 and 1920 x 1080 at 100 percent, 2560 x 1440 at 145 and 3840 x 2160 at 180. It also captured Reinforce and Undermine at the last three sizes, and not pledged at the first three. All 13 captures list nothing under `sideways`, `clipped`, `overlaps`, `small`, `contrast` or `far` (`docs/design/powerplay/report.json`). The captures are the after; the befores are astromech-8e22's `docs/design/increment2/powerplay-1100x700.png` and `powerplay-2560x1440.png`.
+**The audit.** `node scripts/browser/audit.mjs --plan docs/design/powerplay/plan.json` made 22 captures, and all of them list nothing under `sideways`, `clipped`, `overlaps`, `small`, `contrast` or `far` (`docs/design/powerplay/report.json`):
+- Pledged on Acquire at the item's sizes (1100 x 700 and 1920 x 1080 at 100 percent, 2560 x 1440 at 145, 3840 x 2160 at 180), plus 1400 x 900 at 100 and 1200 x 800 at 115, which sit just past the column breakpoints.
+- Reinforce at all six sizes, and Undermine at the three largest.
+- Not pledged at 1100, 1920 and 2560.
+- Loading (`slow=never`) and a failed first read (`fail=`) at 1100 and 1920. The captures are the after; the befores are astromech-8e22's `docs/design/increment2/powerplay-1100x700.png` and `powerplay-2560x1440.png`.
 
 **astromech-lf3a.** The checkpoint's own command, run from a copy of `docs/design/increment2/plan.json`, now lists 0 under `clipped` at all four sizes (it listed 10 at 1920 and 3 at 3840). The copy wrote to `target/`, because `--only` writes the PNGs into the plan's `out` and would have overwritten the befores. There were two causes:
 - Where to work had a share of an auto-fit grid, so its rows went compact and cut their place track.
@@ -69,10 +73,10 @@ Powerplay is now one Board. The merits to the next rank (Value XL, Orange Lit) l
 - **Where to work's track.** It has a fixed 45.5rem track. That is SearchKit's `fits` for these rows (720 px at 100 percent) plus 8 px to spare. The track is in `View.svelte`'s `grid-template-columns`, which the page-sizing lint allows. A reviewer may read it as the page setting a width; the alternative was a block-grid component in `lib/ui/layout` for one page, which I didn't think worth it yet.
 - **Reinforce and Undermine rows.** Reinforcement and undermining are now the row's own figures group, one over the other, under "Reinforcement · undermining". The line under the name keeps the state and progress. `targetDetail` lost that part, and the `Targets.browser.test.ts` case now checks the two parts in the row.
 
-**Columns.**
-- From 85.5rem of page column: three columns. That covers 1920 at 100 and 2560 at 145, both docked, and 3840 at 180.
-- From 64.5rem: two columns, Where to work beside a single column of the other blocks. That covers the 1100 x 700 strip (its page column is 64.6rem), so the Choice and its rows are in the first screen.
-- Below 64.5rem: one column.
+**Columns.** The breakpoints are container queries on the page's own box (`.room`), not on `win`, which includes the side margins.
+- From 85.5rem: three columns. That covers 1920 at 100 and 2560 at 145, both docked, and 3840 at 180.
+- From 64rem: two columns, Where to work beside a single column of the other blocks. That covers the 1100 x 700 strip (its page is 64.6rem), so the Choice and its rows are in the first screen.
+- Below 64rem: one column.
 
 **Core.** `NextRank.from` comes from `rules().merits_for(rank)`, and is 0 below rank 1. Two rows in `tests/standing.rs` cover it: rank 9 starts from 47,000 and rank 0 from 0. The TS binding and `powerplay.json` were dumped again; the fixture's only change is `"from": 47000`.
 
@@ -89,6 +93,7 @@ Powerplay is now one Board. The merits to the next rank (Value XL, Orange Lit) l
 - A failed later poll: the Stale line over the last answer.
 - Not pledged: "Not pledged" as the Title with today's pledge line. The three standing blocks are gone. This system, What earns merits here and Where to work keep today's words.
 - Pledged before the game logs a rank: "Rank unknown" in Next rank.
+- Unoccupied: each acquiring power on its own line of one grid, so their meters line up. The browser test covers it; there is no capture, because the preview's recorded system is a controlled one.
 
 The not-pledged captures use `core=empty`, which has no route, so they show the rail rather than the docked sidebar. Reaching the page under `core=empty` needs setup skipped, so `audit.mjs` gained a `clickText` action, in its own commit.
 
@@ -101,4 +106,8 @@ The not-pledged captures use `core=empty`, which has no route, so they show the 
 - `App.browser.test.ts` and `help.browser.test.ts` wait for "Next rank" instead of "My standing".
 - `previewstates`' empty text is "Not pledged".
 
-**Checks run.** These pass: `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test -p astromech-powerplay`, `cargo test -p astromech-core --lib`, `pnpm check`, `pnpm lint`, `pnpm test` (766 tests), `python3 scripts/check-guide.py` and the 7 journeys.
+**Known limits.**
+- On Reinforce and Undermine the place track has about 8 px above its 17.5rem floor. A state line longer than any in the fixture, such as one naming two other active powers, will end in an ellipsis. The fix then is the row's grouping, not a wider track.
+- `until` in `lib/powerplay.ts` is now `timeLeft`, with "min" and no "h" under an hour. Nothing else imports it on `main`, but astromech-coq6, which reads the same reply for Now, may.
+
+**Checks run.** These pass: `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test -p astromech-powerplay`, `cargo test -p astromech-core --lib`, `pnpm check`, `pnpm lint`, `pnpm test` (766 tests), `cargo test -p astromech-app --test preview_fixtures` (the drift test, run plainly), `python3 scripts/check-guide.py` and the 7 journeys.

@@ -64,7 +64,7 @@
   </header>
   <Stale error={ov ? err : null} />
 
-  <div class="blocks" class:pledged={!!st?.power}>
+  <div class="room"><div class="blocks" class:standing={!st || !!st.power}>
     {#if !st || st.power}
       <section class="rank" aria-labelledby="pp-rank">
         <h3 class="section" id="pp-rank">Next rank</h3>
@@ -139,13 +139,15 @@
               <span class="type-figures" {@attach tip(`Progress through the ${sys.state?.toLowerCase() ?? ""} band`.replace("  ", " "))}>{pct(sys.control_progress)}</span>
             </div>
           {:else}
-            {#each sys.acquisition as a (a.power)}
+            {#if sys.acquisition.length}
               <div class="acq">
-                <span class="type-label">{a.power}</span>
-                <Meter value={a.progress} thin />
-                <span class="type-figures" {@attach tip(`${a.power}'s progress to acquiring it`)}>{pct(a.progress)}</span>
+                {#each sys.acquisition as a (a.power)}
+                  <span class="type-label">{a.power}</span>
+                  <Meter value={a.progress} thin />
+                  <span class="type-figures" {@attach tip(`${a.power}'s progress to acquiring it`)}>{pct(a.progress)}</span>
+                {/each}
               </div>
-            {/each}
+            {/if}
           {/if}
           {#if sys.contesting.length && (sys.controlling_power || !sys.acquisition.length)}
             <p class="type-label">{sys.controlling_power ? "Also active here" : "Active here"}: {sys.contesting.join(", ")}</p>
@@ -177,7 +179,7 @@
         <Targets />
       {/if}
     </section>
-  </div>
+  </div></div>
 </Board>
 
 <style>
@@ -190,29 +192,31 @@
   /* Three blocks across the top and three under them. Where to work, the widest, has the track its
      full rows need (SearchKit's `fits` for Targets' groups, reinforcement and undermining and the
      report's age included: 720 px at 100 percent, with 8 px to spare), so no system name or state
-     is cut beside the docked sidebar and no row goes compact. Two columns fit the 1100 x 700
-     window's 64.6rem page column. Narrower, it keeps that track and the rest stack in one column beside it, so the
-     choice and its rows stay in the first screen; narrower still, everything is one column. */
+     is cut beside the docked sidebar and no row goes compact. Narrower, it keeps that track and
+     the rest stack in one column beside it, so the choice and its rows stay in the first screen
+     (the 1100 x 700 window's page is 64.6rem); narrower still, everything is one column. The
+     queries ask `.room`, the page's own width, not `win`, which includes the side margins. */
+  .room { container: pp / inline-size; }
   .blocks {
     display: grid; gap: var(--sp-8) var(--gutter); align-items: start;
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "rank" "cycle" "merits" "sys" "work" "earn";
   }
-  @container win (min-width: 64.5rem) {
+  @container pp (min-width: 64rem) {
     .blocks {
-      grid-template-columns: minmax(16.5rem, 25rem) 45.5rem;
+      grid-template-columns: minmax(16rem, 25rem) 45.5rem;
       grid-template-rows: auto auto auto auto 1fr;
       grid-template-areas: "rank work" "cycle work" "merits work" "sys work" "earn work";
     }
-    .blocks:not(.pledged) { grid-template-rows: auto 1fr; grid-template-areas: "sys work" "earn work"; }
+    .blocks:not(.standing) { grid-template-rows: auto 1fr; grid-template-areas: "sys work" "earn work"; }
   }
-  @container win (min-width: 85.5rem) {
-    .blocks, .blocks:not(.pledged) {
+  @container pp (min-width: 85.5rem) {
+    .blocks, .blocks:not(.standing) {
       grid-template-columns: minmax(17.5rem, 25rem) minmax(17.5rem, 25rem) 45.5rem;
       grid-template-rows: auto 1fr;
       grid-template-areas: "rank cycle merits" "sys earn work";
     }
-    .blocks:not(.pledged) { grid-template-areas: "sys earn work"; }
+    .blocks:not(.standing) { grid-template-areas: "sys earn work"; }
   }
   .rank { grid-area: rank; }
   .cycle { grid-area: cycle; }
@@ -226,5 +230,5 @@
   .tug { display: flex; flex-direction: column; gap: var(--sp-2); }
   .ends { display: flex; justify-content: space-between; gap: var(--sp-4); }
   .band, .acq { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--sp-3); }
-  .acq { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .acq { grid-template-columns: auto minmax(0, 1fr) auto; row-gap: var(--sp-2); }
 </style>

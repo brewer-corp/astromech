@@ -8,6 +8,16 @@
    "step": 100
   },
   {
+   "w": 1400,
+   "h": 900,
+   "step": 100
+  },
+  {
+   "w": 1200,
+   "h": 800,
+   "step": 115
+  },
+  {
    "w": 1920,
    "h": 1080,
    "step": 100
@@ -31,12 +41,23 @@
     {
      "waitSel": "[role=table][aria-label=Results] .row.result"
     }
+   ],
+   "sizes": [
+    "1100x700",
+    "1400x900",
+    "1200x800",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
    ]
   },
   {
    "name": "pledged-reinforce",
    "hash": "powerplay",
    "sizes": [
+    "1100x700",
+    "1400x900",
+    "1200x800",
     "1920x1080",
     "2560x1440",
     "3840x2160"
@@ -91,6 +112,34 @@
     },
     {
      "waitText": "Not pledged"
+    }
+   ]
+  },
+  {
+   "name": "loading",
+   "hash": "powerplay",
+   "query": "core=ready&route=exact&slow=never:powerplay_overview",
+   "sizes": [
+    "1100x700",
+    "1920x1080"
+   ],
+   "steps": [
+    {
+     "waitText": "Reading the journal"
+    }
+   ]
+  },
+  {
+   "name": "failed",
+   "hash": "powerplay",
+   "query": "core=ready&route=exact&fail=powerplay_overview",
+   "sizes": [
+    "1100x700",
+    "1920x1080"
+   ],
+   "steps": [
+    {
+     "waitText": "Not shown until"
     }
    ]
   }

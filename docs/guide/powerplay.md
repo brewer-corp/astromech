@@ -6,8 +6,7 @@ page, with how long you have been pledged and your rank.
 
 **What it needs:** the journal (your pledge, rank and merits, and the system's Powerplay state from
 your last jump), and for **Where to work** a network connection (Spansh). If you are not pledged
-to a power, the page says **Not pledged**, says how to pledge, and shows only the system and where
-to work.
+to a power, the page says **Not pledged** and how to pledge, and shows only the system.
 
 ## Next rank
 
