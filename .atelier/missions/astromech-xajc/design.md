@@ -1,6 +1,6 @@
 ---
 status: draft
-last_changed: "2026-11-17: the screens of increments 3 and 4 planned in detail, with their order and what each needs from the core"
+last_changed: "2026-11-17: plan review round 4: increment 2 closed with its three bugs handed to the screens; suit picks per item; the Now cargo answer kept current and qualified"
 ---
 
 # Sizing
@@ -158,9 +158,9 @@ open them with no `MOVED` entry. The Now page is a Board in a new module
 `app/src/modules/now/`, following the game: docked, the station head and the station's
 services board (every service of the game's station menu, the absent ones dim); in space, the
 system; Elite not running, the last place and the last session. Under the head, blocks that
-show only when they have something to say: Sell your cargo (`trade_cargo`'s best whole-load
-total, asked when the page opens with cargo aboard and when the tonnes aboard change, failing
-alone), This session, Powerplay (merits this cycle, time left from `week_ends`) and a mining
+show only when they have something to say: Sell your cargo (`trade_cargo`'s best station, its
+total always with how much of the hold it takes; asked again whenever the sellable hold, the
+system or the ship changes, the old answer dimmed until the new one comes, failing alone), This session, Powerplay (merits this cycle, time left from `week_ends`) and a mining
 run. The station head and the board are `station/Head.svelte` and `station/Board.svelte`; the
 board is drawn on Now only, and the Station page (astromech-7vxi) keeps the station's other
 facts, its market and its outfitting. No new core command. The header's second row is
@@ -174,7 +174,7 @@ What each needs from the core, read from the code on 17 Nov 2026:
 | Now | astromech-coq6 | new `now`, with `station/Head` and `station/Board` | nothing; the preview gains `?game=running` and a recorded not-docked `docked_here` |
 | Station | astromech-7vxi | `station` | nothing (`docked_here`, `market_compare`, `outfitting_search`) |
 | Ship loadout | astromech-8wr4 | `engineering` | nothing: `Ship.modules`, grouped by slot name in the window; the selected module's needs from `engineering_plan`'s `TargetCost` |
-| Suits loadout | astromech-nnn0 | `suits` | loadouts: astromech-w1lj keeps each loadout's name, suit and weapons by slot and the worn one (the core reads the events today only for grades and mods, `astromech-odyssey/src/owned.rs:179`) |
+| Suits loadout | astromech-nnn0 | `suits` | loadouts and a pick tied to one owned item (`Pick.item`): astromech-w1lj keeps each loadout's name, suit and weapons by slot and the worn one (the core reads the events today only for grades and mods, `astromech-odyssey/src/owned.rs:179`) |
 | Engineer tree | astromech-m6gw | `unlocks` | what each engineer works on, added to `Node` in m6gw; suit engineers' coordinates from astromech-70ts; step counts do not exist (`Node.left` is text) and are not shown |
 | System tree | astromech-dpaz | `exploration` | `BodyView` gains `parents`, which `ScanBody` already parses (`astromech-journal/src/detail.rs:120`), in dpaz; the explorer world gains `Parents` |
 | Biology cards | astromech-evj3 | `exobiology` | nothing |
@@ -183,16 +183,20 @@ What each needs from the core, read from the code on 17 Nov 2026:
 | Colonisation | astromech-m07p | `colonisation` | nothing; DESIGN.md's list gains "aboard, not yet delivered" in Orange Mid |
 | Session and Logbook | astromech-fzhp | `session`, `logbook` | `Session` gains each payment's time, from the `earnings` rows the totals already sum (`astromech-history/src/session.rs`), in fzhp |
 
-*Order.* Every screen waits on astromech-8e22. Increment 3 is the Now page and the screens
+*Order.* Every screen was blocked on astromech-8e22, which merged on 17 Nov 2026 with the
+three bugs below handed to the screens that rebuild their pages. Increment 3 is the Now page and the screens
 with an approved mockup: astromech-coq6, 8wr4, nnn0, m6gw, dpaz and rj6i (priority high),
 then astromech-7vxi, which reuses coq6's station head. 8wr4, nnn0 and rj6i also carry the
-checkpoint's three bugs on their pages (astromech-5g9w, 8og8 and lf3a). The two core items
+checkpoint's three bugs on their pages (astromech-5g9w, 8og8 and lf3a, dropped as covered).
+The checkpoint's other two findings are not screen work: astromech-vbz3 (the engineer search)
+is fixed in its own item, and astromech-wo8s (My controller's sheet, a Controls page) is a
+standalone bug outside this mission. The two core items
 astromech-w1lj (suit loadouts, before nnn0) and astromech-70ts (suit engineers' coordinates,
-before m6gw; it reads the 6.4 GB Spansh dump on boat) can run before 8e22 merges, w1lj first:
+before m6gw; it reads the 6.4 GB Spansh dump on boat) can start now, w1lj first:
 both change `odyssey_view` and dump `odyssey.json` again, so 70ts waits on it. Increment 4 is astromech-evj3, el3i, m07p and fzhp (priority medium); fzhp waits
 on coq6, which moves Session. astromech-zaqh (the Sell panel test with real sizes) waits on
 nothing. astromech-gvy0 waits on every screen item and zaqh, and astromech-crxa on gvy0.
-At most four implementers run at once: the first wave after 8e22 is coq6, 8wr4, rj6i and
+At most four implementers run at once: the first wave is coq6, 8wr4, rj6i and
 nnn0 (the last three carry the checkpoint's bugs), with w1lj done before it; then dpaz, m6gw
 (after 70ts) and 7vxi; then increment 4.
 
@@ -201,7 +205,7 @@ nnn0 (the last three carry the checkpoint's bugs), with w1lj done before it; the
 header figures and Top tabs, m07p's list entry), `app/src/preview/` fixtures (each item its
 own), and none of `SearchKit.svelte`, `Glyph.svelte`, the layouts or `Hexes.svelte`, which
 they use as they are. `app/src/lib/modules.ts` and `App.svelte` are coq6's alone. Each item
-measures its page with `scripts/browser/audit.mjs` (astromech-8e22's tool), and gvy0 the
+measures its page with `scripts/browser/audit.mjs` (on main since astromech-8e22, with `--base`, `--plan` and `--only`), and gvy0 the
 final captures of every page.
 
 **Which item converts which page.** Controls pages are exempt.
