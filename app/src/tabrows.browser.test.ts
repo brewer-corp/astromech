@@ -142,11 +142,9 @@ describe("Folded levels keep their links", () => {
     expect(pressed("On foot")).toBeTruthy();
   });
 
-  it("#/unlocks?kind=suit opens the suit engineers", async () => {
+  it("#/unlocks?kind=suit opens the engineers, suit engineers among them", async () => {
     location.hash = "#/unlocks?kind=suit";
     render(App);
-    await waitFor(() => expect(pressed("Suit engineers")).toBeTruthy());
-    await fireEvent.click(screen.getByRole("button", { name: "Ship engineers", pressed: false }));
-    expect(location.hash).toBe("#/unlocks");
+    expect(await screen.findByRole("region", { name: "Suit engineers" })).toBeTruthy();
   });
 });

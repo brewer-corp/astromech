@@ -4,7 +4,6 @@
  * journal's EngineerProgress, and what is left to unlock each.
  */
 import type { EngineerSearch } from "./api/types/EngineerSearch";
-import type { EngineerStatus as Status } from "./api/types/EngineerStatus";
 import type { Node as UnlockNode } from "./api/types/Node";
 import type { Tree as UnlockTree } from "./api/types/Tree";
 import { call } from "./transport";
@@ -17,22 +16,67 @@ export async function loadUnlocks(): Promise<UnlockTree> {
   return await call("engineering_unlocks");
 }
 
-/** The tree's columns for one kind: nodes by depth, next ones first, then by name. */
-export function columns(t: UnlockTree, kind: "ship" | "suit"): UnlockNode[][] {
-  const nodes = t.nodes.filter((n) => n.kind === kind);
-  const out: UnlockNode[][] = [];
-  for (const n of nodes) (out[n.depth] ??= []).push(n);
-  const order: Record<Status, number> = { invited: 0, known: 1, locked: 2, unlocked: 3, barred: 4 };
-  return out.map((col) => col.sort((a, b) => Number(b.next) - Number(a.next) || order[a.status] - order[b.status] || a.name.localeCompare(b.name)));
+export type { WorksOn } from "./api/types/WorksOn";
+
+/** A node's place in its tree's grid: its column (`Node.depth`) and the rows it spans. */
+export type Placed = { node: UnlockNode; col: number; row: number; span: number };
+
+/**
+ * One kind's tree laid out as a grid, in the order the nodes come (the catalog's): each engineer
+ * spans the rows of the engineers they introduce, so it sits beside them, and one with several
+ * introducers (Yi Shen) spans its introducers' rows when they sit together in the column before.
+ */
+export function placeTree(nodes: UnlockNode[]): { placed: Placed[]; rows: number; cols: number } {
+  const byName = new Map(nodes.map((n) => [n.name, n]));
+  const kids = new Map<string, UnlockNode[]>();
+  const shared: UnlockNode[] = [];
+  const roots: UnlockNode[] = [];
+  for (const n of nodes) {
+    const from = n.introduced_by.filter((r) => byName.has(r));
+    if (!from.length) roots.push(n);
+    else if (from.length === 1 || nodes.some((m) => m.introduced_by.includes(n.name))) {
+      const k = kids.get(from[0]!) ?? [];
+      k.push(n);
+      kids.set(from[0]!, k);
+    } else shared.push(n);
+  }
+  const at = new Map<string, Placed>();
+  let next = 0;
+  const place = (n: UnlockNode, row: number): number => {
+    let end = row;
+    for (const k of kids.get(n.name) ?? []) end = place(k, end);
+    const span = Math.max(1, end - row);
+    at.set(n.name, { node: n, col: n.depth, row, span });
+    return row + span;
+  };
+  for (const r of roots) next = place(r, next);
+  for (const n of shared) {
+    const from = n.introduced_by.map((r) => at.get(r)).filter((p) => p !== undefined);
+    const top = Math.min(...from.map((p) => p.row));
+    const end = Math.max(...from.map((p) => p.row + p.span));
+    const free = [...at.values()].every((p) => p.col !== n.depth || p.row + p.span <= top || p.row >= end);
+    if (from.length && free) at.set(n.name, { node: n, col: n.depth, row: top, span: end - top });
+    else next = place(n, next);
+  }
+  // Anything left (an introducer missing from the catalog, a cycle) goes at the foot.
+  for (const n of nodes) if (!at.has(n.name)) next = place(n, next);
+  const placed = nodes.map((n) => at.get(n.name)!);
+  return { placed, rows: next, cols: Math.max(0, ...placed.map((p) => p.col)) + 1 };
 }
 
-export const STATUS_LABEL: Record<Status, string> = {
-  unlocked: "Unlocked",
-  invited: "Invited",
-  known: "Known",
-  locked: "Locked",
-  barred: "Barred",
-};
+/** "10 of 25 ship and 4 of 13 suit engineers unlocked · 15 to work on", counted from the tree. */
+export function treeSummary(t: UnlockTree): string {
+  const of = (kind: string) => t.nodes.filter((n) => n.kind === kind);
+  const unlocked = (ns: UnlockNode[]) => ns.filter((n) => n.status === "unlocked").length;
+  const [ship, suit] = [of("ship"), of("suit")];
+  const work = t.nodes.filter((n) => n.next && n.status !== "unlocked").length;
+  return `${unlocked(ship)} of ${ship.length} ship and ${unlocked(suit)} of ${suit.length} suit engineers unlocked · ${work} to work on`;
+}
+
+/** Straight-line light years between two positions. */
+export function lightYears(a: [number, number, number], b: [number, number, number]): number {
+  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+}
 
 export type { EngineerSearch } from "./api/types/EngineerSearch";
 export type { SearchHit } from "./api/types/SearchHit";

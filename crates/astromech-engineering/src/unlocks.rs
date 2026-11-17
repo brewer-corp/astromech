@@ -321,6 +321,15 @@ mod tests {
         assert!(n("Felicity Farseer").steps.is_empty());
     }
 
+    #[test]
+    fn with_no_progress_the_common_knowledge_engineers_are_known_and_the_rest_not_introduced() {
+        let t = tree(&EngineerBuilder::default(), &[]);
+        for n in &t.nodes {
+            let want = if n.introduced_by.is_empty() { Status::Known } else { Status::Locked };
+            assert_eq!((n.status, n.next), (want, want == Status::Known), "{}", n.name);
+        }
+    }
+
     /// (grade, label) of what `name` works on, in order.
     fn works(t: &Tree, name: &str) -> Vec<(u8, String)> {
         let n = t.nodes.iter().find(|x| x.name == name).unwrap_or_else(|| panic!("{name}"));

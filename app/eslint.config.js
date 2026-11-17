@@ -26,6 +26,8 @@ export const PAGE_SIZING = [
   ["src/modules/{session,mining}/View.svelte", "font-size"],
   // astromech-irrv: the Import a route dialog, a page part opened from the frame.
   ["src/modules/route/ImportDialog.svelte", "width", "font-size"],
+  // astromech-m6gw: Engineers as the unlock tree, on List with detail.
+  ["src/modules/unlocks/{View,Search}.svelte", "width", "font-size"],
 ];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts
@@ -68,7 +70,6 @@ export const TOKENS_EXEMPT = [
   // Pending: the page is rebuilt on a layout by the item named, which takes it off this list.
   { files: ["src/modules/colonisation/**"], off: ["spacing"], until: "astromech-m07p", why: "Rebuilds Colonisation." },
   { files: ["src/modules/engineering/**"], off: ["spacing"], until: "astromech-8wr4", why: "Rebuilds Ships as a loadout." },
-  { files: ["src/modules/unlocks/**"], off: ["spacing"], until: "astromech-m6gw", why: "Rebuilds Engineers." },
   { files: ["src/modules/suits/**"], off: ["spacing"], until: "astromech-nnn0", why: "Rebuilds Suits, which holds On foot's blueprints since astromech-5a01." },
   { files: ["src/modules/exobiology/**"], off: ["spacing"], until: "astromech-evj3", why: "Rebuilds Biology." },
   { files: ["src/modules/exploration/**"], off: ["spacing"], until: "astromech-dpaz", why: "Rebuilds System." },
