@@ -34,6 +34,43 @@ export function projectName(p: Project): string {
   return p.station_name ?? `Construction site ${p.market_id}`;
 }
 
+/** One commodity the site requires, as a progress row. */
+export type Progress = {
+  name: string;
+  required: number;
+  provided: number;
+  /** Aboard now, counted only up to what is still needed. */
+  aboard: number;
+  toBuy: number;
+  complete: boolean;
+};
+
+/**
+ * Each commodity `p` requires, in the order of its shopping list (largest still to buy first), then
+ * those complete. A commodity is on the shopping list while any of it is still needed; the list's
+ * line and the depot's resource share the journal's name.
+ */
+export function progressOf(p: Project): Progress[] {
+  const lines = new Map(p.shopping.lines.map((l) => [l.name, l]));
+  const row = (r: Project["resources"][number]): Progress => {
+    const l = lines.get(r.name);
+    return {
+      name: r.name_localised ?? l?.name_localised ?? r.name,
+      required: r.required,
+      provided: r.provided,
+      aboard: l?.in_cargo ?? 0,
+      toBuy: l?.to_buy ?? 0,
+      complete: !l,
+    };
+  };
+  const byName = new Map(p.resources.map((r) => [r.name, r]));
+  const short = p.shopping.lines.flatMap((l) => {
+    const r = byName.get(l.name);
+    return r ? [row(r)] : [];
+  });
+  return [...short, ...p.resources.filter((r) => !lines.has(r.name)).map(row)];
+}
+
 /** What is left to buy for `p`, as the lookup asks for it. */
 export function needsOf(p: Project): Need[] {
   return p.shopping.lines.filter((l) => l.to_buy > 0).map((l) => ({ symbol: l.symbol, name: l.name_localised ?? l.symbol, tonnes: l.to_buy }));

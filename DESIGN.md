@@ -563,6 +563,7 @@ are read; colour that means nothing is what made every page loud.
 | An engineer's state | unlocked: name Options Grey, rank hexagons White. Known: name Orange Mid, the step to unlock in Prose Grey. Barred: name and reason Red Low. Not introduced: Grey Dim | can you use them, work toward them, or not | the hexagons, or the step or reason in words |
 | Engineer rank and blueprint grade | reached rank White; a grade the commander can get Orange; a planned grade not reached Orange Mid; unreached Mark Off | how far you are, and what you can get | the count of lit hexagons, and the accessible name ("Rank 3 of 5") |
 | A short amount (need more than have) | "!" and the have figure in Orange | collect this | the "!" |
+| A colonisation delivery: aboard and not yet delivered | Orange Mid, as a part of the commodity's meter after the delivered part | on its way to the site, not yet counted | the "aboard" figure in words ("90 t aboard") |
 | A material at its storage cap | the tile's track Orange Lit | trade or use some before you collect more | the full track |
 | A binding conflict | "!" and "Also: <action>" in Orange; an ignored binding struck through, Orange Dim | a warning, not a failure | the words |
 | The commander's position in the route | White pin and name, raised | you are here | the pin icon |
@@ -988,7 +989,9 @@ never by a cell, a fill or a coloured side border.
   the values in Figures, separated by a Label Grey "|", with one unit after the last.
 - **Meter:** a Mark Off track, 2 to 6 px high, filled from the left in Prose Grey; the material
   tile's track turns Orange Lit at its cap, and a shopping list's fill turns Orange Lit when
-  complete. No label inside the track; the figure beside it says how much. *Why:* the trader
+  complete. A colonisation commodity's meter adds what is aboard as an Orange Mid part after the
+  delivered part (see [the list](#colours-that-carry-a-meaning)); a complete commodity keeps a
+  full Prose Grey meter and its row steps to Grey Dim. No label inside the track; the figure beside it says how much. *Why:* the trader
   tile's bar, kept thin so the number stays the main value.
 - **Hexagons:** a rank or grade is a row of engineer hexagons, one per step, the reached ones
   lit, coloured by [the list](#colours-that-carry-a-meaning); 12 to 14 px in a row, its words
