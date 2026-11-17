@@ -1,5 +1,5 @@
 {
- "commit": "458f7477",
+ "commit": "201614ea",
  "captures": {
   "now-1100x700": {
    "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/now",
@@ -16243,6 +16243,759 @@
     }
    ]
   },
+  "hotspots-selected-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/mining-hotspots/platinum",
+   "file": "docs/design/final/hotspots-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "3 A Ring"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "4 A Ring",
+      "LHS 3602",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 16,
+     "texts": [
+      "4 of 10",
+      "7",
+      "745",
+      "Metallic",
+      "~3",
+      "In",
+      "Metal Rich",
+      "Common",
+      "Platinum 5, Monazite 3, Serendibite 3, Rhodplumsite 2",
+      "1,276",
+      "~3 jumps · 69.4",
+      "18.0",
+      "24.6",
+      "32"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "10"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "7",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 35,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "ls",
+      "Greila"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Places",
+      "Set destination"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "hotspots-selected-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/mining-hotspots/platinum",
+   "file": "docs/design/final/hotspots-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "—",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.row.result > span.g.own > span.l2 > span.none",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Mining hotspots",
+      "3 A Ring"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "B 2 B Ring",
+      "BC 2 B Ring",
+      "A 4 A Ring",
+      "AB 3 A Ring",
+      "1 A Ring",
+      "A 6 A Ring",
+      "2 A Ring",
+      "4 A Ring",
+      "LHS 3602",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 46,
+     "texts": [
+      "1,276",
+      "ls",
+      "LHS 3602",
+      "Metal Rich",
+      "~3",
+      "jumps",
+      "69.4",
+      "ly",
+      "722",
+      "~2",
+      "158,329",
+      "~4",
+      "1,373",
+      "Metallic"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "10"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "hotspots-selected-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/mining-hotspots/platinum",
+   "file": "docs/design/final/hotspots-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "—",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.row.result > span.g.own > span.l2 > span.none",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Mining hotspots",
+      "3 A Ring"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "B 2 B Ring",
+      "BC 2 B Ring",
+      "A 4 A Ring",
+      "AB 3 A Ring",
+      "1 A Ring",
+      "A 6 A Ring",
+      "2 A Ring",
+      "4 A Ring",
+      "LHS 3602",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 46,
+     "texts": [
+      "1,276",
+      "ls",
+      "LHS 3602",
+      "Metal Rich",
+      "~3",
+      "jumps",
+      "69.4",
+      "ly",
+      "722",
+      "~2",
+      "158,329",
+      "~4",
+      "1,373",
+      "Metallic"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "10"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "hotspots-selected-3840x2160": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/mining-hotspots/platinum",
+   "file": "docs/design/final/hotspots-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "—",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.row.result > span.g.own > span.l2 > span.none",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Mining hotspots",
+      "3 A Ring"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "B 2 B Ring",
+      "BC 2 B Ring",
+      "A 4 A Ring",
+      "AB 3 A Ring",
+      "1 A Ring",
+      "A 6 A Ring",
+      "2 A Ring",
+      "4 A Ring",
+      "LHS 3602",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 46,
+     "texts": [
+      "1,276",
+      "ls",
+      "LHS 3602",
+      "Metal Rich",
+      "~3",
+      "jumps",
+      "69.4",
+      "ly",
+      "722",
+      "~2",
+      "158,329",
+      "~4",
+      "1,373",
+      "Metallic"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "10"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
   "trade-route-1100x700": {
    "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/trade",
    "file": "docs/design/final/trade-route-1100x700.png",
@@ -23245,11 +23998,10 @@
      "weight": 9,
      "texts": [
       "Voice tester",
-      "Heard",
-      "Intent",
-      "Confidence",
-      "Would",
-      "Keys",
+      "gear down",
+      "100%",
+      "Press the keys, then say",
+      "“Landing gear deployed.”",
       "L",
       "You're down.",
       "Heavy Lifter"
@@ -23259,14 +24011,10 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 13,
+     "weight": 8,
      "texts": [
       "4 of 10",
       "7",
-      "gear down",
-      "100%",
-      "Press the keys, then say",
-      "“Landing gear deployed.”",
       "Learned phrases",
       "18.0",
       "24.6",
@@ -23303,7 +24051,7 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 31,
+     "weight": 36,
      "texts": [
       "Now",
       "Ships",
@@ -23468,11 +24216,10 @@
      "weight": 10,
      "texts": [
       "Voice tester",
-      "Heard",
-      "Intent",
-      "Confidence",
-      "Would",
-      "Keys",
+      "gear down",
+      "100%",
+      "Press the keys, then say",
+      "“Landing gear deployed.”",
       "L",
       "You're down.",
       "lamps",
@@ -23492,12 +24239,8 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 11,
+     "weight": 6,
      "texts": [
-      "gear down",
-      "100%",
-      "Press the keys, then say",
-      "“Landing gear deployed.”",
       "Learned phrases",
       "18.0",
       "24.6",
@@ -23661,11 +24404,10 @@
      "weight": 10,
      "texts": [
       "Voice tester",
-      "Heard",
-      "Intent",
-      "Confidence",
-      "Would",
-      "Keys",
+      "gear down",
+      "100%",
+      "Press the keys, then say",
+      "“Landing gear deployed.”",
       "L",
       "You're down.",
       "lamps",
@@ -23685,12 +24427,8 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 11,
+     "weight": 6,
      "texts": [
-      "gear down",
-      "100%",
-      "Press the keys, then say",
-      "“Landing gear deployed.”",
       "Learned phrases",
       "18.0",
       "24.6",
@@ -23854,11 +24592,10 @@
      "weight": 10,
      "texts": [
       "Voice tester",
-      "Heard",
-      "Intent",
-      "Confidence",
-      "Would",
-      "Keys",
+      "gear down",
+      "100%",
+      "Press the keys, then say",
+      "“Landing gear deployed.”",
       "L",
       "You're down.",
       "lamps",
@@ -23878,12 +24615,8 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 11,
+     "weight": 6,
      "texts": [
-      "gear down",
-      "100%",
-      "Press the keys, then say",
-      "“Landing gear deployed.”",
       "Learned phrases",
       "18.0",
       "24.6",
@@ -23925,759 +24658,6 @@
      "text": "Settings",
      "sidebar": false,
      "at": "div.frame > header. > nav. > button.on"
-    }
-   ]
-  },
-  "hotspots-selected-1100x700": {
-   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/mining-hotspots/platinum",
-   "file": "docs/design/final/hotspots-selected-1100x700.png",
-   "step": 100,
-   "frame": {
-    "header": 108,
-    "stacked": true,
-    "route": "strip",
-    "sidebar": null,
-    "main": {
-     "w": 1090,
-     "h": 524
-    }
-   },
-   "sideways": [],
-   "clipped": [],
-   "overlaps": [],
-   "small": [],
-   "contrast": [],
-   "exempt": [
-    {
-     "text": "Find or plot",
-     "ratio": 3.63,
-     "fg": "#ce5d04",
-     "bg": "#3d220f",
-     "px": 15,
-     "at": "div.find > span.field > span.cell > input.",
-     "token": "placeholder"
-    }
-   ],
-   "far": [],
-   "bright": [
-    {
-     "colour": "#ffffff",
-     "lum": 1,
-     "sidebar": false,
-     "weight": 2,
-     "texts": [
-      "ASTROMECH",
-      "3 A Ring"
-     ]
-    },
-    {
-     "colour": "#e0e0e0",
-     "lum": 0.745,
-     "sidebar": false,
-     "weight": 3,
-     "texts": [
-      "4 A Ring",
-      "LHS 3602",
-      "Heavy Lifter"
-     ]
-    },
-    {
-     "colour": "#c4c4c4",
-     "lum": 0.552,
-     "sidebar": false,
-     "weight": 16,
-     "texts": [
-      "4 of 10",
-      "7",
-      "745",
-      "Metallic",
-      "~3",
-      "In",
-      "Metal Rich",
-      "Common",
-      "Platinum 5, Monazite 3, Serendibite 3, Rhodplumsite 2",
-      "1,276",
-      "~3 jumps · 69.4",
-      "18.0",
-      "24.6",
-      "32"
-     ]
-    },
-    {
-     "colour": "#ffa04a",
-     "lum": 0.469,
-     "sidebar": false,
-     "weight": 2,
-     "texts": [
-      "Arietis Sector LD-H a11-1",
-      "10"
-     ]
-    },
-    {
-     "colour": "#ff7100",
-     "lum": 0.331,
-     "sidebar": false,
-     "weight": 6,
-     "texts": [
-      "Ctrl+K",
-      "Help",
-      "Maia",
-      "7",
-      "Add stop",
-      "Waiting for Elite"
-     ]
-    },
-    {
-     "colour": "#8c8c8c",
-     "lum": 0.262,
-     "sidebar": false,
-     "weight": 35,
-     "texts": [
-      "Now",
-      "Ships",
-      "Engineering",
-      "Trade",
-      "Exploration",
-      "Powerplay",
-      "Logbook",
-      "Controls",
-      "Settings",
-      "Next",
-      "To",
-      "jumps left",
-      "ls",
-      "Greila"
-     ]
-    },
-    {
-     "colour": "#ce5d04",
-     "lum": 0.21,
-     "sidebar": false,
-     "weight": 1,
-     "texts": [
-      "Find or plot"
-     ]
-    },
-    {
-     "colour": "#0c0d0f",
-     "lum": 0.004,
-     "sidebar": false,
-     "weight": 2,
-     "texts": [
-      "Places",
-      "Set destination"
-     ]
-    }
-   ],
-   "fills": [
-    {
-     "colour": "#ff7100",
-     "text": "Places",
-     "sidebar": false,
-     "at": "div.frame > header.stacked > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "Set destination",
-     "sidebar": false,
-     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
-    }
-   ]
-  },
-  "hotspots-selected-1920x1080": {
-   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/mining-hotspots/platinum",
-   "file": "docs/design/final/hotspots-selected-1920x1080.png",
-   "step": 100,
-   "frame": {
-    "header": 64,
-    "stacked": false,
-    "route": "docked",
-    "sidebar": 319,
-    "main": {
-     "w": 1590,
-     "h": 984
-    }
-   },
-   "sideways": [],
-   "clipped": [],
-   "overlaps": [],
-   "small": [],
-   "contrast": [],
-   "exempt": [
-    {
-     "text": "Sol",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 15,
-     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
-     "token": "grey-dim"
-    },
-    {
-     "text": "Tascheter Sector MN-T b3-6",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 15,
-     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
-     "token": "grey-dim"
-    },
-    {
-     "text": "fuel",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 13,
-     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
-     "token": "grey-dim"
-    },
-    {
-     "text": "Tascheter Sector LS-T a3-0",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 15,
-     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
-     "token": "grey-dim"
-    },
-    {
-     "text": "—",
-     "ratio": 3.59,
-     "fg": "#6a6a6a",
-     "bg": "#0c0d0f",
-     "px": 13,
-     "at": "div.row.result > span.g.own > span.l2 > span.none",
-     "token": "grey-dim"
-    },
-    {
-     "text": "Find or plot",
-     "ratio": 3.63,
-     "fg": "#ce5d04",
-     "bg": "#3d220f",
-     "px": 15,
-     "at": "div.find > span.field > span.cell > input.",
-     "token": "placeholder"
-    }
-   ],
-   "far": [],
-   "bright": [
-    {
-     "colour": "#ffffff",
-     "lum": 1,
-     "sidebar": false,
-     "weight": 4,
-     "texts": [
-      "ASTROMECH",
-      "Mining hotspots",
-      "3 A Ring"
-     ]
-    },
-    {
-     "colour": "#ffffff",
-     "lum": 1,
-     "sidebar": true,
-     "weight": 3,
-     "texts": [
-      "Sol",
-      "You are here",
-      "Maia"
-     ]
-    },
-    {
-     "colour": "#e0e0e0",
-     "lum": 0.745,
-     "sidebar": true,
-     "weight": 6,
-     "texts": [
-      "Arietis Sector UE-O a7-1",
-      "Arietis Sector EG-V a3-1",
-      "Hyades Sector DB-W b2-6",
-      "Hyades Sector XJ-Z b3",
-      "98 k Tauri",
-      "Maia"
-     ]
-    },
-    {
-     "colour": "#e0e0e0",
-     "lum": 0.745,
-     "sidebar": false,
-     "weight": 11,
-     "texts": [
-      "B 2 B Ring",
-      "BC 2 B Ring",
-      "A 4 A Ring",
-      "AB 3 A Ring",
-      "1 A Ring",
-      "A 6 A Ring",
-      "2 A Ring",
-      "4 A Ring",
-      "LHS 3602",
-      "Heavy Lifter"
-     ]
-    },
-    {
-     "colour": "#c4c4c4",
-     "lum": 0.552,
-     "sidebar": true,
-     "weight": 1,
-     "texts": [
-      "By Spansh"
-     ]
-    },
-    {
-     "colour": "#c4c4c4",
-     "lum": 0.552,
-     "sidebar": false,
-     "weight": 46,
-     "texts": [
-      "1,276",
-      "ls",
-      "LHS 3602",
-      "Metal Rich",
-      "~3",
-      "jumps",
-      "69.4",
-      "ly",
-      "722",
-      "~2",
-      "158,329",
-      "~4",
-      "1,373",
-      "Metallic"
-     ]
-    },
-    {
-     "colour": "#ffa04a",
-     "lum": 0.469,
-     "sidebar": true,
-     "weight": 4,
-     "texts": [
-      "Arietis",
-      "Sector",
-      "LD-H",
-      "a11-1"
-     ]
-    },
-    {
-     "colour": "#ffa04a",
-     "lum": 0.469,
-     "sidebar": false,
-     "weight": 2,
-     "texts": [
-      "10"
-     ]
-    }
-   ],
-   "fills": [
-    {
-     "colour": "#ff7100",
-     "text": "Places",
-     "sidebar": false,
-     "at": "div.frame > header. > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "Set destination",
-     "sidebar": false,
-     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
-    }
-   ]
-  },
-  "hotspots-selected-2560x1440": {
-   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/mining-hotspots/platinum",
-   "file": "docs/design/final/hotspots-selected-2560x1440.png",
-   "step": 145,
-   "frame": {
-    "header": 64,
-    "stacked": false,
-    "route": "docked",
-    "sidebar": 319.3,
-    "main": {
-     "w": 1438.6,
-     "h": 897.2
-    }
-   },
-   "sideways": [],
-   "clipped": [],
-   "overlaps": [],
-   "small": [],
-   "contrast": [],
-   "exempt": [
-    {
-     "text": "Sol",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 15,
-     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
-     "token": "grey-dim"
-    },
-    {
-     "text": "Tascheter Sector MN-T b3-6",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 15,
-     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
-     "token": "grey-dim"
-    },
-    {
-     "text": "fuel",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 13,
-     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
-     "token": "grey-dim"
-    },
-    {
-     "text": "Tascheter Sector LS-T a3-0",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 15,
-     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
-     "token": "grey-dim"
-    },
-    {
-     "text": "—",
-     "ratio": 3.59,
-     "fg": "#6a6a6a",
-     "bg": "#0c0d0f",
-     "px": 13,
-     "at": "div.row.result > span.g.own > span.l2 > span.none",
-     "token": "grey-dim"
-    },
-    {
-     "text": "Find or plot",
-     "ratio": 3.63,
-     "fg": "#ce5d04",
-     "bg": "#3d220f",
-     "px": 15,
-     "at": "div.find > span.field > span.cell > input.",
-     "token": "placeholder"
-    }
-   ],
-   "far": [],
-   "bright": [
-    {
-     "colour": "#ffffff",
-     "lum": 1,
-     "sidebar": false,
-     "weight": 4,
-     "texts": [
-      "ASTROMECH",
-      "Mining hotspots",
-      "3 A Ring"
-     ]
-    },
-    {
-     "colour": "#ffffff",
-     "lum": 1,
-     "sidebar": true,
-     "weight": 3,
-     "texts": [
-      "Sol",
-      "You are here",
-      "Maia"
-     ]
-    },
-    {
-     "colour": "#e0e0e0",
-     "lum": 0.745,
-     "sidebar": true,
-     "weight": 6,
-     "texts": [
-      "Arietis Sector UE-O a7-1",
-      "Arietis Sector EG-V a3-1",
-      "Hyades Sector DB-W b2-6",
-      "Hyades Sector XJ-Z b3",
-      "98 k Tauri",
-      "Maia"
-     ]
-    },
-    {
-     "colour": "#e0e0e0",
-     "lum": 0.745,
-     "sidebar": false,
-     "weight": 11,
-     "texts": [
-      "B 2 B Ring",
-      "BC 2 B Ring",
-      "A 4 A Ring",
-      "AB 3 A Ring",
-      "1 A Ring",
-      "A 6 A Ring",
-      "2 A Ring",
-      "4 A Ring",
-      "LHS 3602",
-      "Heavy Lifter"
-     ]
-    },
-    {
-     "colour": "#c4c4c4",
-     "lum": 0.552,
-     "sidebar": true,
-     "weight": 1,
-     "texts": [
-      "By Spansh"
-     ]
-    },
-    {
-     "colour": "#c4c4c4",
-     "lum": 0.552,
-     "sidebar": false,
-     "weight": 46,
-     "texts": [
-      "1,276",
-      "ls",
-      "LHS 3602",
-      "Metal Rich",
-      "~3",
-      "jumps",
-      "69.4",
-      "ly",
-      "722",
-      "~2",
-      "158,329",
-      "~4",
-      "1,373",
-      "Metallic"
-     ]
-    },
-    {
-     "colour": "#ffa04a",
-     "lum": 0.469,
-     "sidebar": true,
-     "weight": 4,
-     "texts": [
-      "Arietis",
-      "Sector",
-      "LD-H",
-      "a11-1"
-     ]
-    },
-    {
-     "colour": "#ffa04a",
-     "lum": 0.469,
-     "sidebar": false,
-     "weight": 2,
-     "texts": [
-      "10"
-     ]
-    }
-   ],
-   "fills": [
-    {
-     "colour": "#ff7100",
-     "text": "Places",
-     "sidebar": false,
-     "at": "div.frame > header. > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "Set destination",
-     "sidebar": false,
-     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
-    }
-   ]
-  },
-  "hotspots-selected-3840x2160": {
-   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/mining-hotspots/platinum",
-   "file": "docs/design/final/hotspots-selected-3840x2160.png",
-   "step": 180,
-   "frame": {
-    "header": 64,
-    "stacked": false,
-    "route": "docked",
-    "sidebar": 319.4,
-    "main": {
-     "w": 1807.8,
-     "h": 1103.9
-    }
-   },
-   "sideways": [],
-   "clipped": [],
-   "overlaps": [],
-   "small": [],
-   "contrast": [],
-   "exempt": [
-    {
-     "text": "Sol",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 15,
-     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
-     "token": "grey-dim"
-    },
-    {
-     "text": "Tascheter Sector MN-T b3-6",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 15,
-     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
-     "token": "grey-dim"
-    },
-    {
-     "text": "fuel",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 13,
-     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
-     "token": "grey-dim"
-    },
-    {
-     "text": "Tascheter Sector LS-T a3-0",
-     "ratio": 3.39,
-     "fg": "#6a6a6a",
-     "bg": "#1a1310",
-     "px": 15,
-     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
-     "token": "grey-dim"
-    },
-    {
-     "text": "—",
-     "ratio": 3.59,
-     "fg": "#6a6a6a",
-     "bg": "#0c0d0f",
-     "px": 13,
-     "at": "div.row.result > span.g.own > span.l2 > span.none",
-     "token": "grey-dim"
-    },
-    {
-     "text": "Find or plot",
-     "ratio": 3.63,
-     "fg": "#ce5d04",
-     "bg": "#3d220f",
-     "px": 15,
-     "at": "div.find > span.field > span.cell > input.",
-     "token": "placeholder"
-    }
-   ],
-   "far": [],
-   "bright": [
-    {
-     "colour": "#ffffff",
-     "lum": 1,
-     "sidebar": false,
-     "weight": 4,
-     "texts": [
-      "ASTROMECH",
-      "Mining hotspots",
-      "3 A Ring"
-     ]
-    },
-    {
-     "colour": "#ffffff",
-     "lum": 1,
-     "sidebar": true,
-     "weight": 3,
-     "texts": [
-      "Sol",
-      "You are here",
-      "Maia"
-     ]
-    },
-    {
-     "colour": "#e0e0e0",
-     "lum": 0.745,
-     "sidebar": true,
-     "weight": 6,
-     "texts": [
-      "Arietis Sector UE-O a7-1",
-      "Arietis Sector EG-V a3-1",
-      "Hyades Sector DB-W b2-6",
-      "Hyades Sector XJ-Z b3",
-      "98 k Tauri",
-      "Maia"
-     ]
-    },
-    {
-     "colour": "#e0e0e0",
-     "lum": 0.745,
-     "sidebar": false,
-     "weight": 11,
-     "texts": [
-      "B 2 B Ring",
-      "BC 2 B Ring",
-      "A 4 A Ring",
-      "AB 3 A Ring",
-      "1 A Ring",
-      "A 6 A Ring",
-      "2 A Ring",
-      "4 A Ring",
-      "LHS 3602",
-      "Heavy Lifter"
-     ]
-    },
-    {
-     "colour": "#c4c4c4",
-     "lum": 0.552,
-     "sidebar": true,
-     "weight": 1,
-     "texts": [
-      "By Spansh"
-     ]
-    },
-    {
-     "colour": "#c4c4c4",
-     "lum": 0.552,
-     "sidebar": false,
-     "weight": 46,
-     "texts": [
-      "1,276",
-      "ls",
-      "LHS 3602",
-      "Metal Rich",
-      "~3",
-      "jumps",
-      "69.4",
-      "ly",
-      "722",
-      "~2",
-      "158,329",
-      "~4",
-      "1,373",
-      "Metallic"
-     ]
-    },
-    {
-     "colour": "#ffa04a",
-     "lum": 0.469,
-     "sidebar": true,
-     "weight": 4,
-     "texts": [
-      "Arietis",
-      "Sector",
-      "LD-H",
-      "a11-1"
-     ]
-    },
-    {
-     "colour": "#ffa04a",
-     "lum": 0.469,
-     "sidebar": false,
-     "weight": 2,
-     "texts": [
-      "10"
-     ]
-    }
-   ],
-   "fills": [
-    {
-     "colour": "#ff7100",
-     "text": "Places",
-     "sidebar": false,
-     "at": "div.frame > header. > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "Set destination",
-     "sidebar": false,
-     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
     }
    ]
   }
