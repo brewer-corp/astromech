@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-gvy0
 title: The remaining pages move onto the layouts
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-l
@@ -26,7 +26,8 @@ blocked_by:
 - astromech-59n6
 - astromech-unak
 - astromech-z4vm
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3Adef100aa-bc29-483c-a2c2-ce13ab8d472a
 ready:
   by: Sumeet
   at: 2026-11-17T10:51:58.242665710Z
