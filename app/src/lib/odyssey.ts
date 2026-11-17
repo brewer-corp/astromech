@@ -12,6 +12,14 @@ import { call, previewOption } from "./transport";
 
 export type Category = "goods" | "assets" | "data" | "consumables";
 
+/** The game's own categories for the ShipLocker, in its order. */
+export const CATEGORIES: { value: Category; label: string }[] = [
+  { value: "goods", label: "Goods" },
+  { value: "assets", label: "Assets" },
+  { value: "data", label: "Data" },
+  { value: "consumables", label: "Consumables" },
+];
+
 export type { BarterPlan } from "./api/types/BarterPlan";
 export type { EngineerLine } from "./api/types/EngineerLine";
 export type { FitBy } from "./api/types/FitBy";

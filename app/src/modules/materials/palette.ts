@@ -1,5 +1,6 @@
 // Find or plot entries: every material the window knows, opening it on the Materials page
-// (with a link to its Faction states finder when its source has one).
+// (with a link to its Faction states finder when its source has one), and the On foot kind,
+// which was a page of its own until astromech-5a01.
 import { loadMaterials } from "../../lib/materials";
 import type { PaletteItem } from "../../lib/palette";
 
@@ -8,10 +9,16 @@ const KIND: Record<string, string> = { raw: "Raw", manufactured: "Manufactured",
 export default async function entries(): Promise<PaletteItem[]> {
   const inv = await loadMaterials();
   const cells = [...inv.kinds.flatMap((k) => k.groups.flatMap((g) => g.cells)), ...inv.other];
-  return cells.map((c) => ({
+  const onFoot: PaletteItem = {
+    label: "On foot",
+    detail: "Materials · your ShipLocker and Backpack",
+    route: "materials?kind=onfoot",
+    keywords: "odyssey inventory shiplocker backpack bartender goods assets data consumables",
+  };
+  return [onFoot, ...cells.map((c) => ({
     label: c.name,
     detail: `Material · ${KIND[c.kind] ?? c.kind} G${c.grade}`,
     route: `materials/${encodeURIComponent(c.id)}`,
     keywords: c.group,
-  }));
+  }))];
 }

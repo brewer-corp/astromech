@@ -1,4 +1,4 @@
-// On foot page. The view and the sample shopping list come from the fixture the real core dumps
+// Ships > Suits (the On foot page's blueprints until astromech-5a01). The view and the sample shopping list come from the fixture the real core dumps
 // (preview/fixtures/odyssey.json, from the world worlds/preview/odyssey: its synthetic ShipLocker,
 // Backpack and journal); the numbers below are what the crate's tests check.
 import { afterEach, beforeEach, expect, it } from "vitest";
@@ -21,30 +21,8 @@ afterEach(cleanup);
 
 const saved = () => JSON.parse(localStorage.getItem("astromech.odyssey.picks") ?? "[]") as Pick[];
 
-function row(name: string): string[] {
-  const tr = screen.getByText(name).closest("tr")!;
-  return [...tr.querySelectorAll("td")].map((td) => td.textContent?.trim() ?? "");
-}
-
-it("lists the ShipLocker and Backpack by category with bartender values", async () => {
-  render(View);
-  await screen.findByText("Suit Schematic");
-  expect(row("Suit Schematic")).toEqual(["Suit Schematic", "3", "", "", "", "50,000 CR"]);
-  await fireEvent.click(screen.getByRole("button", { name: "Assets" }));
-  expect(row("Graphene")).toEqual(["Graphene", "7", "2", "", "23", "1,300 CR"]);
-  // Held only by default; All items shows the rest of the catalogue.
-  expect(screen.getByRole("button", { name: "Held only" }).getAttribute("aria-pressed")).toBe("true");
-  expect(screen.queryByText("Aerogel")).toBeNull();
-  await fireEvent.click(screen.getByRole("button", { name: "All items" }));
-  expect(screen.getByText("Aerogel")).toBeTruthy();
-  // Mission items have their own column.
-  await fireEvent.click(screen.getByRole("button", { name: "Goods" }));
-  expect(row("Health Monitor").slice(0, 4)).toEqual(["Health Monitor", "1", "", "2"]);
-});
-
 it("shows what each picked blueprint is missing and one shopping list", async () => {
   render(View);
-  await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
   const card = (await screen.findByText("Maverick Suit grade 1 → 3")).closest("article") as HTMLElement;
   const missing = [...card.querySelectorAll(".missing li")].map((li) =>
     [...li.querySelectorAll("span")].map((s) => s.textContent).join(" "),
@@ -63,7 +41,6 @@ it("shows what each picked blueprint is missing and one shopping list", async ()
 
 it("removes and adds picks, and keeps them", async () => {
   render(View);
-  await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
   await screen.findByText("Maverick Suit grade 1 → 3");
   await fireEvent.click(screen.getByRole("button", { name: "Remove Maverick Suit grade 1 → 3" }));
   expect(JSON.parse(localStorage.getItem("astromech.odyssey.picks")!)).toHaveLength(2);
@@ -83,21 +60,6 @@ it("removes and adds picks, and keeps them", async () => {
   expect(JSON.parse(localStorage.getItem("astromech.odyssey.picks")!)).toHaveLength(3);
 });
 
-it("shows engineer unlocks, the next step and the referral chain", async () => {
-  render(View);
-  await fireEvent.click(await screen.findByRole("button", { name: "Engineers" }));
-  const dg = (await screen.findByText("Domino Green")).closest("article") as HTMLElement;
-  expect(within(dg).getByText("Unlocked")).toBeTruthy();
-  expect(within(dg).getByText("Referral to Kit Fowler: Provide 5 Push")).toBeTruthy();
-  expect(within(dg).getByRole("button", { name: "Copy Orishis" })).toBeTruthy();
-  const kit = screen.getByText("Kit Fowler").closest("article") as HTMLElement;
-  expect(within(kit).getByText("Not yet known")).toBeTruthy();
-  expect(within(kit).getByText("Needs a referral from Domino Green")).toBeTruthy();
-  const hero = screen.getByText("Hero Ferrari").closest("article") as HTMLElement;
-  expect(within(hero).getByText("Visit Siris to unlock")).toBeTruthy();
-  expect(hero.textContent).toContain("Increased Sprint Duration (?)");
-});
-
 it("keeps every saved pick removable when the list can't be worked out", async () => {
   const stale: Pick = { kind: "mod", id: "renamedmod", maker: null };
   localStorage.setItem("astromech.odyssey.picks", JSON.stringify([{ kind: "upgrade", gear: "maverick", from: 1, to: 3 }, stale]));
@@ -105,7 +67,6 @@ it("keeps every saved pick removable when the list can't be worked out", async (
     throw new Error("journal folder not found");
   };
   render(View);
-  await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
   expect(await screen.findByText(/Could not work out the shopping list: journal folder not found\./)).toBeTruthy();
   expect(screen.getByText("Maverick Suit grade 1 → 3")).toBeTruthy();
   await fireEvent.click(screen.getByRole("button", { name: "Remove renamedmod" }));
@@ -125,7 +86,6 @@ it("shows a pick the game data no longer has on its own card, and the rest of th
     ],
   });
   render(View);
-  await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
   const bad = (await screen.findByText("oldsuit grade 1 → 2")).closest("article") as HTMLElement;
   expect(bad.textContent).toContain("unknown suit or weapon `oldsuit`. Remove it and pick again.");
   const ok = screen.getByText("Maverick Suit grade 1 → 3").closest("article") as HTMLElement;
@@ -137,7 +97,6 @@ it("shows a pick the game data no longer has on its own card, and the rest of th
 
 it("starts an owned suit's upgrade at a grade it has and leaves out mods already fitted", async () => {
   render(View);
-  await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
   // From the journal: a Maverick at G1 and another at G3, and what is fitted to them.
   expect((await screen.findByText(/Owned \(from the journal\)/)).textContent).toContain("Maverick Suit G3");
   const gear = screen.getByLabelText("Suit or weapon") as HTMLSelectElement;
@@ -163,7 +122,6 @@ it("starts an owned suit's upgrade at a grade it has and leaves out mods already
 
 it("suggests what surplus to trade at a bartender and what is still short after", async () => {
   render(View);
-  await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
   const h = await screen.findByText("Bartender trade");
   const swap = h.nextElementSibling!.querySelector("li")!;
   expect(swap.textContent).toContain("Trade 2 Graphene, 1 Weapon Component, 1 Tungsten Carbide, 1 Circuit Switch for 7 Carbon Fibre Plating");

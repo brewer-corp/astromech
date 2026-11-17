@@ -1,7 +1,7 @@
 # Materials
 
 **Engineering, Materials** shows your engineering materials the way the in-game material trader
-does, without flying to one. The game's own inventory is a flat list with no grades; here each
+does, without flying to one, and what you carry on foot. The game's own inventory is a flat list with no grades; here each
 row is a category and each column a grade.
 
 **What it needs:** the journal, for what you hold. The finders it links to need a network
@@ -12,7 +12,8 @@ the page says "Could not read the materials" and gives the reason. It never show
 
 ## The grids
 
-Choose a kind at the top: **Raw**, **Manufactured**, **Encoded** or **Other**. The chosen one is
+Choose a kind at the top: **Raw**, **Manufactured**, **Encoded**, **Other** or
+[**On foot**](#on-foot). The chosen one is
 bright, with an orange line under it.
 
 - Each tile is a material: how many you hold, large, with its name below. A grade's cap is the
@@ -29,6 +30,22 @@ bright, with an orange line under it.
   its source is a faction state, **Find the nearest systems** opens the
   [Faction states](places.md#faction-states) finder on that state.
 - **Ctrl+K** finds a material by name from any page in **Find or plot** (see [Using the app](using-the-app.md#find-or-plot)).
+
+## On foot
+
+**On foot** is your Odyssey inventory: the ship locker and backpack. It was the Inventory view of
+the On foot page, which is no longer a page of its own: its blueprints are
+[Ships, Suits](ships.md#suits) and its engineers are on [Engineers](engineering.md#engineers).
+It needs the game's `ShipLocker` file, which the game writes when you are on foot; until then the
+line at the top says "not written yet (log in on foot once)".
+
+- The tiles are in the game's own categories: **Goods**, **Assets**, **Data** and **Consumables**.
+  Each shows how many you hold, in the locker and the backpack together. Items tied to a mission
+  say so in the corner: they go back when the mission ends and do not count for blueprints.
+- **Held only** hides what you do not have; **All items** shows the rest of the catalogue.
+- The line at the top says how much you hold and what a bartender would pay for it.
+- Click an item for its panel: how many are in the **Ship locker**, the **Backpack** and tied to a
+  **Mission**, what it is worth at the **Barter** (assets only) and what **a bartender pays** for one.
 
 ## High Grade Emissions
 

@@ -35,18 +35,27 @@
 <div class="cols">
   <section>
     <h3 class="section" class:current={!!p}>Presets</h3>
-    <div class="head"><span>Name</span><span>General</span><span>Ship</span><span>SRV</span><span>On foot</span><span></span></div>
-    {#each binds.state?.presets ?? [] as x (x.path)}
-      <div class="row" class:sel={p?.path === x.path}>
-        <button class="name" onclick={() => (sel = x.path)}>{x.name}{#if x.source === "built-in"}<span class="lo"> · built-in</span>{/if}</button>
-        {#each CONTEXTS as c, i (c)}
-          <button class="cell" class:on={x.active_for.includes(c)} {@attach tip(`Use ${x.name} for ${c}`)} onclick={() => void useFor(x, i)}>{x.active_for.includes(c) ? "Active" : ""}</button>
+    <!-- A table: a preset per row, a context per column (the heads name each cell). -->
+    {#if binds.state?.presets.length}
+      <div role="table" aria-label="Presets by context">
+        <div class="head" role="row">
+          <span role="columnheader">Name</span>
+          {#each CONTEXTS as c (c)}<span role="columnheader">{c}</span>{/each}
+          <span role="columnheader" aria-label="Issues"></span>
+        </div>
+        {#each binds.state.presets as x (x.path)}
+          <div class="row" class:sel={p?.path === x.path} role="row">
+            <span class="c" role="rowheader"><button class="name" onclick={() => (sel = x.path)}>{x.name}{#if x.source === "built-in"}<span class="lo"> · built-in</span>{/if}</button></span>
+            {#each CONTEXTS as c, i (c)}
+              <span class="c" role="cell"><button class="cell" class:on={x.active_for.includes(c)} {@attach tip(`Use ${x.name} for ${c}`)} onclick={() => void useFor(x, i)}>{x.active_for.includes(c) ? "Active" : ""}</button></span>
+            {/each}
+            <span class="mark" role="cell">{x.problems.length ? `! ${x.problems.length} issue${x.problems.length > 1 ? "s" : ""}` : ""}</span>
+          </div>
         {/each}
-        <span class="mark">{x.problems.length ? `! ${x.problems.length} issue${x.problems.length > 1 ? "s" : ""}` : ""}</span>
       </div>
     {:else}
       <p class="lo">{binds.state ? "No presets found. Run Elite once, or set the Bindings folder in Settings." : binds.error ?? "Loading…"}</p>
-    {/each}
+    {/if}
     <p class="lo">Click a cell to use that preset there (this writes StartPreset, like picking it in the game's Controls menu). Restart Elite, or pick the preset in Options → Controls, for it to take effect.</p>
     {#if msg}<p class="msg" class:err={msgErr} role={msgErr ? "alert" : undefined}>{msg}</p>{/if}
     {#if binds.state && binds.error}<p class="msg err" role="alert">{binds.error}</p>{/if}
@@ -93,6 +102,8 @@
   .head { color: var(--label-grey); font-size: var(--fs-s); padding: 0 0 0.375rem; }
   .head span:not(:first-child) { padding-left: var(--sp-3); }
   .row { min-height: var(--row); margin-bottom: var(--gap); }
+  /* A cell's wrapper is there for its role only: the button is the grid item. */
+  .c { display: contents; }
   .row.b { grid-template-columns: 1fr 13.75rem 7.5rem; }
   .name { height: var(--row); display: flex; align-items: center; color: var(--options-grey); }
   /* Raised, without moving the name: the raise reaches past its left edge. */
