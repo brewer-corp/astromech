@@ -51,7 +51,7 @@
   /* Rhythm */
   --row: 2.125rem;
   --gap: 0.125rem; /* between value cells, like the game */
-  --row-result: 2.75rem; /* one lookup result row */
+  --row-result: 3.75rem; /* one lookup result row: two lines in groups */
   --strip: 2.25rem; /* the route strip */
   --status-bar: 2rem; /* the status bar at the foot of every page */
   --tile: 4.75rem; /* a material tile */

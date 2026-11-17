@@ -75,7 +75,7 @@ describe("Colonisation", () => {
     const carrier = screen.getByText("FCX-801", { exact: false });
     expect(efremov.compareDocumentPosition(carrier) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const rows = screen.getAllByRole("row").map((r) => r.textContent ?? "").filter((t) => /\d of 4/.test(t));
-    expect(screen.getAllByRole("columnheader").map((h) => h.textContent).slice(0, 3)).toEqual(["Sells", "Station", "Stock"]);
+    expect(screen.getAllByRole("columnheader").map((h) => h.textContent).slice(0, 5)).toEqual(["Sells", "Station · pad · arrival", "Stock", "Trip", ""]);
     expect(rows[0]).toContain("3 of 4");
     expect(rows[0]).toContain("Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2,120 t");
     expect(rows.at(-1)).toContain("1 of 4");

@@ -69,8 +69,8 @@ export function alsoLine(also: Signal[]): string {
 }
 
 /**
- * The search kit's rows: ranked by the ring's hotspots of the mineral, with its other hotspots,
- * ring type and reserve as the finder's columns. Hotspots never change, so there is no report age.
+ * The search kit's rows: ranked by the ring's hotspots of the mineral, with its ring type over its
+ * reserve as the row's own group and its other hotspots in the side panel. Hotspots never change, so there is no report age.
  */
 export function hotspotResults(h: Hotspots): Results {
   return {
@@ -83,9 +83,9 @@ export function hotspotResults(h: Hotspots): Results {
     place: "ring",
     main: { head: "Hotspots" },
     columns: [
+      { key: "type", head: "Type", text: true, at: "row", same: (v) => `${v.toLowerCase()} rings` },
+      { key: "reserve", head: "Reserve", text: true, at: "row", same: (v) => `${v.toLowerCase()} reserves` },
       { key: "also", head: "Also", text: true },
-      { key: "type", head: "Type", text: true, width: 88 },
-      { key: "reserve", head: "Reserve", text: true, width: 72 },
     ],
     undated: true,
     rows: h.rings.map((r) => ({

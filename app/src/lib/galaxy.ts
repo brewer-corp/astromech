@@ -51,7 +51,7 @@ export function nearbyResults(r: Nearby): Results {
     label: r.query.label,
     place: "system",
     ...(scored ? { main: { head: "Score" } } : {}),
-    columns: [...(scored ? [{ key: "pop", head: "Population", width: 96 }] : []), { key: "faction", head: "Faction", text: true }],
+    columns: [...(scored ? [{ key: "pop", head: "Population", at: "qual" as const }] : []), { key: "faction", head: "Faction", text: true, at: "row" }],
     rows: r.hits.map((h) => ({
       key: h.id64,
       system: h.name,

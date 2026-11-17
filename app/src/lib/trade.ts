@@ -100,7 +100,7 @@ export function toResults(s: TradeSearch, anywhere = false): Results {
     warning: p?.truncated && !anywhere ? `Too many markets for ${findCommodity(p.commodity)?.name ?? p.commodity}: narrow the radius to see them all.` : undefined,
     place: "station",
     main: { head: "Price", unit: "cr" },
-    columns: [{ key: "volume", head: s.side === "sell" ? "Demand" : "Stock", unit: "t", width: 88 }],
+    columns: [{ key: "volume", head: s.side === "sell" ? "Demand" : "Stock", unit: "t", at: "qual", bars: true }],
     rows: (p?.offers ?? []).map((o) => ({
       key: o.market_id,
       system: o.system,
@@ -113,6 +113,7 @@ export function toResults(s: TradeSearch, anywhere = false): Results {
       updated_at: o.updated_at,
       main: credits(o.price),
       facts: { volume: credits(o.volume) },
+      volume: o.volume,
       station_type: o.fleet_carrier ? "Drake-Class Carrier" : o.odyssey ? "Settlement" : null,
     })),
   };
@@ -133,7 +134,7 @@ export function cargoResults(s: CargoSearch): Results {
     fetched: new Date(s.plan.fetched_at * 1000).toISOString(),
     place: "station",
     main: { head: "Total", unit: "cr" },
-    columns: [{ key: "takes", head: "Takes", unit: "t", width: 112 }],
+    columns: [{ key: "takes", head: "Takes", unit: "t", at: "qual" }],
     rows: s.plan.stations.map((x) => ({
       key: x.market_id,
       system: x.system,

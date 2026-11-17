@@ -53,13 +53,14 @@ export function factionLine(h: Pick<StationHit, "allegiance" | "faction" | "stat
 }
 
 /**
- * The search kit's rows for a station lookup's answer: ranked by jumps, with the modules that
- * matched (Outfitting), the price (Outfitting, Shipyard) and the faction as the lookup's columns.
+ * The search kit's rows for a station lookup's answer: ranked by jumps, with the module that
+ * matched (Outfitting) over its price (Outfitting, Shipyard) as the row's own group, and the
+ * faction in the side panel.
  */
 export function toResults(r: StationsNearby): Results {
   const columns: Column[] = [];
-  if (r.hits.some((h) => h.detail)) columns.push({ key: "detail", head: "Module", text: true });
-  if (r.hits.some((h) => h.price != null)) columns.push({ key: "price", head: "Price", unit: "cr", width: 120 });
+  if (r.hits.some((h) => h.detail)) columns.push({ key: "detail", head: "Module", text: true, at: "row", same: (v) => v });
+  if (r.hits.some((h) => h.price != null)) columns.push({ key: "price", head: "Price", unit: "cr", at: "row" });
   if (r.hits.some((h) => factionLine(h))) columns.push({ key: "faction", head: "Faction", text: true });
   return {
     origin: r.here.system,

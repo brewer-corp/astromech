@@ -19,17 +19,19 @@ describe("Nearby", () => {
   it("leads an HGE lookup with the score it is ranked by, then the population it weighs", async () => {
     render(Nearby, { query: "fed_composites" });
     expect(await screen.findByText("Duamta")).toBeTruthy();
-    expect(heads()).toEqual(["Score", "System", "Population", "Faction", "Distance", "Jumps", "Updated", ""]);
-    expect(cells()[0]?.slice(0, 3)).toEqual(["150", "Sol", "18.3B"]);
+    expect(heads()).toEqual(["Score · population", "System · faction", "Trip", ""]);
+    expect(cells()[0]?.[0]).toBe("150 18.3B");
+    expect(cells()[0]?.[1]).toMatch(/^Sol /);
     // Under the score's population floor: ranked last, with no score.
-    expect(cells().at(-1)?.slice(0, 3)).toEqual(["0", "Barnard's Star", "1M"]);
+    expect(cells().at(-1)?.[0]).toBe("0 1M");
+    expect(cells().at(-1)?.[1]).toMatch(/^Barnard's Star /);
     expect(screen.getByText(/ranked by population and distance/)).toBeTruthy();
   });
 
   it("ranks faction-state lookups by jumps, with no score", async () => {
     render(Nearby, { query: "famine" });
     expect(await screen.findByText("WISE 0855-0714")).toBeTruthy();
-    expect(heads()).toEqual(["Jumps", "System", "Faction", "Distance", "Updated", ""]);
+    expect(heads()).toEqual(["Trip", "System · faction", ""]);
   });
 
   it("says when a system's states come from the commander's own visit", async () => {

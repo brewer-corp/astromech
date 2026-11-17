@@ -359,7 +359,7 @@ describe("Places in the window", () => {
     await waitFor(() => expect(hotspotsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ want: { ore: "painite", ring_type: null, reserve: null }, origin: null })));
     expect(await screen.findByText("Within 100 ly of Sol · top 10 of 1,101 bodies with Painite")).toBeTruthy();
     const heads = screen.getAllByRole("columnheader").map((h) => h.textContent);
-    expect(heads).toEqual(["Hotspots", "Ring", "Also", "Type", "Reserve", "Distance", "Jumps", "Arrival", ""]);
+    expect(heads).toEqual(["Hotspots", "Ring · arrival", "Type · reserve", "Trip", ""]);
     const rows = screen.getAllByRole("row").slice(1);
     expect(rows).toHaveLength(10);
     expect(within(rows[0]!).getByText("3 A Ring")).toBeTruthy();

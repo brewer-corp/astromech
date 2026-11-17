@@ -27,7 +27,7 @@ describe("Faction states finder", () => {
     expect(asked).toHaveBeenLastCalledWith({ query: "proto", origin: null, filters: DEFAULT_FILTERS });
     // The filters Materials remembered for the lookup, which its voice query uses too.
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "faction.proto" });
-    expect(heads()).toEqual(["Score", "System", "Population", "Faction", "Distance", "Jumps", "Updated", ""]);
+    expect(heads()).toEqual(["Score · population", "System · faction", "Trip", ""]);
     expect(screen.getByText("High Grade Emissions for Proto materials.")).toBeTruthy();
 
     const pick = screen.getByRole("combobox", { name: "State" }) as HTMLSelectElement;
@@ -37,7 +37,7 @@ describe("Faction states finder", () => {
     expect(await screen.findByText("WISE 0855-0714")).toBeTruthy();
     expect(asked).toHaveBeenLastCalledWith({ query: "famine", origin: null, filters: DEFAULT_FILTERS });
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "faction.famine" });
-    await waitFor(() => expect(heads()).toEqual(["Jumps", "System", "Faction", "Distance", "Updated", ""]));
+    await waitFor(() => expect(heads()).toEqual(["Trip", "System · faction", ""]));
   });
 
   it("opens on the lookup in the address, and an unknown one as Boom", async () => {

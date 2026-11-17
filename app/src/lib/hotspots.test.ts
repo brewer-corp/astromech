@@ -6,14 +6,16 @@ import sample from "../preview/fixtures/hotspots.json";
 const any = sample as unknown as Hotspots;
 
 describe("Mining hotspots rows", () => {
-  it("ranks by the ring's hotspots and lists the ring, its other hotspots, type and reserve, with no report age", () => {
+  it("ranks by the ring's hotspots and lists the ring, its type and reserve, and its other hotspots, with no report age", () => {
     const r = hotspotResults({ ...any, rings: any.rings.slice(0, 2) });
     expect(r).toMatchObject({ origin: "Sol", source: "Spansh", place: "ring", main: { head: "Hotspots" }, undated: true });
-    expect(r.columns?.map((c) => [c.head, c.text, c.width])).toEqual([
-      ["Also", true, undefined],
-      ["Type", true, 88],
-      ["Reserve", true, 72],
+    // Type over reserve on the row; the other hotspots in the side panel.
+    expect(r.columns?.map((c) => [c.head, c.at])).toEqual([
+      ["Type", "row"],
+      ["Reserve", "row"],
+      ["Also", undefined],
     ]);
+    expect(r.columns?.[0]?.same?.("Metal Rich")).toBe("metal rich rings");
     expect(r.fetched).toBe(new Date(any.fetched_at * 1000).toISOString());
     expect(r.rows[0]).toMatchObject({
       system: "LHS 3602",

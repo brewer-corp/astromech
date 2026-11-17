@@ -1,32 +1,59 @@
 import { describe, expect, it } from "vitest";
-import { ageCell, DEFAULT_FILTERS, factColumns, isStale, jumpsFigure, summary, widening, type Row } from "./search";
+import { ageCell, DEFAULT_FILTERS, groupHead, groups, isStale, jumpsFigure, panelFacts, placeHead, summary, widening, type Results, type Row } from "./search";
 
 const NOW = Date.parse("2026-11-05T12:00:00Z");
 const row: Row = { key: 1, system: "Sol", station: "Galileo", ly: 1426.25, jumps: 44, exact: false, pad: "L", arrival_ls: 6784404, updated_at: "2026-10-26T12:00:00Z" };
 
-describe("result row columns", () => {
-  it("adds pad and arrival for stations, arrival for bodies, and neither for systems", () => {
-    expect(factColumns({ place: "station" }).map((c) => c.head)).toEqual(["Distance", "Pad", "Arrival", "Updated"]);
-    expect(factColumns({ place: "body" }).map((c) => c.head)).toEqual(["Distance", "Arrival", "Updated"]);
-    expect(factColumns({ place: "system" }).map((c) => c.head)).toEqual(["Distance", "Updated"]);
-    // Rings get arrival like bodies; data that never ages (ring hotspots) has no Updated column.
-    expect(factColumns({ place: "ring", main: { head: "Hotspots" }, undated: true }).map((c) => c.head)).toEqual(["Distance", "Jumps", "Arrival"]);
+describe("result row groups", () => {
+  const sell: Results = {
+    origin: "Sol",
+    range: 30,
+    source: "Ardent Insight",
+    fetched: "2026-11-05T12:00:00Z",
+    place: "station",
+    main: { head: "Price", unit: "cr" },
+    columns: [{ key: "volume", head: "Demand", unit: "t", at: "qual", bars: true }],
+    rows: [row],
+  };
+
+  it("puts demand under the price and the trip in a group of its own, with nothing else on the row", () => {
+    const g = groups(sell, [row], true);
+    expect(g).toMatchObject({ qual: { key: "volume" }, under: null, own: [], aside: [], same: [], trip: true });
+    expect(placeHead("station", null)).toBe("Station · pad · arrival");
+    expect(groupHead(["Price", "Demand"])).toBe("Price · demand");
   });
 
-  it("puts a lookup's own columns first, and jumps among the facts when something else ranks", () => {
-    const cols = factColumns({ place: "station", main: { head: "Price", unit: "cr" }, columns: [{ key: "volume", head: "Demand", unit: "t", width: 88 }] });
-    expect(cols.map((c) => c.head)).toEqual(["Demand", "Distance", "Jumps", "Pad", "Arrival", "Updated"]);
-    const cells = cols.map((c) => c.cell({ ...row, facts: { volume: "3,120" } }, NOW));
-    expect(cells).toEqual([
-      { value: "3,120", unit: "t", text: undefined },
-      { value: "1,426.3", unit: "ly" },
-      { value: "~44" },
-      { value: "L" },
-      { value: "6,784,404", unit: "ls" },
-      { value: "10", unit: "d" },
+  it("keeps a fact the commander doesn't pick by in the side panel, or on the row without one", () => {
+    const res: Results = { ...sell, main: undefined, place: "system", columns: [{ key: "faction", head: "Faction", text: true, at: "row" }, { key: "pop", head: "Population" }] };
+    const rows = [row, { ...row, key: 2, facts: { faction: "Ross 154 Boys", pop: "35k" } }];
+    // A system's first prose fact is its second line; the trip ranks the list, so no trip group.
+    expect(groups(res, rows, true)).toMatchObject({ qual: null, under: { key: "faction" }, own: [], aside: [{ key: "pop" }], trip: false });
+    expect(groups(res, rows, false)).toMatchObject({ under: { key: "faction" }, own: [{ key: "pop" }], aside: [] });
+    expect(placeHead("system", { key: "faction", head: "Faction" })).toBe("System · faction");
+  });
+
+  it("leaves out a prose fact every row shares, and says it once in the summary", () => {
+    const res: Results = { ...sell, main: undefined, columns: [{ key: "detail", head: "Module", text: true, at: "row", same: (v) => v }, { key: "faction", head: "Faction", text: true }] };
+    const rows = [0, 1].map((k) => ({ ...row, key: k, facts: { detail: "5A Frame Shift Drive", faction: k ? "Mother Gaia" : "Sol Workers" } }));
+    expect(groups(res, rows, true)).toMatchObject({ own: [], aside: [{ key: "faction" }], same: ["5A Frame Shift Drive"] });
+    // One row is not "every row": nothing to compare it with.
+    expect(groups(res, rows.slice(0, 1), true)).toMatchObject({ own: [{ key: "detail" }], same: [] });
+  });
+
+  it("gives the side panel every fact under its name, the report's age among them", () => {
+    expect(panelFacts(sell, { ...row, facts: { volume: "3,120" } }, NOW)).toEqual([
+      { head: "Demand", cell: { value: "3,120", unit: "t", text: undefined } },
+      { head: "Pad", cell: { value: "L" } },
+      { head: "Arrival", cell: { value: "6,784,404", unit: "ls" } },
+      { head: "Trip", cell: { value: "~44 jumps · 1,426.3", unit: "ly" } },
+      { head: "Updated", cell: { value: "10", unit: "d ago" } },
     ]);
-    // Unknown facts are a dash, never an empty cell.
-    expect(cols.map((c) => c.cell({ ...row, pad: null, arrival_ls: null, updated_at: null }, NOW).value)).toEqual(["—", "1,426.3", "~44", "—", "—", "—"]);
+    // Unknown facts are a dash; data that never ages (ring hotspots) has no Updated.
+    const ring = panelFacts({ place: "ring", undated: true }, { ...row, arrival_ls: null }, NOW);
+    expect(ring.map((f) => [f.head, f.cell.value])).toEqual([
+      ["Arrival", "—"],
+      ["Trip", "~44 jumps · 1,426.3"],
+    ]);
   });
 
   it("says how old a report is in minutes, hours or days", () => {

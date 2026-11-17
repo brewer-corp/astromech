@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import sample from "../../preview/fixtures/powerplay-targets.json";
 import type { Target, Targets as TargetsResult } from "../../lib/powerplay";
 import Targets from "./Targets.svelte";
@@ -11,6 +11,8 @@ vi.mock("../../lib/powerplay", async (orig) => ({
 }));
 
 const fixtures = sample as unknown as Record<Target, TargetsResult>;
+
+afterEach(() => vi.useRealTimers());
 
 describe("Where to work", () => {
   it("lists the pledged power's targets nearest first and re-asks on kind and range", async () => {
@@ -40,5 +42,18 @@ describe("Where to work", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Undermine" }));
     expect(await screen.findByText("Piscium Sector EB-X b1-3")).toBeTruthy();
     expect(screen.getByText(/Pranav Antal exploited 8%/)).toBeTruthy();
+  });
+
+  it("keeps each report's age on the row, which has no side panel to hold it", async () => {
+    // Twelve days after the first target's report.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(Date.parse(fixtures.acquire.hits[0]!.updated_at!) + 12 * 86400000);
+    load.mockImplementation(async (t) => fixtures[t]);
+    render(Targets);
+    const row = (await screen.findByText("Piscium Sector YJ-A b2")).closest('[role="row"]') as HTMLElement;
+    const age = within(row).getByText("12 d old");
+    // Fresh: grey, not the Orange of a report past 30 days.
+    expect(age.classList.contains("old")).toBe(false);
+    expect(row.classList.contains("stale")).toBe(false);
   });
 });

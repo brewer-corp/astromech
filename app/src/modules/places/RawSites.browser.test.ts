@@ -33,11 +33,10 @@ describe("Raw sites finder", () => {
     // what the site is; distance and arrival, but no pad.
     expect(await screen.findByText("Oochorrs SB-J d10-5")).toBeTruthy();
     expect(location.hash).toBe("#/places/raw-sites/crystalline_shards");
-    expect(heads()).toEqual(["Jumps", "Body", "Site", "Distance", "Arrival", "Updated", ""]);
+    expect(heads()).toEqual(["Trip", "Body · arrival", "Site", ""]);
     const [first] = cells();
-    expect(first?.slice(0, 2)).toEqual(["~46", "B 6 a Oochorrs SB-J d10-5"]);
+    expect(first?.slice(0, 2)).toEqual(["~46jumps 1,426.2ly", "B 6 a 26,249ls Oochorrs SB-J d10-5"]);
     expect(first?.[2]).toMatch(/^Crystalline Shards · first at -4\.0, -141\.0/);
-    expect(first?.slice(3, 5)).toEqual(["1,426.2ly", "26,249ls"]);
     expect(asked).toHaveBeenLastCalledWith({ kind: "crystalline_shards", origin: null, filters: DEFAULT_FILTERS });
     // The filters Materials remembered for this kind, which its voice query uses too.
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "sites.crystalline_shards" });

@@ -1,12 +1,15 @@
 <script lang="ts">
   // The "search near me" kit every lookup uses: pick where to search from (current or typed
   // system) and the lookup's remembered filters, run the lookup, and list the results as
-  // DESIGN.md's Lookup result row: the value the list is ranked by first and largest (price,
-  // score, or jumps at the current range), the place with its copy icon, the lookup's own fact
-  // columns, then distance, jumps, pad, arrival and report age, each under a column head. A
-  // one-line summary of the constraints sits above the heads, as the filters' resting state
-  // (SearchFilters: CHANGE opens the controls), and the list shows DESIGN.md's states: stale
-  // reports stepped down, loading, empty with one way to widen, and a failure with TRY AGAIN.
+  // DESIGN.md's Lookup result row: two lines in groups (search.ts `groups`). First the value the
+  // list is ranked by (price, score, or jumps at the current range), large, over what qualifies
+  // it (demand with its bars, measured against `measure`); then the place with its pad and
+  // arrival over its system and copy icon; the lookup's own group; the trip (jumps over light
+  // years, or a stale report's age); the actions. Facts the commander doesn't pick a row by go
+  // to the side panel inside a ListDetail, and stay on the row without one. A one-line summary of
+  // the constraints sits above the heads, as the filters' resting state (SearchFilters: CHANGE
+  // opens the controls), and the list shows DESIGN.md's states: stale reports stepped down,
+  // loading, empty with one way to widen, and a failure with TRY AGAIN.
   // Each result has two actions for the core's route follower
   // (docs/PLOTTING.md): Add stop makes it the next stop of the route followed, and Set
   // destination follows it on its own, parking the route it replaces for Resume. Either way its
@@ -18,12 +21,18 @@
   import { changeFilters, openFilters, type FilterStore } from "../filterstate";
   import { addedNote, addStop, failedNote, followedNote, followRoute, type FollowNote, type Waypoint } from "../route";
   import {
+    ageCell,
     ageLimit,
     DEFAULT_FILTERS,
-    factColumns,
+    factCell,
     figure,
+    groupHead,
+    groups,
     isStale,
     jumpsFigure,
+    jumpsUnit,
+    panelFacts,
+    placeHead,
     loadFilters,
     saveFilters,
     STALE_DAYS,
@@ -34,8 +43,14 @@
     type Filters,
     type Origin,
     type Pad,
+    type Column,
     type Results,
+    type Row,
   } from "../search";
+  import { shipStatus } from "../core";
+  import { depth, padTooSmall, shortTip, type Against } from "../demand";
+  import type { ShipStatus } from "../api/types/ShipStatus";
+  import Bars from "./Bars.svelte";
   import Button from "./Button.svelte";
   import Failure from "./Failure.svelte";
   import FollowNoteLine from "./FollowNote.svelte";
@@ -64,6 +79,8 @@
     lead,
     more,
     onanswer,
+    measure = null,
+    onship,
   }: {
     /** Stable id of the lookup: filters are remembered under it, and a change re-runs the search. */
     lookup: string;
@@ -97,6 +114,10 @@
      * found. A Places finder keeps it for its tile.
      */
     onanswer?: (top: { figure: string; unit: string } | null) => void;
+    /** What a `bars` fact's tonnes are measured against (Sell: the commodity aboard; Buy: the free space). */
+    measure?: { side: "sell" | "buy"; against: Against } | null;
+    /** The ship as of each search (`ship_status`), for what the finder measures against. */
+    onship?: (ship: ShipStatus | null) => void;
   } = $props();
 
   // Follows `start`; the commander's pick (or ×) overrides it until `start` changes.
@@ -105,6 +126,8 @@
   let saved = $state<{ lookup: string; filters: Filters } | null>(null);
   /** The current ship's pad as of the last search (the core resolves it on every search). */
   let ship = $state<{ lookup: string; pad: Pad | null } | null>(null);
+  /** The ship as of the last search: the pad it needs, for a pad too small on a row. */
+  let flying = $state<ShipStatus | null>(null);
   let res = $state<Results | null>(null);
   /** The system the last answer was measured from, kept when a later search fails. */
   let searched = $state<string | null>(null);
@@ -153,6 +176,11 @@
     err = null;
     goNote = null;
     void followShip(lookup, n);
+    void shipStatus().then((st) => {
+      if (n !== asked) return;
+      flying = st;
+      onship?.(st);
+    });
     run(o, s.filters)
       .then((r) => {
         if (n !== asked) return;
@@ -206,7 +234,7 @@
   }
 
   const filters = $derived(saved?.filters ?? DEFAULT_FILTERS);
-  /** The age filter in force; with none, reports older than STALE_DAYS are shown stepped down. */
+  /** The age filter in force: reports older than it are hidden. Shown reports older than STALE_DAYS are stepped down. */
   const limit = $derived(offers.includes("age") ? ageLimit(filters, hints) : null);
   /** Ages are measured when the answer arrives, so a list doesn't age while it is read. */
   const now = $derived(res ? Date.now() : 0);
@@ -216,14 +244,16 @@
    * counts only what came back past it; the summary names the limit either way. */
   const rows = $derived(res ? (limit == null ? res.rows : res.rows.filter((r) => !isStale(r, limit, asOf))) : []);
   const hidden = $derived(res ? res.rows.length - rows.length : 0);
-  const columns = $derived(res ? factColumns(res) : []);
+  /** The ListDetail this list fills, if any: its rows can be selected, and the side panel takes the facts not chosen by. */
+  const detail = useDetail();
+  const g = $derived(res ? groups(res, rows, !!detail) : null);
 
   $effect(() => {
     if (!onanswer || busy || err || !res) return;
     const top = rows[0];
     if (!top) return onanswer(null);
     const figure = top.main ?? jumpsFigure(top);
-    onanswer({ figure, unit: res.main ? (res.main.unit ?? "") : /^~?1$/.test(figure) ? "jump" : "jumps" });
+    onanswer({ figure, unit: res.main ? (res.main.unit ?? "") : jumpsUnit(figure) });
   });
 
   /** The list's width, to fall back to the compact row where the columns don't fit. */
@@ -236,23 +266,32 @@
     ro.observe(el);
     return () => ro.disconnect();
   });
+  /** The row's own group holds prose (wider) or only figures. */
+  const ownText = $derived(!!g?.own.some((c) => c.text));
+  /** Without a side panel the trip's second line also holds the report's age ("18.8 ly · 12 d old"). */
+  const ageOnRow = $derived(!detail && !res?.undated);
+  /** The groups' widths in px at 100 percent Text size (DESIGN.md Lookup result row): ranked value, place, own, trip, actions. */
+  const widths = $derived([136, 280, g?.own.length ? (ownText ? 160 : 112) : 0, g?.trip ? (ageOnRow ? 152 : 96) : 0, 64].filter(Boolean));
+  /** The narrowest the full row fits in, in px at 100 percent Text size (its groups, their gaps and its padding); below this, only the first lines stay. */
+  const fits = $derived(widths.reduce((n, w) => n + w, 0) + 24 * (widths.length - 1) + 24);
   /**
-   * The narrowest the full row fits in, in px at 100 percent Text size. Text columns share what the place leaves (the place
-   * first) and give way to nothing; below this, the facts go.
-   */
-  const fits = $derived(112 + 240 + 64 + columns.reduce((n, c) => n + (c.width ?? 0), 0) + 12 * (columns.length + 2));
-  /**
-   * Too narrow for the facts (a side panel): the ranked value, the place and the actions only,
-   * by The Aligned Columns Rule (a fact that would wrap goes).
+   * Too narrow for the groups (a side panel): the first lines of the ranked value and the place,
+   * and the actions, by The Aligned Columns Rule (a fact that would wrap goes).
    */
   const compact = $derived(width > 0 && at100(width, scale.step) < fits);
   const template = $derived(
     compact
       ? "max-content minmax(0, 1fr) 4rem"
-      : ["7rem", "minmax(15rem, 25rem)", ...columns.map((c) => (c.text && !c.width ? "minmax(0, 15rem)" : `${(c.width ?? 0) / 16}rem`)), "4rem"].join(" "),
+      : [
+          "8.5rem",
+          "minmax(17.5rem, 25rem)",
+          ...(g?.own.length ? [ownText ? "minmax(10rem, 15rem)" : "7rem"] : []),
+          ...(g?.trip ? [ageOnRow ? "9.5rem" : "6rem"] : []),
+          "4rem",
+        ].join(" "),
   );
-  const shown = $derived(compact ? [] : columns);
-  const PLACE_HEADS = { station: "Station", body: "Body", ring: "Ring", system: "System" } as const;
+  /** The ranked value's group head: "Price · demand", or "Trip" where jumps rank the list. */
+  const firstHead = $derived(res?.main ? groupHead([res.main.head, ...(g?.qual ? [g.qual.head] : [])]) : "Trip");
   /**
    * Where the search ran from: the answer's system once it is in; while a search runs or after
    * it failed, the system typed for it (else the last answer's), so a new origin shows at once.
@@ -266,13 +305,11 @@
    * while the next search runs, the line names the filters it asks with.
    */
   const line = $derived(
-    summary(`${title} ${joiner}`, where, filters, offers, hints, shownAnswer ? hidden : 0, [...notes, ...(shownAnswer?.notes ?? [])], shownAnswer?.reach ?? null),
+    summary(`${title} ${joiner}`, where, filters, offers, hints, shownAnswer ? hidden : 0, said([...notes, ...(shownAnswer?.notes ?? []), ...(shownAnswer ? (g?.same ?? []) : [])]), shownAnswer?.reach ?? null),
   );
   /** The one constraint an empty answer can relax, and how. */
   const widen = $derived(widening(filters, offers, hints));
 
-  /** The ListDetail this list fills, if any: its rows can be selected. */
-  const detail = useDetail();
   /** The selected row's key; it stays selected while a new answer still has it. */
   let picked = $state<string | number | null>(null);
   const chosen = $derived(detail && picked != null ? rows.find((r) => r.key === picked) : undefined);
@@ -291,6 +328,16 @@
     if (unsaved) void change(unsaved);
   }
 
+  const PADS = { S: "Small", M: "Medium", L: "Large" } as const;
+
+  /** Notes without one already said (a ring type the filters name and every row shares). */
+  function said(list: string[]): string[] {
+    return list.filter((n, i) => !list.slice(0, i).some((m) => m.toLowerCase() === n.toLowerCase()));
+  }
+
+  /** A stale row: a report older than STALE_DAYS as of the answer. */
+  const stale = (r: Row) => isStale(r, STALE_DAYS, asOf);
+
   /** The empty line's action: relax the one constraint it names. */
   function relax() {
     if (widen) void change(widen.filters);
@@ -305,8 +352,39 @@
   {/if}
 {/snippet}
 
-<!-- DESIGN.md Side panel: the selected result's name in white, where it is, its ranked value, every
-     fact under its head (the compact row drops them), and its two actions as words. -->
+<!-- A fact of the lookup's own: a figure with its unit, prose truncated, or a market's tonnes after
+     its demand bars, coloured by what they mean for the hold (DESIGN.md Colours that carry a
+     meaning). A short market says what happens in a Tip; its bar count and words are its second cue. -->
+{#snippet fact(c: Column, r: Row)}
+  {@const cell = factCell(c, r)}
+  {#if c.bars && r.volume != null}
+    {@const d = depth(r.volume, measure?.against.tonnes ?? null)}
+    {@const said = `${c.head} ${cell.value} t${d && measure ? `, ${d === "short" ? "short of" : `${d} for`} the ${measure.against.text}` : ""}`}
+    <span class="tonnes {d ?? 'plain'}" role="img" aria-label={said} {@attach tip(d === "short" && measure ? shortTip(measure.side, r.volume, measure.against) : null)}>
+      <Bars depth={d} /><span>{cell.value}<span class="unit">t</span></span>
+    </span>
+  {:else if cell.text}
+    <span class="text" title={cell.value}>{cell.value}</span>
+  {:else}
+    <span class:none={cell.value === "—"}>{cell.value}{#if cell.unit}<span class="unit">{cell.unit}</span>{/if}</span>
+  {/if}
+{/snippet}
+
+<!-- The trip's second line: light years, or a stale report's age in their place. Without a side
+     panel the age stays at any age, grey when fresh. -->
+{#snippet tripLine(r: Row)}
+  {@const age = ageCell(r.updated_at, now)}
+  {#if ageOnRow && r.updated_at}
+    <span class="l2"><span class="ly">{figure(r.ly, 1)}<span class="unit">ly</span></span> · <span class="age" class:old={stale(r)}>{age.value} {age.unit} old</span></span>
+  {:else if stale(r)}
+    <span class="l2 age old">{age.value} {age.unit} old</span>
+  {:else}
+    <span class="l2 ly">{figure(r.ly, 1)}<span class="unit">ly</span></span>
+  {/if}
+{/snippet}
+
+<!-- DESIGN.md Side panel: the selected result's name in white, where it is, its ranked value and
+     what qualifies it, every fact under its name (the row leaves some out), and its two actions as words. -->
 {#snippet about()}
   {#if chosen && res}
     {@const r = chosen}
@@ -315,12 +393,12 @@
     <p class="psub">
       {#if r.station}<StationKind type={r.station_type} /><span>{r.station_type ? `${r.station_type} in` : "In"}</span> <SystemChip name={r.system} />{:else}<SystemChip name={r.system} icon />{/if}
     </p>
-    <p class="pmain"><span class="v">{top}</span><span class="unit">{res.main ? (res.main.unit ?? "") : /^~?1$/.test(top) ? "jump" : "jumps"}</span></p>
+    <p class="pmain"><span class="v">{top}</span><span class="unit">{res.main ? (res.main.unit ?? "") : jumpsUnit(top)}</span></p>
+    {#if g?.qual}<p class="pqual">{@render fact(g.qual, r)}<span class="unit">{g.qual.head.toLowerCase()}</span></p>{/if}
     <dl class="pfacts">
-      {#each columns as c (c.key)}
-        {@const cell = c.cell(r, now)}
-        <dt>{c.head}</dt>
-        <dd class:none={cell.value === "—"}>{cell.value}{#if cell.unit}<span class="unit">{cell.unit}</span>{/if}</dd>
+      {#each panelFacts(res, r, now) as f (f.head)}
+        <dt>{f.head}</dt>
+        <dd class:none={f.cell.value === "—"}>{f.cell.value}{#if f.cell.unit}<span class="unit">{f.cell.unit}</span>{/if}</dd>
       {/each}
     </dl>
     <div class="pacts">
@@ -353,36 +431,66 @@
     {#if res && !err}
       {#if res.warning}<p class="line warn"><b>!</b> {res.warning}</p>{/if}
       {#if rows.length}
-        <div class="list" class:busy role="table" aria-label="Results" aria-busy={busy} style:--cols={template}>
+        <div class="list" class:busy class:compact role="table" aria-label="Results" aria-busy={busy} style:--cols={template}>
           <div class="row heads" role="row">
-            <span class="r" role="columnheader">{res.main?.head ?? "Jumps"}</span>
-            <span role="columnheader">{PLACE_HEADS[res.place]}</span>
-            {#each shown as c (c.key)}<span class:r={!c.text} role="columnheader">{c.head}</span>{/each}
+            <span class="r" role="columnheader">{firstHead}</span>
+            <span role="columnheader">{placeHead(res.place, compact ? null : (g?.under ?? null))}</span>
+            {#if !compact && g?.own.length}<span class:r={!ownText} role="columnheader">{groupHead(g.own.map((c) => c.head))}</span>{/if}
+            {#if !compact && g?.trip}<span class="r" role="columnheader">Trip</span>{/if}
             <span role="columnheader" aria-label="Actions"></span>
           </div>
           {#each rows as r (r.key)}
+            {@const top = r.main ?? jumpsFigure(r)}
+            {@const unfit = padTooSmall(r.pad, flying?.pad)}
             <!-- The keyboard selects a row with its name, a button; a click anywhere on the row does too. -->
             <!-- svelte-ignore a11y_interactive_supports_focus, a11y_click_events_have_key_events -->
-            <div class="row result" class:stale={limit == null && isStale(r, STALE_DAYS, asOf)} class:sel={chosen?.key === r.key} role="row" onclick={() => detail && (picked = r.key)}>
-              <span class="r main" role="cell"><span class="v">{r.main ?? jumpsFigure(r)}</span>{#if res.main?.unit}<span class="unit">{res.main.unit}</span>{/if}</span>
-              <span class="place" role="cell">
-                {#if r.station}
-                  <StationKind type={r.station_type} />
-                  {@render name(r, r.station)}
-                  <span class="sys" title={r.system}>{r.system}</span>
-                {:else}
-                  {@render name(r, r.system)}
+            <div class="row result" class:stale={stale(r)} class:sel={chosen?.key === r.key} role="row" onclick={() => detail && (picked = r.key)}>
+              <span class="g r first" role="cell">
+                <span class="l1 main"><span class="v">{top}</span><span class="unit">{res.main ? (res.main.unit ?? "") : jumpsUnit(top)}</span></span>
+                {#if !compact}
+                  {#if g?.trip}
+                    {#if g.qual}<span class="l2">{@render fact(g.qual, r)}</span>{/if}
+                  {:else}
+                    {@render tripLine(r)}
+                  {/if}
                 {/if}
-                <SystemChip name={r.system} icon />
               </span>
-              {#each shown as c (c.key)}
-                {@const cell = c.cell(r, now)}
-                {#if cell.text}
-                  <span class="fact text" class:age={c.key === "age"} role="cell" title={cell.value}>{cell.value}</span>
-                {:else}
-                  <span class="fact r" class:age={c.key === "age"} class:none={cell.value === "—"} role="cell">{cell.value}{#if cell.unit}<span class="unit">{cell.unit}</span>{/if}</span>
+              <span class="g place" role="cell">
+                <span class="l1">
+                  {#if r.station}
+                    <StationKind type={r.station_type} />
+                    {@render name(r, r.station)}
+                    {#if res.place === "station" && r.pad}
+                      <span class="pad" class:unfit role="img" aria-label={unfit ? `${PADS[r.pad]} pad: too small for your ship` : `${PADS[r.pad]} pad`}>{r.pad}</span>
+                    {/if}
+                    {#if r.arrival_ls != null}<span class="ls">{figure(r.arrival_ls)}<span class="unit">ls</span></span>{/if}
+                    {#if compact}<span class="sys" title={r.system}>{r.system}</span>{/if}
+                  {:else}
+                    {@render name(r, r.system)}
+                  {/if}
+                  {#if compact || !r.station}<SystemChip name={r.system} icon />{/if}
+                </span>
+                {#if !compact}
+                  {#if r.station}
+                    <span class="l2 in"><span class="sys" title={r.system}>{r.system}</span><SystemChip name={r.system} icon /></span>
+                  {:else if g?.under}
+                    <span class="l2 in">{@render fact(g.under, r)}</span>
+                  {/if}
                 {/if}
-              {/each}
+              </span>
+              {#if !compact && g?.own.length}
+                <span class="g own" class:r={!ownText} role="cell">
+                  {#each g.own.slice(0, 2) as c, i (c.key)}
+                    <span class={i ? "l2" : "l1"}>{@render fact(c, r)}{#if i === 1}{#each g.own.slice(2) as more (more.key)} · {@render fact(more, r)}{/each}{/if}</span>
+                  {/each}
+                </span>
+              {/if}
+              {#if !compact && g?.trip}
+                <span class="g r trip" role="cell">
+                  <span class="l1">{jumpsFigure(r)}<span class="unit">{jumpsUnit(jumpsFigure(r))}</span></span>
+                  {@render tripLine(r)}
+                </span>
+              {/if}
               <span class="acts" role="cell">
                 <IconButton icon="add-stop" label={`Add ${r.system} as a stop`} tip={`Add ${r.system} as the next stop`} onclick={() => void add(r)} />
                 <IconButton icon="destination" label={`Set ${r.system} as the destination`} tip={`Set ${r.system} as the destination (replaces the route, which Resume brings back)`} onclick={() => void destination(r)} />
@@ -425,45 +533,67 @@
   .foot { margin: var(--sp-3) 0 0; }
   .empty { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--sp-2); min-height: var(--row); color: var(--prose); }
 
-  /* DESIGN.md Lookup result row: one 44 px line per result, every row on the list's columns. */
-  /* A row is as wide as its columns, not as the window (DESIGN.md The Next To It Rule). */
-  .list { display: grid; grid-template-columns: var(--cols); column-gap: var(--sp-3); width: fit-content; max-width: 100%; }
-  .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; height: var(--row-result); white-space: nowrap; color: var(--prose); font-size: var(--fs); }
+  /* DESIGN.md Lookup result row: two lines in groups, 60 px, every row on the list's group tracks. */
+  /* A row is as wide as its groups, not as the window (DESIGN.md The Next To It Rule). */
+  .list { display: grid; grid-template-columns: var(--cols); column-gap: var(--sp-6); width: fit-content; max-width: 100%; }
+  .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; height: var(--row-result); padding: 0 var(--sp-3); white-space: nowrap; color: var(--prose); font-size: var(--fs); }
+  .compact .row { height: var(--row); }
   .row > * { min-width: 0; }
-  .heads { height: 1.75rem; border-bottom: 1px solid var(--line); color: var(--label-grey); font-size: var(--fs-s); }
+  .heads { height: 1.75rem; border-bottom: 1px solid var(--line); margin-bottom: var(--sp-1); color: var(--label-grey); font-size: var(--fs-s); overflow: hidden; }
   .result:hover { background: var(--row-hover); }
   /* Icon buttons on a hovered or selected row step up to Orange Mid; the one under the pointer is Orange Lit. */
   .result:hover :global(.ibtn) { color: var(--orange-mid); }
   .result :global(.ibtn:hover) { color: var(--orange-lit); }
   .r { text-align: right; }
-  /* The value the list is ranked by is its one orange column (DESIGN.md The Orange Means Act Rule). */
-  .main .v { color: var(--accent); font-size: var(--fs-l); font-weight: 600; }
-  .unit { margin-left: 0.1875rem; color: var(--label-grey); font-size: var(--fs-s); }
-  .place { display: flex; align-items: center; gap: var(--sp-2); overflow: hidden; }
+  /* A group: two lines, each truncating before it wraps; figures right-aligned, text left. */
+  .g { display: flex; flex-direction: column; justify-content: center; gap: 0.125rem; overflow: hidden; }
+  .g.r { align-items: flex-end; }
+  .l1, .l2 { display: flex; align-items: baseline; min-width: 0; max-width: 100%; overflow: hidden; }
+  .place .l1 { align-items: center; gap: var(--sp-2); }
+  .l2 { font-size: var(--fs-s); }
+  /* The value the list is ranked by is its one orange figure (DESIGN.md The Orange Means Act Rule). */
+  .main .v { color: var(--accent); font-size: var(--fs-l); font-weight: 600; line-height: 1.2; }
+  .unit { margin-left: 0.1875rem; color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; }
   .place :global(.kind) { color: var(--label-grey); flex: none; }
   .name { color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; }
   .pick { all: unset; cursor: pointer; color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; }
   .pick:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .result:has(.pick) { cursor: pointer; }
+  /* The pad as a badge; one too small for the ship is Red Low and struck through (its name says why). */
+  .pad { display: inline-flex; align-items: center; flex: none; height: 1.125rem; padding: 0 0.3125rem; border: 1px solid var(--line); font-size: var(--fs-s); color: var(--prose); }
+  .pad.unfit { color: var(--red-low); border-color: var(--red-low); text-decoration: line-through; }
+  .ls { flex: none; font-size: var(--fs-s); color: var(--prose); }
+  /* The system under the place, indented to the name past the station's type icon. */
+  .in { padding-left: 1.5rem; gap: 0; }
+  .place .l1:not(:has(:global(.kind))) + .in { padding-left: 0; }
   .sys { color: var(--label-grey); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; flex: 0 1000 auto; }
-  .place :global(.chip) { flex: none; margin-left: calc(-1 * var(--sp-1)); }
-  .fact { overflow: hidden; text-overflow: ellipsis; }
-  .text { font-size: var(--fs-s); }
+  .place :global(.chip) { flex: none; }
+  /* The copy icon keeps the row's two lines even: as tall as a line, not a 28 px button. */
+  .place :global(.chip .ibtn) { height: 1.25rem; }
+  .text { overflow: hidden; text-overflow: ellipsis; }
+  .own .l2 .text { color: var(--label-grey); }
   .none { color: var(--grey-dim); }
+  .ly { color: var(--label-grey); }
+  .age { color: var(--label-grey); }
+  /* A market's tonnes after its bars, coloured by what they mean for the hold. */
+  .tonnes { display: inline-flex; align-items: center; gap: 0.375rem; }
+  .tonnes.short { color: var(--red-low); }
+  .tonnes.tight { color: var(--orange-mid); }
+  .tonnes:is(.plenty, .plain) { color: var(--prose); }
   .acts { display: flex; justify-content: flex-end; gap: var(--sp-1); }
 
   /* Stale: the ranked value steps down to Orange Mid and the age, now the brightest fact on the
      row, is Orange. */
   .stale .main .v { color: var(--orange-mid); }
-  .stale .fact.age { color: var(--accent); font-weight: 500; }
+  .age.old, .age .old { color: var(--accent); }
+  .age.old { font-weight: 400; }
   /* Selected, while the side panel shows it (DESIGN.md States): Hull Raised, the ranked value
      Orange Lit, the name White, other text one step brighter, icon buttons Orange Mid. */
   .result.sel, .result.sel:hover { background: var(--surface-hi); }
   .result.sel .main .v { color: var(--orange-lit); }
   .result.sel.stale .main .v { color: var(--orange-mid); }
   .result.sel :is(.name, .pick) { color: var(--text-hi); }
-  .result.sel .fact:not(.age) { color: var(--options-grey); }
-  .result.sel :is(.unit, .sys), .result.sel :global(.kind) { color: var(--prose); }
+  .result.sel :is(.unit, .sys, .ly, .age:not(.old)), .result.sel :global(.kind) { color: var(--prose); }
   .result.sel :global(.ibtn) { color: var(--orange-mid); }
   .result.sel :global(.ibtn:hover) { color: var(--orange-lit); }
 
@@ -473,11 +603,12 @@
   .pmain { margin: var(--sp-6) 0 0; }
   /* The panel's one main value: Value XL, Orange Lit. */
   .pmain .v { color: var(--orange-lit); font-size: var(--fs-xxl); font-weight: 500; }
+  .pqual { display: flex; align-items: center; gap: 0.1875rem; margin: var(--sp-2) 0 0; }
   .pfacts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--sp-2) var(--sp-6); margin: var(--sp-6) 0 0; }
   .pfacts dt { color: var(--label-grey); font-size: var(--fs-s); align-self: baseline; }
   .pfacts dd { margin: 0; overflow-wrap: anywhere; }
   .pacts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); margin: var(--sp-8) 0 0; }
 
   /* Loading: the old rows stay, Grey Dim, until the answer replaces them. */
-  .busy .result, .busy .result :is(.main .v, .name, .pick, .fact, .sys, .unit) { color: var(--grey-dim); }
+  .busy .result, .busy .result :is(.main .v, .name, .pick, .text, .sys, .unit, .ly, .age, .tonnes, .ls, .pad) { color: var(--grey-dim); }
 </style>

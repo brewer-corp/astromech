@@ -35,19 +35,33 @@ export interface Row {
   facts?: Record<string, string>;
   /** Spansh station type, shown as a HUD mark. */
   station_type?: string | null;
+  /** A market's demand or stock in tonnes, for the bars of a `bars` column (Sell, Buy). */
+  volume?: number;
 }
 
-/** A column a lookup adds to the shared ones (DESIGN.md Lookup result row). */
+/**
+ * A fact a lookup adds to the shared ones (DESIGN.md Lookup result row). Where it sits on the
+ * grouped row is `at`: under the ranked value, in the row's own group, or in the side panel.
+ */
 export interface Column {
   key: string;
-  /** The column head, in Label. */
+  /** Its name in the group head and the side panel, in Label. */
   head: string;
   /** Figures: right-aligned, with this unit after each. */
   unit?: string;
-  /** Prose (factions, bodies, a module): left-aligned, truncated, sharing the row's spare width with the place. */
+  /** Prose (factions, bodies, a module): left-aligned and truncated. */
   text?: boolean;
-  /** A figure column's width in px at 100 percent Text size (drawn in rem); on a prose column, a fixed width instead of a share (a ring type). */
-  width?: number;
+  /**
+   * "qual": under the ranked value, the fact that says whether it holds for this commander
+   * (demand under price); only with Results.main. "row": the row's own group, a fact the
+   * commander picks a row by (the module, the faction in a state). Absent: the side panel, or
+   * the row's own group where the list has no side panel.
+   */
+  at?: "qual" | "row";
+  /** The fact is a market's tonnes (Row.volume), drawn after the demand bars. */
+  bars?: boolean;
+  /** How the summary line names a value every row shares ("Metallic rings"); default "<head>: <value>". */
+  same?: (value: string) => string;
 }
 
 /** What a lookup's place column holds: stations get pad and arrival columns, bodies and rings arrival. */
@@ -162,7 +176,7 @@ export const ARRIVALS = [1000, 5000, 25000];
 export const DISTANCES = [20, 50, 100, 200, 500];
 export const VOLUMES = [100, 500, 1000, 5000];
 
-/** A report older than this many days is stale when the lookup has no age filter of its own (DESIGN.md States). */
+/** A report older than this many days is stale: shown with its age in Orange (DESIGN.md States). */
 export const STALE_DAYS = 30;
 
 /** "1,234" with no decimals, "1,234.5" with `digits`. */
@@ -170,16 +184,11 @@ export function figure(n: number, digits = 0): string {
   return n.toLocaleString("en", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
-/** One cell of a result row: a figure with its unit, or prose. */
+/** One fact of a result row: a figure with its unit, or prose. */
 export interface Cell {
   value: string;
   unit?: string;
   text?: boolean;
-}
-
-/** A fact column of the row as the kit draws it: the lookup's own, then the shared ones. */
-export interface FactColumn extends Column {
-  cell: (r: Row, now: number) => Cell;
 }
 
 const DASH: Cell = { value: "—" };
@@ -187,6 +196,11 @@ const DASH: Cell = { value: "—" };
 /** "~3" for a straight-line estimate, "3" for a route over known stars. */
 export function jumpsFigure(r: Pick<Row, "jumps" | "exact">): string {
   return `${r.exact ? "" : "~"}${figure(r.jumps)}`;
+}
+
+/** "jump" or "jumps" after a jumps figure. */
+export function jumpsUnit(f: string): string {
+  return /^~?1$/.test(f) ? "jump" : "jumps";
 }
 
 /** How old a report is, as a figure and unit: "12 min", "5 h", "212 d". */
@@ -198,22 +212,77 @@ export function ageCell(iso: string | null, now: number): Cell {
   return { value: figure(Math.round(s / 86400)), unit: "d" };
 }
 
+/** A lookup's own fact on a row: its figure with the column's unit, prose, or a dash when missing. */
+export function factCell(c: Column, r: Row): Cell {
+  const v = r.facts?.[c.key];
+  return v ? { value: v, unit: c.unit, text: c.text } : DASH;
+}
+
 /**
- * The fact columns after the place, in order: the lookup's own, distance, jumps (unless they
- * are the main value), pad for stations, arrival for stations and bodies, report age.
+ * Where a list's facts sit on DESIGN.md's grouped result row: two lines in groups, the ranked
+ * value over what qualifies it, the place over its system, then the lookup's own group and the
+ * trip. Worked out per answer, since a fact the same on every row leaves the row.
  */
-export function factColumns(res: Pick<Results, "place" | "main" | "columns" | "undated">): FactColumn[] {
-  const own = (res.columns ?? []).map(
-    (c): FactColumn => ({ ...c, cell: (r) => (r.facts?.[c.key] ? { value: r.facts[c.key]!, unit: c.unit, text: c.text } : DASH) }),
-  );
-  const shared: FactColumn[] = [{ key: "ly", head: "Distance", unit: "ly", width: 88, cell: (r) => ({ value: figure(r.ly, 1), unit: "ly" }) }];
-  if (res.main) shared.push({ key: "jumps", head: "Jumps", width: 56, cell: (r) => ({ value: jumpsFigure(r) }) });
-  if (res.place === "station") shared.push({ key: "pad", head: "Pad", width: 40, cell: (r) => (r.pad ? { value: r.pad } : DASH) });
-  if (res.place !== "system") {
-    shared.push({ key: "arrival", head: "Arrival", unit: "ls", width: 96, cell: (r) => (r.arrival_ls == null ? DASH : { value: figure(r.arrival_ls), unit: "ls" }) });
+export interface Groups {
+  /** Under the ranked value: what says whether it holds for this commander. */
+  qual: Column | null;
+  /** A system place's second line (its faction in a state, its bodies). */
+  under: Column | null;
+  /** The row's own group: the first on its first line, the rest on its second. */
+  own: Column[];
+  /** Only in the side panel. */
+  aside: Column[];
+  /** The summary line's words for each prose fact every row shares, left off the rows. */
+  same: string[];
+  /** The list is ranked by something other than jumps, so the trip is a group of its own. */
+  trip: boolean;
+}
+
+/**
+ * The groups for `res`'s `rows`. `panel`: the list has a side panel, so a fact the commander
+ * doesn't pick a row by goes there; without one it stays on the row.
+ */
+export function groups(res: Pick<Results, "place" | "main" | "columns">, rows: Row[], panel: boolean): Groups {
+  const same: string[] = [];
+  const shared = (c: Column) => {
+    if (!c.text || c.at === "qual" || rows.length < 2) return false;
+    const v = rows[0]?.facts?.[c.key] ?? "";
+    if (!rows.every((r) => (r.facts?.[c.key] ?? "") === v)) return false;
+    if (v) same.push(c.same ? c.same(v) : `${c.head}: ${v}`);
+    return true;
+  };
+  const cols = (res.columns ?? []).filter((c) => !shared(c));
+  const qual = res.main ? (cols.find((c) => c.at === "qual") ?? null) : null;
+  const picked = cols.filter((c) => c !== qual && c.at);
+  const rest = cols.filter((c) => !c.at);
+  const onRow = panel ? picked : [...picked, ...rest];
+  const under = res.place === "system" && onRow[0]?.text ? onRow[0] : null;
+  return { qual, under, own: onRow.filter((c) => c !== under), aside: panel ? rest : [], same, trip: !!res.main };
+}
+
+/** A group's head: its facts' names, the first capitalised ("Price · demand"). */
+export function groupHead(names: string[]): string {
+  return names.map((n, i) => (i ? n.toLowerCase() : n)).join(" · ");
+}
+
+/** The place group's head: "Station · pad · arrival", "Ring · arrival", "System · faction". */
+export function placeHead(place: Place, under: Column | null): string {
+  const names = { station: ["Station", "pad", "arrival"], body: ["Body", "arrival"], ring: ["Ring", "arrival"], system: ["System"] }[place];
+  return groupHead(under ? [...names, under.head] : names);
+}
+
+/** Every fact of a row for its side panel, under its name: the lookup's own, then pad, arrival, trip and report age. */
+export function panelFacts(res: Pick<Results, "place" | "main" | "columns" | "undated">, r: Row, now: number): { head: string; cell: Cell }[] {
+  const out = (res.columns ?? []).map((c) => ({ head: c.head, cell: factCell(c, r) }));
+  if (res.place === "station") out.push({ head: "Pad", cell: r.pad ? { value: r.pad } : DASH });
+  if (res.place !== "system") out.push({ head: "Arrival", cell: r.arrival_ls == null ? DASH : { value: figure(r.arrival_ls), unit: "ls" } });
+  const j = jumpsFigure(r);
+  out.push({ head: "Trip", cell: { value: `${j} ${jumpsUnit(j)} · ${figure(r.ly, 1)}`, unit: "ly" } });
+  if (!res.undated) {
+    const age = ageCell(r.updated_at, now);
+    out.push({ head: "Updated", cell: age === DASH ? DASH : { value: age.value, unit: `${age.unit} ago` } });
   }
-  if (!res.undated) shared.push({ key: "age", head: "Updated", width: 72, cell: (r, now) => ageCell(r.updated_at, now) });
-  return [...own, ...shared];
+  return out;
 }
 
 /** The age filter in force, in days: the commander's, else the lookup's default; null: any age. */

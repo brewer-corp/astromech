@@ -4,7 +4,11 @@
   // anywhere in the galaxy, from Ardent Insight. The main input is the commodity; the range is
   // a choice. #/places/<sell|buy>/<symbol>[?range=anywhere] keeps both on back and reload.
   // Each side and range keeps the filters Trade remembered for it (`trade.sell`,
-  // `trade.sell.anywhere`, ...), which voice questions use too.
+  // `trade.sell.anywhere`, ...), which voice questions use too. Demand (Sell) or stock (Buy) is
+  // measured against the hold as `ship_status` reported it with each search, and the page says
+  // what it measured against beside the commodity ("200 t of Painite aboard", "136 t free").
+  import type { ShipStatus } from "../../lib/api/types/ShipStatus";
+  import { buyAgainst, sellAgainst } from "../../lib/demand";
   import { marketRoute, parseMarketRoute, rememberAnswer, showing, type Finder, type MarketWant } from "../../lib/places";
   import type { Filters, Origin, Results } from "../../lib/search";
   import { commodities, DEFAULT_DISTANCE_LY, DEFAULT_MAX_AGE_DAYS, toResults, tradeAnywhere, tradeSearch, type Side } from "../../lib/trade";
@@ -25,6 +29,9 @@
   };
   let want = $state<MarketWant>(read());
   const name = $derived(commodities.find((c) => c.symbol === want.symbol)?.name ?? want.symbol);
+  /** The ship as of the last search; undefined until one has asked. */
+  let ship = $state<ShipStatus | null | undefined>(undefined);
+  const against = $derived(ship === undefined ? null : side === "sell" ? sellAgainst(ship, want.symbol, name) : buyAgainst(ship));
   const items = commodities.map((c) => ({ label: c.name, detail: c.category, keywords: c.aliases?.join(" ") }));
 
   /** This finder is the page shown (a hash change may be leaving it). */
@@ -66,6 +73,7 @@
       placeholder="Type a commodity"
       onpick={(n) => go({ ...want, symbol: commodities.find((c) => c.name === n)?.symbol ?? want.symbol })}
     />
+    {#if against}<span class="against">{against.text}</span>{/if}
   {/snippet}
   <SearchKit
     lookup={`trade.${side}${want.anywhere ? ".anywhere" : ""}`}
@@ -77,6 +85,8 @@
     noun={side === "buy" ? "sellers" : "buyers"}
     busyText="Asking Ardent Insight…"
     onanswer={(top) => rememberAnswer(finder.id, top && { ...top, context: name, route: marketRoute(want) })}
+    measure={against && { side, against }}
+    onship={(s) => (ship = s)}
   >
     {#snippet lead()}
       <div class="choices">
@@ -97,5 +107,6 @@
 
 <style>
   .choices { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
-  .label { font-size: var(--fs-s); color: var(--label-grey); }
+  .label, .against { font-size: var(--fs-s); color: var(--label-grey); }
+  .against { white-space: nowrap; }
 </style>
