@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-zaqh
 title: 'Sell finder: the side-panel scrolling test runs with the real design sizes'
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-s
