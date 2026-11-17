@@ -1,8 +1,8 @@
 {
- "commit": "d44ac565",
+ "commit": "09a28a6d",
  "captures": {
   "docked-1100x700": {
-   "url": "http://localhost:5291/?core=ready&route=exact&game=running&textsize=100#/now",
+   "url": "http://localhost:5397/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/now",
    "file": "docs/design/now/docked-1100x700.png",
    "step": 100,
    "frame": {
@@ -151,7 +151,7 @@
    ]
   },
   "docked-1920x1080": {
-   "url": "http://localhost:5291/?core=ready&route=exact&game=running&textsize=100#/now",
+   "url": "http://localhost:5397/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/now",
    "file": "docs/design/now/docked-1920x1080.png",
    "step": 100,
    "frame": {
@@ -433,7 +433,7 @@
    ]
   },
   "docked-2560x1440": {
-   "url": "http://localhost:5291/?core=ready&route=exact&game=running&textsize=145#/now",
+   "url": "http://localhost:5397/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/now",
    "file": "docs/design/now/docked-2560x1440.png",
    "step": 145,
    "frame": {
@@ -715,7 +715,7 @@
    ]
   },
   "in-space-1100x700": {
-   "url": "http://localhost:5291/?core=ready&route=exact&game=running&docked=no&textsize=100#/now",
+   "url": "http://localhost:5397/?core=ready&route=exact&game=running&docked=no&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/now",
    "file": "docs/design/now/in-space-1100x700.png",
    "step": 100,
    "frame": {
@@ -866,7 +866,7 @@
    ]
   },
   "in-space-1920x1080": {
-   "url": "http://localhost:5291/?core=ready&route=exact&game=running&docked=no&textsize=100#/now",
+   "url": "http://localhost:5397/?core=ready&route=exact&game=running&docked=no&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/now",
    "file": "docs/design/now/in-space-1920x1080.png",
    "step": 100,
    "frame": {
@@ -1041,7 +1041,7 @@
    ]
   },
   "in-space-2560x1440": {
-   "url": "http://localhost:5291/?core=ready&route=exact&game=running&docked=no&textsize=145#/now",
+   "url": "http://localhost:5397/?core=ready&route=exact&game=running&docked=no&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/now",
    "file": "docs/design/now/in-space-2560x1440.png",
    "step": 145,
    "frame": {
@@ -1216,7 +1216,7 @@
    ]
   },
   "not-running-1100x700": {
-   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/now",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/now",
    "file": "docs/design/now/not-running-1100x700.png",
    "step": 100,
    "frame": {
@@ -1360,7 +1360,7 @@
    ]
   },
   "not-running-1920x1080": {
-   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/now",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/now",
    "file": "docs/design/now/not-running-1920x1080.png",
    "step": 100,
    "frame": {
@@ -1529,7 +1529,7 @@
    ]
   },
   "not-running-2560x1440": {
-   "url": "http://localhost:5291/?core=ready&route=exact&textsize=145#/now",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/now",
    "file": "docs/design/now/not-running-2560x1440.png",
    "step": 145,
    "frame": {

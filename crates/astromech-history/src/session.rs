@@ -6,7 +6,8 @@
 //! session's last event.
 //!
 //! - Earnings are the `earnings` ledger in the session, by kind (the list is in `ledgers`);
-//!   `per_hour` is their total over the session's length.
+//!   `per_hour` is their total over the session's length. `timeline` is the same rows one by
+//!   one, in time order.
 //! - Jumps and distance are `FSDJump`s only; carrier jumps are counted on their own.
 //! - Bounties awarded are the `Bounty` events (vouchers not yet cashed in); cashed-in bounty
 //!   vouchers are the `bounty` earnings.
@@ -25,6 +26,14 @@ pub struct EarningTotal {
     pub count: i64,
 }
 
+/// One payment in a session: a row of the `earnings` ledger.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, ts_rs::TS)]
+pub struct Payment {
+    pub ts: String,
+    pub kind: String,
+    pub amount: i64,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct Session {
     pub commander: Commander,
@@ -36,6 +45,8 @@ pub struct Session {
     pub latest: bool,
     /// By kind, largest first.
     pub earnings: Vec<EarningTotal>,
+    /// Every payment counted in `earnings`, oldest first.
+    pub timeline: Vec<Payment>,
     pub total: i64,
     /// Trade income minus what the goods cost (where the game reported it).
     pub trade_profit: i64,
@@ -97,6 +108,12 @@ impl crate::History {
                 })
             })
             .collect::<Result<Vec<_>>>()?;
+        let mut st = c.prepare(
+            "SELECT ts, kind, amount FROM earnings WHERE cmdr = ?1 AND ts >= ?2 AND ts < ?3 ORDER BY ts, event_id",
+        )?;
+        let timeline = st
+            .query_map(params![k, start, upto], |r| Ok(Payment { ts: r.get(0)?, kind: r.get(1)?, amount: r.get(2)? }))?
+            .collect::<Result<Vec<_>>>()?;
         let total = earnings.iter().map(|e| e.amount).sum();
         let data_sold =
             earnings.iter().filter(|e| e.kind == "exploration" || e.kind == "organic").map(|e| e.amount).sum();
@@ -128,6 +145,7 @@ impl crate::History {
             duration_secs,
             latest: next.is_none(),
             earnings,
+            timeline,
             total,
             trade_profit,
             per_hour,

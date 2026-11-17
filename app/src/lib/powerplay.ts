@@ -49,21 +49,40 @@ export function pledged(secs: number | null): string {
   return d >= 1 ? `${d} day${d === 1 ? "" : "s"}` : `${Math.floor(secs / 3600)} h`;
 }
 
-/** The time from `now` to `iso` in the cycle's words: "2 d 14 h", "5 h 12 min", "12 min"; "0 min" once past. */
-export function timeLeft(iso: string, now = Date.now()): string {
-  const m = Math.max(0, Math.floor((Date.parse(iso) - now) / 60000));
+const WEEK = 7 * 86400000;
+
+/**
+ * The cycle `now` is in, from `weekEnds`, the end the core's answer gave. While that end is ahead
+ * it is this cycle's. Once it has passed (an answer read before the turnover, kept since), the
+ * cycle has turned over: cycles end every Thursday 07:00 UTC, so this one ends whole weeks after
+ * it, the first such moment after `now`, and the answer's merits are an ended cycle's (`over`).
+ */
+export function cycleAt(weekEnds: string, now = Date.now()): { end: number; over: boolean } {
+  const given = Date.parse(weekEnds);
+  if (given > now) return { end: given, over: false };
+  return { end: given + (Math.floor((now - given) / WEEK) + 1) * WEEK, over: true };
+}
+
+/** The time from `now` to the end of the cycle it is in (`cycleAt`), in the cycle's words: "2 d 14 h", "5 h 12 min", "12 min". */
+export function timeLeft(weekEnds: string, now = Date.now()): string {
+  const m = Math.floor((cycleAt(weekEnds, now).end - now) / 60000);
   const d = Math.floor(m / 1440);
   const h = Math.floor((m % 1440) / 60);
   if (d) return `${d} d ${h} h`;
   return h ? `${h} h ${m % 60} min` : `${m} min`;
 }
 
-/** When `iso` falls, in UTC as the game's cycle is told: "Thursday 07:00 UTC". */
-export function endsAt(iso: string): string {
-  const t = new Date(iso);
+/** When the cycle `now` is in ends (`cycleAt`), in UTC as the game's cycle is told: "Thursday 07:00 UTC". */
+export function endsAt(weekEnds: string, now = Date.now()): string {
+  const t = new Date(cycleAt(weekEnds, now).end);
   const day = t.toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" });
   const hm = t.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" });
   return `${day} ${hm} UTC`;
+}
+
+/** The merits the journal logged this cycle, or none once the answer's cycle is over: they are an ended cycle's, and this one's are not known until the core answers again. */
+export function cycleMerits(st: { week_merits: number; week_ends: string }, now = Date.now()): number | null {
+  return cycleAt(st.week_ends, now).over ? null : st.week_merits;
 }
 
 /** Kinds of nearby target (astromech_galaxy::Target). */

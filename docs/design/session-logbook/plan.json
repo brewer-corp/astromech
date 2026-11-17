@@ -1,0 +1,137 @@
+{
+ "out": "docs/design/session-logbook",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  {
+   "w": 1100,
+   "h": 700,
+   "step": 100
+  },
+  {
+   "w": 1920,
+   "h": 1080,
+   "step": 100
+  },
+  {
+   "w": 2560,
+   "h": 1440,
+   "step": 145
+  }
+ ],
+ "shots": [
+  {
+   "name": "session",
+   "hash": "session",
+   "steps": [
+    {
+     "waitText": "per hour"
+    }
+   ]
+  },
+  {
+   "name": "logbook",
+   "hash": "logbook",
+   "steps": [
+    {
+     "waitText": "arrivals"
+    }
+   ]
+  },
+  {
+   "name": "logbook-search",
+   "hash": "logbook",
+   "steps": [
+    {
+     "waitText": "arrivals"
+    },
+    {
+     "type": "input[type=search]",
+     "text": "hutton"
+    },
+    {
+     "waitText": "MATCHING"
+    }
+   ]
+  },
+  {
+   "name": "logbook-no-match",
+   "hash": "logbook",
+   "steps": [
+    {
+     "waitText": "arrivals"
+    },
+    {
+     "type": "input[type=search]",
+     "text": "Colonia"
+    },
+    {
+     "waitText": "No visited system"
+    }
+   ]
+  },
+  {
+   "name": "session-none",
+   "hash": "session",
+   "query": "core=empty",
+   "sizes": [
+    "1100x700"
+   ],
+   "steps": [
+    {
+     "clickText": "Skip setup"
+    },
+    {
+     "clickText": "Session"
+    },
+    {
+     "waitText": "No game session"
+    }
+   ]
+  },
+  {
+   "name": "logbook-none",
+   "hash": "logbook",
+   "query": "core=empty",
+   "sizes": [
+    "1100x700"
+   ],
+   "steps": [
+    {
+     "clickText": "Skip setup"
+    },
+    {
+     "clickText": "Logbook"
+    },
+    {
+     "waitText": "No commander"
+    }
+   ]
+  },
+  {
+   "name": "session-failed",
+   "hash": "session",
+   "query": "core=ready&route=exact&fail=session_summary",
+   "sizes": [
+    "1100x700"
+   ],
+   "steps": [
+    {
+     "waitText": "Could not read"
+    }
+   ]
+  },
+  {
+   "name": "logbook-failed",
+   "hash": "logbook",
+   "query": "core=ready&route=exact&fail=logbook",
+   "sizes": [
+    "1100x700"
+   ],
+   "steps": [
+    {
+     "waitText": "Could not read"
+    }
+   ]
+  }
+ ]
+}
