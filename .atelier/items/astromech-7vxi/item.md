@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-7vxi
 title: 'Station: the docked station''s market and outfitting read as answers'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
@@ -12,7 +12,8 @@ priority: high
 blocked_by:
 - astromech-8e22
 - astromech-coq6
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3A7ca8a4c4-e671-4665-aa58-7951c9c97a4c
 ready:
   by: Sumeet
   at: 2026-11-17T10:51:58.242665710Z
