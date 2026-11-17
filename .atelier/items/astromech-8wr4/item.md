@@ -2,7 +2,7 @@
 schema: atelier.item
 schema_version: 3
 id: astromech-8wr4
-title: Engineering > Ships as a loadout
+title: Ships > Ships as a loadout
 status: draft
 mission: astromech-xajc
 labels:
@@ -10,7 +10,7 @@ labels:
 - feature
 priority: medium
 blocked_by:
-- astromech-irtr
+- astromech-8e22
 implementers: []
 ready: null
 trivial: null
@@ -20,7 +20,7 @@ created_at: 2026-11-10T05:55:41.140290178Z
 
 ## Goal
 
-A ship reads as its loadout: slots grouped as in the game's outfitting (Hardpoints, Utility, Core, Optional), each with class, module, engineering grade pips and blueprint; key stats as a row of hero values; the fleet as a strip. It replaces the stat boxes that are mostly dashes.
+A ship reads as its loadout: slots grouped as in the game's outfitting (Hardpoints, Utility, Core, Optional), each with class, module, engineering grade hexagons and blueprint; key stats as a row of hero values; the fleet as a strip. It replaces the stat boxes that are mostly dashes.
 
 ## Done when
 
@@ -29,7 +29,7 @@ A ship reads as its loadout: slots grouped as in the game's outfitting (Hardpoin
 
 ## Context
 
-Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc). Mockup: docs/design/glow-up-ship.png. Preliminary: planned in detail after increment 1 (the foundation and the Route page astromech-ok29) has merged and Sumeet has seen its preview link.
+Colours, selection, result rows, text size and the tabs follow DESIGN.md revision 5 (astromech-n41x); captures are taken at 1100 x 700 at 100 percent and 2560 x 1440 at 145 percent. Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc). Mockup: docs/design/glow-up-ship.png. Preliminary: planned in detail after increment 1 (the foundation and the Route page astromech-ok29) has merged and Sumeet has seen its preview link.
 
 ## Unknowns
 

@@ -10,7 +10,8 @@ labels:
 - feature
 priority: medium
 blocked_by:
-- astromech-irtr
+- astromech-8e22
+- astromech-7did
 implementers: []
 ready: null
 trivial: null
@@ -20,16 +21,16 @@ created_at: 2026-11-10T05:55:41.864039859Z
 
 ## Goal
 
-The engineers read as the tree they are: nodes joined from whoever introduces them, unlocked ones lit with grade pips, the next step for each stated with its progress. It replaces 25 text cards that state prerequisites as '<- Liz Ryder'.
+The engineers read as the tree they are: nodes joined from whoever introduces them, unlocked ones white with rank hexagons, ones the commander can work on now marked, barred ones in the duller red, the next step for each stated with its progress. It replaces 25 text cards that state prerequisites as '<- Liz Ryder'.
 
 ## Done when
 
-- [ ] (provisional) The ship and suit engineer trees render from referred_by and refers; selecting an engineer shows system, specialities and steps.
+- [ ] (provisional) The ship and suit engineer trees render side by side from referred_by and refers, under the search box astromech-7did built; selecting an engineer shows system, specialities and steps.
 - [ ] (provisional) Built on the layout components and type roles with no page-level width or font size; captures at 1100 x 700 and 2560 x 1440 in docs/design/; the page's guide in docs/guide updated.
 
 ## Context
 
-Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc). Mockup: docs/design/glow-up-engineers.png. Preliminary: planned in detail after increment 1 (the foundation and the Route page astromech-ok29) has merged and Sumeet has seen its preview link.
+Colours, selection, result rows, text size and the tabs follow DESIGN.md revision 5 (astromech-n41x); captures are taken at 1100 x 700 at 100 percent and 2560 x 1440 at 145 percent. Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc). Mockup: docs/design/glow-up-engineers.png. Preliminary: planned in detail after increment 1 (the foundation and the Route page astromech-ok29) has merged and Sumeet has seen its preview link.
 
 ## Unknowns
 

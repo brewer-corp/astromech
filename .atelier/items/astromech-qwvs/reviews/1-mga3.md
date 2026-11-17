@@ -46,6 +46,7 @@ Only mark the previous waypoint when it matches `view.here`. When position zero 
 
 ## Finding 3: Keep a known dry leg's warning when it expands
 Recommendation: defer
+Dropped by 65a8ff7c-e901-48a1-be52-323bbbd8e80c: Taken into astromech-uc7i, which rebuilds the timeline in the sidebar and checks that a known dry leg keeps its warning when it expands.
 
 `app/src/modules/route/Timeline.svelte:55-62` computes `dry` only for collapsed leg rows. The expanded flown-leg branch produces jump rows, none of which renders the warning at line 188. Consequently, a known dry leg loses its warning when it becomes the leg being flown, when the warning is most useful.
 

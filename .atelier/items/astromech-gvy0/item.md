@@ -10,7 +10,7 @@ labels:
 - feature
 priority: medium
 blocked_by:
-- astromech-irtr
+- astromech-8e22
 implementers: []
 ready: null
 trivial: null
@@ -20,17 +20,18 @@ created_at: 2026-11-10T06:04:11.267990188Z
 
 ## Goal
 
-Every page outside Controls that gets no new screen still stops sizing itself: Stored modules (three columns spread over 1,800 px today), On foot (the same), Places home, Mining, Data sharing, Diagnostics and Voice tester.
+Every page outside Controls that gets no new screen still stops sizing itself: Stored modules (three columns spread over 1,800 px today), Places home, Mining, Data sharing, Diagnostics and Voice tester.
 
 ## Done when
 
-- [ ] (provisional) Each page named is on a layout component and the type roles, and the page-sizing check is on for its module. Stored modules groups its rows by where the module is; On foot keeps its tables where rows are compared on shared columns.
-- [ ] (provisional) With this merged and the screen items done, both parts of the page-sizing check are on for every file under app/src/modules/ except the Controls modules and the two frame parts in the route module (Strip.svelte, PlotBar.svelte); this item enrols whatever file is still off the list.
+- [ ] (provisional) Each page named is on a layout component and the type roles, and the page-sizing check is on for its module. Stored modules groups its rows by where the module is. `settings/Callouts.svelte`, `settings/ProspectorThresholds.svelte` and `route/Plot.svelte` are enrolled or listed exempt (left open by astromech-mwh5 and astromech-ok29).
+- [ ] (provisional) With this merged and the screen items done, both parts of the page-sizing check are on for every file under app/src/modules/ except the Controls modules and the frame's parts in the route module (the files astromech-uc7i lists exempt); this item enrols whatever file is still off the list.
 - [ ] (provisional) Captures at 1100 x 700 and 2560 x 1440 in docs/design/.
+- [ ] (provisional) As the last screen item, it owns the fills-the-window evidence: every page outside Controls captured as finally built at 1100 x 700, 1920 x 1080, 2560 x 1440 and 3840 x 2160 (at the Text size the mission's criterion gives each), measured as astromech-irtr's were, and recorded as the criterion's evidence on the mission. It is blocked on every other screen item when it is made ready.
 
 ## Context
 
-Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc). Mockups: docs/design/glow-up-*.png. Preliminary: planned in detail after the increment 1 checkpoint.
+Colours, selection, result rows, text size and the tabs follow DESIGN.md revision 5 (astromech-n41x); captures are taken at 1100 x 700 at 100 percent and 2560 x 1440 at 145 percent. Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc). Mockups: docs/design/glow-up-*.png. Preliminary: planned in detail after the increment 1 checkpoint.
 
 ## Unknowns
 

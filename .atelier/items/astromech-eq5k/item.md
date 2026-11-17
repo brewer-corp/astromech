@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-eq5k
 title: Suit engineers in one place; tab-row test excludes by role
-status: ready
+status: dropped
 mission: null
 labels:
 - size-s
@@ -35,3 +35,7 @@ Deferred findings from the sllo review (reviewer-fable-sllo).
 Relationships of the old record that the new format has no field for.
 
 - discovered_from: astromech-sllo (Two tab rows at most: fold third-level tabs into choices or sections)
+
+## Report
+
+Dropped: Another item covers it: astromech-5a01 moves the suit engineers onto the Engineers page with old links landing, and fixes tabrows.test.ts to exclude by role.

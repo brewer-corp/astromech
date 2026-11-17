@@ -22,6 +22,7 @@ Mission astromech-xajc's glance-test criterion: on every page outside Controls a
 
 ## Done when
 
+- [ ] The three answers are for the page's own job. The route sidebar is on every screenshot and is frame: the sheet has one entry for it (main value: the next stop; changeable: the destination; needs the commander: a refuel or off-route warning, else none), asked once, and an answer that points into the sidebar for a page is a fail for that page.
 - [ ] An answer sheet lists, for every page outside Controls, the expected main value, the expected changeable thing and the expected thing that needs the commander in the screenshot's state, taken from the page's job in its issue and docs/guide. A page with nothing to change or nothing needing attention says 'none' for that question, and 'none' is then the right answer.
 - [ ] A fresh agent given only the 2560 x 1440 screenshots from the browser preview, not the sheet, answers the three questions per page; each answer is marked pass or fail against the sheet.
 - [ ] Every failed page is fixed and asked again with a new agent until it passes. The criterion is met only when every page passes; a page left failing leaves it unmet unless Sumeet takes that page out of scope.
@@ -29,4 +30,4 @@ Mission astromech-xajc's glance-test criterion: on every page outside Controls a
 
 ## Context
 
-Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc). Mockups: docs/design/glow-up-*.png. Runs after the last screen increment merges.
+Colours, selection, result rows, text size and the tabs follow DESIGN.md revision 5 (astromech-n41x); captures are taken at 1100 x 700 at 100 percent and 2560 x 1440 at 145 percent. Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc). Mockups: docs/design/glow-up-*.png. Runs after the last screen increment merges.
