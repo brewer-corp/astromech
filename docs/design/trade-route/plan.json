@@ -48,6 +48,27 @@
    ]
   },
   {
+   "name": "single-stops",
+   "hash": "trade",
+   "sizes": [
+    "1100x700"
+   ],
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitText": "Biowaste"
+    },
+    {
+     "scrollTop": ".out"
+    }
+   ]
+  },
+  {
    "name": "loop",
    "hash": "trade",
    "steps": [

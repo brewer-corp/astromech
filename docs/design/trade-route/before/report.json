@@ -1,8 +1,8 @@
 {
- "commit": "1f94faa9",
+ "commit": "504e6791",
  "captures": {
   "single-1100x700": {
-   "url": "http://localhost:5391/?core=ready&route=exact&game=running&textsize=100#/trade",
+   "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-11-17T12%3A00%3A00Z&textsize=100#/trade",
    "file": "docs/design/trade-route/before/single-1100x700.png",
    "step": 100,
    "frame": {
@@ -182,7 +182,7 @@
    ]
   },
   "single-2560x1440": {
-   "url": "http://localhost:5391/?core=ready&route=exact&game=running&textsize=145#/trade",
+   "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-11-17T12%3A00%3A00Z&textsize=145#/trade",
    "file": "docs/design/trade-route/before/single-2560x1440.png",
    "step": 145,
    "frame": {
@@ -378,8 +378,167 @@
     }
    ]
   },
+  "single-stops-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-11-17T12%3A00%3A00Z&textsize=100#/trade",
+   "file": "docs/design/trade-route/before/single-stops-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Single hop from"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Commodities",
+      "Sol",
+      "Abraham Lincoln",
+      "Starbase Pratchett",
+      "LP 71-165",
+      "1,065,123 cr/h",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "4 of 10",
+      "7",
+      "200 t Biowaste: buy 110 cr, sell 754 cr",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "128,800 cr"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "t",
+      "cr",
+      "ly",
+      "Change",
+      "128,800 cr",
+      "200",
+      "10000000",
+      "31.5"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 34,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Places",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Colonisation",
+      "Cargo"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Trade",
+      "Find route"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Find route",
+     "sidebar": false,
+     "at": "div.inputs > div.query > div.tools > button.btn.primary.go"
+    }
+   ]
+  },
   "loop-1100x700": {
-   "url": "http://localhost:5391/?core=ready&route=exact&game=running&textsize=100#/trade",
+   "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-11-17T12%3A00%3A00Z&textsize=100#/trade",
    "file": "docs/design/trade-route/before/loop-1100x700.png",
    "step": 100,
    "frame": {
@@ -559,7 +718,7 @@
    ]
   },
   "loop-2560x1440": {
-   "url": "http://localhost:5391/?core=ready&route=exact&game=running&textsize=145#/trade",
+   "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-11-17T12%3A00%3A00Z&textsize=145#/trade",
    "file": "docs/design/trade-route/before/loop-2560x1440.png",
    "step": 145,
    "frame": {
@@ -747,6 +906,163 @@
      "text": "Trade",
      "sidebar": false,
      "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Find route",
+     "sidebar": false,
+     "at": "div.inputs > div.query > div.tools > button.btn.primary.go"
+    }
+   ]
+  },
+  "loop-stops-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-11-17T12%3A00%3A00Z&textsize=100#/trade",
+   "file": "docs/design/trade-route/before/loop-stops-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Loop from"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 12,
+     "texts": [
+      "Commodities",
+      "Sol",
+      "Abraham Lincoln",
+      "Starbase Pratchett",
+      "LP 71-165",
+      "2,872,855 cr/h",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "4 of 10",
+      "7",
+      "200 t Biowaste: buy 110 cr, sell 754 cr",
+      "200 t Reactive Armour: buy 1,581 cr, sell 2,674 cr",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "347,400 cr"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "ly",
+      "Change",
+      "128,800 cr",
+      "218,600 cr",
+      "31.5"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 36,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Places",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Colonisation",
+      "Max hop"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Trade",
+      "Find route"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
     },
     {
      "colour": "#ff7100",

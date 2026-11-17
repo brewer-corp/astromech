@@ -2,11 +2,96 @@
  "out": "docs/design/trade-route/before",
  "query": "core=ready&route=exact&game=running",
  "sizes": [
-  { "w": 1100, "h": 700, "step": 100 },
-  { "w": 2560, "h": 1440, "step": 145 }
+  {
+   "w": 1100,
+   "h": 700,
+   "step": 100
+  },
+  {
+   "w": 2560,
+   "h": 1440,
+   "step": 145
+  }
  ],
  "shots": [
-  { "name": "single", "hash": "trade", "steps": [{ "waitSel": "input[aria-label='Cargo capacity']" }, { "clickText": "Find route" }, { "waitText": "Biowaste" }] },
-  { "name": "loop", "hash": "trade", "steps": [{ "waitSel": "input[aria-label='Cargo capacity']" }, { "clickText": "Loop" }, { "clickText": "Find route" }, { "waitText": "Reactive Armour" }] }
- ]
+  {
+   "name": "single",
+   "hash": "trade",
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitText": "Biowaste"
+    }
+   ]
+  },
+  {
+   "name": "single-stops",
+   "hash": "trade",
+   "sizes": [
+    "1100x700"
+   ],
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitText": "Biowaste"
+    },
+    {
+     "scrollTop": ".out"
+    }
+   ]
+  },
+  {
+   "name": "loop",
+   "hash": "trade",
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "clickText": "Loop"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitText": "Reactive Armour"
+    }
+   ]
+  },
+  {
+   "name": "loop-stops",
+   "hash": "trade",
+   "sizes": [
+    "1100x700"
+   ],
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "clickText": "Loop"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitText": "Reactive Armour"
+    },
+    {
+     "scrollTop": ".out"
+    }
+   ]
+  }
+ ],
+ "clock": "2026-11-17T12:00:00Z"
 }
