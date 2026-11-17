@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-2dai
 title: 'Browser tests in two worktrees at once fail to start: vitest holds port 63315'
-status: in_review
+status: approved
 mission: null
 labels:
 - size-s
