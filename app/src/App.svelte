@@ -4,7 +4,8 @@
   // the no-route rail), and the page column: the route strip where the sidebar is collapsed or the
   // window is below the dock width, the area's pages as sub-tabs, and the page; then the status
   // bar (the ship and the core's one-line state). There is no Route page: whatever opened it
-  // (#/route, the palette, the tray) shows the sidebar where the commander is and keeps the page. Opens on My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
+  // (#/route, the palette, the tray) shows the sidebar where the commander is and keeps the page. Opens on Now: what the
+  // commander is doing at the moment. Onboarding replaces the frame on first launch (until finished or skipped) and
   // at #/setup or #/setup/<step>. The header's Find or plot box (PlotBar) finds a page, finder,
   // material, module or ship, or plots to a system, from any page; Ctrl+K puts the cursor in it.
   import { tip } from "./lib/ui/tip";
@@ -12,7 +13,8 @@
   import { MOVED_FINDERS } from "./lib/places";
   import { collect } from "./lib/palette";
   import Button from "./lib/ui/Button.svelte";
-  import { coreStatus, onRoute, shipStatus, type CoreStatus, type ShipStatus } from "./lib/core";
+  import { coreStatus, onRoute } from "./lib/core";
+  import { provideFrame } from "./lib/frame.svelte";
   import StatusBar from "./lib/ui/StatusBar.svelte";
   import Toasts from "./lib/ui/Toasts.svelte";
   import Onboarding from "./lib/onboarding/Onboarding.svelte";
@@ -25,7 +27,7 @@
   import { scale, startScale } from "./lib/scale.svelte";
   import { at100, DOCK } from "./lib/ui/layout/layout";
 
-  const DEFAULT = "controller";
+  const DEFAULT = "now";
   // Pages that were merged into another keep working as links: the route's first part moves,
   // and what followed it stays ("services/black_market" opens "places/services/black_market").
   const MOVED: Record<string, string> = { activities: "controller", ...MOVED_FINDERS };
@@ -108,8 +110,10 @@
       window.removeEventListener("pointerdown", down);
     };
   });
-  let status = $state<CoreStatus | null>(null);
-  let ship = $state<ShipStatus | null>(null);
+  // The core's status and the ship's, polled once for the frame and any page that reads them.
+  const frame = provideFrame();
+  const status = $derived(frame.status);
+  const ship = $derived(frame.ship);
   const setup = $derived(status?.setup_needed ?? []);
   const showSetup = $derived(setup.length > 0 && current?.id !== "settings");
 
@@ -177,7 +181,7 @@
   ];
 
   async function finishSetup() {
-    status = await coreStatus();
+    frame.status = await coreStatus();
     go(DEFAULT);
   }
 
@@ -189,16 +193,8 @@
     void startScale().then((ok) => ok && (sized = true));
   });
 
-  $effect(() => {
-    onRoute((r) => go(r));
-    // The status bar's fuel and cargo follow the game's Status.json writes on the same tick.
-    const tick = async () => {
-      [status, ship] = await Promise.all([coreStatus(), shipStatus()]);
-    };
-    void tick();
-    const t = setInterval(() => void tick(), 2000);
-    return () => clearInterval(t);
-  });
+  $effect(() => onRoute((r) => go(r)));
+  $effect(() => frame.start());
 </script>
 
 {#if onboarding}

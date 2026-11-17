@@ -398,7 +398,8 @@
       <Bars depth={d} /><span>{cell.value}<span class="unit type-unit">t</span></span>
     </span>
   {:else if cell.text}
-    <span class="text" title={cell.value}>{cell.value}</span>
+    {@const note = r.notes?.[c.key]}
+    <span class="text" title={note ? undefined : cell.value} {@attach tip(note)}>{cell.value}</span>
   {:else}
     <span class:none={cell.value === "—"}>{cell.value}{#if cell.unit}<span class="unit type-unit">{cell.unit}</span>{/if}</span>
   {/if}

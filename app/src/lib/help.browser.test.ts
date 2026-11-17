@@ -36,7 +36,7 @@ describe("the Help link in the window", () => {
     const open = vi.spyOn(window, "open").mockImplementation(() => null);
     location.hash = "#/powerplay";
     render(App);
-    await screen.findByText("My standing");
+    await screen.findByText("Next rank");
     await fireEvent.click(screen.getByRole("button", { name: "Help" }));
     expect(open).toHaveBeenCalledWith(helpUrl("powerplay.md"), "_blank");
   });

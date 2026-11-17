@@ -55,7 +55,7 @@ const PAGES: Page[] = [
   { name: "Stored modules", read: "engineering_fleet", view: Stored as unknown as Component, empty: /No modules in storage/, loading: /Reading the journal…/, failed: /Could not read the stored modules: / },
   { name: "Materials", read: "materials_inventory", view: Materials as unknown as Component, empty: /0 \/ 6,300 · No journal yet/, loading: /Reading the journal…/, failed: /Could not read the materials: / },
   { name: "Materials, On foot", read: "odyssey_view", view: Materials as unknown as Component, hash: "#/materials?kind=onfoot", empty: /Nothing held here/, loading: /Reading the ShipLocker…/, failed: /Could not read the inventory: / },
-  { name: "Suits", read: "odyssey_view", view: Suits as unknown as Component, empty: /Pick a suit or weapon upgrade/, loading: /Reading the ShipLocker…/, failed: /Could not read the inventory: / },
+  { name: "Suits", read: "odyssey_view", view: Suits as unknown as Component, empty: /No suit loadout in the journal yet/, loading: /Reading the journal…/, failed: /Could not read the suits and loadouts: / },
   { name: "Engineers", read: "engineering_unlocks", view: Engineers as unknown as Component, empty: /^0 of 25 ship and 0 of 13 suit engineers unlocked/, loading: /Reading the journal…/, failed: /Could not read the engineer list: / },
   { name: "Logbook", read: "logbook", view: Logbook as unknown as Component, empty: /No commander in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the journal history: / },
   { name: "Session", read: "session_summary", view: Session as unknown as Component, empty: /No game session in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the session: / },
@@ -64,7 +64,7 @@ const PAGES: Page[] = [
   { name: "Station", read: "docked_here", view: Station as unknown as Component, empty: /Not docked/, loading: /Reading the journal…/, failed: /Could not read the docked station: / },
   { name: "Colonisation", read: "colonisation_projects", view: Colonisation as unknown as Component, empty: /No construction sites in your journals yet/, loading: /Reading the journals…/, failed: /Could not read the construction sites: / },
   { name: "Exploration", read: "exploration_system", view: Exploration as unknown as Component, empty: /No system in the journal yet/, loading: /Reading the journal…/, failed: /Could not read the system: / },
-  { name: "Powerplay", read: "powerplay_overview", view: Powerplay as unknown as Component, empty: /Not pledged to a power/, loading: /Reading the journal…/, failed: /Could not read your Powerplay standing: / },
+  { name: "Powerplay", read: "powerplay_overview", view: Powerplay as unknown as Component, empty: /^Not pledged$/, loading: /Reading the journal…/, failed: /Could not read your Powerplay standing: / },
   { name: "Data sharing", read: "eddn_log", view: DataSharing as unknown as Component, empty: /Nothing yet/, loading: /Reading the sharing log…/, failed: /Could not read the sharing log: / },
   { name: "Diagnostics", read: "status", view: Diagnostics as unknown as Component, empty: /Nothing sent to EDDN yet/, loading: /^—$/, failed: /Could not read the EDDN log: / },
 ];
