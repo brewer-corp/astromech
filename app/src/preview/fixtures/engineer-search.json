@@ -21,7 +21,8 @@
         "rank": 5,
         "status": "unlocked",
         "system": "Deciat",
-        "today": 5
+        "today": 5,
+        "unsure": []
       },
       {
         "best": 5,
@@ -42,7 +43,8 @@
         "rank": 2,
         "status": "unlocked",
         "system": "Khun",
-        "today": 2
+        "today": 2,
+        "unsure": []
       },
       {
         "best": 5,
@@ -63,7 +65,8 @@
         "rank": null,
         "status": "locked",
         "system": "Luchtaine",
-        "today": 0
+        "today": 0,
+        "unsure": []
       },
       {
         "best": 3,
@@ -84,7 +87,8 @@
         "rank": null,
         "status": "locked",
         "system": "Sol",
-        "today": 0
+        "today": 0,
+        "unsure": []
       },
       {
         "best": 3,
@@ -105,7 +109,8 @@
         "rank": null,
         "status": "locked",
         "system": "Arque",
-        "today": 0
+        "today": 0,
+        "unsure": []
       },
       {
         "best": 3,
@@ -126,7 +131,8 @@
         "rank": null,
         "status": "locked",
         "system": "Shenve",
-        "today": 0
+        "today": 0,
+        "unsure": []
       }
     ],
     "kind": "ship",
@@ -175,7 +181,8 @@
         "rank": null,
         "status": "known",
         "system": "Wyrd",
-        "today": 0
+        "today": 0,
+        "unsure": []
       },
       {
         "best": 5,
@@ -206,7 +213,8 @@
         "rank": null,
         "status": "locked",
         "system": "Luchtaine",
-        "today": 0
+        "today": 0,
+        "unsure": []
       },
       {
         "best": 5,
@@ -237,7 +245,8 @@
         "rank": null,
         "status": "locked",
         "system": "Muang",
-        "today": 0
+        "today": 0,
+        "unsure": []
       }
     ],
     "kind": "ship",
@@ -306,7 +315,8 @@
         "rank": 0,
         "status": "unlocked",
         "system": "Orishis",
-        "today": 1
+        "today": 1,
+        "unsure": []
       },
       {
         "best": 0,
@@ -323,7 +333,10 @@
         "rank": null,
         "status": "known",
         "system": "Kojeara",
-        "today": 0
+        "today": 0,
+        "unsure": [
+          "Greater Range"
+        ]
       },
       {
         "best": 0,
@@ -340,7 +353,8 @@
         "rank": null,
         "status": "locked",
         "system": "Jolapa",
-        "today": 0
+        "today": 0,
+        "unsure": []
       }
     ],
     "kind": "suit",

@@ -150,6 +150,12 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
             .map(|e| astromech_engineering::search::SuitOffer {
                 engineer: &e.name,
                 mods: e.mods.iter().filter_map(|m| ody.modification(m)).map(|m| m.name.as_str()).collect(),
+                unsure: e
+                    .unconfirmed_mods
+                    .iter()
+                    .filter_map(|m| ody.modification(m))
+                    .map(|m| m.name.as_str())
+                    .collect(),
             })
             .collect();
         let here = st.here.as_ref().map(|h| (h.system.as_str(), h.pos));

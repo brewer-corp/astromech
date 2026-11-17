@@ -1,6 +1,8 @@
 import { afterEach, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import View from "./View.svelte";
+import { answer } from "../../test/transport";
+import searches from "../../preview/fixtures/engineer-search.json";
 
 afterEach(() => {
   cleanup();
@@ -100,4 +102,29 @@ it("says when a word matches nothing, with near matches and the suit engineers' 
   expect(await screen.findByText(/Suit engineers are searched by the modification you want/)).toBeTruthy();
   await fireEvent.click(screen.getByRole("button", { name: "range" }));
   expect(await screen.findByRole("listitem", { name: "Domino Green" })).toBeTruthy();
+});
+
+it("hides the last answer and its actions while the next search is on its way", async () => {
+  // Held at the transport: the recorded laser reply arrives only when the test lets it.
+  let release = () => {};
+  answer("engineering_search", ({ query }: { query: string }) =>
+    query === "laser" ? new Promise((r) => (release = () => r(searches.laser))) : searches.fsd,
+  );
+  location.hash = "#/unlocks?q=fsd";
+  render(View);
+  expect(within(await screen.findByLabelText("Main answer")).getByText("Felicity Farseer")).toBeTruthy();
+  await fireEvent.input(screen.getByRole("textbox", { name: "Engineers for a module" }), { target: { value: "laser" } });
+  expect(screen.queryByLabelText("Main answer")).toBeNull();
+  expect(screen.queryByRole("button", { name: "Set destination" })).toBeNull();
+  expect(screen.getByText("Searching the engineers…")).toBeTruthy();
+  release();
+  expect(within(await screen.findByLabelText("Main answer")).getByText("The Dweller")).toBeTruthy();
+});
+
+it("marks a suit mod the wiki is unsure of", async () => {
+  location.hash = "#/unlocks?q=range";
+  render(View);
+  const rosa = await screen.findByRole("listitem", { name: "Rosa Dayette" });
+  expect(rosa.textContent).toContain("Greater Range (?)");
+  expect(screen.getByRole("listitem", { name: "Domino Green" }).textContent).not.toContain("(?)");
 });

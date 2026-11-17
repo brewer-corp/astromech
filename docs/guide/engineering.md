@@ -25,7 +25,8 @@ Type a module in the box at the top, in your own words: "laser", "fsd", "shield"
   as white hexagons, the rank a higher grade needs, or the step to unlock them. Then where they
   are, with a copy button, and how far from your current system.
 - Suit engineers have no grades, so search them by the modification you want: "range",
-  "magazine", "night vision". A suit or weapon name ("pistol", "Maverick") finds nothing, and the
+  "magazine", "night vision". A "(?)" after a mod means the wiki disagrees with itself on whether
+  that engineer fits it. A suit or weapon name ("pistol", "Maverick") finds nothing, and the
   page says so.
 - A word the page doesn't know says so and suggests close ones.
 - Clear the box (or press Escape) to get the tree back. The search stays in the page's link.

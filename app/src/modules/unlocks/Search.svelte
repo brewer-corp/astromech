@@ -19,6 +19,8 @@
 
   let { res, onword }: { res: EngineerSearch; /** A near match picked. */ onword: (w: string) => void } = $props();
 
+  /** The Tip on a "(?)" after a suit engineer's mod, as on the tree's cards. */
+  const UNSURE = "The wiki disagrees with itself on whether this engineer fits this mod";
   const main = $derived(res.main ? res.hits[0] : undefined);
   const ship = $derived(res.kind === "ship");
   const n = $derived(res.types.length);
@@ -69,12 +71,15 @@
   {/if}
 {/snippet}
 
+<!-- A mod the wiki disagrees with itself on for this engineer keeps the tree's "(?)" and its Tip. -->
+{#snippet modList(h: SearchHit)}{#each h.mods as m, j (m)}{j ? " · " : ""}{m}{h.unsure.includes(m) ? " " : ""}{#if h.unsure.includes(m)}<span {@attach tip(UNSURE)}>(?)</span>{/if}{/each}{/snippet}
+
 {#snippet reach(h: SearchHit)}
   {#if ship}
     <Hexes n={h.today} to={h.best} tone="grade" label={h.today ? `Grade ${h.today} today, reaches ${h.best}` : `Reaches grade ${h.best}`} />
     <span class="type-label gl">{gradeLine(h.grades, n)}</span>
   {:else}
-    <span class="type-name mods">{h.mods.join(" · ")}</span>
+    <span class="type-name mods">{@render modList(h)}</span>
   {/if}
 {/snippet}
 
@@ -109,7 +114,7 @@
           <span class="type-label gl">{mainLine(main)}</span>
         </div>
       {:else}
-        <div class="bline"><span class="type-name mods">{main.mods.join(" · ")}</span></div>
+        <div class="bline"><span class="type-name mods">{@render modList(main)}</span></div>
       {/if}
       <div class="bline">
         <SystemChip name={main.system} />

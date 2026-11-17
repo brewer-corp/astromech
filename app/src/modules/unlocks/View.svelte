@@ -90,6 +90,8 @@
     search(words);
   });
   const searching = $derived(q.trim() !== "");
+  /** The answer, only while it is for the words in the box. */
+  const current = $derived(found && found.query.trim() === q.trim() ? found : null);
 
   const cols = $derived(tree ? columns(tree, kind) : []);
   const mine = $derived(tree?.nodes.filter((n) => n.kind === kind) ?? []);
@@ -121,16 +123,19 @@
     >
       {#snippet end()}{#if q}<IconButton icon="clear" label="Clear the search" onclick={() => typed("")} />{/if}{/snippet}
     </Input>
-    {#if searching && found?.says && found.query.trim() === q.trim()}
-      <span class="type-label">{found.says} · {found.hits.length} {found.hits.length === 1 ? "engineer" : "engineers"}{found.here ? ` · distances from ${found.here}` : ""}</span>
+    {#if searching && current?.says}
+      <span class="type-label">{current.says} · {current.hits.length} {current.hits.length === 1 ? "engineer" : "engineers"}{current.here ? ` · distances from ${current.here}` : ""}</span>
     {/if}
   </div>
   {#if searching}
     <div class="answer">
       {#if searchErr}
         <Failure text={searchErr} onaction={() => search(q.trim())} />
-      {:else if found}
-        <Search res={found} onword={(w) => typed(w)} />
+      {:else if current}
+        <Search res={current} onword={(w) => typed(w)} />
+      {:else}
+        <!-- The answer to the words before is gone while the new one comes: its actions would act on the wrong search. -->
+        <p class="type-label">Searching the engineers…</p>
       {/if}
     </div>
   {:else}

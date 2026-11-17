@@ -88,6 +88,8 @@ pub struct SearchHit {
     pub today: u8,
     /// Suit engineers: the matched modifications they fit.
     pub mods: Vec<String>,
+    /// The ones in `mods` the wiki disagrees with itself on for this engineer.
+    pub unsure: Vec<String>,
 }
 
 /// Why the main answer was chosen.
@@ -131,6 +133,8 @@ pub struct EngineerSearch {
 pub struct SuitOffer<'a> {
     pub engineer: &'a str,
     pub mods: Vec<&'a str>,
+    /// The mods in `mods` the wiki disagrees with itself on for this engineer.
+    pub unsure: Vec<&'a str>,
 }
 
 /// Lowercase, single spaces, no surrounding space.
@@ -256,6 +260,7 @@ fn hit(n: &Node, here: Option<[f64; 3]>) -> SearchHit {
         best: 0,
         today: 0,
         mods: vec![],
+        unsure: vec![],
     }
 }
 
@@ -323,6 +328,7 @@ pub fn search(query: &str, tree: &Tree, here: Option<(&str, [f64; 3])>, suits: &
                     h.today = 1;
                 }
                 h.mods = fits.iter().map(|m| (*m).to_string()).collect();
+                h.unsure = fits.iter().filter(|m| s.unsure.contains(m)).map(|m| (*m).to_string()).collect();
                 out.hits.push(h);
             }
         }
@@ -338,28 +344,32 @@ pub fn search(query: &str, tree: &Tree, here: Option<(&str, [f64; 3])>, suits: &
         out.suit_word = q.split(' ').any(|w| table().suit_words.iter().any(|s| s == w));
         return out;
     }
+    // Engineers who give a grade today first: the highest, then the nearest (a higher grade they
+    // reach later doesn't count today). Then the rest: the highest grade they reach, the closest
+    // to unlocking, the nearest.
     out.hits.sort_by(|a, b| {
-        b.today
-            .cmp(&a.today)
-            .then_with(|| b.best.cmp(&a.best))
-            .then_with(|| unlock_order(a).cmp(&unlock_order(b)))
-            .then_with(|| nearer(a, b))
+        b.today.cmp(&a.today).then_with(|| {
+            if a.today > 0 {
+                nearer(a, b)
+            } else {
+                b.best.cmp(&a.best).then_with(|| unlock_order(a).cmp(&unlock_order(b))).then_with(|| nearer(a, b))
+            }
+        })
     });
-    out.main = match out.hits.first() {
-        Some(h) if h.today > 0 => Some(MainKind::Today),
-        Some(h) if h.status != Status::Barred => Some(MainKind::Unlock),
-        _ => None,
-    };
-    if out.main == Some(MainKind::Unlock) {
-        // With none unlocked, the main answer is the nearest to unlock, whatever grade it reaches.
-        let i = (0..out.hits.len())
-            .min_by(|&a, &b| {
-                let (x, y) = (&out.hits[a], &out.hits[b]);
-                unlock_order(x).cmp(&unlock_order(y)).then_with(|| nearer(x, y))
-            })
-            .unwrap_or(0);
-        let h = out.hits.remove(i);
-        out.hits.insert(0, h);
+    if out.hits.first().is_some_and(|h| h.today > 0) {
+        out.main = Some(MainKind::Today);
+    } else {
+        // None unlocked: the main answer is the one nearest to unlock, whatever grade it reaches;
+        // a barred engineer never is, and with only barred ones there is none.
+        let pick = (0..out.hits.len()).filter(|&i| out.hits[i].status != Status::Barred).min_by(|&a, &b| {
+            let (x, y) = (&out.hits[a], &out.hits[b]);
+            unlock_order(x).cmp(&unlock_order(y)).then_with(|| nearer(x, y))
+        });
+        if let Some(i) = pick {
+            let h = out.hits.remove(i);
+            out.hits.insert(0, h);
+            out.main = Some(MainKind::Unlock);
+        }
     }
     out
 }
@@ -437,17 +447,65 @@ mod tests {
         );
     }
 
+    /// `t` with these engineers' status and rank changed.
+    fn with(mut t: Tree, set: &[(&str, Status, Option<u8>)]) -> Tree {
+        for (name, st, rank) in set {
+            let n = t.nodes.iter_mut().find(|n| n.name == *name).unwrap_or_else(|| panic!("{name}"));
+            (n.status, n.rank) = (*st, *rank);
+            if *st == Status::Unlocked {
+                n.left = None;
+            }
+        }
+        t
+    }
+
+    #[test]
+    fn equal_grades_today_go_nearest_first_whatever_they_reach_later() {
+        // Farseer and Palin both at rank 3: grade 3 today from each; Palin (41 ly) is nearer
+        // than Farseer (102 ly), though Farseer reaches grade 5 later.
+        let t = with(
+            tree(),
+            &[
+                ("Felicity Farseer", Status::Unlocked, Some(3)),
+                ("Professor Palin", Status::Unlocked, Some(3)),
+                ("Elvira Martuuk", Status::Known, None),
+            ],
+        );
+        let s = search("fsd", &t, Some(HERE), &[]);
+        assert_eq!(s.main, Some(MainKind::Today));
+        assert_eq!(row(&s)[..2], [("Professor Palin".into(), 3, 3), ("Felicity Farseer".into(), 5, 3)]);
+    }
+
+    #[test]
+    fn a_barred_engineer_is_never_the_main_answer() {
+        // Cannons: The Sarge and Marsha Hicks reach grade 5 but bar the commander; McQuinn, known,
+        // is the one to work toward.
+        let t = with(tree(), &[("The Sarge", Status::Barred, None), ("Marsha Hicks", Status::Barred, None)]);
+        let s = search("cannon", &t, Some(HERE), &[]);
+        assert_eq!(s.main, Some(MainKind::Unlock));
+        assert_eq!(s.hits[0].name, "Tod \"The Blaster\" McQuinn");
+        // with every one barred there is no main answer
+        let all: Vec<(String, Status, Option<u8>)> =
+            s.hits.iter().map(|h| (h.name.clone(), Status::Barred, None)).collect();
+        let all: Vec<(&str, Status, Option<u8>)> = all.iter().map(|(n, st, r)| (n.as_str(), *st, *r)).collect();
+        assert_eq!(search("cannon", &with(tree(), &all), Some(HERE), &[]).main, None);
+    }
+
     #[test]
     fn suit_engineers_match_by_modification() {
         let t = tree();
         let suits = [
-            SuitOffer { engineer: "Domino Green", mods: vec!["Greater Range", "Stability"] },
-            SuitOffer { engineer: "Oden Geiger", mods: vec!["Night Vision"] },
+            SuitOffer { engineer: "Domino Green", mods: vec!["Greater Range", "Stability"], unsure: vec![] },
+            SuitOffer { engineer: "Oden Geiger", mods: vec!["Night Vision"], unsure: vec!["Night Vision"] },
         ];
         let s = search("range", &t, Some(HERE), &suits);
         assert_eq!((s.kind.as_deref(), s.mods.clone()), (Some("suit"), vec!["Greater Range".to_string()]));
         assert_eq!(s.hits.iter().map(|h| h.name.as_str()).collect::<Vec<_>>(), ["Domino Green"]);
-        assert_eq!(search("night vision", &t, None, &suits).hits[0].name, "Oden Geiger");
+        let nv = search("night vision", &t, None, &suits);
+        assert_eq!(
+            (nv.hits[0].name.as_str(), nv.hits[0].unsure.clone()),
+            ("Oden Geiger", vec!["Night Vision".to_string()])
+        );
         // a weapon word that is no modification: nothing, and the page says why
         let p = search("pistol", &t, None, &suits);
         assert!(p.hits.is_empty() && p.suit_word && p.kind.is_none());

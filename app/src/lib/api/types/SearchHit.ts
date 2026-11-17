@@ -43,4 +43,8 @@ today: number,
 /**
  * Suit engineers: the matched modifications they fit.
  */
-mods: Array<string>, };
+mods: Array<string>, 
+/**
+ * The ones in `mods` the wiki disagrees with itself on for this engineer.
+ */
+unsure: Array<string>, };
