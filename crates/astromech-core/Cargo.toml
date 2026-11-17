@@ -66,5 +66,5 @@ astromech-engineering.workspace = true
 astromech-odyssey.workspace = true
 jsonschema = { version = "0.58", default-features = false }
 flate2 = "1"
-rusqlite = { version = "0.40", features = ["bundled"] }
+rusqlite = { version = "0.43", features = ["bundled"] }
 
