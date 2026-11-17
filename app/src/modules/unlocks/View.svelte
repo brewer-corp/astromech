@@ -3,23 +3,34 @@
   // card lights the engineers who have to introduce them first. A suit engineer's card lists
   // every mod they fit, whether they are in Colonia and what they ask to refer the next, from the Odyssey data (moved from the On foot page,
   // astromech-5a01); without it the card shows their specialties, as a ship engineer's does.
+  // A search box at the top answers "where do I engineer my lasers?" (Search.svelte,
+  // astromech-7did); while it holds a search the answer replaces the tree, and clearing it
+  // brings the tree back. The search is kept in the link: #/unlocks?q=laser.
   import { tip } from "../../lib/ui/tip";
   import { failure } from "../../lib/ui/errors";
-  import { columns, loadUnlocks, type Status, type UnlockNode, type UnlockTree } from "../../lib/unlocks";
+  import { columns, loadUnlocks, searchEngineers, type EngineerSearch, type Status, type UnlockNode, type UnlockTree } from "../../lib/unlocks";
   import { specialties } from "../../lib/engineerSpecialties";
   import Choice from "../../lib/ui/Choice.svelte";
   import Failure from "../../lib/ui/Failure.svelte";
   import { hashParam, pageHash } from "../../lib/hashstate";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import { loadOdyssey, type EngineerLine } from "../../lib/odyssey";
+  import Hexes from "../../lib/ui/Hexes.svelte";
+  import IconButton from "../../lib/ui/IconButton.svelte";
+  import Input from "../../lib/ui/Input.svelte";
+  import Search from "./Search.svelte";
 
   let tree = $state<UnlockTree | null>(null);
   let err = $state<string | null>(null);
   // Ship or suit engineers is a choice on the page, kept in the link: #/unlocks?kind=suit.
   const readKind = () => (hashParam("kind") === "suit" ? "suit" : "ship");
   let kind = $state<"ship" | "suit">(readKind());
+  let q = $state(hashParam("q") ?? "");
   $effect(() => {
-    const onHash = () => (kind = readKind());
+    const onHash = () => {
+      kind = readKind();
+      q = hashParam("q") ?? "";
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   });
@@ -48,6 +59,40 @@
   }
   $effect(() => load());
 
+  /** The search box's words, kept in the link without adding a history entry per key. */
+  function typed(v: string) {
+    q = v;
+    const h = pageHash("unlocks", { kind: kind === "suit" ? "suit" : null, q: v.trim() ? v : null });
+    history.replaceState(history.state, "", h);
+  }
+  let found = $state<EngineerSearch | null>(null);
+  let searchErr = $state<string | null>(null);
+  let asked = 0;
+  function search(words: string) {
+    const n = ++asked;
+    searchErr = null;
+    searchEngineers(words)
+      .then((r) => {
+        if (n === asked) found = r;
+      })
+      .catch((e: unknown) => {
+        if (n === asked) searchErr = failure("search the engineers", e);
+      });
+  }
+  $effect(() => {
+    const words = q.trim();
+    if (!words) {
+      asked++;
+      found = null;
+      searchErr = null;
+      return;
+    }
+    search(words);
+  });
+  const searching = $derived(q.trim() !== "");
+  /** The answer, only while it is for the words in the box. */
+  const current = $derived(found && found.query.trim() === q.trim() ? found : null);
+
   const cols = $derived(tree ? columns(tree, kind) : []);
   const mine = $derived(tree?.nodes.filter((n) => n.kind === kind) ?? []);
   const preds = $derived(mine.find((n) => n.name === hover)?.introduced_by ?? []);
@@ -65,6 +110,35 @@
 </script>
 
 <section>
+  <div class="search" class:held={searching}>
+    <Input
+      class="box"
+      aria-label="Engineers for a module"
+      placeholder="Engineers for a module: laser, FSD, shields…"
+      value={q}
+      oninput={(e) => typed(e.currentTarget.value)}
+      onkeydown={(e) => {
+        if (e.key === "Escape" && q) typed("");
+      }}
+    >
+      {#snippet end()}{#if q}<IconButton icon="clear" label="Clear the search" onclick={() => typed("")} />{/if}{/snippet}
+    </Input>
+    {#if searching && current?.says}
+      <span class="type-label">{current.says} · {current.hits.length} {current.hits.length === 1 ? "engineer" : "engineers"}{current.here ? ` · distances from ${current.here}` : ""}</span>
+    {/if}
+  </div>
+  {#if searching}
+    <div class="answer">
+      {#if searchErr}
+        <Failure text={searchErr} onaction={() => search(q.trim())} />
+      {:else if current}
+        <Search res={current} onword={(w) => typed(w)} />
+      {:else}
+        <!-- The answer to the words before is gone while the new one comes: its actions would act on the wrong search. -->
+        <p class="type-label">Searching the engineers…</p>
+      {/if}
+    </div>
+  {:else}
   <div class="query">
     <div class="bar">
       <Choice label="Engineers" options={KINDS} value={kind} onchange={(v) => (location.hash = pageHash("unlocks", { kind: v === "suit" ? "suit" : null }))} />
@@ -105,9 +179,8 @@
                   <span class="name">{n.name}</span>
                   <span class="access" role="img" aria-label={a.label} {@attach tip({ title: a.label, stop: false })}>
                     {#if a.mark === "unlocked"}
-                      {#each Array.from({ length: a.count }, (_, i) => i) as i (i)}
-                        <span class="badge" aria-hidden="true"></span>
-                      {/each}
+                      <!-- A suit engineer has no ranks: one lit hexagon says unlocked. -->
+                      <Hexes n={a.count} of={n.kind === "ship" ? 5 : 1} />
                     {:else if a.mark === "invited"}
                       <span class="mail" aria-hidden="true"></span>
                     {:else if a.mark === "barred"}
@@ -140,10 +213,16 @@
       </div>
     </div>
   {/if}
+  {/if}
 </section>
 
 <style>
   section { padding: 0 0 1.75rem; }
+  .search { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-6); padding: var(--sp-6) 0 0; }
+  .search :global(.box) { width: 27.5rem; max-width: 100%; }
+  /* DESIGN.md Input: a page's search box keeps its outline while it holds the search the page answers. */
+  .search.held :global(.box .cell) { outline: 1px solid var(--accent); }
+  .answer { padding: var(--sp-8) 0 var(--sp-2); }
   /* Ship or suit is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). */
   .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 0; }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
@@ -169,8 +248,7 @@
   .name { font-size: var(--fs-l); font-weight: 500; }
   .access { display: inline-flex; align-items: center; gap: 0.1875rem; flex: none; }
   .gate { font-size: var(--fs-s); color: var(--prose); }
-  .access > :is(.badge, .outline, .barred, .mail) { width: 0.75rem; height: 0.875rem; flex: none; }
-  .access > .badge { background: currentColor; color: var(--text-hi); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; }
+  .access > :is(.outline, .barred, .mail) { width: 0.75rem; height: 0.875rem; flex: none; }
   .access > .outline { color: var(--mark-off); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; background: currentColor; }
   .access > .mail { color: var(--accent); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; background: currentColor; }
   .access > .barred { border: 1px solid currentColor; background: linear-gradient(to top right, transparent 46%, currentColor 46%, currentColor 54%, transparent 54%); }

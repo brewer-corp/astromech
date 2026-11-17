@@ -24,6 +24,8 @@ import type { EddnHead } from "./types/EddnHead";
 import type { EditArg } from "./types/EditArg";
 import type { EditResult } from "./types/EditResult";
 import type { EdsmHead } from "./types/EdsmHead";
+import type { EngineerSearch } from "./types/EngineerSearch";
+import type { EngineerSearchArgs } from "./types/EngineerSearchArgs";
 import type { Engineers } from "./types/Engineers";
 import type { Filters } from "./types/Filters";
 import type { FindElite } from "./types/FindElite";
@@ -143,6 +145,7 @@ export type Commands = {
   engineering_fleet: { args: null; reply: Fleet; exposure: "window" };
   engineering_headlines: { args: null; reply: { [key in number]: Headline }; exposure: "window" };
   engineering_plan: { args: PlanArg; reply: PlanResult; exposure: "window" };
+  engineering_search: { args: EngineerSearchArgs; reply: EngineerSearch; exposure: "window" };
   engineering_stats: { args: PlanArg; reply: Compared; exposure: "window" };
   engineering_trip: { args: PlanArg; reply: Trip; exposure: "window" };
   engineering_unlocks: { args: null; reply: Tree; exposure: "window" };

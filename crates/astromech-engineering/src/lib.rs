@@ -10,6 +10,7 @@ pub mod engineers;
 pub mod fleet;
 pub mod links;
 pub mod plan;
+pub mod search;
 pub mod trip;
 pub mod unlocks;
 

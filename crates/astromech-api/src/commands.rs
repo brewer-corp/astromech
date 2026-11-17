@@ -69,6 +69,12 @@ struct LogbookArgs {
     cmdr: Option<String>,
 }
 
+#[derive(Deserialize, Serialize, ts_rs::TS)]
+#[ts(optional_fields = nullable)]
+struct EngineerSearchArgs {
+    query: String,
+}
+
 /// Register the commands on `reg`, all sharing `state`.
 pub fn register(state: &Arc<State>, reg: &mut Registry) {
     // Keybinds (M1): presets are read and edited through astromech-keybinds (every write backs up
@@ -132,6 +138,29 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     // commander's progress and what is left to unlock each.
     let s = state.clone();
     reg.add_typed("engineering_unlocks", Window, move |(), _| Ok(s.engineering()?.unlocks.clone()));
+    // The Engineers page's search by module type ("laser", "fsd"), or by suit modification
+    // ("range"): who offers it, the best grade, what the commander can get today and how far.
+    let s = state.clone();
+    reg.add_typed("engineering_search", Window, move |x: EngineerSearchArgs, _| {
+        let st = s.engineering()?;
+        let ody = astromech_odyssey::catalog();
+        let suits: Vec<astromech_engineering::search::SuitOffer> = ody
+            .engineers
+            .iter()
+            .map(|e| astromech_engineering::search::SuitOffer {
+                engineer: &e.name,
+                mods: e.mods.iter().filter_map(|m| ody.modification(m)).map(|m| m.name.as_str()).collect(),
+                unsure: e
+                    .unconfirmed_mods
+                    .iter()
+                    .filter_map(|m| ody.modification(m))
+                    .map(|m| m.name.as_str())
+                    .collect(),
+            })
+            .collect();
+        let here = st.here.as_ref().map(|h| (h.system.as_str(), h.pos));
+        Ok(astromech_engineering::search::search(&x.query, &st.unlocks, here, &suits))
+    });
 
     // Odyssey micro-resources: inventory, engineers, and the blueprint picker's choices.
     let s = state.clone();

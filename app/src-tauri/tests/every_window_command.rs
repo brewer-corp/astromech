@@ -364,6 +364,10 @@ fn cases(f: &Folders) -> Vec<Case> {
         ok("engineering_headlines", None),
         ok("engineering_engineers", None),
         ok("engineering_unlocks", None),
+        // The world's commander has no engineer yet: the main answer is the nearest to unlock,
+        // measured from Sol.
+        ok("engineering_search", Some(json!({"query": "fsd"})))
+            .has(json!({"says": "Frame shift drives", "here": "Sol", "main": "unlock", "hits": [{"name": "Felicity Farseer", "distance_ly": 131.43}]})),
         ok("odyssey_view", None),
         ok("odyssey_shopping", Some(json!({"picks": []}))),
         ok("powerplay_overview", None),
