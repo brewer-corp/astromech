@@ -111,3 +111,9 @@ The not-pledged captures use `core=empty`, which has no route, so they show the 
 - `until` in `lib/powerplay.ts` is now `timeLeft`, with "min" and no "h" under an hour. Nothing else imports it on `main`, but astromech-coq6, which reads the same reply for Now, may.
 
 **Checks run.** These pass: `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test -p astromech-powerplay`, `cargo test -p astromech-core --lib`, `pnpm check`, `pnpm lint`, `pnpm test` (766 tests), `cargo test -p astromech-app --test preview_fixtures` (the drift test, run plainly), `python3 scripts/check-guide.py` and the 7 journeys.
+
+### Responses
+
+1-fhom.1: fixed in f936f991
+1-fhom.2: fixed in f936f991
+1-fhom.3: fixed in f936f991
