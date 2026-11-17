@@ -125,14 +125,14 @@ components:
     textColor: "{colors.on-orange}"
     typography: "{typography.action}"
     rounded: "{rounded.none}"
-    padding: "0 1.25rem"
+    padding: "0 1rem"
     height: "2.125rem"
   button-primary-disabled:
     backgroundColor: "{colors.ember-empty}"
     textColor: "{colors.orange-dim}"
     typography: "{typography.action}"
     rounded: "{rounded.none}"
-    padding: "0 1.25rem"
+    padding: "0 1rem"
     height: "2.125rem"
   button-secondary:
     textColor: "{colors.orange}"
@@ -1081,12 +1081,14 @@ Fill Per Page Rule](#named-rules)).
 
 ### Buttons
 
-- **Primary:** solid orange, On Orange text, Action type, 34 px, 20 px padding. At most one
+- **Primary:** solid orange, On Orange text, Action type, 34 px, 16 px padding (`lg`). At most one
   per page (the frame's Find or plot results and an open dialog count as their own page), for
   the step forward (Next, Save preset, Plot route, Set destination). It is the page's one
   fill. Disabled: Ember Empty with Orange Dim text. *Why:* the game fills the item under the
   cursor, and its cursor starts on the main action; a mouse-driven window has no such cursor,
-  so the primary is filled instead (see Deviations).
+  so the primary is filled instead (see Deviations). The padding was 20 px until astromech-gvy0;
+  the spacing scale has no 20 px step, and of its two neighbours 16 keeps the button no wider
+  than it was where it shares a line with a dropdown or an input (a side panel, a dialog).
 - **Secondary (text action):** an orange caps verb, no fill, 34 px hit area. Hover: a Row
   Hover background. Disabled: Orange Dim.
 - **Icon button:** a 28 px square holding one icon, Label Grey at rest, Orange Lit on hover,
@@ -1267,8 +1269,9 @@ text in the box the clear icon replaces "Ctrl+K".
 
 ### Places home
 
-Finder tiles under section headings (Trade, Ship, Engineering, Mining, Route). Each tile is a
-link in a Seam outline, 220 px: finder name in Name, Orange (it is what you press); one line
+Finder tiles under section headings (Trade, Ship, Engineering, Mining, Route), on the Board in
+its tile grid (200–240 px columns; 240 wherever the page column has room, since astromech-gvy0
+moved the page off its own 220 px). Each tile is a link in a Seam outline: finder name in Name, Orange (it is what you press); one line
 in Label, Label Grey; where a live answer is known, its figure in Value L, Options Grey, with
 its context in Label, Label Grey. Hover: Row Hover. *Why:* a visible grid of what can be
 found, like the station services board, so search and voice are shortcuts, not the only way

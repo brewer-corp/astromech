@@ -1,19 +1,21 @@
 <script lang="ts">
-  // DESIGN.md Places home: every finder as a tile under its section heading. A tile is a
-  // read-only Hull link with one main value: the finder's name in Orange and one Label line;
-  // where the finder already answered this session, that answer's figure is the main value, in
-  // Value L, Orange Lit, with its context in Label. Opening this page asks nothing (decision
-  // astromech-g8d5, item 6), and a tile with no answer has no Lit text.
+  // DESIGN.md Places home, on the Board: every finder as a tile under its section heading, in the
+  // Board's tile grid. A tile is a link in a Seam outline: the finder's name in Orange, since it is
+  // what you press, and one Label line; where the finder already answered this session, that
+  // answer's figure in Value L, Options Grey, with its context in Label. Opening this page asks
+  // nothing (decision astromech-g8d5, item 6).
   import { homeSections, lastAnswer, placesRoute } from "../../lib/places";
+  import Board from "../../lib/ui/layout/Board.svelte";
+  import Tiles from "../../lib/ui/layout/Tiles.svelte";
 
   const sections = homeSections();
 </script>
 
-<section class="home">
+<Board>
   {#each sections as [heading, finders] (heading)}
     <section aria-labelledby="places-{heading}">
       <h2 class="section heading" id="places-{heading}">{heading}</h2>
-      <div class="tiles">
+      <Tiles>
         {#each finders as f (f.id)}
           {@const a = lastAnswer(f.id)}
           <a class="tile" href="#/{a?.route ?? placesRoute(f.id)}">
@@ -28,16 +30,14 @@
             {/if}
           </a>
         {/each}
-      </div>
+      </Tiles>
     </section>
   {/each}
-</section>
+</Board>
 
 <style>
-  /* Three 220 px tiles wide, as the mockup (docs/design/design-system-places-home-after.png). */
-  .home { --w: calc(3 * 13.75rem + 2 * var(--sp-2)); display: flex; flex-direction: column; gap: var(--sp-6); padding: var(--sp-8) 0 4.5rem; max-width: var(--w); }
+  section + section { margin-top: var(--sp-8); }
   .heading { margin: 0 0 var(--sp-3); }
-  .tiles { display: grid; grid-template-columns: repeat(auto-fill, 13.75rem); gap: var(--sp-2); }
   .tile { display: grid; grid-template-rows: auto auto 1fr; gap: var(--sp-1); min-height: 6.5rem; padding: var(--sp-3); outline: 1px solid var(--line); outline-offset: -1px; text-decoration: none; }
   /* DESIGN.md Places home: a link in a Seam outline; the finder's name in Orange, since it is what
      you press, and a live answer's figure in Value L, Options Grey. */

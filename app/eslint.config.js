@@ -9,55 +9,22 @@ import css from "@eslint/css";
 
 /**
  * The page-sizing check (DESIGN.md Page layouts): the page files it is on, and which of its parts
- * (`width`, `font-size`). A page is enrolled when it is converted to a layout, a part at a time;
- * by the end of mission astromech-xajc every page file outside PAGE_SIZING_EXEMPT is listed.
- * An entry is a file or a glob under src/modules/.
+ * (`width`, `font-size`). Pages were enrolled a part at a time as mission astromech-xajc moved them
+ * onto the layouts; since astromech-gvy0 both parts are on for every page file outside
+ * PAGE_SIZING_EXEMPT. An entry is a file or a glob under src/modules/.
  */
-export const PAGE_SIZING = [
-  // astromech-mwh5: one page per layout.
-  ["src/modules/materials/View.svelte", "width", "font-size"],
-  ["src/modules/places/FinderPage.svelte", "width"],
-  ["src/modules/places/{Market,Cargo,Services,Outfitting,Shipyard,Traders,RawSites,FactionStates,Hotspots}.svelte", "width"],
-  ["src/modules/trade/{View,Route}.svelte", "width", "font-size"],
-  ["src/modules/settings/View.svelte", "width", "font-size"],
-  // astromech-z5oh: the files that name type roles and set no font size of their own.
-  ["src/modules/places/Home.svelte", "font-size"],
-  ["src/modules/settings/{Callouts,ProspectorThresholds}.svelte", "font-size"],
-  ["src/modules/mining/View.svelte", "font-size"],
-  // astromech-8wr4: Ships > Ships as a loadout.
-  ["src/modules/engineering/{View,Build,Stats,Loadout,ModulePanel}.svelte", "width", "font-size"],
-  // astromech-nnn0: Ships > Suits as a loadout, on List with detail.
-  ["src/modules/suits/**", "width", "font-size"],
-  // astromech-irrv: the Import a route dialog, a page part opened from the frame.
-  ["src/modules/route/ImportDialog.svelte", "width", "font-size"],
-  // astromech-rj6i: Powerplay on the Board.
-  ["src/modules/powerplay/{View,Suggestions,Targets}.svelte", "width", "font-size"],
-  // astromech-dpaz: Exploration > System as a tree on List with detail.
-  ["src/modules/exploration/View.svelte", "width", "font-size"],
-  // astromech-m07p: Colonisation as progress per commodity, on List with detail.
-  ["src/modules/colonisation/View.svelte", "width", "font-size"],
-  // astromech-coq6: the Now page, and the station head and services board it draws.
-  ["src/modules/now/**", "width", "font-size"],
-  ["src/modules/station/{Head,Board}.svelte", "width", "font-size"],
-  // astromech-7vxi: Station on the Board.
-  ["src/modules/station/{View,Market}.svelte", "width", "font-size"],
-  // astromech-m6gw: Engineers as the unlock tree, on List with detail.
-  ["src/modules/unlocks/{View,Search,Tree,Trees,Panel}.svelte", "width", "font-size"],
-  // astromech-fzhp: Session and Logbook on the Board.
-  ["src/modules/{session,logbook}/View.svelte", "width", "font-size"],
-  // astromech-evj3: Exploration > Biology as a card per body, on the Board.
-  ["src/modules/exobiology/View.svelte", "width", "font-size"],
-];
+export const PAGE_SIZING = [["src/modules/**/*.svelte", "width", "font-size"]];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts
  * that live in the route module, which are not pages. Since astromech-uc7i the route is frame (the
  * route sidebar, sized by App.svelte's --sidebar): its title, plot setup, timeline and neutron
- * file status lay out for the sidebar, and still use the type roles.
+ * file status lay out for the sidebar, and still use the type roles. Plot is drawn only inside
+ * PlotBar, the header's Find or plot panel, so it lays out for that panel.
  */
 export const PAGE_SIZING_EXEMPT = [
   "src/modules/{controller,keybinds,presets,keytester}/**",
   "src/modules/route/Strip.svelte",
-  "src/modules/route/PlotBar.svelte",
+  "src/modules/route/{PlotBar,Plot}.svelte",
   "src/modules/route/{Sidebar,Rail,Title,PlotSetup,Timeline,NeutronFile}.svelte",
 ];
 
@@ -80,17 +47,10 @@ export const TOKENS_EXEMPT = [
     off: ["spacing"],
     why: "Controls keep their own spacing: mission astromech-xajc gives them only the frame, Text size, colours and Tip. About and PresetPicker are only on Controls pages.",
   },
-  { files: ["src/lib/ui/Button.svelte"], off: ["spacing"], why: "DESIGN.md Buttons gives the primary button 20 px padding, a step the scale lacks." },
   {
     files: ["src/lib/ui/Sheet.svelte"],
     off: ["font-size", "spacing"],
     why: "The labels on a controller sheet follow the image's scale (--k), not Text size, so they are px.",
-  },
-  // Pending: the page is rebuilt on a layout by the item named, which takes it off this list.
-  {
-    files: ["src/modules/{stored,mining,datasharing,diagnostics,voicetester}/**", "src/modules/places/Home.svelte"],
-    off: ["spacing"],
-    until: "astromech-gvy0", why: "Moves the remaining pages onto the layouts.",
   },
 ];
 

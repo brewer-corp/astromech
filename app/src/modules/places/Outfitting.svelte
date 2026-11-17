@@ -60,10 +60,10 @@
   >
     {#snippet lead()}
       <div class="want">
-        <div class="field"><span>Class</span><Choice label="Class" value={want.class != null ? String(want.class) : ""} options={classOpts} onchange={(v) => pick({ class: v ? Number(v) : null })} /></div>
-        <div class="field"><span>Rating</span><Choice label="Rating" value={want.rating ?? ""} options={ratingOpts} onchange={(v) => pick({ rating: v || null })} /></div>
+        <div class="field"><span class="type-label">Class</span><Choice label="Class" value={want.class != null ? String(want.class) : ""} options={classOpts} onchange={(v) => pick({ class: v ? Number(v) : null })} /></div>
+        <div class="field"><span class="type-label">Rating</span><Choice label="Rating" value={want.rating ?? ""} options={ratingOpts} onchange={(v) => pick({ rating: v || null })} /></div>
         {#if opts.mounts.length}
-          <div class="field"><span>Mount</span><Choice label="Mount" value={want.mount ?? ""} options={mountOpts} onchange={(v) => pick({ mount: (v || null) as Mount | null })} /></div>
+          <div class="field"><span class="type-label">Mount</span><Choice label="Mount" value={want.mount ?? ""} options={mountOpts} onchange={(v) => pick({ mount: (v || null) as Mount | null })} /></div>
         {/if}
       </div>
     {/snippet}
@@ -73,5 +73,5 @@
 <style>
   .want { display: flex; flex-direction: column; gap: var(--sp-2); }
   .field { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
-  .field > span { color: var(--label-grey); font-size: var(--fs-s); flex: none; min-width: 5.5em; }
+  .field > span { flex: none; min-width: 5.5em; }
 </style>

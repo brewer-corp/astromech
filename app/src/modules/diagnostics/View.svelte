@@ -6,6 +6,7 @@
   import { pollFailure } from "../../lib/ui/errors";
   import Failure from "../../lib/ui/Failure.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
+  import Form from "../../lib/ui/layout/Form.svelte";
   import { eddnLog, schemaName, when, type EddnLog, type EddnLogEntry } from "../../lib/eddn";
 
   let status = $state<CoreStatus | null>(null);
@@ -51,79 +52,80 @@
   <ol class="eddn">
     {#each entries as e, i (i)}
       <li class={e.outcome}>
-        <span class="when">{when(e.at)}</span>
+        <span class="when type-label">{when(e.at)}</span>
         <span>{schemaName(e.schema_ref)}</span>
         <span>{outcome[e.outcome] ?? e.outcome}</span>
-        <span class="detail">{e.detail}</span>
+        <span class="detail type-label">{e.detail}</span>
       </li>
     {/each}
   </ol>
 {/snippet}
 
-<section>
+<Form>
   {#if status?.crash_pending}
-    <p class="crash"><b>!</b> astromech crashed last time. Save diagnostics and attach the zip to a GitHub issue.</p>
+    <p class="crash type-body"><b>!</b> astromech crashed last time. Save diagnostics and attach the zip to a GitHub issue.</p>
   {/if}
   <dl>
-    <dt>Version</dt><dd>{version}</dd>
-    <dt>Elite</dt><dd>{status ? game(status.game) : "—"}</dd>
-    <dt>State</dt><dd>{status ? (status.starting ? "Starting" : status.active ? "Active" : "Idle") : "—"}</dd>
-    <dt>Voice</dt><dd>{status?.voice ?? "—"}{status?.voice_paused ? " (paused)" : ""}</dd>
-    <dt>Kill switch</dt><dd>{status ? (status.killed ? "On" : "Off") : "—"}</dd>
-    <dt>Setup</dt><dd>{status ? (status.setup_needed?.length ? status.setup_needed.join(", ") : "Done") : "—"}</dd>
-    {#if status?.config_note}<dt>Config</dt><dd>{status.config_note}</dd>{/if}
-    <dt>Process</dt><dd>{status ? `pid ${status.pid}` : "—"}</dd>
+    <dt class="type-name">Version</dt><dd>{version}</dd>
+    <dt class="type-name">Elite</dt><dd>{status ? game(status.game) : "—"}</dd>
+    <dt class="type-name">State</dt><dd>{status ? (status.starting ? "Starting" : status.active ? "Active" : "Idle") : "—"}</dd>
+    <dt class="type-name">Voice</dt><dd>{status?.voice ?? "—"}{status?.voice_paused ? " (paused)" : ""}</dd>
+    <dt class="type-name">Kill switch</dt><dd>{status ? (status.killed ? "On" : "Off") : "—"}</dd>
+    <dt class="type-name">Setup</dt><dd>{status ? (status.setup_needed?.length ? status.setup_needed.join(", ") : "Done") : "—"}</dd>
+    {#if status?.config_note}<dt class="type-name">Config</dt><dd>{status.config_note}</dd>{/if}
+    <dt class="type-name">Process</dt><dd>{status ? `pid ${status.pid}` : "—"}</dd>
   </dl>
   <div class="actions">
     <Button kind="primary" onclick={save} disabled={!status}>Save diagnostics</Button>
     <Button onclick={() => status && openUrl(status.log_dir)} disabled={!status}>Open log folder</Button>
   </div>
-  {#if note}<p class="note" class:err={noteErr} role={noteErr ? "alert" : undefined}>{note}</p>{/if}
+  {#if note}<p class="note type-label" class:err={noteErr} role={noteErr ? "alert" : undefined}>{note}</p>{/if}
 
   <h2 class="section">EDDN</h2>
   <Stale error={eddn ? eddnErr : null} />
   {#if eddnErr && !eddn}
     <Failure text={eddnErr} onaction={() => void refresh()} />
   {:else if !eddn}
-    <p class="note">—</p>
+    <p class="note type-label">—</p>
   {:else}
-    <p class="note">{eddn.enabled ? "Sharing on" : "Sharing off"} · {eddn.pending} waiting to send</p>
-    <h3>Gateway answers</h3>
+    <p class="note type-label">{eddn.enabled ? "Sharing on" : "Sharing off"} · {eddn.pending} waiting to send</p>
+    <h3 class="type-name">Gateway answers</h3>
     {#if eddn.log.length}
       {@render rows(eddn.log)}
     {:else}
-      <p class="note">Nothing sent to EDDN yet.</p>
+      <p class="note type-label">Nothing sent to EDDN yet.</p>
     {/if}
-    <h3>Not sent</h3>
+    <h3 class="type-name">Not sent</h3>
     {#if eddn.skipped.length}
       {@render rows(eddn.skipped)}
     {:else}
-      <p class="note">Nothing skipped.</p>
+      <p class="note type-label">Nothing skipped.</p>
     {/if}
   {/if}
-</section>
+</Form>
 
 <style>
-  section { padding: 1.75rem 0; max-width: 56.25rem; }
-  dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0 0 var(--sp-6); }
+  dl { display: grid; grid-template-columns: var(--form-label) minmax(0, 1fr); gap: var(--gap); margin: 0 0 var(--sp-6); }
   dt, dd { margin: 0; padding: 0 var(--sp-3); min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* Read-only facts, outside a cell (DESIGN.md Settings row). */
   dd { color: var(--prose); }
   .actions { display: flex; gap: var(--sp-4); align-items: center; }
   /* A warning: an orange "!" and plain words, never a filled block (DESIGN.md States). */
-  .crash { margin: 0 0 1.25rem; }
+  .crash { margin: 0 0 var(--sp-6); color: var(--accent); font-weight: 500; }
   .crash b { font-weight: 600; }
   h2 { margin: var(--sp-8) 0 var(--sp-3); }
-  h3 { margin: 1.25rem 0 0; font-weight: 500; font-size: var(--fs); }
+  h3 { margin: var(--sp-6) 0 0; }
   .eddn { list-style: none; margin: var(--sp-3) 0 0; padding: 0; display: grid; gap: var(--gap); }
-  .eddn li { display: grid; grid-template-columns: 10.3125rem 11.25rem 6.5625rem 1fr; align-items: center; min-height: var(--row); outline: 1px solid var(--line); outline-offset: -1px; } /* read-only log rows: a Seam outline (Hull is the frame's) */
+  /* Read-only log rows in a Seam outline (Hull is the frame's): when, what, the outcome, then the
+     gateway's words in the rest of the row. */
+  .eddn li { display: grid; grid-template-columns: 10.5rem 11.25rem 6.5rem minmax(0, 1fr); align-items: center; min-height: var(--row); outline: 1px solid var(--line); outline-offset: -1px; }
   .eddn li > span { padding: 0 var(--sp-3); }
-  .eddn :is(.when, .detail) { font-size: var(--fs-s); }
-  .eddn .detail { color: var(--label-grey); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .eddn .when { color: var(--prose); }
+  .eddn .detail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* A send that went nowhere steps down a level; its outcome word says why. */
   .eddn li:is(.rejected, .gave_up, .discarded, .dropped) { color: var(--label-grey); }
-  .note { color: var(--label-grey); font-size: var(--fs-s); }
+  .note { margin: var(--sp-3) 0 0; }
   .note.err { color: var(--alarm); }
   .note.err::before { content: "! "; font-weight: 600; }
 </style>

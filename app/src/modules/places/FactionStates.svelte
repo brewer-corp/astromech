@@ -43,10 +43,10 @@
     busyText="Looking up live faction states…"
     onanswer={(top) => rememberAnswer(finder.id, top && { ...top, context: current.name, route: factionRoute(current.id) })}
   >
-    {#snippet lead()}<p class="about">{current.about}</p>{/snippet}
+    {#snippet lead()}<p class="type-label about">{current.about}</p>{/snippet}
   </SearchKit>
 </FinderPage>
 
 <style>
-  .about { margin: 0; max-width: var(--measure); font-size: var(--fs-s); color: var(--label-grey); }
+  .about { margin: 0; max-width: var(--measure); }
 </style>
