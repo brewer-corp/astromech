@@ -8,28 +8,28 @@ import { journey } from "./harness.ts";
 
 /**
  * The kill switch (worlds/journeys/kill-switch): a press and release stops everything, and the
- * header says "Kill switch on" from the next status poll. Holding it for rearm_hold_ms (1000 ms)
- * re-arms it, and the header stops saying so from the poll after.
+ * status bar at the foot of the page says "Kill switch on" from the next status poll. Holding it
+ * for rearm_hold_ms (1000 ms) re-arms it, and the status bar stops saying so from the poll after.
  */
 journey("the kill switch shows on in the page and goes off after a re-arm", { world: "journeys/kill-switch" }, async ({ page, core, open, runFor }) => {
   await core.step("running");
   await open("controller");
-  const header = page.locator("header .state");
-  await header.filter({ hasText: /^Elite running · Voice ready$/ }).waitFor();
+  const bar = page.getByRole("contentinfo");
+  await bar.getByText("Elite running · Voice ready", { exact: true }).waitFor();
 
   let since = (await core.observed()).next;
   await core.step("killed");
   await core.wait({ kind: "said", text: "Kill switch on. All actions stopped." }, since);
-  assert.doesNotMatch(await header.innerText(), /Kill switch on/, "the header changed before its status poll");
+  assert.doesNotMatch(await bar.innerText(), /Kill switch on/, "the status bar changed before its status poll");
   await runFor(2000);
-  await header.filter({ hasText: /^Elite running · Voice ready · Kill switch on$/ }).waitFor();
+  await bar.getByText("Elite running · Voice ready · Kill switch on", { exact: true }).waitFor();
 
   // The step returns once the push-to-talk loop has handled the release (world.rs, press and
   // release steps), so the next poll reads the kill switch re-armed.
   since = (await core.observed()).next;
   await core.step("rearmed");
   await runFor(2000);
-  await header.filter({ hasText: /^Elite running · Voice ready$/ }).waitFor();
+  await bar.getByText("Elite running · Voice ready", { exact: true }).waitFor();
   await core.wait({ kind: "said", text: "Re-armed." }, since);
 });
 
