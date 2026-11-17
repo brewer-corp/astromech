@@ -86,5 +86,5 @@
 <style>
   .want { display: flex; flex-direction: column; gap: 0.625rem; }
   .field { display: flex; align-items: center; gap: 0.625rem; min-width: 0; }
-  .field > span { color: var(--orange-mid); font-size: var(--fs-s); flex: none; min-width: 5.5em; }
+  .field > span { color: var(--label-grey); font-size: var(--fs-s); flex: none; min-width: 5.5em; }
 </style>

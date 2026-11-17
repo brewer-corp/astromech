@@ -100,6 +100,6 @@
   .page { display: flex; flex-direction: column; gap: var(--sp-6); }
   p { margin: 0; }
   .head { display: flex; flex-direction: column; gap: var(--sp-1); }
-  .paused { color: var(--orange-mid); }
-  .parked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-2) var(--sp-3); padding: var(--sp-2) 0; border-bottom: 1px solid var(--line); color: var(--accent); }
+  .paused { color: var(--label-grey); }
+  .parked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-2) var(--sp-3); padding: var(--sp-2) 0; border-bottom: 1px solid var(--line); color: var(--prose); }
 </style>

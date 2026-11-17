@@ -162,9 +162,9 @@
 
 <style>
   .search-filters { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
-  .summary { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--sp-2); margin: 0; font-size: var(--fs-s); color: var(--orange-mid); }
+  .summary { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--sp-2); margin: 0; font-size: var(--fs-s); color: var(--label-grey); }
   .text { min-width: 0; }
   .filters { display: flex; flex-wrap: wrap; gap: 0.625rem 1.125rem; align-items: center; font-size: var(--fs-s); }
   label, .field { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
-  label > span, .field > span { color: var(--orange-mid); font-size: var(--fs-s); min-width: 5.5em; }
+  label > span, .field > span { color: var(--label-grey); font-size: var(--fs-s); min-width: 5.5em; }
 </style>

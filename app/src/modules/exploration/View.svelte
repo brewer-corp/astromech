@@ -92,7 +92,7 @@
     {@const [now, nowUnit] = creditParts(view.value)}
     {@const [best, bestUnit] = creditParts(view.value_if_mapped)}
     <div class="tiles">
-      <Stat label="Value now" value={now} unit={nowUnit} {@attach tip(ESTIMATE)} />
+      <Stat main label="Value now" value={now} unit={nowUnit} {@attach tip(ESTIMATE)} />
       <Stat label="Mapping the best" value={best} unit={bestUnit} {@attach tip("Once you map every body worth mapping")} />
     </div>
 
@@ -160,26 +160,26 @@
 
 <style>
   section { padding: 0.5rem 0 1.75rem; min-height: 0; }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0.875rem 0 0.875rem; }
+  .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0.875rem 0 0.875rem; }
   .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.625rem; }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
-  .lo { color: var(--orange-mid); }
+  .lo { color: var(--label-grey); }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-bottom: 1.125rem; }
   table { border-collapse: collapse; width: 100%; }
-  th { text-align: left; color: var(--orange-mid); font-weight: 400; font-size: var(--fs-s); padding: 0 0.875rem 0.375rem 0; }
+  th { text-align: left; color: var(--label-grey); font-weight: 400; font-size: var(--fs-s); padding: 0 0.875rem 0.375rem 0; }
   td { padding: 0.3125rem 0.875rem 0.3125rem 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   .num { text-align: right; white-space: nowrap; }
   .name { font-weight: 500; white-space: nowrap; }
   .facts { display: flex; flex-wrap: wrap; gap: 0.25rem; }
   .note { display: flex; flex-wrap: wrap; gap: 0.375rem; font-size: var(--fs-s); }
-  tr.worth .name { color: var(--orange-lit); }
+  tr.worth .name { color: var(--text-hi); }
   h3 { margin: 1.75rem 0 0.625rem; }
   /* A warning: an orange "!" and plain words, never a filled block (DESIGN.md States). */
   .risk { color: var(--accent); max-width: 48.75rem; }
   .risk b { font-weight: 600; }
   .sell { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
-  .sell a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
+  .sell a { color: var(--accent); font-weight: 500; text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .sell a:hover { color: var(--orange-lit); }
 </style>

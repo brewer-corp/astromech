@@ -58,7 +58,7 @@
         <p class="sub">Reading the journal…</p>
       {:else if tree}
         <p class="sub">
-          {mine.filter((n) => n.status === "unlocked").length} of {mine.length} unlocked · orange marks are your rank · a dim mark means no access yet · dimmer cards have not been introduced
+          {mine.filter((n) => n.status === "unlocked").length} of {mine.length} unlocked · white marks are your rank · a dim mark means no access yet · dimmer cards have not been introduced
         </p>
       {/if}
     </div>
@@ -127,32 +127,35 @@
   /* Ship or suit is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). */
   .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 0; }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
+  .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0; }
   .out { padding: var(--sp-6) 0 0.5rem; }
   .tree { display: grid; grid-template-columns: repeat(var(--cols), minmax(15rem, 1fr)); gap: 0.5rem 1.25rem; align-items: start; }
   .col { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; }
-  /* Read-only cards on the hull (DESIGN.md Surfaces and cells), with no side border: state is
-     brightness. An unlocked engineer's name is Orange Lit; one you can work on now (next) stays
-     Orange; one not introduced or barred steps down to Orange Mid. */
-  .eng { padding: 1rem; display: flex; flex-direction: column; gap: 0.375rem; background: var(--surface); outline: 1px solid transparent; outline-offset: -1px; }
-  .eng.unlocked .name { color: var(--orange-lit); }
-  /* Still readable one step down, since what is left to do is on the card. */
-  .eng:is(.locked, .barred):not(.next) { color: var(--orange-mid); }
+  /* Read-only cards in a Seam outline (DESIGN.md Surfaces and cells: Hull is the frame's), with no
+     side border. State is DESIGN.md's engineer colours: unlocked, the name Options Grey and the
+     rank marks White; known or invited, the name Orange Mid (you can work toward them) and the step
+     to unlock Prose Grey; barred, the name and reason Red Low; not introduced, the name and its
+     state Grey Dim, unless you can work on them now. What is left to do stays readable: Grey Dim
+     never carries text needed to act. */
+  .eng { padding: 1rem; display: flex; flex-direction: column; gap: 0.375rem; outline: 1px solid var(--line); outline-offset: -1px; }
+  .eng .name { color: var(--options-grey); }
+  .eng:is(.known, .invited) .name { color: var(--orange-mid); }
+  .eng.barred :is(.name, .gate) { color: var(--red-low); }
+  .eng.locked:not(.next) :is(.name, .gate) { color: var(--grey-dim); }
   .eng.hot { background: var(--row-hover); }
   /* The engineers who introduce the hovered one. */
   .eng.pred { outline-color: var(--accent); }
   .top { display: flex; justify-content: space-between; gap: 0.75rem; align-items: start; }
   .name { font-size: var(--fs-l); font-weight: 500; }
   .access { display: inline-flex; align-items: center; gap: 0.1875rem; flex: none; }
-  .gate { font-size: var(--fs-s); color: var(--orange-dim); }
-  .eng.known .gate, .eng.invited .gate { color: var(--accent); }
+  .gate { font-size: var(--fs-s); color: var(--prose); }
   .access > :is(.badge, .outline, .barred, .mail) { width: 0.75rem; height: 0.875rem; flex: none; }
-  .access > .badge { background: currentColor; color: var(--accent); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; }
-  .access > .outline { color: var(--orange-dim); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; background: currentColor; }
+  .access > .badge { background: currentColor; color: var(--text-hi); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; }
+  .access > .outline { color: var(--mark-off); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; background: currentColor; }
   .access > .mail { color: var(--accent); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; background: currentColor; }
   .access > .barred { border: 1px solid currentColor; background: linear-gradient(to top right, transparent 46%, currentColor 46%, currentColor 54%, transparent 54%); }
   .spec { font-size: var(--fs-s); }
-  .where, .from { font-size: var(--fs-s); color: var(--orange-mid); }
+  .where, .from { font-size: var(--fs-s); color: var(--label-grey); }
   .left { margin: 0; font-size: var(--fs-s); line-height: 1.45; }
   @container win (max-width: 56.25rem) {
     .tree { grid-template-columns: 1fr; }

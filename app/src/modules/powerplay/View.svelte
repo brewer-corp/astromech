@@ -141,15 +141,15 @@
   }
   h3 { margin: 0 0 0.625rem; }
   .sys { display: flex; align-items: baseline; gap: 0.625rem; }
-  .power { margin: 0 0 0.625rem; color: var(--accent); font-size: var(--fs-l); }
+  .power { margin: 0 0 0.625rem; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   dl { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.375rem 0.875rem; margin: 0; }
-  dt { color: var(--orange-mid); font-size: var(--fs-s); }
+  dt { color: var(--label-grey); font-size: var(--fs-s); }
   dd { margin: 0; }
-  .q { color: var(--orange-lit); }
+  .q { color: var(--options-grey); }
   .work { font-size: var(--fs-s); }
-  .bar { display: inline-block; width: 7.5rem; height: 0.375rem; background: var(--line); vertical-align: middle; margin-right: 0.5rem; }
-  .bar span { display: block; height: 100%; background: var(--accent); }
-  .lo { color: var(--orange-mid); }
+  .bar { display: inline-block; width: 7.5rem; height: 0.375rem; background: var(--mark-off); vertical-align: middle; margin-right: 0.5rem; }
+  .bar span { display: block; height: 100%; background: var(--prose); }
+  .lo { color: var(--label-grey); }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
   .small { font-size: var(--fs-s); margin-top: 0.75rem; }

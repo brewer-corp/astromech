@@ -234,7 +234,7 @@
   .title { display: flex; flex-direction: column; gap: var(--sp-3); }
   p { margin: 0; }
   h1 { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-3); margin: 0; }
-  .to { color: var(--orange-mid); font-weight: 400; }
+  .to { color: var(--label-grey); font-weight: 400; }
   .dest { position: relative; display: inline-flex; min-width: 0; }
   /* The destination is the title's own text until it is pointed at: then it is a cell. */
   input { all: unset; box-sizing: border-box; field-sizing: content; min-width: 10ch; height: calc(var(--row) + var(--sp-1)); padding: 0 var(--sp-2); margin-left: calc(-1 * var(--sp-2)); color: var(--text-hi); border-bottom: 1px dashed var(--orange-mid); }
@@ -245,6 +245,6 @@
   .controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-1); }
   .controls > :global(.primary) { margin-left: var(--sp-1); }
   .range { margin-left: var(--sp-3); }
-  .range b { color: var(--orange-lit); }
+  .range b { color: var(--options-grey); }
   .end { display: inline-flex; align-items: center; margin-left: var(--sp-3); }
 </style>

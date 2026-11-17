@@ -111,10 +111,10 @@
   /* One line, always: the warning gives way first, then the destination; the next system, the
      strip's main value, keeps its width up to a third of the strip. */
   .strip { display: flex; align-items: center; gap: var(--sp-3); height: var(--strip); min-width: 0; padding: 0 var(--side); background: var(--surface); white-space: nowrap; overflow: hidden; }
-  .label { color: var(--orange-mid); font-size: var(--fs-s); }
+  .label { color: var(--label-grey); font-size: var(--fs-s); }
   .sys { color: var(--orange-lit); font-size: var(--fs); font-weight: 500; max-width: 33%; overflow: hidden; text-overflow: ellipsis; flex: none; margin-right: calc(-1 * var(--sp-2)); }
-  .of { color: var(--orange-mid); font-size: var(--fs); flex: none; }
-  .none { color: var(--orange-mid); font-size: var(--fs); flex: none; }
+  .of { color: var(--prose); font-size: var(--fs); flex: none; }
+  .none { color: var(--label-grey); font-size: var(--fs); flex: none; }
   .warn { color: var(--accent); font-size: var(--fs-s); min-width: 3em; overflow: hidden; text-overflow: ellipsis; flex: 0 1000 auto; }
   .warn b { font-weight: 600; margin-right: var(--sp-1); }
   .strip > :global(.failure) { flex: 0 1000 auto; }
@@ -123,6 +123,6 @@
   .to:hover .dest { color: var(--orange-lit); }
   .to:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .dest { color: var(--accent); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; min-width: 3em; }
-  .n { color: var(--accent); font-size: var(--fs); }
+  .n { color: var(--prose); font-size: var(--fs); }
   .left { flex: none; }
 </style>

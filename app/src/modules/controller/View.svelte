@@ -247,14 +247,15 @@
   .band { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 0.875rem; }
   h3 { margin: 0 0 0.5rem; }
   h3.gap { margin-top: 1.125rem; }
-  .row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 1.875rem; margin-bottom: 0.25rem; padding: 0 0.75rem; background: var(--surface); } /* read-only rows: hull */
+  .row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 1.875rem; margin-bottom: 0.25rem; padding: 0 0.75rem; outline: 1px solid var(--line); outline-offset: -1px; } /* read-only rows: a Seam outline (Hull is the frame's) */
   button.row:hover { background: var(--row-hover); }
-  .row.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
-  .row.sel .n { color: var(--accent); }
+  /* The selected control: raised with its text lit (DESIGN.md Selected row or tile). */
+  .row.sel { background: var(--surface-hi); }
+  .row.sel .n { color: var(--text-hi); }
   .row { color: var(--options-grey); }
-  .warn { color: var(--accent); }
+  .warn { color: var(--accent); font-weight: 500; }
   .more { margin-top: 0.625rem; font-size: var(--fs-s); line-height: 1.5; }
-  .ask { color: var(--orange-lit); background: var(--surface); padding: 0.5rem 0.75rem; margin: 0 0 0.5rem; }
-  .credit { color: var(--orange-mid); font-size: var(--fs-s); }
-  .lo { color: var(--orange-mid); }
+  .ask { color: var(--orange-lit); outline: 1px solid var(--line); outline-offset: -1px; padding: 0.5rem 0.75rem; margin: 0 0 0.5rem; }
+  .credit { color: var(--label-grey); font-size: var(--fs-s); }
+  .lo { color: var(--label-grey); }
 </style>

@@ -42,9 +42,10 @@
 
 <style>
   .hits { position: absolute; z-index: 20; top: 100%; left: 0; right: 0; margin: var(--gap) 0 0; padding: 0; list-style: none; background: var(--surface-hi); border: 1px solid var(--line); }
-  button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; width: 100%; min-height: var(--row); padding: 0 var(--sp-3); color: var(--accent); font-size: var(--fs); }
-  button:hover { background: var(--row-hover); }
-  button.on { background: var(--accent); color: var(--on-accent); }
-  button :global(.sub) { margin-left: var(--sp-2); font-size: var(--fs-s); color: var(--orange-mid); }
-  button.on :global(.sub) { color: var(--on-accent); }
+  button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; width: 100%; min-height: var(--row); padding: 0 var(--sp-3); color: var(--accent); font-size: var(--fs); font-weight: 500; }
+  /* The highlighted row (pointer or keyboard) is an ember cell; its kind steps up to Prose Grey,
+     since Label Grey is 4.4:1 on a cell. */
+  button:is(:hover, .on) { background: var(--cell); }
+  button :global(.sub) { margin-left: var(--sp-2); font-size: var(--fs-s); color: var(--label-grey); }
+  button:is(:hover, .on) :global(.sub) { color: var(--prose); }
 </style>

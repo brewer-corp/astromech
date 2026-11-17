@@ -106,8 +106,8 @@
   .nav { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); align-content: start; }
   .nav button { all: unset; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; gap: 0.75rem; color: var(--accent); font-weight: 500; font-size: var(--fs); }
   /* The step you are on: hull and Orange Lit, a place marker rather than a value (no cell). */
-  .nav button.on { background: var(--surface); color: var(--orange-lit); }
-  .nav .n { color: var(--orange-mid); }
+  .nav button.on { background: var(--surface-hi); color: var(--text-hi); }
+  .nav .n { color: var(--label-grey); }
   .nav button.on .n { color: inherit; }
   main { max-width: 48.75rem; }
   h1 { margin: 0 0 0.375rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }

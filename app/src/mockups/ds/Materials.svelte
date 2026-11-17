@@ -43,7 +43,7 @@
               <span class="count num">{n}</span>
               <span class="name">{name}</span>
               {#if want}<span class="need num">{#if n < want}<span class="bang">!</span>{/if}need {want}</span>{/if}
-              {#if n > 0 && name !== selected}<span class="track"><span class="fill" class:full={n >= cap} style="width: {(100 * n) / cap}%"></span></span>{/if}
+              {#if n > 0}<span class="track"><span class="fill" class:full={n >= cap} style="width: {(100 * n) / cap}%"></span></span>{/if}
             </div>
           {/each}
         {/each}
@@ -53,7 +53,7 @@
     <aside>
       <h2 class="title">Iron</h2>
       <p class="label">Raw · grade 1 · category 4</p>
-      <p class="held"><span class="white big">22</span><span class="unit">of 300</span></p>
+      <p class="held"><span class="lit big">22</span><span class="unit">of 300</span></p>
       <dl>
         <dt class="label">Trade up</dt><dd><span class="num">6</span> Iron → <span class="num">1</span> Zinc</dd>
         <dt class="label">Trade down</dt><dd>—</dd>
@@ -73,19 +73,20 @@
   .colhead { padding: 0 var(--sp-3); }
   .rowhead { align-self: center; }
   .rowhead.current { color: var(--text-hi); }
-  .tile { position: relative; height: var(--tile); padding: 10px var(--sp-3); background: var(--surface); display: grid; grid-template-rows: auto 1fr; align-content: start; }
-  .count { font-size: var(--fs-xxl); font-weight: 500; line-height: 1; color: var(--orange-lit); }
-  .name { align-self: end; font-size: var(--fs-s); color: var(--accent); }
+  /* Revision 5's tile: a Seam outline on Void, the count Options Grey, the name Prose Grey, the
+     plan's mark Orange; the selected tile raised with its count and name White. */
+  .tile { position: relative; height: var(--tile); padding: 10px var(--sp-3); background: var(--bg); outline: 1px solid var(--line); outline-offset: -1px; display: grid; grid-template-rows: auto 1fr; align-content: start; }
+  .count { font-size: var(--fs-xxl); font-weight: 500; line-height: 1; color: var(--options-grey); }
+  .name { align-self: end; font-size: var(--fs-s); font-weight: 400; color: var(--prose); }
   .need { position: absolute; top: 10px; right: var(--sp-3); font-size: var(--fs-xs); color: var(--accent); }
-  .track { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--line); }
-  .fill { display: block; height: 100%; background: var(--orange-mid); }
+  .track { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--mark-off); }
+  .fill { display: block; height: 100%; background: var(--prose); }
   .fill.full { background: var(--orange-lit); }
-  .tile.none { background: var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
-  .tile.none .count, .tile.none .name { color: var(--orange-dim); }
-  .tile.sel { background: var(--accent); }
-  .tile.sel .count, .tile.sel .name { color: var(--on-accent); }
+  .tile.none .count, .tile.none .name { color: var(--grey-dim); }
+  .tile.sel { background: var(--surface-hi); }
+  .tile.sel .count, .tile.sel .name { color: var(--text-hi); }
 
-  aside { border-left: 1px solid var(--accent); padding: 0 0 0 var(--sp-6); }
+  aside { border-left: 1px solid var(--line); padding: 0 0 0 var(--sp-6); }
   aside .label { margin: var(--sp-1) 0 0; }
   .held { margin: var(--sp-4) 0; }
   .big { font-size: var(--fs-xxl); font-weight: 500; }

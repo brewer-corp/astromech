@@ -26,7 +26,7 @@
 </Route>
 
 <style>
-  .moved { margin: 0; font-size: var(--fs-s); color: var(--orange-mid); }
+  .moved { margin: 0; font-size: var(--fs-s); color: var(--label-grey); }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .moved a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .moved a:hover { color: var(--orange-lit); }

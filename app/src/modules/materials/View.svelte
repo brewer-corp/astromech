@@ -75,14 +75,14 @@
     return () => clearInterval(t);
   });
 
-  // DESIGN.md's material tile: a 2 px track along the bottom edge fills Orange Mid with
+  // DESIGN.md's material tile: a 2 px Mark Off track along the bottom edge fills Prose Grey with
   // count / cap, Orange Lit at the cap. A tile with none has no track.
   function track(c: Cell) {
     const p = c.capacity > 0 ? Math.min(1, c.count / c.capacity) : 0;
     // A few units of a 300-cap is otherwise a 1px sliver; keep a readable min fill while held.
     const vis = c.count > 0 ? Math.max(p, 0.04) : 0;
-    const ink = p >= 1 ? "var(--orange-lit)" : "var(--orange-mid)";
-    return `${ink} ${vis * 100}%, var(--line) ${vis * 100}%`;
+    const ink = p >= 1 ? "var(--orange-lit)" : "var(--prose)";
+    return `${ink} ${vis * 100}%, var(--mark-off) ${vis * 100}%`;
   }
 
   function pick(id: string) {
@@ -185,7 +185,7 @@
     {#if sel}
       <h3 class="type-title">{sel.name}</h3>
       <p class="type-label">{sel.kind === "raw" ? "Raw" : sel.kind === "encoded" ? "Encoded" : "Manufactured"} · grade {sel.grade} · {sel.group} · {sel.rarity}</p>
-      <p class="qty"><span class="type-value-xl">{sel.count}</span><span class="type-unit">of {sel.capacity} held</span></p>
+      <p class="qty"><span class="type-value-xl main">{sel.count}</span><span class="type-unit">of {sel.capacity} held</span></p>
       {#if sel.sources?.length}
         {#each sel.sources as s, i (i)}
           <p>{s.summary}</p>
@@ -200,7 +200,7 @@
       {#if kindId === "other"}
         <p class="type-label">Guardian, Thargoid and anything the journal named that is not on a trader.</p>
       {:else if kind}
-        <p class="qty"><span class="type-value-xl">{kind.held.toLocaleString()}</span><span class="type-unit">of {kind.capacity.toLocaleString()} held</span></p>
+        <p class="qty"><span class="type-value-xl main">{kind.held.toLocaleString()}</span><span class="type-unit">of {kind.capacity.toLocaleString()} held</span></p>
         {#if kind.trader}<p class="type-label">{kind.trader}</p>{/if}
       {/if}
     {/if}
@@ -214,36 +214,33 @@
   .query { display: flex; flex-direction: column; gap: var(--sp-3); }
   .query p { margin: 0; }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
-  .here { color: var(--accent); }
+  .here { color: var(--prose); }
   .out { padding: var(--sp-6) 0 0; min-width: 0; }
   .farm { list-style: none; margin: var(--sp-6) 0 0; padding: 0; display: flex; flex-direction: column; }
   .farm li { display: grid; grid-template-columns: minmax(9.375rem, 13.125rem) 5.625rem minmax(0, var(--measure)); gap: var(--sp-2) var(--sp-4); align-items: baseline; padding: var(--sp-3) var(--sp-2); border-bottom: 1px solid var(--line); }
-  .farm button:hover, .farm .on { color: var(--orange-lit); }
+  .farm button:hover { color: var(--orange-lit); }
+  .farm .on { color: var(--text-hi); }
   .fq { text-align: right; }
   .gh, .rh, .corner { min-height: 2.5rem; display: flex; align-items: center; }
   .gh { padding: 0 var(--sp-3); }
   .rh { padding: 0 var(--sp-3) 0 0; }
-  /* DESIGN.md Material tile: a 76 px Hull tile, the count in Value XL top left, the name below in
-     Label size and Orange, at most one Meta corner mark top right, and the 2 px track along the
-     bottom edge. None held is Void inside a Seam outline, all Orange Dim; the selected one, which
-     the side panel explains, is solid orange with no track. */
-  .cell { position: relative; display: grid; grid-template-rows: auto 1fr; height: var(--tile); padding: 0.625rem var(--sp-3); text-align: left; background: linear-gradient(90deg, var(--track)) bottom / 100% 2px no-repeat, var(--surface); }
-  .n { align-self: end; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .mark { position: absolute; top: 0.625rem; right: var(--sp-3); color: var(--accent); }
+  /* DESIGN.md Material tile: a 76 px tile in a 1 px Seam outline on Void, the count in Value XL
+     (Options Grey) top left, the name below in Label size and Prose Grey, at most one Meta corner
+     mark top right, and the 2 px track along the bottom edge. None held is all Grey Dim; the
+     selected one, which the side panel explains, is Hull Raised with its count and name White. */
+  .cell { position: relative; display: grid; grid-template-rows: auto 1fr; height: var(--tile); padding: 0.625rem var(--sp-3); text-align: left; background: linear-gradient(90deg, var(--track)) bottom / 100% 2px no-repeat, var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
+  .n { align-self: end; color: var(--prose); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mark { position: absolute; top: 0.625rem; right: var(--sp-3); }
   .cell:hover { background-color: var(--row-hover); }
-  .cell.empty { background: var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
-  .cell.empty :is(.n, .q, .mark) { color: var(--orange-dim); }
-  /* The Seam outline must not hide the focus ring or the hover (review astromech-hdht). */
-  .cell.empty:hover { background: var(--row-hover); }
-  .cell.empty:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
-  .cell.sel, .cell.sel:hover { background: var(--accent); outline: 0; }
-  .cell.sel :is(.n, .q, .mark) { color: var(--on-accent); }
-  .cell.sel:focus-visible { outline: 1px solid var(--on-accent); outline-offset: -3px; }
-  /* DESIGN.md Side panel: the title in white, the key value in white, facts in Orange. */
+  .cell.empty :is(.n, .q, .mark) { color: var(--grey-dim); }
+  /* The Seam outline must not hide the focus ring (review astromech-hdht). */
+  .cell:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+  .cell.sel, .cell.sel:hover { background-color: var(--surface-hi); }
+  .cell.sel :is(.n, .q) { color: var(--text-hi); }
+  /* DESIGN.md Side panel: the title in white, the key value in Value XL, Orange Lit. */
   .about h3 { margin: 0 0 var(--sp-1); }
   .about p { margin: 0 0 0.625rem; }
   .about .qty { margin: var(--sp-4) 0; }
-  .qty .type-value-xl { color: var(--text-hi); }
   .sites { margin: var(--sp-6) 0 0; }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .sites a, .link { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }

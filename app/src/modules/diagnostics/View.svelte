@@ -109,7 +109,7 @@
   dt, dd { margin: 0; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* Read-only facts, outside a cell (DESIGN.md Settings row). */
-  dd { color: var(--accent); }
+  dd { color: var(--prose); }
   .actions { display: flex; gap: 1rem; align-items: center; }
   /* A warning: an orange "!" and plain words, never a filled block (DESIGN.md States). */
   .crash { margin: 0 0 1.25rem; }
@@ -117,13 +117,13 @@
   h2 { margin: 2rem 0 0.75rem; }
   h3 { margin: 1.25rem 0 0; font-weight: 500; font-size: var(--fs); }
   .eddn { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; gap: var(--gap); }
-  .eddn li { display: grid; grid-template-columns: 10.3125rem 11.25rem 6.5625rem 1fr; align-items: center; min-height: var(--row); background: var(--surface); } /* read-only log rows: hull */
+  .eddn li { display: grid; grid-template-columns: 10.3125rem 11.25rem 6.5625rem 1fr; align-items: center; min-height: var(--row); outline: 1px solid var(--line); outline-offset: -1px; } /* read-only log rows: a Seam outline (Hull is the frame's) */
   .eddn li > span { padding: 0 0.75rem; }
   .eddn :is(.when, .detail) { font-size: var(--fs-s); }
-  .eddn .detail { color: var(--orange-mid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .eddn .detail { color: var(--label-grey); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* A send that went nowhere steps down a level; its outcome word says why. */
-  .eddn li:is(.rejected, .gave_up, .discarded, .dropped) { color: var(--orange-mid); }
-  .note { color: var(--orange-mid); font-size: var(--fs-s); }
+  .eddn li:is(.rejected, .gave_up, .discarded, .dropped) { color: var(--label-grey); }
+  .note { color: var(--label-grey); font-size: var(--fs-s); }
   .note.err { color: var(--alarm); }
   .note.err::before { content: "! "; font-weight: 600; }
 </style>

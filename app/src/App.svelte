@@ -171,17 +171,17 @@
   nav { display: flex; gap: var(--sp-1); flex: 1; flex-wrap: wrap; }
   header nav { flex-wrap: nowrap; align-items: center; }
   button { all: unset; cursor: pointer; }
-  /* DESIGN.md Tabs: top tabs are Nav caps in Orange Mid, the active one a solid orange box;
-     page tabs are Name in mixed case, Orange Mid, the active one Orange Lit on a 2 px underline.
-     An inactive tab hovers to Orange, never to Lit. */
-  header nav button { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); color: var(--orange-mid); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 500; }
+  /* DESIGN.md Tabs: top tabs are Nav caps in Label Grey at 400, the active one a solid orange box
+     with On Orange text at 500 (the frame's one fill); page tabs are Name in mixed case, Label
+     Grey, the active one Options Grey on a 2 px orange underline. An inactive tab hovers to Orange. */
+  header nav button { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); color: var(--label-grey); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 400; }
   header nav button:hover { color: var(--accent); }
-  header nav button.on { background: var(--accent); color: var(--on-accent); }
+  header nav button.on { background: var(--accent); color: var(--on-accent); font-weight: 500; }
   header nav button.on:focus-visible { outline: 1px solid var(--on-accent); outline-offset: -3px; }
   nav.sub { flex: none; gap: var(--sp-6); height: 2.75rem; margin: 0 var(--side); }
-  nav.sub button { display: flex; align-items: center; font-weight: 500; color: var(--orange-mid); border-bottom: 2px solid transparent; }
+  nav.sub button { display: flex; align-items: center; font-weight: 500; color: var(--label-grey); border-bottom: 2px solid transparent; }
   nav.sub button:hover { color: var(--accent); }
-  nav.sub button.on { color: var(--orange-lit); border-bottom-color: var(--accent); }
+  nav.sub button.on { color: var(--options-grey); border-bottom-color: var(--accent); }
   /* A link to somewhere else (DESIGN.md Buttons → Links): Orange text, a 1 px Orange Mid underline. */
   .help { color: var(--accent); font-size: var(--fs-s); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .help:hover { color: var(--orange-lit); }

@@ -41,7 +41,7 @@
       {#if s.source}· {s.source}{/if}
     </p>
     <div class="tiles">
-      <Stat label="Earned" value={s.total.toLocaleString()} unit="cr" {@attach tip(EARNED)} />
+      <Stat main label="Earned" value={s.total.toLocaleString()} unit="cr" {@attach tip(EARNED)} />
       <Stat label="Per hour" value={s.per_hour === null ? "–" : s.per_hour.toLocaleString()} unit={s.per_hour === null ? "" : "cr"} />
       <Stat label="Jumps" value={s.jumps.toLocaleString()} />
       <Stat label="Distance" value={s.distance_ly.toFixed(1)} unit="ly" />
@@ -80,12 +80,12 @@
 <style>
   section { padding: 0.5rem 0 1.75rem; min-height: 0; }
   .sub { margin: 0.875rem 0 0.875rem; }
-  .err { color: var(--accent); }
+  .err { color: var(--accent); font-weight: 500; }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
   h3 { margin: 1.375rem 0 0.5rem; }
   table { border-collapse: collapse; max-width: 45rem; width: 100%; }
   td { padding: 0.3125rem 1rem 0.3125rem 0; border-top: 1px solid var(--line); }
-  .num { text-align: right; }
-  .lo { color: var(--orange-mid); }
+  .num { text-align: right; color: var(--accent); font-weight: 500; } /* the column the list is ranked by */
+  .lo { color: var(--label-grey); }
   .also { margin: 0; padding: 0 0 0 1.125rem; display: flex; flex-direction: column; gap: 0.375rem; }
 </style>

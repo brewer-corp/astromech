@@ -53,6 +53,6 @@
      the panel, so on a big window the panel is never a screen away from what it describes. */
   .split.side { grid-template-columns: minmax(0, max-content) calc(var(--panel) + var(--sp-6) + 1px); justify-content: start; }
   .content { min-width: 0; }
-  aside { position: sticky; top: var(--sp-6); min-width: 0; padding-left: var(--sp-6); border-left: 1px solid var(--accent); }
-  aside.stacked { position: static; margin-top: var(--sp-8); padding: var(--sp-6) 0 0; border-left: 0; border-top: 1px solid var(--accent); }
+  aside { position: sticky; top: var(--sp-6); min-width: 0; padding-left: var(--sp-6); border-left: 1px solid var(--line); }
+  aside.stacked { position: static; margin-top: var(--sp-8); padding: var(--sp-6) 0 0; border-left: 0; border-top: 1px solid var(--line); }
 </style>

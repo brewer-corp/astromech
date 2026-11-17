@@ -181,8 +181,8 @@ Colonisation, Powerplay and a ship's build plan (Engineering).
   them here once.
   - **Pad:** **S**, **M** or **L** (S is any pad). Your ship's size is marked with a ship glyph
     and is selected until you pick another.
-  - **Include:** **Carriers** and **Odyssey** are filled orange when those stations are
-    included. Click one to hide them, and again to bring them back.
+  - **Include:** **Carriers** and **Odyssey** are bright, with an orange line under them, when those
+    stations are included. Click one to hide them, and again to bring them back.
   - **Data age:** hide reports older than this (up to 1, 3, 7, 30, 90 or 365 days).
   - **Arrival:** hide stations or bodies further than 1,000, 5,000 or 25,000 light seconds from the star.
   - **Within** and **volume:** the search radius (20 to 500 ly) and minimum demand or stock, on trade lists.

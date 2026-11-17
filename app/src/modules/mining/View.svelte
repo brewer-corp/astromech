@@ -43,7 +43,7 @@
     <p class="type-label sub">No mining yet. The run starts at your first limpet, prospect or refined ton after docking.</p>
   {:else}
     <div class="tiles">
-      <Stat label="Refined" value={run.total} unit="t" />
+      <Stat main label="Refined" value={run.total} unit="t" />
       <Stat label="Per hour" value={run.per_hour === null ? "–" : run.per_hour.toFixed(0)} unit={run.per_hour === null ? "" : "t/h"} {@attach tip("Measured to the latest journal line; shows once a minute has passed")} />
     </div>
     <h3 class="section">By ore</h3>
@@ -51,7 +51,7 @@
       <table aria-label="Tons refined by ore">
         <tbody>
           {#each ores as [ore, tons] (ore)}
-            <tr><td>{oreName(ore)}</td><td class="num">{tons} t</td></tr>
+            <tr><td>{oreName(ore)}</td><td class="num ranked">{tons} t</td></tr>
           {/each}
         </tbody>
       </table>
@@ -72,6 +72,8 @@
   table { border-collapse: collapse; }
   td { padding: 0.25rem 1.125rem 0.25rem 0; }
   .num { text-align: right; }
-  .lo { color: var(--orange-mid); }
+  /* Ores are ranked by tonnes: it is the table's one orange column. */
+  .ranked { color: var(--accent); font-weight: 500; }
+  .lo { color: var(--label-grey); }
   .note { margin-top: 0.875rem; }
 </style>

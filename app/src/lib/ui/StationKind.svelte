@@ -24,5 +24,5 @@
 {/if}
 
 <style>
-  .kind { display: inline-flex; color: var(--orange-mid); }
+  .kind { display: inline-flex; color: var(--label-grey); }
 </style>

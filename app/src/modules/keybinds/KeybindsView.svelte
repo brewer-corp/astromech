@@ -195,14 +195,14 @@
   .filters { display: flex; gap: var(--sp-4); margin: 0.75rem 0 0.375rem; }
   .sp { flex: 1; }
   .pressed { padding: 0.375rem 0 0.375rem 2.125rem; color: var(--orange-lit); }
-  .head { display: grid; grid-template-columns: 1fr 12.5rem 12.5rem 11.875rem; gap: var(--gap); padding: 0.375rem 0 0.375rem 2.125rem; color: var(--orange-mid); font-size: var(--fs-s); }
+  .head { display: grid; grid-template-columns: 1fr 12.5rem 12.5rem 11.875rem; gap: var(--gap); padding: 0.375rem 0 0.375rem 2.125rem; color: var(--label-grey); font-size: var(--fs-s); }
   .head span:nth-child(2), .head span:nth-child(3) { padding-left: 0.75rem; }
   .scroll { overflow: auto; min-height: 0; flex: 1; padding-bottom: 1.25rem; }
   .grp { grid-template-columns: 1.375rem 1fr 11.875rem; gap: 0.75rem; width: 100%; }
   .box { width: 1.125rem; height: 1.125rem; border: 1.5px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-weight: 600; line-height: 1; }
   .gname { font-weight: 500; }
   .grp:hover .gname { color: var(--orange-lit); }
-  .iss { color: var(--orange-mid); font-size: var(--fs-s); }
+  .iss { color: var(--label-grey); font-size: var(--fs-s); }
   .item { margin-bottom: var(--gap); }
   .item .name { padding-left: 2.125rem; height: var(--row); display: flex; align-items: center; color: var(--options-grey); }
   .item:hover .name { color: var(--accent); }
@@ -214,10 +214,11 @@
   .cell.bad { text-decoration: line-through; color: var(--orange-dim); }
   .cell:hover { background: var(--cell-hover); }
   .mark { color: var(--accent); font-size: var(--fs-s); padding-left: 0.625rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .item.sel .name, .item.hit .name { color: var(--accent); }
+  .item.sel .name, .item.hit .name { color: var(--text-hi); }
+  .item.sel .name { background: var(--surface-hi); }
   .item.sel .cell { outline: 1px solid var(--accent); outline-offset: -1px; }
-  .lo { color: var(--orange-mid); }
-  .warn { color: var(--accent); }
+  .lo { color: var(--label-grey); }
+  .warn { color: var(--accent); font-weight: 500; }
   .pad { padding-left: 2.125rem; }
   .id { margin-top: 1.5rem; font-size: var(--fs-s); }
   @container win (max-width: 75rem) {

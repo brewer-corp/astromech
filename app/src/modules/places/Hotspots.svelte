@@ -88,6 +88,6 @@
 
 <style>
   .choices { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
-  .label { font-size: var(--fs-s); color: var(--orange-mid); }
+  .label { font-size: var(--fs-s); color: var(--label-grey); }
   .label:not(:first-child) { margin-left: var(--sp-4); }
 </style>

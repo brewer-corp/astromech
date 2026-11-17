@@ -116,12 +116,14 @@
   .cell:hover { background: var(--cell-hover); }
   .cell:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .cell :global(.glyph) { color: var(--accent); }
+  /* Label Grey is 4.4:1 on a cell, so a label inside one steps up to Prose Grey. */
+  .cell .type-label, .opt:hover .hint { color: var(--prose); }
+  .val { font-weight: 500; }
   .pop { position: absolute; z-index: 20; left: 0; top: 100%; margin-top: var(--gap); min-width: 100%; width: max-content; max-width: min(26.25rem, calc(100vw - 2rem)); background: var(--surface-hi); border: 1px solid var(--line); }
-  .opt { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: var(--row); padding: var(--sp-2) var(--sp-3); color: var(--accent); }
-  .opt:hover { background: var(--row-hover); }
+  .opt { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: var(--row); padding: var(--sp-2) var(--sp-3); color: var(--accent); font-weight: 500; }
+  .opt:hover { background: var(--cell); }
   .opt:focus-visible { outline: 1px solid var(--accent); outline-offset: -2px; }
-  .opt.on { background: var(--accent); color: var(--on-accent); }
-  .opt.on .hint { color: var(--on-accent); }
+  .opt.on { color: var(--orange-lit); }
   .opt[aria-disabled="true"] { cursor: default; color: var(--orange-dim); }
   .opt[aria-disabled="true"] .hint { color: var(--orange-dim); }
   .hint { margin-top: 0.125rem; }

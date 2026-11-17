@@ -49,6 +49,7 @@
   button { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-1); min-width: var(--row); height: var(--row); padding: 0 var(--sp-3); background: var(--cell); color: var(--accent); font-size: var(--fs-s); white-space: nowrap; }
   button:hover { background: var(--cell-hover); }
   button:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
-  button.on { background: var(--accent); color: var(--on-accent); }
-  button.on:focus-visible { outline-color: var(--on-accent); outline-offset: -3px; }
+  /* DESIGN.md Choice: the chosen option is marked, not filled: Orange Lit at 600 on its cell with
+     a 2 px orange underline along the cell's foot (The One Fill Per Page Rule). */
+  button.on { color: var(--orange-lit); font-weight: 600; box-shadow: inset 0 -2px var(--accent); }
 </style>

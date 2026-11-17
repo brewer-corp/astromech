@@ -10,16 +10,16 @@ A tech tree of every ship engineer and suit engineer, with your progress and wha
 **What it needs:** the journal (your engineer progress). No network.
 
 - Choose **Ship engineers** or **Suit engineers** at the top. The line beside them counts how many you
-  have unlocked, and how the marks work: orange for rank, a dim mark for no access yet, dimmer cards
+  have unlocked, and how the marks work: white for rank, a dim mark for no access yet, dimmer cards
   for engineers who have not been introduced. A ship engineer introduces the next ones once
   your rank with them passes grade 3; each suit engineer refers the next after a task.
 - Each card shows the engineer, what they specialise in, and your **access** as engineer marks:
-  one orange mark per rank once you have unlocked them (so rank 5 is five marks), a dim mark
+  one white mark per rank once you have unlocked them (so rank 5 is five marks), a dim mark
   when they are **Known** but you have no access yet, the same dim mark on a dimmer card when
   they have **Not been introduced**, an envelope when you are **Invited**, and a struck mark if you are
-  **Barred**. Unlocked engineers have the brightest names; known ones stay readable with "Known ·
-  no access yet"; cards that still need an introduction are dimmer, unless you can work on them
-  now. What is left to do stays on the card. Engineers you can work on now sit at the top of
+  **Barred**. Unlocked engineers have bright names; known and invited ones, whom you can work
+  toward, have orange names with "Known · no access yet"; a barred engineer's name and reason are
+  red; cards that still need an introduction are dim, unless you can work on them now. What is left to do stays on the card. Engineers you can work on now sit at the top of
   their column.
   Hover a card to light who introduces them. A permit-locked system says "permit".
   An arrow points back to who introduces each engineer.
@@ -41,7 +41,7 @@ Choose one of three views at the top:
 Your ship locker and backpack by the game's own categories: choose **Goods**, **Assets**, **Data**
 or **Consumables**. Each item shows how many are in the locker, in the backpack and tied to a mission,
 what it is worth at the **barter** (assets only) and what a bartender pays you for it (**Sells for**). **Held only** hides what you do not have; **All items** shows the rest of the catalogue. The
-one in use is filled orange. The line above says how much is held and what a bartender would pay
+one in use is bright, with an orange line under it. The line above says how much is held and what a bartender would pay
 for it. Mission items go back when the mission ends and do not count for blueprints.
 
 ### Blueprints
