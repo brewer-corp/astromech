@@ -1,13 +1,19 @@
 <script lang="ts">
-  // The current system's biology, ranked by value: each body's genera (from the DSS, or predicted
-  // from its scan before the DSS) with the species they could be and what they are worth; what
-  // other players reported here (Spansh); and the sampling in progress with how far the last
-  // samples are against the genus's colony range. Live while Elite runs.
+  // Exploration > Biology (DESIGN.md Board): the current system's biology as a card per body,
+  // most valuable first. Each card holds the body's genera (from the DSS or a sample, or
+  // predicted from its scan) with the species they could be and what they are worth, and what
+  // other players reported for it (Spansh) merged in; a body only others reported gets its own
+  // card after the commander's. While the commander samples a species, the sampling leads the
+  // page: the samples taken and how far the nearest earlier sample is against the colony range.
+  // Live while Elite runs.
+  import Badge from "../../lib/ui/Badge.svelte";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { tip } from "../../lib/ui/tip";
-  import Stat from "../../lib/ui/Stat.svelte";
-  import { loadBiology, millions, shortName, valueRange, type BiologyView } from "../../lib/exobiology";
+  import Board from "../../lib/ui/layout/Board.svelte";
+  import Tiles from "../../lib/ui/layout/Tiles.svelte";
+  import Samples from "../../lib/ui/Samples.svelte";
+  import { bodyCards, loadBiology, millions, shortName, valueRange, type BiologyView, type CardGenus } from "../../lib/exobiology";
 
   let v = $state<BiologyView | null>(null);
   let failed = $state<string | null>(null);
@@ -27,130 +33,155 @@
     return () => clearInterval(t);
   });
 
-  const total = $derived(
-    v ? v.bodies.reduce<[number, number]>((a, b) => [a[0] + b.value[0], a[1] + b.value[1]], [0, 0]) : ([0, 0] as [number, number]),
-  );
+  const cards = $derived(v ? bodyCards(v.bodies, v.known) : []);
+  const total = $derived(cards.reduce<[number, number]>((a, c) => [a[0] + c.value[0], a[1] + c.value[1]], [0, 0]));
   const short = (name: string) => shortName(name, v?.system ?? null);
   const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-  const sampledBody = $derived(v?.sampling ? v.bodies.find((b) => b.body_id === v?.sampling?.body_id) : undefined);
+  const sampling = $derived(v?.sampling ?? null);
+  const sampledBody = $derived(sampling ? v?.bodies.find((b) => b.body_id !== null && b.body_id === sampling.body_id) : undefined);
+  /** The distance to the nearest earlier sample is the page's main value while there is one. */
+  const distanceLeads = $derived(!!sampling && !sampling.complete && !!sampling.clearance);
 
-  /** What a Value means, in the column head's Tip. */
+  /** The samples taken of a genus on a card: the one being sampled to its count, analysed ones in full. */
+  function taken(bodyId: number | null, g: CardGenus): number | null {
+    if (sampling && bodyId !== null && sampling.body_id === bodyId && sampling.genus === g.genus) return sampling.complete ? 3 : sampling.count;
+    return g.analysed ? 3 : null;
+  }
+
+  /** The species a genus could be, without the genus's name ("Tectonicas"). */
+  const speciesName = (genus: string, species: string) => (species.startsWith(`${genus} `) ? species.slice(genus.length + 1) : species);
+
+  /** What a genus's name means, in its Tip; none for one the commander knows and nobody else reported. */
+  function genusTip(g: CardGenus) {
+    if (g.reported) return { title: "Reported", fact: REPORTED };
+    if (!g.known) return { title: "Predicted", fact: g.others ? `${PREDICTED} Other players reported it here.` : PREDICTED };
+    return null;
+  }
+
   const VALUE = "Vista Genomics base value; a first logged species pays five times";
+  const RANGE = "Sample again at least the colony range from every earlier sample";
+  const PREDICTED = "From the body's scan: map it with the DSS to know.";
+  const REPORTED = "Other players reported it to EDDN (from Spansh).";
 </script>
 
-<section>
-  <Stale error={v ? failed : null} />
-  {#if failed && !v}
-    <p class="sub err" role="alert">{failed} Biology follows the game while it runs.</p>
-  {:else if !v}
-    <p class="sub">Reading the journal…</p>
-  {:else}
-    <p class="sub">
-      {v.system ?? "No system yet"}
-      {#if v.bodies.length}· biology on {plural(v.bodies.length, "body", "bodies")} · {valueRange(total)}{/if}
-      {#if v.source}· {v.source}{/if}
-    </p>
-
-    {#if v.sampling}
-      {@const s = v.sampling}
-      {@const c = s.clearance}
-      <h3 class="section">Sampling</h3>
-      <div class="tiles" aria-label="Sampling">
-        <Stat label="Species" value={s.species} />
-        <Stat label="Samples" value={s.count} unit="of 3" />
-        {#if s.complete}
-          <Stat label="Status" value="Analysed" />
-        {:else if c}
-          <Stat label="From the nearest sample" value={Math.round(c.nearest_m)} unit="m of {c.colony_range_m} m" go={c.far_enough} />
-          <Stat
-            label="Sample {c.next}"
-            value={c.far_enough ? "Far enough" : Math.max(0, Math.ceil(c.colony_range_m - c.nearest_m))}
-            unit={c.far_enough ? "" : "m to go"}
-            go={c.far_enough}
-            {@attach tip("Sample again at least the colony range from every earlier sample")}
-          />
-        {:else if s.colony_range_m !== null}
-          <Stat label="Colony range" value={s.colony_range_m} unit="m" />
-        {/if}
-      </div>
-      {#if sampledBody}<p class="lo">On {short(sampledBody.name)}</p>{/if}
-    {/if}
-
-    <h3 class="section">Bodies with biology</h3>
-    {#if v.bodies.length}
-      <table aria-label="Bodies with biology">
-        <thead><tr><th>Body</th><th class="num">Signals</th><th>Genera</th><th class="num" {@attach tip(VALUE)}>Value</th></tr></thead>
-        <tbody>
-          {#each v.bodies as b (b.body_id)}
-            <tr>
-              <td class="body">{short(b.name)}</td>
-              <td class="num">{b.signals ?? "–"}</td>
-              <td>
-                {#if b.genera.length}
-                  <ul class="genera">
-                    {#each b.genera as g (g.genus)}
-                      <li class:guess={!g.known}>
-                        <span class="genus">{g.genus}</span>
-                        {#if g.species.length}<span class="lo">{g.species.map((c) => c.species.replace(`${g.genus} `, "")).join(", ")}</span>{/if}
-                        <span class="worth">{valueRange(g.value)}</span>
-                      </li>
-                    {/each}
-                  </ul>
-                  {#if b.mapped}<span class="lo small">From the DSS</span>{:else}<span class="lo small" {@attach tip("Predicted from the scan: map it with the DSS to know")}>Predicted from the scan</span>{/if}
-                {:else}
-                  <span class="lo">Scan the body to predict its genera.</span>
-                {/if}
-              </td>
-              <td class="num ranked">{valueRange(b.value)}</td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
+<Board>
+  <div class="page">
+    <Stale error={v ? failed : null} />
+    {#if failed && !v}
+      <!-- The page reads again every 2 s on its own: the next read is the recovery, so no action. -->
+      <p class="type-label err" role="alert"><b>!</b> {failed} Biology follows the game while it runs.</p>
+    {:else if !v}
+      <p class="type-label">Reading the journal…</p>
     {:else}
-      <p class="lo">No biological signals found in this system yet. The FSS shows them.</p>
-    {/if}
+      <header>
+        {#if v.system}<h2 class="type-title">{v.system}</h2>{/if}
+        <p class="type-label">
+          {[!v.system && "No system yet", cards.length && `biology on ${plural(cards.length, "body", "bodies")}`, cards.length && valueRange(total), v.source]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      </header>
 
-    {#if v.known?.length}
-      <h3 class="section">Reported by other players</h3>
-      <table aria-label="Reported by other players">
-        <thead><tr><th>Body</th><th class="num">Signals</th><th>Genera and species</th><th class="num" {@attach tip(VALUE)}>Value</th></tr></thead>
-        <tbody>
-          {#each v.known as k (k.name)}
-            <tr>
-              <td class="body">{short(k.name)}</td>
-              <td class="num">{k.signals}</td>
-              <td>
-                {k.genera.join(", ")}
-                {#if k.species.length}<br /><span class="lo">{k.species.map((s) => `${s.name} ${millions(s.value)}`).join(" · ")}</span>{/if}
-              </td>
-              <td class="num ranked">{valueRange(k.value)}</td>
-            </tr>
+      {#if sampling}
+        {@const c = sampling.clearance}
+        <section class="sampling" aria-label="Sampling">
+          <div class="what">
+            <span class="type-name">{sampling.species}</span>
+            {#if sampledBody}<span class="type-label">on {short(sampledBody.name)}</span>{/if}
+          </div>
+          <div class="count">
+            <Samples count={sampling.complete ? 3 : sampling.count} />
+            <span class="type-label">{sampling.complete ? 3 : sampling.count} of 3</span>
+          </div>
+          {#if sampling.complete}
+            <p class="type-value-xl">Analysed</p>
+          {:else if c}
+            <p class="far" {@attach tip(RANGE)}>
+              <span><span class="type-value-xl main">{Math.round(c.nearest_m)}</span> <span class="type-unit">m of {c.colony_range_m} m</span></span>
+              {#if c.far_enough}
+                <span class="type-name go">Far enough</span>
+              {:else}
+                <span><span class="type-name">{Math.max(0, Math.ceil(c.colony_range_m - c.nearest_m))} m</span> <span class="type-label">to go</span></span>
+              {/if}
+            </p>
+          {:else if sampling.colony_range_m !== null}
+            <p class="type-label" {@attach tip(RANGE)}>Colony range {sampling.colony_range_m} m</p>
+          {/if}
+        </section>
+      {/if}
+
+      {#if cards.length}
+        <Tiles wide list label="Bodies with biology">
+          {#each cards as card, i (card.name)}
+            <article class="card" role="listitem" aria-label={short(card.name)}>
+              <div class="top">
+                <span class="name">
+                  <span class="type-name">{short(card.name)}</span>
+                  {#if card.reported}<Badge {@attach tip(REPORTED)}>Reported</Badge>{/if}
+                </span>
+                <span class="type-value-l" class:main={i === 0 && !distanceLeads} {@attach tip(VALUE)}>{valueRange(card.value)}</span>
+              </div>
+              <p class="type-label">
+                {card.signals === null ? "Signals not known" : plural(card.signals, "signal", "signals")}
+                {#if card.reported_value}· <span {@attach tip(REPORTED)}>reported {valueRange(card.reported_value)}</span>{/if}
+              </p>
+              {#if card.genera.length}
+                <ul class="genera">
+                  {#each card.genera as g (g.genus)}
+                    {@const n = taken(card.body_id, g)}
+                    <li>
+                      <span class="type-figures genus" class:known={g.known && !g.reported} {@attach tip(genusTip(g))}>{g.genus}</span>
+                      <span class="species type-label">
+                        {#each g.species as s, j (s.name)}
+                          {@const sep = j < g.species.length - 1 ? ", " : ""}
+                          {#if s.reported}
+                            <span {@attach tip(REPORTED)}>{speciesName(g.genus, s.name)}{s.value !== null ? ` ${millions(s.value)}` : ""}</span>{sep}
+                          {:else}
+                            {speciesName(g.genus, s.name)}{sep}
+                          {/if}
+                        {/each}
+                      </span>
+                      <span class="type-figures worth">{g.value ? valueRange(g.value) : ""}</span>
+                      <span class="marks">{#if n !== null}<Samples count={n} small />{/if}</span>
+                    </li>
+                  {/each}
+                </ul>
+              {:else}
+                <p class="type-label">Scan it to predict its genera</p>
+              {/if}
+            </article>
           {/each}
-        </tbody>
-      </table>
-      <p class="lo small">Spansh, from other players' EDDN reports</p>
+        </Tiles>
+      {:else}
+        <p class="type-label">No biological signals found in this system yet. The FSS shows them.</p>
+      {/if}
     {/if}
-  {/if}
-</section>
+  </div>
+</Board>
 
 <style>
-  section { padding: var(--sp-2) 0 1.75rem; min-height: 0; }
-  .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0.875rem 0 0.875rem; }
+  p, h2 { margin: 0; }
+  .page { display: flex; flex-direction: column; gap: var(--sp-8); min-width: 0; }
+  header { display: flex; flex-direction: column; gap: var(--sp-1); }
   .err { color: var(--alarm); }
-  .err::before { content: "! "; font-weight: 600; }
-  h3 { margin: 1.375rem 0 var(--sp-2); }
-  .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
-  table { border-collapse: collapse; width: 100%; max-width: 56.25rem; margin-top: 0.375rem; }
-  th { text-align: left; color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; padding: 0 var(--sp-3) 0.375rem 0; }
-  td { padding: 0.3125rem var(--sp-3) 0.3125rem 0; border-top: 1px solid var(--line); vertical-align: baseline; }
-  .num { text-align: right; white-space: nowrap; }
-  /* Bodies are ranked by value: it is the table's one orange column. */
-  .ranked { color: var(--accent); font-weight: 500; }
-  .body { font-weight: 500; white-space: nowrap; }
-  .genera { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--gap); }
-  .genera li { display: flex; gap: 0.625rem; align-items: baseline; flex-wrap: wrap; }
-  .guess .genus { color: var(--label-grey); font-style: italic; }
-  .lo { color: var(--label-grey); }
-  .small { font-size: var(--fs-s); }
-  .worth { font-size: var(--fs-s); }
+  .err b { font-weight: 600; }
+
+  /* The page's one leading block (DESIGN.md Hull Raised): the species, its samples, and the
+     distance to the nearest earlier sample as the page's main value. */
+  .sampling { display: flex; flex-direction: column; gap: var(--sp-3); width: fit-content; max-width: 100%; padding: var(--sp-4) var(--sp-6); background: var(--surface-hi); border: 1px solid var(--line); }
+  .what, .count { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2); }
+  .count { align-items: center; gap: var(--sp-3); }
+  .far { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-6); }
+  .go { color: var(--accent); }
+
+  /* A body card: a Seam outline on Void, its name and value range, then a line per genus. */
+  .card { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; padding: var(--sp-3) var(--sp-4); outline: 1px solid var(--line); outline-offset: -1px; }
+  .top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-4); }
+  .name { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+  .genera { list-style: none; margin: var(--sp-1) 0 0; padding: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content max-content; column-gap: var(--sp-3); row-gap: var(--sp-1); }
+  .genera li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: baseline; }
+  .genus { color: var(--label-grey); }
+  .genus.known { color: var(--prose); }
+  .worth { text-align: right; white-space: nowrap; }
+  .marks { align-self: center; display: flex; }
 </style>

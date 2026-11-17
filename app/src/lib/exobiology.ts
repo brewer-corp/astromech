@@ -39,3 +39,98 @@ export function shortName(body: string, system: string | null): string {
   if (system && body.startsWith(system + " ")) return body.slice(system.length + 1).trim() || body;
   return body;
 }
+
+/** A species on a card: its name and, when a report or a sample gives it, its value. */
+export type CardSpecies = { name: string; value: number | null; reported: boolean };
+
+/** A genus on a body card. */
+export type CardGenus = {
+  genus: string;
+  /** From the DSS or a sample (or reported by others); false: predicted from the scan. */
+  known: boolean;
+  /** Only other players reported it; the commander has nothing on it. */
+  reported: boolean;
+  /** Other players reported it (as well as the commander, or alone). */
+  others: boolean;
+  species: CardSpecies[];
+  /** What it could be worth, lowest to highest; null for a reported genus with no species. */
+  value: [number, number] | null;
+  analysed: boolean;
+};
+
+/** One body with biology: the commander's, with what others reported merged in, or others' alone. */
+export type BodyCard = {
+  /** The full body name: the card's key. */
+  name: string;
+  body_id: number | null;
+  signals: number | null;
+  /** The commander's range; for a body only others reported, theirs. */
+  value: [number, number];
+  /** What others reported it is worth, where they reported the body and it differs from `value`. */
+  reported_value: [number, number] | null;
+  genera: CardGenus[];
+  /** Only other players reported the body. */
+  reported: boolean;
+};
+
+type Body = import("./api/types/BodyBio").BodyBio;
+type Known = import("./api/types/KnownView").KnownView;
+
+/** The same body: by id when both have one, else by full name. A null id never matches another. */
+const same = (b: Body, k: Known) => (b.body_id !== null && k.body_id !== null ? b.body_id === k.body_id : b.name === k.name);
+
+/** The genus of a reported species: its first word ("Stratum Tectonicas" is a Stratum). */
+const genusOf = (species: string) => species.split(" ")[0] ?? species;
+
+const span = (vs: number[]): [number, number] | null => (vs.length ? [Math.min(...vs), Math.max(...vs)] : null);
+
+/** A reported body's genera, each with the species reported for it. */
+function reportedGenera(k: Known): CardGenus[] {
+  const names = [...k.genera];
+  for (const s of k.species) if (!names.includes(genusOf(s.name))) names.push(genusOf(s.name));
+  return names.map((genus) => {
+    const species = k.species.filter((s) => genusOf(s.name) === genus).map((s) => ({ name: s.name, value: s.value, reported: true }));
+    return { genus, known: true, reported: true, others: true, species, value: span(species.map((s) => s.value!)), analysed: false };
+  });
+}
+
+/**
+ * The page's cards: the commander's bodies in the reply's order (most valuable first), each with
+ * what other players reported for it added (a genus or species only they reported, and their
+ * value range); then the bodies only others reported, in their order. `known` null (not asked,
+ * or the lookup failed) gives the commander's cards alone.
+ */
+export function bodyCards(bodies: Body[], known: Known[] | null): BodyCard[] {
+  const reports = known ?? [];
+  const used = new Set<Known>();
+  const mine = bodies.map((b): BodyCard => {
+    const k = reports.find((r) => !used.has(r) && same(b, r));
+    if (k) used.add(k);
+    const genera: CardGenus[] = b.genera.map((g) => ({
+      genus: g.genus,
+      known: g.known,
+      reported: false,
+      others: false,
+      species: g.species.map((c) => ({ name: c.species, value: c.value, reported: false })),
+      value: g.value,
+      analysed: g.analysed,
+    }));
+    if (k) {
+      for (const r of reportedGenera(k)) {
+        const g = genera.find((x) => x.genus === r.genus);
+        if (!g) {
+          genera.push(r);
+          continue;
+        }
+        g.others = true;
+        for (const s of r.species) if (!g.species.some((x) => x.name === s.name)) g.species.push(s);
+      }
+    }
+    const differs = k && (k.value[0] !== b.value[0] || k.value[1] !== b.value[1]);
+    return { name: b.name, body_id: b.body_id, signals: b.signals ?? k?.signals ?? null, value: b.value, reported_value: differs ? k.value : null, genera, reported: false };
+  });
+  const theirs = reports
+    .filter((k) => !used.has(k))
+    .map((k): BodyCard => ({ name: k.name, body_id: k.body_id, signals: k.signals, value: k.value, reported_value: null, genera: reportedGenera(k), reported: true }));
+  return [...mine, ...theirs];
+}
