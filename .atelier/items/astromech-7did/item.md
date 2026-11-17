@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-7did
 title: 'Engineers: search by module type answers where to engineer it'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -107,3 +107,10 @@ laser, fsd and range at 2560, fsd at 1100 and lazer.
 - The page is not yet on a layout component: the Engineers rebuild is astromech-m6gw.
 - Rows truncate a long unlock step with an ellipsis, and a Tip shows the full text.
 
+
+### Responses
+
+1-4sr2.1: fixed in 11d7c60a (today's ties go nearest first; regression `equal_grades_today_go_nearest_first_whatever_they_reach_later`)
+1-4sr2.2: fixed in 11d7c60a (unlock answer picked across non-barred hits; `a_barred_engineer_is_never_the_main_answer` covers cannons and the all-barred case)
+1-4sr2.3: fixed in 11d7c60a (`SearchHit.unsure` from `unconfirmed_mods`, shown as the tree's "(?)" with its Tip; browser test on Rosa Dayette's recorded range offer)
+1-4sr2.4: fixed in 11d7c60a (only an answer for the words in the box is shown, else "Searching the engineers…"; browser test holds the laser reply at the transport)
