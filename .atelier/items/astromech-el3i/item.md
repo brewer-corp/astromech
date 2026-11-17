@@ -76,21 +76,21 @@ cargo and the figures onto one row of prose fragments.
   sits next to its cargo and not 1,000 px away at 2560.
 - **Pad too small.** This is the new shared `app/src/lib/ui/PadLetter.svelte` (its own commit).
   It is DESIGN.md's outlined letter. When it is too small, it is Red Low and struck through, and its
-  accessible name says why ("Small pad: too small for your ship"). "The ship" is the pad the core
-  measured its `warning` against. The core resolves the current ship's pad on every search unless
-  the commander set one (`filters::resolve`). So the page takes it from the reload of the filters
-  that each search already makes (`followShip`), falls back to the filters it asked with, and keeps
-  it with the answer (`need`). A later edit or ship swap then doesn't re-mark an old answer. My
-  first version used the pad the page loaded with, which was wrong after a ship swap. A ninth test,
-  written failing first, covers that ("measures a stop's pad against the ship flown at the search").
-  After rounds 1 and 2, the measure no longer reads the saved filters at all. A filter edit can be
-  searched before its save lands, so storage can hold the pad from before the edit, in either
-  direction. A pad the commander set is measured as it was sent with the search. With no pad set,
-  the measure is the ship's pad from `ship_status`, the same `Pad::for_ship` of the current ship
-  that the core's `filters::resolve` uses, and the same read the finders measure with. Two more
-  tests, each written failing first, hold the save while the search completes: one sets a pad,
-  the other clears one. SearchKit and Now's `Sale.svelte`
-  still have their own copies of the badge. Moving them would touch SearchKit's busy-state greying,
+  accessible name says why ("Small pad: too small for your ship"). The page has to measure stops
+  against the pad the core measured its `warning` against, so the strike and the warning agree.
+  It took three review rounds to get the source and the timing of that pad right. Now a search
+  first waits for any filter change still being saved, so the filters it sends are the saved ones.
+  It reads the saved filters (`search_filters`) as it sends. That read resolves the pad as the core
+  resolves the search's (`filters::resolve`): the commander's pad, else the current ship's from the
+  journal's fleet, Elite running or not. The page keeps that pad with the answer (`need`), so a
+  ship swap during Spansh's minute, or a later edit, doesn't change an answer already shown. The
+  rounds before this read the filters as loaded (wrong after a ship swap), then `ship_status` after
+  the job (null with Elite closed, and late by the job's minute). Five tests cover it, each written
+  failing first: a swap before the search, setting a pad and clearing one while the save is
+  pending, Elite closed, and a swap while Spansh works. The surest form would be the core
+  returning the pad it measured with the route. The item rules out a core change, so I didn't add
+  it. If the read-as-sent proves fragile, that change is the one to make.
+  SearchKit and Now's `Sale.svelte` still have their own copies of the badge. Moving them would touch SearchKit's busy-state greying,
   so I left them for a follow-up item (to file from a backlog branch: "Pad letter: SearchKit and
   Now's Sale use PadLetter.svelte").
 - **States.** Before a search, it shows today's one Label line. Asking Spansh is one Label line.
@@ -103,10 +103,10 @@ cargo and the figures onto one row of prose fragments.
   inputs under it sit 2 px higher. The `.tools` gap is on the scale now (`--sp-3 --sp-4`, from 10
   and 18 px).
 
-**Tests.** The eight cases in `Route.browser.test.ts` keep their behaviour, and there are the three pad tests above (11 cases). Only the strings they
+**Tests.** The eight cases in `Route.browser.test.ts` keep their behaviour, and there are the five pad tests above (13 cases). Only the strings they
 read changed to the new markup, and the pad is asserted through its accessible name. The loop
 case also checks that the first station is drawn twice. The age is matched as `/^Spansh, .* ago$/`,
-so the test doesn't depend on the wall clock. `pnpm check`, `pnpm lint` and `pnpm test` (900 tests after round 2)
+so the test doesn't depend on the wall clock. `pnpm check`, `pnpm lint` and `pnpm test` (902 tests after round 3)
 pass, and so does `python3 scripts/check-guide.py`. The 7 journeys pass with
 `ASTROMECH_CORE=/home/supadava/projects/astromech/target/debug/astromech-core`, the main
 checkout's debug core, as Station did. This worktree has no core build, and there is no core change
@@ -143,3 +143,5 @@ struck pad by its accessible name, and "Fly back empty"), and the captures do no
 
 1-sh7u.1: fixed in 28201cda
 2-m3ls.2: fixed in 4dbfe2f1
+3-voqv.2: fixed in 5ac4b0b1
+3-voqv.3: fixed in 5ac4b0b1
