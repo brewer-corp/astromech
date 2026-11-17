@@ -80,7 +80,9 @@ export class RouteFollow {
   show(): void {
     if (this.docked) {
       this.collapsed = false;
-      this.asked = true;
+      // Only an empty sidebar needs asking for: one asked for over a route would stay, empty,
+      // once the route is cleared.
+      this.asked = !this.view?.route && !this.view?.parked;
     } else this.overlay = true;
   }
 

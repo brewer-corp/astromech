@@ -373,6 +373,15 @@ describe("route sidebar in the frame", () => {
     await clearRoute();
     expect(await screen.findByRole("navigation", { name: "No route" })).toBeTruthy();
     expect(sidebar()).toBeNull();
+
+    // Asked for over a route (#/route in the window), it still gives way to the rail once cleared.
+    await followRoute("Trip", "test", [{ system: "Deciat" }, { system: "Kuk" }]);
+    await screen.findByRole("complementary", { name: "Route" });
+    location.hash = "#/route";
+    await waitFor(() => expect(location.hash, "handled: the page's address is back").toBe("#/materials"));
+    await clearRoute();
+    expect(await screen.findByRole("navigation", { name: "No route" })).toBeTruthy();
+    expect(sidebar()).toBeNull();
   });
 
   it("opens the sidebar for #/route, cold or in the window, and keeps the page", async () => {
