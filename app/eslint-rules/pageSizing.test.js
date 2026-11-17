@@ -59,7 +59,7 @@ describe("eslint.config.js page-sizing", () => {
   });
 
   it("leaves a page not yet enrolled, Controls and the frame's parts alone", async () => {
-    for (const f of ["src/modules/station/View.svelte", "src/modules/controller/View.svelte", "src/modules/route/Strip.svelte", "src/modules/route/PlotBar.svelte"]) {
+    for (const f of ["src/modules/logbook/View.svelte", "src/modules/controller/View.svelte", "src/modules/route/Strip.svelte", "src/modules/route/PlotBar.svelte"]) {
       expect(await lint(f), f).toEqual([]);
     }
   });
