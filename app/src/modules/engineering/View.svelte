@@ -239,16 +239,16 @@
   .err { margin: 0; color: var(--alarm); font-size: var(--fs-s); }
   .err b { font-weight: 600; }
   .stage { flex: 1 1 auto; min-width: 0; min-height: 0; overflow: auto; }
-  .ship { display: grid; grid-template-columns: auto minmax(11.25rem, 1.4fr) minmax(11.25rem, 1fr); gap: 1.125rem 1.75rem; align-items: start; padding: 1.125rem 1.25rem 0.25rem; }
+  .ship { display: grid; grid-template-columns: auto minmax(11.25rem, 1.4fr) minmax(11.25rem, 1fr); gap: 1.125rem 1.75rem; align-items: start; padding: 1.125rem 1.25rem var(--sp-1); }
   .art { display: grid; place-items: center; min-width: 11.25rem; }
-  .who h2 { margin: 0 0 0.25rem; color: var(--text-hi); font-size: var(--fs-xl); font-weight: 500; }
-  .id { font-size: var(--fs-s); margin: 0 0 0.5rem; }
-  .type { margin: 0 0 0.5rem; font-size: var(--fs-l); }
-  .where { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.25rem; margin: 0; font-size: var(--fs); color: var(--label-grey); }
+  .who h2 { margin: 0 0 var(--sp-1); color: var(--text-hi); font-size: var(--fs-xl); font-weight: 500; }
+  .id { font-size: var(--fs-s); margin: 0 0 var(--sp-2); }
+  .type { margin: 0 0 var(--sp-2); font-size: var(--fs-l); }
+  .where { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--sp-1); margin: 0; font-size: var(--fs); color: var(--label-grey); }
   .lo { color: var(--label-grey); }
   .mark { color: var(--accent); }
   .accent { color: var(--prose); }
-  .more { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.625rem 1.125rem; min-width: 0; padding-top: 0.5rem; }
+  .more { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.625rem 1.125rem; min-width: 0; padding-top: var(--sp-2); }
   .pair { display: inline-flex; align-items: baseline; gap: 0.375rem; white-space: nowrap; }
   .k { color: var(--label-grey); font-size: var(--fs-s); }
   .q { font-size: var(--fs-l); }
@@ -256,13 +256,13 @@
   .bar { flex: 1 1 5.625rem; min-width: 3.75rem; height: 0.25rem; background: var(--mark-off); align-self: center; }
   .bar i { display: block; height: 100%; background: var(--prose); }
   .none { color: var(--prose); padding: 1.75rem 1.25rem; }
-  .rail { display: flex; gap: 0.5rem; overflow-x: auto; flex: none; padding: 0.75rem 0.75rem 1rem; border-top: 1px solid var(--line); }
+  .rail { display: flex; gap: var(--sp-2); overflow-x: auto; flex: none; padding: var(--sp-3) var(--sp-3) var(--sp-4); border-top: 1px solid var(--line); }
   /* The ship rail is read-only navigation: tiles in a Seam outline (Hull is the frame's), the ship
      shown raised with its name White (DESIGN.md Selected row or tile). */
-  .pick { display: flex; align-items: center; gap: 0.75rem; min-width: 12.1875rem; padding: 0.625rem 0.75rem; outline: 1px solid var(--line); outline-offset: -1px; color: inherit; text-decoration: none; }
+  .pick { display: flex; align-items: center; gap: var(--sp-3); min-width: 12.1875rem; padding: 0.625rem var(--sp-3); outline: 1px solid var(--line); outline-offset: -1px; color: inherit; text-decoration: none; }
   .pick:hover { background-color: var(--row-hover); }
   .pick.on, .pick.on:hover { background: var(--surface-hi); }
-  .pick-who { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
+  .pick-who { display: flex; flex-direction: column; gap: var(--gap); min-width: 0; }
   .pick-name { color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pick.on .pick-name { color: var(--text-hi); }
   .pick-type, .pick-now { font-size: var(--fs-s); color: var(--label-grey); }

@@ -18,10 +18,10 @@
 {#if binds.error}<p class="err" role="alert"><b>!</b> {binds.error}</p>{/if}
 
 <style>
-  .row { display: grid; grid-template-columns: 10rem 1fr; align-items: center; margin-top: 0.75rem; }
-  .err { margin: 0.5rem 0 0; padding-left: 10.75rem; color: var(--alarm); }
+  .row { display: grid; grid-template-columns: 10rem 1fr; align-items: center; margin-top: var(--sp-3); }
+  .err { margin: var(--sp-2) 0 0; padding-left: 10.75rem; color: var(--alarm); }
   b { font-weight: 600; }
   .lbl { padding-left: 2.125rem; color: var(--options-grey); }
-  .compact { grid-template-columns: auto 1fr; gap: 0.75rem; margin: 0; min-width: 15rem; }
+  .compact { grid-template-columns: auto 1fr; gap: var(--sp-3); margin: 0; min-width: 15rem; }
   .compact .lbl { padding-left: 0; }
 </style>

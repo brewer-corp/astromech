@@ -27,7 +27,7 @@
 </div>
 
 <style>
-  .stat { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 11rem; padding: 0.625rem var(--sp-3); outline: 1px solid var(--line); outline-offset: -1px; }
+  .stat { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 11rem; padding: var(--sp-2) var(--sp-3); outline: 1px solid var(--line); outline-offset: -1px; }
   .go { outline-color: var(--accent); }
   .go .v { color: var(--accent); }
 </style>

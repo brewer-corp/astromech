@@ -12,5 +12,5 @@
 <span class="badge" {...rest}>{@render children()}</span>
 
 <style>
-  .badge { display: inline-flex; align-items: center; flex: none; height: 1.25rem; padding: 0 0.375rem; border: 1px solid var(--line); color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; line-height: 1; letter-spacing: normal; text-transform: none; white-space: nowrap; vertical-align: middle; }
+  .badge { display: inline-flex; align-items: center; flex: none; height: 1.25rem; padding: 0 var(--sp-1); border: 1px solid var(--line); color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; line-height: 1; letter-spacing: normal; text-transform: none; white-space: nowrap; vertical-align: middle; }
 </style>

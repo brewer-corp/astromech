@@ -4,6 +4,8 @@ import globals from "globals";
 import ts from "typescript-eslint";
 import tests from "./eslint-rules/tests.js";
 import pageSizing from "./eslint-rules/pageSizing.js";
+import tokens from "./eslint-rules/tokens.js";
+import css from "@eslint/css";
 
 /**
  * The page-sizing check (DESIGN.md Page layouts): the page files it is on, and which of its parts
@@ -39,6 +41,51 @@ export const PAGE_SIZING_EXEMPT = [
   "src/modules/route/PlotBar.svelte",
 ];
 
+/**
+ * The token check (DESIGN.md Token map, eslint-rules/tokens.js): every .svelte and .css file under
+ * src/ uses the design system's colours, font sizes and spacing. Off for the tokens themselves and
+ * the mockups, which draw the system rather than use it.
+ */
+export const TOKENS = ["src/**/*.svelte", "src/**/*.css"];
+export const TOKENS_IGNORED = ["src/design/tokens.css", "src/mockups/**"];
+/**
+ * Files a part of the token check is off for, and why. A pending entry names, in `until`, the item
+ * that rebuilds the page and takes the entry off; a lasting one says why the file keeps its own
+ * value. tokens.test.js fails an entry whose files no longer need it.
+ */
+export const TOKENS_EXEMPT = [
+  // Lasting.
+  {
+    files: ["src/modules/{controller,keybinds,presets,keytester}/**", "src/lib/ui/{About,PresetPicker}.svelte"],
+    off: ["spacing"],
+    why: "Controls keep their own spacing: mission astromech-xajc gives them only the frame, Text size, colours and Tip. About and PresetPicker are only on Controls pages.",
+  },
+  { files: ["src/lib/ui/Button.svelte"], off: ["spacing"], why: "DESIGN.md Buttons gives the primary button 20 px padding, a step the scale lacks." },
+  {
+    files: ["src/lib/ui/Sheet.svelte"],
+    off: ["font-size", "spacing"],
+    why: "The labels on a controller sheet follow the image's scale (--k), not Text size, so they are px.",
+  },
+  // Pending: the page is rebuilt on a layout by the item named, which takes it off this list.
+  { files: ["src/modules/colonisation/**"], off: ["spacing"], until: "astromech-m07p", why: "Rebuilds Colonisation." },
+  { files: ["src/modules/engineering/**"], off: ["spacing"], until: "astromech-8wr4", why: "Rebuilds Ships as a loadout." },
+  { files: ["src/modules/unlocks/**"], off: ["spacing"], until: "astromech-m6gw", why: "Rebuilds Engineers." },
+  { files: ["src/modules/odyssey/**"], off: ["spacing"], until: "astromech-nnn0", why: "Rebuilds Suits, where astromech-5a01 moves On foot; 5a01 carries this entry with the files." },
+  { files: ["src/modules/exobiology/**"], off: ["spacing"], until: "astromech-evj3", why: "Rebuilds Biology." },
+  { files: ["src/modules/exploration/**"], off: ["spacing"], until: "astromech-dpaz", why: "Rebuilds System." },
+  { files: ["src/modules/{session,logbook}/**"], off: ["spacing"], until: "astromech-fzhp", why: "Rebuilds Session and Logbook." },
+  { files: ["src/modules/powerplay/**"], off: ["spacing"], until: "astromech-rj6i", why: "Rebuilds Powerplay." },
+  { files: ["src/modules/station/**"], off: ["spacing"], until: "astromech-7vxi", why: "Rebuilds Station." },
+  { files: ["src/modules/trade/**"], off: ["spacing"], until: "astromech-el3i", why: "Rebuilds Trade route." },
+  {
+    files: ["src/modules/{stored,mining,datasharing,diagnostics,voicetester}/**", "src/modules/places/Home.svelte"],
+    off: ["spacing"],
+    until: "astromech-gvy0", why: "Moves the remaining pages onto the layouts.",
+  },
+];
+
+const SCRIPT = ["**/*.{js,mjs,cjs,ts,mts,cts,svelte}"];
+
 const PREVIEW = {
   group: ["**/preview", "**/preview/*", "**/fakecore", "**/previewquery", "**/fixtures/*"],
   message: "Reach the browser preview through lib/transport.ts (call, subscribe, previewOption).",
@@ -67,10 +114,10 @@ export default ts.config(
       "src/lib/api/types/",
     ],
   },
-  js.configs.recommended,
-  ...ts.configs.recommended,
-  ...svelte.configs.recommended,
-  { languageOptions: { globals: { ...globals.browser } } },
+  // The script configs are for script files; a .css file has its own language (below).
+  ...[js.configs.recommended, ...ts.configs.recommended, ...svelte.configs.recommended, { languageOptions: { globals: { ...globals.browser } } }].map(
+    (c) => ({ ...c, files: c.files ?? SCRIPT }),
+  ),
   {
     files: ["**/*.svelte", "**/*.svelte.ts"],
     languageOptions: { parserOptions: { parser: ts.parser, extraFileExtensions: [".svelte"] } },
@@ -140,4 +187,7 @@ export default ts.config(
     plugins: { "page-sizing": pageSizing },
     rules: Object.fromEntries(parts.map((p) => [`page-sizing/${p}`, "error"])),
   })),
+  { files: ["**/*.css"], language: "css/css", plugins: { css } },
+  { files: TOKENS, ignores: TOKENS_IGNORED, plugins: { tokens }, rules: { "tokens/colour": "error", "tokens/font-size": "error", "tokens/spacing": "error" } },
+  ...TOKENS_EXEMPT.map(({ files, off }) => ({ files, rules: Object.fromEntries(off.map((p) => [`tokens/${p}`, "off"])) })),
 );

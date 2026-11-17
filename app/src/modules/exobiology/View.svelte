@@ -134,20 +134,20 @@
 </section>
 
 <style>
-  section { padding: 0.5rem 0 1.75rem; min-height: 0; }
+  section { padding: var(--sp-2) 0 1.75rem; min-height: 0; }
   .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0.875rem 0 0.875rem; }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
-  h3 { margin: 1.375rem 0 0.5rem; }
+  h3 { margin: 1.375rem 0 var(--sp-2); }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
   table { border-collapse: collapse; width: 100%; max-width: 56.25rem; margin-top: 0.375rem; }
-  th { text-align: left; color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; padding: 0 0.75rem 0.375rem 0; }
-  td { padding: 0.3125rem 0.75rem 0.3125rem 0; border-top: 1px solid var(--line); vertical-align: baseline; }
+  th { text-align: left; color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; padding: 0 var(--sp-3) 0.375rem 0; }
+  td { padding: 0.3125rem var(--sp-3) 0.3125rem 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   .num { text-align: right; white-space: nowrap; }
   /* Bodies are ranked by value: it is the table's one orange column. */
   .ranked { color: var(--accent); font-weight: 500; }
   .body { font-weight: 500; white-space: nowrap; }
-  .genera { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.125rem; }
+  .genera { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--gap); }
   .genera li { display: flex; gap: 0.625rem; align-items: baseline; flex-wrap: wrap; }
   .guess .genus { color: var(--label-grey); font-style: italic; }
   .lo { color: var(--label-grey); }

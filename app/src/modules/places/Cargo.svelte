@@ -91,20 +91,20 @@
 </FinderPage>
 
 <style>
-  .hold { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 1.125rem; }
-  .pair { display: inline-flex; align-items: baseline; gap: 0.375rem; white-space: nowrap; }
+  .hold { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2) var(--sp-4); }
+  .pair { display: inline-flex; align-items: baseline; gap: var(--sp-1); white-space: nowrap; }
   .k { color: var(--label-grey); font-size: var(--fs-s); }
   .q { color: var(--prose); }
   /* Each commodity's best price, the value the list is ranked by, is its one orange figure. */
   .facts .q:first-child { color: var(--accent); font-weight: 500; }
   .left .q { color: var(--label-grey); }
   .lo { color: var(--label-grey); }
-  .each-wrap { padding: 0.5rem 0.5rem 1.75rem; }
-  h2 { margin: 1.125rem 0 0.375rem; }
+  .each-wrap { padding: var(--sp-2) var(--sp-2) var(--sp-6); }
+  h2 { margin: var(--sp-4) 0 var(--sp-1); }
   .each { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  .each li { display: grid; grid-template-columns: minmax(9.375rem, 1fr) minmax(11.25rem, 1.4fr) minmax(9.375rem, 1fr) auto; gap: 0.5rem 1.125rem; align-items: start; padding: 0.875rem 0.5rem; border-bottom: 1px solid var(--line); font-size: var(--fs-s); line-height: 1.35; }
-  .who { display: flex; flex-direction: column; gap: 0.125rem; font-size: var(--fs); font-weight: 500; color: var(--options-grey); }
-  .facts { display: flex; flex-direction: column; align-items: flex-end; gap: 0.125rem; min-width: 0; text-align: right; } /* a column of figures */
+  .each li { display: grid; grid-template-columns: minmax(9.375rem, 1fr) minmax(11.25rem, 1.4fr) minmax(9.375rem, 1fr) auto; gap: var(--sp-2) var(--sp-4); align-items: start; padding: var(--sp-3) var(--sp-2); border-bottom: 1px solid var(--line); font-size: var(--fs-s); line-height: 1.35; }
+  .who { display: flex; flex-direction: column; gap: var(--gap); font-size: var(--fs); font-weight: 500; color: var(--options-grey); }
+  .facts { display: flex; flex-direction: column; align-items: flex-end; gap: var(--gap); min-width: 0; text-align: right; } /* a column of figures */
   @container win (max-width: 56.25rem) {
     .each li { grid-template-columns: minmax(0, 1fr); }
     .facts { align-items: flex-start; text-align: left; }

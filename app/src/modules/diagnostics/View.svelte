@@ -105,20 +105,20 @@
 
 <style>
   section { padding: 1.75rem 0; max-width: 56.25rem; }
-  dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0 0 1.5rem; }
-  dt, dd { margin: 0; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; }
+  dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0 0 var(--sp-6); }
+  dt, dd { margin: 0; padding: 0 var(--sp-3); min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* Read-only facts, outside a cell (DESIGN.md Settings row). */
   dd { color: var(--prose); }
-  .actions { display: flex; gap: 1rem; align-items: center; }
+  .actions { display: flex; gap: var(--sp-4); align-items: center; }
   /* A warning: an orange "!" and plain words, never a filled block (DESIGN.md States). */
   .crash { margin: 0 0 1.25rem; }
   .crash b { font-weight: 600; }
-  h2 { margin: 2rem 0 0.75rem; }
+  h2 { margin: var(--sp-8) 0 var(--sp-3); }
   h3 { margin: 1.25rem 0 0; font-weight: 500; font-size: var(--fs); }
-  .eddn { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; gap: var(--gap); }
+  .eddn { list-style: none; margin: var(--sp-3) 0 0; padding: 0; display: grid; gap: var(--gap); }
   .eddn li { display: grid; grid-template-columns: 10.3125rem 11.25rem 6.5625rem 1fr; align-items: center; min-height: var(--row); outline: 1px solid var(--line); outline-offset: -1px; } /* read-only log rows: a Seam outline (Hull is the frame's) */
-  .eddn li > span { padding: 0 0.75rem; }
+  .eddn li > span { padding: 0 var(--sp-3); }
   .eddn :is(.when, .detail) { font-size: var(--fs-s); }
   .eddn .detail { color: var(--label-grey); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* A send that went nowhere steps down a level; its outcome word says why. */

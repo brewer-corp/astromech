@@ -127,6 +127,13 @@ core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`wo
   link must resolve. A change with no visible effect needs no guide edit.
 - UI changes follow [DESIGN.md](DESIGN.md), the window's design system: use its tokens
   (`app/src/design/tokens.css`, mapped in its Token map) and check the page against its rules.
+  `pnpm lint` enforces the tokens in every `.svelte` and `.css` file under `app/src` except
+  `tokens.css` and `mockups/`. A raw colour (a hex, `rgb()`, `hsl()` or a named colour) fails,
+  and so does a font size that is not a size token or a type role. A margin, padding or gap
+  written as a length other than 0 fails too: use `--sp-*`, `--gap` or `--gutter`. A file that
+  must keep its own value goes in `TOKENS_EXEMPT` in `app/eslint.config.js`, with the reason
+  and, for a page still to be rebuilt, the item that takes it off. The page-sizing check
+  (`PAGE_SIZING`) also stops an enrolled page from setting its own width or font size.
   Run the Vite app (`cd app && pnpm dev`) and check it with headless Chrome:
   `scripts/ui --url http://127.0.0.1:5173/#/materials --wait Iron --screenshot /tmp/materials.png --text`.
   Needs Google Chrome (or `CHROME` pointing at Chromium). `scripts/app-shots.sh` and

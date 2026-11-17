@@ -367,12 +367,12 @@
     {@const d = depth(r.volume, measure?.against.tonnes ?? null)}
     {@const said = `${c.head} ${cell.value} t${d && measure ? `, ${d === "short" ? "short of" : `${d} for`} the ${measure.against.text}` : ""}`}
     <span class="tonnes {d ?? 'plain'}" role="img" aria-label={said} {@attach tip(d === "short" && measure ? shortTip(measure.side, r.volume, measure.against) : null)}>
-      <Bars depth={d} /><span>{cell.value}<span class="unit">t</span></span>
+      <Bars depth={d} /><span>{cell.value}<span class="unit type-unit">t</span></span>
     </span>
   {:else if cell.text}
     <span class="text" title={cell.value}>{cell.value}</span>
   {:else}
-    <span class:none={cell.value === "—"}>{cell.value}{#if cell.unit}<span class="unit">{cell.unit}</span>{/if}</span>
+    <span class:none={cell.value === "—"}>{cell.value}{#if cell.unit}<span class="unit type-unit">{cell.unit}</span>{/if}</span>
   {/if}
 {/snippet}
 
@@ -381,11 +381,11 @@
 {#snippet tripLine(r: Row)}
   {@const age = ageCell(r.updated_at, now)}
   {#if ageOnRow && r.updated_at}
-    <span class="l2"><span class="ly">{figure(r.ly, 1)}<span class="unit">ly</span></span>&nbsp;·&nbsp;<span class="age" class:old={stale(r)}>{age.value} {age.unit} old</span></span>
+    <span class="l2"><span class="ly">{figure(r.ly, 1)}<span class="unit type-unit">ly</span></span>&nbsp;·&nbsp;<span class="age" class:old={stale(r)}>{age.value} {age.unit} old</span></span>
   {:else if stale(r)}
     <span class="l2 age old">{age.value} {age.unit} old</span>
   {:else}
-    <span class="l2 ly">{figure(r.ly, 1)}<span class="unit">ly</span></span>
+    <span class="l2 ly">{figure(r.ly, 1)}<span class="unit type-unit">ly</span></span>
   {/if}
 {/snippet}
 
@@ -399,12 +399,12 @@
     <p class="psub">
       {#if r.station}<StationKind type={r.station_type} /><span>{r.station_type ? `${r.station_type} in` : "In"}</span> <SystemChip name={r.system} />{:else}<SystemChip name={r.system} icon />{/if}
     </p>
-    <p class="pmain"><span class="v">{top}</span><span class="unit">{res.main ? (res.main.unit ?? "") : jumpsUnit(top)}</span></p>
-    {#if g?.qual}<p class="pqual">{@render fact(g.qual, r)}<span class="unit">{g.qual.head.toLowerCase()}</span></p>{/if}
+    <p class="pmain"><span class="v">{top}</span><span class="unit type-unit">{res.main ? (res.main.unit ?? "") : jumpsUnit(top)}</span></p>
+    {#if g?.qual}<p class="pqual">{@render fact(g.qual, r)}<span class="unit type-unit">{g.qual.head.toLowerCase()}</span></p>{/if}
     <dl class="pfacts">
       {#each panelFacts(res, r, now).filter((f) => f.head !== g?.qual?.head) as f (f.head)}
         <dt>{f.head}</dt>
-        <dd class:none={f.cell.value === "—"}>{f.cell.value}{#if f.cell.unit}<span class="unit">{f.cell.unit}</span>{/if}</dd>
+        <dd class:none={f.cell.value === "—"}>{f.cell.value}{#if f.cell.unit}<span class="unit type-unit">{f.cell.unit}</span>{/if}</dd>
       {/each}
     </dl>
     <div class="pacts">
@@ -452,7 +452,7 @@
             <!-- svelte-ignore a11y_interactive_supports_focus, a11y_click_events_have_key_events -->
             <div class="row result" class:stale={stale(r)} class:sel={chosen?.key === r.key} role="row" onclick={() => detail && (picked = r.key)}>
               <span class="g r first" role="cell">
-                <span class="l1 main"><span class="v">{top}</span><span class="unit">{res.main ? (res.main.unit ?? "") : jumpsUnit(top)}</span></span>
+                <span class="l1 main"><span class="v">{top}</span><span class="unit type-unit">{res.main ? (res.main.unit ?? "") : jumpsUnit(top)}</span></span>
                 {#if !oneLine}
                   {#if g?.trip}
                     {#if g.qual}<span class="l2">{@render fact(g.qual, r)}</span>{/if}
@@ -469,7 +469,7 @@
                     {#if res.place === "station" && r.pad}
                       <span class="pad" class:unfit role="img" aria-label={unfit ? `${PADS[r.pad]} pad: too small for your ship` : `${PADS[r.pad]} pad`}>{r.pad}</span>
                     {/if}
-                    {#if r.arrival_ls != null}<span class="ls">{figure(r.arrival_ls)}<span class="unit">ls</span></span>{/if}
+                    {#if r.arrival_ls != null}<span class="ls">{figure(r.arrival_ls)}<span class="unit type-unit">ls</span></span>{/if}
                     {#if oneLine}<span class="sys" title={r.system}>{r.system}</span>{/if}
                   {:else}
                     {@render name(r, r.system)}
@@ -493,7 +493,7 @@
               {/if}
               {#if !compact && g?.trip}
                 <span class="g r trip" role="cell">
-                  <span class="l1">{jumpsFigure(r)}<span class="unit">{jumpsUnit(jumpsFigure(r))}</span></span>
+                  <span class="l1">{jumpsFigure(r)}<span class="unit type-unit">{jumpsUnit(jumpsFigure(r))}</span></span>
                   {@render tripLine(r)}
                 </span>
               {/if}
@@ -526,7 +526,7 @@
   /* As wide as the query's controls or the list's columns, whichever is wider: spare width stays
      empty (DESIGN.md The Next To It Rule). */
   .kit { display: flex; flex-direction: column; gap: 0; min-width: 0; width: fit-content; max-width: 100%; }
-  .query { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.125rem 1.25rem 1.25rem; border-bottom: 1px solid var(--line); }
+  .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-4); border-bottom: 1px solid var(--line); }
   .query :global(.origin) { margin: 0; }
   .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; }
   p { margin: 0; }
@@ -552,25 +552,25 @@
   .result :global(.ibtn:hover) { color: var(--orange-lit); }
   .r { text-align: right; }
   /* A group: two lines, each truncating before it wraps; figures right-aligned, text left. */
-  .g { display: flex; flex-direction: column; justify-content: center; gap: 0.125rem; overflow: hidden; }
+  .g { display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
   .g.r { align-items: flex-end; }
   .l1, .l2 { display: flex; align-items: baseline; min-width: 0; max-width: 100%; overflow: hidden; }
   .place .l1 { align-items: center; gap: var(--sp-2); }
   .l2 { font-size: var(--fs-s); }
   /* The value the list is ranked by is its one orange figure (DESIGN.md The Orange Means Act Rule). */
   .main .v { color: var(--accent); font-size: var(--fs-l); font-weight: 600; line-height: 1.2; }
-  .unit { margin-left: 0.1875rem; color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; }
+  /* .unit is the Unit role (.type-unit); the class stays for the state rules below. */
   .place :global(.kind) { color: var(--label-grey); flex: none; }
   .name { color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; }
   .pick { all: unset; cursor: pointer; color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; }
   .pick:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .result:has(.pick) { cursor: pointer; }
   /* The pad as a badge; one too small for the ship is Red Low and struck through (its name says why). */
-  .pad { display: inline-flex; align-items: center; flex: none; height: 1.125rem; padding: 0 0.3125rem; border: 1px solid var(--line); font-size: var(--fs-s); color: var(--prose); }
+  .pad { display: inline-flex; align-items: center; flex: none; height: 1.125rem; padding: 0 var(--sp-1); border: 1px solid var(--line); font-size: var(--fs-s); color: var(--prose); }
   .pad.unfit { color: var(--red-low); border-color: var(--red-low); text-decoration: line-through; }
   .ls { flex: none; font-size: var(--fs-s); color: var(--prose); }
   /* The system under the place, indented to the name past the station's type icon. */
-  .in { padding-left: 1.5rem; gap: 0; }
+  .in { padding-left: var(--sp-6); gap: 0; }
   .place .l1:not(:has(:global(.kind))) + .in { padding-left: 0; }
   .sys { color: var(--label-grey); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; flex: 0 1000 auto; }
   .place :global(.chip) { flex: none; }
@@ -582,7 +582,7 @@
   .ly { color: var(--label-grey); }
   .age { color: var(--label-grey); }
   /* A market's tonnes after its bars, coloured by what they mean for the hold. */
-  .tonnes { display: inline-flex; align-items: center; gap: 0.375rem; }
+  .tonnes { display: inline-flex; align-items: center; gap: var(--sp-1); }
   .tonnes.short { color: var(--red-low); }
   .tonnes.tight { color: var(--orange-mid); }
   .tonnes:is(.plenty, .plain) { color: var(--prose); }
@@ -609,7 +609,7 @@
   .pmain { margin: var(--sp-6) 0 0; }
   /* The panel's one main value: Value XL, Orange Lit. */
   .pmain .v { color: var(--orange-lit); font-size: var(--fs-xxl); font-weight: 500; }
-  .pqual { display: flex; align-items: center; gap: 0.1875rem; margin: var(--sp-2) 0 0; }
+  .pqual { display: flex; align-items: center; gap: var(--sp-1); margin: var(--sp-2) 0 0; }
   .pfacts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--sp-2) var(--sp-6); margin: var(--sp-6) 0 0; }
   .pfacts dt { color: var(--label-grey); font-size: var(--fs-s); align-self: baseline; }
   .pfacts dd { margin: 0; overflow-wrap: anywhere; }

@@ -159,7 +159,7 @@
 </section>
 
 <style>
-  section { padding: 0.5rem 0 1.75rem; min-height: 0; }
+  section { padding: var(--sp-2) 0 1.75rem; min-height: 0; }
   .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0.875rem 0 0.875rem; }
   .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.625rem; }
   .err { color: var(--alarm); }
@@ -171,14 +171,14 @@
   td { padding: 0.3125rem 0.875rem 0.3125rem 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   .num { text-align: right; white-space: nowrap; }
   .name { font-weight: 500; white-space: nowrap; }
-  .facts { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+  .facts { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
   .note { display: flex; flex-wrap: wrap; gap: 0.375rem; font-size: var(--fs-s); }
   tr.worth .name { color: var(--text-hi); }
   h3 { margin: 1.75rem 0 0.625rem; }
   /* A warning: an orange "!" and plain words, never a filled block (DESIGN.md States). */
   .risk { color: var(--accent); max-width: 48.75rem; }
   .risk b { font-weight: 600; }
-  .sell { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+  .sell { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .sell a { color: var(--accent); font-weight: 500; text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .sell a:hover { color: var(--orange-lit); }

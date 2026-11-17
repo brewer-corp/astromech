@@ -142,11 +142,11 @@
 <style>
   h3 { margin: 1.75rem 0 0.625rem; }
   dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0; }
-  dt, dd { margin: 0; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; }
+  dt, dd { margin: 0; padding: 0 var(--sp-3); min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
      cell (.value); a status with no such action is a fact, outside a cell. */
-  dd { color: var(--prose); gap: 1.5rem; justify-content: space-between; }
+  dd { color: var(--prose); gap: var(--sp-6); justify-content: space-between; }
   dd.value { background: var(--cell); color: var(--accent); font-weight: 500; }
   dd.warn { color: var(--accent); font-weight: 500; }
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
@@ -158,10 +158,10 @@
   /* A row whose value is a box of its own has no cell around it. */
   dd.bare { padding: 0; background: none; }
   dd.bare > :global(.grow) { flex: 1; }
-  .hint { color: var(--prose); margin: 0.5rem 0 0 calc(13.125rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
-  .text { color: var(--prose); line-height: 1.6; max-width: 43.125rem; margin-top: 1rem; }
+  .hint { color: var(--prose); margin: var(--sp-2) 0 0 calc(13.125rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .text { color: var(--prose); line-height: 1.6; max-width: 43.125rem; margin-top: var(--sp-4); }
   .text p { margin: 0 0 0.625rem; }
-  table { border-collapse: collapse; margin: 0.75rem 0 0 calc(13.125rem + var(--gap)); font-size: var(--fs-s); }
-  th { color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; text-align: left; padding: 0.25rem 1rem 0.25rem 0; }
-  td { padding: 0.25rem 1rem 0.25rem 0; }
+  table { border-collapse: collapse; margin: var(--sp-3) 0 0 calc(13.125rem + var(--gap)); font-size: var(--fs-s); }
+  th { color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; text-align: left; padding: var(--sp-1) var(--sp-4) var(--sp-1) 0; }
+  td { padding: var(--sp-1) var(--sp-4) var(--sp-1) 0; }
 </style>
