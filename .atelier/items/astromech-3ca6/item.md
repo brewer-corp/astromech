@@ -53,7 +53,8 @@ against the hold. Captures before and after: `docs/design/grouped-rows/`.
 **One objection, reflected in DESIGN.md.** DESIGN.md's figure promised about 5 whole rows at
 1100 x 700 and about 11 at 2560 x 1440, from the spike. Measured on the built row (Sell anywhere,
 preview, no route sidebar), the page opens with 2 whole rows at 1100 x 700 and 8 at 2560 x 1440.
-Scrolled so the list starts at the top of the page column, 7 and 13 fit. The old one-line rows
+Scrolled so the list starts at the top of the page column, 7 and 13 fit (worked out from the
+page column's height and the row height, not counted). The old one-line rows
 gave 3 and 11 on opening, 10 and 17 scrolled. The gap to the spike is the origin box and range
 choice above the list, which the spike's mockup did not draw. DESIGN.md now states the measured
 figures. If 2 rows on opening at 1100 x 700 is too few, the fix is a shorter query band, not a
@@ -65,14 +66,18 @@ What changed:
   cargo, stolen goods and limpets are left out; null until a Cargo.json is read, via a new
   `GameState.cargo_known`), `cargo_free` (capacity less everything aboard, 0 when full), and
   `pad` (`Pad::for_ship` on the Loadout's ship, as the voice lookups resolve it). `trade_search`
-  is unchanged. The run function never reads the hold, so a hold change does not re-ask Ardent:
-  SearchKit asks `ship_status` with each search and the colour is worked out at render.
+  is unchanged. The run function never reads the hold, so a hold change does not re-ask Ardent.
+  SearchKit reads `ship_status` every 2 s, as the status bar does, and works the colour out at
+  render, so "200 t of Painite aboard" and the bars follow the hold while the page is open.
+  "Cargo not known: Elite isn't running" also shows when the core doesn't answer, or before a
+  Cargo.json has been read.
 - **Recorded worlds.** The ship world's 120 t gains a Cargo.json (100 t Painite, 20 t Low
   Temperature Diamonds). The sol world, which the trade samples come from, now starts Elite and
   is recorded with its mixed hold (`trade.json` `/ship`: 300 t LTD, 200 t Painite, 100 t
   Platinum, 0 free since its Cargo.json says 652 t in a 200 t Asp) and once emptied
   (`/ship_emptied`: 200 t free). These are the last parts of trade.json, because the fixture
-  recorder steps each world forward only once.
+  recorder steps each world forward only once. trade.json keeps its committed text for the
+  other parts: the updater would rewrite eight floats by one ulp, which the comparison ignores.
 - **Row model** (`search.ts` `groups`): a column says where it sits (`at: "qual" | "row"`, else
   the side panel). Without a side panel, panel facts stay on the row and the report's age stays
   in the trip group at any age ("10.3 ly · 12 d old"), grey until 30 days. A prose fact the same
@@ -90,6 +95,12 @@ What changed:
 - **Compact rows** stay one line only inside a list with a side panel. Powerplay's narrow Where
   to work column used to go compact and lose the power state, distance and age with no panel to
   hold them. It now keeps its first two groups' second lines. That fix is its own commit.
+- **Found on the way:** opening Sell or Buy from its address asked Ardent twice, because the
+  page's `hashchange` handler replaced its search with an equal one. Market now replaces it only
+  for a different search, and the test that follows the hold also pins one search. Outfitting,
+  Services, Shipyard, Material traders, Raw sites, Faction states and Mining hotspots have the
+  same handler and likely the same double search; I left them alone, and they need an item
+  (I couldn't file one from the item branch).
 
 No fact became unreachable. Before, then after, per consumer:
 
@@ -105,9 +116,14 @@ No fact became unreachable. Before, then after, per consumer:
 | Powerplay targets, Colonies, Nearby (no panel) | jumps or score, system, fact, ly, age | first group over ly and age; system over its fact. Compact keeps both lines |
 | Colonisation where to buy (no panel) | sells, station, system, stock, ly, jumps, pad, arrival, age | sells; place; stock; jumps over ly and age |
 
-The side panel repeats nothing: demand sits under the price and is not listed again.
+The side panel repeats nothing: demand sits under the price and is not listed again. Sell my
+cargo's "Best for each on its own" list under the results is not the shared row and was left
+as it was.
 
-Tests: `demand.test.ts` covers each threshold edge and the recorded holds: the mixed hold, where
+Tests: a SearchKit case shows a 45-day report through a 90-day filter as stale, which catches
+a revert of the rule, and another checks that "1,426.2 ly · 2,070 d old" fits its track (it
+was clipped by 10 px until that track widened). No recorded market row is over 30 days old at
+its fetch, so the stale mark is tested on the Services sample. `demand.test.ts` covers each threshold edge and the recorded holds: the mixed hold, where
 a 250 t buyer is tight for 200 t of Painite but short for 300 t of LTD; Buy against the emptied
 hold; full; unknown; and none aboard (stolen and mission gold). `search.test.ts` covers the
 groups, the panel and the shared-fact summary. The browser tests on recorded markets are:
@@ -127,8 +143,10 @@ Checks run: `cargo fmt --check`, `cargo clippy --workspace --all-targets -D warn
 `pnpm check`, `pnpm test` (653 tests), `scripts/check-guide.py`, and the 7 journeys. I did not
 run `pnpm build`, `check-dist.py` or `cargo deny`. After merging main, which brought the token
 lint (astromech-4wi1), the row's off-scale gaps and paddings moved to `--sp-1` and `--sp-6`,
-its units took the Unit role, and `pnpm lint`, `pnpm check` and `pnpm test` (715 tests) pass
-again. The after captures were retaken.
+its units took the Unit role, and `pnpm lint`, `pnpm check` and `pnpm test` pass again, and
+on the merged tree `cargo test --workspace`, `pnpm build`, `scripts/check-dist.py` and
+`scripts/check-deps.py` pass. The captures were retaken, with Powerplay and Colonisation
+scrolled to their lists, and Buy and Sell my cargo added.
 
 Notes for review:
 
@@ -137,6 +155,11 @@ Notes for review:
   answers are fetched moments before they are read, so this does not show there.
 - The 1100 x 700 captures have no route sidebar (astromech-uc7i, in review). With it, the page
   column narrows and Sell's side panel will stack below the list at 1100 px, as in the spike.
+- `app/src/mockups/ds/Finder.svelte` reads `--row-result`, so that mockup's one-line rows are
+  now 60 px tall.
+- On Sell, names don't line up when only some rows have a station type icon (carriers do,
+  most stations in the recorded answer have no type), against the Aligned Columns Rule. The
+  system line follows its own name's indent.
 - `ship_status.pad` comes from the journal's Loadout ship. The window's search filters resolve
   the pad from the engineering fleet's current ship (`filters::current_pad`). Both read the same
   Loadout, but they are two derivations.
