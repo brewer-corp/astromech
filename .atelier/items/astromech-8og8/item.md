@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-8og8
 title: 'Suits: Remove sits over 1,000 px from the plan it removes on a wide window'
-status: draft
+status: dropped
 mission: astromech-xajc
 labels:
 - bug
@@ -27,3 +27,7 @@ On Ships > Suits, Remove sits next to the plan it removes at any window size (Th
 ## Scope
 
 Ships > Suits. astromech-nnn0 rebuilds this page as a loadout but waits on astromech-8e22, which waits on this fix; the lead decides whether to fix the current page or let 8e22 close with this case handed to nnn0.
+
+## Report
+
+Dropped: Another item covers it: astromech-nnn0 rebuilds the page and carries this case as a Done when line.

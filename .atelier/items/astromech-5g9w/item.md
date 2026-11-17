@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-5g9w
 title: 'Ships: Open in Coriolis and EDSY sits over 1,000 px from the ship it opens on a wide window'
-status: draft
+status: dropped
 mission: astromech-xajc
 labels:
 - bug
@@ -27,3 +27,7 @@ On Ships > Ships, Open in Coriolis and EDSY sit next to the ship they open (The 
 ## Scope
 
 Ships > Ships. astromech-8wr4 rebuilds this page as a loadout but waits on astromech-8e22, which waits on this fix; the lead decides whether to fix the current page or let 8e22 close with this case handed to 8wr4.
+
+## Report
+
+Dropped: Another item covers it: astromech-8wr4 rebuilds the page and carries this case as a Done when line.

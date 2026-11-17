@@ -1,6 +1,6 @@
 ---
 status: draft
-last_changed: "2026-11-17: amended from Sumeet's answer at the increment 1 stop: route sidebar, SHIPS tab, engineer search, calmer colours, text size in place of the zoom"
+last_changed: "2026-11-17: the screens of increments 3 and 4 planned in detail, with their order and what each needs from the core"
 ---
 
 # Sizing
@@ -101,9 +101,10 @@ except the hexagon component, which astromech-7did may bring over and rework.
   container moves to the page column with the sidebar, and its breakpoints to rem with the
   text size.
 
-**The screens (increments 3 and 4)** are below as first planned, now blocked on
-astromech-8e22 and built to revision 5. The Now page no longer carries the next route stop,
-which the sidebar shows. Suits (astromech-nnn0) joins them.
+**The screens (increments 3 and 4)** were planned in detail on 17 Nov 2026, after
+astromech-8e22 (below, under Now page and Screens). They are blocked on astromech-8e22 and
+built to revision 5. The Now page no longer carries the next route stop, which the sidebar
+shows. Suits (astromech-nnn0) joins them.
 
 **Foundation (increment 1).** Order: DESIGN.md revision 4 (astromech-b2k3) and the scale
 (astromech-k6pl) first; then layouts (astromech-mwh5), then type roles (astromech-z5oh);
@@ -150,34 +151,64 @@ with unknown jumps shows its jump count. A leg's jumps come from NavRoute first,
 plotter's own list, then not at all; the page says there is nowhere to scoop only when every
 jump is listed and known not to be scoopable.
 
-**Now page (increment 3, after astromech-8e22).** A new module `app/src/modules/now/` in a new first nav group. It
-composes replies the window already has: `DockedHere` (station, services), the route view, the
-cargo sale comparison, Powerplay standing, and `Session`. It follows the game's state: docked,
-in a system, or not running. Station, Session and Mining leave the Logbook group; their old
-links keep working through `App.svelte`'s `MOVED` map. No new core command is expected; if one
-is needed it goes through the command layer like any other.
+**Now page (increment 3, astromech-coq6).** NOW is the first top tab and the window opens
+on it (`DEFAULT` in `App.svelte`). NOW holds four page tabs: Now, Station, Session and Mining,
+which move there from LOGBOOK by their manifests' `group`; their addresses stay, so old links
+open them with no `MOVED` entry. The Now page is a Board in a new module
+`app/src/modules/now/`, following the game: docked, the station head and the station's
+services board (every service of the game's station menu, the absent ones dim); in space, the
+system; Elite not running, the last place and the last session. Under the head, blocks that
+show only when they have something to say: Sell your cargo (`trade_cargo`'s best whole-load
+total, asked when the page opens with cargo aboard and when the tonnes aboard change, failing
+alone), This session, Powerplay (merits this cycle, time left from `week_ends`) and a mining
+run. The station head and the board are `station/Head.svelte` and `station/Board.svelte`; the
+board is drawn on Now only, and the Station page (astromech-7vxi) keeps the station's other
+facts, its market and its outfitting. No new core command. The header's second row is
+measured again with ten tabs.
 
-**Screens (increments 3 and 4).** Each replaces one page's body inside its existing module,
-on existing replies unless noted:
+**Screens (increments 3 and 4).** Each replaces one page's body inside its existing module.
+What each needs from the core, read from the code on 17 Nov 2026:
 
-| Screen | Module | Data |
-|---|---|---|
-| System tree | `exploration` | `BodyView` lacks a body's parents; the core adds them from the journal's `Scan` |
-| Biology cards | `exobiology` | existing |
-| Ship loadout | `engineering` | existing (`Ship.modules`); slot grouping from the module's slot name |
-| Engineer tree | `unlocks` | existing (`referred_by`, `refers`, `next`) |
-| Powerplay | `powerplay` | existing (`NextRank`, system view); cycle end from the clock |
-| Colonisation | `colonisation` | existing |
-| Session and Logbook | `session`, `logbook` | existing |
-| Station board | `station` (shown on Now) | existing (`DockedHere.services`) |
-| Trade route legs | `trade` | existing |
+| Screen | Item | Module | From the core |
+|---|---|---|---|
+| Now | astromech-coq6 | new `now`, with `station/Head` and `station/Board` | nothing; the preview gains `?game=running` and a recorded not-docked `docked_here` |
+| Station | astromech-7vxi | `station` | nothing (`docked_here`, `market_compare`, `outfitting_search`) |
+| Ship loadout | astromech-8wr4 | `engineering` | nothing: `Ship.modules`, grouped by slot name in the window; the selected module's needs from `engineering_plan`'s `TargetCost` |
+| Suits loadout | astromech-nnn0 | `suits` | loadouts: astromech-w1lj keeps each loadout's name, suit and weapons by slot and the worn one (the core reads the events today only for grades and mods, `astromech-odyssey/src/owned.rs:179`) |
+| Engineer tree | astromech-m6gw | `unlocks` | what each engineer works on, added to `Node` in m6gw; suit engineers' coordinates from astromech-70ts; step counts do not exist (`Node.left` is text) and are not shown |
+| System tree | astromech-dpaz | `exploration` | `BodyView` gains `parents`, which `ScanBody` already parses (`astromech-journal/src/detail.rs:120`), in dpaz; the explorer world gains `Parents` |
+| Biology cards | astromech-evj3 | `exobiology` | nothing |
+| Powerplay | astromech-rj6i | `powerplay` | `NextRank` gains `from`, the current rank's merits (`astromech-powerplay/src/standing.rs:197`), in rj6i; the cycle end is already `week_ends` |
+| Trade route legs | astromech-el3i | `trade` | nothing |
+| Colonisation | astromech-m07p | `colonisation` | nothing; DESIGN.md's list gains "aboard, not yet delivered" in Orange Mid |
+| Session and Logbook | astromech-fzhp | `session`, `logbook` | `Session` gains each payment's time, from the `earnings` rows the totals already sum (`astromech-history/src/session.rs`), in fzhp |
+
+*Order.* Every screen waits on astromech-8e22. Increment 3 is the Now page and the screens
+with an approved mockup: astromech-coq6, 8wr4, nnn0, m6gw, dpaz and rj6i (priority high),
+then astromech-7vxi, which reuses coq6's station head. 8wr4, nnn0 and rj6i also carry the
+checkpoint's three bugs on their pages (astromech-5g9w, 8og8 and lf3a). The two core items
+astromech-w1lj (suit loadouts, before nnn0) and astromech-70ts (suit engineers' coordinates,
+before m6gw; it reads the 6.4 GB Spansh dump on boat) wait on nothing and can run before
+8e22 merges. Increment 4 is astromech-evj3, el3i, m07p and fzhp (priority medium); fzhp waits
+on coq6, which moves Session. astromech-zaqh (the Sell panel test with real sizes) waits on
+nothing. astromech-gvy0 waits on every screen item and zaqh, and astromech-crxa on gvy0.
+At most four implementers run at once: a sensible first wave after 8e22 is coq6, 8wr4, rj6i
+and dpaz, with w1lj and 70ts done before it; then nnn0, m6gw, 7vxi, then increment 4.
+
+*Shared files.* The screens touch different modules. What they share: `app/eslint.config.js`
+(each item edits only its own `PAGE_SIZING` and `TOKENS_EXEMPT` entries), DESIGN.md (coq6's
+header figures and Top tabs, m07p's list entry), `app/src/preview/` fixtures (each item its
+own), and none of `SearchKit.svelte`, `Glyph.svelte`, the layouts or `Hexes.svelte`, which
+they use as they are. `app/src/lib/modules.ts` and `App.svelte` are coq6's alone. Each item
+measures its page with `scripts/browser/audit.mjs` (astromech-8e22's tool), and gvy0 the
+final captures of every page.
 
 **Which item converts which page.** Controls pages are exempt.
 
 | Page | Item |
 |---|---|
 | Ships | astromech-8wr4 |
-| Stored modules, Places home, Mining, Data sharing, Diagnostics, Voice tester | astromech-gvy0 |
+| Stored modules, Places home, Mining (under NOW from astromech-coq6), Data sharing, Diagnostics, Voice tester | astromech-gvy0 |
 | Suits (new, from On foot) | astromech-5a01 (moved in), astromech-nnn0 (screen) |
 | Materials | astromech-mwh5 (layout), astromech-z5oh (tiles) |
 | Engineers | astromech-m6gw |
@@ -187,8 +218,8 @@ on existing replies unless noted:
 | Colonisation | astromech-m07p |
 | System, Biology | astromech-dpaz, astromech-evj3 |
 | Powerplay | astromech-rj6i |
-| Logbook, Session | astromech-fzhp |
-| Station | astromech-7vxi |
+| Logbook, Session (Session under NOW from astromech-coq6) | astromech-fzhp |
+| Station (under NOW from astromech-coq6; its services board is on Now) | astromech-7vxi |
 | Settings > General | astromech-mwh5 |
 | Now (new) | astromech-coq6 |
 
