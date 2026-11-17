@@ -95,8 +95,8 @@
   .row { min-height: var(--row); margin-bottom: var(--gap); }
   .row.b { grid-template-columns: 1fr 13.75rem 7.5rem; }
   .name { height: var(--row); display: flex; align-items: center; color: var(--options-grey); }
-  .row.sel .name { color: var(--accent); }
-  .cell { height: var(--row); display: flex; align-items: center; padding: 0 0.75rem; background: var(--cell-empty); }
+  .row.sel .name { color: var(--text-hi); }
+  .cell { height: var(--row); display: flex; align-items: center; padding: 0 0.75rem; background: var(--cell-empty); color: var(--accent); font-weight: 500; }
   .cell.on { background: var(--cell); }
   .cell:hover { background: var(--cell-hover); }
   .mark { color: var(--accent); font-size: var(--fs-s); font-weight: 600; padding-left: 0.625rem; }

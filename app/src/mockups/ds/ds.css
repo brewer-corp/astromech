@@ -8,16 +8,16 @@
 
 /* The orange ramp and the few neutrals */
 .ds .lit { color: var(--orange-lit); }
-.ds .mid { color: var(--orange-mid); }
+.ds .mid { color: var(--label-grey); }
 .ds .dim, .ds .dim * { color: var(--orange-dim) !important; }
 .ds .white { color: var(--text-hi); }
 .ds .prose { color: var(--prose); }
 .ds .alarm { color: var(--alarm) !important; }
-.ds .unit { font-size: var(--fs-s); color: var(--orange-mid); margin-left: 3px; }
+.ds .unit { font-size: var(--fs-s); color: var(--label-grey); margin-left: 3px; }
 
 /* Type roles */
 .ds .title { font-size: var(--fs-xl); font-weight: 600; line-height: 1.2; color: var(--text-hi); margin: 0; }
-.ds .label { font-size: var(--fs-s); color: var(--orange-mid); }
+.ds .label { font-size: var(--fs-s); color: var(--label-grey); }
 .ds .section { display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; color: var(--accent); margin: 0; }
 .ds .section::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .ds .section.current { color: var(--text-hi); }
@@ -26,7 +26,7 @@
 /* Buttons: the primary is the one orange fill; secondary is an orange caps verb. */
 .ds .act { display: inline-flex; align-items: center; height: var(--row); padding: 0 var(--sp-2); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; color: var(--accent); white-space: nowrap; }
 .ds .primary { display: inline-flex; align-items: center; height: var(--row); padding: 0 20px; background: var(--accent); color: var(--on-accent); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; }
-.ds .ibtn { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; color: var(--orange-mid); }
+.ds .ibtn { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; color: var(--label-grey); }
 .ds .ibtn:hover { color: var(--orange-lit); }
 
 /* Warnings orange, hard errors red: a "!" and plain words. Red is for nothing else. */
@@ -44,4 +44,4 @@
 .ds .choice.on { background: var(--accent); color: var(--on-accent); }
 
 /* Badge: outlined, never filled. */
-.ds .badge { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); line-height: 1; white-space: nowrap; }
+.ds .badge { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid var(--line); color: var(--label-grey); font-size: var(--fs-s); line-height: 1; white-space: nowrap; }

@@ -46,7 +46,7 @@
   header { display: flex; align-items: center; gap: var(--sp-6); margin: 0 var(--gutter); border-bottom: 1px solid var(--accent); }
   .mark { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); margin-right: var(--sp-2); }
   .top { display: flex; gap: var(--sp-1); flex: 1; }
-  .top span { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); font-weight: 500; letter-spacing: var(--caps); text-transform: uppercase; color: var(--orange-mid); }
+  .top span { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); font-weight: 500; letter-spacing: var(--caps); text-transform: uppercase; color: var(--label-grey); }
   .top span.on { background: var(--accent); color: var(--on-accent); }
   .find { width: 300px; justify-content: space-between; }
   .find .key { font-size: var(--fs-s); } /* text in a cell is at least Orange */
@@ -57,7 +57,7 @@
   .strip .warn { font-size: var(--fs-s); color: var(--accent); }
   .strip .dest { font-size: var(--fs-s); }
   .page { display: flex; gap: var(--sp-6); align-items: stretch; margin: 0 var(--gutter); }
-  .page span { display: flex; align-items: center; font-weight: 500; color: var(--orange-mid); border-bottom: 2px solid transparent; }
+  .page span { display: flex; align-items: center; font-weight: 500; color: var(--label-grey); border-bottom: 2px solid transparent; }
   .page span.on { color: var(--orange-lit); border-bottom-color: var(--accent); }
   main { min-height: 0; overflow: hidden; padding: var(--sp-6) var(--gutter) 0; }
 </style>

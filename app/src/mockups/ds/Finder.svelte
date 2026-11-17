@@ -136,7 +136,7 @@
 
 <style>
   .finder { max-width: var(--list-w); }
-  .crumb { color: var(--orange-mid); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+  .crumb { color: var(--label-grey); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
   .head { display: flex; align-items: flex-end; gap: var(--sp-8); margin: var(--sp-1) 0 var(--sp-4); }
   .main { display: flex; align-items: center; gap: var(--sp-3); }
   .input { width: 320px; }
@@ -149,7 +149,7 @@
   .row.hover { background: var(--row-hover); }
   .row.hover .ibtn { color: var(--orange-lit); }
   /* Stale: the name stays Orange, the value and facts step down to Mid, the age stays Orange. */
-  .row.stale > span, .row.stale .v { color: var(--orange-mid); }
+  .row.stale > span, .row.stale .v { color: var(--label-grey); }
   .row.stale .pname, .row.stale .age { color: var(--accent); }
   .r { text-align: right; }
   .lead .v { font-size: var(--fs-l); font-weight: 600; }

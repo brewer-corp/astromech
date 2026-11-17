@@ -139,7 +139,7 @@
   .eng .name { color: var(--options-grey); }
   .eng:is(.known, .invited) .name { color: var(--orange-mid); }
   .eng.barred :is(.name, .gate) { color: var(--red-low); }
-  .eng.locked, .eng.locked :is(.name, .gate, .where, .from) { color: var(--grey-dim); }
+  .eng.locked, .eng.locked :is(.name, .gate, .where, .from), .eng.locked :global(.chip .name) { color: var(--grey-dim); }
   .eng.hot { background: var(--row-hover); }
   /* The engineers who introduce the hovered one. */
   .eng.pred { outline-color: var(--accent); }

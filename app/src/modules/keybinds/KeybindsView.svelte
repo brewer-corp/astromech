@@ -214,7 +214,8 @@
   .cell.bad { text-decoration: line-through; color: var(--orange-dim); }
   .cell:hover { background: var(--cell-hover); }
   .mark { color: var(--accent); font-size: var(--fs-s); padding-left: 0.625rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .item.sel .name, .item.hit .name { color: var(--accent); }
+  .item.sel .name, .item.hit .name { color: var(--text-hi); }
+  .item.sel .name { background: var(--surface-hi); }
   .item.sel .cell { outline: 1px solid var(--accent); outline-offset: -1px; }
   .lo { color: var(--label-grey); }
   .warn { color: var(--accent); }
