@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-nnn0
 title: Ships > Suits as a loadout
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
@@ -12,7 +12,8 @@ priority: high
 blocked_by:
 - astromech-8e22
 - astromech-w1lj
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3Ac630ef7c-ddb2-43d7-bd7e-1029b654eca8
 ready:
   by: Sumeet
   at: 2026-11-17T10:51:58.242665710Z
