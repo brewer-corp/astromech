@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-rhn3
 title: Finder rows that go compact stay compact after the window widens
-status: ready
+status: approved
 mission: astromech-xajc
 labels:
 - bug
@@ -11,7 +11,8 @@ labels:
 priority: medium
 blocked_by:
 - astromech-srab
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3A17040ddb-fde9-4b03-9dbd-722b1d3ea977
 ready:
   by: the lead of astromech-xajc
   at: 2026-11-17T09:35:15.494625804Z
@@ -26,10 +27,35 @@ A finder's rows return to their two-line form when there is room again. Found by
 
 ## Done when
 
-- [ ] A failing browser test first: the rows go compact when the page column narrows, and return to two lines when it widens again, at 160 percent with the sidebar folded.
-- [ ] The fix is at the cause: SearchKit measures the space its rows are given, not an element that shrinks to fit them.
-- [ ] The dock-width test still passes.
+- [x] A failing browser test first: the rows go compact when the page column narrows, and return to two lines when it widens again, at 160 percent with the sidebar folded.
+- [x] The fix is at the cause: SearchKit measures the space its rows are given, not an element that shrinks to fit them.
+- [x] The dock-width test still passes.
 
 ## Scope
 
 The shared result row's compact switch.
+
+## Report
+
+**A finder's rows now go back to two lines when the window widens.** At 160 percent with the sidebar folded, Sell's rows go compact in a 1,100 px window and return to full rows at 2,130 px. Before the fix they stayed compact.
+
+**The cause was in two places, not one.** SearchKit measured `.out`, which sits in `.kit { width: fit-content }`. That shrinks to fit the rows everywhere, not only in `Split`'s `minmax(0, max-content)` track. So a kit with no side panel (Powerplay's Where to work, Nearby, Colonies, colonisation's Where to buy) stuck the same way once its column had been narrow.
+
+**The fix:** SearchKit compares the full row's width (`fits`) against the width it is given, never its own width.
+
+- In a ListDetail, `Split` reports the content's room through a new `onroom` callback, and `ListDetail` puts it in the detail context as `detail.room`. The room is Split's width, less the gutter and panel track when the panel is beside it. That formula is `besidePanel()` in `layout.ts`, which `stacks()` now uses too.
+- Since `detail.min` is `fits`, side and compact now come from one measurement, so a row beside its panel is never compact. This also removes the fractional-pixel trigger astromech-7obs found at a 1,823 px column.
+- Elsewhere the kit observes its parent element's content box (`contentRect.width`). The four parents named above are block or grid items that fill their column.
+- DESIGN.md's Lookup result row says the room is the width the list is given, and that a row beside a side panel is never compact.
+
+**Tests:**
+
+- `App.browser.test.ts`: "goes back to full rows when the window widens after they went compact, at 160 percent with the sidebar folded". It failed before the fix with `expected true to be false` on the "full rows again at 2,130 px" line.
+- `SearchKit.browser.test.ts`: the narrow-column case now also widens. It renders Sell painite from the preview's recorded Ardent reply (through `tradeSearch` and `toResults`, as the Sell finder runs it) into a real 297 px element, checks the compact row with its trip folded onto a third line, then widens the element to 800 px and expects the Trip head back. It no longer mocks `clientWidth` and `ResizeObserver`. Run against the unfixed SearchKit and layout files, it fails at the widen step.
+- Both regressions were first committed red in 86454016, before the fix in 59bcc844. The SearchKit case was then moved onto the recorded reply in 6fbf9775.
+
+**Checks:** `pnpm test` passes (90 files, 754 tests: the two SearchKit cases are now one), including both dock-width tests. `pnpm lint` and `pnpm check` are clean.
+
+### Responses
+
+1-iopq.1: fixed in 6fbf9775

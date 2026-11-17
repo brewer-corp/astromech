@@ -1,5 +1,6 @@
 // How a list inside a ListDetail fills the side panel (SearchKit's result rows do): the list
-// sets the panel to describe its selected row, and the narrowest its rows keep all their columns.
+// sets the panel to describe its selected row, and the narrowest its rows keep all their columns,
+// and reads the width it is given.
 import { getContext, setContext, type Snippet } from "svelte";
 
 export type Detail = {
@@ -9,13 +10,15 @@ export type Detail = {
   selected: unknown;
   /** The narrowest the list keeps all its columns at. */
   min: number | null;
+  /** The width the list is given, in px at 100 percent Text size (Split's `room`); 0 until measured. */
+  room: number;
 };
 
 const KEY = Symbol("list-detail");
 
 /** ListDetail's side of it. */
 export function provideDetail(): Detail {
-  const d = $state<Detail>({ panel: null, selected: null, min: null });
+  const d = $state<Detail>({ panel: null, selected: null, min: null, room: 0 });
   setContext(KEY, d);
   return d;
 }

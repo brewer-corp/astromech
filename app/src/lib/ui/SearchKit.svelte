@@ -273,16 +273,22 @@
     onanswer({ figure, unit: res.main ? (res.main.unit ?? "") : jumpsUnit(figure) });
   });
 
-  /** The list's width, to fall back to the compact row where the columns don't fit. */
-  let out = $state<HTMLElement | null>(null);
-  let width = $state(0);
+  /**
+   * The width the list is given, to fall back to the compact row where the columns don't fit. Not
+   * the kit's own width: the kit fits its rows, so once they were compact it would keep them so.
+   * In a ListDetail the layout says (its track fits the rows too); elsewhere it is the width of
+   * the element the kit sits in.
+   */
+  let kitEl = $state<HTMLElement | null>(null);
+  let hostWidth = $state(0);
   $effect(() => {
-    const el = out;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => (width = el.clientWidth));
-    ro.observe(el);
+    const host = kitEl?.parentElement;
+    if (detail || !host || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([e]) => (hostWidth = e!.contentRect.width));
+    ro.observe(host);
     return () => ro.disconnect();
   });
+  const room = $derived(detail ? detail.room : at100(hostWidth, scale.step));
   /** The row's own group holds prose (wider) or only figures. */
   const ownText = $derived(!!g?.own.some((c) => c.text));
   /** Without a side panel the trip's second line also holds the report's age ("18.8 ly · 12 d old"). */
@@ -298,7 +304,7 @@
    * Too narrow for the groups (a side panel): the first lines of the ranked value and the place,
    * and the actions, by The Aligned Columns Rule (a fact that would wrap goes).
    */
-  const compact = $derived(width > 0 && at100(width, scale.step) < fits);
+  const compact = $derived(room > 0 && room < fits);
   /**
    * Compact in a list with a side panel: one line, the panel holds the rest. Without a panel
    * (Powerplay's column, Nearby) the first two groups keep their second lines, so the system's
@@ -441,7 +447,7 @@
   <OriginInput {origin} {around} bind:viaNext onchange={(o) => (origin = o)} />
 {/snippet}
 
-<div class="kit">
+<div class="kit" bind:this={kitEl}>
   {#if header || lead}
     <div class="query">
       {#if header}{@render header()}{/if}
@@ -449,7 +455,7 @@
     </div>
   {/if}
 
-  <div class="out" bind:this={out}>
+  <div class="out">
     {#if saved}
       <div class="constraints">
         <SearchFilters {filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} summary={line} extra={more} origin={from} onchange={(f) => void change(f)} />

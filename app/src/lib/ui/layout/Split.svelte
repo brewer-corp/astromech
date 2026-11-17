@@ -4,7 +4,7 @@
   // minimum), the panel moves below it; text never shrinks to fit. A new `selected` brings a
   // panel that sits below the content into view, since it may be off screen.
   import type { Snippet } from "svelte";
-  import { at100, stacks } from "./layout";
+  import { at100, besidePanel, stacks } from "./layout";
   import { scale } from "../../scale.svelte";
 
   let {
@@ -13,6 +13,7 @@
     selected = null,
     min,
     label = "Details",
+    onroom,
   }: {
     children: Snippet;
     /** The side panel's contents; none, no panel. */
@@ -23,11 +24,21 @@
     min: number;
     /** The panel's accessible name. */
     label?: string;
+    /**
+     * Told the width the content is given, in px at 100 percent Text size, whenever it changes.
+     * Beside the panel the content's track fits its content, so the content can't measure this.
+     */
+    onroom?: (width: number) => void;
   } = $props();
 
   let width = $state(0);
   let aside = $state<HTMLElement>();
   const stacked = $derived(stacks(at100(width, scale.step), min));
+  const side = $derived(!!panel && !stacked);
+  $effect.pre(() => {
+    const w = at100(width, scale.step);
+    onroom?.(side ? besidePanel(w) : w);
+  });
 
   /** The selection last brought into view, so it is scrolled to once, not on every resize. */
   let shown: unknown = null;
@@ -40,7 +51,7 @@
   });
 </script>
 
-<div class="split" class:side={!!panel && !stacked} bind:clientWidth={width}>
+<div class="split" class:side bind:clientWidth={width}>
   <div class="content">{@render children()}</div>
   {#if panel}
     <aside class:stacked bind:this={aside} aria-label={label}>{@render panel()}</aside>
