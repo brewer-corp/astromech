@@ -137,5 +137,22 @@
     "station": "Test Orbital",
     "station_type": "Coriolis",
     "system": "Test System"
+  },
+  "undocked": {
+    "allegiance": null,
+    "dist_from_star_ls": null,
+    "docked": false,
+    "economies": [],
+    "faction": null,
+    "government": null,
+    "landing_pads": null,
+    "market_id": null,
+    "max_pad": null,
+    "outfitting": null,
+    "services": [],
+    "ship": null,
+    "station": null,
+    "station_type": null,
+    "system": "Test System"
   }
 }

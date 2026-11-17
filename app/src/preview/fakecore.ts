@@ -17,6 +17,12 @@
  * (previewLookup). Without `?core=` the core is not running: core commands fail as the window's
  * calls do then, except the few with a sample (NO_CORE below).
  *
+ * `?game=running` makes the status say Elite is running (any scenario); otherwise it waits for
+ * Elite. With Elite running the mining run follows where the commander is, as the core's does:
+ * docking ends it, so it is empty while docked and the sample run once in space. `?docked=no`
+ * starts the commander in space, undocked in the station sample's system (fixtures/station.json
+ * `undocked`); otherwise `docked_here` answers the sample docking until a `fakeJump`.
+ *
  * `?core=ready&route=exact` starts on a route, for the route strip: fixtures/plot.json's exact
  * route, with the commander in its third waypoint. `?core=ready&route=timeline` starts on
  * fixtures/route.json's: a neutron route whose flown leg lists its jumps from the galaxy map,
@@ -108,6 +114,8 @@ interface State {
   /** `?route=timeline`: the recorded view, answered until a command changes the route. */
   timeline: RouteView | null;
   here: string | null;
+  /** A live arrival (`fakeJump`) took the commander here: `docked_here` answers undocked in it. */
+  jumped: string | null;
   /** Why the clipboard turns writes down (tests: `fakeClipboard`), and the last write's error. */
   clipFails: string | null;
   clipError: string | null;
@@ -234,6 +242,7 @@ function fresh(scenario: Scenario): State {
     parked: null,
     timeline: done && recordedTimeline() ? structuredClone(recordedTimeline()) : null,
     here: done ? startingHere() : null,
+    jumped: null,
     clipFails: null,
     clipError: null,
   };
@@ -417,12 +426,28 @@ export function fakeClipboard(error: string | null): void {
 }
 
 /** A live arrival in `system`, as the core's `Desk::on_system` takes it (tests): the commander is
- * there, and a waypoint ahead is reached. */
+ * there, a waypoint ahead is reached, and `docked_here` answers undocked in it, as the core's
+ * does after an `FSDJump`. */
 export function fakeJump(system: string): void {
   const st = changed(s());
   st.here = system;
+  st.jumped = system;
   skipReached(st);
 }
+
+/** Where `docked_here` puts the commander: null while docked at the sample station; in space,
+ * the system a `fakeJump` reached, or (`?docked=no`) null for the recorded undocked reply's own. */
+export function fakeInSpace(): { system: string | null } | null {
+  const jumped = s().jumped;
+  if (jumped) return { system: jumped };
+  return previewQuery().get("docked") === "no" ? { system: null } : null;
+}
+
+/** `?game=running`: Elite is running. */
+const eliteRunning = () => previewQuery().get("game") === "running";
+
+/** The core's run after a `Docked`: nothing yet. */
+const NO_RUN: Mining = { started: null, refined: {}, total: 0, per_hour: null };
 
 /** A command changed the route: the recorded timeline no longer answers. */
 function changed(st: State): State {
@@ -527,7 +552,7 @@ function status(st: State): Done<CoreStatus> {
     ok: true,
     version: VERSION,
     pid: 4242,
-    game: "not_running",
+    game: eliteRunning() ? "running" : "not_running",
     active: false,
     starting: false,
     voice: "voice not loaded",
@@ -535,7 +560,7 @@ function status(st: State): Done<CoreStatus> {
     killed: false,
     autostart: true,
     crash_pending: false,
-    status_line: "Waiting for Elite",
+    status_line: eliteRunning() ? "Elite running" : "Waiting for Elite",
     app_dir: APP_DIR,
     log_dir: `${APP_DIR}\\logs`,
     config: `${APP_DIR}\\astromech.toml`,
@@ -552,7 +577,7 @@ function status(st: State): Done<CoreStatus> {
     update: { status: "idle", installed: VERSION, latest: null, notes: "", error: null, last_check: null, ready: false, apply_error: null },
     toasts: [],
     history: null,
-    mining: st.scenario === "empty" ? null : miningSample,
+    mining: st.scenario === "empty" ? null : eliteRunning() && !fakeInSpace() ? NO_RUN : miningSample,
   };
 }
 

@@ -1,4 +1,4 @@
-// Ships page: selected ship as the main pane, the rest of the fleet as a bottom rail.
+// Ships > Ships: the selected ship's head and hero values, its Loadout, and the fleet strip.
 // Stats come from preview/fixtures/ships.json (the real core's, in the world worlds/preview/krait).
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
@@ -11,8 +11,12 @@ let headlines: Record<string, Headline> = {};
 let fleet: Fleet;
 let headlinesFail: string | null = null;
 let compared: Compared | null = null;
+let fleetFail: string | null = null;
 
-answer("engineering_fleet", () => fleet);
+answer("engineering_fleet", () => {
+  if (fleetFail) throw new Error(fleetFail);
+  return fleet;
+});
 answer("engineering_headlines", () => {
   if (headlinesFail) throw new Error(headlinesFail);
   return headlines;
@@ -23,40 +27,65 @@ function emptyStats(): Compared {
   return structuredClone(ships.cases[0]!.stats) as unknown as Compared;
 }
 
+/** The hero value under a label, as shown with its unit. */
+async function hero(label: string): Promise<string> {
+  const l = await screen.findByText(label, { selector: ".hero > span" });
+  return l.parentElement!.textContent!.replace(label, "").replace(/\s+/g, " ").trim();
+}
+
 beforeEach(() => {
   location.hash = "#/engineering";
+  localStorage.clear();
   headlines = structuredClone(ships.headlines) as unknown as Record<string, Headline>;
   fleet = structuredClone(ships.fleet) as unknown as Fleet;
   headlinesFail = null;
+  fleetFail = null;
   compared = emptyStats();
 });
 afterEach(cleanup);
 
-it("shows speed, jump and power on Info", async () => {
+it("shows jump range, shields, top speed and power used in the head", async () => {
   render(View);
-  expect(await screen.findByRole("button", { name: "Info", pressed: true })).toBeTruthy();
-  expect(screen.queryByRole("heading", { name: "Core internals" })).toBeNull();
-  expect((await screen.findByLabelText("Speed")).textContent).toMatch(/376/);
-  expect(screen.getByLabelText("Jump").textContent).toMatch(/24\.87/);
-  expect(screen.getByLabelText("Power").textContent).toMatch(/44\.10/);
-  expect(screen.getByLabelText("Pitch / roll / yaw").textContent).toMatch(/\b36\s*\|\s*90\s*\|\s*16\b/);
-  expect(screen.getByLabelText("Shields").textContent).toMatch(/MJ/);
-  expect(screen.getByLabelText("Weapons and hull").textContent).toMatch(/DPS/);
+  expect(await screen.findByRole("button", { name: "Loadout", pressed: true })).toBeTruthy();
+  await screen.findByText("1428");
+  expect(await hero("Jump range")).toBe("24.9ly");
+  expect(await hero("Shields")).toBe("1428MJ");
+  expect(await hero("Top speed")).toBe("376m/s");
+  expect(await hero("Power used")).toBe("28.2of 44.1 MW");
 });
 
-it("shows the build planner on the Engineering tab", async () => {
+it("lists the fitted modules in the game's outfitting groups, leaving out the fixed ones", async () => {
+  render(View);
+  const groups = await screen.findAllByRole("heading", { level: 3 });
+  expect(groups.map((h) => h.textContent)).toEqual(["Hardpoints", "Utility", "Core", "Optional"]);
+  const core = screen.getByRole("region", { name: "Core" });
+  expect(within(core).getByRole("button", { name: "Frame shift drive: 5A Frame Shift Drive" })).toBeTruthy();
+  expect(screen.queryByRole("button", { name: /Planetary/ })).toBeNull();
+});
+
+it("shows the plan on Plan, with the hull's handling in the stats", async () => {
   location.hash = "#/engineering/1/plan";
   render(View);
-  expect(await screen.findByRole("heading", { name: "Core internals" })).toBeTruthy();
-  expect(screen.queryByLabelText("Speed")).toBeNull();
+  const ship = await screen.findByRole("rowgroup", { name: "Handling (°/s)" });
+  const row = (name: string) => within(ship).getByRole("rowheader", { name }).parentElement!.querySelector("td")!.textContent;
+  expect([row("Pitch"), row("Roll"), row("Yaw")]).toEqual(["36", "90", "16"]);
+  expect(screen.queryByRole("region", { name: "Core" })).toBeNull();
 });
 
-it("switches from Info to Engineering", async () => {
+it("switches from Loadout to Plan", async () => {
   render(View);
-  expect(await screen.findByLabelText("Speed")).toBeTruthy();
-  await fireEvent.click(screen.getByRole("button", { name: "Engineering", pressed: false }));
-  expect(await screen.findByRole("heading", { name: "Core internals" })).toBeTruthy();
-  expect(screen.getByRole("button", { name: "Engineering", pressed: true })).toBeTruthy();
+  expect(await screen.findByRole("region", { name: "Core" })).toBeTruthy();
+  await fireEvent.click(screen.getByRole("button", { name: "Plan", pressed: false }));
+  expect(await screen.findByRole("region", { name: "Ship stats" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Plan", pressed: true })).toBeTruthy();
+  expect(location.hash).toBe("#/engineering/1/plan");
+});
+
+it("opens the Loadout for the selected ship", async () => {
+  location.hash = "#/engineering/1/plan";
+  render(View);
+  await fireEvent.click(await screen.findByRole("button", { name: "Loadout", pressed: false }));
+  expect(location.hash).toBe("#/engineering/1");
 });
 
 it("says when the hull is not in the ship data", async () => {
@@ -84,9 +113,10 @@ it("shows a stored ship's system as a chip that copies its name", async () => {
   const writeText = vi.fn(async () => {});
   Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
   render(View);
-  const c = (await screen.findByRole("heading", { name: "Synthetic_Krait" })).closest(".ship") as HTMLElement;
-  const copy = within(c).getByRole("button", { name: "Copy Shinrarta Dezhra" });
+  const head = (await screen.findByRole("heading", { name: "Synthetic_Krait" })).closest(".head") as HTMLElement;
+  const copy = within(head).getByRole("button", { name: "Copy Shinrarta Dezhra" });
   expect(copy.closest(".chip")!.textContent).toContain("Shinrarta Dezhra");
+  expect(copy.closest(".where")!.textContent).toMatch(/stored at\s+Shinrarta Dezhra/);
   await fireEvent.click(copy);
   expect(writeText).toHaveBeenCalledWith("Shinrarta Dezhra");
   const open = screen.getByRole("link", { name: "Synthetic_Krait, Krait MkII" });
@@ -96,15 +126,12 @@ it("shows a stored ship's system as a chip that copies its name", async () => {
 it("says where a ship in transit is going, as a chip", async () => {
   Object.assign(fleet.ships[0]!, { current: false, in_transit: true, system: "Sol" });
   render(View);
-  const c = (await screen.findByRole("heading", { name: "Synthetic_Krait" })).closest(".ship") as HTMLElement;
-  const where = c.querySelector(".where")!;
-  expect(where.textContent!.replace(/\s+/g, " ").trim()).toBe("In transit to Sol");
-  // The location wraps and its name may be cut short on a narrow card: the full name is on hover.
-  expect(where.getAttribute("title")).toBe("Sol");
-  expect(within(c).getByRole("button", { name: "Copy Sol" })).toBeTruthy();
+  const head = (await screen.findByRole("heading", { name: "Synthetic_Krait" })).closest(".head") as HTMLElement;
+  expect(head.querySelector(".where")!.textContent!.replace(/\s+/g, " ")).toMatch(/^in transit to Sol /);
+  expect(within(head).getByRole("button", { name: "Copy Sol" })).toBeTruthy();
 });
 
-it("names each rail link by ship name or ident and type", async () => {
+it("names each fleet strip link by ship name or ident and type", async () => {
   Object.assign(fleet.ships[0]!, { name: null, ident: "CU-01", type_name: "Imperial Cutter" });
   render(View);
   const link = await screen.findByRole("link", { name: "CU-01, Imperial Cutter" });
@@ -120,15 +147,20 @@ it("says when the row stats can't be worked out", async () => {
   expect(note).toBeTruthy();
 });
 
-it("opens Engineering for the selected ship", async () => {
+it("says a ship never flown while a journal was kept has unknown modules, and shows no loadout", async () => {
+  Object.assign(fleet.ships[0]!, { loadout_ts: null });
   render(View);
-  await fireEvent.click(await screen.findByRole("button", { name: "Engineering", pressed: false }));
-  expect(location.hash).toBe("#/engineering/1/plan");
+  expect(await screen.findByText(/its modules are unknown/)).toBeTruthy();
+  expect(screen.queryByRole("region", { name: "Core" })).toBeNull();
 });
 
-it("opens Info for the selected ship", async () => {
-  location.hash = "#/engineering/1/plan";
+it("keeps an empty fleet and says when a later read of it fails", async () => {
+  fleet = { ...fleet, ships: [] };
+  vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] }); // the fleet poll; the test moves its clock
   render(View);
-  await fireEvent.click(await screen.findByRole("button", { name: "Info", pressed: false }));
-  expect(location.hash).toBe("#/engineering/1");
+  expect(await screen.findByText("No ships in the journal yet.")).toBeTruthy();
+  fleetFail = "journal folder not found: C:\\nowhere";
+  await vi.advanceTimersByTimeAsync(1000);
+  expect(await screen.findByText(/^Could not refresh: .*journal folder not found/)).toBeTruthy();
+  expect(screen.getByText("No ships in the journal yet.")).toBeTruthy();
 });

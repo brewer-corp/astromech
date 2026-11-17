@@ -11,6 +11,7 @@ New here? Read [Getting started](getting-started.md), then [Voice](voice.md).
 |---|---|
 | [Getting started](getting-started.md) | Install, first run, the tray icon, updates, when something is wrong |
 | [Using the app](using-the-app.md) | The window, Find or plot, system names, links out, what needs the network |
+| [Now](now.md) | Where the window opens: the station and its services, or the system; what the hold would fetch, the session, Powerplay; the Station and Session pages |
 | [Settings](settings.md) | Start with Windows, push-to-talk, voice, microphone, updates, Diagnostics |
 
 ## Voice
@@ -53,7 +54,7 @@ New here? Read [Getting started](getting-started.md), then [Voice](voice.md).
 | Page | What is in it |
 |---|---|
 | [Exploration](exploration.md) | The system's bodies, unsold data, biology and sampling |
-| [Logbook](logbook.md) | Visited systems and stations, the session, the docked station |
+| [Logbook](logbook.md) | Visited systems and stations, and the journal history |
 | [Data sharing](data-sharing.md) | What is sent to EDDN and EDSM, and how to turn it off |
 
 ## About this guide

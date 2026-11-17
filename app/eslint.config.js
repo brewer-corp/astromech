@@ -24,6 +24,8 @@ export const PAGE_SIZING = [
   ["src/modules/places/Home.svelte", "font-size"],
   ["src/modules/settings/{Callouts,ProspectorThresholds}.svelte", "font-size"],
   ["src/modules/{session,mining}/View.svelte", "font-size"],
+  // astromech-8wr4: Ships > Ships as a loadout.
+  ["src/modules/engineering/{View,Build,Stats,Loadout,ModulePanel}.svelte", "width", "font-size"],
   // astromech-nnn0: Ships > Suits as a loadout, on List with detail.
   ["src/modules/suits/**", "width", "font-size"],
   // astromech-irrv: the Import a route dialog, a page part opened from the frame.
@@ -32,6 +34,9 @@ export const PAGE_SIZING = [
   ["src/modules/powerplay/{View,Suggestions,Targets}.svelte", "width", "font-size"],
   // astromech-m07p: Colonisation as progress per commodity, on List with detail.
   ["src/modules/colonisation/View.svelte", "width", "font-size"],
+  // astromech-coq6: the Now page, and the station head and services board it draws.
+  ["src/modules/now/**", "width", "font-size"],
+  ["src/modules/station/{Head,Board}.svelte", "width", "font-size"],
 ];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts
@@ -72,12 +77,11 @@ export const TOKENS_EXEMPT = [
     why: "The labels on a controller sheet follow the image's scale (--k), not Text size, so they are px.",
   },
   // Pending: the page is rebuilt on a layout by the item named, which takes it off this list.
-  { files: ["src/modules/engineering/**"], off: ["spacing"], until: "astromech-8wr4", why: "Rebuilds Ships as a loadout." },
   { files: ["src/modules/unlocks/**"], off: ["spacing"], until: "astromech-m6gw", why: "Rebuilds Engineers." },
   { files: ["src/modules/exobiology/**"], off: ["spacing"], until: "astromech-evj3", why: "Rebuilds Biology." },
   { files: ["src/modules/exploration/**"], off: ["spacing"], until: "astromech-dpaz", why: "Rebuilds System." },
   { files: ["src/modules/{session,logbook}/**"], off: ["spacing"], until: "astromech-fzhp", why: "Rebuilds Session and Logbook." },
-  { files: ["src/modules/station/**"], off: ["spacing"], until: "astromech-7vxi", why: "Rebuilds Station." },
+  { files: ["src/modules/station/{View,Market}.svelte"], off: ["spacing"], until: "astromech-7vxi", why: "Rebuilds Station." },
   { files: ["src/modules/trade/**"], off: ["spacing"], until: "astromech-el3i", why: "Rebuilds Trade route." },
   {
     files: ["src/modules/{stored,mining,datasharing,diagnostics,voicetester}/**", "src/modules/places/Home.svelte"],
