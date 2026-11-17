@@ -1,0 +1,3016 @@
+{
+ "commit": "96a7c2ec",
+ "captures": {
+  "site-1100x700": {
+   "url": "http://localhost:5417/?core=ready&route=exact&textsize=100#/colonisation",
+   "file": "docs/design/colonisation/site-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 15,443 t, CMM Composite 16,020 t, Ceramic Composites 7",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 167 t, Ceramic Composites 1,534 t, Insulating ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 35,567 t, CMM Composite 27,935 t, Ceramic Composites 1",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 25,130 t, Insulating Membrane 117 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 4,478 t, Insulating Membrane 72 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 30 t, Insulating Membrane 38 t · fleet carrier",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,885,852 t, Insulating Membrane 11,522 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Aluminium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "ul.rows > li.done > span.what > span.type-name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "900 of 900 t",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.what > span.type-label",
+     "token": "grey-dim"
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "ul.rows > li.done > span.buy > span.type-value-l",
+     "token": "grey-dim"
+    },
+    {
+     "text": "t to buy",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.buy > span.type-unit",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Planetary Construction Site: Test Hub"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Colonisation",
+      "Wolf 359",
+      "Steel",
+      "CMM Composite",
+      "Ceramic Composites",
+      "Insulating Membrane",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "4 of 10",
+      "7",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "42"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "4,912",
+      "3,820",
+      "512",
+      "310",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 33,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Commodities",
+      "% built",
+      "3,288 of 8,200 t"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#6a6a6a",
+     "lum": 0.144,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Aluminium",
+      "900 of 900 t",
+      "0",
+      "t to buy"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "site-1920x1080": {
+   "url": "http://localhost:5417/?core=ready&route=exact&textsize=100#/colonisation",
+   "file": "docs/design/colonisation/site-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 15,443 t, CMM Composite 16,020 t, Ceramic Composites 7",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 167 t, Ceramic Composites 1,534 t, Insulating ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 35,567 t, CMM Composite 27,935 t, Ceramic Composites 1",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 25,130 t, Insulating Membrane 117 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 4,478 t, Insulating Membrane 72 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 30 t, Insulating Membrane 38 t · fleet carrier",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,885,852 t, Insulating Membrane 11,522 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Aluminium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "ul.rows > li.done > span.what > span.type-name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "900 of 900 t",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.what > span.type-label",
+     "token": "grey-dim"
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "ul.rows > li.done > span.buy > span.type-value-l",
+     "token": "grey-dim"
+    },
+    {
+     "text": "t to buy",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.buy > span.type-unit",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Planetary Construction Site: Test Hub"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 12,
+     "texts": [
+      "Colonisation",
+      "Wolf 359",
+      "Steel",
+      "CMM Composite",
+      "Ceramic Composites",
+      "Insulating Membrane",
+      "Efremov Plant",
+      "Hair Obligation",
+      "Sanger Settlement",
+      "Hah Industrial Moulding",
+      "Webb Holdings",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 26,
+     "texts": [
+      "Where to buy",
+      "L",
+      "4,412",
+      "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+      "1",
+      "1,227",
+      "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+      "439",
+      "Steel 15,443 t, CMM Composite 16,020 t, Ceramic Composites 7",
+      "963",
+      "CMM Composite 167 t, Ceramic Composites 1,534 t, Insulating ",
+      "3,091",
+      "Steel 35,567 t, CMM Composite 27,935 t, Ceramic Composites 1",
+      "18.0"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "42"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "site-2560x1440": {
+   "url": "http://localhost:5417/?core=ready&route=exact&textsize=145#/colonisation",
+   "file": "docs/design/colonisation/site-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 15,443 t, CMM Composite 16,020 t, Ceramic Composites 7",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 167 t, Ceramic Composites 1,534 t, Insulating ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 35,567 t, CMM Composite 27,935 t, Ceramic Composites 1",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 25,130 t, Insulating Membrane 117 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 4,478 t, Insulating Membrane 72 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 30 t, Insulating Membrane 38 t · fleet carrier",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,885,852 t, Insulating Membrane 11,522 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Aluminium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "ul.rows > li.done > span.what > span.type-name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "900 of 900 t",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.what > span.type-label",
+     "token": "grey-dim"
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "ul.rows > li.done > span.buy > span.type-value-l",
+     "token": "grey-dim"
+    },
+    {
+     "text": "t to buy",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.buy > span.type-unit",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Planetary Construction Site: Test Hub"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Colonisation",
+      "Wolf 359",
+      "Steel",
+      "CMM Composite",
+      "Ceramic Composites",
+      "Insulating Membrane",
+      "Efremov Plant",
+      "Hair Obligation",
+      "Sanger Settlement",
+      "Hah Industrial Moulding",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 21,
+     "texts": [
+      "Where to buy",
+      "L",
+      "4,412",
+      "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+      "1",
+      "1,227",
+      "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+      "439",
+      "Steel 15,443 t, CMM Composite 16,020 t, Ceramic Composites 7",
+      "963",
+      "18.0",
+      "24.6",
+      "32",
+      "120"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "42"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "site-station-selected-1100x700": {
+   "url": "http://localhost:5417/?core=ready&route=exact&textsize=100#/colonisation",
+   "file": "docs/design/colonisation/site-station-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+     "by": "ellipsis",
+     "at": "div.row.result.sel > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 15,443 t, CMM Composite 16,020 t, Ceramic Composites 7",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 167 t, Ceramic Composites 1,534 t, Insulating ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 35,567 t, CMM Composite 27,935 t, Ceramic Composites 1",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 25,130 t, Insulating Membrane 117 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 4,478 t, Insulating Membrane 72 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 30 t, Insulating Membrane 38 t · fleet carrier",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,885,852 t, Insulating Membrane 11,522 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Efremov Plant"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "Colonisation",
+      "Hair Obligation",
+      "Sanger Settlement",
+      "Hah Industrial Moulding",
+      "Webb Holdings",
+      "Miller Depot",
+      "Boston Base",
+      "Levi-Strauss Installation",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 43,
+     "texts": [
+      "4 of 10",
+      "7",
+      "L",
+      "4,412",
+      "ls",
+      "Sirius",
+      "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+      "1",
+      "jump",
+      "8.6",
+      "ly",
+      "1,227",
+      "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+      "439"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "3 of 4"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "3 of 4",
+      "2 of 4",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 56,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Commodities",
+      "ls",
+      "Ross 248"
+     ]
+    },
+    {
+     "colour": "#ca6657",
+     "lum": 0.227,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "M"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "site-station-selected-1920x1080": {
+   "url": "http://localhost:5417/?core=ready&route=exact&textsize=100#/colonisation",
+   "file": "docs/design/colonisation/site-station-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+     "by": "ellipsis",
+     "at": "div.row.result.sel > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 15,443 t, CMM Composite 16,020 t, Ceramic Composites 7",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 167 t, Ceramic Composites 1,534 t, Insulating ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 35,567 t, CMM Composite 27,935 t, Ceramic Composites 1",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 25,130 t, Insulating Membrane 117 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 4,478 t, Insulating Membrane 72 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 30 t, Insulating Membrane 38 t · fleet carrier",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,885,852 t, Insulating Membrane 11,522 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Efremov Plant"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 14,
+     "texts": [
+      "Colonisation",
+      "Hair Obligation",
+      "Sanger Settlement",
+      "Hah Industrial Moulding",
+      "Webb Holdings",
+      "Miller Depot",
+      "Boston Base",
+      "Levi-Strauss Installation",
+      "Heisenberg Colony",
+      "FCX-802",
+      "Polyakov Station",
+      "FCX-801",
+      "Sirius",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 64,
+     "texts": [
+      "L",
+      "4,412",
+      "ls",
+      "Sirius",
+      "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+      "1",
+      "jump",
+      "8.6",
+      "ly",
+      "1,227",
+      "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+      "439",
+      "Steel 15,443 t, CMM Composite 16,020 t, Ceramic Composites 7",
+      "963"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "3 of 4",
+      "Any"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "site-station-selected-2560x1440": {
+   "url": "http://localhost:5417/?core=ready&route=exact&textsize=145#/colonisation",
+   "file": "docs/design/colonisation/site-station-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+     "by": "ellipsis",
+     "at": "div.row.result.sel > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 15,443 t, CMM Composite 16,020 t, Ceramic Composites 7",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 167 t, Ceramic Composites 1,534 t, Insulating ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 35,567 t, CMM Composite 27,935 t, Ceramic Composites 1",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 4,603 t, Insulating Membrane 9 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 25,130 t, Insulating Membrane 117 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 4,478 t, Insulating Membrane 72 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "CMM Composite 30 t, Insulating Membrane 38 t · fleet carrier",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Steel 1,885,852 t, Insulating Membrane 11,522 t",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Efremov Plant"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 14,
+     "texts": [
+      "Colonisation",
+      "Hair Obligation",
+      "Sanger Settlement",
+      "Hah Industrial Moulding",
+      "Webb Holdings",
+      "Miller Depot",
+      "Boston Base",
+      "Levi-Strauss Installation",
+      "Heisenberg Colony",
+      "FCX-802",
+      "Polyakov Station",
+      "FCX-801",
+      "Sirius",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 63,
+     "texts": [
+      "L",
+      "4,412",
+      "ls",
+      "Sirius",
+      "Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2",
+      "1",
+      "jump",
+      "8.6",
+      "ly",
+      "1,227",
+      "Steel 1,181,674 t, CMM Composite 953,124 t, Ceramic Composit",
+      "439",
+      "Steel 15,443 t, CMM Composite 16,020 t, Ceramic Composites 7",
+      "963"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "3 of 4"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "complete-1100x700": {
+   "url": "http://localhost:5417/?core=ready&route=exact&textsize=100#/colonisation",
+   "file": "docs/design/colonisation/complete-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Steel",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "ul.rows > li.done > span.what > span.type-name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "1,200 of 1,200 t",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.what > span.type-label",
+     "token": "grey-dim"
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "ul.rows > li.done > span.buy > span.type-value-l",
+     "token": "grey-dim"
+    },
+    {
+     "text": "t to buy",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.buy > span.type-unit",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Orbital Construction Site: Test Relay"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Colonisation",
+      "Wolf 359",
+      "Complete",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Colonisation candidates",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Any"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Rings",
+      "Earth-like world",
+      "Landable",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 22,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Commodities",
+      "Nothing left to deliver.",
+      "Anaconda"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#6a6a6a",
+     "lum": 0.144,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Steel",
+      "1,200 of 1,200 t",
+      "0",
+      "t to buy"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "complete-1920x1080": {
+   "url": "http://localhost:5417/?core=ready&route=exact&textsize=100#/colonisation",
+   "file": "docs/design/colonisation/complete-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Steel",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "ul.rows > li.done > span.what > span.type-name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "1,200 of 1,200 t",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.what > span.type-label",
+     "token": "grey-dim"
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "ul.rows > li.done > span.buy > span.type-value-l",
+     "token": "grey-dim"
+    },
+    {
+     "text": "t to buy",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.buy > span.type-unit",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Orbital Construction Site: Test Relay"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 10,
+     "texts": [
+      "Colonisation",
+      "Wolf 359",
+      "Complete",
+      "Greae Phoea VS-M b39-29",
+      "Greae Phoea KK-B a78-0",
+      "Greae Phoea KJ-T c19-205",
+      "Greae Phoea KJ-T c19-186",
+      "Greae Phoea VS-M b39-5",
+      "Greae Phoea EM-K d9-564",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 17,
+     "texts": [
+      "Colonisation candidates",
+      "Unclaimed systems within 15 ly of a populated one: claim the",
+      "·",
+      "M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM",
+      "T (Brown dwarf) star · 12.1 ly from Greae Phoea EM-K d9-675",
+      "bodies not on Spansh · 13.7 ly from Greae Phoea US-M b39-3",
+      "bodies not on Spansh · 9.4 ly from Greae Phoea US-M b39-3",
+      "M (Red dwarf) star · 4.3 ly from Greae Phoea US-M b39-3",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Any"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "complete-2560x1440": {
+   "url": "http://localhost:5417/?core=ready&route=exact&textsize=145#/colonisation",
+   "file": "docs/design/colonisation/complete-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Steel",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "ul.rows > li.done > span.what > span.type-name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "1,200 of 1,200 t",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.what > span.type-label",
+     "token": "grey-dim"
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "ul.rows > li.done > span.buy > span.type-value-l",
+     "token": "grey-dim"
+    },
+    {
+     "text": "t to buy",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "ul.rows > li.done > span.buy > span.type-unit",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Orbital Construction Site: Test Relay"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Colonisation",
+      "Wolf 359",
+      "Complete",
+      "Greae Phoea VS-M b39-29",
+      "Greae Phoea KK-B a78-0",
+      "Greae Phoea KJ-T c19-205",
+      "Greae Phoea KJ-T c19-186",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Colonisation candidates",
+      "Unclaimed systems within 15 ly of a populated one: claim the",
+      "·",
+      "M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM",
+      "T (Brown dwarf) star · 12.1 ly from Greae Phoea EM-K d9-675",
+      "bodies not on Spansh · 13.7 ly from Greae Phoea US-M b39-3",
+      "bodies not on Spansh · 9.4 ly from Greae Phoea US-M b39-3",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Any"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "no-sites-1100x700": {
+   "url": "http://localhost:5417/?core=empty&route=exact&textsize=100#/colonisation",
+   "file": "docs/design/colonisation/no-sites-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Colonisation"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Colonisation candidates",
+      "Unclaimed systems within 15 ly of a populated one: claim the"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Any"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Ctrl+K",
+      "Finish setup",
+      "Help",
+      "Find or plot",
+      "Import a route",
+      "Rings",
+      "Earth-like world",
+      "Landable",
+      "Change",
+      "Try again",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 12,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "No route",
+      "Commodities",
+      "No construction sites in your journals yet. Dock at one and ",
+      "Within 30 ly of here · reports of any age"
+     ]
+    },
+    {
+     "colour": "#f0412e",
+     "lum": 0.225,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "!",
+      "no position in the journal yet"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "no-sites-2560x1440": {
+   "url": "http://localhost:5417/?core=empty&route=exact&textsize=145#/colonisation",
+   "file": "docs/design/colonisation/no-sites-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "rail",
+    "sidebar": null,
+    "main": {
+     "w": 1710.3,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Colonisation"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Colonisation candidates",
+      "Unclaimed systems within 15 ly of a populated one: claim the"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Any"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "Ctrl+K",
+      "Finish setup",
+      "Help",
+      "Rings",
+      "Earth-like world",
+      "Landable",
+      "Change",
+      "Try again",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Commodities",
+      "No construction sites in your journals yet. Dock at one and ",
+      "Within 30 ly of here · reports of any age"
+     ]
+    },
+    {
+     "colour": "#f0412e",
+     "lum": 0.225,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "!",
+      "no position in the journal yet"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "loading-1100x700": {
+   "url": "http://localhost:5417/?core=ready&route=exact&slow=never:colonisation_projects&textsize=100#/colonisation",
+   "file": "docs/design/colonisation/loading-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Colonisation",
+      "Greae Phoea VS-M b39-29",
+      "Greae Phoea KK-B a78-0",
+      "Greae Phoea KJ-T c19-205",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Colonisation candidates",
+      "Unclaimed systems within 15 ly of a populated one: claim the",
+      "·",
+      "M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM",
+      "T (Brown dwarf) star · 12.1 ly from Greae Phoea EM-K d9-675",
+      "bodies not on Spansh · 13.7 ly from Greae Phoea US-M b39-3",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Any"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Rings",
+      "Earth-like world",
+      "Landable",
+      "Change",
+      "~1",
+      "1,688 d old",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "~1"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 36,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Commodities",
+      "Reading the journals…",
+      "Within 30 ly of Greae Phoea EM-K d9-675 · reports of any age"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "loading-2560x1440": {
+   "url": "http://localhost:5417/?core=ready&route=exact&slow=never:colonisation_projects&textsize=145#/colonisation",
+   "file": "docs/design/colonisation/loading-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Colonisation",
+      "Greae Phoea VS-M b39-29",
+      "Greae Phoea KK-B a78-0",
+      "Greae Phoea KJ-T c19-205",
+      "Greae Phoea KJ-T c19-186",
+      "Greae Phoea VS-M b39-5",
+      "Greae Phoea EM-K d9-564",
+      "Greae Phoea ME-T c19-29",
+      "Greae Phoea ZY-K b40-42",
+      "Greae Phoea ME-T c19-207",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 25,
+     "texts": [
+      "Colonisation candidates",
+      "Unclaimed systems within 15 ly of a populated one: claim the",
+      "·",
+      "M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM",
+      "T (Brown dwarf) star · 12.1 ly from Greae Phoea EM-K d9-675",
+      "bodies not on Spansh · 13.7 ly from Greae Phoea US-M b39-3",
+      "bodies not on Spansh · 9.4 ly from Greae Phoea US-M b39-3",
+      "M (Red dwarf) star · 4.3 ly from Greae Phoea US-M b39-3",
+      "bodies not on Spansh · 6.9 ly from Greae Phoea GD-V c18-74",
+      "bodies not on Spansh · 9.9 ly from Greae Phoea US-M b39-3",
+      "bodies not on Spansh · 6.2 ly from Greae Phoea EM-K d9-373",
+      "bodies not on Spansh · 9.1 ly from Greae Phoea EM-K d9-373",
+      "18.0",
+      "24.6"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Any"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "failed-1100x700": {
+   "url": "http://localhost:5417/?core=ready&route=exact&fail=colonisation_projects&textsize=100#/colonisation",
+   "file": "docs/design/colonisation/failed-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Colonisation",
+      "Greae Phoea VS-M b39-29",
+      "Greae Phoea KK-B a78-0",
+      "Greae Phoea KJ-T c19-205",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Colonisation candidates",
+      "Unclaimed systems within 15 ly of a populated one: claim the",
+      "·",
+      "M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM",
+      "T (Brown dwarf) star · 12.1 ly from Greae Phoea EM-K d9-675",
+      "bodies not on Spansh · 13.7 ly from Greae Phoea US-M b39-3",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Any"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Rings",
+      "Earth-like world",
+      "Landable",
+      "Change",
+      "~1",
+      "1,688 d old",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "~1"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 36,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Commodities",
+      "Could not read the construction sites: preview: colonisation",
+      "Within 30 ly of Greae Phoea EM-K d9-675 · reports of any age"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "failed-2560x1440": {
+   "url": "http://localhost:5417/?core=ready&route=exact&fail=colonisation_projects&textsize=145#/colonisation",
+   "file": "docs/design/colonisation/failed-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Colonisation",
+      "Greae Phoea VS-M b39-29",
+      "Greae Phoea KK-B a78-0",
+      "Greae Phoea KJ-T c19-205",
+      "Greae Phoea KJ-T c19-186",
+      "Greae Phoea VS-M b39-5",
+      "Greae Phoea EM-K d9-564",
+      "Greae Phoea ME-T c19-29",
+      "Greae Phoea ZY-K b40-42",
+      "Greae Phoea ME-T c19-207",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 25,
+     "texts": [
+      "Colonisation candidates",
+      "Unclaimed systems within 15 ly of a populated one: claim the",
+      "·",
+      "M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM",
+      "T (Brown dwarf) star · 12.1 ly from Greae Phoea EM-K d9-675",
+      "bodies not on Spansh · 13.7 ly from Greae Phoea US-M b39-3",
+      "bodies not on Spansh · 9.4 ly from Greae Phoea US-M b39-3",
+      "M (Red dwarf) star · 4.3 ly from Greae Phoea US-M b39-3",
+      "bodies not on Spansh · 6.9 ly from Greae Phoea GD-V c18-74",
+      "bodies not on Spansh · 9.9 ly from Greae Phoea US-M b39-3",
+      "bodies not on Spansh · 6.2 ly from Greae Phoea EM-K d9-373",
+      "bodies not on Spansh · 9.1 ly from Greae Phoea EM-K d9-373",
+      "18.0",
+      "24.6"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Any"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Trade",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  }
+ }
+}

@@ -221,6 +221,19 @@ pub struct JournalState {
     pub visits: Vec<astromech_galaxy::Visit>,
 }
 
+/// The suit engineers' modifications from the Odyssey data, for the unlock tree and the search.
+pub(crate) fn suit_offers() -> Vec<astromech_engineering::search::SuitOffer<'static>> {
+    let ody = astromech_odyssey::catalog();
+    ody.engineers
+        .iter()
+        .map(|e| astromech_engineering::search::SuitOffer {
+            engineer: &e.name,
+            mods: e.mods.iter().filter_map(|m| ody.modification(m)).map(|m| m.name.as_str()).collect(),
+            unsure: e.unconfirmed_mods.iter().filter_map(|m| ody.modification(m)).map(|m| m.name.as_str()).collect(),
+        })
+        .collect()
+}
+
 impl JournalState {
     pub fn build(dir: &Path) -> Self {
         let progress = astromech_engineering::engineers::builder_from_journal_dir(dir);
@@ -230,7 +243,7 @@ impl JournalState {
             fleet_next_arrival: fleet.next_arrival,
             ledger: astromech_materials::replay_journal_dir(dir),
             engineers: progress.build(),
-            unlocks: astromech_engineering::unlocks::tree(&progress),
+            unlocks: astromech_engineering::unlocks::tree(&progress, &suit_offers()),
             here: astromech_galaxy::here_from_journal_dir(dir),
             visits: astromech_galaxy::visits_from_journal_dir(dir, astromech_galaxy::visits::RECENT_JOURNALS),
         }

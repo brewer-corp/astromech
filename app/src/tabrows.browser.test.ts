@@ -57,7 +57,7 @@ describe("The Two Tab Rows Rule", () => {
     const { container } = render(App);
     await screen.findByRole("button", { name: "Raw", pressed: true });
     expect(tabRows(container).map(describeRow)).toEqual([
-      "Ships | Engineering | Places | Trade | Exploration | Powerplay | Logbook | Controls | Settings",
+      "Now | Ships | Engineering | Places | Trade | Exploration | Powerplay | Logbook | Controls | Settings",
       "Materials | Engineers",
     ]);
   });
@@ -105,15 +105,15 @@ describe("Folded levels keep their links", () => {
 
   const pressed = (name: string | RegExp) => screen.getByRole("button", { name, pressed: true });
 
-  it("#/engineering/<id>/plan opens that ship's plan with Engineering chosen", async () => {
+  it("#/engineering/<id>/plan opens that ship's plan with Plan chosen", async () => {
     location.hash = "#/engineering/7/plan";
     render(App);
-    await waitFor(() => expect(pressed("Engineering")).toBeTruthy());
-    expect(screen.getByRole("button", { name: "Info", pressed: false })).toBeTruthy();
-    await fireEvent.click(screen.getByRole("button", { name: "Info", pressed: false }));
+    await waitFor(() => expect(pressed("Plan")).toBeTruthy());
+    expect(screen.getByRole("button", { name: "Loadout", pressed: false })).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Loadout", pressed: false }));
     expect(location.hash).toBe("#/engineering/7");
-    await waitFor(() => expect(pressed("Info")).toBeTruthy());
-    await fireEvent.click(screen.getByRole("button", { name: "Engineering", pressed: false }));
+    await waitFor(() => expect(pressed("Loadout")).toBeTruthy());
+    await fireEvent.click(screen.getByRole("button", { name: "Plan", pressed: false }));
     expect(location.hash).toBe("#/engineering/7/plan");
   });
 
@@ -142,11 +142,9 @@ describe("Folded levels keep their links", () => {
     expect(pressed("On foot")).toBeTruthy();
   });
 
-  it("#/unlocks?kind=suit opens the suit engineers", async () => {
+  it("#/unlocks?kind=suit opens the engineers, suit engineers among them", async () => {
     location.hash = "#/unlocks?kind=suit";
     render(App);
-    await waitFor(() => expect(pressed("Suit engineers")).toBeTruthy());
-    await fireEvent.click(screen.getByRole("button", { name: "Ship engineers", pressed: false }));
-    expect(location.hash).toBe("#/unlocks");
+    expect(await screen.findByRole("region", { name: "Suit engineers" })).toBeTruthy();
   });
 });

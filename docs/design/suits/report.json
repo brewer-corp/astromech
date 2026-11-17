@@ -1,0 +1,3230 @@
+{
+ "commit": "bf7d09ec",
+ "captures": {
+  "suits-1100x700": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "file": "docs/design/suits/suits-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Explore"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Suits",
+      "Maverick Suit",
+      "Karma AR-50",
+      "TK Aphelion",
+      "Karma P-15",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Loadout",
+      "Increased Air Reserves",
+      "Magazine Size · Stability",
+      "Greater Range · Improved Hip Fire Accuracy · Stability",
+      "Stability",
+      "Shopping list",
+      "3",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Arietis Sector LD-H a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Plan other gear",
+      "Grade 3 · Night Vision",
+      "Grade 2",
+      "!",
+      "0",
+      "1",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 36,
+     "texts": [
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Ships",
+      "Stored modules",
+      "Loadout 1 of 4 · Maverick Suit · 4 of 4 items engineered or "
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Ships"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    }
+   ]
+  },
+  "suits-1920x1080": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "file": "docs/design/suits/suits-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Explore"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Suits",
+      "Maverick Suit",
+      "Karma AR-50",
+      "TK Aphelion",
+      "Karma P-15",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "NOC Data",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "Surveillance Logs",
+      "Raid",
+      "Fight",
+      "Spare"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 43,
+     "texts": [
+      "Loadout",
+      "Increased Air Reserves",
+      "Magazine Size · Stability",
+      "Greater Range · Improved Hip Fire Accuracy · Stability",
+      "Stability",
+      "Shopping list",
+      "7",
+      "3",
+      "5",
+      "Circuit Switch",
+      "6",
+      "Compression-Liquefied Gas",
+      "1",
+      "4"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Plan other gear",
+      "Grade 3 · Night Vision",
+      "Grade 2",
+      "!",
+      "0",
+      "1",
+      "2",
+      "Maverick Suit",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    }
+   ]
+  },
+  "suits-2560x1440": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=145#/suits",
+   "file": "docs/design/suits/suits-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Explore"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Suits",
+      "Maverick Suit",
+      "Karma AR-50",
+      "TK Aphelion",
+      "Karma P-15",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "NOC Data",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "Surveillance Logs",
+      "Raid",
+      "Fight",
+      "Spare"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 43,
+     "texts": [
+      "Loadout",
+      "Increased Air Reserves",
+      "Magazine Size · Stability",
+      "Greater Range · Improved Hip Fire Accuracy · Stability",
+      "Stability",
+      "Shopping list",
+      "7",
+      "3",
+      "5",
+      "Circuit Switch",
+      "6",
+      "Compression-Liquefied Gas",
+      "1",
+      "4"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 18,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Plan other gear",
+      "Grade 3 · Night Vision",
+      "Grade 2",
+      "!",
+      "0",
+      "1",
+      "2",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    }
+   ]
+  },
+  "suits-3840x2160": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=180#/suits",
+   "file": "docs/design/suits/suits-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1060
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Explore"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Suits",
+      "Maverick Suit",
+      "Karma AR-50",
+      "TK Aphelion",
+      "Karma P-15",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "NOC Data",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "Surveillance Logs",
+      "Raid",
+      "Fight",
+      "Spare"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 43,
+     "texts": [
+      "Loadout",
+      "Increased Air Reserves",
+      "Magazine Size · Stability",
+      "Greater Range · Improved Hip Fire Accuracy · Stability",
+      "Stability",
+      "Shopping list",
+      "7",
+      "3",
+      "5",
+      "Circuit Switch",
+      "6",
+      "Compression-Liquefied Gas",
+      "1",
+      "4"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Plan other gear",
+      "Grade 3 · Night Vision",
+      "Grade 2",
+      "!",
+      "0",
+      "1",
+      "2",
+      "Maverick Suit",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    }
+   ]
+  },
+  "suits-suit-selected-1100x700": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "file": "docs/design/suits/suits-suit-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Maverick Suit"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Suits",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Grades 2 and 3 need",
+      "3",
+      "Graphene",
+      "9",
+      "Manufacturing Instructions",
+      "4",
+      "Suit Schematic",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "2,850,000"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Remove",
+      "!",
+      "0",
+      "1",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 28,
+     "texts": [
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Ships",
+      "Stored modules",
+      "Plan: grade 3 and Night Vision"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Ships",
+      "Add to plan"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add to plan",
+     "sidebar": false,
+     "at": "aside.stacked > div.about > div.add > button.btn.primary"
+    }
+   ]
+  },
+  "suits-suit-selected-1920x1080": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "file": "docs/design/suits/suits-suit-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "ASTROMECH",
+      "Explore",
+      "Loadout",
+      "Maverick Suit"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 22,
+     "texts": [
+      "Suits",
+      "Karma AR-50",
+      "TK Aphelion",
+      "Karma P-15",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "NOC Data",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "Surveillance Logs",
+      "Raid",
+      "Fight",
+      "Spare",
+      "Oden Geiger"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 62,
+     "texts": [
+      "Increased Air Reserves",
+      "Magazine Size · Stability",
+      "Greater Range · Improved Hip Fire Accuracy · Stability",
+      "Stability",
+      "Shopping list",
+      "7",
+      "3",
+      "5",
+      "Circuit Switch",
+      "6",
+      "Compression-Liquefied Gas",
+      "1",
+      "4",
+      "Graphene"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "2,850,000"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add to plan",
+     "sidebar": false,
+     "at": "aside. > div.about > div.add > button.btn.primary"
+    }
+   ]
+  },
+  "suits-suit-selected-2560x1440": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=145#/suits",
+   "file": "docs/design/suits/suits-suit-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "ASTROMECH",
+      "Explore",
+      "Loadout",
+      "Maverick Suit"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 22,
+     "texts": [
+      "Suits",
+      "Karma AR-50",
+      "TK Aphelion",
+      "Karma P-15",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "NOC Data",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "Surveillance Logs",
+      "Raid",
+      "Fight",
+      "Spare",
+      "Oden Geiger"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 62,
+     "texts": [
+      "Increased Air Reserves",
+      "Magazine Size · Stability",
+      "Greater Range · Improved Hip Fire Accuracy · Stability",
+      "Stability",
+      "Shopping list",
+      "7",
+      "3",
+      "5",
+      "Circuit Switch",
+      "6",
+      "Compression-Liquefied Gas",
+      "1",
+      "4",
+      "Graphene"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "2,850,000"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add to plan",
+     "sidebar": false,
+     "at": "aside. > div.about > div.add > button.btn.primary"
+    }
+   ]
+  },
+  "suits-suit-selected-3840x2160": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=180#/suits",
+   "file": "docs/design/suits/suits-suit-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1060
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "ASTROMECH",
+      "Explore",
+      "Loadout",
+      "Maverick Suit"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 22,
+     "texts": [
+      "Suits",
+      "Karma AR-50",
+      "TK Aphelion",
+      "Karma P-15",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "NOC Data",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "Surveillance Logs",
+      "Raid",
+      "Fight",
+      "Spare",
+      "Oden Geiger"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 62,
+     "texts": [
+      "Increased Air Reserves",
+      "Magazine Size · Stability",
+      "Greater Range · Improved Hip Fire Accuracy · Stability",
+      "Stability",
+      "Shopping list",
+      "7",
+      "3",
+      "5",
+      "Circuit Switch",
+      "6",
+      "Compression-Liquefied Gas",
+      "1",
+      "4",
+      "Graphene"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "2,850,000"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add to plan",
+     "sidebar": false,
+     "at": "aside. > div.about > div.add > button.btn.primary"
+    }
+   ]
+  },
+  "suits-plan-other-1100x700": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "file": "docs/design/suits/suits-plan-other-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Explore",
+      "Plan other gear"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Suits",
+      "Raid",
+      "Fight",
+      "Spare",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Loadouts",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Arietis Sector LD-H a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Maverick Suit",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 32,
+     "texts": [
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Ships",
+      "Stored modules",
+      "Still short after the trade: 2 Health Monitor, 3 NOC Data, 2"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Ships",
+      "Add to plan"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add to plan",
+     "sidebar": false,
+     "at": "aside.stacked > div.about > div.add.col > button.btn.primary"
+    }
+   ]
+  },
+  "suits-plan-other-1920x1080": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "file": "docs/design/suits/suits-plan-other-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Explore",
+      "Plan other gear"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Suits",
+      "Maverick Suit",
+      "Karma AR-50",
+      "TK Aphelion",
+      "Karma P-15",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "NOC Data",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "Surveillance Logs",
+      "Raid",
+      "Fight",
+      "Spare"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 43,
+     "texts": [
+      "Loadout",
+      "Increased Air Reserves",
+      "Magazine Size · Stability",
+      "Greater Range · Improved Hip Fire Accuracy · Stability",
+      "Stability",
+      "Shopping list",
+      "7",
+      "3",
+      "5",
+      "Circuit Switch",
+      "6",
+      "Compression-Liquefied Gas",
+      "1",
+      "4"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Plan other gear",
+      "Grade 3 · Night Vision",
+      "Grade 2",
+      "!",
+      "0",
+      "1",
+      "2",
+      "Maverick Suit",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add to plan",
+     "sidebar": false,
+     "at": "aside. > div.about > div.add.col > button.btn.primary"
+    }
+   ]
+  },
+  "suits-plan-other-2560x1440": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=145#/suits",
+   "file": "docs/design/suits/suits-plan-other-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Explore",
+      "Plan other gear"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Suits",
+      "Maverick Suit",
+      "Karma AR-50",
+      "TK Aphelion",
+      "Karma P-15",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "NOC Data",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "Surveillance Logs",
+      "Raid",
+      "Fight",
+      "Spare"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 43,
+     "texts": [
+      "Loadout",
+      "Increased Air Reserves",
+      "Magazine Size · Stability",
+      "Greater Range · Improved Hip Fire Accuracy · Stability",
+      "Stability",
+      "Shopping list",
+      "7",
+      "3",
+      "5",
+      "Circuit Switch",
+      "6",
+      "Compression-Liquefied Gas",
+      "1",
+      "4"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 18,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Plan other gear",
+      "Grade 3 · Night Vision",
+      "Grade 2",
+      "!",
+      "0",
+      "1",
+      "2",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add to plan",
+     "sidebar": false,
+     "at": "aside. > div.about > div.add.col > button.btn.primary"
+    }
+   ]
+  },
+  "suits-plan-other-3840x2160": {
+   "url": "http://localhost:6417/?core=ready&route=exact&textsize=180#/suits",
+   "file": "docs/design/suits/suits-plan-other-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1060
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Explore",
+      "Plan other gear"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Suits",
+      "Maverick Suit",
+      "Karma AR-50",
+      "TK Aphelion",
+      "Karma P-15",
+      "Carbon Fibre Plating",
+      "Health Monitor",
+      "NOC Data",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "Surveillance Logs",
+      "Raid",
+      "Fight",
+      "Spare"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 43,
+     "texts": [
+      "Loadout",
+      "Increased Air Reserves",
+      "Magazine Size · Stability",
+      "Greater Range · Improved Hip Fire Accuracy · Stability",
+      "Stability",
+      "Shopping list",
+      "7",
+      "3",
+      "5",
+      "Circuit Switch",
+      "6",
+      "Compression-Liquefied Gas",
+      "1",
+      "4"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Plan other gear",
+      "Grade 3 · Night Vision",
+      "Grade 2",
+      "!",
+      "0",
+      "1",
+      "2",
+      "Maverick Suit",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add to plan",
+     "sidebar": false,
+     "at": "aside. > div.about > div.add.col > button.btn.primary"
+    }
+   ]
+  }
+ }
+}

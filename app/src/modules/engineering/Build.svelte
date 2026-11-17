@@ -1,35 +1,26 @@
 <script lang="ts">
-  // Ship detail: the build plan for one ship of the fleet (blueprint / grade / experimental per
-  // module), its stats now and with the plan done, and the materials it costs against the
-  // inventory, trades, what to farm and the engineer trip.
+  // A ship's Plan view: what its build plan (made on the Loadout) does and costs. The stats now
+  // against the plan done, the rolls per grade the costs assume, the shopping list against the
+  // inventory, the trades, what is still to collect and the engineer trip. A selected material
+  // fills the side panel with where it comes from.
   import { tip } from "../../lib/ui/tip";
   import { untrack } from "svelte";
-  import {
-    DEFAULT_ROLLS, dropShoppingList, evaluatePlan, fittedLine, groupFitted, loadEngineers, planTrip, savePlan, savedPlan, shareShoppingList, shipStats, shipTitle,
-    type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Rolls, type StatsComparison, type Target, type Trip,
-  } from "../../lib/engineering";
+  import { DEFAULT_ROLLS, loadEngineers, planTrip, shipStats, type Engineers, type Fleet, type MatLine, type Plan, type Ship, type StatsComparison, type Trip } from "../../lib/engineering";
   import Button from "../../lib/ui/Button.svelte";
-  import Dropdown from "../../lib/ui/Dropdown.svelte";
-  import Glyph from "../../lib/ui/Glyph.svelte";
   import Input from "../../lib/ui/Input.svelte";
+  import ListDetail from "../../lib/ui/layout/ListDetail.svelte";
   import Stats from "./Stats.svelte";
   import { jumps } from "../../lib/galaxy";
-  import { openUrl } from "../../lib/core";
-  import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import Nearby from "../../lib/ui/Nearby.svelte";
   import { failedNote, followedNote, followRoute, type FollowNote } from "../../lib/route";
   import FollowNoteLine from "../../lib/ui/FollowNote.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
   import { pollFailure } from "../../lib/ui/errors";
+  import type { ShipPlan } from "./plan.svelte";
 
-  let { fleet, shipId, onback, embedded = false }: { fleet: Fleet; shipId: number; onback: () => void; embedded?: boolean } = $props();
-  let plan = $state<Plan | null>(null);
-  let result = $state<PlanResult | null>(null);
-  let failed = $state<string | null>(null);
-  let linkErr = $state<string | null>(null);
+  let { fleet, ship, sp }: { fleet: Fleet; ship: Ship; sp: ShipPlan } = $props();
   let selMat = $state<string | null>(null);
-  let seq = 0;
   let tripSeq = 0;
   let engineersKey = "";
   let lastTripKey = "";
@@ -39,6 +30,28 @@
   let trip = $state<Trip | null>(null);
   let tripErr = $state<string | null>(null);
   let followNote = $state<FollowNote | null>(null);
+  let stats = $state<StatsComparison | null>(null);
+  let unknownHull = $state<string | null>(null);
+  let statsNote = $state<string | null>(null);
+  let statsSeq = 0;
+
+  const plan = $derived(sp.plan);
+  const result = $derived(sp.result);
+  const sel = $derived(result?.materials.find((m) => m.id === selMat));
+  const selFarm = $derived(result?.farm.find((f) => f.id === selMat));
+  const usedBy = $derived(result?.targets.filter((t) => t.materials.some(([id]) => id === selMat)) ?? []);
+  const traded = $derived(
+    (result?.trades ?? []).reduce((m, t) => m.set(t.get_id, (m.get(t.get_id) ?? 0) + t.get), new Map<string, number>()),
+  );
+  const hasJobs = $derived(result?.targets.some((t) => t.steps.length > 0 || t.experimental_needed) ?? false);
+  const lookup = $derived((selFarm ?? sel)?.sources?.find((s) => s.query)?.query);
+
+  // A new ship starts with no material selected.
+  let lastShip: number | undefined;
+  $effect.pre(() => {
+    if (ship.id !== lastShip) selMat = null;
+    lastShip = ship.id;
+  });
 
   // Hand the trip to the core's route follower: the first engineer's system goes on the clipboard,
   // and the route it replaces is parked for Resume.
@@ -50,22 +63,6 @@
       followNote = failedNote("Could not follow it", e, () => void followTrip());
     }
   }
-  let stats = $state<StatsComparison | null>(null);
-  let unknownHull = $state<string | null>(null);
-  let statsNote = $state<string | null>(null);
-  let statsSeq = 0;
-
-  const ship = $derived(fleet.ships.find((s) => s.id === shipId));
-  const grouped = $derived(groupFitted(ship?.modules ?? [], true));
-  const sel = $derived(result?.materials.find((m) => m.id === selMat));
-  const selFarm = $derived(result?.farm.find((f) => f.id === selMat));
-  const usedBy = $derived(result?.targets.filter((t) => t.materials.some(([id]) => id === selMat)) ?? []);
-  const traded = $derived(
-    (result?.trades ?? []).reduce((m, t) => m.set(t.get_id, (m.get(t.get_id) ?? 0) + t.get), new Map<string, number>()),
-  );
-
-  const hasJobs = $derived(result?.targets.some((t) => t.steps.length > 0 || t.experimental_needed) ?? false);
-  const lookup = $derived((selFarm ?? sel)?.sources?.find((s) => s.query)?.query);
 
   $effect(() => {
     const tick = () => {
@@ -84,37 +81,6 @@
     tick();
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
-  });
-
-  // New ship (or first load): restore its plan.
-  $effect(() => {
-    const id = ship?.id;
-    if (id === undefined || plan?.ship_id === id) return;
-    plan = savedPlan(id);
-    selMat = null;
-  });
-
-  // Recompute on plan edits and when the fleet / inventory is re-read.
-  $effect(() => {
-    const p = plan;
-    void fleet;
-    if (!p) return;
-    const snapshot = $state.snapshot(p) as Plan;
-    const mine = ++seq;
-    evaluatePlan(snapshot)
-      .then((r) => {
-        if (mine !== seq) return; // a newer request (e.g. another ship) is in flight
-        result = r;
-        shareShoppingList(r);
-        failed = null;
-      })
-      .catch((e: unknown) => {
-        if (mine !== seq) return;
-        result = null;
-        failed = String(e);
-        // A ship that left the fleet keeps no list in the core.
-        if (failed.includes("not in the fleet")) dropShoppingList(snapshot.ship_id);
-      });
   });
 
   // Stats now and with the plan done, on every plan edit and fleet re-read.
@@ -173,52 +139,6 @@
       });
   });
 
-  function target(slot: string): Target | undefined {
-    return plan?.targets.find((t) => t.slot === slot);
-  }
-
-  function setTarget(m: Fitted, patch: Partial<Target> | null) {
-    if (!plan) return;
-    const others = plan.targets.filter((t) => t.slot !== m.slot);
-    const old = target(m.slot);
-    let next: Target | null = null;
-    if (patch) {
-      const blueprint = patch.blueprint ?? old?.blueprint ?? m.engineering?.blueprint ?? "";
-      const choice = fleet.groups[m.group ?? ""]?.blueprints.find((b) => b.id === blueprint);
-      if (choice) {
-        const grade = patch.grade ?? (old?.blueprint === blueprint ? old.grade : (choice.max_grade ?? 5));
-        const experimental = patch.experimental !== undefined ? patch.experimental : (old?.experimental ?? m.engineering?.experimental ?? null);
-        next = { slot: m.slot, blueprint, grade: Math.min(grade, choice.max_grade ?? 5), experimental: experimental || null };
-      }
-    }
-    plan = { ...plan, targets: next ? [...others, next] : others };
-    savePlan(plan);
-  }
-
-  function setRolls(i: number, v: number) {
-    if (!plan || !Number.isFinite(v)) return;
-    const rolls: Rolls = [...plan.rolls];
-    rolls[i] = Math.max(1, Math.min(20, Math.round(v)));
-    plan = { ...plan, rolls };
-    savePlan(plan);
-  }
-
-  function current(m: Fitted): string {
-    return fittedLine(m);
-  }
-
-  function cost(slot: string): string {
-    const c = result?.targets.find((t) => t.slot === slot);
-    if (!c) return "";
-    const steps = c.steps.map(([g, n]) => `G${g}×${n}`).join(" ");
-    const ex = c.experimental_needed ? ` + ${c.experimental_name}` : "";
-    return [steps + ex, c.note].filter(Boolean).join(" · ");
-  }
-
-  function maxGrade(m: Fitted, bp: string | undefined): number {
-    return fleet.groups[m.group ?? ""]?.blueprints.find((b) => b.id === bp)?.max_grade ?? 5;
-  }
-
   /** How much of the need is held, as a 2 px Mark Off track under the name that fills Prose Grey, Orange Lit when covered. */
   function track(m: MatLine) {
     const p = m.need > 0 ? Math.min(1, m.have / m.need) : 1;
@@ -226,133 +146,70 @@
     return `linear-gradient(90deg, ${ink} ${p * 100}%, var(--mark-off) ${p * 100}%) bottom / 100% 2px no-repeat`;
   }
 
-  function when(ts: string | null): string {
-    return ts ? ts.replace("T", " ").replace(/:\d\dZ?$/, "") : "";
-  }
-
-  async function open(url: string) {
-    linkErr = null;
-    try {
-      await openUrl(url);
-    } catch (e) {
-      linkErr = `Could not open the link: ${String(e)}`;
-    }
-  }
+  const pick = (id: string) => (selMat = selMat === id ? null : id);
 </script>
 
-<section class:embedded>
-  {#if !embedded}
-  <div class="query">
-    <div class="acts">
-      <button onclick={onback}>← Ships</button>
-      {#if ship?.links}
-        <span class="open">
-          Open in
-          <Button {@attach tip("Open this loadout in Coriolis")} onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis <Glyph name="external" /></Button>
-          <Button {@attach tip("Open this loadout in EDSY")} onclick={() => ship?.links && open(ship.links.edsy)}>EDSY <Glyph name="external" /></Button>
-        </span>
-      {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
-        <span class="open lo" {@attach tip("You engineered a module since the game last saved this loadout, so the link would show the old build.")}>Re-dock or relog to refresh the Coriolis / EDSY link</span>
-      {/if}
-    </div>
-    {#if linkErr}<p class="lo">{linkErr}</p>{/if}
-    <p class="sub">
-      {#if !ship}
-        That ship is no longer in the journal · {fleet.source}
-      {:else}
-        {shipTitle(ship)}{ship.ident ? ` (${ship.ident})` : ""}
-        · {#if ship.current}flying now{:else if ship.system}{ship.in_transit ? "in transit to" : "stored at"} <SystemChip name={ship.system} />
-          <ExtLinks system={ship.system} />
-          {#if ship.market_id != null && !ship.in_transit}<span class="lo">station</span> <ExtLinks system={ship.system} marketId={ship.market_id} />{/if}{:else}stored{/if}
-        · {ship.loadout_ts ? `modules as of ${when(ship.loadout_ts)}` : "modules unknown"}
-        · {fleet.source}
-      {/if}
-    </p>
-  </div>
-  {/if}
+<ListDetail panel={selFarm || sel ? about : null} selected={selMat} min={560}>
+  <div class="plan">
+    <section aria-label="Ship stats">
+      <h3 class="section">Now and with the plan</h3>
+      <Stats type={ship.ship_type} {stats} note={statsNote} {unknownHull} />
+    </section>
 
-  {#if ship && !ship.loadout_ts}
-    <p class="lo note">The journal has no loadout for this ship: it has not been flown since your oldest journal file. Fly it once and its modules show up here.</p>
-  {:else if ship && plan}
-    <div class="main">
-      <div class="mods">
-        {#each grouped as kind (kind.title)}
-          <h4 class="section kind">{kind.title}</h4>
-          <div class="cards">
-            {#each kind.mods as m (m.slot)}
-              {@const t = target(m.slot)}
-              {@const g = fleet.groups[m.group ?? ""]}
-              <article class="mod" class:on={!!t} class:done={!!m.engineering}>
-                <div class="head">
-                  <div class="slot">{m.slot_name}</div>
-                  <div class="mn">{m.name}</div>
-                  {#if current(m)}<div class="now lo">{current(m)}</div>{/if}
-                </div>
-                <div class="picks">
-                  <Dropdown aria-label="{m.slot_name} blueprint" value={t?.blueprint ?? ""} onchange={(e) => setTarget(m, e.currentTarget.value ? { blueprint: e.currentTarget.value } : null)}>
-                    <option value="">No change</option>
-                    {#each g?.blueprints ?? [] as b (b.id)}
-                      <option value={b.id}>{b.name}</option>
-                    {/each}
-                  </Dropdown>
-                  <Dropdown aria-label="{m.slot_name} grade" disabled={!t} value={t?.grade ?? ""} onchange={(e) => setTarget(m, { grade: Number(e.currentTarget.value) })}>
-                    {#if !t}<option value="">–</option>{/if}
-                    {#each Array.from({ length: maxGrade(m, t?.blueprint) }, (_, i) => i + 1) as n (n)}
-                      <option value={n}>G{n}</option>
-                    {/each}
-                  </Dropdown>
-                  <Dropdown aria-label="{m.slot_name} experimental" disabled={!t || !g?.experimentals.length} value={t?.experimental ?? ""} onchange={(e) => setTarget(m, { experimental: e.currentTarget.value || null })}>
-                    <option value="">{g?.experimentals.length ? "None" : "–"}</option>
-                    {#each g?.experimentals ?? [] as x (x.id)}
-                      <option value={x.id}>{x.name}</option>
-                    {/each}
-                  </Dropdown>
-                </div>
-                {#if t}
-                  <div class="cost">{cost(m.slot)}</div>
-                {/if}
-              </article>
-            {/each}
-          </div>
-        {:else}
-          <p class="lo">Nothing on this ship can be engineered.</p>
-        {/each}
-      </div>
+    {#if plan}
+      <section aria-label="Rolls per grade">
+        <h3 class="section" {@attach tip("Each roll costs one full grade recipe; how many a grade takes depends on engineer rank and luck. A grade must be finished before the next opens, and a different blueprint starts again at grade 1.")}>Rolls per grade</h3>
+        <div class="rolls">
+          {#each plan.rolls as n, i (i)}
+            <label class="type-label">G{i + 1}<Input type="number" min="1" max="20" value={n} onchange={(e) => sp.setRolls(i, Number(e.currentTarget.value))} /></label>
+          {/each}
+          {#if plan.rolls.join() !== DEFAULT_ROLLS.join()}
+            <Button onclick={() => sp.resetRolls()}>Reset to 1–5</Button>
+          {/if}
+        </div>
+      </section>
+    {/if}
 
-      {#if failed}
-        <p class="err" role="alert">{failed}</p>
-      {:else if result && result.materials.length}
-        <h4 class="section" class:current={result.materials.some((m) => m.id === selMat)}>Shopping list</h4>
+    {#if sp.failed}
+      <p class="err" role="alert">{sp.failed}</p>
+    {:else if result && result.materials.length}
+      <section aria-label="Shopping list">
+        <h3 class="section" class:current={result.materials.some((m) => m.id === selMat)}>Shopping list</h3>
         <div class="mats">
-          <div class="mhead">
-            <span class="h">Material</span><span class="h r">Need</span><span class="h r">Have</span><span class="h r">Short</span><span class="h r">Trade</span>
+          <div class="mhead type-label">
+            <span>Material</span><span class="r">Need</span><span class="r">Have</span><span class="r">Short</span>
+            <span class="r" {@attach tip("Trades only spend what the plan doesn't need: 6 for 1 up a grade, 1 for 3 down a grade, 6 times worse across categories")}>Trade</span>
           </div>
           {#each result.materials as m (m.id)}
-            <button class="mrow" class:sel={selMat === m.id} onclick={() => (selMat = m.id)}>
-              <span class="mn" style:background={track(m)}>G{m.grade} {m.name}{m.over_cap ? " ⚠" : ""}</span>
-              <span class="r q">{m.need}</span>
-              <span class="r q">{m.have}</span>
-              <span class="r q" class:bad={m.short > 0} class:lo={m.short === 0}>{m.short}</span>
-              <span class="r q lo">{traded.get(m.id) ? `+${traded.get(m.id)}` : ""}</span>
+            <button class="mrow" class:sel={selMat === m.id} aria-pressed={selMat === m.id} onclick={() => pick(m.id)}>
+              <span class="type-name mn" style:background={track(m)}>G{m.grade} {m.name}{#if m.over_cap}<b class="warn" {@attach tip("The plan needs more than you can store at once: engineer in batches")}> ⚠</b>{/if}</span>
+              <span class="type-figures r">{m.need}</span>
+              <span class="type-figures r">{m.have}</span>
+              <span class="type-figures r" class:bad={m.short > 0} class:lo={m.short === 0}>{m.short}</span>
+              <span class="type-figures r lo">{traded.get(m.id) ? `+${traded.get(m.id)}` : ""}</span>
             </button>
           {/each}
         </div>
+      </section>
 
-        {#if result.trades.length}
-          <h4 class="section">Trade at a material trader</h4>
+      {#if result.trades.length}
+        <section aria-label="Trades">
+          <h3 class="section">Trade at a material trader</h3>
           <ul class="plain">
             {#each result.trades as t, i (i)}
-              <li><span class="q">{t.give}</span> {t.give_name} → <span class="q">{t.get}</span> {t.get_name} <span class="lo">· {t.trader}</span></li>
+              <li><span class="type-figures">{t.give}</span> {t.give_name} → <span class="type-figures">{t.get}</span> {t.get_name} <span class="lo">· {t.trader}</span></li>
             {/each}
           </ul>
-        {/if}
+        </section>
+      {/if}
 
-        {#if result.farm.length}
-          <h4 class="section">Still to collect</h4>
-          <ul class="plain farm">
+      {#if result.farm.length}
+        <section aria-label="Still to collect">
+          <h3 class="section">Still to collect</h3>
+          <ul class="plain">
             {#each result.farm as f (f.id)}
               <li>
-                <button class="link" onclick={() => (selMat = f.id)}><span class="q">{f.collect}</span> {f.name}</button>
+                <button class="link" onclick={() => pick(f.id)}><span class="type-figures">{f.collect}</span> {f.name}</button>
                 {#if f.over_cap}<span class="lo"> · over the {f.capacity} cap with what you hold: in batches</span>{/if}
                 {#if f.sources?.[0]}<span class="lo"> · {f.sources[0].summary}</span>{/if}
                 {#if f.then?.length}
@@ -361,32 +218,34 @@
               </li>
             {/each}
           </ul>
-        {:else}
-          <p class="ok">You have everything{result.trades.length ? " after the trades above" : ""}.</p>
-        {/if}
-      {:else if result}
-        <p class="lo">Pick a blueprint for a module to see what it costs.</p>
+        </section>
+      {:else}
+        <p class="ok">You have everything{result.trades.length ? " after the trades above" : ""}.</p>
       {/if}
+    {:else if result}
+      <p class="type-label">Nothing planned yet: select a module on the <a href="#/engineering/{ship.id}">Loadout</a> to plan it.</p>
+    {/if}
 
-      {#if tripErr}
-        <p class="err" role="alert">{tripErr}</p>
-      {:else if trip}
+    {#if tripErr}
+      <p class="err" role="alert">{tripErr}</p>
+    {:else if trip}
+      <section aria-label="Engineer trip">
         <div class="triphead">
-          <h4 class="section">Engineer trip</h4>
+          <h3 class="section">Engineer trip</h3>
           {#if trip.stops.length}<Button onclick={() => void followTrip()}>Follow</Button>{/if}
         </div>
         <Stale error={engineersErr} />
         <FollowNoteLine bind:note={followNote} />
-        <p class="lo small">
+        <p class="type-label">
           {#if trip.start}From <SystemChip name={trip.start} />{:else}Start unknown{/if} · {jumps(trip.total_jumps, trip.exact)} at {trip.range.toFixed(1)} ly
-          {#if !trip.exact}· ~ = straight-line estimate{/if}
+          {#if !trip.exact}<span {@attach tip("A ~ jump count is a straight-line estimate")}>· ~ estimated</span>{/if}
         </p>
         {#if trip.stops.length}
           <ol class="stops">
             {#each trip.stops as s, i (i)}
               <li>
-                <span class="stop">{s.engineer}</span>
-                <span class="lo"> · <SystemChip name={s.system} /> · <span class="q">{jumps(s.hop.jumps, s.hop.exact)}</span> ({s.hop.ly.toFixed(0)} ly){s.rank ? ` · rank ${s.rank}` : ""}</span>
+                <span class="type-name">{s.engineer}</span>
+                <span class="lo"> · <SystemChip name={s.system} /> · <span class="type-figures">{jumps(s.hop.jumps, s.hop.exact)}</span> ({s.hop.ly.toFixed(0)} ly){s.rank ? ` · rank ${s.rank}` : ""}</span>
                 {#each s.jobs as j (j.slot + j.kind)}
                   <span class="then">{j.slot_name}: {j.what}{j.note ? ` · ${j.note}` : ""}</span>
                 {/each}
@@ -395,7 +254,7 @@
           </ol>
         {/if}
         {#if trip.blocked.length}
-          <p class="sublabel">Needs an engineer unlock</p>
+          <p class="type-label">Needs an engineer unlock</p>
           <ul class="plain">
             {#each trip.blocked as b (b.job.slot + b.job.kind)}
               <li>
@@ -405,31 +264,29 @@
             {/each}
           </ul>
         {/if}
-      {/if}
-    </div>
-  {/if}
+      </section>
+    {/if}
+  </div>
+</ListDetail>
 
-  <div class="side">
-  {#if !(selFarm || sel) && ship?.loadout_ts}
-    <section class="panel" aria-label="Ship stats"><Stats {stats} note={statsNote} {unknownHull} /></section>
-  {/if}
-  <aside class="about">
-    {#if selFarm || sel}<button class="link back" onclick={() => (selMat = null)}>← Ship stats</button>{/if}
+{#snippet about()}
+  <div class="about">
     {#if selFarm && !sel}
-      <h3>{selFarm.name}</h3>
-      <p>Grade {selFarm.grade} · collect {selFarm.collect}{selFarm.then?.length ? ", then trade (topping up from stock):" : ""}</p>
+      <h3 class="type-title">{selFarm.name}</h3>
+      <p class="type-label">Grade {selFarm.grade}</p>
+      <p><span class="type-value-xl main">{selFarm.collect}</span><span class="type-unit">to collect{selFarm.then?.length ? ", then trade (topping up from stock):" : ""}</span></p>
       {#each selFarm.then ?? [] as t, i (i)}
         <p class="qty">{t.give} → {t.get} {t.get_name}</p>
       {/each}
       {#each selFarm.sources ?? [] as s, i (i)}
         <p>{s.summary}</p>
-        <p class="lo">{s.hint}</p>
+        <p class="type-label">{s.hint}</p>
       {/each}
       {#if lookup}<Nearby query={lookup} />{/if}
     {:else if sel}
-      <h3>{sel.name}</h3>
-      <p>Grade {sel.grade}{sel.kind ? ` · ${sel.kind.charAt(0).toUpperCase()}${sel.kind.slice(1)}` : ""} · {sel.group}</p>
-      <p class="qty">{sel.have} / {sel.need} needed · cap {sel.capacity}</p>
+      <h3 class="type-title">{sel.name}</h3>
+      <p class="type-label">Grade {sel.grade}{sel.kind ? ` · ${sel.kind.charAt(0).toUpperCase()}${sel.kind.slice(1)}` : ""} · {sel.group}</p>
+      <p><span class="type-value-xl main">{sel.need}</span><span class="type-unit">needed · {sel.have} held · cap {sel.capacity}</span></p>
       {#if sel.over_cap}
         <p>The plan needs more than you can store at once: engineer in batches.</p>
       {/if}
@@ -444,101 +301,48 @@
         {#each selFarm.then ?? [] as t, i (i)}
           <p class="qty">{t.give} → {t.get} {t.get_name}</p>
         {/each}
-        {#if selFarm.over_cap}<p class="lo">That's more than the {selFarm.capacity} cap with what you hold: do it in batches.</p>{/if}
+        {#if selFarm.over_cap}<p class="type-label">That's more than the {selFarm.capacity} cap with what you hold: do it in batches.</p>{/if}
       {/if}
       {#each sel.sources ?? [] as s, i (i)}
         <p>{s.summary}</p>
-        <p class="lo">{s.hint}</p>
+        <p class="type-label">{s.hint}</p>
       {/each}
-      <p class="lo">Used by: {usedBy.map((t) => `${t.slot_name} (${t.blueprint_name})`).join(", ")}</p>
+      <p class="type-label">Used by: {usedBy.map((t) => `${t.slot_name} (${t.blueprint_name})`).join(", ")}</p>
       {#if lookup}<Nearby query={lookup} />{/if}
-    {:else}
-      <h3>Engineering</h3>
-      <p>Choose a blueprint, grade and experimental for each module. The list adds up the remaining grade steps from where each module is now and compares the total with your materials.</p>
-      <p class="lo">A grade must be finished before the next one opens; a different blueprint starts again at grade 1. Rolls per grade depend on engineer rank and luck, so these are estimates:</p>
-      {#if plan}
-        <div class="rolls">
-          {#each plan.rolls as n, i (i)}
-            <label>G{i + 1}<Input type="number" min="1" max="20" value={n} onchange={(e) => setRolls(i, Number(e.currentTarget.value))} /></label>
-          {/each}
-        </div>
-        {#if plan.rolls.join() !== DEFAULT_ROLLS.join()}
-          <Button onclick={() => plan && ((plan = { ...plan, rolls: DEFAULT_ROLLS }), savePlan(plan))}>Reset to 1–5</Button>
-        {/if}
-      {/if}
-      <p class="lo">Trades only spend what the plan doesn't need: 6:1 per grade up, 1:3 per grade down, ×6 across categories.</p>
     {/if}
-  </aside>
   </div>
-</section>
+{/snippet}
 
 <style>
-  section { padding: 0 0 1.75rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(16.875rem, 20.625rem); grid-template-rows: auto 1fr; gap: 0; min-height: 0; }
-  section.embedded { padding: 0; grid-template-rows: minmax(0, 1fr); height: 100%; min-height: 0; overflow: hidden; }
-  section.embedded .main { padding-top: 1.25rem; overflow: auto; min-height: 0; }
-  section.embedded .side { position: static; max-height: none; height: auto; align-self: stretch; overflow: auto; }
-  section.panel { display: block; padding: 0 0 1.125rem; }
-  .query { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--sp-3); padding: 1.125rem 1.25rem 1.25rem; border-bottom: 1px solid var(--line); }
+  /* As wide as its widest section; spare width stays empty (The Next To It Rule). */
+  .plan { display: grid; grid-template-columns: minmax(0, max-content); gap: var(--sp-8); }
+  section { display: flex; flex-direction: column; gap: var(--sp-3); }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .acts { display: flex; flex-wrap: wrap; gap: 1.625rem; }
-  .acts button { color: var(--accent); font-weight: 500; }
-  .acts button:hover { color: var(--orange-lit); }
-  .open { color: var(--label-grey); }
-  .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0; }
-  .note { grid-column: 1 / -1; padding: var(--sp-6) var(--sp-2) 0; }
-  .main { min-width: 0; padding: var(--sp-6) var(--sp-4) var(--sp-2) var(--sp-1); }
-  .mods { display: flex; flex-direction: column; }
-  .kind { margin: var(--sp-2) var(--sp-2) var(--sp-3); }
-  .kind:first-child { margin-top: 0; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(15.9375rem, 1fr)); gap: var(--sp-2); margin: 0 0 1.375rem; }
-  /* A read-only card on the hull holding the module's three dropdowns (DESIGN.md Surfaces and
-     cells); a module with a target says so by brightness, its name in Orange Lit. */
-  .mod { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; padding: var(--sp-3) 0.875rem; outline: 1px solid var(--line); outline-offset: -1px; }
-  .mod .mn { color: var(--options-grey); }
-  .mod.on .mn { color: var(--text-hi); }
-  .head { display: flex; flex-direction: column; gap: var(--gap); min-width: 0; }
-  .mod .mn { font-weight: 500; line-height: 1.3; }
-  .now { font-size: var(--fs-s); }
-  .picks { display: grid; grid-template-columns: minmax(0, 1.5fr) 3.9375rem minmax(0, 1fr); gap: 0.375rem; }
-  .h { color: var(--label-grey); font-size: var(--fs-s); }
-  .r { text-align: right; }
-  .slot { color: var(--label-grey); font-size: var(--fs-s); }
-  .cost { color: var(--accent); font-size: var(--fs-s); }
-  .picks > :global(.dropdown) { min-width: 0; }
-  .triphead { display: flex; align-items: baseline; gap: 1.25rem; }
-  h4 { margin: var(--sp-8) var(--sp-2) var(--sp-3); }
+  .rolls { display: grid; grid-template-columns: repeat(5, 4rem) max-content; align-items: end; gap: var(--sp-2); }
+  .rolls label { display: flex; flex-direction: column; gap: var(--sp-1); }
   .mats { display: flex; flex-direction: column; }
-  .mhead, .mrow { display: grid; grid-template-columns: minmax(13.125rem, 1fr) 4.21875rem 4.21875rem 4.21875rem 4.21875rem; gap: 0.625rem 1.125rem; align-items: center; width: 100%; text-align: inherit; }
+  .mhead, .mrow { display: grid; grid-template-columns: 17rem repeat(4, 4.25rem); column-gap: var(--sp-4); align-items: center; }
   .mhead { padding: 0 var(--sp-2) var(--sp-2); }
-  .mrow { padding: var(--sp-3) var(--sp-2); border-bottom: 1px solid var(--line); }
+  .mrow { padding: var(--sp-2); border-bottom: 1px solid var(--line); }
   .mrow:hover { background: var(--row-hover); }
-  .mrow.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
-  .mrow .mn { padding: var(--sp-2) 0.625rem; font-size: var(--fs-s); }
-  .q { font-size: var(--fs); }
-  .bad { color: var(--accent); font-weight: 500; }
-  .ok { color: var(--prose); margin: 1.125rem var(--sp-2) 0; }
-  .plain { list-style: none; margin: 0; padding: 0 var(--sp-2); display: flex; flex-direction: column; gap: 0.625rem; font-size: var(--fs-s); }
-  .link { color: var(--accent); font-weight: 500; }
-  .small { font-size: var(--fs-s); }
-  .stops { margin: 0; padding: 0 var(--sp-2) 0 1.6875rem; display: flex; flex-direction: column; gap: var(--sp-3); font-size: var(--fs-s); }
-  .stop { font-weight: 500; }
-  .sublabel { margin: 1.25rem var(--sp-2) var(--sp-2); color: var(--label-grey); font-size: var(--fs-s); }
-  .then { display: block; margin: var(--sp-1) 0 var(--sp-1) 0; color: var(--label-grey); }
-  .link:hover { color: var(--orange-lit); }
-  .side { grid-column: 2; position: sticky; top: 0; align-self: start; max-height: calc(100vh - 9.375rem); overflow-y: auto; border-left: 1px solid var(--line); padding: 1.25rem var(--sp-2) 1.75rem var(--sp-6); }
-  .back { display: block; margin-bottom: 0.625rem; color: var(--label-grey); font-size: var(--fs-s); }
-  .about h3 { margin: 0 0 var(--sp-2); color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
-  .about p { margin: 0 0 0.625rem; line-height: 1.45; }
-  .qty { color: var(--accent); font-weight: 500; }
+  .mrow.sel, .mrow.sel:hover { background: var(--surface-hi); }
+  .mrow.sel .mn { color: var(--text-hi); }
+  .mn { padding: var(--sp-1) 0; }
+  .warn { color: var(--accent); }
+  .r { text-align: right; }
+  .bad { color: var(--accent); }
   .lo { color: var(--label-grey); }
-  .err { margin: 0 var(--sp-2); color: var(--alarm); }
+  .ok { margin: 0; color: var(--prose); }
+  .plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .link { color: var(--accent); font-weight: 500; }
+  .link:hover { color: var(--orange-lit); }
+  .triphead { display: flex; align-items: center; gap: var(--sp-4); }
+  .triphead .section { flex: 1; }
+  .stops { margin: 0; padding: 0 0 0 var(--sp-6); display: flex; flex-direction: column; gap: var(--sp-3); }
+  .then { display: block; margin: var(--sp-1) 0; color: var(--label-grey); }
+  .err { margin: 0; color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
-  .rolls { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--sp-2); margin: var(--sp-2) 0 var(--sp-3); }
-  .rolls label { display: flex; flex-direction: column; gap: var(--sp-1); color: var(--label-grey); font-size: var(--fs-s); }
-  @container win (max-width: 68.75rem) {
-    section { display: flex; flex-direction: column; }
-    .main { padding: 1.25rem 0 var(--sp-2); }
-    .side { border-left: 0; border-top: 1px solid var(--line); padding: var(--sp-4) 0 1.25rem; max-height: none; position: static; }
-    .cards { grid-template-columns: minmax(0, 1fr); }
-  }
+  .about { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .about h3, .about p { margin: 0; }
+  .qty { color: var(--accent); font-weight: 500; }
 </style>

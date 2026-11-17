@@ -1,23 +1,39 @@
 import { describe, expect, it } from "vitest";
 import sample from "../preview/fixtures/engineering.json";
-import { fittedLine, groupFitted, shoppingChange, type Fitted, type PlanResult, type Ship } from "./engineering";
+import ships from "../preview/fixtures/ships.json";
+import { fittedLine, shoppingChange, slotGroup, type PlanResult, type Ship } from "./engineering";
 
-describe("groupFitted", () => {
-  const ship = (sample.fleet.ships as Ship[]).find((s) => s.name === "Long Way Round")!;
-
-  it("splits a loadout into the game's outfitting groups", () => {
-    expect(groupFitted(ship.modules).map((g) => [g.title, g.mods.map((m) => m.slot)])).toEqual([
-      ["Hardpoints", ["MediumHardpoint1"]],
-      ["Utility", ["TinyHardpoint1"]],
-      ["Core internals", ["Armour", "PowerPlant", "MainEngines", "FrameShiftDrive"]],
-      ["Optional internals", ["Slot01_Size6"]],
-    ]);
+describe("slotGroup", () => {
+  // Every slot name in the preview's recorded fleets, and the military slot they lack.
+  it.each([
+    ["LargeHardpoint1", "Hardpoints"],
+    ["MediumHardpoint2", "Hardpoints"],
+    ["TinyHardpoint1", "Utility"],
+    ["TinyHardpoint4", "Utility"],
+    ["Armour", "Core"],
+    ["PowerPlant", "Core"],
+    ["MainEngines", "Core"],
+    ["FrameShiftDrive", "Core"],
+    ["LifeSupport", "Core"],
+    ["PowerDistributor", "Core"],
+    ["Radar", "Core"],
+    ["FuelTank", "Core"],
+    ["Slot01_Size6", "Optional"],
+    ["Slot09_Size1", "Optional"],
+    ["Military01", "Optional"],
+    ["PlanetaryApproachSuite", null],
+    ["ShipCockpit", null],
+    ["CargoHatch", null],
+    ["PaintJob", null],
+    ["Decal1", null],
+  ])("%s is %s", (slot, group) => {
+    expect(slotGroup(slot)).toBe(group);
   });
 
-  it("can keep only modules that have an engineering group", () => {
-    const cargo: Fitted = { slot: "Slot02_Size2", slot_name: "Optional 2", item: "int_cargorack_size2_class1", name: "2E Cargo Rack", group: null };
-    expect(groupFitted([...ship.modules, cargo], true).flatMap((g) => g.mods.map((m) => m.slot))).not.toContain("Slot02_Size2");
-    expect(groupFitted([...ship.modules, cargo]).flatMap((g) => g.mods.map((m) => m.slot))).toContain("Slot02_Size2");
+  it("lists every recorded slot but the planetary approach suite", () => {
+    const slots = new Set([...(ships.fleet.ships as Ship[]), ...(sample.fleet.ships as Ship[])].flatMap((s) => s.modules.map((m) => m.slot)));
+    const listed = [...slots].filter((s) => slotGroup(s) === null);
+    expect(listed).toEqual(["PlanetaryApproachSuite"]);
   });
 });
 

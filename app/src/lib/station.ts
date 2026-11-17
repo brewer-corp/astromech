@@ -64,5 +64,12 @@ export const SERVICE_NAMES: Record<string, string> = {
   frontlinesolutions: "Frontline Solutions",
 };
 
+/** The services in the game's station menu, in its order: the Now page's services board. */
+export const MENU_SERVICES = [
+  "commodities", "refuel", "repair", "rearm", "outfitting", "shipyard", "exploration", "vistagenomics", "materialtrader", "techBroker",
+  "facilitator", "blackmarket", "searchrescue", "voucherredemption", "pioneersupplies", "frontlinesolutions", "bartender", "crewlounge",
+  "apexinterstellar", "missions",
+] as const;
+
 /** "Refuel", or the service name capitalised when it is not listed. */
 export const serviceName = (s: string) => SERVICE_NAMES[s] ?? s.replace(/^./, (c) => c.toUpperCase());

@@ -5,3 +5,5 @@
 {"journal": {"timestamp": "2026-10-12T09:30:00Z", "event": "Outfitting", "MarketID": 128000002, "StationName": "Other Port", "StarSystem": "Far System"}}
 {"file": "Outfitting.json", "from": "../../../crates/astromech-station/tests/fixtures/dock/Outfitting-other.json"}
 {"mark": "seen"}
+{"journal": {"timestamp": "2026-10-12T10:00:00Z", "event": "Undocked", "StationName": "Test Orbital", "StationType": "Coriolis", "MarketID": 128000001, "Taxi": false, "Multicrew": false}}
+{"mark": "undocked"}

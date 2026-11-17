@@ -1,516 +1,1900 @@
 {
   "nodes": [
     {
-      "name": "Tod \"The Blaster\" McQuinn",
-      "kind": "ship",
-      "system": "Wolf 397",
-      "permit": false,
       "depth": 0,
       "introduced_by": [],
-      "status": "known",
-      "rank": null,
+      "kind": "ship",
       "left": "Invitation: Earn 15 bounty vouchers.",
-      "next": true
-    },
-    {
-      "name": "Felicity Farseer",
-      "kind": "ship",
-      "system": "Deciat",
+      "name": "Tod \"The Blaster\" McQuinn",
+      "next": true,
       "permit": false,
-      "depth": 0,
-      "introduced_by": [],
-      "status": "unlocked",
-      "rank": 5,
-      "left": null,
-      "next": false
-    },
-    {
-      "name": "Elvira Martuuk",
-      "kind": "ship",
-      "system": "Khun",
-      "permit": false,
-      "depth": 0,
-      "introduced_by": [],
-      "status": "unlocked",
-      "rank": 2,
-      "left": null,
-      "next": false
-    },
-    {
-      "name": "Liz Ryder",
-      "kind": "ship",
-      "system": "Eurybia",
-      "permit": false,
-      "depth": 0,
-      "introduced_by": [],
-      "status": "unlocked",
-      "rank": 1,
-      "left": null,
-      "next": false
-    },
-    {
-      "name": "The Dweller",
-      "kind": "ship",
-      "system": "Wyrd",
-      "permit": false,
-      "depth": 0,
-      "introduced_by": [],
-      "status": "known",
       "rank": null,
-      "left": "Invitation: Deal in stolen or illicit goods at 5 Black Markets.",
-      "next": true
+      "status": "known",
+      "steps": [
+        "Invitation: Earn 15 bounty vouchers.",
+        "Unlock at Wolf 397: Provide 100,000 CR worth of bounty vouchers."
+      ],
+      "system": "Wolf 397",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Multi-cannon",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Advanced multi-cannon",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Rail gun",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Fragment cannon",
+          "unsure": false
+        },
+        {
+          "grade": 2,
+          "label": "Cannon",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Lei Cheung",
+      "depth": 0,
+      "introduced_by": [],
       "kind": "ship",
-      "system": "Laksak",
+      "left": null,
+      "name": "Felicity Farseer",
+      "next": false,
       "permit": false,
+      "rank": 5,
+      "status": "unlocked",
+      "steps": [],
+      "system": "Deciat",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "FSD",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Thrusters",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Sensors",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Surface scanner",
+          "unsure": false
+        },
+        {
+          "grade": 1,
+          "label": "Interdictor",
+          "unsure": false
+        },
+        {
+          "grade": 1,
+          "label": "Booster",
+          "unsure": false
+        },
+        {
+          "grade": 1,
+          "label": "Power plant",
+          "unsure": false
+        }
+      ]
+    },
+    {
+      "depth": 0,
+      "introduced_by": [],
+      "kind": "ship",
+      "left": null,
+      "name": "Elvira Martuuk",
+      "next": false,
+      "permit": false,
+      "rank": 2,
+      "status": "unlocked",
+      "steps": [],
+      "system": "Khun",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "FSD",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Shield",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Bi-weave shield",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Prismatic shield",
+          "unsure": false
+        },
+        {
+          "grade": 2,
+          "label": "Thrusters",
+          "unsure": false
+        },
+        {
+          "grade": 1,
+          "label": "Shield cell bank",
+          "unsure": false
+        }
+      ]
+    },
+    {
+      "depth": 0,
+      "introduced_by": [],
+      "kind": "ship",
+      "left": null,
+      "name": "Liz Ryder",
+      "next": false,
+      "permit": false,
+      "rank": 1,
+      "status": "unlocked",
+      "steps": [],
+      "system": "Eurybia",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Missile rack",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Advanced missile rack",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Torpedo",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Mine launcher",
+          "unsure": false
+        },
+        {
+          "grade": 1,
+          "label": "Armour",
+          "unsure": false
+        },
+        {
+          "grade": 1,
+          "label": "Hull reinforcement",
+          "unsure": false
+        }
+      ]
+    },
+    {
+      "depth": 0,
+      "introduced_by": [],
+      "kind": "ship",
+      "left": "Invitation: Deal in stolen or illicit goods at 5 Black Markets.",
+      "name": "The Dweller",
+      "next": true,
+      "permit": false,
+      "rank": null,
+      "status": "known",
+      "steps": [
+        "Invitation: Deal in stolen or illicit goods at 5 Black Markets.",
+        "Unlock at Wyrd: Pay 500,000 CR."
+      ],
+      "system": "Wyrd",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Distributor",
+          "unsure": false
+        },
+        {
+          "grade": 4,
+          "label": "Pulse",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Burst",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Beam",
+          "unsure": false
+        }
+      ]
+    },
+    {
       "depth": 1,
       "introduced_by": [
         "The Dweller"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock The Dweller first.",
-      "next": false
+      "name": "Lei Cheung",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock The Dweller first.",
+        "Introduction from The Dweller: raise your rank with them past grade 3.",
+        "Invitation: Trade with at least 50 markets.",
+        "Unlock at Laksak: Provide 200 units of Gold."
+      ],
+      "system": "Laksak",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Shield",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Bi-weave shield",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Prismatic shield",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Sensors",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Surface scanner",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Booster",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Selene Jean",
-      "kind": "ship",
-      "system": "Kuk",
-      "permit": false,
       "depth": 1,
       "introduced_by": [
         "Tod \"The Blaster\" McQuinn"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock Tod \"The Blaster\" McQuinn first.",
-      "next": false
+      "name": "Selene Jean",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Tod \"The Blaster\" McQuinn first.",
+        "Introduction from Tod \"The Blaster\" McQuinn: raise your rank with them past grade 3.",
+        "Invitation: Mine at least 500 tons of ore.",
+        "Unlock at Kuk: Provide 10 Painite."
+      ],
+      "system": "Kuk",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Armour",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Hull reinforcement",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Hera Tani",
-      "kind": "ship",
-      "system": "Kuwemaki",
-      "permit": false,
       "depth": 1,
       "introduced_by": [
         "Liz Ryder"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Introduction from Liz Ryder: raise your rank with them past grade 3.",
-      "next": true
+      "name": "Hera Tani",
+      "next": true,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Introduction from Liz Ryder: raise your rank with them past grade 3.",
+        "Invitation: Imperial Navy rank of Outsider or higher.",
+        "Unlock at Kuwemaki: Provide 50 Kamitra Cigars."
+      ],
+      "system": "Kuwemaki",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Power plant",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Surface scanner",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Distributor",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Sensors",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Broo Tarquin",
-      "kind": "ship",
-      "system": "Muang",
-      "permit": false,
       "depth": 2,
       "introduced_by": [
         "Hera Tani"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock Hera Tani first.",
-      "next": false
-    },
-    {
-      "name": "Marco Qwent",
-      "kind": "ship",
-      "system": "Sirius",
-      "permit": true,
-      "depth": 1,
-      "introduced_by": [
-        "Elvira Martuuk"
-      ],
-      "status": "known",
-      "rank": null,
-      "left": "Invitation: Ally reputation with Sirius Corporation.",
-      "next": true
-    },
-    {
-      "name": "Zacariah Nemo",
-      "kind": "ship",
-      "system": "Yoru",
+      "name": "Broo Tarquin",
+      "next": false,
       "permit": false,
-      "depth": 1,
-      "introduced_by": [
-        "Elvira Martuuk"
-      ],
+      "rank": null,
       "status": "locked",
-      "rank": null,
-      "left": "Introduction from Elvira Martuuk: raise your rank with them past grade 3.",
-      "next": true
+      "steps": [
+        "Unlock Hera Tani first.",
+        "Introduction from Hera Tani: raise your rank with them past grade 3.",
+        "Invitation: Combat rank of Competent or higher.",
+        "Unlock at Muang: Provide 50 Fujin Tea."
+      ],
+      "system": "Muang",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Pulse",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Burst",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Beam",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Didi Vatermann",
+      "depth": 1,
+      "introduced_by": [
+        "Elvira Martuuk"
+      ],
       "kind": "ship",
-      "system": "Leesti",
+      "left": "Invitation: Ally reputation with Sirius Corporation.",
+      "name": "Marco Qwent",
+      "next": true,
+      "permit": true,
+      "rank": null,
+      "status": "known",
+      "steps": [
+        "Invitation: Ally reputation with Sirius Corporation.",
+        "Unlock at Sirius: Provide 25 Modular Terminals."
+      ],
+      "system": "Sirius",
+      "works_on": [
+        {
+          "grade": 4,
+          "label": "Power plant",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Distributor",
+          "unsure": false
+        }
+      ]
+    },
+    {
+      "depth": 1,
+      "introduced_by": [
+        "Elvira Martuuk"
+      ],
+      "kind": "ship",
+      "left": "Introduction from Elvira Martuuk: raise your rank with them past grade 3.",
+      "name": "Zacariah Nemo",
+      "next": true,
       "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Introduction from Elvira Martuuk: raise your rank with them past grade 3.",
+        "Invitation: Friendly or higher with Party of Yoru.",
+        "Unlock at Yoru: Provide 25 units of Xihe Biomorphic Companions."
+      ],
+      "system": "Yoru",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Fragment cannon",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Multi-cannon",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Advanced multi-cannon",
+          "unsure": false
+        },
+        {
+          "grade": 2,
+          "label": "Plasma",
+          "unsure": false
+        }
+      ]
+    },
+    {
       "depth": 2,
       "introduced_by": [
         "Selene Jean"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock Selene Jean first.",
-      "next": false
+      "name": "Didi Vatermann",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Selene Jean first.",
+        "Introduction from Selene Jean: raise your rank with them past grade 3.",
+        "Invitation: Trade rank of Merchant or higher.",
+        "Unlock at Leesti: Provide 50 units of Lavian Brandy."
+      ],
+      "system": "Leesti",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Booster",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Shield",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Bi-weave shield",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Prismatic shield",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Colonel Bris Dekker",
-      "kind": "ship",
-      "system": "Sol",
-      "permit": true,
       "depth": 2,
       "introduced_by": [
         "Juri Ishmaak"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Introduction from Juri Ishmaak: raise your rank with them past grade 3.",
-      "next": true
+      "name": "Colonel Bris Dekker",
+      "next": true,
+      "permit": true,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Introduction from Juri Ishmaak: raise your rank with them past grade 3.",
+        "Invitation: Friendly or higher reputation with the Federation.",
+        "Unlock at Sol: Provide 1,000,000 CR worth of combat bonds."
+      ],
+      "system": "Sol",
+      "works_on": [
+        {
+          "grade": 4,
+          "label": "Interdictor",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "FSD",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Juri Ishmaak",
-      "kind": "ship",
-      "system": "Giryak",
-      "permit": false,
       "depth": 1,
       "introduced_by": [
         "Felicity Farseer"
       ],
-      "status": "unlocked",
-      "rank": 3,
+      "kind": "ship",
       "left": null,
-      "next": false
+      "name": "Juri Ishmaak",
+      "next": false,
+      "permit": false,
+      "rank": 3,
+      "status": "unlocked",
+      "steps": [],
+      "system": "Giryak",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Mine launcher",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Sensors",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Surface scanner",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Missile rack",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Advanced missile rack",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Torpedo",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Kill warrant",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Cargo scanner",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Wake scanner",
+          "unsure": false
+        }
+      ]
     },
     {
+      "depth": 2,
+      "introduced_by": [
+        "Marco Qwent"
+      ],
+      "kind": "ship",
+      "left": "Unlock Marco Qwent first.",
       "name": "Professor Palin",
-      "kind": "ship",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Marco Qwent first.",
+        "Introduction from Marco Qwent: raise your rank with them past grade 3.",
+        "Invitation: Travel at least 5,000 ly from starting system.",
+        "Unlock at Arque: Provide 25 units of Sensor Fragments."
+      ],
       "system": "Arque",
-      "permit": false,
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Thrusters",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "FSD",
+          "unsure": false
+        }
+      ]
+    },
+    {
       "depth": 2,
       "introduced_by": [
         "Marco Qwent"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock Marco Qwent first.",
-      "next": false
-    },
-    {
       "name": "Chloe Sedesi",
-      "kind": "ship",
-      "system": "Shenve",
+      "next": false,
       "permit": false,
-      "depth": 2,
-      "introduced_by": [
-        "Marco Qwent"
-      ],
-      "status": "locked",
       "rank": null,
-      "left": "Unlock Marco Qwent first.",
-      "next": false
+      "status": "locked",
+      "steps": [
+        "Unlock Marco Qwent first.",
+        "Introduction from Marco Qwent: raise your rank with them past grade 3.",
+        "Invitation: Travel at least 5,000 ly from starting system.",
+        "Unlock at Shenve: Provide 25 units of Sensor Fragments."
+      ],
+      "system": "Shenve",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Thrusters",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "FSD",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Bill Turner",
-      "kind": "ship",
-      "system": "Alioth",
-      "permit": true,
       "depth": 2,
       "introduced_by": [
         "Selene Jean"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock Selene Jean first.",
-      "next": false
+      "name": "Bill Turner",
+      "next": false,
+      "permit": true,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Selene Jean first.",
+        "Introduction from Selene Jean: raise your rank with them past grade 3.",
+        "Invitation: Friendly or higher reputation with the Alliance.",
+        "Unlock at Alioth: Provide 50 units of Bromellite."
+      ],
+      "system": "Alioth",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Plasma",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Sensors",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Surface scanner",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Life support",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Fuel scoop",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Refinery",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "AFMU",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Kill warrant",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Cargo scanner",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Wake scanner",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Lori Jameson",
-      "kind": "ship",
-      "system": "Shinrarta Dezhra",
-      "permit": true,
       "depth": 2,
       "introduced_by": [
         "Marco Qwent"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock Marco Qwent first.",
-      "next": false
+      "name": "Lori Jameson",
+      "next": false,
+      "permit": true,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Marco Qwent first.",
+        "Introduction from Marco Qwent: raise your rank with them past grade 3.",
+        "Invitation: Combat rank of Dangerous or higher.",
+        "Unlock at Shinrarta Dezhra: Provide 25 units of Konnga Ale."
+      ],
+      "system": "Shinrarta Dezhra",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Sensors",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Surface scanner",
+          "unsure": false
+        },
+        {
+          "grade": 4,
+          "label": "Life support",
+          "unsure": false
+        },
+        {
+          "grade": 4,
+          "label": "Fuel scoop",
+          "unsure": false
+        },
+        {
+          "grade": 4,
+          "label": "Refinery",
+          "unsure": false
+        },
+        {
+          "grade": 4,
+          "label": "AFMU",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Shield cell bank",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Kill warrant",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Cargo scanner",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Wake scanner",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Ram Tah",
-      "kind": "ship",
-      "system": "Meene",
-      "permit": false,
       "depth": 2,
       "introduced_by": [
         "Lei Cheung"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock Lei Cheung first.",
-      "next": false
+      "name": "Ram Tah",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Lei Cheung first.",
+        "Introduction from Lei Cheung: raise your rank with them past grade 3.",
+        "Invitation: Explorer rank of Surveyor or higher.",
+        "Unlock at Meene: Provide 50 Classified Scan Databanks."
+      ],
+      "system": "Meene",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Chaff",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Heat sink",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Point defence",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "ECM",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Caustic sink",
+          "unsure": false
+        },
+        {
+          "grade": 4,
+          "label": "Collector",
+          "unsure": false
+        },
+        {
+          "grade": 4,
+          "label": "Prospector",
+          "unsure": false
+        },
+        {
+          "grade": 4,
+          "label": "Fuel transfer",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Hatch breaker",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Tiana Fortune",
-      "kind": "ship",
-      "system": "Achenar",
-      "permit": true,
       "depth": 2,
       "introduced_by": [
         "Hera Tani"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock Hera Tani first.",
-      "next": false
+      "name": "Tiana Fortune",
+      "next": false,
+      "permit": true,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Hera Tani first.",
+        "Introduction from Hera Tani: raise your rank with them past grade 3.",
+        "Invitation: Friendly or higher reputation with the Empire.",
+        "Unlock at Achenar: Provide 50 units of Decoded Emission Data."
+      ],
+      "system": "Achenar",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Sensors",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Kill warrant",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Cargo scanner",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Wake scanner",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Collector",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Prospector",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Fuel transfer",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Hatch breaker",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Interdictor",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Surface scanner",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "The Sarge",
-      "kind": "ship",
-      "system": "Beta-3 Tucani",
-      "permit": false,
       "depth": 2,
       "introduced_by": [
         "Juri Ishmaak"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Introduction from Juri Ishmaak: raise your rank with them past grade 3.",
-      "next": true
+      "name": "The Sarge",
+      "next": true,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Introduction from Juri Ishmaak: raise your rank with them past grade 3.",
+        "Invitation: Federal Navy rank of Midshipman or higher.",
+        "Unlock at Beta-3 Tucani: Provide 50 units of Aberrant Shield Pattern Analysis."
+      ],
+      "system": "Beta-3 Tucani",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Cannon",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Collector",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Prospector",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Fuel transfer",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Hatch breaker",
+          "unsure": false
+        },
+        {
+          "grade": 3,
+          "label": "Rail gun",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Etienne Dorn",
-      "kind": "ship",
-      "system": "Los",
-      "permit": false,
       "depth": 1,
       "introduced_by": [
         "Liz Ryder"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Introduction from Liz Ryder: raise your rank with them past grade 3.",
-      "next": true
+      "name": "Etienne Dorn",
+      "next": true,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Introduction from Liz Ryder: raise your rank with them past grade 3.",
+        "Invitation: Trade rank of Dealer or higher.",
+        "Unlock at Los: Provide 25 units of Occupied Escape Pods."
+      ],
+      "system": "Los",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Rail gun",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Plasma",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Power plant",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Distributor",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Sensors",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Life support",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Kill warrant",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Cargo scanner",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Wake scanner",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Surface scanner",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Marsha Hicks",
-      "kind": "ship",
-      "system": "Tir",
-      "permit": false,
       "depth": 1,
       "introduced_by": [
         "The Dweller"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock The Dweller first.",
-      "next": false
+      "name": "Marsha Hicks",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock The Dweller first.",
+        "Introduction from The Dweller: raise your rank with them past grade 3.",
+        "Invitation: Explorer rank of Surveyor or higher.",
+        "Unlock at Tir: Provide 10 units of Osmium."
+      ],
+      "system": "Tir",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Multi-cannon",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Advanced multi-cannon",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Cannon",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Fragment cannon",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Fuel scoop",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Refinery",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Collector",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Prospector",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Fuel transfer",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Hatch breaker",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Mel Brandon",
-      "kind": "ship",
-      "system": "Luchtaine",
-      "permit": false,
       "depth": 1,
       "introduced_by": [
         "Elvira Martuuk"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Introduction from Elvira Martuuk: raise your rank with them past grade 3.",
-      "next": true
+      "name": "Mel Brandon",
+      "next": true,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Introduction from Elvira Martuuk: raise your rank with them past grade 3.",
+        "Invitation: Friendly or higher reputation with Colonia Council.",
+        "Unlock at Luchtaine: Provide 100,000 credits of bounty vouchers."
+      ],
+      "system": "Luchtaine",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Pulse",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Burst",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Beam",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "FSD",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Interdictor",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Shield",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Bi-weave shield",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Prismatic shield",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Booster",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Thrusters",
+          "unsure": false
+        },
+        {
+          "grade": 4,
+          "label": "Shield cell bank",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Petra Olmanova",
-      "kind": "ship",
-      "system": "Asura",
-      "permit": false,
       "depth": 1,
       "introduced_by": [
         "Tod \"The Blaster\" McQuinn"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "ship",
       "left": "Unlock Tod \"The Blaster\" McQuinn first.",
-      "next": false
-    },
-    {
-      "name": "Domino Green",
-      "kind": "suit",
-      "system": "Orishis",
+      "name": "Petra Olmanova",
+      "next": false,
       "permit": false,
-      "depth": 0,
-      "introduced_by": [],
-      "status": "unlocked",
-      "rank": 0,
-      "left": null,
-      "next": false
-    },
-    {
-      "name": "Hero Ferrari",
-      "kind": "suit",
-      "system": "Siris",
-      "permit": false,
-      "depth": 0,
-      "introduced_by": [],
-      "status": "known",
       "rank": null,
-      "left": "Invitation: Complete 10 Conflict Zones.",
-      "next": true
+      "status": "locked",
+      "steps": [
+        "Unlock Tod \"The Blaster\" McQuinn first.",
+        "Introduction from Tod \"The Blaster\" McQuinn: raise your rank with them past grade 3.",
+        "Invitation: Combat rank of Expert or higher.",
+        "Unlock at Asura: Provide 200 units of Progenitor Cells."
+      ],
+      "system": "Asura",
+      "works_on": [
+        {
+          "grade": 5,
+          "label": "Missile rack",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Torpedo",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Mine launcher",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Armour",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Hull reinforcement",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Chaff",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Heat sink",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Point defence",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "ECM",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "Caustic sink",
+          "unsure": false
+        },
+        {
+          "grade": 5,
+          "label": "AFMU",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Jude Navarro",
-      "kind": "suit",
-      "system": "Aurai",
-      "permit": false,
       "depth": 0,
       "introduced_by": [],
-      "status": "unlocked",
-      "rank": 0,
+      "kind": "suit",
       "left": null,
-      "next": false
+      "name": "Domino Green",
+      "next": false,
+      "permit": false,
+      "rank": 0,
+      "status": "unlocked",
+      "steps": [],
+      "system": "Orishis",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Enhanced Tracking",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Extra Backpack Capacity",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Greater Range",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Reduced Tool Battery Consumption",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Stability",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Kit Fowler",
+      "depth": 0,
+      "introduced_by": [],
       "kind": "suit",
-      "system": "Capoya",
+      "left": "Invitation: Complete 10 Conflict Zones.",
+      "name": "Hero Ferrari",
+      "next": true,
       "permit": false,
+      "rank": null,
+      "status": "known",
+      "steps": [
+        "Invitation: Complete 10 Conflict Zones.",
+        "Visit them at Siris to unlock."
+      ],
+      "system": "Siris",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Faster Handling",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Improved Jump Assist",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Increased Air Reserves",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Increased Sprint Duration",
+          "unsure": true
+        },
+        {
+          "grade": 0,
+          "label": "Noise Suppressor",
+          "unsure": false
+        }
+      ]
+    },
+    {
+      "depth": 0,
+      "introduced_by": [],
+      "kind": "suit",
+      "left": null,
+      "name": "Jude Navarro",
+      "next": false,
+      "permit": false,
+      "rank": 0,
+      "status": "unlocked",
+      "steps": [],
+      "system": "Aurai",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Added Melee Damage",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Damage Resistance",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Extra Ammo Capacity",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Magazine Size",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Reload Speed",
+          "unsure": false
+        }
+      ]
+    },
+    {
       "depth": 1,
       "introduced_by": [
         "Domino Green"
       ],
-      "status": "invited",
-      "rank": null,
+      "kind": "suit",
       "left": "Visit them at Capoya to unlock.",
-      "next": true
+      "name": "Kit Fowler",
+      "next": true,
+      "permit": false,
+      "rank": null,
+      "status": "invited",
+      "steps": [
+        "Visit them at Capoya to unlock."
+      ],
+      "system": "Capoya",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Added Melee Damage",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Extra Ammo Capacity",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Faster Shield Regen",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Magazine Size",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Stowed Reloading",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Oden Geiger",
-      "kind": "suit",
-      "system": "Candiaei",
-      "permit": false,
       "depth": 2,
       "introduced_by": [
         "Terra Velasquez"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "suit",
       "left": "Unlock Terra Velasquez first.",
-      "next": false
+      "name": "Oden Geiger",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Terra Velasquez first.",
+        "Referral from Terra Velasquez: Provide 15 Financial Projections.",
+        "Invitation: Sell 20 total Biological Sample, Employee Genetic Data, and Genetic Research to Bartenders.",
+        "Visit them at Candiaei to unlock."
+      ],
+      "system": "Candiaei",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Enhanced Tracking",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Improved Battery Capacity",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Night Vision",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Scope",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Stability",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Terra Velasquez",
-      "kind": "suit",
-      "system": "Shou Xing",
-      "permit": false,
       "depth": 1,
       "introduced_by": [
         "Jude Navarro"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "suit",
       "left": "Referral from Jude Navarro: Provide 5 Genetic Repair Meds.",
-      "next": true
+      "name": "Terra Velasquez",
+      "next": true,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Referral from Jude Navarro: Provide 5 Genetic Repair Meds.",
+        "Invitation: Complete 6 Covert Heist or Covert Theft missions.",
+        "Visit them at Shou Xing to unlock."
+      ],
+      "system": "Shou Xing",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Combat Movement Speed",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Improved Hip Fire Accuracy",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Increased Air Reserves",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Increased Sprint Duration",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Noise Suppressor",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Uma Laszlo",
-      "kind": "suit",
-      "system": "Xuane",
-      "permit": false,
       "depth": 2,
       "introduced_by": [
         "Wellington Beck"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "suit",
       "left": "Unlock Wellington Beck first.",
-      "next": false
+      "name": "Uma Laszlo",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Wellington Beck first.",
+        "Referral from Wellington Beck: Provide 5 InSight Entertainment Suites.",
+        "Invitation: Reach unfriendly rep with Sirius Corporation.",
+        "Visit them at Xuane to unlock."
+      ],
+      "system": "Xuane",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Damage Resistance",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Faster Shield Regen",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Headshot Damage",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Reload Speed",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Stowed Reloading",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Wellington Beck",
-      "kind": "suit",
-      "system": "Jolapa",
-      "permit": false,
       "depth": 1,
       "introduced_by": [
         "Hero Ferrari"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "suit",
       "left": "Unlock Hero Ferrari first.",
-      "next": false
+      "name": "Wellington Beck",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Hero Ferrari first.",
+        "Referral from Hero Ferrari: Provide 5 Settlement Defence Plans.",
+        "Invitation: Sell 15 total Classic Entertainment, Multimedia Entertainment, and/or Cat Media to Bartenders.",
+        "Visit them at Jolapa to unlock."
+      ],
+      "system": "Jolapa",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Extra Backpack Capacity",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Greater Range",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Improved Battery Capacity",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Reduced Tool Battery Consumption",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Scope",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Yarden Bond",
-      "kind": "suit",
-      "system": "Bayan",
-      "permit": false,
       "depth": 2,
       "introduced_by": [
         "Kit Fowler"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "suit",
       "left": "Unlock Kit Fowler first.",
-      "next": false
+      "name": "Yarden Bond",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Kit Fowler first.",
+        "Referral from Kit Fowler: Provide 5 Surveillance Equipment.",
+        "Invitation: Sell 5 Smear Campaign Plans to Bartenders.",
+        "Visit them at Bayan to unlock."
+      ],
+      "system": "Bayan",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Audio Masking",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Combat Movement Speed",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Faster Handling",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Improved Hip Fire Accuracy",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Improved Jump Assist",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Quieter Footsteps",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Baltanos",
-      "kind": "suit",
-      "system": "Deriso",
-      "permit": false,
       "depth": 0,
       "introduced_by": [],
-      "status": "known",
-      "rank": null,
+      "kind": "suit",
       "left": "Invitation: Friendly reputation with Colonia Council.",
-      "next": true
+      "name": "Baltanos",
+      "next": true,
+      "permit": false,
+      "rank": null,
+      "status": "known",
+      "steps": [
+        "Invitation: Friendly reputation with Colonia Council.",
+        "Visit them at Deriso to unlock."
+      ],
+      "system": "Deriso",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Combat Movement Speed",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Faster Handling",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Improved Hip Fire Accuracy",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Improved Jump Assist",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Increased Air Reserves",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Increased Sprint Duration",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Noise Suppressor",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Eleanor Bresa",
-      "kind": "suit",
-      "system": "Desy",
-      "permit": false,
       "depth": 0,
       "introduced_by": [],
-      "status": "known",
-      "rank": null,
+      "kind": "suit",
       "left": "Invitation: Visit 5 Settlements in Colonia.",
-      "next": true
+      "name": "Eleanor Bresa",
+      "next": true,
+      "permit": false,
+      "rank": null,
+      "status": "known",
+      "steps": [
+        "Invitation: Visit 5 Settlements in Colonia.",
+        "Visit them at Desy to unlock."
+      ],
+      "system": "Desy",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Added Melee Damage",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Damage Resistance",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Extra Ammo Capacity",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Faster Shield Regen",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Magazine Size",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Reload Speed",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Stowed Reloading",
+          "unsure": false
+        }
+      ]
     },
     {
-      "name": "Rosa Dayette",
-      "kind": "suit",
-      "system": "Kojeara",
-      "permit": false,
       "depth": 0,
       "introduced_by": [],
-      "status": "known",
-      "rank": null,
+      "kind": "suit",
       "left": "Invitation: Sell 10 total Culinary Recipes or Cocktail Recipes to Bartenders in Colonia.",
-      "next": true
+      "name": "Rosa Dayette",
+      "next": true,
+      "permit": false,
+      "rank": null,
+      "status": "known",
+      "steps": [
+        "Invitation: Sell 10 total Culinary Recipes or Cocktail Recipes to Bartenders in Colonia.",
+        "Visit them at Kojeara to unlock."
+      ],
+      "system": "Kojeara",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Enhanced Tracking",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Extra Backpack Capacity",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Greater Range",
+          "unsure": true
+        },
+        {
+          "grade": 0,
+          "label": "Improved Battery Capacity",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Reduced Tool Battery Consumption",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Scope",
+          "unsure": true
+        },
+        {
+          "grade": 0,
+          "label": "Stability",
+          "unsure": true
+        }
+      ]
     },
     {
-      "name": "Yi Shen",
-      "kind": "suit",
-      "system": "Einheriar",
-      "permit": false,
       "depth": 1,
       "introduced_by": [
         "Baltanos",
         "Eleanor Bresa",
         "Rosa Dayette"
       ],
-      "status": "locked",
-      "rank": null,
+      "kind": "suit",
       "left": "Unlock Baltanos first. Unlock Eleanor Bresa first. Unlock Rosa Dayette first.",
-      "next": false
+      "name": "Yi Shen",
+      "next": false,
+      "permit": false,
+      "rank": null,
+      "status": "locked",
+      "steps": [
+        "Unlock Baltanos first.",
+        "Unlock Eleanor Bresa first.",
+        "Unlock Rosa Dayette first.",
+        "Referral from Baltanos: Provide 10 Faction Associates.",
+        "Referral from Eleanor Bresa: Provide 10 Digital Designs.",
+        "Referral from Rosa Dayette: Provide 10 Manufacturing Instructions.",
+        "Invitation: Complete all referral tasks for Baltanos, Eleanor Bresa, & Rosa Dayette.",
+        "Visit them at Einheriar to unlock."
+      ],
+      "system": "Einheriar",
+      "works_on": [
+        {
+          "grade": 0,
+          "label": "Audio Masking",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Headshot Damage",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Night Vision",
+          "unsure": false
+        },
+        {
+          "grade": 0,
+          "label": "Quieter Footsteps",
+          "unsure": false
+        }
+      ]
     }
   ]
 }

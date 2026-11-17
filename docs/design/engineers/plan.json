@@ -1,0 +1,16 @@
+{
+ "out": "docs/design/engineers",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 1920, "h": 1080, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 }
+ ],
+ "shots": [
+  { "name": "engineers-rest-after", "hash": "unlocks", "steps": [{ "waitSel": ".tree .node" }] },
+  { "name": "engineers-selected-after", "hash": "unlocks", "steps": [{ "click": ".node[aria-label='The Dweller']" }, { "waitSel": "aside[aria-label=Details]" }] },
+  { "name": "engineers-selected-unlocked-after", "hash": "unlocks", "steps": [{ "click": ".node[aria-label='Felicity Farseer']" }, { "waitSel": "aside[aria-label=Details]" }] },
+  { "name": "engineers-selected-suit-after", "hash": "unlocks?kind=suit", "steps": [{ "click": ".node[aria-label='Hero Ferrari']" }, { "waitSel": "aside[aria-label=Details]" }] },
+  { "name": "engineers-search-after", "hash": "unlocks?q=laser", "sizes": ["1100x700", "2560x1440"], "steps": [{ "waitSel": "[aria-label='Main answer']" }] }
+ ]
+}
