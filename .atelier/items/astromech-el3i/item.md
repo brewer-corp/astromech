@@ -83,10 +83,13 @@ cargo and the figures onto one row of prose fragments.
   it with the answer (`need`). A later edit or ship swap then doesn't re-mark an old answer. My
   first version used the pad the page loaded with, which was wrong after a ship swap. A ninth test,
   written failing first, covers that ("measures a stop's pad against the ship flown at the search").
-  After round 1, a pad the commander set is measured as it was sent with the search, and only the
-  ship's own pad comes from the reload. A filter edit can be searched before its save lands, so the
-  reload can name the old pad. A tenth test, also failing first, holds the save while the search
-  completes. SearchKit and Now's `Sale.svelte`
+  After rounds 1 and 2, the measure no longer reads the saved filters at all. A filter edit can be
+  searched before its save lands, so storage can hold the pad from before the edit, in either
+  direction. A pad the commander set is measured as it was sent with the search. With no pad set,
+  the measure is the ship's pad from `ship_status`, the same `Pad::for_ship` of the current ship
+  that the core's `filters::resolve` uses, and the same read the finders measure with. Two more
+  tests, each written failing first, hold the save while the search completes: one sets a pad,
+  the other clears one. SearchKit and Now's `Sale.svelte`
   still have their own copies of the badge. Moving them would touch SearchKit's busy-state greying,
   so I left them for a follow-up item (to file from a backlog branch: "Pad letter: SearchKit and
   Now's Sale use PadLetter.svelte").
@@ -100,10 +103,10 @@ cargo and the figures onto one row of prose fragments.
   inputs under it sit 2 px higher. The `.tools` gap is on the scale now (`--sp-3 --sp-4`, from 10
   and 18 px).
 
-**Tests.** The eight cases in `Route.browser.test.ts` keep their behaviour, and there are the ninth and tenth above. Only the strings they
+**Tests.** The eight cases in `Route.browser.test.ts` keep their behaviour, and there are the three pad tests above (11 cases). Only the strings they
 read changed to the new markup, and the pad is asserted through its accessible name. The loop
 case also checks that the first station is drawn twice. The age is matched as `/^Spansh, .* ago$/`,
-so the test doesn't depend on the wall clock. `pnpm check`, `pnpm lint` and `pnpm test` (899 tests after round 1)
+so the test doesn't depend on the wall clock. `pnpm check`, `pnpm lint` and `pnpm test` (900 tests after round 2)
 pass, and so does `python3 scripts/check-guide.py`. The 7 journeys pass with
 `ASTROMECH_CORE=/home/supadava/projects/astromech/target/debug/astromech-core`, the main
 checkout's debug core, as Station did. This worktree has no core build, and there is no core change
@@ -139,3 +142,4 @@ struck pad by its accessible name, and "Fly back empty"), and the captures do no
 ### Responses
 
 1-sh7u.1: fixed in 28201cda
+2-m3ls.2: fixed in 4dbfe2f1
