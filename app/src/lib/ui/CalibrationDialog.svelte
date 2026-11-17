@@ -18,8 +18,8 @@
 
 <style>
   .shade { position: fixed; inset: 0; background: rgb(0 0 0 / 0.7); display: grid; place-items: center; z-index: 10; }
-  .dlg { width: 600px; background: var(--bg); border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); padding: 22px 28px; }
+  .dlg { width: 37.5rem; background: var(--bg); border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); padding: 1.375rem 1.75rem; }
   .lbl { color: var(--orange-mid); font-size: var(--fs-s); }
-  h2 { margin: 6px 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); }
-  .close { margin-top: 20px; }
+  h2 { margin: 0.375rem 0 1rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); }
+  .close { margin-top: 1.25rem; }
 </style>

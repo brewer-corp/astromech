@@ -155,13 +155,14 @@
 
 <style>
   /* DESIGN.md Frame: the fixed parts, then the page, which takes the rest and scrolls. The frame is
-     the container a page's narrow-window rules ask (`@container win`): under the root zoom it
-     measures the layout, where a media query would measure the screen. */
-  .frame { container: win / inline-size; height: var(--win-h); display: flex; flex-direction: column; }
+     the container a page's narrow-window rules ask (`@container win`, in rem): a container query's
+     rem is the root font size, so a breakpoint moves with Text size, where a media query's rem
+     is the browser's default. */
+  .frame { container: win / inline-size; height: 100vh; display: flex; flex-direction: column; }
   .frame > :global(*) { flex: none; }
   .frame > main { flex: 1 1 0; }
   /* DESIGN.md Frame: a 64 px row with the 1 px orange rule under it; stacked, the tabs add 44 px. */
-  header { box-sizing: border-box; display: flex; align-items: center; gap: clamp(16px, 2.5 * var(--win-w), 40px); height: 64px; margin: 0 var(--side); border-bottom: 1px solid var(--accent); }
+  header { box-sizing: border-box; display: flex; align-items: center; gap: clamp(1rem, 2.5vw, 2.5rem); height: 4rem; margin: 0 var(--side); border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
   nav { display: flex; gap: var(--sp-1); flex: 1; flex-wrap: wrap; }
   header nav { flex-wrap: nowrap; align-items: center; }
@@ -173,7 +174,7 @@
   header nav button:hover { color: var(--accent); }
   header nav button.on { background: var(--accent); color: var(--on-accent); }
   header nav button.on:focus-visible { outline: 1px solid var(--on-accent); outline-offset: -3px; }
-  nav.sub { flex: none; gap: var(--sp-6); height: 44px; margin: 0 var(--side); }
+  nav.sub { flex: none; gap: var(--sp-6); height: 2.75rem; margin: 0 var(--side); }
   nav.sub button { display: flex; align-items: center; font-weight: 500; color: var(--orange-mid); border-bottom: 2px solid transparent; }
   nav.sub button:hover { color: var(--accent); }
   nav.sub button.on { color: var(--orange-lit); border-bottom-color: var(--accent); }
@@ -181,12 +182,12 @@
   .help { color: var(--accent); font-size: var(--fs-s); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .help:hover { color: var(--orange-lit); }
   main { min-height: 0; overflow: auto; padding: 0 var(--side); scrollbar-gutter: stable; }
-  header.stacked { height: 108px; flex-wrap: wrap; align-content: flex-start; row-gap: 0; }
-  header.stacked .app { display: flex; align-items: center; height: 63px; margin-right: auto; }
-  header.stacked nav { order: 1; flex-basis: 100%; align-items: center; height: 44px; }
+  header.stacked { height: 6.75rem; flex-wrap: wrap; align-content: flex-start; row-gap: 0; }
+  header.stacked .app { display: flex; align-items: center; height: 3.9375rem; margin-right: auto; }
+  header.stacked nav { order: 1; flex-basis: 100%; align-items: center; height: 2.75rem; }
   /* The header's gaps scale with the window only (no breakpoint), so the width one row needs grows
      steadily with it: the header stacks once as the window narrows and stays stacked below that. */
-  @container win (max-width: 1100px) {
-    nav.sub { gap: 16px; }
+  @container win (max-width: 68.75rem) {
+    nav.sub { gap: 1rem; }
   }
 </style>

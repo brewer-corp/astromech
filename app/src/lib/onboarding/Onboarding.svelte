@@ -97,20 +97,20 @@
 </div>
 
 <style>
-  .frame { container: win / inline-size; height: var(--win-h); display: grid; grid-template-rows: auto 1fr; }
-  header { display: flex; align-items: center; gap: 40px; height: 64px; margin: 0 40px; border-bottom: 1px solid var(--accent); }
+  .frame { container: win / inline-size; height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+  header { display: flex; align-items: center; gap: 2.5rem; height: 4rem; margin: 0 2.5rem; border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
   /* The area's one top tab, active: Nav caps on a solid orange box. */
   .title { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); margin-right: auto; background: var(--accent); color: var(--on-accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 500; }
-  .body { display: grid; grid-template-columns: 15rem 1fr; gap: 40px; padding: 28px 40px; min-height: 0; overflow: auto; }
+  .body { display: grid; grid-template-columns: 14.0625rem 1fr; gap: 2.5rem; padding: 1.75rem 2.5rem; min-height: 0; overflow: auto; }
   .nav { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); align-content: start; }
-  .nav button { all: unset; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; gap: 12px; color: var(--accent); font-weight: 500; font-size: var(--fs); }
+  .nav button { all: unset; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; gap: 0.75rem; color: var(--accent); font-weight: 500; font-size: var(--fs); }
   /* The step you are on: hull and Orange Lit, a place marker rather than a value (no cell). */
   .nav button.on { background: var(--surface); color: var(--orange-lit); }
   .nav .n { color: var(--orange-mid); }
   .nav button.on .n { color: inherit; }
-  main { max-width: 52rem; }
-  h1 { margin: 0 0 6px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
-  .lead { margin: 0 0 22px; color: var(--prose); }
-  footer { display: flex; gap: 28px; margin-top: 32px; }
+  main { max-width: 48.75rem; }
+  h1 { margin: 0 0 0.375rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
+  .lead { margin: 0 0 1.375rem; color: var(--prose); }
+  footer { display: flex; gap: 1.75rem; margin-top: 2rem; }
 </style>

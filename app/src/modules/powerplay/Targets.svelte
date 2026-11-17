@@ -46,5 +46,5 @@
 
 <style>
   .acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
-  label { display: flex; align-items: center; gap: 8px; color: var(--orange-mid); font-size: var(--fs-s); }
+  label { display: flex; align-items: center; gap: 0.5rem; color: var(--orange-mid); font-size: var(--fs-s); }
 </style>

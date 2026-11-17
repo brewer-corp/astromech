@@ -104,17 +104,17 @@
 </div>
 
 <style>
-  .cal { display: grid; gap: 12px; }
+  .cal { display: grid; gap: 0.75rem; }
   p { margin: 0; line-height: 1.45; }
   .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); }
   /* Read-only progress and results: the steps and prompt on the hull, state by brightness (done
      Orange, now Orange Lit, to come Orange Mid); the measured levels are facts, outside a cell. */
-  .steps li { display: flex; justify-content: space-between; min-height: 30px; align-items: center; padding: 0 12px; background: var(--surface); color: var(--orange-mid); }
+  .steps li { display: flex; justify-content: space-between; min-height: 1.875rem; align-items: center; padding: 0 0.75rem; background: var(--surface); color: var(--orange-mid); }
   .steps li.past { color: var(--accent); }
   .steps li.now { color: var(--orange-lit); }
-  .prompt { min-height: 48px; display: flex; align-items: center; padding: 0 14px; background: var(--surface); color: var(--orange-lit); font-size: var(--fs-l); }
-  dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
-  dt, dd { margin: 0; padding: 0 12px; min-height: 30px; display: flex; align-items: center; }
+  .prompt { min-height: 3rem; display: flex; align-items: center; padding: 0 0.875rem; background: var(--surface); color: var(--orange-lit); font-size: var(--fs-l); }
+  dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0; }
+  dt, dd { margin: 0; padding: 0 0.75rem; min-height: 1.875rem; display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   dd { color: var(--accent); }
   .small { font-size: var(--fs-s); }

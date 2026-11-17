@@ -104,7 +104,7 @@
   p { margin: 0; }
   .lo { color: var(--prose); }
   .neutron > :global(.act) { align-self: flex-start; margin-left: calc(-1 * var(--sp-2)); }
-  progress { width: 100%; height: 6px; accent-color: var(--accent); }
+  progress { width: 100%; height: 0.375rem; accent-color: var(--accent); }
   .err { color: var(--alarm); }
   .err b { font-weight: 600; }
 </style>

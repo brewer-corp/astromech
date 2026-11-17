@@ -19,7 +19,7 @@
 </div>
 
 <style>
-  .bench { display: grid; grid-template-columns: 400px minmax(0, 1000px); align-items: start; column-gap: var(--sp-12); padding: var(--sp-6) 0 var(--sp-12); }
+  .bench { display: grid; grid-template-columns: 25rem minmax(0, 62.5rem); align-items: start; column-gap: var(--sp-12); padding: var(--sp-6) 0 var(--sp-12); }
   .bench.stacked { grid-template-columns: minmax(0, 1fr); row-gap: var(--sp-8); }
   .inputs, .result { min-width: 0; }
 </style>

@@ -217,19 +217,19 @@
   .here { color: var(--accent); }
   .out { padding: var(--sp-6) 0 0; min-width: 0; }
   .farm { list-style: none; margin: var(--sp-6) 0 0; padding: 0; display: flex; flex-direction: column; }
-  .farm li { display: grid; grid-template-columns: minmax(10rem, 14rem) 6rem minmax(0, var(--measure)); gap: var(--sp-2) var(--sp-4); align-items: baseline; padding: var(--sp-3) var(--sp-2); border-bottom: 1px solid var(--line); }
+  .farm li { display: grid; grid-template-columns: minmax(9.375rem, 13.125rem) 5.625rem minmax(0, var(--measure)); gap: var(--sp-2) var(--sp-4); align-items: baseline; padding: var(--sp-3) var(--sp-2); border-bottom: 1px solid var(--line); }
   .farm button:hover, .farm .on { color: var(--orange-lit); }
   .fq { text-align: right; }
-  .gh, .rh, .corner { min-height: 40px; display: flex; align-items: center; }
+  .gh, .rh, .corner { min-height: 2.5rem; display: flex; align-items: center; }
   .gh { padding: 0 var(--sp-3); }
   .rh { padding: 0 var(--sp-3) 0 0; }
   /* DESIGN.md Material tile: a 76 px Hull tile, the count in Value XL top left, the name below in
      Label size and Orange, at most one Meta corner mark top right, and the 2 px track along the
      bottom edge. None held is Void inside a Seam outline, all Orange Dim; the selected one, which
      the side panel explains, is solid orange with no track. */
-  .cell { position: relative; display: grid; grid-template-rows: auto 1fr; height: var(--tile); padding: 10px var(--sp-3); text-align: left; background: linear-gradient(90deg, var(--track)) bottom / 100% 2px no-repeat, var(--surface); }
+  .cell { position: relative; display: grid; grid-template-rows: auto 1fr; height: var(--tile); padding: 0.625rem var(--sp-3); text-align: left; background: linear-gradient(90deg, var(--track)) bottom / 100% 2px no-repeat, var(--surface); }
   .n { align-self: end; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .mark { position: absolute; top: 10px; right: var(--sp-3); color: var(--accent); }
+  .mark { position: absolute; top: 0.625rem; right: var(--sp-3); color: var(--accent); }
   .cell:hover { background-color: var(--row-hover); }
   .cell.empty { background: var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
   .cell.empty :is(.n, .q, .mark) { color: var(--orange-dim); }
@@ -241,7 +241,7 @@
   .cell.sel:focus-visible { outline: 1px solid var(--on-accent); outline-offset: -3px; }
   /* DESIGN.md Side panel: the title in white, the key value in white, facts in Orange. */
   .about h3 { margin: 0 0 var(--sp-1); }
-  .about p { margin: 0 0 10px; }
+  .about p { margin: 0 0 0.625rem; }
   .about .qty { margin: var(--sp-4) 0; }
   .qty .type-value-xl { color: var(--text-hi); }
   .sites { margin: var(--sp-6) 0 0; }

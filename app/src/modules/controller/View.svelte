@@ -241,20 +241,20 @@
 
 <style>
   button { all: unset; cursor: pointer; }
-  .cols { display: grid; grid-template-columns: 1fr 360px; gap: 28px; padding-top: 14px; }
-  .top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-  section > :global(.acts) { margin: 12px 0 8px; }
-  .band { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 14px; }
-  h3 { margin: 0 0 8px; }
-  h3.gap { margin-top: 18px; }
-  .row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 30px; margin-bottom: 4px; padding: 0 12px; background: var(--surface); } /* read-only rows: hull */
+  .cols { display: grid; grid-template-columns: minmax(0, 1fr) 22.5rem; gap: 1.75rem; padding-top: 0.875rem; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+  section > :global(.acts) { margin: 0.75rem 0 0.5rem; }
+  .band { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 0.875rem; }
+  h3 { margin: 0 0 0.5rem; }
+  h3.gap { margin-top: 1.125rem; }
+  .row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 1.875rem; margin-bottom: 0.25rem; padding: 0 0.75rem; background: var(--surface); } /* read-only rows: hull */
   button.row:hover { background: var(--row-hover); }
   .row.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
   .row.sel .n { color: var(--accent); }
   .row { color: var(--options-grey); }
   .warn { color: var(--accent); }
-  .more { margin-top: 10px; font-size: var(--fs-s); line-height: 1.5; }
-  .ask { color: var(--orange-lit); background: var(--surface); padding: 8px 12px; margin: 0 0 8px; }
+  .more { margin-top: 0.625rem; font-size: var(--fs-s); line-height: 1.5; }
+  .ask { color: var(--orange-lit); background: var(--surface); padding: 0.5rem 0.75rem; margin: 0 0 0.5rem; }
   .credit { color: var(--orange-mid); font-size: var(--fs-s); }
   .lo { color: var(--orange-mid); }
 </style>

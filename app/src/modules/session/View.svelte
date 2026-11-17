@@ -78,14 +78,14 @@
 </section>
 
 <style>
-  section { padding: 8px 0 28px; min-height: 0; }
-  .sub { margin: 14px 0 14px; }
+  section { padding: 0.5rem 0 1.75rem; min-height: 0; }
+  .sub { margin: 0.875rem 0 0.875rem; }
   .err { color: var(--accent); }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
-  h3 { margin: 22px 0 8px; }
-  table { border-collapse: collapse; max-width: 48rem; width: 100%; }
-  td { padding: 5px 16px 5px 0; border-top: 1px solid var(--line); }
+  h3 { margin: 1.375rem 0 0.5rem; }
+  table { border-collapse: collapse; max-width: 45rem; width: 100%; }
+  td { padding: 0.3125rem 1rem 0.3125rem 0; border-top: 1px solid var(--line); }
   .num { text-align: right; }
   .lo { color: var(--orange-mid); }
-  .also { margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 6px; }
+  .also { margin: 0; padding: 0 0 0 1.125rem; display: flex; flex-direction: column; gap: 0.375rem; }
 </style>

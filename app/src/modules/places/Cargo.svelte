@@ -91,19 +91,19 @@
 </FinderPage>
 
 <style>
-  .hold { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px; }
-  .pair { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+  .hold { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 1.125rem; }
+  .pair { display: inline-flex; align-items: baseline; gap: 0.375rem; white-space: nowrap; }
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .q { color: var(--accent); }
   .left .q { color: var(--orange-mid); }
   .lo { color: var(--orange-mid); }
-  .each-wrap { padding: 8px 8px 28px; }
-  h2 { margin: 18px 0 6px; }
+  .each-wrap { padding: 0.5rem 0.5rem 1.75rem; }
+  h2 { margin: 1.125rem 0 0.375rem; }
   .each { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  .each li { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(12rem, 1.4fr) minmax(10rem, 1fr) auto; gap: 8px 18px; align-items: start; padding: 14px 8px; border-bottom: 1px solid var(--line); font-size: var(--fs-s); line-height: 1.35; }
-  .who { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs); font-weight: 500; }
-  .facts { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; min-width: 0; text-align: right; } /* a column of figures */
-  @container win (max-width: 900px) {
+  .each li { display: grid; grid-template-columns: minmax(9.375rem, 1fr) minmax(11.25rem, 1.4fr) minmax(9.375rem, 1fr) auto; gap: 0.5rem 1.125rem; align-items: start; padding: 0.875rem 0.5rem; border-bottom: 1px solid var(--line); font-size: var(--fs-s); line-height: 1.35; }
+  .who { display: flex; flex-direction: column; gap: 0.125rem; font-size: var(--fs); font-weight: 500; }
+  .facts { display: flex; flex-direction: column; align-items: flex-end; gap: 0.125rem; min-width: 0; text-align: right; } /* a column of figures */
+  @container win (max-width: 56.25rem) {
     .each li { grid-template-columns: minmax(0, 1fr); }
     .facts { align-items: flex-start; text-align: left; }
   }

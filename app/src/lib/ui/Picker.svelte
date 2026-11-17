@@ -116,7 +116,7 @@
   .cell:hover { background: var(--cell-hover); }
   .cell:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .cell :global(.glyph) { color: var(--accent); }
-  .pop { position: absolute; z-index: 20; left: 0; top: 100%; margin-top: var(--gap); min-width: 100%; width: max-content; max-width: min(28rem, calc(var(--win-w) * 100 - 32px)); background: var(--surface-hi); border: 1px solid var(--line); }
+  .pop { position: absolute; z-index: 20; left: 0; top: 100%; margin-top: var(--gap); min-width: 100%; width: max-content; max-width: min(26.25rem, calc(100vw - 2rem)); background: var(--surface-hi); border: 1px solid var(--line); }
   .opt { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: var(--row); padding: var(--sp-2) var(--sp-3); color: var(--accent); }
   .opt:hover { background: var(--row-hover); }
   .opt:focus-visible { outline: 1px solid var(--accent); outline-offset: -2px; }
@@ -124,7 +124,7 @@
   .opt.on .hint { color: var(--on-accent); }
   .opt[aria-disabled="true"] { cursor: default; color: var(--orange-dim); }
   .opt[aria-disabled="true"] .hint { color: var(--orange-dim); }
-  .hint { margin-top: 2px; }
+  .hint { margin-top: 0.125rem; }
   .inline { display: flex; flex-direction: column; align-items: flex-start; }
   .inline .pop { position: static; width: auto; max-width: none; align-self: stretch; }
   .extra { padding: var(--sp-2) var(--sp-3) var(--sp-3); border-top: 1px solid var(--line); }

@@ -149,16 +149,16 @@
 <style>
   .stats { font-size: var(--fs-s); }
   .lo { color: var(--orange-mid); margin: 0; }
-  .warn { margin: 0 0 8px; line-height: 1.4; }
+  .warn { margin: 0 0 0.5rem; line-height: 1.4; }
   .mark { color: var(--accent); font-weight: 600; }
   table { border-collapse: collapse; width: 100%; }
-  th, td { padding: 5px 0; }
-  thead th { color: var(--orange-mid); font-weight: 400; text-align: right; padding-left: 12px; }
-  th[scope="row"] { text-align: left; font-weight: 400; white-space: nowrap; padding-right: 12px; }
+  th, td { padding: 0.3125rem 0; }
+  thead th { color: var(--orange-mid); font-weight: 400; text-align: right; padding-left: 0.75rem; }
+  th[scope="row"] { text-align: left; font-weight: 400; white-space: nowrap; padding-right: 0.75rem; }
   /* A section heading inside the table: Orange caps. */
-  .group th { text-align: left; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); padding: 16px 0 6px; }
-  tbody:first-of-type .group th { padding-top: 4px; }
-  td { text-align: right; color: var(--orange-mid); white-space: nowrap; padding-left: 12px; }
+  .group th { text-align: left; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); padding: 1rem 0 0.375rem; }
+  tbody:first-of-type .group th { padding-top: 0.25rem; }
+  td { text-align: right; color: var(--orange-mid); white-space: nowrap; padding-left: 0.75rem; }
   td.changed { color: var(--orange-lit); }
   td.d { color: var(--accent); }
   td.better { color: var(--accent); }

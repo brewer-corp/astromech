@@ -129,29 +129,29 @@
 </section>
 
 <style>
-  section { padding: 22px 0 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 40px; align-items: start; container-type: inline-size; grid-template-rows: auto 1fr; }
+  section { padding: 1.375rem 0 1.75rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(20.625rem, 1fr)); gap: 2.5rem; align-items: start; container-type: inline-size; grid-template-rows: auto 1fr; }
   .panel { min-width: 0; }
-  /* Exactly three columns (auto-fit 22rem tracks, 40 px apart: from 3 × 22rem + 2 × 40 px, and
-     four from 4 × 22rem + 3 × 40 px; rem is the root font, 15 px): the long merits list takes the
+  /* Exactly three columns (auto-fit 20.625rem tracks, 2.5rem apart: from 3 × 20.625 + 2 × 2.5 =
+     66.875rem, and four from 4 × 20.625 + 3 × 2.5 = 90rem): the long merits list takes the
      third column down both rows and Where to work fills the two beside it, so no band is left
      under the short panels. */
-  @container (min-width: calc(66rem + 80px)) and (max-width: calc(88rem + 119.98px)) {
+  @container (min-width: 66.875rem) and (max-width: 89.99rem) {
     .merits { grid-row: span 2; }
     .work { grid-column: span 2; }
   }
-  h3 { margin: 0 0 10px; }
-  .sys { display: flex; align-items: baseline; gap: 10px; }
-  .power { margin: 0 0 10px; color: var(--accent); font-size: var(--fs-l); }
-  dl { display: grid; grid-template-columns: 8rem 1fr; gap: 6px 14px; margin: 0; }
+  h3 { margin: 0 0 0.625rem; }
+  .sys { display: flex; align-items: baseline; gap: 0.625rem; }
+  .power { margin: 0 0 0.625rem; color: var(--accent); font-size: var(--fs-l); }
+  dl { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.375rem 0.875rem; margin: 0; }
   dt { color: var(--orange-mid); font-size: var(--fs-s); }
   dd { margin: 0; }
   .q { color: var(--orange-lit); }
   .work { font-size: var(--fs-s); }
-  .bar { display: inline-block; width: 8rem; height: 6px; background: var(--line); vertical-align: middle; margin-right: 8px; }
+  .bar { display: inline-block; width: 7.5rem; height: 0.375rem; background: var(--line); vertical-align: middle; margin-right: 0.5rem; }
   .bar span { display: block; height: 100%; background: var(--accent); }
   .lo { color: var(--orange-mid); }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
-  .small { font-size: var(--fs-s); margin-top: 12px; }
-  p { margin: 0 0 8px; line-height: 1.45; }
+  .small { font-size: var(--fs-s); margin-top: 0.75rem; }
+  p { margin: 0 0 0.5rem; line-height: 1.45; }
 </style>

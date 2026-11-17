@@ -412,7 +412,7 @@
   /* As wide as the query's controls or the list's columns, whichever is wider: spare width stays
      empty (DESIGN.md The Next To It Rule). */
   .kit { display: flex; flex-direction: column; gap: 0; min-width: 0; width: fit-content; max-width: 100%; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; border-bottom: 1px solid var(--line); }
+  .query { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.125rem 1.25rem 1.25rem; border-bottom: 1px solid var(--line); }
   .query :global(.origin) { margin: 0; }
   .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; }
   p { margin: 0; }
@@ -430,12 +430,12 @@
   .list { display: grid; grid-template-columns: var(--cols); column-gap: var(--sp-3); width: fit-content; max-width: 100%; }
   .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; height: var(--row-result); white-space: nowrap; color: var(--accent); font-size: var(--fs); }
   .row > * { min-width: 0; }
-  .heads { height: 28px; border-bottom: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); }
+  .heads { height: 1.75rem; border-bottom: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); }
   .result:hover { background: var(--row-hover); }
   .result:hover .acts :global(.ibtn) { color: var(--orange-lit); }
   .r { text-align: right; }
   .main .v { color: var(--orange-lit); font-size: var(--fs-l); font-weight: 600; }
-  .unit { margin-left: 3px; color: var(--orange-mid); font-size: var(--fs-s); }
+  .unit { margin-left: 0.1875rem; color: var(--orange-mid); font-size: var(--fs-s); }
   .place { display: flex; align-items: center; gap: var(--sp-2); overflow: hidden; }
   .place :global(.kind) { color: var(--orange-mid); flex: none; }
   .name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; }

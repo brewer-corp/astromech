@@ -298,10 +298,10 @@
 
 <style>
   /* DESIGN.md's header box is 320 px; it gives way first when the header is short of room. */
-  .find { position: relative; flex: 0 1 320px; min-width: 12rem; font-size: var(--fs); }
+  .find { position: relative; flex: 0 1 20rem; min-width: 11.25rem; font-size: var(--fs); }
   .hint { color: var(--accent); white-space: nowrap; }
   /* DESIGN.md's popover (the open dropdown list): Hull Raised, a Seam border, 34 px rows. */
-  .pop { position: absolute; z-index: 20; top: 100%; right: 0; margin: var(--gap) 0 0; width: max(100%, 28rem); background: var(--surface-hi); border: 1px solid var(--line); }
+  .pop { position: absolute; z-index: 20; top: 100%; right: 0; margin: var(--gap) 0 0; width: max(100%, 26.25rem); background: var(--surface-hi); border: 1px solid var(--line); }
   ul { margin: 0; padding: 0; list-style: none; }
   li { display: flex; align-items: center; min-height: var(--row); color: var(--accent); }
   li:hover { background: var(--row-hover); }
@@ -313,7 +313,7 @@
   li.on .acts :global(.btn:hover) { background: none; }
   .acts { display: flex; align-items: center; flex: none; padding-right: var(--sp-1); }
   .line { margin: 0; padding: 0 var(--sp-3); line-height: var(--row); font-size: var(--fs-s); color: var(--orange-mid); }
-  .panel { position: absolute; z-index: 20; top: 100%; right: 0; margin: var(--gap) 0 0; border: 1px solid var(--line); width: min(28rem, calc(var(--win-w) * 100 - 32px)); padding: 16px; background: var(--surface-hi); max-height: calc(var(--win-h) - 120px); overflow: auto; }
+  .panel { position: absolute; z-index: 20; top: 100%; right: 0; margin: var(--gap) 0 0; border: 1px solid var(--line); width: min(26.25rem, calc(100vw - 2rem)); padding: 1rem; background: var(--surface-hi); max-height: calc(100vh - 7.5rem); overflow: auto; }
   .panel > :global(.note) { margin: 0; }
-  .links { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .links { margin-top: 0.625rem; padding-top: 0.625rem; border-top: 1px solid var(--line); }
 </style>

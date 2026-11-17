@@ -208,10 +208,10 @@
 <style>
   /* Three columns shared by every row (subgrid): the spine with its nodes, the stop or jump, and its
      action right after it (The Next To It Rule). */
-  .tl { display: grid; grid-template-columns: 40px minmax(0, max-content) max-content; justify-content: start; column-gap: var(--sp-4); margin: 0; padding: 0; list-style: none; }
+  .tl { display: grid; grid-template-columns: 2.5rem minmax(0, max-content) max-content; justify-content: start; column-gap: var(--sp-4); margin: 0; padding: 0; list-style: none; }
   .tl > li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; position: relative; isolation: isolate; }
   /* A row's fill, from the stop column on, so the spine stays clear. */
-  .tl > li::after { content: ""; position: absolute; inset: 0 0 0 calc(40px + var(--sp-2)); z-index: -1; }
+  .tl > li::after { content: ""; position: absolute; inset: 0 0 0 calc(2.5rem + var(--sp-2)); z-index: -1; }
   .stop:not(.past):hover::after { background: var(--row-hover); }
 
   /* The spine: solid where flown, dim behind you, dashed ahead. */
@@ -221,13 +221,13 @@
   .last .sp::before { bottom: 50%; }
   .past .sp::before { border-left-color: var(--orange-dim); }
   .ahead .sp::before { border-left-style: dashed; }
-  .node { position: relative; z-index: 1; display: grid; place-items: center; padding: 3px; background: var(--bg); color: var(--accent); }
+  .node { position: relative; z-index: 1; display: grid; place-items: center; padding: 0.1875rem; background: var(--bg); color: var(--accent); }
   .node:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
 
   .main { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding-block: var(--sp-2); }
-  .nameline { display: flex; flex-wrap: wrap; align-items: center; gap: 2px var(--sp-2); }
+  .nameline { display: flex; flex-wrap: wrap; align-items: center; gap: 0.125rem var(--sp-2); }
   .todo { color: var(--orange-lit); font-weight: 600; }
-  .facts { display: flex; flex-wrap: wrap; gap: 0 var(--sp-4); margin-top: 2px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 0 var(--sp-4); margin-top: 0.125rem; }
   .state { color: var(--text-hi); }
   .you { color: var(--text-hi); font-weight: 600; }
   .acts { display: flex; align-items: center; padding-left: var(--sp-4); opacity: 0; }
@@ -244,7 +244,7 @@
   .stop.here .node.pin { color: var(--text-hi); }
 
   /* The leg being flown: one row a jump. */
-  .jump > .main { flex-direction: row; justify-content: flex-start; align-items: center; gap: var(--sp-3); min-height: 36px; padding-block: 0; }
+  .jump > .main { flex-direction: row; justify-content: flex-start; align-items: center; gap: var(--sp-3); min-height: 2.25rem; padding-block: 0; }
   .jump .node, .jump .jn { color: var(--orange-mid); }
   .jump.sc .node { color: var(--accent); }
   .jump .jn { font-weight: 400; color: var(--accent); }
@@ -256,9 +256,9 @@
   .inl { color: var(--accent); }
 
   /* The other legs: the stars passed, or the jump count. */
-  .leg > .main { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: var(--sp-2) var(--sp-4); min-height: 40px; padding-block: var(--sp-1); }
+  .leg > .main { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: var(--sp-2) var(--sp-4); min-height: 2.5rem; padding-block: var(--sp-1); }
   .stars { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
-  .pass { display: grid; place-items: center; padding: 2px; color: var(--orange-mid); }
+  .pass { display: grid; place-items: center; padding: 0.125rem; color: var(--orange-mid); }
   .pass.sc { color: var(--accent); }
   .pass:hover { color: var(--orange-lit); }
   .past .pass, .past .count { color: var(--orange-dim); }

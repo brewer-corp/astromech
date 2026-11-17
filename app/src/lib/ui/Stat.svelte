@@ -25,7 +25,7 @@
 </div>
 
 <style>
-  .stat { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 176px; padding: 10px var(--sp-3); background: var(--surface); }
+  .stat { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 11rem; padding: 0.625rem var(--sp-3); background: var(--surface); }
   .go { outline: 1px solid var(--accent); }
   .go .v { color: var(--accent); }
 </style>

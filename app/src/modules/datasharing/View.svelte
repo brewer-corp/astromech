@@ -91,15 +91,15 @@
 </section>
 
 <style>
-  section { padding: 28px 0; max-width: 60rem; }
-  h3 { margin: 28px 0 10px; }
+  section { padding: 1.75rem 0; max-width: 56.25rem; }
+  h3 { margin: 1.75rem 0 0.625rem; }
   h3:first-child { margin-top: 0; }
-  dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
-  dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
+  dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0; }
+  dt, dd { margin: 0; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
      cell (.value); a status with no such action is a fact, outside a cell. */
-  dd { color: var(--accent); gap: 24px; justify-content: space-between; }
+  dd { color: var(--accent); gap: 1.5rem; justify-content: space-between; }
   dd.value { background: var(--cell); }
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
@@ -107,9 +107,9 @@
   .err { overflow-wrap: anywhere; }
   .hint.err { color: var(--alarm); }
   .hint.err::before { content: "! "; font-weight: 600; }
-  .hint { color: var(--prose); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .hint { color: var(--prose); margin: 0.5rem 0 0 calc(13.125rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .lo { color: var(--prose); }
-  .text { color: var(--prose); line-height: 1.6; max-width: 46rem; }
-  .text p { margin: 0 0 10px; }
-  .text ul { margin: 0 0 10px; padding-left: 20px; }
+  .text { color: var(--prose); line-height: 1.6; max-width: 43.125rem; }
+  .text p { margin: 0 0 0.625rem; }
+  .text ul { margin: 0 0 0.625rem; padding-left: 1.25rem; }
 </style>
