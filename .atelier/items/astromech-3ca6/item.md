@@ -125,7 +125,10 @@ for the panel beside it.
 Checks run: `cargo fmt --check`, `cargo clippy --workspace --all-targets -D warnings`,
 `cargo test` for core, gamestate, market and app (the preview fixtures included), `pnpm lint`,
 `pnpm check`, `pnpm test` (653 tests), `scripts/check-guide.py`, and the 7 journeys. I did not
-run `pnpm build`, `check-dist.py` or `cargo deny`.
+run `pnpm build`, `check-dist.py` or `cargo deny`. After merging main, which brought the token
+lint (astromech-4wi1), the row's off-scale gaps and paddings moved to `--sp-1` and `--sp-6`,
+its units took the Unit role, and `pnpm lint`, `pnpm check` and `pnpm test` (715 tests) pass
+again. The after captures were retaken.
 
 Notes for review:
 
