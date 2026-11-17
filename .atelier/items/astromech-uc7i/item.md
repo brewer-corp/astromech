@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-uc7i
 title: 'Route sidebar: the route is part of the frame on every page'
-status: approved
+status: in_review
 mission: astromech-xajc
 labels:
 - size-l
