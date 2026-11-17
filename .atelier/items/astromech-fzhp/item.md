@@ -99,6 +99,12 @@ There is no mockup. Replies: `session_summary` (`Session.ts`: `earnings: Earning
 - **Browser tests:** `session/View.browser.test.ts` keeps its totals case on the new markup and adds one case that finds each recorded payment on the band, at its time and in totals order. `logbook/View.browser.test.ts` keeps both cases. Now's `#/session` test waits on "Latest session" in place of "Earned".
 - **Gates, all passing:** `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo test` for `-p astromech-history`, `-p astromech-core --lib bindings`, `-p astromech-api` and `-p astromech-app --test preview_fixtures`. Then `pnpm lint`, `pnpm check`, `pnpm test` (96 files, 850 tests) and the journeys (7 of 7), run again after the last commit. `report.json` is from the final pages.
 
+### After approval
+
+- **Merged main (6e502110):** `app/eslint.config.js` conflicted. Main had enrolled Station (astromech-7vxi), Engineers (astromech-m6gw) and System (astromech-dpaz) in `PAGE_SIZING` and dropped their `TOKENS_EXEMPT` entries, and this branch had done the same for Session and Logbook. The resolution keeps every enrolment and drops all four finished exemptions.
+- **Test fix that main needed (78186117):** `eslint-rules/pageSizing.test.js` named `station/View.svelte` as its example of a page not yet enrolled, so it failed on main once astromech-7vxi enrolled that page. Its example is now `stored/View.svelte`, which is still waiting on astromech-gvy0.
+- **Gates on the merged head:** fmt, clippy, the history, bindings and fixture drift tests, lint, check, `pnpm test` (97 files, 890 tests) and the 7 journeys all pass.
+
 ### Responses
 
 - 1-ohh1.1: fixed in 7dbbb57c
