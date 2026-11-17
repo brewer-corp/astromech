@@ -1,0 +1,1101 @@
+{
+ "commit": "5357f0ee",
+ "captures": {
+  "ships-module-2560x1440": {
+   "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/engineering/7",
+   "file": "docs/design/final/ng71/before/ships-module-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Add to plan",
+     "ratio": 3.01,
+     "fg": "#8a5834",
+     "bg": "#1c1610",
+     "px": 13,
+     "at": "aside. > div.panel > div.acts > button.btn.primary",
+     "token": "orange-dim",
+     "disabled": true
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "ASTROMECH",
+      "Long Way Round",
+      "Core",
+      "Frame Shift Drive",
+      "5A Frame Shift Drive"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 24,
+     "texts": [
+      "Ships",
+      "Shinrarta Dezhra",
+      "32.9",
+      "420",
+      "–",
+      "Pulse Laser",
+      "Shield Booster",
+      "Lightweight Alloy",
+      "Power Plant",
+      "Thrusters",
+      "5A",
+      "Increased range",
+      "Shield Generator",
+      "Material"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 20,
+     "texts": [
+      "Hardpoints",
+      "2F",
+      "Utility",
+      "0A",
+      "7A",
+      "Overcharged",
+      "6A",
+      "Dirty",
+      "· Drag Drives",
+      "Optional",
+      "Increased range, grade 3 at 25%",
+      "12",
+      "30",
+      "6"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Loadout",
+      "G5"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.row.sel > span.hx > span.hexes > span.hex.plan"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.row.sel > span.hx > span.hexes > span.hex.plan"
+    }
+   ]
+  },
+  "ships-module-1100x700": {
+   "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/engineering/7",
+   "file": "docs/design/final/ng71/before/ships-module-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Add to plan",
+     "ratio": 3.01,
+     "fg": "#8a5834",
+     "bg": "#1c1610",
+     "px": 13,
+     "at": "aside.stacked > div.panel > div.acts > button.btn.primary",
+     "token": "orange-dim",
+     "disabled": true
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "5A Frame Shift Drive"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Ships",
+      "Material",
+      "Arsenic",
+      "Chemical Distillery",
+      "Chemical Manipulators",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Increased range, grade 3 at 25%",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "G5"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 14,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Engineers",
+      "5",
+      "!",
+      "3",
+      "4",
+      "2",
+      "1",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 29,
+     "texts": [
+      "Now",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Stored modules",
+      "Suits"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#8a5834",
+     "lum": 0.126,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Add to plan"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "ships-2560x1440": {
+   "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/engineering/7",
+   "file": "docs/design/final/ng71/before/ships-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Long Way Round"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 16,
+     "texts": [
+      "Ships",
+      "Shinrarta Dezhra",
+      "420",
+      "–",
+      "Pulse Laser",
+      "Shield Booster",
+      "Lightweight Alloy",
+      "Power Plant",
+      "Thrusters",
+      "Frame Shift Drive",
+      "Shield Generator",
+      "Heavy Lifter",
+      "Unnamed",
+      "Synthetic_Krait"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "Hardpoints",
+      "2F",
+      "Utility",
+      "0A",
+      "Core",
+      "7A",
+      "Overcharged",
+      "6A",
+      "Dirty",
+      "· Drag Drives",
+      "5A",
+      "Increased range",
+      "Optional",
+      "18.0"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Loadout",
+      "32.9"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
+    }
+   ]
+  },
+  "ships-1100x700": {
+   "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/engineering/7",
+   "file": "docs/design/final/ng71/before/ships-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Long Way Round"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Ships",
+      "Shinrarta Dezhra",
+      "420",
+      "–",
+      "Pulse Laser",
+      "Shield Booster",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 12,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Hardpoints",
+      "2F",
+      "Utility",
+      "0A",
+      "Core",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Loadout",
+      "32.9"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 10,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Plan",
+      "Coriolis",
+      "EDSY",
+      "Spansh",
+      "Inara",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 40,
+     "texts": [
+      "Now",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Stored modules",
+      "Suits"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Ships"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "ships-plan-2560x1440": {
+   "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/engineering/7/plan",
+   "file": "docs/design/final/ng71/before/ships-plan-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Long Way Round"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 14,
+     "texts": [
+      "Ships",
+      "Shinrarta Dezhra",
+      "420",
+      "–",
+      "G5 Datamined Wake Exceptions",
+      "G5 Pharmaceutical Isolators",
+      "G4 Chemical Manipulators",
+      "G4 Configurable Components",
+      "G4 Eccentric Hyperspace Trajectories",
+      "G4 Selenium",
+      "G3 Cadmium",
+      "G3 Chemical Distillery",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 24,
+     "texts": [
+      "Now and with the plan",
+      "Rolls per grade",
+      "Shopping list",
+      "5",
+      "0",
+      "1",
+      "4",
+      "6",
+      "2",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Plan",
+      "32.9"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "ships-plan-1100x700": {
+   "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/engineering/7/plan",
+   "file": "docs/design/final/ng71/before/ships-plan-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Long Way Round"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Ships",
+      "Shinrarta Dezhra",
+      "420",
+      "–",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 10,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Now and with the plan",
+      "Rolls per grade",
+      "Shopping list",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Plan",
+      "32.9"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Loadout",
+      "Coriolis",
+      "EDSY",
+      "Spansh",
+      "Inara",
+      "Waiting for Elite",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 45,
+     "texts": [
+      "Now",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Stored modules",
+      "Suits"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Ships"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  }
+ }
+}
