@@ -29,6 +29,9 @@ export class RouteFollow {
   overlay = $state(false);
   /** The window is at or above the dock width (the frame measures it). */
   docked = $state(false);
+  /** Asked for (#/route, the palette's Route) at the dock width with no route: the sidebar shows,
+   * empty but for its plotter, instead of the no-route rail, until it is folded or a route comes. */
+  asked = $state(false);
 
   get collapsed(): boolean {
     return this.#collapsed;
@@ -75,8 +78,16 @@ export class RouteFollow {
   /** Show the route where the commander is: the docked sidebar unfolded, or below the dock
    * width the sidebar over the page. The page stays. */
   show(): void {
-    if (this.docked) this.collapsed = false;
-    else this.overlay = true;
+    if (this.docked) {
+      this.collapsed = false;
+      this.asked = true;
+    } else this.overlay = true;
+  }
+
+  /** Fold the docked sidebar: to the strip, kept across runs, or with no route back to the rail. */
+  fold(): void {
+    if (this.view?.route || this.view?.parked) this.collapsed = true;
+    this.asked = false;
   }
 }
 

@@ -315,6 +315,52 @@ describe("route sidebar in the frame", () => {
     expect(await s.findByText("Shinrarta Dezhra")).toBeTruthy();
   });
 
+  it("shows the empty sidebar when it is asked for with no route at the dock width, and folds back to the rail", async () => {
+    await page.viewport(WIDE, 1080);
+    startPreview("/?core=ready");
+    location.hash = "#/route";
+    render(App);
+    const side = within(await screen.findByRole("complementary", { name: "Route" }));
+    expect(await side.findByText(/^No route\./)).toBeTruthy();
+    expect(side.getByRole("combobox", { name: "Destination" }), "its plotter").toBeTruthy();
+    expect(rail()).toBeNull();
+    expect(location.hash).toBe("#/controller");
+
+    await fireEvent.click(side.getByRole("button", { name: "Collapse the route to a strip" }));
+    expect(await screen.findByRole("navigation", { name: "No route" })).toBeTruthy();
+    expect(sidebar()).toBeNull();
+    expect(localStorage.getItem("astromech.routeCollapsed"), "folding an empty sidebar keeps no choice").not.toBe("1");
+
+    // The palette's Route asks for it again (on a page that has finished loading, which would
+    // otherwise take the focus).
+    location.hash = "#/materials";
+    await screen.findByText(/^Raw sites near you/);
+    await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    const box = screen.getByRole("combobox", { name: "Find or plot" });
+    await fireEvent.input(box, { target: { value: "route" } });
+    await screen.findByText("The route sidebar");
+    await fireEvent.keyDown(box, { key: "Enter" });
+    expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
+    expect(rail()).toBeNull();
+  });
+
+  it("opens the sidebar's ⋯ menu inside the window, docked and over the page, for a neutron route", async () => {
+    // A neutron route's two plot cells push ? and ⋯ to a second line at the sidebar's left edge.
+    for (const [w, h] of [[WIDE, 1080], [1200, 800]] as const) {
+      await page.viewport(w, h);
+      preview("/?core=ready&route=timeline");
+      render(App);
+      if (w < WIDE) await fireEvent.click(await within(await screen.findByRole("region", { name: "Route" })).findByRole("button", { name: "Show the route" }));
+      const side = within(await screen.findByRole("complementary", { name: "Route" }));
+      await side.findByText(/^Next stop/);
+      await fireEvent.click(side.getByRole("button", { name: "More route actions" }));
+      const menu = screen.getByRole("menu", { name: "More route actions" }).getBoundingClientRect();
+      expect(menu.left, `${w} px`).toBeGreaterThanOrEqual(0);
+      expect(menu.right, `${w} px`).toBeLessThanOrEqual(innerWidth);
+      cleanup();
+    }
+  });
+
   it("docks when a route appears and gives way to the rail when it is cleared", async () => {
     await page.viewport(WIDE, 1080);
     preview("/?core=ready");

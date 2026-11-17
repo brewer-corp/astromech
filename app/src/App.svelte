@@ -52,8 +52,8 @@
 
   // DESIGN.md Route sidebar: one poll of the route for the strip and the sidebar. Docked at or
   // above the dock width while a route is followed (or one is paused to resume), unless folded;
-  // the no-route rail there with neither; below the dock width, the strip, whose chevron opens
-  // the sidebar over the page.
+  // the no-route rail there with neither, unless the sidebar was asked for (#/route, Route).
+  // Below the dock width, the strip, whose chevron opens the sidebar over the page.
   const follow = provideFollow();
   $effect(() => follow.start());
   let width = $state(0);
@@ -61,8 +61,12 @@
     follow.docked = width > 0 && at100(width, scale.step) >= DOCK;
   });
   const any = $derived(!!follow.view?.route || !!follow.view?.parked);
-  const docked = $derived(follow.docked && any && !follow.collapsed);
-  const rail = $derived(follow.docked && !!follow.view && !any);
+  const docked = $derived(follow.docked && !follow.collapsed && (any || follow.asked));
+  const rail = $derived(follow.docked && !!follow.view && !any && !follow.asked);
+  // A route that comes ends the request: once it ends, the rail is back.
+  $effect(() => {
+    if (any) follow.asked = false;
+  });
   const over = $derived(!follow.docked && follow.overlay);
   $effect(() => {
     if (width > 0 && showOnStart) {
@@ -211,7 +215,7 @@
   </header>
   <div class="body">
     {#if docked}
-      <div class="dock"><Sidebar onfold={() => (follow.collapsed = true)} /></div>
+      <div class="dock"><Sidebar onfold={() => follow.fold()} /></div>
     {:else if rail}
       <Rail />
     {/if}
