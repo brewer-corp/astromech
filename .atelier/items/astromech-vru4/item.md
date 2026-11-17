@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-vru4
 title: 'Glance test: Station''s main value is outshouted by For sale here''s larger ranked profit'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - bug
 - size-s
 priority: high
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A4b5e4767-a3f7-4c82-90a8-fedc5b92af7d%3Adelegate-task%3A852bf5eb-9612-4735-9473-64e161e9aff7
 ready:
   by: the lead of astromech-xajc
   at: 2026-11-17T15:10:56.301215159Z
