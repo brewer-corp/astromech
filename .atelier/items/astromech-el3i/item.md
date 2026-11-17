@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-el3i
 title: Trade route as legs
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-m
