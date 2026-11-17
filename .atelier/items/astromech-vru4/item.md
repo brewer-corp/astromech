@@ -3,14 +3,17 @@ schema: atelier.item
 schema_version: 3
 id: astromech-vru4
 title: 'Glance test: Station''s main value is outshouted by For sale here''s larger ranked profit'
-status: draft
+status: ready
 mission: astromech-xajc
 labels:
 - bug
-priority: medium
+- size-s
+priority: high
 blocked_by: []
 implementers: []
-ready: null
+ready:
+  by: the lead of astromech-xajc
+  at: 2026-11-17T15:10:56.301215159Z
 trivial: null
 caused_by: astromech-7vxi
 created_at: 2026-11-17T15:07:41.712215369Z
@@ -22,7 +25,7 @@ On Station, both glance-test readers (astromech-crxa, 17 Nov 2026) took For sale
 
 ## Done when
 
-- [ ] The lead of astromech-xajc, or Sumeet, decides between changing the design and taking this page state out of the glance-test criterion, and the decision is recorded (DESIGN.md or the page's guide for a design change, the mission's `notes.md` for a scope change).
+- [ ] Decided by the lead of astromech-xajc on 19 Nov 2026: change the design. On Station the hold's gain per tonne on the first cargo line is the page's one main value, in Value XL, Orange Lit. The ranked values in For sale here and the lists below keep Orange as ranked values but at row size (the grouped row's value size), so no figure further down is as large as the main value. The Station guide page says what leads. The change is built so, with before-and-after captures at 2560 x 1440 and 1100 x 700, and `pnpm check`, `pnpm lint` and `pnpm test` pass.
 - [ ] With a design change: the page is recaptured at 2560 x 1440 at 145 percent the way `docs/design/final/glance-plan.json` takes its captures, and a fresh agent given only that capture and the prompt in `docs/design/final/glance-test.md` answers "main value" as the sheet's row 4 expects; the answers and mark are added to `glance-test.md`.
 
 ## Scope

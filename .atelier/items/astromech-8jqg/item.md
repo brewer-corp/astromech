@@ -3,14 +3,17 @@ schema: atelier.item
 schema_version: 3
 id: astromech-8jqg
 title: 'Glance test: Now in space has two main values, the orange mining rate and the larger cargo total'
-status: draft
+status: ready
 mission: astromech-xajc
 labels:
 - bug
-priority: medium
+- size-s
+priority: high
 blocked_by: []
 implementers: []
-ready: null
+ready:
+  by: the lead of astromech-xajc
+  at: 2026-11-17T15:10:56.301215159Z
 trivial: null
 caused_by: astromech-coq6
 created_at: 2026-11-17T15:07:35.436684308Z
@@ -22,7 +25,7 @@ On Now in space with cargo aboard, a commander can't tell the page's main value 
 
 ## Done when
 
-- [ ] The lead of astromech-xajc, or Sumeet, decides between changing the design and taking this page state out of the glance-test criterion, and the decision is recorded (DESIGN.md or the page's guide for a design change, the mission's `notes.md` for a scope change).
+- [ ] Decided by the lead of astromech-xajc on 19 Nov 2026: change the design. On the Now page only the block that holds the page's main value draws its value in Value XL, Orange Lit; every other block's value steps down to Value L in Options Grey, in every state (docked, in space, not running), so size and colour agree on which one leads. DESIGN.md's Board says a Board with one page-level main value steps the others down. The change is built so, with before-and-after captures at 2560 x 1440 and 1100 x 700, and `pnpm check`, `pnpm lint` and `pnpm test` pass.
 - [ ] With a design change: the page is recaptured at 2560 x 1440 at 145 percent the way `docs/design/final/glance-plan.json` takes its captures, and a fresh agent given only that capture and the prompt in `docs/design/final/glance-test.md` answers "main value" as the sheet's row 2 expects; the answers and mark are added to `glance-test.md`.
 
 ## Scope
