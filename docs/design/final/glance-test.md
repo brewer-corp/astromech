@@ -226,3 +226,29 @@ decide: change the design, or take the page out of the criterion's scope.
 | 10 | Materials | main value | Both readers found no single lead figure among the grid's counts. | DESIGN.md's Board gives every tile its own main value, and the grid has 28. The page has no one main value, which the criterion asks for. |
 | 12 | Engineers, "laser" | needs you | Both readers named the "None unlocked yet: nearest to unlock" line. | astromech-7did makes the nearest engineer to unlock and its next step the main answer, and names nothing separate as needing the commander. The readers took the "none unlocked" state as that. |
 | 26 | System, a body selected | needs you | Both readers named the "Worth mapping" tags or the 38.7 M cr unsold data. | astromech-dpaz names only the unsold-data "!" line, shown when dying would lose data, as what needs the commander. Without it, the readers took the worth-mapping badges and the unsold total as the call to act. |
+
+## Round 3, astromech-ng71: Ships with the head's stats in Value L
+
+The lead of astromech-xajc decided row 7 as a design change: on Ships the head's four stats
+(jump range, shields, top speed, power used) are a row of equal facts in Value L, Options Grey,
+with or without a module selected. With a module selected the panel's planned grade is the
+page's one Value XL, Orange Lit. With none selected the page has no Value XL and its main value
+is the ship's name in Title. DESIGN.md's Hierarchy now says a row of equal stats is Value L.
+
+The sheet had no row for Ships with nothing selected. It is added here as row 7a, written down
+before any reader saw the new capture. Its main value is the lead's; the other two come from
+astromech-8wr4's item for that state (selecting a module fills the panel; nothing is marked
+"!" until a module with a plan is selected). Row 7 is unchanged.
+
+| # | Page and state | Capture | Main value | Can change | Needs the commander |
+|---|---|---|---|---|---|
+| 7a | Ships, nothing selected | `ng71/after/ships-2560x1440.png` | The ship's name, Long Way Round (ng71) | Picking a module row (the panel follows it) (8wr4) | none |
+
+The captures are taken by `node scripts/browser/audit.mjs --plan docs/design/final/ng71-after.json`
+(2560 x 1440 at 145 percent, the way `glance-plan.json` takes its own), beside the unchanged
+`ng71/before/` set. `ng71/before/ships-module-2560x1440.png` is byte for byte the
+`ships-module-2560x1440.png` that rounds 1 and 2 used.
+
+Each reader is a fresh general-purpose agent given one capture, copied as `01.png` into an
+otherwise empty folder, and the round 2 prompt with "33 screenshots, `01.png` to `33.png`"
+read as "1 screenshot, `01.png`" and the route panel question left out, as in round 2.
