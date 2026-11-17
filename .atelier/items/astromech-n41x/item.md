@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-n41x
 title: 'DESIGN.md revision 5: orange means act, the route in the frame, grouped rows'
-status: building
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
