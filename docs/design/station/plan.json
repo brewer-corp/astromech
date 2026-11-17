@@ -1,0 +1,143 @@
+{
+ "out": "docs/design/station",
+ "query": "core=ready&route=exact&game=running",
+ "sizes": [
+  {
+   "w": 1100,
+   "h": 700,
+   "step": 100
+  },
+  {
+   "w": 1920,
+   "h": 1080,
+   "step": 100
+  },
+  {
+   "w": 2560,
+   "h": 1440,
+   "step": 145
+  }
+ ],
+ "shots": [
+  {
+   "name": "docked",
+   "hash": "station",
+   "steps": [
+    {
+     "waitText": "Arc City"
+    }
+   ]
+  },
+  {
+   "name": "docked-market",
+   "hash": "station",
+   "steps": [
+    {
+     "waitText": "Arc City"
+    },
+    {
+     "scrollTop": "#market-head"
+    }
+   ]
+  },
+  {
+   "name": "docked-for-sale",
+   "hash": "station",
+   "steps": [
+    {
+     "waitText": "Arc City"
+    },
+    {
+     "scrollTop": "[aria-label='For sale here']"
+    }
+   ]
+  },
+  {
+   "name": "docked-outfitting",
+   "hash": "station",
+   "steps": [
+    {
+     "waitText": "Arc City"
+    },
+    {
+     "scrollTop": "#outfitting-head"
+    }
+   ]
+  },
+  {
+   "name": "search",
+   "hash": "station",
+   "steps": [
+    {
+     "waitText": "Arc City"
+    },
+    {
+     "type": "input[type=search]",
+     "text": "5a fsd"
+    },
+    {
+     "waitSel": "[aria-label='Stations that sold it']"
+    },
+    {
+     "scrollTop": "#seen-head"
+    }
+   ]
+  },
+  {
+   "name": "market-asking",
+   "hash": "station",
+   "query": "core=ready&route=exact&game=running&slow=never:market_compare",
+   "steps": [
+    {
+     "waitText": "Asking Ardent Insight"
+    },
+    {
+     "scrollTop": "#market-head"
+    }
+   ]
+  },
+  {
+   "name": "market-failed",
+   "hash": "station",
+   "query": "core=ready&route=exact&game=running&fail=market_compare",
+   "steps": [
+    {
+     "waitText": "Could not compare the market"
+    },
+    {
+     "scrollTop": "#market-head"
+    }
+   ]
+  },
+  {
+   "name": "loading",
+   "hash": "station",
+   "query": "core=ready&route=exact&game=running&slow=never:docked_here",
+   "steps": [
+    {
+     "waitText": "Reading the journal"
+    }
+   ]
+  },
+  {
+   "name": "failed",
+   "hash": "station",
+   "query": "core=ready&route=exact&game=running&fail=docked_here",
+   "steps": [
+    {
+     "waitText": "Could not read the docked station"
+    }
+   ]
+  },
+  {
+   "name": "not-docked",
+   "hash": "station",
+   "query": "core=ready&route=exact&game=running&docked=no",
+   "steps": [
+    {
+     "waitText": "Not docked"
+    }
+   ]
+  }
+ ]
+}

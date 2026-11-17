@@ -1,0 +1,37 @@
+{
+ "out": "docs/design/station/before",
+ "query": "core=ready&route=exact&game=running",
+ "sizes": [
+  {
+   "w": 1100,
+   "h": 700,
+   "step": 100
+  },
+  {
+   "w": 2560,
+   "h": 1440,
+   "step": 145
+  }
+ ],
+ "shots": [
+  {
+   "name": "docked",
+   "hash": "station",
+   "steps": [
+    {
+     "waitText": "Arc City"
+    }
+   ]
+  },
+  {
+   "name": "not-docked",
+   "hash": "station",
+   "query": "core=ready&route=exact&game=running&docked=no",
+   "steps": [
+    {
+     "waitText": "Not docked"
+    }
+   ]
+  }
+ ]
+}

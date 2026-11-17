@@ -33,6 +33,8 @@ export const PAGE_SIZING = [
   // astromech-coq6: the Now page, and the station head and services board it draws.
   ["src/modules/now/**", "width", "font-size"],
   ["src/modules/station/{Head,Board}.svelte", "width", "font-size"],
+  // astromech-7vxi: Station on the Board.
+  ["src/modules/station/{View,Market}.svelte", "width", "font-size"],
 ];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts
@@ -79,7 +81,6 @@ export const TOKENS_EXEMPT = [
   { files: ["src/modules/exobiology/**"], off: ["spacing"], until: "astromech-evj3", why: "Rebuilds Biology." },
   { files: ["src/modules/exploration/**"], off: ["spacing"], until: "astromech-dpaz", why: "Rebuilds System." },
   { files: ["src/modules/{session,logbook}/**"], off: ["spacing"], until: "astromech-fzhp", why: "Rebuilds Session and Logbook." },
-  { files: ["src/modules/station/{View,Market}.svelte"], off: ["spacing"], until: "astromech-7vxi", why: "Rebuilds Station." },
   { files: ["src/modules/trade/**"], off: ["spacing"], until: "astromech-el3i", why: "Rebuilds Trade route." },
   {
     files: ["src/modules/{stored,mining,datasharing,diagnostics,voicetester}/**", "src/modules/places/Home.svelte"],
