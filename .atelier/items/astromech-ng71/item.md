@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-ng71
 title: 'Glance test: Ships with a module selected reads the head''s jump range as the main value, not the planned grade'
-status: building
+status: in_review
 mission: astromech-xajc
 labels:
 - bug
