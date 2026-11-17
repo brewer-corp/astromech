@@ -154,7 +154,8 @@
   dd > span { min-width: 0; }
   .err { overflow-wrap: anywhere; }
   .hint.err, .failed { color: var(--alarm); }
-  .failed::before { content: "! "; font-weight: 600; }
+  /* The failed read; the keyring row (dd.warn.failed) takes its "!" from dd.warn above. */
+  p.failed::before { content: "! "; font-weight: 600; }
   .hint.err::before { content: "! "; font-weight: 600; }
   /* A row whose value is a box of its own has no cell around it. */
   dd.bare { padding: 0; background: none; }
