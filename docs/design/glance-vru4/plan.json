@@ -1,5 +1,5 @@
 {
- "out": "docs/design/station-main/after",
+ "out": "docs/design/glance-vru4/after",
  "query": "core=ready&route=exact&game=running",
  "clock": "2026-10-20T11:23:00Z",
  "sizes": [

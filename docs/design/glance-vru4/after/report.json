@@ -1,9 +1,9 @@
 {
- "commit": "b2a985e3",
+ "commit": "651ceaab",
  "captures": {
   "station-1100x700": {
    "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/station",
-   "file": "docs/design/station-main/after/station-1100x700.png",
+   "file": "docs/design/glance-vru4/after/station-1100x700.png",
    "step": 100,
    "frame": {
     "header": 108,
@@ -21,6 +21,15 @@
    "small": [],
    "contrast": [],
    "exempt": [
+    {
+     "text": "–",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "div.list > div.row.result > span.g.r > span.type-figures.none",
+     "token": "grey-dim"
+    },
     {
      "text": "Find or plot",
      "ratio": 3.63,
@@ -47,11 +56,14 @@
      "colour": "#e0e0e0",
      "lum": 0.745,
      "sidebar": false,
-     "weight": 4,
+     "weight": 8,
      "texts": [
       "Station",
       "Gold",
       "Arc City",
+      "Palladium",
+      "Tritium",
+      "FCX-701",
       "Heavy Lifter"
      ]
     },
@@ -59,22 +71,19 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 15,
+     "weight": 13,
      "texts": [
       "4 of 10",
       "7",
-      "Test Holdings",
-      "Boom",
-      "Corporate · Federation",
-      "High Tech 70% · Refinery 30%",
-      "3 large · 6 medium · 4 small",
       "Market",
       "52,600",
       "~1",
+      "50,500",
       "18.0",
       "24.6",
       "32",
-      "120"
+      "120",
+      "256"
      ]
     },
     {
@@ -91,21 +100,20 @@
      "colour": "#ff7100",
      "lum": 0.331,
      "sidebar": false,
-     "weight": 8,
+     "weight": 5,
      "texts": [
       "Ctrl+K",
       "Help",
       "Maia",
-      "Spansh",
-      "Inara",
-      "Check again"
+      "Check again",
+      "+52,506"
      ]
     },
     {
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 53,
+     "weight": 63,
      "texts": [
       "Ships",
       "Engineering",
@@ -133,12 +141,12 @@
      ]
     },
     {
-     "colour": "#0c0d0f",
-     "lum": 0.004,
+     "colour": "#6a6a6a",
+     "lum": 0.144,
      "sidebar": false,
      "weight": 1,
      "texts": [
-      "Now"
+      "–"
      ]
     }
    ],
@@ -153,7 +161,7 @@
   },
   "station-2560x1440": {
    "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/station",
-   "file": "docs/design/station-main/after/station-2560x1440.png",
+   "file": "docs/design/glance-vru4/after/station-2560x1440.png",
    "step": 145,
    "frame": {
     "header": 64,
@@ -296,18 +304,18 @@
      "sidebar": false,
      "weight": 21,
      "texts": [
-      "Test Holdings",
-      "Boom",
-      "Corporate · Federation",
-      "High Tech 70% · Refinery 30%",
-      "3 large · 6 medium · 4 small",
       "Market",
       "52,600",
       "~1",
       "50,500",
       "46,100",
       "107",
-      "Outfitting for Synthetic",
+      "The station",
+      "Test Holdings",
+      "Boom",
+      "Corporate · Federation",
+      "High Tech 70% · Refinery 30%",
+      "3 large · 6 medium · 4 small",
       "18.0",
       "24.6"
      ]
@@ -345,7 +353,7 @@
   },
   "station-market-1100x700": {
    "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/station",
-   "file": "docs/design/station-main/after/station-market-1100x700.png",
+   "file": "docs/design/glance-vru4/after/station-market-1100x700.png",
    "step": 100,
    "frame": {
     "header": 108,
@@ -509,7 +517,7 @@
   },
   "station-market-2560x1440": {
    "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/station",
-   "file": "docs/design/station-main/after/station-market-2560x1440.png",
+   "file": "docs/design/glance-vru4/after/station-market-2560x1440.png",
    "step": 145,
    "frame": {
     "header": 64,
@@ -580,15 +588,6 @@
      "px": 15,
      "at": "div.find > span.field > span.cell > input.",
      "token": "placeholder"
-    },
-    {
-     "text": "5a frame shift, fsd, pulse laser, hyperdrive_size5",
-     "ratio": 3.63,
-     "fg": "#ce5d04",
-     "bg": "#3d220f",
-     "px": 15,
-     "at": "label.search.type-label > span.field.q > span.cell > input.",
-     "token": "placeholder"
     }
    ],
    "far": [],
@@ -631,7 +630,7 @@
      "colour": "#e0e0e0",
      "lum": 0.745,
      "sidebar": false,
-     "weight": 13,
+     "weight": 12,
      "texts": [
       "Station",
       "Gold",
@@ -642,7 +641,6 @@
       "Silver",
       "Hydrogen Fuel",
       "Dovbush Industrial Silo",
-      "5A Frame Shift Drive",
       "Heavy Lifter"
      ]
     },
@@ -659,7 +657,7 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 19,
+     "weight": 22,
      "texts": [
       "Market",
       "52,600",
@@ -667,14 +665,14 @@
       "50,500",
       "46,100",
       "107",
+      "The station",
+      "Test Holdings",
+      "Boom",
+      "Corporate · Federation",
+      "High Tech 70% · Refinery 30%",
+      "3 large · 6 medium · 4 small",
       "Outfitting for Synthetic",
-      "5C Frame Shift Drive",
-      "9,000,000",
-      "Where did I see…",
-      "18.0",
-      "24.6",
-      "32",
-      "120"
+      "18.0"
      ]
     },
     {
