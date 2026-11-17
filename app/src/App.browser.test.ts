@@ -317,7 +317,7 @@ describe("route sidebar in the frame", () => {
 
   it("opens a cold #/route over the page when the saved Text size, read after the window draws, puts it below the dock width", async () => {
     // 1920 px docks at 100 percent, the size the window draws at before the core answers, and is
-    // below the dock width at a saved 115 percent (1,670 px at 100).
+    // below the dock width at a saved 130 percent (1,477 px at 100).
     // The first read fails (the core not ready), and the window tries again on the next status
     // poll, whose reply the test holds.
     let reply: (r: { ok: true; text_size: number }) => void = () => {};
@@ -333,10 +333,10 @@ describe("route sidebar in the frame", () => {
     await waitFor(() => expect(document.querySelector('[aria-label="Route"]')).toBeTruthy());
     await vi.advanceTimersByTimeAsync(2000);
     await waitFor(() => expect(reads).toBe(2));
-    reply({ ok: true, text_size: 115 });
+    reply({ ok: true, text_size: 130 });
     await waitFor(() => expect(scrim(), "the sidebar over the page").toBeTruthy());
     expect(sidebar()).toBeTruthy();
-    expect(document.documentElement.style.fontSize).toBe("115%");
+    expect(document.documentElement.style.fontSize).toBe("130%");
     expect(location.hash).toBe("#/controller");
   });
 
@@ -447,29 +447,63 @@ describe("route sidebar in the frame", () => {
     expect(location.hash).toBe("#/materials");
   });
 
-  it("docks from the dock width, where the Sell finder keeps its panel beside its rows, at every Text size", async () => {
-    // The dock width (lib/ui/layout/layout.ts) is the narrowest window at which Sell, with a result
-    // selected, keeps its side panel beside the rows next to the sidebar. Both ways: at the dock
-    // width the panel is beside the rows; with the page column a few px narrower it goes below them.
+  /** Every Places finder whose results a side panel describes, at an address with results in the preview. */
+  const FINDERS = [
+    "sell/painite", "buy/painite", "sell-cargo", "faction-states/proto", "material-traders/raw",
+    "mining-hotspots/painite", "outfitting/Frame%20Shift%20Drive", "raw-sites/brain_trees",
+    "services/interstellar_factors", "shipyard/Anaconda",
+  ];
+  /** The widest of them with a result selected, which sets the dock width. */
+  const WIDEST = "mining-hotspots/painite";
+  /** `finder` at Text size `step` in a window `width` px wide, its first result selected: its side panel. */
+  const selected = async (finder: string, step: number, width: number) => {
+    startPreview("/?core=ready&route=exact");
+    await setTextSize(step);
+    await page.viewport(width, 1000);
+    location.hash = `#/places/${finder}`;
+    render(App);
+    const table = await screen.findByRole("table", { name: "Results" });
+    await fireEvent.click(within(table).getAllByRole("button", { pressed: false })[0]!);
+    return { table, panel: await screen.findByRole("complementary", { name: "Details" }) };
+  };
+
+  it("docks from the dock width, where every finder keeps its full rows and its panel beside them, at every Text size", async () => {
+    // The dock width (lib/ui/layout/layout.ts) is the narrowest window at which the widest finder
+    // row, with a result selected, keeps its side panel beside the rows next to the sidebar. A
+    // finder that grows wider than it fails here.
     for (const step of STEPS) {
-      startPreview("/?core=ready&route=exact");
-      await setTextSize(step);
       const at = Math.ceil((DOCK * step) / 100);
-      await page.viewport(at, 1000);
-      location.hash = "#/places/sell/painite";
-      render(App);
-      const table = await screen.findByRole("table", { name: "Results" });
-      await fireEvent.click(within(table).getAllByRole("button", { pressed: false })[0]!);
-      const panel = await screen.findByRole("complementary", { name: "Details" });
-      const side = await screen.findByRole("complementary", { name: "Route" });
-      await waitFor(() => expect(panel.classList.contains("stacked"), `${step} %: beside the rows at ${at} px`).toBe(false));
-      // Folded, the page column is the window; a window the sidebar's width narrower, less 6 px at
-      // 100 percent (the text's rounding moves the true edge by up to 5 px across the steps),
-      // gives it the docked column less that.
-      const narrower = at - Math.round(side.parentElement!.getBoundingClientRect().width) - Math.ceil((6 * step) / 100);
+      for (const finder of FINDERS) {
+        const { table, panel } = await selected(finder, step, at);
+        expect(screen.getByRole("complementary", { name: "Route" }), `${step} %: docked at ${at} px`).toBeTruthy();
+        await waitFor(() => expect(panel.classList.contains("stacked"), `${finder} at ${step} %: beside the rows at ${at} px`).toBe(false));
+        expect(table.classList.contains("compact"), `${finder} at ${step} %: full rows at ${at} px`).toBe(false);
+        cleanup();
+      }
+    }
+  });
+
+  it("is no wider than the widest finder needs: its panel goes below the rows a few px narrower, at every Text size", async () => {
+    for (const step of STEPS) {
+      const at = Math.ceil((DOCK * step) / 100);
+      const { panel } = await selected(WIDEST, step, at);
+      await waitFor(() => expect(panel.classList.contains("stacked")).toBe(false));
+      const split = panel.parentElement!;
+      const docked = split.getBoundingClientRect().width;
+      // Folded, the page column is the window less its gutters, which narrow with it (3vw). A
+      // window whose column is the docked one's less 6 px at 100 percent (the text's rounding moves
+      // the true edge by up to 5 px across the steps) puts the panel below the rows.
+      const target = docked - Math.ceil((6 * step) / 100);
       await fireEvent.click(screen.getByRole("button", { name: "Collapse the route to a strip" }));
-      await page.viewport(narrower, 1000);
-      await waitFor(() => expect(panel.classList.contains("stacked"), `${step} %: below the rows at ${narrower} px`).toBe(true));
+      let width = at;
+      for (let i = 0; i < 3; i++) {
+        await page.viewport(width, 1000);
+        await waitFor(() => expect(split.getBoundingClientRect().width).toBeLessThan(width));
+        width -= Math.ceil(split.getBoundingClientRect().width - target);
+      }
+      await page.viewport(width, 1000);
+      await waitFor(() => expect(panel.classList.contains("stacked"), `${step} %: below the rows at ${width} px`).toBe(true));
+      expect(split.getBoundingClientRect().width, `${step} %: the column no wider than the docked one less the slack`).toBeLessThanOrEqual(target + 1);
       localStorage.removeItem("astromech.routeCollapsed");
       cleanup();
     }

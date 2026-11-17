@@ -33,10 +33,11 @@ export function stacks(width: number, min: number): boolean {
 
 /**
  * The dock width (DESIGN.md Route sidebar): the narrowest window, in px at 100 percent Text size,
- * at which the Sell finder with a result selected keeps its rows clear of its side panel beside
- * the docked sidebar. In rem, so it holds at every Text size step; measured by
- * App.browser.test.ts at every step: 1,755 px at 100 percent, 1,751 at 180, on 17 Nov 2026, so a
- * 2560 x 1440 display at its 145 percent (1,765 px) docks. The test fails when the Sell row grows
- * past it, or shrinks more than 6 px under it.
+ * at which the widest finder row with a result selected (Mining hotspots: its own group is text
+ * and it has a trip) keeps its full rows clear of its side panel beside the docked sidebar. In rem,
+ * so it holds at every Text size step; measured by App.browser.test.ts at every step: 1,659 px at
+ * 100 percent, 1,655 at 180, on 17 Nov 2026. A 1920 x 1080 display docks at 100 and 115 percent,
+ * and a 2560 x 1440 one at its 145 percent (1,765 px). The test fails when any finder's row grows
+ * past it, or when it is more than about 6 px wider than Mining hotspots needs.
  */
-export const DOCK = 1756;
+export const DOCK = 1659;
