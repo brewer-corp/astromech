@@ -27,11 +27,44 @@ The design system is enforced, not remembered: a component cannot use a colour o
 
 ## Done when
 
-- [ ] `pnpm lint` fails a `.svelte` or `.css` file under `app/src` (outside `design/tokens.css` and `mockups/`) that writes a raw colour (hex, rgb, hsl, a named colour) in place of a token.
-- [ ] It fails a font size, and a margin, padding or gap, that is not a token or a role class. Exemptions are listed by file with a reason each, as `PAGE_SIZING_EXEMPT` is.
-- [ ] Every existing violation is fixed or listed; the list is short enough to read, and each entry names the item that removes it.
-- [ ] The rule has tests like the page-sizing check's. CONTRIBUTING.md's UI check says what the lint enforces.
+- [x] `pnpm lint` fails a `.svelte` or `.css` file under `app/src` (outside `design/tokens.css` and `mockups/`) that writes a raw colour (hex, rgb, hsl, a named colour) in place of a token.
+- [x] It fails a font size, and a margin, padding or gap, that is not a token or a role class. Exemptions are listed by file with a reason each, as `PAGE_SIZING_EXEMPT` is.
+- [x] Every existing violation is fixed or listed; the list is short enough to read, and each entry names the item that removes it.
+- [x] The rule has tests like the page-sizing check's. CONTRIBUTING.md's UI check says what the lint enforces.
 
 ## Scope
 
 Lint and the fixes it forces. It extends the page-sizing check in `app/eslint.config.js`; it does not replace it.
+
+## Report
+
+A component can no longer use a colour, font size or spacing the design system lacks without `pnpm lint` failing it. The rule is `app/eslint-rules/tokens.js`, with three parts that can be switched off separately: `tokens/colour`, `tokens/font-size` and `tokens/spacing`. It is on for every `.svelte` and `.css` file under `app/src` except `design/tokens.css` and `mockups/`. `.css` files are read through `@eslint/css` (new dev dependency). The shared script configs are now scoped to script files, because they crashed on a CSS AST. The page-sizing check is unchanged.
+
+What fails:
+- Colour: a hex, `rgb()`/`hsl()`/`lab()` and the like, anywhere in a value, a custom property or a `var()` fallback included. A named colour fails in a property that takes a colour. `transparent`, `currentColor` and a `color-mix()` of tokens pass.
+- Font size: a length, a percentage or a size keyword in `font-size` or the `font` shorthand.
+- Spacing: a margin, padding or gap written as a length other than 0, or a token scaled by a factor that is not a whole number. A percentage or a viewport unit counts as a share of the window and passes; so do whole factors like `calc(-1 * var(--sp-2))`.
+
+Known gap: a custom property the component declares itself is not followed, so `--pad: 10px; padding: var(--pad)` passes. The rule's header says so.
+
+The fixes, in three commits:
+1. `9830d2b2`: 218 spacing literals that already equalled a step now name it (`--sp-*`, `--gap`, `--gutter`). This commit changes no pixels.
+2. `d7a374ad`: off-scale spacing in `lib/ui`, onboarding, the route frame parts, Materials, Settings and the Cargo and Outfitting finders now takes the nearest step. A tie (6, 10, 14, 20 or 28 px) goes to the smaller step, so each value moves 2 to 4 px and nothing grows. The three dialogs' `rgb(0 0 0 / 0.7)` is the new `--scrim` token, added to DESIGN.md's Token map. SearchKit's unit span now uses the `.type-unit` role, which writes the same 3 px. Before and after captures at 1920 x 1080 are in `docs/design/tokens-*-{before,after}.png` (11 pairs). The calibration dialog and the route import dialog changed but weren't captured, because both need a click to open.
+3. `204cb661`: the rule, the config, the tests and CONTRIBUTING.md.
+
+`TOKENS_EXEMPT` in `app/eslint.config.js` has 14 entries, all spacing except Sheet:
+- Lasting (3):
+  - Controls (the four Controls modules, plus About and PresetPicker, which appear only there).
+  - Button. DESIGN.md Buttons gives the primary button 20 px padding, which the scale lacks.
+  - Sheet. Its labels scale with the controller image (`--k`), so they stay px.
+- Pending (11): each names in `until` the mission item that rebuilds the page: m07p, 8wr4, m6gw, 5a01 (with nnn0), evj3, dpaz, fzhp, rj6i, 7vxi, el3i and gvy0. gvy0's entry includes `places/Home.svelte`.
+
+Tests (`eslint-rules/tokens.test.js`, 45 cases): RuleTester cases for each part, in Svelte and in CSS. The config cases check that a new `.svelte` or `.css` file fails, that tokens.css and the mockups don't, and that an exemption turns off only its own parts. Every entry must have a reason and point at an existing item. **An entry its files no longer need fails the suite**, so a page rebuilt clean must leave the list. I checked that this test fails with a bogus entry.
+
+Checks run: `pnpm lint`, `pnpm check`, `pnpm build`, `scripts/check-dist.py` and `pnpm test` (85 files, 685 tests) all pass.
+
+For the lead:
+- **Controls are exempt from spacing for good.** The mission gives Controls only the frame, Text size, colours and Tip, so I didn't move their spacing. If the system should hold there too, that entry becomes a pending one with a new item.
+- **DESIGN.md disagrees with its own spacing scale.** It gives the primary button 20 px padding, a step the scale lacks. Settle it by adding a step or changing the button, not in lint.
+- **The 11 named items should each get a Done-when line**, such as "its `TOKENS_EXEMPT` entry is gone". I didn't edit other items from this branch. The stale-entry test already forces removal once a page is clean.
+- **uc7i and 3ca6 are building in parallel**, and both touch `eslint.config.js` and components. The second to merge must rerun `pnpm lint`, since a new raw value now fails.
