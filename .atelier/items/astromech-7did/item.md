@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-7did
 title: 'Engineers: search by module type answers where to engineer it'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
@@ -12,7 +12,8 @@ priority: high
 blocked_by:
 - astromech-3kf5
 - astromech-5a01
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3Ae656cbbe-5a7a-4232-82ca-3aa67f871c76
 ready:
   by: Sumeet
   at: 2026-11-17T05:23:28.056709303Z
