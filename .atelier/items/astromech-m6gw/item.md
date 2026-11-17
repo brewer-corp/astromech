@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-m6gw
 title: Engineering > Engineers as the unlock tree
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-l
@@ -112,3 +112,7 @@ Besides those, orange appears only in the marks DESIGN.md allows: the grade hexa
 
 **Round 2, finding 1 (fixed):** Set destination and Add stop in the panel now keep the engineer they were pressed for. A result shows only under that engineer, and its TRY AGAIN acts on them again, even when another engineer was selected while the request was on its way (`Panel.svelte`, the same `noteFor` pattern `Search.svelte` uses). New browser case: "keeps a route action with the engineer it was pressed for when the selection changes". It holds `route_set` at the transport, switches to Felicity, fails the request, and finds no TRY AGAIN under Felicity; under The Dweller, TRY AGAIN sends Wyrd. It fails on the previous panel and passes now. Finding 2 stays deferred, as the review says.
 
+
+### Responses
+
+2-acl0.1: fixed in cdba8f6c
