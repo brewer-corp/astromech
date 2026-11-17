@@ -73,3 +73,11 @@ For the lead:
 - **The 11 named items should each get a Done-when line**, such as "its `TOKENS_EXEMPT` entry is gone". I didn't edit other items from this branch. The stale-entry test already forces removal once a page is clean.
 - **On foot (odyssey) waits on nnn0, not 5a01.** 5a01 moves On foot's parts whole into Ships > Suits, Materials and Engineers, which removes no spacing violations. 5a01 must carry the `TOKENS_EXEMPT` entry to wherever the files land, or Materials, which is clean now, will fail lint.
 - **uc7i and 3ca6 are building in parallel**, and both touch `eslint.config.js` and components. The second to merge must rerun `pnpm lint`, since a new raw value now fails.
+
+### Responses
+
+1-dvey.1: fixed in dc327678
+1-dvey.2: fixed in dc327678
+1-dvey.3: fixed in dc327678
+1-dvey.4: fixed in dc327678; any calc(), min(), max() or clamp() in a font size now fails, not just a fractional factor
+1-dvey.5: fixed in dc327678
