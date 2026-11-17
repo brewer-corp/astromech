@@ -3,14 +3,16 @@ schema: atelier.item
 schema_version: 3
 id: astromech-wo8s
 title: My controller at 1100 x 700 draws the bound actions on the sheet at 8 px
-status: draft
+status: ready
 mission: astromech-xajc
 labels:
 - bug
 priority: low
 blocked_by: []
 implementers: []
-ready: null
+ready:
+  by: the lead of astromech-xajc
+  at: 2026-11-17T10:14:46.678176257Z
 trivial: null
 caused_by: null
 created_at: 2026-11-17T10:08:06.707288043Z
