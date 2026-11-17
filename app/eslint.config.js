@@ -26,6 +26,9 @@ export const PAGE_SIZING = [
   ["src/modules/{session,mining}/View.svelte", "font-size"],
   // astromech-irrv: the Import a route dialog, a page part opened from the frame.
   ["src/modules/route/ImportDialog.svelte", "width", "font-size"],
+  // astromech-coq6: the Now page, and the station head and services board it draws.
+  ["src/modules/now/**", "width", "font-size"],
+  ["src/modules/station/{Head,Board}.svelte", "width", "font-size"],
 ];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts
@@ -74,7 +77,7 @@ export const TOKENS_EXEMPT = [
   { files: ["src/modules/exploration/**"], off: ["spacing"], until: "astromech-dpaz", why: "Rebuilds System." },
   { files: ["src/modules/{session,logbook}/**"], off: ["spacing"], until: "astromech-fzhp", why: "Rebuilds Session and Logbook." },
   { files: ["src/modules/powerplay/**"], off: ["spacing"], until: "astromech-rj6i", why: "Rebuilds Powerplay." },
-  { files: ["src/modules/station/**"], off: ["spacing"], until: "astromech-7vxi", why: "Rebuilds Station." },
+  { files: ["src/modules/station/{View,Market}.svelte"], off: ["spacing"], until: "astromech-7vxi", why: "Rebuilds Station." },
   { files: ["src/modules/trade/**"], off: ["spacing"], until: "astromech-el3i", why: "Rebuilds Trade route." },
   {
     files: ["src/modules/{stored,mining,datasharing,diagnostics,voicetester}/**", "src/modules/places/Home.svelte"],
