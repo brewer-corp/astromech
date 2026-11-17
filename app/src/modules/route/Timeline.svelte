@@ -147,7 +147,12 @@
         <div class="main">
           {#if cur}<span class="type-label">Next stop{away != null ? ` · ${away} ${plural(away, "jump")} away` : ""}</span>{/if}
           <div class="nameline">
-            <span class={cur ? "type-title name" : "type-name name"} {@attach tip(cur ? null : s.system)}>{s.system}</span>
+            {#if cur}
+              <!-- The next stop's name wraps between its words, never inside one ("LD-H"). -->
+              <span class="type-title name">{#each s.system.split(" ") as w, k (k)}{k ? " " : ""}<span class="word">{w}</span>{/each}</span>
+            {:else}
+              <span class="type-name name" {@attach tip(s.system)}>{s.system}</span>
+            {/if}
             <IconButton
               icon={copied === row.i ? "copied" : "copy"}
               label={copied === row.i ? `Copied ${s.system}` : `Copy ${s.system}`}
@@ -251,6 +256,7 @@
      and its note Orange. */
   .stop.next::after { background: var(--surface-hi); }
   .stop.next .name { white-space: normal; overflow-wrap: break-word; }
+  .word { white-space: nowrap; }
   .stop.next .nameline { align-items: flex-start; }
   .stop.next > .main { min-height: calc(var(--sp-12) + var(--sp-8)); }
   .stop.next .node, .stop.next .name { color: var(--orange-lit); }

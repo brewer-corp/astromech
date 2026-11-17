@@ -6,15 +6,18 @@ and the window can stay closed.
 ## The window
 
 The header has plain text tabs for the areas. Areas with more than one page list them as
-sub-tabs below. Under the header, on every page,
-the [route strip](routes.md#the-route-strip) shows the next stop of the route you are following;
-click its destination for the full Route page, which [Find or plot](#find-or-plot) also opens.
+sub-tabs below. Beside every page is the route you are following: the
+[route sidebar](routes.md#the-route-sidebar) on the left in a wide window, or the
+[route strip](routes.md#the-route-strip) across the top of the page in a narrower one or when you
+fold the sidebar. The strip's **>** opens the sidebar over the page; **Route** in
+[Find or plot](#find-or-plot) opens it too. With no route, a wide window has a narrow rail on the
+left with Find or plot and Import a route.
 
 | Area | Pages |
 |---|---|
 | **Controls** | My controller, All keybinds, Presets, Key tester: [Controls](controls.md) |
 | **Engineering** | Ships, Stored modules, Materials, On foot, Engineers: [Ships](ships.md), [Materials](materials.md), [Engineers and on foot](engineering.md) |
-| **Galaxy** | Places, Route: [Places](places.md), [Routes](routes.md) |
+| **Places** | [Places](places.md) |
 | **Trade** | Colonisation, Commodities: [Colonisation](colonisation.md), [Trade](trade.md) |
 | **Exploration** | System, Biology: [Exploration](exploration.md) |
 | **Powerplay** | [Powerplay](powerplay.md) |

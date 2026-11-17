@@ -6,7 +6,7 @@ import Sidebar from "./Sidebar.svelte";
 import { previewAnswer, startPreview } from "../../test/transport";
 
 /** The timeline row of a stop or jump, by its system. */
-const row = (system: string) => screen.getByText(system, { selector: ".name, .jn" }).closest("li")!;
+const row = (system: string) => screen.getByText((_, el) => !!el?.matches(".name, .jn") && el.textContent === system).closest("li")!;
 
 describe("Route sidebar", () => {
   afterEach(() => vi.unstubAllGlobals());

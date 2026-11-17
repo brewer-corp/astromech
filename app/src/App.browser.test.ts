@@ -301,7 +301,7 @@ describe("route sidebar in the frame", () => {
     expect(document.activeElement).toBe(screen.getByRole("combobox", { name: "Find or plot" }));
     await importFrom(within(r).getByRole("button", { name: "Import a route" }));
     const side = within(await screen.findByRole("complementary", { name: "Route" }));
-    expect(await side.findByText("Shinrarta Dezhra", { selector: ".name" })).toBeTruthy();
+    expect(await side.findByText((_, el) => !!el?.matches(".name") && el.textContent === "Shinrarta Dezhra")).toBeTruthy();
     expect(rail()).toBeNull();
 
     cleanup();
