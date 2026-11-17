@@ -228,7 +228,7 @@
      (Options Grey) top left, the name below in Label size and Prose Grey, at most one Meta corner
      mark top right, and the 2 px track along the bottom edge. None held is all Grey Dim; the
      selected one, which the side panel explains, is Hull Raised with its count and name White. */
-  .cell { position: relative; display: grid; grid-template-rows: auto 1fr; height: var(--tile); padding: 0.625rem var(--sp-3); text-align: left; background: linear-gradient(90deg, var(--track)) bottom / 100% 2px no-repeat, var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
+  .cell { position: relative; display: grid; grid-template-rows: auto 1fr; height: var(--tile); padding: var(--sp-2) var(--sp-3); text-align: left; background: linear-gradient(90deg, var(--track)) bottom / 100% 2px no-repeat, var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
   .n { align-self: end; color: var(--prose); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .mark { position: absolute; top: 0.625rem; right: var(--sp-3); }
   .cell:hover { background-color: var(--row-hover); }
@@ -239,7 +239,7 @@
   .cell.sel :is(.n, .q) { color: var(--text-hi); }
   /* DESIGN.md Side panel: the title in white, the key value in Value XL, Orange Lit. */
   .about h3 { margin: 0 0 var(--sp-1); }
-  .about p { margin: 0 0 0.625rem; }
+  .about p { margin: 0 0 var(--sp-2); }
   .about .qty { margin: var(--sp-4) 0; }
   .sites { margin: var(--sp-6) 0 0; }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */

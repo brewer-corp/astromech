@@ -166,7 +166,7 @@
   .frame > :global(*) { flex: none; }
   .frame > main { flex: 1 1 0; }
   /* DESIGN.md Frame: a 64 px row with the 1 px orange rule under it; stacked, the tabs add 44 px. */
-  header { box-sizing: border-box; display: flex; align-items: center; gap: clamp(1rem, 2.5vw, 2.5rem); height: 4rem; margin: 0 var(--side); border-bottom: 1px solid var(--accent); }
+  header { box-sizing: border-box; display: flex; align-items: center; gap: clamp(var(--sp-4), 2.5vw, var(--gutter)); height: 4rem; margin: 0 var(--side); border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
   nav { display: flex; gap: var(--sp-1); flex: 1; flex-wrap: wrap; }
   header nav { flex-wrap: nowrap; align-items: center; }
@@ -192,6 +192,6 @@
   /* The header's gaps scale with the window only (no breakpoint), so the width one row needs grows
      steadily with it: the header stacks once as the window narrows and stays stacked below that. */
   @container win (max-width: 68.75rem) {
-    nav.sub { gap: 1rem; }
+    nav.sub { gap: var(--sp-4); }
   }
 </style>

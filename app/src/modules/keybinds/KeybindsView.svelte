@@ -192,13 +192,13 @@
   .list { display: flex; flex-direction: column; min-height: 0; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .row { display: grid; grid-template-columns: 1fr 12.5rem 12.5rem 11.875rem; gap: var(--gap); align-items: center; min-height: var(--row); }
-  .filters { display: flex; gap: var(--sp-4); margin: 0.75rem 0 0.375rem; }
+  .filters { display: flex; gap: var(--sp-4); margin: var(--sp-3) 0 0.375rem; }
   .sp { flex: 1; }
   .pressed { padding: 0.375rem 0 0.375rem 2.125rem; color: var(--orange-lit); }
   .head { display: grid; grid-template-columns: 1fr 12.5rem 12.5rem 11.875rem; gap: var(--gap); padding: 0.375rem 0 0.375rem 2.125rem; color: var(--label-grey); font-size: var(--fs-s); }
-  .head span:nth-child(2), .head span:nth-child(3) { padding-left: 0.75rem; }
+  .head span:nth-child(2), .head span:nth-child(3) { padding-left: var(--sp-3); }
   .scroll { overflow: auto; min-height: 0; flex: 1; padding-bottom: 1.25rem; }
-  .grp { grid-template-columns: 1.375rem 1fr 11.875rem; gap: 0.75rem; width: 100%; }
+  .grp { grid-template-columns: 1.375rem 1fr 11.875rem; gap: var(--sp-3); width: 100%; }
   .box { width: 1.125rem; height: 1.125rem; border: 1.5px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-weight: 600; line-height: 1; }
   .gname { font-weight: 500; }
   .grp:hover .gname { color: var(--orange-lit); }
@@ -206,7 +206,7 @@
   .item { margin-bottom: var(--gap); }
   .item .name { padding-left: 2.125rem; height: var(--row); display: flex; align-items: center; color: var(--options-grey); }
   .item:hover .name { color: var(--accent); }
-  .cell { height: var(--row); display: flex; align-items: center; padding: 0 0.75rem; background: var(--cell); color: var(--options-grey); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .cell { height: var(--row); display: flex; align-items: center; padding: 0 var(--sp-3); background: var(--cell); color: var(--options-grey); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .cell.wide { grid-column: span 2; }
   /* An empty slot's "Set" is what the commander clicks to bind it, so it is Orange Mid (4.7:1 on
      Ember Empty), not Dim. An ignored binding is struck through and Dim. */
@@ -220,7 +220,7 @@
   .lo { color: var(--label-grey); }
   .warn { color: var(--accent); font-weight: 500; }
   .pad { padding-left: 2.125rem; }
-  .id { margin-top: 1.5rem; font-size: var(--fs-s); }
+  .id { margin-top: var(--sp-6); font-size: var(--fs-s); }
   @container win (max-width: 75rem) {
     .cols { grid-template-columns: minmax(0, 1fr) 16.25rem; gap: 1.25rem; }
     .row, .head { grid-template-columns: minmax(0, 1fr) 7.5rem 7.5rem 6.875rem; }

@@ -98,19 +98,19 @@
 
 <style>
   .frame { container: win / inline-size; height: 100vh; display: grid; grid-template-rows: auto 1fr; }
-  header { display: flex; align-items: center; gap: 2.5rem; height: 4rem; margin: 0 2.5rem; border-bottom: 1px solid var(--accent); }
+  header { display: flex; align-items: center; gap: var(--gutter); height: 4rem; margin: 0 var(--gutter); border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
   /* The area's one top tab, active: Nav caps on a solid orange box. */
   .title { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); margin-right: auto; background: var(--accent); color: var(--on-accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 500; }
-  .body { display: grid; grid-template-columns: 14.0625rem 1fr; gap: 2.5rem; padding: 1.75rem 2.5rem; min-height: 0; overflow: auto; }
+  .body { display: grid; grid-template-columns: 14.0625rem 1fr; gap: var(--gutter); padding: var(--sp-6) var(--gutter); min-height: 0; overflow: auto; }
   .nav { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); align-content: start; }
-  .nav button { all: unset; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; gap: 0.75rem; color: var(--accent); font-weight: 500; font-size: var(--fs); }
+  .nav button { all: unset; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 var(--sp-3); min-height: var(--row); display: flex; align-items: center; gap: var(--sp-3); color: var(--accent); font-weight: 500; font-size: var(--fs); }
   /* The step you are on: hull and Orange Lit, a place marker rather than a value (no cell). */
   .nav button.on { background: var(--surface-hi); color: var(--text-hi); }
   .nav .n { color: var(--label-grey); }
   .nav button.on .n { color: inherit; }
   main { max-width: 48.75rem; }
-  h1 { margin: 0 0 0.375rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
-  .lead { margin: 0 0 1.375rem; color: var(--prose); }
-  footer { display: flex; gap: 1.75rem; margin-top: 2rem; }
+  h1 { margin: 0 0 var(--sp-1); color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
+  .lead { margin: 0 0 var(--sp-6); color: var(--prose); }
+  footer { display: flex; gap: var(--sp-6); margin-top: var(--sp-8); }
 </style>

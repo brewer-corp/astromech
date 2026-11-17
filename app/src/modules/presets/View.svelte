@@ -91,13 +91,13 @@
   h3.gap { margin-top: 2.125rem; }
   .head, .row { display: grid; grid-template-columns: 1fr repeat(4, 7.5rem) 8.125rem; gap: var(--gap); align-items: center; }
   .head { color: var(--label-grey); font-size: var(--fs-s); padding: 0 0 0.375rem; }
-  .head span:not(:first-child) { padding-left: 0.75rem; }
+  .head span:not(:first-child) { padding-left: var(--sp-3); }
   .row { min-height: var(--row); margin-bottom: var(--gap); }
   .row.b { grid-template-columns: 1fr 13.75rem 7.5rem; }
   .name { height: var(--row); display: flex; align-items: center; color: var(--options-grey); }
   /* Raised, without moving the name: the raise reaches past its left edge. */
   .row.sel .name { color: var(--text-hi); background: var(--surface-hi); box-shadow: calc(-1 * var(--sp-2)) 0 0 var(--surface-hi); }
-  .cell { height: var(--row); display: flex; align-items: center; padding: 0 0.75rem; background: var(--cell-empty); color: var(--accent); font-weight: 500; }
+  .cell { height: var(--row); display: flex; align-items: center; padding: 0 var(--sp-3); background: var(--cell-empty); color: var(--accent); font-weight: 500; }
   .cell.on { background: var(--cell); }
   .cell:hover { background: var(--cell-hover); }
   .mark { color: var(--accent); font-size: var(--fs-s); font-weight: 600; padding-left: 0.625rem; }
@@ -107,13 +107,13 @@
   .msg.err { color: var(--alarm); }
   .msg.err::before { content: "! "; font-weight: 600; }
   p { line-height: 1.45; }
-  aside { padding: 0.25rem 0 1.25rem 1.75rem; border-left: 1px solid var(--line); }
+  aside { padding: var(--sp-1) 0 1.25rem 1.75rem; border-left: 1px solid var(--line); }
   .lbl { color: var(--label-grey); font-size: var(--fs-s); }
-  h2 { margin: 0.375rem 0 0.75rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
-  aside p { margin: 0 0 0.5rem; }
-  .k { color: var(--label-grey); font-size: var(--fs-s); margin: 1.125rem 0 0.25rem; }
+  h2 { margin: 0.375rem 0 var(--sp-3); color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
+  aside p { margin: 0 0 var(--sp-2); }
+  .k { color: var(--label-grey); font-size: var(--fs-s); margin: 1.125rem 0 var(--sp-1); }
   aside > :global(.act) { display: flex; width: fit-content; margin: var(--sp-1) 0 0 calc(-1 * var(--sp-2)); }
-  .copy { display: flex; gap: 1rem; align-items: center; }
+  .copy { display: flex; gap: var(--sp-4); align-items: center; }
   .copy > :global(.grow) { flex: 1; }
   @container win (max-width: 75rem) {
     .cols { grid-template-columns: minmax(0, 1fr) 16.25rem; gap: 1.25rem; }

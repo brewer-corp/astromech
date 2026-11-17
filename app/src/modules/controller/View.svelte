@@ -242,12 +242,12 @@
 <style>
   button { all: unset; cursor: pointer; }
   .cols { display: grid; grid-template-columns: minmax(0, 73.75rem) 22.5rem; gap: 1.75rem; padding-top: 0.875rem; }
-  .top { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
-  section > :global(.acts) { margin: 0.75rem 0 0.5rem; }
-  .band { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 0.875rem; }
-  h3 { margin: 0 0 0.5rem; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-6); flex-wrap: wrap; }
+  section > :global(.acts) { margin: var(--sp-3) 0 var(--sp-2); }
+  .band { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gutter); margin-top: 0.875rem; }
+  h3 { margin: 0 0 var(--sp-2); }
   h3.gap { margin-top: 1.125rem; }
-  .row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 1.875rem; margin-bottom: 0.25rem; padding: 0 0.75rem; outline: 1px solid var(--line); outline-offset: -1px; } /* read-only rows: a Seam outline (Hull is the frame's) */
+  .row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 1.875rem; margin-bottom: var(--sp-1); padding: 0 var(--sp-3); outline: 1px solid var(--line); outline-offset: -1px; } /* read-only rows: a Seam outline (Hull is the frame's) */
   button.row:hover { background: var(--row-hover); }
   /* The selected control: raised with its text lit (DESIGN.md Selected row or tile). */
   .row.sel { background: var(--surface-hi); }
@@ -255,7 +255,7 @@
   .row { color: var(--options-grey); }
   .warn { color: var(--accent); font-weight: 500; }
   .more { margin-top: 0.625rem; font-size: var(--fs-s); line-height: 1.5; }
-  .ask { color: var(--orange-lit); outline: 1px solid var(--line); outline-offset: -1px; padding: 0.5rem 0.75rem; margin: 0 0 0.5rem; }
+  .ask { color: var(--orange-lit); outline: 1px solid var(--line); outline-offset: -1px; padding: var(--sp-2) var(--sp-3); margin: 0 0 var(--sp-2); }
   .credit { color: var(--label-grey); font-size: var(--fs-s); }
   .lo { color: var(--label-grey); }
 </style>
