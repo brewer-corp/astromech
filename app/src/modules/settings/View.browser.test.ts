@@ -128,6 +128,17 @@ describe("Settings → General → Window, Text size", () => {
     expect(await startScale()).toBe(true);
     expect(root.style.fontSize).toBe("130%");
   });
+
+  it("tries the first-run save again when the config couldn't be written", async () => {
+    display(2560, 1440);
+    startPreview("/?core=ready&textsize=none");
+    answer("set_window", () => ({ ok: false, error: "couldn't write astromech.toml" }));
+    expect(await startScale()).toBe(false);
+    expect((await previewAnswer("window_settings")).text_size).toBe(null);
+    answer("set_window", (a) => previewAnswer("set_window", a));
+    expect(await startScale()).toBe(true);
+    expect((await previewAnswer("window_settings")).text_size).toBe(145);
+  });
 });
 
 describe("first launch", () => {

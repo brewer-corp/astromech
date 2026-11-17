@@ -63,19 +63,19 @@ function settle(saved: TextSize | null): { step: number; save: boolean } {
 
 let started: Promise<boolean> | null = null;
 
-/** Draw the window at the saved text size, saving a picked or migrated step first. Once it has
- * the core's answer this does nothing; until then (the core not up yet) each call asks again. */
+/** Draw the window at the saved text size, saving a picked or migrated step first. Once the
+ * size is read and, if it had to be, saved, this does nothing; until then (the core not up yet,
+ * or the config not writable) each call tries again, drawing at the picked step meanwhile. */
 export function startScale(): Promise<boolean> {
   started ??= (async () => {
     const r = await coreCall("window_settings");
-    if (!r.ok) {
-      started = null;
-      return false;
+    if (r.ok) {
+      const { step, save } = settle(r.text_size);
+      apply(step);
+      if (!save || (await coreCall("set_window", { text_size: step })).ok) return true;
     }
-    const { step, save } = settle(r.text_size);
-    apply(step);
-    if (save) await coreCall("set_window", { text_size: step });
-    return true;
+    started = null;
+    return false;
   })();
   return started;
 }
