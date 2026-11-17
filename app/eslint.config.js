@@ -32,6 +32,8 @@ export const PAGE_SIZING = [
   ["src/modules/route/ImportDialog.svelte", "width", "font-size"],
   // astromech-rj6i: Powerplay on the Board.
   ["src/modules/powerplay/{View,Suggestions,Targets}.svelte", "width", "font-size"],
+  // astromech-m07p: Colonisation as progress per commodity, on List with detail.
+  ["src/modules/colonisation/View.svelte", "width", "font-size"],
   // astromech-coq6: the Now page, and the station head and services board it draws.
   ["src/modules/now/**", "width", "font-size"],
   ["src/modules/station/{Head,Board}.svelte", "width", "font-size"],
@@ -77,7 +79,6 @@ export const TOKENS_EXEMPT = [
     why: "The labels on a controller sheet follow the image's scale (--k), not Text size, so they are px.",
   },
   // Pending: the page is rebuilt on a layout by the item named, which takes it off this list.
-  { files: ["src/modules/colonisation/**"], off: ["spacing"], until: "astromech-m07p", why: "Rebuilds Colonisation." },
   { files: ["src/modules/exobiology/**"], off: ["spacing"], until: "astromech-evj3", why: "Rebuilds Biology." },
   { files: ["src/modules/exploration/**"], off: ["spacing"], until: "astromech-dpaz", why: "Rebuilds System." },
   { files: ["src/modules/{session,logbook}/**"], off: ["spacing"], until: "astromech-fzhp", why: "Rebuilds Session and Logbook." },

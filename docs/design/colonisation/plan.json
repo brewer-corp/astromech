@@ -1,0 +1,43 @@
+{
+ "out": "docs/design/colonisation",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 1920, "h": 1080, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 }
+ ],
+ "shots": [
+  { "name": "site", "hash": "colonisation", "steps": [{ "waitText": "Efremov Plant" }] },
+  {
+   "name": "site-station-selected",
+   "hash": "colonisation",
+   "steps": [{ "waitText": "Efremov Plant" }, { "click": ".row.result" }, { "waitSel": "aside[aria-label=Details] .ptitle" }, { "scrollTop": ".row.result.sel" }]
+  },
+  {
+   "name": "complete",
+   "hash": "colonisation",
+   "steps": [{ "waitText": "Efremov Plant" }, { "select": "select[aria-label='Construction site']", "option": "Orbital" }, { "waitText": "Nothing left to deliver" }]
+  },
+  {
+   "name": "no-sites",
+   "hash": "colonisation",
+   "query": "core=empty&route=exact",
+   "sizes": ["1100x700", "2560x1440"],
+   "steps": [{ "clickText": "Skip setup" }, { "clickText": "Trade" }, { "clickText": "Colonisation" }, { "waitText": "No construction sites" }]
+  },
+  {
+   "name": "loading",
+   "hash": "colonisation",
+   "query": "core=ready&route=exact&slow=never:colonisation_projects",
+   "sizes": ["1100x700", "2560x1440"],
+   "steps": [{ "waitText": "Reading the journals" }]
+  },
+  {
+   "name": "failed",
+   "hash": "colonisation",
+   "query": "core=ready&route=exact&fail=colonisation_projects",
+   "sizes": ["1100x700", "2560x1440"],
+   "steps": [{ "waitText": "Could not read" }]
+  }
+ ]
+}
