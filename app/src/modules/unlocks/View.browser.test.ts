@@ -1,5 +1,5 @@
 import { afterEach, expect, it } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import View from "./View.svelte";
 
 afterEach(() => {
@@ -49,4 +49,13 @@ it("lights the introducing engineer on hover", async () => {
   expect(screen.getByLabelText("The Dweller").className).toMatch(/pred/);
   await fireEvent.mouseLeave(lei);
   expect(screen.getByLabelText("The Dweller").className).not.toMatch(/pred/);
+});
+
+it("lists every mod a suit engineer fits, with the unsure ones marked, and Colonia", async () => {
+  location.hash = "#/unlocks?kind=suit";
+  render(View);
+  const hero = await screen.findByLabelText("Hero Ferrari");
+  // From the Odyssey data (it was On foot's Engineers view until astromech-5a01).
+  await waitFor(() => expect(hero.textContent).toContain("Increased Sprint Duration (?)"));
+  expect(screen.getByLabelText("Baltanos").textContent).toContain(" · Colonia");
 });

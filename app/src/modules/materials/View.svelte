@@ -2,6 +2,8 @@
   // Journal-fed trader grids: the in-game inventory is a flat list with no grades. Where to
   // find raw sites and the systems a material's source needs are Places finders: this page
   // links into them with the site kind or faction state filled in (decision astromech-g8d5, item 5).
+  // On foot is a kind beside them: the ShipLocker and Backpack by the game's categories, with
+  // what a bartender gives (moved whole from the On foot page, astromech-5a01).
   import { pollFailure } from "../../lib/ui/errors";
   import Choice from "../../lib/ui/Choice.svelte";
   import { hashParam, pageHash } from "../../lib/hashstate";
@@ -14,13 +16,20 @@
   import Board from "../../lib/ui/layout/Board.svelte";
   import Tiles from "../../lib/ui/layout/Tiles.svelte";
   import { tilesMin } from "../../lib/ui/layout/layout";
+  import { tip } from "../../lib/ui/tip";
+  import { CATEGORIES, loadOdyssey, type ItemLine, type OdysseyView } from "../../lib/odyssey";
 
   /** Between the raw-site links (a literal space at a tag edge would be trimmed). */
   const SEP = ", ";
   let inv = $state<Inventory | null>(null);
   let failed = $state<string | null>(null);
-  // A material opens at #/materials/<id> (Find or plot links there) and a kind at
-  // #/materials?kind=encoded, so back and reload keep them.
+  let foot = $state<OdysseyView | null>(null);
+  let footFailed = $state<string | null>(null);
+  let heldOnly = $state(true);
+  /** An on-foot item's selection: its id after this, so it never meets a material's id. */
+  const FOOT = "onfoot/";
+  // A material opens at #/materials/<id> (Find or plot links there), an on-foot item at
+  // #/materials/onfoot/<id>, and a kind at #/materials?kind=encoded, so back and reload keep them.
   const readSel = () => {
     const m = /^#\/materials\/([^?]+)/.exec(location.hash);
     if (!m?.[1]) return null;
@@ -36,18 +45,22 @@
   const kinds = $derived([
     ...(inv?.kinds.map((k) => ({ value: k.id, label: k.title })) ?? []),
     ...(inv && inv.other.length ? [{ value: "other", label: "Other" }] : []),
+    { value: "onfoot", label: "On foot" },
   ]);
   // The selected material's kind, else the one the link asks for, else Raw.
   const selKind = $derived.by(() => {
     const id = selId;
+    if (id?.startsWith(FOOT)) return "onfoot";
     if (!inv || !id) return undefined;
     if (inv.other.some((c) => c.id === id)) return "other";
     return inv.kinds.find((kd) => kd.groups.some((g) => g.cells.some((c) => c.id === id)))?.id;
   });
-  const kindId = $derived(selKind ?? (kinds.some((k) => k.value === wantKind) ? wantKind! : "raw"));
+  const kindId = $derived(selKind ?? (kinds.some((k) => k.value === wantKind) || wantKind === "onfoot" ? wantKind! : "raw"));
   const kind = $derived(inv?.kinds.find((k) => k.id === kindId) ?? inv?.kinds[0]);
   const sel = $derived(
-    kindId === "other"
+    kindId === "onfoot"
+      ? undefined
+      : kindId === "other"
       ? inv?.other.find((c) => c.id === selId)
       : kind?.groups.flatMap((g) => g.cells).find((c) => c.id === selId),
   );
@@ -75,6 +88,38 @@
     return () => clearInterval(t);
   });
 
+  // The ShipLocker is read only while On foot is chosen, every 2 s as the On foot page did.
+  const onFoot = $derived(kindId === "onfoot");
+  $effect(() => {
+    if (!onFoot) return;
+    const load = () =>
+      loadOdyssey()
+        .then((v) => {
+          foot = v;
+          footFailed = null;
+        })
+        .catch((e: unknown) => (footFailed = pollFailure("read the inventory", e, foot !== null)));
+    void load();
+    const t = setInterval(() => void load(), 2000);
+    return () => clearInterval(t);
+  });
+  const heldOf = (i: ItemLine) => i.locker + i.backpack;
+  const sections = $derived(
+    CATEGORIES.map((c) => ({
+      ...c,
+      items: (foot?.items ?? []).filter((i) => i.category === c.value && (!heldOnly || heldOf(i) + i.mission > 0)),
+    })).filter((c) => c.items.length),
+  );
+  const footHeld = $derived((foot?.items ?? []).reduce((n, i) => n + heldOf(i), 0));
+  const footWorth = $derived((foot?.items ?? []).reduce((n, i) => n + (i.value ?? 0) * heldOf(i), 0));
+  const footSel = $derived.by(() => {
+    const id = selId;
+    return id?.startsWith(FOOT) ? foot?.items.find((i) => i.id === id.slice(FOOT.length)) : undefined;
+  });
+  const catLabel = (c: string) => CATEGORIES.find((k) => k.value === c)?.label ?? c;
+  /** What the Barter line means, in its Tip. */
+  const BARTER = "What one is worth traded at a bartender (assets only)";
+
   // DESIGN.md's material tile: a 2 px Mark Off track along the bottom edge fills Prose Grey with
   // count / cap, Orange Lit at the cap. A tile with none has no track.
   function track(c: Cell) {
@@ -85,6 +130,7 @@
     return `${ink} ${vis * 100}%, var(--mark-off) ${vis * 100}%`;
   }
 
+  const pickFoot = (id: string) => (location.hash = `#/materials/${FOOT}${encodeURIComponent(id)}`);
   function pick(id: string) {
     location.hash = `#/materials/${encodeURIComponent(id)}`;
   }
@@ -102,13 +148,28 @@
 
 <!-- DESIGN.md Board with its side panel: the grid of grades and categories, and the selected
      material, or the kind when none is selected. -->
-<Board panel={about} selected={sel?.id} {min}>
+<Board panel={about} selected={sel?.id ?? footSel?.id} {min}>
   <div class="find">
     <div class="query">
       <div class="bar">
-        {#if kinds.length}<Choice label="Kind" options={kinds} value={kindId} onchange={chooseKind} />{/if}
+        <Choice label="Kind" options={kinds} value={kindId} onchange={chooseKind} />
+        {#if onFoot}
+          <Choice
+            class="tog"
+            label="Which items"
+            value={heldOnly ? "held" : "all"}
+            options={[{ value: "all", label: "All items" }, { value: "held", label: "Held only" }]}
+            onchange={(v) => (heldOnly = v === "held")}
+          />
+        {/if}
         <p class="type-label">
-          {#if inv}
+          {#if onFoot}
+            {#if foot}
+              {footHeld.toLocaleString()} held · a bartender pays {footWorth.toLocaleString()} CR for them · {foot.source}{foot.locker_ts ? ` · ${foot.locker_ts.replace("T", " ").replace("Z", "")}` : " · not written yet (log in on foot once)"}
+            {:else}
+              {footFailed ?? "Reading the ShipLocker…"}
+            {/if}
+          {:else if inv}
             {kindId === "other" ? "Guardian, Thargoid and anything the journal named that is not on a trader." : (kind?.trader ?? "")}
             {#if kindId !== "other" && kind}
               · {kind.held.toLocaleString()} / {kind.capacity.toLocaleString()}
@@ -119,7 +180,7 @@
           {/if}
         </p>
       </div>
-      <Stale error={inv ? failed : null} />
+      <Stale error={onFoot ? (foot ? footFailed : null) : inv ? failed : null} />
       {#if kindId === "manufactured" && inv?.here}
         <p class="type-label here">
           <SystemChip name={inv.here.system} />{inv.here.line.startsWith(inv.here.system) ? inv.here.line.slice(inv.here.system.length) : ` · ${inv.here.line}`} <ExtLinks system={inv.here.system} />
@@ -128,7 +189,23 @@
     </div>
 
     <div class="out">
-      {#if kindId === "other" && inv}
+      {#if onFoot && foot}
+        {#each sections as c (c.value)}
+          <h3 class="section sec" class:current={footSel?.category === c.value}>{c.label}</h3>
+          <Tiles label={c.label}>
+            {#each c.items as i (i.id)}
+              <button class="cell" class:sel={footSel?.id === i.id} class:empty={heldOf(i) === 0} aria-label={`${i.name}, ${heldOf(i)} held`} onclick={() => pickFoot(i.id)}>
+                <span class="type-value-xl q">{heldOf(i)}</span>
+                <span class="type-label n">{i.name}</span>
+                {#if i.mission}<span class="type-meta mark">{i.mission} mission</span>{/if}
+              </button>
+            {/each}
+          </Tiles>
+        {:else}
+          <p class="type-label">Nothing held here.</p>
+        {/each}
+        <p class="type-meta foot" {@attach tip(`${foot.data_uncertain.length} values are unsure or blank on the wiki`)}>Game data: {foot.data_source}, {foot.data_date}</p>
+      {:else if kindId === "other" && inv}
         <Tiles label="Other materials">
           {#each inv.other as c (c.id)}
             <!-- Off-trader caps differ by material, so each tile's corner mark states its own. -->
@@ -182,7 +259,24 @@
 
 {#snippet about()}
   <div class="about">
-    {#if sel}
+    {#if onFoot && footSel}
+      <h3 class="type-title">{footSel.name}</h3>
+      <p class="type-label">On foot · {catLabel(footSel.category)}</p>
+      <p class="qty"><span class="type-value-xl main">{heldOf(footSel)}</span><span class="type-unit">held</span></p>
+      <dl class="lines">
+        <dt class="type-label">Ship locker</dt><dd>{footSel.locker}</dd>
+        <dt class="type-label">Backpack</dt><dd>{footSel.backpack}</dd>
+        <dt class="type-label" {@attach tip("Mission items go back when the mission ends and don't count towards blueprints")}>Mission</dt><dd>{footSel.mission}</dd>
+        {#if footSel.barter != null}<dt class="type-label" {@attach tip(BARTER)}>Barter</dt><dd>{footSel.barter}</dd>{/if}
+        {#if footSel.value != null}<dt class="type-label">A bartender pays</dt><dd>{footSel.value.toLocaleString()} CR</dd>{:else if footSel.category !== "consumables"}<dt class="type-label">A bartender pays</dt><dd>?</dd>{/if}
+      </dl>
+    {:else if onFoot}
+      <h3 class="type-title">On foot</h3>
+      {#if foot}
+        <p class="qty"><span class="type-value-xl main">{footHeld.toLocaleString()}</span><span class="type-unit">held</span></p>
+        <p class="type-label">A bartender pays {footWorth.toLocaleString()} CR for them. Mission items go back when the mission ends and don't count towards blueprints.</p>
+      {/if}
+    {:else if sel}
       <h3 class="type-title">{sel.name}</h3>
       <p class="type-label">{sel.kind === "raw" ? "Raw" : sel.kind === "encoded" ? "Encoded" : "Manufactured"} · grade {sel.grade} · {sel.group} · {sel.rarity}</p>
       <p class="qty"><span class="type-value-xl main">{sel.count}</span><span class="type-unit">of {sel.capacity} held</span></p>
@@ -242,6 +336,13 @@
   .about p { margin: 0 0 var(--sp-2); }
   .about .qty { margin: var(--sp-4) 0; }
   .sites { margin: var(--sp-6) 0 0; }
+  /* On foot: a section per ShipLocker category, then the game data's date. */
+  .sec { margin: var(--sp-6) 0 var(--sp-3); }
+  .sec:first-child { margin-top: 0; }
+  .foot { margin: var(--sp-6) 0 0; }
+  .bar > :global(.tog) { margin-left: auto; }
+  .lines { display: grid; grid-template-columns: auto auto; justify-content: start; align-items: baseline; gap: var(--sp-2) var(--sp-6); margin: 0 0 var(--sp-4); }
+  .lines dd { margin: 0; text-align: right; }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .sites a, .link { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .sites a:hover, .link:hover { color: var(--orange-lit); }

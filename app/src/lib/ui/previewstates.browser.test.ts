@@ -4,7 +4,7 @@ import { tick, type Component } from "svelte";
 import Ships from "../../modules/engineering/View.svelte";
 import Stored from "../../modules/stored/View.svelte";
 import Materials from "../../modules/materials/View.svelte";
-import OnFoot from "../../modules/odyssey/View.svelte";
+import Suits from "../../modules/suits/View.svelte";
 import Engineers from "../../modules/unlocks/View.svelte";
 import Logbook from "../../modules/logbook/View.svelte";
 import Session from "../../modules/session/View.svelte";
@@ -44,6 +44,8 @@ interface Page {
   failed: RegExp;
   /** The command the page reads its data with. */
   read: string;
+  /** The page's own address, for a part of it the link chooses (Materials' On foot kind). */
+  hash?: string;
   /** The scenario the page needs besides the query under test (the run is in the core's status). */
   core?: string;
 }
@@ -52,7 +54,8 @@ const PAGES: Page[] = [
   { name: "Ships", read: "engineering_fleet", view: Ships as unknown as Component, empty: /No ships in the journal yet/, loading: /Reading the journal…/, failed: /Could not read the fleet: / },
   { name: "Stored modules", read: "engineering_fleet", view: Stored as unknown as Component, empty: /No modules in storage/, loading: /Reading the journal…/, failed: /Could not read the stored modules: / },
   { name: "Materials", read: "materials_inventory", view: Materials as unknown as Component, empty: /0 \/ 6,300 · No journal yet/, loading: /Reading the journal…/, failed: /Could not read the materials: / },
-  { name: "On foot", read: "odyssey_view", view: OnFoot as unknown as Component, empty: /Nothing held here/, loading: /Reading the ShipLocker…/, failed: /Could not read the inventory: / },
+  { name: "Materials, On foot", read: "odyssey_view", view: Materials as unknown as Component, hash: "#/materials?kind=onfoot", empty: /Nothing held here/, loading: /Reading the ShipLocker…/, failed: /Could not read the inventory: / },
+  { name: "Suits", read: "odyssey_view", view: Suits as unknown as Component, empty: /Pick a suit or weapon upgrade/, loading: /Reading the ShipLocker…/, failed: /Could not read the inventory: / },
   { name: "Engineers", read: "engineering_unlocks", view: Engineers as unknown as Component, empty: /^0 of \d+ unlocked/, loading: /Reading the journal…/, failed: /Could not read the engineer list: / },
   { name: "Logbook", read: "logbook", view: Logbook as unknown as Component, empty: /No commander in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the journal history: / },
   { name: "Session", read: "session_summary", view: Session as unknown as Component, empty: /No game session in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the session: / },
@@ -68,14 +71,14 @@ const PAGES: Page[] = [
 
 describe.each(PAGES)("$name", (p) => {
   it("shows its no-data text under ?core=empty", async () => {
-    at("?core=empty");
+    at(`?core=empty${p.hash ?? ""}`);
     render(p.view, p.props);
     expect((await screen.findAllByText(p.empty)).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Sample|CMDR Fixture/)).toBeNull();
   });
 
   it("says it is waiting while a call never answers", async () => {
-    at(`?${p.core ?? ""}slow=never`);
+    at(`?${p.core ?? ""}slow=never${p.hash ?? ""}`);
     render(p.view, p.props);
     expect((await screen.findAllByText(p.loading)).length).toBeGreaterThan(0);
     // Still waiting once the page has sent its own read (Logbook debounces it), which never
@@ -88,7 +91,7 @@ describe.each(PAGES)("$name", (p) => {
   });
 
   it("says what failed, with no stuck waiting text", async () => {
-    at(`?${p.core ?? ""}fail=all`);
+    at(`?${p.core ?? ""}fail=all${p.hash ?? ""}`);
     render(p.view, p.props);
     expect((await screen.findAllByText(p.failed)).length).toBeGreaterThan(0);
     // The failure is the answer: neither the sample nor a waiting line stays on screen.

@@ -33,9 +33,9 @@ New here? Read [Getting started](getting-started.md), then [Voice](voice.md).
 
 | Page | What is in it |
 |---|---|
-| [Ships](ships.md) | Your fleet, ship stats, the build planner, stored modules |
-| [Materials](materials.md) | The material grids, High Grade Emissions, links to raw sites and faction states |
-| [Engineers and on foot](engineering.md) | The engineer unlock tree, Odyssey inventory and blueprints |
+| [Ships](ships.md) | Your fleet, ship stats, the build planner, stored modules, suit and weapon blueprints |
+| [Materials](materials.md) | The material grids, your on-foot inventory, High Grade Emissions, links to raw sites and faction states |
+| [Engineers](engineering.md) | The ship and suit engineer unlock tree |
 
 ## Galaxy and trade
 

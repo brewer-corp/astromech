@@ -1,7 +1,9 @@
-# Engineers and on foot
+# Engineers
 
-Two pages under **Engineering** that go beyond ships: **Engineers**, the unlock guide, and
-**On foot**, your Odyssey inventory and blueprints.
+**Engineering, Engineers** is the unlock guide for every ship and suit engineer. The suit
+engineers were on the On foot page until it was split up: they are here beside the ship engineers,
+with every mod each one fits. On foot's inventory is now a kind on [Materials](materials.md#on-foot),
+and its blueprints are [Ships, Suits](ships.md#suits).
 
 ## Engineers
 
@@ -13,7 +15,9 @@ A tech tree of every ship engineer and suit engineer, with your progress and wha
   have unlocked, and how the marks work: white for rank, a dim mark for no access yet, dimmer cards
   for engineers who have not been introduced. A ship engineer introduces the next ones once
   your rank with them passes grade 3; each suit engineer refers the next after a task.
-- Each card shows the engineer, what they specialise in, and your **access** as engineer marks:
+- Each card shows the engineer, what they specialise in (for a suit engineer, every suit and
+  weapon mod they fit, from the Odyssey data; a "(?)" means the wiki disagrees with itself on
+  whether they fit that mod), and your **access** as engineer marks:
   one white mark per rank once you have unlocked them (so rank 5 is five marks), a dim mark
   when they are **Known** but you have no access yet, the same dim mark on a dimmer card when
   they have **Not been introduced**, an envelope when you are **Invited**, and a struck mark if you are
@@ -21,54 +25,15 @@ A tech tree of every ship engineer and suit engineer, with your progress and wha
   toward, have orange names with "Known · no access yet"; a barred engineer's name and reason are
   red; cards that still need an introduction are dim, unless you can work on them now. What is left to do stays on the card. Engineers you can work on now sit at the top of
   their column.
-  Hover a card to light who introduces them. A permit-locked system says "permit".
+  Hover a card to light who introduces them. A permit-locked system says "permit", and a suit
+  engineer in Colonia says "Colonia".
   An arrow points back to who introduces each engineer.
 - The system name has a copy button for the galaxy map.
 
 The same unlocks decide which jobs the **engineer trip** in [Ships](ships.md) can use. Source:
 the Elite Dangerous wiki, in `data/catalog/engineer-unlocks.json`. The wiki can be wrong or out of date.
 
-## On foot
-
-Odyssey micro-resources and blueprints. **What it needs:** the journal and the game's
-`ShipLocker` file, which the game writes when you are on foot. Until then the page says "not
-written yet (log in on foot once)". No network.
-
-Choose one of three views at the top:
-
-### Inventory
-
-Your ship locker and backpack by the game's own categories: choose **Goods**, **Assets**, **Data**
-or **Consumables**. Each item shows how many are in the locker, in the backpack and tied to a mission,
-what it is worth at the **barter** (assets only) and what a bartender pays you for it (**Sells for**). **Held only** hides what you do not have; **All items** shows the rest of the catalogue. The
-one in use is bright, with an orange line under it. The line above says how much is held and what a bartender would pay
-for it. Mission items go back when the mission ends and do not count for blueprints.
-
-### Blueprints
-
-Plan the micro-resources you need.
-
-1. Choose **Grade upgrade** (a suit or weapon from one grade to another) or **Modification** (a
-   suit or weapon mod, with the weapon maker for weapon mods).
-2. **Add** it. Add as many as you like.
-3. Each one shows what it still needs and how much you are short (have / need), its price in credits, and
-   which engineers fit it. Upgrades are bought at Pioneer Supplies. Gear and mods you already have
-   are marked and not offered again.
-
-Below the picks, one **shopping list** adds them all up, with the credits. A **Bartender trade**
-suggests swaps: which of your surplus assets to trade for the ones you are short of. It assumes a
-bartender swaps equal barter value and only assets are traded, because the wiki gives barter values
-for assets only.
-
-### Engineers
-
-On-foot engineers: where they are, your progress, what they offer, who refers them and the task
-for the next referral. A "(?)" means the wiki disagrees with itself on whether this engineer fits
-that mod.
-
 ## Limits
 
-- Game data (items, values, who fits what) is from the Elite Dangerous wiki and EDCD/FDevIDs, as of the
-  date the page shows at the bottom. Point at that line for how many values are unsure or blank on
-  the wiki.
-- Your picks are remembered by the app window on this PC.
+- Which mods a suit engineer fits is from the Elite Dangerous wiki and EDCD/FDevIDs; the date is
+  at the bottom of [Ships, Suits](ships.md#suits).

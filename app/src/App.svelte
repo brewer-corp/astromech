@@ -29,8 +29,12 @@
   // Pages that were merged into another keep working as links: the route's first part moves,
   // and what followed it stays ("services/black_market" opens "places/services/black_market").
   const MOVED: Record<string, string> = { activities: "controller", ...MOVED_FINDERS };
+  // On foot was split up (astromech-5a01): each of its views went to a different page, so its
+  // links go by the view and drop the rest.
+  const ON_FOOT: Record<string, string> = { blueprints: "suits", engineers: "unlocks?kind=suit" };
   const moved = (r: string) => {
     const [, head = "", rest = ""] = /^([^/?]*)(.*)$/.exec(r) ?? [];
+    if (head === "odyssey") return ON_FOOT[/[?&]view=([^&]*)/.exec(rest)?.[1] ?? ""] ?? "materials?kind=onfoot";
     return Object.hasOwn(MOVED, head) ? MOVED[head] + rest : null;
   };
   const resolve = (r: string) => moved(r) ?? (r || DEFAULT);

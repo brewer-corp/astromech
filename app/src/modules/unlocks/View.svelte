@@ -1,6 +1,8 @@
 <script lang="ts">
   // Engineer unlocks as access-level cards. Columns follow who introduces whom; hovering a
-  // card lights the engineers who have to introduce them first.
+  // card lights the engineers who have to introduce them first. A suit engineer's card lists
+  // every mod they fit and whether they are in Colonia, from the Odyssey data (moved from the On foot page,
+  // astromech-5a01); without it the card shows their specialties, as a ship engineer's does.
   import { tip } from "../../lib/ui/tip";
   import { failure } from "../../lib/ui/errors";
   import { columns, loadUnlocks, type Status, type UnlockNode, type UnlockTree } from "../../lib/unlocks";
@@ -9,6 +11,7 @@
   import Failure from "../../lib/ui/Failure.svelte";
   import { hashParam, pageHash } from "../../lib/hashstate";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
+  import { loadOdyssey, type EngineerLine } from "../../lib/odyssey";
 
   let tree = $state<UnlockTree | null>(null);
   let err = $state<string | null>(null);
@@ -25,6 +28,17 @@
     { value: "suit", label: "Suit engineers" },
   ];
   let hover = $state<string | null>(null);
+  /** The suit engineers' mods and referrals, by name; read once suit engineers are shown. */
+  let suit = $state<Map<string, EngineerLine> | null>(null);
+  $effect(() => {
+    if (kind !== "suit" || suit) return;
+    // A failed read leaves the cards as they are: the tree does not depend on it.
+    loadOdyssey()
+      .then((v) => (suit = new Map(v.engineers.map((e) => [e.name, e]))))
+      .catch(() => {});
+  });
+  /** The Tip on a "(?)" after an engineer's mod. */
+  const UNSURE = "The wiki disagrees with itself on whether this engineer fits this mod";
 
   function load() {
     err = null;
@@ -74,6 +88,7 @@
             {#each col as n (n.name)}
               {@const a = access(n)}
               {@const specs = specialties(n.name, n.kind)}
+              {@const odd = n.kind === "suit" ? suit?.get(n.name) : undefined}
               <article
                 class="eng {n.status}"
                 class:next={n.next}
@@ -107,10 +122,12 @@
                 {:else if a.mark === "invited"}<div class="gate">Invited</div>
                 {:else if a.mark === "barred"}<div class="gate">Barred</div>
                 {/if}
-                {#if specs.length}
+                {#if odd?.mods.length}
+                  <div class="spec">{#each odd.mods as m, j (j)}{j ? " · " : ""}{m.name}{m.unconfirmed ? " " : ""}{#if m.unconfirmed}<span {@attach tip(UNSURE)}>(?)</span>{/if}{/each}</div>
+                {:else if specs.length}
                   <div class="spec">{specs.join(" · ")}</div>
                 {/if}
-                <div class="where"><SystemChip name={n.system} />{n.permit ? " · permit" : ""}</div>
+                <div class="where"><SystemChip name={n.system} />{n.permit ? " · permit" : ""}{odd?.colonia ? " · Colonia" : ""}</div>
                 {#if n.introduced_by.length}<div class="from">← {n.introduced_by.join(", ")}</div>{/if}
                 {#if n.left}<p class="left">{n.left}</p>{/if}
               </article>

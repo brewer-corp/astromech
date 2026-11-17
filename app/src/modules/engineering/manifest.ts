@@ -3,7 +3,7 @@ import type { ModuleManifest } from "../../lib/modules";
 // The id stays "engineering" so the old #/engineering route opens this page.
 const manifest: ModuleManifest = {
   id: "engineering",
-  group: "engineering",
+  group: "ships",
   title: "Ships",
   summary: "Your fleet, ship stats, and a build plan for any ship: materials, trades, farming and engineer trips",
   help: "ships.md",
