@@ -1,5 +1,5 @@
 {
- "commit": "c79584fb",
+ "commit": "458f7477",
  "captures": {
   "stored-1100x700": {
    "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/stored",
@@ -3979,48 +3979,7 @@
    },
    "sideways": [],
    "clipped": [],
-   "overlaps": [
-    {
-     "a": "General",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 16.2,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Data sharing",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 77.7,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Diagnostics",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 70.5,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Voice tester",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 71.7,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.on",
-      "div.tip"
-     ]
-    }
-   ],
+   "overlaps": [],
    "small": [],
    "contrast": [],
    "exempt": [
@@ -4059,7 +4018,7 @@
      "colour": "#e0e0e0",
      "lum": 0.745,
      "sidebar": false,
-     "weight": 10,
+     "weight": 9,
      "texts": [
       "Voice tester",
       "Heard",
@@ -4069,7 +4028,6 @@
       "Keys",
       "L",
       "You're down.",
-      "lamps",
       "Heavy Lifter"
      ]
     },
@@ -4077,7 +4035,7 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 14,
+     "weight": 13,
      "texts": [
       "4 of 10",
       "7",
@@ -4090,8 +4048,7 @@
       "24.6",
       "32",
       "120",
-      "256",
-      "Push-to-talk can be tested here while Elite is running"
+      "256"
      ]
     },
     {
@@ -4107,7 +4064,7 @@
      "colour": "#ff7100",
      "lum": 0.331,
      "sidebar": false,
-     "weight": 8,
+     "weight": 7,
      "texts": [
       "Ctrl+K",
       "Help",
@@ -4184,48 +4141,7 @@
    },
    "sideways": [],
    "clipped": [],
-   "overlaps": [
-    {
-     "a": "General",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 16.2,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Data sharing",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 77.7,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Diagnostics",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 70.5,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Voice tester",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 71.7,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.on",
-      "div.tip"
-     ]
-    }
-   ],
+   "overlaps": [],
    "small": [],
    "contrast": [],
    "exempt": [
@@ -4352,7 +4268,7 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 12,
+     "weight": 11,
      "texts": [
       "gear down",
       "100%",
@@ -4363,8 +4279,7 @@
       "24.6",
       "32",
       "120",
-      "256",
-      "Push-to-talk can be tested here while Elite is running"
+      "256"
      ]
     },
     {
@@ -4419,48 +4334,7 @@
    },
    "sideways": [],
    "clipped": [],
-   "overlaps": [
-    {
-     "a": "General",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 16.2,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Data sharing",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 77.7,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Diagnostics",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 70.5,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Voice tester",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 71.7,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.on",
-      "div.tip"
-     ]
-    }
-   ],
+   "overlaps": [],
    "small": [],
    "contrast": [],
    "exempt": [
@@ -4587,7 +4461,7 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 12,
+     "weight": 11,
      "texts": [
       "gear down",
       "100%",
@@ -4598,8 +4472,7 @@
       "24.6",
       "32",
       "120",
-      "256",
-      "Push-to-talk can be tested here while Elite is running"
+      "256"
      ]
     },
     {
@@ -7956,6 +7829,2424 @@
      "text": "Places",
      "sidebar": false,
      "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "stored-loading-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&slow=never:engineering_fleet&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/stored",
+   "file": "docs/design/remaining/stored-loading-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Stored modules"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "4 of 10",
+      "7",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Arietis Sector LD-H a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 21,
+     "texts": [
+      "Now",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Ships",
+      "Suits"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Ships"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "stored-loading-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&slow=never:engineering_fleet&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/stored",
+   "file": "docs/design/remaining/stored-loading-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Stored modules"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "stored-loading-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&slow=never:engineering_fleet&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/stored",
+   "file": "docs/design/remaining/stored-loading-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Stored modules"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "stored-failed-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&fail=engineering_fleet&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/stored",
+   "file": "docs/design/remaining/stored-failed-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Stored modules"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "4 of 10",
+      "7",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Arietis Sector LD-H a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 21,
+     "texts": [
+      "Now",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Ships",
+      "Suits"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Ships"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "stored-failed-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&fail=engineering_fleet&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/stored",
+   "file": "docs/design/remaining/stored-failed-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Stored modules"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "stored-failed-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&fail=engineering_fleet&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/stored",
+   "file": "docs/design/remaining/stored-failed-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Stored modules"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "datasharing-loading-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&slow=never:eddn_log&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/datasharing",
+   "file": "docs/design/remaining/datasharing-loading-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Data sharing",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Reading the sharing log…",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Arietis Sector LD-H a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 24,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Next",
+      "To",
+      "jumps left",
+      "General",
+      "Diagnostics"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Settings"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "datasharing-loading-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&slow=never:eddn_log&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/datasharing",
+   "file": "docs/design/remaining/datasharing-loading-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Data sharing",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Reading the sharing log…",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "datasharing-loading-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&slow=never:eddn_log&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/datasharing",
+   "file": "docs/design/remaining/datasharing-loading-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Data sharing",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Reading the sharing log…",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "datasharing-failed-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&fail=eddn_log&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/datasharing",
+   "file": "docs/design/remaining/datasharing-failed-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Data sharing",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Could not read the sharing log: preview: eddn_log failed on ",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Arietis Sector LD-H a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 24,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Next",
+      "To",
+      "jumps left",
+      "General",
+      "Diagnostics"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Settings"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "datasharing-failed-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&fail=eddn_log&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/datasharing",
+   "file": "docs/design/remaining/datasharing-failed-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Data sharing",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Could not read the sharing log: preview: eddn_log failed on ",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "datasharing-failed-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&fail=eddn_log&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/datasharing",
+   "file": "docs/design/remaining/datasharing-failed-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Data sharing",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Could not read the sharing log: preview: eddn_log failed on ",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "diagnostics-failed-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&fail=eddn_log&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/diagnostics",
+   "file": "docs/design/remaining/diagnostics-failed-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "Diagnostics",
+      "Version",
+      "Elite",
+      "State",
+      "Voice",
+      "Kill switch",
+      "Setup",
+      "Process",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "0.0.0-dev",
+      "Not running",
+      "Idle",
+      "voice not loaded",
+      "Off",
+      "Done",
+      "pid 4242",
+      "EDDN",
+      "18.0",
+      "24.6",
+      "32",
+      "120"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Arietis Sector LD-H a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Open log folder",
+      "Try again",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 24,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Next",
+      "To",
+      "jumps left",
+      "General",
+      "Data sharing"
+     ]
+    },
+    {
+     "colour": "#f0412e",
+     "lum": 0.225,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "!",
+      "Could not read the EDDN log: preview: eddn_log failed on pur"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Save diagnostics",
+     "sidebar": false,
+     "at": "main. > div.form > div.actions > button.btn.primary"
+    }
+   ]
+  },
+  "diagnostics-failed-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&fail=eddn_log&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/diagnostics",
+   "file": "docs/design/remaining/diagnostics-failed-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "Diagnostics",
+      "Version",
+      "Elite",
+      "State",
+      "Voice",
+      "Kill switch",
+      "Setup",
+      "Process",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "0.0.0-dev",
+      "Not running",
+      "Idle",
+      "voice not loaded",
+      "Off",
+      "Done",
+      "pid 4242",
+      "EDDN",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Open log folder",
+      "Try again",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Save diagnostics",
+     "sidebar": false,
+     "at": "main. > div.form > div.actions > button.btn.primary"
+    }
+   ]
+  },
+  "diagnostics-failed-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&fail=eddn_log&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/diagnostics",
+   "file": "docs/design/remaining/diagnostics-failed-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "Diagnostics",
+      "Version",
+      "Elite",
+      "State",
+      "Voice",
+      "Kill switch",
+      "Setup",
+      "Process",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "0.0.0-dev",
+      "Not running",
+      "Idle",
+      "voice not loaded",
+      "Off",
+      "Done",
+      "pid 4242",
+      "EDDN",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Open log folder",
+      "Try again",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Save diagnostics",
+     "sidebar": false,
+     "at": "main. > div.form > div.actions > button.btn.primary"
     }
    ]
   }

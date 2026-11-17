@@ -235,7 +235,7 @@
   },
   {
    "name": "hotspots-selected",
-   "hash": "places/mining-hotspots/platinum?ring=metallic&reserve=pristine",
+   "hash": "places/mining-hotspots/platinum",
    "steps": [
     {
      "click": "[role=table][aria-label=Results] .row.result button[aria-pressed=false]"

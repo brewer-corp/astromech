@@ -155,9 +155,9 @@
 
   {#if result}
     <dl>
-      <dt class="type-name">Heard</dt>
+      <dt class="type-label">Heard</dt>
       <dd>{result.transcript || "(nothing)"}<span class="type-label">&nbsp;· {result.source === "voice" ? "push-to-talk" : "typed"}</span></dd>
-      <dt class="type-name">Intent</dt>
+      <dt class="type-label">Intent</dt>
       <dd>
         {#if result.intent && result.intent.decision !== "no_match"}
           {result.intent.phrase}<span class="type-label">&nbsp;· {result.intent.command}</span>
@@ -165,11 +165,11 @@
           No match
         {/if}
       </dd>
-      <dt class="type-name">Confidence</dt>
+      <dt class="type-label">Confidence</dt>
       <dd>{#if result.intent}{Math.round(result.intent.score * 100)}%<span class="type-label">&nbsp;· {DECISION[result.intent.decision] ?? result.intent.decision}</span>{:else}—{/if}</dd>
-      <dt class="type-name">Would</dt>
+      <dt class="type-label">Would</dt>
       <dd>{WOULD[result.would]}{#if result.message}&nbsp;“{result.message}”{/if}</dd>
-      <dt class="type-name">Keys</dt>
+      <dt class="type-label">Keys</dt>
       <dd>
         {#if result.keys}
           <span class="key">{keys(result.keys)}</span>
@@ -226,9 +226,10 @@
   .ask { display: flex; margin: 0 0 var(--sp-6); }
   dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: var(--sp-12); row-gap: var(--gap); margin: 0 0 var(--sp-4); }
   dt, dd { margin: 0; min-height: var(--row); display: flex; align-items: center; }
-  dt { color: var(--options-grey); padding-left: var(--sp-3); }
-  /* What the tester worked out is read-only: facts outside a cell, the keys outlined like a badge. */
-  dd { color: var(--prose); }
+  dt { padding-left: var(--sp-3); }
+  /* What the tester worked out is the page's answer: read-only facts outside a cell (DESIGN.md Fact
+     list), brighter than their labels; the keys outlined like a badge. */
+  dd { color: var(--options-grey); }
   .key { outline: 1px solid var(--line); outline-offset: -1px; color: var(--options-grey); padding: var(--gap) var(--sp-2); }
   .safe { margin-bottom: var(--sp-4); }
   .actions { display: flex; gap: var(--sp-6); align-items: center; }

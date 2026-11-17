@@ -1,5 +1,5 @@
 {
- "commit": "c79584fb",
+ "commit": "458f7477",
  "captures": {
   "now-1100x700": {
    "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/now",
@@ -10320,6 +10320,5929 @@
     }
    ]
   },
+  "buy-selected-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/buy/painite",
+   "file": "docs/design/final/buy-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Bogacki Extraction Territory"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Grandin Gateway",
+      "Core Sys Sector YU-P a5-3",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "21,902",
+      "288",
+      "1",
+      "Settlement in",
+      "L",
+      "2,266",
+      "1 jump · 30.3",
+      "29",
+      "18.0",
+      "24.6",
+      "32",
+      "120"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "44,738"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "57,215",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 39,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "cr",
+      "t"
+     ]
+    },
+    {
+     "colour": "#ca6657",
+     "lum": 0.227,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "M",
+      "31"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "buy-selected-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/buy/painite",
+   "file": "docs/design/final/buy-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Buy",
+      "Bogacki Extraction Territory"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Ray Freeport",
+      "Ivins City",
+      "Ham Dock",
+      "Olympus Prime",
+      "Tevis Terminal",
+      "Grandin Gateway",
+      "Core Sys Sector YU-P a5-3",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 38,
+     "texts": [
+      "cr",
+      "t",
+      "L",
+      "2,266",
+      "ls",
+      "Core Sys Sector YU-P a5-3",
+      "1",
+      "jump",
+      "30.3",
+      "ly",
+      "1,872",
+      "9,682",
+      "2,456",
+      "198"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "44,738"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "buy-selected-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/buy/painite",
+   "file": "docs/design/final/buy-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Buy",
+      "Bogacki Extraction Territory"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Ray Freeport",
+      "Ivins City",
+      "Ham Dock",
+      "Olympus Prime",
+      "Tevis Terminal",
+      "Grandin Gateway",
+      "Core Sys Sector YU-P a5-3",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 38,
+     "texts": [
+      "cr",
+      "t",
+      "L",
+      "2,266",
+      "ls",
+      "Core Sys Sector YU-P a5-3",
+      "1",
+      "jump",
+      "30.3",
+      "ly",
+      "1,872",
+      "9,682",
+      "2,456",
+      "198"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "44,738"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "buy-selected-3840x2160": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/buy/painite",
+   "file": "docs/design/final/buy-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Buy",
+      "Bogacki Extraction Territory"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Ray Freeport",
+      "Ivins City",
+      "Ham Dock",
+      "Olympus Prime",
+      "Tevis Terminal",
+      "Grandin Gateway",
+      "Core Sys Sector YU-P a5-3",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 38,
+     "texts": [
+      "cr",
+      "t",
+      "L",
+      "2,266",
+      "ls",
+      "Core Sys Sector YU-P a5-3",
+      "1",
+      "jump",
+      "30.3",
+      "ly",
+      "1,872",
+      "9,682",
+      "2,456",
+      "198"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "44,738"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "sell-cargo-selected-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/sell-cargo",
+   "file": "docs/design/final/sell-cargo-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Good Landing"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "100 t Platinum",
+      "LFT 65",
+      "LHS 1827",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 16,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Cousteau Vista ·",
+      "29,471,200 cr in all",
+      "~2 jumps · 32.4 ly",
+      "In",
+      "all 600",
+      "L",
+      "22,200",
+      "1 jump · 18.8",
+      "4",
+      "18.0",
+      "24.6",
+      "32"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "183,674,700"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "294,712 cr",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 32,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "demand 2,479 · reported 4 d ago",
+      "cr"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Places",
+      "Set destination"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "sell-cargo-selected-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/sell-cargo",
+   "file": "docs/design/final/sell-cargo-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Sell my cargo",
+      "Good Landing"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "Cousteau Vista",
+      "Makhai High",
+      "Radium Station",
+      "Sabine Point",
+      "Grandin Gateway",
+      "FCX-024",
+      "Tevis Terminal",
+      "300 t Low Temperature Diamonds",
+      "Ross 79",
+      "200 t Painite",
+      "LHS 1827",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 57,
+     "texts": [
+      "300 t",
+      "200 t",
+      "100 t",
+      "cr",
+      "all 600",
+      "t",
+      "L",
+      "22,200",
+      "ls",
+      "LHS 1827",
+      "1",
+      "jump",
+      "18.8",
+      "ly"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "183,674,700"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "sell-cargo-selected-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/sell-cargo",
+   "file": "docs/design/final/sell-cargo-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Sell my cargo",
+      "Good Landing"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Cousteau Vista",
+      "Makhai High",
+      "Radium Station",
+      "Sabine Point",
+      "Grandin Gateway",
+      "FCX-024",
+      "Tevis Terminal",
+      "300 t Low Temperature Diamonds",
+      "Ross 79",
+      "LHS 1827",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 54,
+     "texts": [
+      "300 t",
+      "200 t",
+      "100 t",
+      "cr",
+      "all 600",
+      "t",
+      "L",
+      "22,200",
+      "ls",
+      "LHS 1827",
+      "1",
+      "jump",
+      "18.8",
+      "ly"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "183,674,700"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "sell-cargo-selected-3840x2160": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/sell-cargo",
+   "file": "docs/design/final/sell-cargo-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Sell my cargo",
+      "Good Landing"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Cousteau Vista",
+      "Makhai High",
+      "Radium Station",
+      "Sabine Point",
+      "Grandin Gateway",
+      "FCX-024",
+      "Tevis Terminal",
+      "300 t Low Temperature Diamonds",
+      "Ross 79",
+      "200 t Painite",
+      "LHS 1827",
+      "100 t Platinum",
+      "LFT 65",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 60,
+     "texts": [
+      "300 t",
+      "200 t",
+      "100 t",
+      "cr",
+      "all 600",
+      "t",
+      "L",
+      "22,200",
+      "ls",
+      "LHS 1827",
+      "1",
+      "jump",
+      "18.8",
+      "ly"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "183,674,700"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "services-selected-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/services/raw_trader",
+   "file": "docs/design/final/services-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Services",
+      "Rescue Ship - Li Qing Jao"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Metallic Base 2",
+      "Bakshi Manufacturing Complex",
+      "T8J-N7L",
+      "Kawle Genetics Complex",
+      "al-Din Prospect",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 27,
+     "texts": [
+      "4 of 10",
+      "7",
+      "jumps",
+      "L",
+      "497",
+      "ls",
+      "Sol",
+      "159",
+      "4,374",
+      "1,845",
+      "4,369",
+      "4,376",
+      "Mega ship in",
+      "Federation · Mother Gaia"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "~0"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Places",
+      "Change",
+      "2,042 d old",
+      "1,093 d old",
+      "~1",
+      "49 d old",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "~0",
+      "~1"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 52,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Service",
+      "Nearest to Sol · medium or large pad · reports of any age"
+     ]
+    },
+    {
+     "colour": "#ca6657",
+     "lum": 0.227,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "M"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "services-selected-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/services/raw_trader",
+   "file": "docs/design/final/services-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Services",
+      "Rescue Ship - Li Qing Jao"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Metallic Base 2",
+      "Bakshi Manufacturing Complex",
+      "T8J-N7L",
+      "Kawle Genetics Complex",
+      "al-Din Prospect",
+      "T9Q-68M",
+      "K2T-7KH",
+      "K8L-07J",
+      "Hutton Orbital",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 32,
+     "texts": [
+      "jumps",
+      "L",
+      "497",
+      "ls",
+      "Sol",
+      "159",
+      "4,374",
+      "1,845",
+      "4,369",
+      "4,376",
+      "4,095",
+      "0",
+      "103",
+      "6,395,217"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "services-selected-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/services/raw_trader",
+   "file": "docs/design/final/services-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Services",
+      "Rescue Ship - Li Qing Jao"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Metallic Base 2",
+      "Bakshi Manufacturing Complex",
+      "T8J-N7L",
+      "Kawle Genetics Complex",
+      "al-Din Prospect",
+      "T9Q-68M",
+      "K2T-7KH",
+      "K8L-07J",
+      "Hutton Orbital",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 32,
+     "texts": [
+      "jumps",
+      "L",
+      "497",
+      "ls",
+      "Sol",
+      "159",
+      "4,374",
+      "1,845",
+      "4,369",
+      "4,376",
+      "4,095",
+      "0",
+      "103",
+      "6,395,217"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "services-selected-3840x2160": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/services/raw_trader",
+   "file": "docs/design/final/services-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Services",
+      "Rescue Ship - Li Qing Jao"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Metallic Base 2",
+      "Bakshi Manufacturing Complex",
+      "T8J-N7L",
+      "Kawle Genetics Complex",
+      "al-Din Prospect",
+      "T9Q-68M",
+      "K2T-7KH",
+      "K8L-07J",
+      "Hutton Orbital",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 32,
+     "texts": [
+      "jumps",
+      "L",
+      "497",
+      "ls",
+      "Sol",
+      "159",
+      "4,374",
+      "1,845",
+      "4,369",
+      "4,376",
+      "4,095",
+      "0",
+      "103",
+      "6,395,217"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "outfitting-selected-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/outfitting/Pulse%20Laser?class=1&rating=F&mount=Fixed",
+   "file": "docs/design/final/outfitting-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Titan City"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Orbis Starport in",
+      "5A Frame Shift Drive",
+      "5,103,953",
+      "Federation · Mother Gaia · Under Repairs",
+      "L",
+      "4,711",
+      "~0 jumps · 0.0",
+      "1",
+      "18.0",
+      "24.6",
+      "32",
+      "120"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "~0"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 34,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "At 31.5 ly per jump · Spansh, just now · ~ = straight-line e",
+      "jumps"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Places",
+      "Set destination"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "outfitting-selected-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/outfitting/Pulse%20Laser?class=1&rating=F&mount=Fixed",
+   "file": "docs/design/final/outfitting-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Outfitting",
+      "Titan City"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Stronghold Carrier",
+      "K3K-N8W",
+      "G6G-8KJ",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 31,
+     "texts": [
+      "jumps",
+      "0.0",
+      "ly",
+      "L",
+      "4,711",
+      "ls",
+      "Sol",
+      "5,103,953",
+      "cr",
+      "4,521",
+      "0",
+      "Orbis Starport in",
+      "5A Frame Shift Drive",
+      "Federation · Mother Gaia · Under Repairs"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "1",
+      "F",
+      "Fixed",
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "outfitting-selected-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/outfitting/Pulse%20Laser?class=1&rating=F&mount=Fixed",
+   "file": "docs/design/final/outfitting-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Outfitting",
+      "Titan City"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Stronghold Carrier",
+      "K3K-N8W",
+      "G6G-8KJ",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 31,
+     "texts": [
+      "jumps",
+      "0.0",
+      "ly",
+      "L",
+      "4,711",
+      "ls",
+      "Sol",
+      "5,103,953",
+      "cr",
+      "4,521",
+      "0",
+      "Orbis Starport in",
+      "5A Frame Shift Drive",
+      "Federation · Mother Gaia · Under Repairs"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "1",
+      "F",
+      "Fixed",
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "outfitting-selected-3840x2160": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/outfitting/Pulse%20Laser?class=1&rating=F&mount=Fixed",
+   "file": "docs/design/final/outfitting-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Outfitting",
+      "Titan City"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Stronghold Carrier",
+      "K3K-N8W",
+      "G6G-8KJ",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 31,
+     "texts": [
+      "jumps",
+      "0.0",
+      "ly",
+      "L",
+      "4,711",
+      "ls",
+      "Sol",
+      "5,103,953",
+      "cr",
+      "4,521",
+      "0",
+      "Orbis Starport in",
+      "5A Frame Shift Drive",
+      "Federation · Mother Gaia · Under Repairs"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "1",
+      "F",
+      "Fixed",
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "shipyard-selected-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/shipyard/Anaconda",
+   "file": "docs/design/final/shipyard-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Ehrlich City"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "45,814,205",
+      "Planetary Port in",
+      "Federation · Sol Workers' Party · Under Repairs",
+      "L",
+      "172",
+      "~0 jumps · 0.0",
+      "1",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "~0"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 37,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "0.0",
+      "ly"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Places",
+      "Set destination"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "shipyard-selected-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/shipyard/Anaconda",
+   "file": "docs/design/final/shipyard-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Shipyard",
+      "Ehrlich City"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Mars High",
+      "Furukawa Enterprise",
+      "Galileo",
+      "Schottky Reformatory",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 33,
+     "texts": [
+      "jumps",
+      "0.0",
+      "ly",
+      "L",
+      "172",
+      "ls",
+      "Sol",
+      "45,814,205",
+      "cr",
+      "826",
+      "173",
+      "506",
+      "2,608",
+      "Planetary Port in"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "shipyard-selected-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/shipyard/Anaconda",
+   "file": "docs/design/final/shipyard-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Shipyard",
+      "Ehrlich City"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Mars High",
+      "Furukawa Enterprise",
+      "Galileo",
+      "Schottky Reformatory",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 33,
+     "texts": [
+      "jumps",
+      "0.0",
+      "ly",
+      "L",
+      "172",
+      "ls",
+      "Sol",
+      "45,814,205",
+      "cr",
+      "826",
+      "173",
+      "506",
+      "2,608",
+      "Planetary Port in"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "shipyard-selected-3840x2160": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/shipyard/Anaconda",
+   "file": "docs/design/final/shipyard-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Shipyard",
+      "Ehrlich City"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Mars High",
+      "Furukawa Enterprise",
+      "Galileo",
+      "Schottky Reformatory",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 33,
+     "texts": [
+      "jumps",
+      "0.0",
+      "ly",
+      "L",
+      "172",
+      "ls",
+      "Sol",
+      "45,814,205",
+      "cr",
+      "826",
+      "173",
+      "506",
+      "2,608",
+      "Planetary Port in"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "material-traders-selected-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/material-traders/encoded",
+   "file": "docs/design/final/material-traders-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Material traders",
+      "Rescue Ship - Li Qing Jao"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Metallic Base 2",
+      "Bakshi Manufacturing Complex",
+      "T8J-N7L",
+      "Kawle Genetics Complex",
+      "al-Din Prospect",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 27,
+     "texts": [
+      "4 of 10",
+      "7",
+      "jumps",
+      "L",
+      "497",
+      "ls",
+      "Sol",
+      "159",
+      "4,374",
+      "1,845",
+      "4,369",
+      "4,376",
+      "Mega ship in",
+      "Federation · Mother Gaia"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Encoded",
+      "~0"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 16,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Places",
+      "Raw",
+      "Manufactured",
+      "Any",
+      "Change",
+      "2,042 d old",
+      "1,093 d old",
+      "~1",
+      "49 d old",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "~0",
+      "~1"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 52,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Trader",
+      "Nearest to Sol · medium or large pad · reports of any age"
+     ]
+    },
+    {
+     "colour": "#ca6657",
+     "lum": 0.227,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "M"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "material-traders-selected-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/material-traders/encoded",
+   "file": "docs/design/final/material-traders-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Material traders",
+      "Rescue Ship - Li Qing Jao"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Metallic Base 2",
+      "Bakshi Manufacturing Complex",
+      "T8J-N7L",
+      "Kawle Genetics Complex",
+      "al-Din Prospect",
+      "T9Q-68M",
+      "K2T-7KH",
+      "K8L-07J",
+      "Hutton Orbital",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 32,
+     "texts": [
+      "jumps",
+      "L",
+      "497",
+      "ls",
+      "Sol",
+      "159",
+      "4,374",
+      "1,845",
+      "4,369",
+      "4,376",
+      "4,095",
+      "0",
+      "103",
+      "6,395,217"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Encoded",
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "material-traders-selected-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/material-traders/encoded",
+   "file": "docs/design/final/material-traders-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Material traders",
+      "Rescue Ship - Li Qing Jao"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Metallic Base 2",
+      "Bakshi Manufacturing Complex",
+      "T8J-N7L",
+      "Kawle Genetics Complex",
+      "al-Din Prospect",
+      "T9Q-68M",
+      "K2T-7KH",
+      "K8L-07J",
+      "Hutton Orbital",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 32,
+     "texts": [
+      "jumps",
+      "L",
+      "497",
+      "ls",
+      "Sol",
+      "159",
+      "4,374",
+      "1,845",
+      "4,369",
+      "4,376",
+      "4,095",
+      "0",
+      "103",
+      "6,395,217"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Encoded",
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "material-traders-selected-3840x2160": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/material-traders/encoded",
+   "file": "docs/design/final/material-traders-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Material traders",
+      "Rescue Ship - Li Qing Jao"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Metallic Base 2",
+      "Bakshi Manufacturing Complex",
+      "T8J-N7L",
+      "Kawle Genetics Complex",
+      "al-Din Prospect",
+      "T9Q-68M",
+      "K2T-7KH",
+      "K8L-07J",
+      "Hutton Orbital",
+      "Sol",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 32,
+     "texts": [
+      "jumps",
+      "L",
+      "497",
+      "ls",
+      "Sol",
+      "159",
+      "4,374",
+      "1,845",
+      "4,369",
+      "4,376",
+      "4,095",
+      "0",
+      "103",
+      "6,395,217"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Encoded",
+      "~0"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "raw-sites-selected-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/raw-sites/brain_trees",
+   "file": "docs/design/final/raw-sites-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Roseum Brain Tree · Selenium 3.6%, Yttrium 1.0%, Niobium 1.1",
+     "by": "ellipsis",
+     "at": "div.row.result.stale.sel > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Viride Brain Tree · first at -19.8, 37.7 · Selenium 3.2%, Po",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at -45.4, -17.4 · Tellurium 1.3%, ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at 34.0, 146.0 · Yttrium 1.2%, Cad",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at -48.7, -36.8 · Ruthenium 1.3%, ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at 44.0, 88.0 · Selenium 2.8%, Ant",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "B 2"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "B 1 a",
+      "Ch'i Lingo",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Roseum Brain Tree · first at -48.7, -36.8 · Ruthenium 1.3%, ",
+      "1,485",
+      "Roseum Brain Tree · first at 44.0, 88.0 · Selenium 2.8%, Ant",
+      "In",
+      "Roseum Brain Tree · Selenium 3.6%, Yttrium 1.0%, Niobium 1.1",
+      "1,942",
+      "~3 jumps · 91.9",
+      "44",
+      "18.0",
+      "24.6",
+      "32",
+      "120"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "~3"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "~12",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 38,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "370.0",
+      "ly"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Places",
+      "Set destination"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "raw-sites-selected-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/raw-sites/brain_trees",
+   "file": "docs/design/final/raw-sites-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Roseum Brain Tree · Selenium 3.6%, Yttrium 1.0%, Niobium 1.1",
+     "by": "ellipsis",
+     "at": "div.row.result.stale.sel > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Viride Brain Tree · first at -19.8, 37.7 · Selenium 3.2%, Po",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at -45.4, -17.4 · Tellurium 1.3%, ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at 34.0, 146.0 · Yttrium 1.2%, Cad",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at -48.7, -36.8 · Ruthenium 1.3%, ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at 44.0, 88.0 · Selenium 2.8%, Ant",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Raw sites",
+      "B 2"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "B 1 a",
+      "C 3 a",
+      "A 1 a",
+      "B 4 a",
+      "Ch'i Lingo",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 25,
+     "texts": [
+      "jumps",
+      "1,942",
+      "ls",
+      "Ch'i Lingo",
+      "Roseum Brain Tree · Selenium 3.6%, Yttrium 1.0%, Niobium 1.1",
+      "355,579",
+      "Viride Brain Tree · first at -19.8, 37.7 · Selenium 3.2%, Po",
+      "453",
+      "Roseum Brain Tree · first at -45.4, -17.4 · Tellurium 1.3%, ",
+      "24",
+      "Roseum Brain Tree · first at 34.0, 146.0 · Yttrium 1.2%, Cad",
+      "1,466",
+      "Roseum Brain Tree · first at -48.7, -36.8 · Ruthenium 1.3%, ",
+      "1,485"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "~3"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "raw-sites-selected-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/raw-sites/brain_trees",
+   "file": "docs/design/final/raw-sites-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Roseum Brain Tree · Selenium 3.6%, Yttrium 1.0%, Niobium 1.1",
+     "by": "ellipsis",
+     "at": "div.row.result.stale.sel > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Viride Brain Tree · first at -19.8, 37.7 · Selenium 3.2%, Po",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at -45.4, -17.4 · Tellurium 1.3%, ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at 34.0, 146.0 · Yttrium 1.2%, Cad",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at -48.7, -36.8 · Ruthenium 1.3%, ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at 44.0, 88.0 · Selenium 2.8%, Ant",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Raw sites",
+      "B 2"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "B 1 a",
+      "C 3 a",
+      "A 1 a",
+      "B 4 a",
+      "Ch'i Lingo",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 25,
+     "texts": [
+      "jumps",
+      "1,942",
+      "ls",
+      "Ch'i Lingo",
+      "Roseum Brain Tree · Selenium 3.6%, Yttrium 1.0%, Niobium 1.1",
+      "355,579",
+      "Viride Brain Tree · first at -19.8, 37.7 · Selenium 3.2%, Po",
+      "453",
+      "Roseum Brain Tree · first at -45.4, -17.4 · Tellurium 1.3%, ",
+      "24",
+      "Roseum Brain Tree · first at 34.0, 146.0 · Yttrium 1.2%, Cad",
+      "1,466",
+      "Roseum Brain Tree · first at -48.7, -36.8 · Ruthenium 1.3%, ",
+      "1,485"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "~3"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "raw-sites-selected-3840x2160": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/raw-sites/brain_trees",
+   "file": "docs/design/final/raw-sites-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Roseum Brain Tree · Selenium 3.6%, Yttrium 1.0%, Niobium 1.1",
+     "by": "ellipsis",
+     "at": "div.row.result.stale.sel > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Viride Brain Tree · first at -19.8, 37.7 · Selenium 3.2%, Po",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at -45.4, -17.4 · Tellurium 1.3%, ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at 34.0, 146.0 · Yttrium 1.2%, Cad",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at -48.7, -36.8 · Ruthenium 1.3%, ",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    },
+    {
+     "text": "Roseum Brain Tree · first at 44.0, 88.0 · Selenium 2.8%, Ant",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.own > span.l1 > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Raw sites",
+      "B 2"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "B 1 a",
+      "C 3 a",
+      "A 1 a",
+      "B 4 a",
+      "Ch'i Lingo",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 25,
+     "texts": [
+      "jumps",
+      "1,942",
+      "ls",
+      "Ch'i Lingo",
+      "Roseum Brain Tree · Selenium 3.6%, Yttrium 1.0%, Niobium 1.1",
+      "355,579",
+      "Viride Brain Tree · first at -19.8, 37.7 · Selenium 3.2%, Po",
+      "453",
+      "Roseum Brain Tree · first at -45.4, -17.4 · Tellurium 1.3%, ",
+      "24",
+      "Roseum Brain Tree · first at 34.0, 146.0 · Yttrium 1.2%, Cad",
+      "1,466",
+      "Roseum Brain Tree · first at -48.7, -36.8 · Ruthenium 1.3%, ",
+      "1,485"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "~3"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "faction-states-selected-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/faction-states/military",
+   "file": "docs/design/final/faction-states-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Sol"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Barnard's Star",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 16,
+     "texts": [
+      "4 of 10",
+      "7",
+      "5.9B",
+      "A Different Kind (Federation, None)",
+      "1M",
+      "10th Fleet (Federation, None)",
+      "~1",
+      "18.3B",
+      "Federal Congress (Federation, Expansion)",
+      "~0 jumps · 0.0",
+      "1",
+      "18.0",
+      "24.6",
+      "32"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "150"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "0",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 33,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "15.9",
+      "ly"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Places",
+      "Set destination"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "faction-states-selected-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/faction-states/military",
+   "file": "docs/design/final/faction-states-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Faction states",
+      "Sol"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Duamta",
+      "Procyon",
+      "Tau Ceti",
+      "Epsilon Indi",
+      "Groombridge 1618",
+      "Barnard's Star",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 33,
+     "texts": [
+      "18.3B",
+      "Federal Congress (Federation, Expansion)",
+      "~0",
+      "jumps",
+      "0.0",
+      "ly",
+      "13.3B",
+      "Duamta Gold Creative Corp. (Federation, None)",
+      "~1",
+      "18.6B",
+      "G 41-14 Purple Travel Solutions (Federation, Civil Unrest, B",
+      "5.0B",
+      "Independents of Tau Ceti (Federation, None)",
+      "4.0B"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "150"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "faction-states-selected-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/faction-states/military",
+   "file": "docs/design/final/faction-states-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Faction states",
+      "Sol"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Duamta",
+      "Procyon",
+      "Tau Ceti",
+      "Epsilon Indi",
+      "Groombridge 1618",
+      "Barnard's Star",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 33,
+     "texts": [
+      "18.3B",
+      "Federal Congress (Federation, Expansion)",
+      "~0",
+      "jumps",
+      "0.0",
+      "ly",
+      "13.3B",
+      "Duamta Gold Creative Corp. (Federation, None)",
+      "~1",
+      "18.6B",
+      "G 41-14 Purple Travel Solutions (Federation, Civil Unrest, B",
+      "5.0B",
+      "Independents of Tau Ceti (Federation, None)",
+      "4.0B"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "150"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "faction-states-selected-3840x2160": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/faction-states/military",
+   "file": "docs/design/final/faction-states-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Faction states",
+      "Sol"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Duamta",
+      "Procyon",
+      "Tau Ceti",
+      "Epsilon Indi",
+      "Groombridge 1618",
+      "Barnard's Star",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 33,
+     "texts": [
+      "18.3B",
+      "Federal Congress (Federation, Expansion)",
+      "~0",
+      "jumps",
+      "0.0",
+      "ly",
+      "13.3B",
+      "Duamta Gold Creative Corp. (Federation, None)",
+      "~1",
+      "18.6B",
+      "G 41-14 Purple Travel Solutions (Federation, Civil Unrest, B",
+      "5.0B",
+      "Independents of Tau Ceti (Federation, None)",
+      "4.0B"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "150"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
   "trade-route-1100x700": {
    "url": "http://localhost:5391/?core=ready&route=exact&game=running&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/trade",
    "file": "docs/design/final/trade-route-1100x700.png",
@@ -17280,48 +23203,7 @@
    },
    "sideways": [],
    "clipped": [],
-   "overlaps": [
-    {
-     "a": "General",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 16.2,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Data sharing",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 77.7,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Diagnostics",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 70.5,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Voice tester",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 71.7,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.on",
-      "div.tip"
-     ]
-    }
-   ],
+   "overlaps": [],
    "small": [],
    "contrast": [],
    "exempt": [
@@ -17360,7 +23242,7 @@
      "colour": "#e0e0e0",
      "lum": 0.745,
      "sidebar": false,
-     "weight": 10,
+     "weight": 9,
      "texts": [
       "Voice tester",
       "Heard",
@@ -17370,7 +23252,6 @@
       "Keys",
       "L",
       "You're down.",
-      "lamps",
       "Heavy Lifter"
      ]
     },
@@ -17378,7 +23259,7 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 14,
+     "weight": 13,
      "texts": [
       "4 of 10",
       "7",
@@ -17391,8 +23272,7 @@
       "24.6",
       "32",
       "120",
-      "256",
-      "Push-to-talk can be tested here while Elite is running"
+      "256"
      ]
     },
     {
@@ -17408,7 +23288,7 @@
      "colour": "#ff7100",
      "lum": 0.331,
      "sidebar": false,
-     "weight": 8,
+     "weight": 7,
      "texts": [
       "Ctrl+K",
       "Help",
@@ -17485,48 +23365,7 @@
    },
    "sideways": [],
    "clipped": [],
-   "overlaps": [
-    {
-     "a": "General",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 16.2,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Data sharing",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 77.7,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Diagnostics",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 70.5,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Voice tester",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 71.7,
-     "h": 11.3,
-     "at": [
-      "div.body > div.col > nav.sub > button.on",
-      "div.tip"
-     ]
-    }
-   ],
+   "overlaps": [],
    "small": [],
    "contrast": [],
    "exempt": [
@@ -17653,7 +23492,7 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 12,
+     "weight": 11,
      "texts": [
       "gear down",
       "100%",
@@ -17664,8 +23503,7 @@
       "24.6",
       "32",
       "120",
-      "256",
-      "Push-to-talk can be tested here while Elite is running"
+      "256"
      ]
     },
     {
@@ -17720,48 +23558,7 @@
    },
    "sideways": [],
    "clipped": [],
-   "overlaps": [
-    {
-     "a": "General",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 16.2,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Data sharing",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 77.7,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Diagnostics",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 70.5,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Voice tester",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 71.7,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.on",
-      "div.tip"
-     ]
-    }
-   ],
+   "overlaps": [],
    "small": [],
    "contrast": [],
    "exempt": [
@@ -17888,7 +23685,7 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 12,
+     "weight": 11,
      "texts": [
       "gear down",
       "100%",
@@ -17899,8 +23696,7 @@
       "24.6",
       "32",
       "120",
-      "256",
-      "Push-to-talk can be tested here while Elite is running"
+      "256"
      ]
     },
     {
@@ -17955,48 +23751,7 @@
    },
    "sideways": [],
    "clipped": [],
-   "overlaps": [
-    {
-     "a": "General",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 16.2,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Data sharing",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 77.7,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Diagnostics",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 70.5,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.",
-      "div.tip"
-     ]
-    },
-    {
-     "a": "Voice tester",
-     "b": "Push-to-talk can be tested here while Elite is running",
-     "w": 71.7,
-     "h": 11,
-     "at": [
-      "div.body > div.col > nav.sub > button.on",
-      "div.tip"
-     ]
-    }
-   ],
+   "overlaps": [],
    "small": [],
    "contrast": [],
    "exempt": [
@@ -18123,7 +23878,7 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 12,
+     "weight": 11,
      "texts": [
       "gear down",
       "100%",
@@ -18134,8 +23889,7 @@
       "24.6",
       "32",
       "120",
-      "256",
-      "Push-to-talk can be tested here while Elite is running"
+      "256"
      ]
     },
     {
@@ -18171,6 +23925,759 @@
      "text": "Settings",
      "sidebar": false,
      "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "hotspots-selected-1100x700": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/mining-hotspots/platinum",
+   "file": "docs/design/final/hotspots-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "3 A Ring"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "4 A Ring",
+      "LHS 3602",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 16,
+     "texts": [
+      "4 of 10",
+      "7",
+      "745",
+      "Metallic",
+      "~3",
+      "In",
+      "Metal Rich",
+      "Common",
+      "Platinum 5, Monazite 3, Serendibite 3, Rhodplumsite 2",
+      "1,276",
+      "~3 jumps · 69.4",
+      "18.0",
+      "24.6",
+      "32"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "10"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "7",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 35,
+     "texts": [
+      "Now",
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "ls",
+      "Greila"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Places",
+      "Set destination"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "hotspots-selected-1920x1080": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/places/mining-hotspots/platinum",
+   "file": "docs/design/final/hotspots-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "—",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.row.result > span.g.own > span.l2 > span.none",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Mining hotspots",
+      "3 A Ring"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "B 2 B Ring",
+      "BC 2 B Ring",
+      "A 4 A Ring",
+      "AB 3 A Ring",
+      "1 A Ring",
+      "A 6 A Ring",
+      "2 A Ring",
+      "4 A Ring",
+      "LHS 3602",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 46,
+     "texts": [
+      "1,276",
+      "ls",
+      "LHS 3602",
+      "Metal Rich",
+      "~3",
+      "jumps",
+      "69.4",
+      "ly",
+      "722",
+      "~2",
+      "158,329",
+      "~4",
+      "1,373",
+      "Metallic"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "10"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "hotspots-selected-2560x1440": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/places/mining-hotspots/platinum",
+   "file": "docs/design/final/hotspots-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "—",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.row.result > span.g.own > span.l2 > span.none",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Mining hotspots",
+      "3 A Ring"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "B 2 B Ring",
+      "BC 2 B Ring",
+      "A 4 A Ring",
+      "AB 3 A Ring",
+      "1 A Ring",
+      "A 6 A Ring",
+      "2 A Ring",
+      "4 A Ring",
+      "LHS 3602",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 46,
+     "texts": [
+      "1,276",
+      "ls",
+      "LHS 3602",
+      "Metal Rich",
+      "~3",
+      "jumps",
+      "69.4",
+      "ly",
+      "722",
+      "~2",
+      "158,329",
+      "~4",
+      "1,373",
+      "Metallic"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "10"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "hotspots-selected-3840x2160": {
+   "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/places/mining-hotspots/platinum",
+   "file": "docs/design/final/hotspots-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "—",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.row.result > span.g.own > span.l2 > span.none",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Mining hotspots",
+      "3 A Ring"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "B 2 B Ring",
+      "BC 2 B Ring",
+      "A 4 A Ring",
+      "AB 3 A Ring",
+      "1 A Ring",
+      "A 6 A Ring",
+      "2 A Ring",
+      "4 A Ring",
+      "LHS 3602",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 46,
+     "texts": [
+      "1,276",
+      "ls",
+      "LHS 3602",
+      "Metal Rich",
+      "~3",
+      "jumps",
+      "69.4",
+      "ly",
+      "722",
+      "~2",
+      "158,329",
+      "~4",
+      "1,373",
+      "Metallic"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "10"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
     }
    ]
   }
