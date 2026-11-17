@@ -11,7 +11,12 @@
 { "timestamp":"2026-09-03T10:16:00Z", "event":"RedeemVoucher", "Type":"CombatBond", "Amount":60000, "Faction":"Alliance" }
 { "timestamp":"2026-09-03T10:17:00Z", "event":"RedeemVoucher", "Type":"codex", "Amount":5000 }
 { "timestamp":"2026-09-03T10:18:00Z", "event":"MarketSell", "MarketID":128000002, "Type":"water", "Count":5, "SellPrice":300, "TotalSale":1500 }
+{ "timestamp":"2026-09-03T10:18:00Z", "event":"MarketSell", "MarketID":128000002, "Type":"hydrogenfuel", "Count":10, "SellPrice":100, "TotalSale":1000 }
 { "timestamp":"2026-09-03T10:19:00Z", "event":"MissionCompleted", "Faction":"Alliance", "Name":"Mission_Donate_name", "MissionID":900002, "Donated":10000 }
 { "timestamp":"2026-09-03T10:20:00Z", "event":"Undocked", "StationName":"Hutton Orbital", "StationType":"Outpost", "MarketID":128000002 }
 { "timestamp":"2026-09-03T10:25:00Z", "event":"Docked", "StationName":"Hutton Orbital", "StationType":"Outpost", "StarSystem":"Alpha Centauri", "SystemAddress":1, "MarketID":128000002 }
+{ "timestamp":"2026-09-03T10:26:00Z", "event":"MarketSell", "MarketID":128000002, "Type":"water", "Count":10, "SellPrice":300, "TotalSale":3000 }
+{ "timestamp":"2026-09-03T10:27:00Z", "event":"MultiSellExplorationData", "Discovered":[ { "SystemName":"Wolf 359", "NumBodies":3 } ], "BaseValue":40000, "Bonus":10000, "TotalEarnings":50000 }
+{ "timestamp":"2026-09-03T10:28:00Z", "event":"MarketSell", "MarketID":128000002, "Type":"water", "Count":20, "SellPrice":300, "TotalSale":6000 }
+{ "timestamp":"2026-09-03T10:29:00Z", "event":"RedeemVoucher", "Type":"CombatBond", "Amount":20000, "Faction":"Alliance" }
 { "timestamp":"2026-09-03T10:30:00Z", "event":"Shutdown" }

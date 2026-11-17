@@ -27,7 +27,7 @@ mod session;
 pub use exploration::{Landing, UnsoldCache, UnsoldData};
 pub use ledgers::{Commander, Earning, Scan, Ship, Visit};
 pub use logbook::{Logbook, Place, Totals};
-pub use session::{EarningTotal, Session};
+pub use session::{EarningTotal, Payment, Session};
 
 use astromech_journal::commander::{self, FileCommander};
 

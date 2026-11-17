@@ -49,13 +49,17 @@ every page.
 
 What the latest game session earned and covered, like EDMC's hourly income.
 
-- A line: your commander and the session's start, end and length (UTC).
-- **Earned**, **Per hour**, **Jumps** and **Distance**.
-- **Credits by activity**: Trade (with the profit), Exploration data, Organic data, Bounty vouchers,
+- At the top: **Latest session** (or **Session** once a later one has started), with your commander
+  and the session's start, end and length (UTC).
+- **Credits per hour**, in orange, then what was **earned**, the **jumps** and the **distance**.
+  Under them, the data sold (already in what was earned), the bounties awarded and their value (paid
+  when you hand in the vouchers), and any carrier jumps (not in jumps or distance). Hover a figure for
+  what it counts.
+- **By activity**: Trade (with the profit), Exploration data, Organic data, Bounty vouchers,
   Combat bonds, Other vouchers, Missions, Search and rescue, Community goals, Odyssey goods and
-  Powerplay salary, each with the number of payments.
-- **Also**: data sold (already in the total), bounties awarded and their value (paid when you hand
-  in the vouchers), and carrier jumps (not in jumps or distance).
+  Powerplay salary, largest first, each with the number of payments.
+- **Over time**: a band from the session's start to its last event, one row per activity, with a mark
+  at each payment. Hover a mark for its time, activity and amount.
 
 Earnings are credits paid for what you did. **Selling ships, modules or drones is not counted.**
 
