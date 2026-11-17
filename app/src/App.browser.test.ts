@@ -508,6 +508,17 @@ describe("route sidebar in the frame", () => {
       cleanup();
     }
   });
+
+  it("goes back to full rows when the window widens after they went compact, at 160 percent with the sidebar folded", async () => {
+    // The rows' width once compact must not decide whether they stay compact (astromech-rhn3).
+    localStorage.setItem("astromech.routeCollapsed", "1");
+    const { table, panel } = await selected("sell/painite", 160, 1100);
+    await waitFor(() => expect(table.classList.contains("compact"), "compact in a 1,100 px window").toBe(true));
+    await page.viewport(2130, 1000);
+    await waitFor(() => expect(panel.classList.contains("stacked"), "the panel beside the rows at 2,130 px").toBe(false));
+    await waitFor(() => expect(table.classList.contains("compact"), "full rows again at 2,130 px").toBe(false));
+    localStorage.removeItem("astromech.routeCollapsed");
+  });
 });
 
 describe("Places in the window", () => {

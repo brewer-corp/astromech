@@ -131,28 +131,40 @@ describe("SearchKit", () => {
 
   it("keeps the ranked value, the place and the actions in a column too narrow for the groups", async () => {
     loadFilters.mockResolvedValue(DEFAULT_FILTERS);
-    // A 320 px side panel: the row needs 112 + 240 + 64 px plus its fact columns.
-    const width = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(297);
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        constructor(private cb: () => void) {}
-        observe() {
-          this.cb();
-        }
-        disconnect() {}
-      },
-    );
+    // A 320 px side panel's column: the row needs 168 + 280 + 160 + 64 px and its gaps (768 px).
+    const host = document.body.appendChild(document.createElement("div"));
+    host.style.width = "297px";
     try {
-      kit(vi.fn().mockResolvedValue(results), { offers: ["age"] });
+      render(SearchKit, { target: host, props: { lookup: "test.lookup", offers: ["age"], run: vi.fn().mockResolvedValue(results) } });
       expect(await screen.findByText("Ross 154")).toBeTruthy();
       // No side panel to hold the facts: the first two groups keep their second lines.
       await waitFor(() => expect(heads()).toEqual(["Trip", "System · faction", ""]));
       expect(cells()).toEqual([["1jump 9.7ly · 2 h old", "Ross 154 Ross 154 Boys", ""]]);
       expect(screen.getByRole("button", { name: "Set Ross 154 as the destination" })).toBeTruthy();
     } finally {
-      width.mockRestore();
-      vi.unstubAllGlobals();
+      host.remove();
+    }
+  });
+
+  it("goes back to the groups when its column widens after the rows went compact", async () => {
+    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
+    const sell: Results = {
+      ...results,
+      place: "station",
+      main: { head: "Price", unit: "cr" },
+      columns: [{ key: "volume", head: "Demand", unit: "t", at: "qual", bars: true }],
+      rows: [{ key: 2, system: "Diaguandri", station: "Parekh Chemical Holdings", ly: 127.3, jumps: 7, exact: true, pad: "L", updated_at: daysAgo(1), main: "313,239", facts: { volume: "15" }, volume: 15 }],
+    };
+    // The full row needs 136 + 280 + 168 + 64 px and its gaps (744 px); compact, it is narrower.
+    const host = document.body.appendChild(document.createElement("div"));
+    host.style.width = "600px";
+    try {
+      render(SearchKit, { target: host, props: { lookup: "test.lookup", offers: ["age"], run: vi.fn().mockResolvedValue(sell) } });
+      await waitFor(() => expect(heads()).toEqual(["Price · demand", "Station · pad · arrival", ""]));
+      host.style.width = "800px";
+      await waitFor(() => expect(heads()).toEqual(["Price · demand", "Station · pad · arrival", "Trip", ""]));
+    } finally {
+      host.remove();
     }
   });
 
