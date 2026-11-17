@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-4wi1
 title: 'Lint: a raw colour or an off-scale size fails in any component'
-status: building
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
