@@ -25,6 +25,10 @@ export default defineConfig({
       // UI behaviour: pages rendered in headless Chromium behind the fake transport (CONTRIBUTING.md, Tests).
       {
         extends: true,
+        // The dev server's strictPort above is for `tauri dev`, which needs 5173. The browser
+        // tests' server listens on 63315 and must move to a free port when another worktree's
+        // run holds it.
+        server: { strictPort: false },
         test: {
           name: "browser",
           include: ["src/**/*.browser.test.ts"],
