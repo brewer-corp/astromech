@@ -1,0 +1,31 @@
+{
+ "out": "docs/design/suits",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 1920, "h": 1080, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 },
+  { "w": 3840, "h": 2160, "step": 180 }
+ ],
+ "shots": [
+  { "name": "suits", "hash": "suits", "steps": [{ "waitSel": "[role=table][aria-label='Shopping list']" }] },
+  {
+   "name": "suits-suit-selected",
+   "hash": "suits",
+   "steps": [
+    { "waitSel": "[role=table][aria-label='Shopping list']" },
+    { "click": "button[aria-label='Suit: Maverick Suit']" },
+    { "waitSel": "aside[aria-label=Details] .type-value-xl" }
+   ]
+  },
+  {
+   "name": "suits-plan-other",
+   "hash": "suits",
+   "steps": [
+    { "waitSel": "[role=table][aria-label='Shopping list']" },
+    { "click": "button.plan-other" },
+    { "waitSel": "aside[aria-label=Details] select[aria-label=For]" }
+   ]
+  }
+ ]
+}

@@ -41,28 +41,42 @@ engineered, where it is and its value.
 
 ## Suits
 
-**Ships, Suits** plans your suit and weapon upgrades: what each needs in micro-resources, what you
-are short of, and how a bartender can cover it. It was the Blueprints view of the On foot page;
-the inventory is now the [On foot](materials.md#on-foot) kind on Materials and the suit engineers
-are on [Engineers](engineering.md#engineers).
+**Ships, Suits** shows a suit loadout the way a ship's loadout reads: what is in each slot, how far
+each item is upgraded and modified, what you plan for it and what you are still short of. The
+inventory is the [On foot](materials.md#on-foot) kind on Materials and the suit engineers are on
+[Engineers](engineering.md#engineers).
 
 **What it needs:** the journal and the game's `ShipLocker` file, which the game writes when you
-are on foot. Until then the page says "not written yet (log in on foot once)". No network.
+are on foot. Until the journal names a loadout the page says so, and the shopping list and
+**Plan other gear** still work. No network.
 
-The line at the top says which suits and weapons you own, at which grade and with which mods,
-from the journal.
+The page opens on the loadout you wear. Its title is the loadout's name, and the line under it
+says which loadout it is, its suit, and how many of its items are engineered or planned. Point at
+that line for where the grades and mods come from.
 
-1. Choose **Grade upgrade** (a suit or weapon from one grade to another) or **Modification** (a
-   suit or weapon mod, with the weapon maker for weapon mods).
-2. **Add** it. Add as many as you like.
-3. Each one shows what it still needs and how much you are short (have / need), its price in credits, and
-   which engineers fit it. Upgrades are bought at Pioneer Supplies. Gear and mods you already have
-   are marked and not offered again.
+- **Loadout**: one row per slot (Suit, Primary, Primary, Secondary): the item, its grade as
+  engineer hexagons (a planned grade lit to it), its fitted modifications, and your plan for it in
+  orange ("Grade 3 · Night Vision"). A plan belongs to one item: of two grade-1 Maverick suits,
+  only the one you planned for shows it. An item worn in several loadouts shows its plan in each.
+- **Shopping list**: everything your plans need, with what you have. A short line's have is
+  marked "!". Its credits and how many lines are short are beside the heading. Plans saved before
+  plans belonged to one item are listed under it as **Not tied to an item**: choose the item from
+  the dropdown to tie one, or remove it. Under it, **Bartender trade** suggests swaps from your
+  surplus assets for the short ones; point at the heading for what it assumes.
+- **Loadouts**: your other loadouts. Click one to show it; the link keeps your choice. Suits and
+  weapons in no loadout are listed under them ("Also owned"); click one to plan for it.
 
-Below the picks, one **shopping list** adds them all up, with the credits. A **Bartender trade**
-suggests swaps: which of your surplus assets to trade for the ones you are short of. It assumes a
-bartender swaps equal barter value and only assets are traded, because the wiki gives barter values
-for assets only.
+Click a slot to open the item in the side panel: its plan, the cost of its planned upgrade, and,
+for each thing planned, what it needs against what you have, where it is done (upgrades at
+Pioneer Supplies, modifications by the engineers listed, with copy and set destination for their
+system) and **Remove**. **Add to plan** adds the next grade (or a higher one, which raises the
+item's upgrade) or a modification the item can still take. Adding a plan you saved before plans
+belonged to one item ties that one to the item instead of adding a second.
+
+**Plan other gear**, beside the title, opens the blueprint picker in the side panel: plan for an
+owned item in no loadout, or for any suit or weapon (a grade upgrade or a modification, with the
+weapon maker for weapon mods), which is tied to no item. Gear and mods you already have are not
+offered again.
 
 ## A ship's page
 
