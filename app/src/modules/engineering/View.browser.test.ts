@@ -156,9 +156,11 @@ it("says a ship never flown while a journal was kept has unknown modules, and sh
 
 it("keeps an empty fleet and says when a later read of it fails", async () => {
   fleet = { ...fleet, ships: [] };
+  vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] }); // the fleet poll; the test moves its clock
   render(View);
   expect(await screen.findByText("No ships in the journal yet.")).toBeTruthy();
   fleetFail = "journal folder not found: C:\\nowhere";
-  expect(await screen.findByText(/^Could not refresh: .*journal folder not found/, {}, { timeout: 2500 })).toBeTruthy();
+  await vi.advanceTimersByTimeAsync(1000);
+  expect(await screen.findByText(/^Could not refresh: .*journal folder not found/)).toBeTruthy();
   expect(screen.getByText("No ships in the journal yet.")).toBeTruthy();
 });
