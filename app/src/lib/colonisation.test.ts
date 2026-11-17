@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buyList, buyResults, loadProjects, needsOf, type Project } from "./colonisation";
+import { buyList, buyResults, loadProjects, needsOf, progressOf, type Project } from "./colonisation";
 import { DEFAULT_FILTERS } from "./search";
 
 async function site(): Promise<Project> {
@@ -14,6 +14,21 @@ describe("colonisation", () => {
     const needs = needsOf({ ...p, shopping: { ...p.shopping, lines: [...p.shopping.lines, { symbol: "aluminium", name: "$aluminium_name;", name_localised: null, remaining: 50, in_cargo: 50, to_buy: 0 }] } });
     expect(needs.map((n) => n.symbol)).toEqual(["steel", "cmmcomposite", "ceramiccomposites", "insulatingmembrane"]);
     expect(needs[3]).toEqual({ symbol: "insulatingmembrane", name: "Insulating Membrane", tonnes: 310 });
+  });
+
+  it("asks for nothing once a project has failed, whatever it still lacked", async () => {
+    const p = await site();
+    expect(needsOf({ ...p, failed: true })).toEqual([]);
+  });
+
+  it("names a commodity by its market symbol when the journal gave no localised name", async () => {
+    const p = await site();
+    const bare = {
+      ...p,
+      resources: p.resources.map((r) => ({ ...r, name_localised: null })),
+      shopping: { ...p.shopping, lines: p.shopping.lines.map((l) => ({ ...l, name_localised: null })) },
+    };
+    expect(progressOf(bare).map((r) => r.name)).toEqual(["steel", "cmmcomposite", "ceramiccomposites", "insulatingmembrane", "aluminium"]);
   });
 
   it("previews the recorded search with the filters applied", async () => {

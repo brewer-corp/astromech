@@ -14,12 +14,13 @@ describe("Station", () => {
     expect(screen.getByText("Boom")).toBeTruthy();
     expect(screen.getByText("High Tech 70% · Refinery 30%")).toBeTruthy();
     expect(screen.getByText("3 large · 6 medium · 4 small")).toBeTruthy();
-    expect(screen.getByText("Outfitting")).toBeTruthy(); // the service chip
+    // The services the Now page's board doesn't draw stay, as one line.
+    expect(screen.getByText("Also: Docking, Autodock, Contacts, Tuning, Engineer")).toBeTruthy();
     expect(screen.getByText("Outfitting for Synthetic")).toBeTruthy();
 
     const upgrades = within(screen.getByRole("table", { name: "Upgrades on sale" }));
-    const cells = upgrades.getAllByRole("row")[1]!.textContent?.replace(/\s+/g, " ").trim();
-    expect(cells).toBe("Frame shift drive5C Frame Shift Drive5A Frame Shift Drive9,000,000 cr");
+    const cells = upgrades.getAllByRole("row")[1]!;
+    expect(within(cells).getAllByRole("cell").map((c) => c.textContent)).toEqual(["Frame shift drive", "5C Frame Shift Drive", "5A Frame Shift Drive", "9,000,000cr"]);
 
     // The market against nearby prices sits between the facts and the outfitting.
     expect(screen.getByText("Market")).toBeTruthy();
@@ -51,7 +52,7 @@ describe("Station", () => {
     const rows = within(table).getAllByRole("row").slice(1);
     expect(rows).toHaveLength(2);
     expect(rows[0]!.textContent).toContain("Other Port");
-    expect(rows[0]!.textContent).toContain("9,500,000 cr");
+    expect(rows[0]!.textContent).toContain("9,500,000cr");
     expect(rows[1]!.textContent).toContain("Test Orbital");
   });
 

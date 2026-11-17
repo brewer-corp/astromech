@@ -15,7 +15,7 @@
 //! to unlocking (invited, then known, then one whose introducers are all unlocked), nearest first.
 
 use crate::data;
-use crate::engineers::{self, key, offers};
+use crate::engineers::{self, best_grade, key};
 use crate::unlocks::{Node, Status, Tree};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -41,6 +41,35 @@ fn table() -> &'static Table {
     T.get_or_init(|| {
         serde_json::from_str(include_str!("../../../data/catalog/engineer-search.json")).expect("engineer-search.json")
     })
+}
+
+/// A module type's short label for a list of what an engineer works on: the table's label where
+/// the type has an entry of its own ("Pulse", "FSD"); for a type that is only one of several in
+/// an entry, its label, and after the entry's first type's when it isn't that one ("Advanced
+/// multi-cannon", "Bi-weave shield"); else the catalog's name ("Cargo Rack").
+pub fn type_label(id: &str) -> String {
+    let t = table();
+    let alone = t.entries.iter().find(|e| e.types.len() == 1 && e.types[0][0] == id);
+    if let Some(e) = alone {
+        return e.types[0][1].clone();
+    }
+    for e in &t.entries {
+        if let Some(i) = e.types.iter().position(|[x, _]| x == id) {
+            let label = &e.types[i][1];
+            return if i == 0 { label.clone() } else { format!("{label} {}", e.types[0][1].to_lowercase()) };
+        }
+    }
+    data::group(id).map_or_else(|| id.to_string(), |g| g.name.clone())
+}
+
+/// Where a module type first appears in the table, for ordering; types it lacks go last.
+pub fn type_order(id: &str) -> (usize, usize) {
+    table()
+        .entries
+        .iter()
+        .enumerate()
+        .find_map(|(i, e)| e.types.iter().position(|[x, _]| x == id).map(|j| (i, j)))
+        .unwrap_or((usize::MAX, 0))
 }
 
 /// A module type the words matched, as the grade line names it.
@@ -294,7 +323,7 @@ pub fn search(query: &str, tree: &Tree, here: Option<(&str, [f64; 3])>, suits: &
         for t in &types {
             let Some(g) = data::group(&t.id) else { continue };
             for e in g.all_engineers() {
-                let grade = g.blueprints.iter().map(|b| offers(e, b, &t.id)).max().unwrap_or(0);
+                let grade = best_grade(e, &t.id);
                 if grade > 0 {
                     per.entry(key(e)).or_default().push(TypeGrade { id: t.id.clone(), label: t.label.clone(), grade });
                 }
@@ -410,7 +439,7 @@ mod tests {
 
     fn tree() -> Tree {
         let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/unlocks");
-        crate::unlocks::tree(&crate::engineers::builder_from_journal_dir(&dir))
+        crate::unlocks::tree(&crate::engineers::builder_from_journal_dir(&dir), &[])
     }
 
     /// Shinrarta Dezhra.

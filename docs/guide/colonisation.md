@@ -10,18 +10,26 @@ seconds.
 
 ## Projects
 
-Docking at a construction site makes it show here, with its name, system and how built it is, or
-"complete" or "failed". With several projects, pick one in the list at the top.
+Docking at a construction site makes it show here: its name, its system, and how far it is built
+("42 % built") with a bar under it, or "Complete" or "Failed". With several projects, pick one in
+the list at the top; each option shows its progress.
 
-**Still to buy** lists each commodity you still have to buy, in tonnes, with what you already carry. The total is
-given in tonnes and in loads at your ship's cargo capacity ("3 loads at 256 t"). If everything still
-needed is aboard, it says to deliver it. A project with nothing left says so.
+Each commodity the site requires is one row, those with the most still to buy first and the
+complete ones last, dimmed. A row has the commodity's name over what has been delivered against
+what is required ("3,288 of 8,200 t"), a bar of the same, and on the right the tonnes still to buy,
+in orange while there are any. What you carry for it is taken off what is still to buy: it shows
+as an orange part of the bar after the delivered part, and in words ("90 t aboard").
+
+Under the rows, the tonnes still to buy and the loads they make at your ship's cargo capacity
+("13 loads at 784 t"), or that the capacity is not known. If everything still needed is aboard,
+it says to deliver it. A project with nothing left says so.
 
 ### Where to buy
 
-Under the list, a search finds stations to buy it from: the ones stocking the most of the list first,
-nearest first among equals. Each row starts with how much of the list the station sells ("3 of
-4"), then the station and what it has in stock. It searches from the construction site's system by default (under **Change**, clear
+Under the rows, a search finds stations to buy it from: the ones stocking the most of the list first,
+nearest first among equals (the **Where to buy** heading's Tip says so). Each row starts with how much of the list the station sells ("3 of
+4"), then the station and what it has in stock; select a row to see all its facts in the side panel,
+with **Set destination** and **Add stop**. It searches from the construction site's system by default (under **Change**, clear
 **From** to search near you), with filters for distance, stock, pad, data age, arrival distance, fleet
 carriers and Odyssey settlements. Default is 100 light years and 30 days. The filters are remembered
 as the colonisation lookup, and voice uses them. Source: Ardent Insight.
