@@ -785,3 +785,71 @@ describe("Places in the window", () => {
     expect(location.hash).toBe("#/trade");
   });
 });
+
+describe("header in a narrow window", () => {
+  // DESIGN.md Frame: the header fits the window at every Text size (astromech-z4vm). The window's
+  // own minimum (app/src-tauri/src/host.rs, 800 x 500) is smaller than the design's 1100 x 700,
+  // so both are checked.
+  afterEach(async () => {
+    cleanup();
+    resetScale();
+    await page.viewport(1200, 800);
+    location.hash = "";
+    history.replaceState(null, "", "/");
+  });
+
+  /** The header at each Text size step in a `width` x `height` window, with Finish setup if `setup`. */
+  async function eachStep(width: number, height: number, setup: boolean, check: (header: HTMLElement, step: number) => void) {
+    if (setup) answer("status", async () => ({ ...(await previewAnswer("status")), setup_needed: ["push-to-talk not set"] }));
+    startPreview("/?core=ready");
+    location.hash = "#/materials";
+    await page.viewport(width, height);
+    render(App);
+    await screen.findByRole("button", { name: "Raw", pressed: true });
+    if (setup) await screen.findByRole("button", { name: "Finish setup" });
+    const header = document.querySelector("header")!;
+    for (const step of STEPS) {
+      await setTextSize(step);
+      await idle();
+      await waitFor(() => expect(header.classList.contains("stacked"), `${step} %: stacked`).toBe(true));
+      const doc = document.documentElement;
+      expect(doc.scrollWidth, `${step} %: the document scrolls sideways`).toBeLessThanOrEqual(doc.clientWidth);
+      const box = header.getBoundingClientRect();
+      for (const tab of header.querySelectorAll("nav button")) {
+        const r = tab.getBoundingClientRect();
+        const name = `${tab.textContent} at ${step} %`;
+        expect(r.width, `${name}: drawn`).toBeGreaterThan(0);
+        expect(r.left, `${name}: inside the header's left edge`).toBeGreaterThanOrEqual(box.left);
+        expect(r.right, `${name}: inside the header's right edge`).toBeLessThanOrEqual(box.right);
+        expect(r.bottom, `${name}: inside the header`).toBeLessThanOrEqual(box.bottom);
+        expect(r.bottom, `${name}: inside the window`).toBeLessThanOrEqual(innerHeight);
+        // Not clipped by its own box: its label fits.
+        expect(tab.scrollWidth, `${name}: its label fits`).toBeLessThanOrEqual(tab.clientWidth);
+      }
+      for (const part of header.children) {
+        const name = `${part.className.split(" ")[0] || part.tagName} at ${step} %`;
+        expect(part.getBoundingClientRect().right, `${name}: inside the header's right edge`).toBeLessThanOrEqual(box.right);
+      }
+      check(header, step);
+    }
+  }
+
+  it.each([
+    [800, 500],
+    [1100, 700],
+  ])("keeps every top tab in a %i x %i window, with no sideways scroll and one name row, at every Text size", async (width, height) => {
+    await eachStep(width, height, false, (header, step) => {
+      // The name, Find or plot and Help stay on one row above the tabs.
+      const first = header.querySelector(".app")!.getBoundingClientRect();
+      for (const part of header.children) {
+        if (part.tagName === "NAV") continue;
+        const name = `${part.className.split(" ")[0] || part.tagName} at ${step} %`;
+        expect(part.getBoundingClientRect().bottom, `${name}: on the name's row`).toBeLessThanOrEqual(first.bottom);
+      }
+    });
+  });
+
+  it("keeps every top tab in an 800 x 500 window with Finish setup, the widest header, at every Text size", async () => {
+    await eachStep(800, 500, true, () => {});
+  });
+});
