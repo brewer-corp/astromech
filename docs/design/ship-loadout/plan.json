@@ -21,6 +21,11 @@
    "w": 3840,
    "h": 2160,
    "step": 180
+  },
+  {
+   "w": 2400,
+   "h": 1350,
+   "step": 100
   }
  ],
  "shots": [
@@ -38,6 +43,12 @@
      ],
      "label": "openGap"
     }
+   ],
+   "sizes": [
+    "1100x700",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
    ]
   },
   {
@@ -57,6 +68,12 @@
      ],
      "label": "openGap"
     }
+   ],
+   "sizes": [
+    "1100x700",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
    ]
   },
   {
@@ -66,6 +83,12 @@
     {
      "waitSel": "section[aria-label='Shopping list']"
     }
+   ],
+   "sizes": [
+    "1100x700",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
    ]
   },
   {
@@ -75,6 +98,12 @@
     {
      "waitText": "Top speed"
     }
+   ],
+   "sizes": [
+    "1100x700",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
    ]
   },
   {
@@ -90,6 +119,29 @@
    "query": "core=empty",
    "sizes": [
     "1100x700"
+   ]
+  },
+  {
+   "name": "krait-module-wide-no-route",
+   "hash": "engineering/1",
+   "query": "core=ready",
+   "sizes": [
+    "2400x1350"
+   ],
+   "steps": [
+    {
+     "click": "button.row[aria-label^='Medium hardpoint 1']"
+    },
+    {
+     "waitSel": "aside[aria-label=Details]"
+    },
+    {
+     "gap": [
+      "main .head h2",
+      ".head .open"
+     ],
+     "label": "openGap"
+    }
    ]
   }
  ]
