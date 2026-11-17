@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-59n6
 title: 'Grade hexagons: a planned grade cannot be told from a fitted one'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - bug
@@ -11,7 +11,8 @@ labels:
 priority: medium
 blocked_by:
 - astromech-m6gw
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3Aa8ef4a65-25d6-4ee1-a4a2-8816ddbf5ba6
 ready:
   by: the lead of astromech-xajc
   at: 2026-11-17T11:52:10.296235481Z
