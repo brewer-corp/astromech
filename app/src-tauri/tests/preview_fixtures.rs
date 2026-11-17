@@ -250,6 +250,8 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
             // A query every module of the two stations seen matches: the preview searches this
             // book itself.
             Part { key: "/book", from: core("station", Some("seen"), "outfitting_search", json!({"query": "a"})) },
+            // The same commander after undocking: in space, in the system (the Now page's in-space state).
+            Part { key: "/undocked", from: core("station", Some("undocked"), "docked_here", Value::Null) },
         ],
     );
     // Lookups around Sol (the sol world: Jameson docked at Abraham Lincoln in an Asp), answered
