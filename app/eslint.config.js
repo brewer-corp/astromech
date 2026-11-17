@@ -70,7 +70,7 @@ export const TOKENS_EXEMPT = [
   { files: ["src/modules/colonisation/**"], off: ["spacing"], until: "astromech-m07p", why: "Rebuilds Colonisation." },
   { files: ["src/modules/engineering/**"], off: ["spacing"], until: "astromech-8wr4", why: "Rebuilds Ships as a loadout." },
   { files: ["src/modules/unlocks/**"], off: ["spacing"], until: "astromech-m6gw", why: "Rebuilds Engineers." },
-  { files: ["src/modules/odyssey/**"], off: ["spacing"], until: "astromech-5a01", why: "Ends On foot as a page; astromech-nnn0 rebuilds what moves to Suits." },
+  { files: ["src/modules/odyssey/**"], off: ["spacing"], until: "astromech-nnn0", why: "Rebuilds Suits, where astromech-5a01 moves On foot; 5a01 carries this entry with the files." },
   { files: ["src/modules/exobiology/**"], off: ["spacing"], until: "astromech-evj3", why: "Rebuilds Biology." },
   { files: ["src/modules/exploration/**"], off: ["spacing"], until: "astromech-dpaz", why: "Rebuilds System." },
   { files: ["src/modules/{session,logbook}/**"], off: ["spacing"], until: "astromech-fzhp", why: "Rebuilds Session and Logbook." },
