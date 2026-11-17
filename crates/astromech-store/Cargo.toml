@@ -12,7 +12,7 @@ publish.workspace = true
 workspace = true
 
 [dependencies]
-rusqlite = { version = "0.40", features = ["bundled"] }
+rusqlite = { version = "0.43", features = ["bundled"] }
 keyring-core = "1"
 
 [target.'cfg(windows)'.dependencies]

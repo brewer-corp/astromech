@@ -18,8 +18,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # The commit of spadaval/atelier that is installed.
-  ATELIER_REV: 7f499285e9ab1c167a3d01fedb91eee0f11a34f1
+  # The commit of spadaval/atelier that is installed: the v0.7.0 tag, the release the records
+  # are written with. Move it with the Atelier you run locally (`atelier --version`): an older
+  # one fails records a newer one wrote, as 7f499285 failed `status: open` missions from
+  # e4a16611 on.
+  ATELIER_REV: 24a00e836b7bd6cedbda3d6bd1b1ab2d60650896
   # The toolchain Atelier's rust-toolchain.toml names. `cargo install --git`
   # does not read that file, so it is given here.
   ATELIER_TOOLCHAIN: 1.95.0

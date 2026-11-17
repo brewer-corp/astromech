@@ -3,7 +3,7 @@
   // selected item. The page passes the panel, or a list inside fills it (useDetail). The list
   // keeps the width of its columns; spare width stays empty.
   import type { Snippet } from "svelte";
-  import { provideDetail } from "./listDetail.svelte";
+  import { provideDetail } from "./detail.svelte";
   import Split from "./Split.svelte";
 
   let {

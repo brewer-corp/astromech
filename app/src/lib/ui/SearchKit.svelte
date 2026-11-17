@@ -59,7 +59,7 @@
   import SearchFilters from "./SearchFilters.svelte";
   import StationKind from "./StationKind.svelte";
   import SystemChip from "./SystemChip.svelte";
-  import { useDetail } from "./layout/listDetail.svelte";
+  import { useDetail } from "./layout/detail.svelte";
   import { tip } from "./tip";
   import PadLetter from "./PadLetter.svelte";
   import type { Snippet } from "svelte";
