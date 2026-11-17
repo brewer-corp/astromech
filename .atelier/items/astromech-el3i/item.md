@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-el3i
 title: Trade route as legs
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
@@ -11,7 +11,8 @@ labels:
 priority: medium
 blocked_by:
 - astromech-8e22
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3A3d492987-933c-450a-9df8-366049ceb011
 ready:
   by: Sumeet
   at: 2026-11-17T10:51:58.242665710Z
