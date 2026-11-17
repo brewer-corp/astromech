@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-2dai
 title: 'Browser tests in two worktrees at once fail to start: vitest holds port 63315'
-status: ready
+status: building
 mission: null
 labels:
 - size-s
 - tooling
 priority: high
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A40e7bd6a-75d7-481f-bc07-e18b62a688e1%3Adelegate-task%3A7af34a08-e960-4a02-98c2-b0dd1dd1ba67
 ready:
   by: the lead of astromech-xajc
   at: 2026-11-17T05:23:28.198951236Z
