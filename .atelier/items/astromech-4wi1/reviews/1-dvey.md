@@ -44,5 +44,6 @@ app/eslint-rules/tokens.js:77-86 checks only explicit lengths, percentages and k
 
 ## Finding 5: [P3] Recognise valid CSS exponent numbers and root-relative lengths
 Recommendation: defer
+Taken: astromech-mwlt by 65a8ff7c-e901-48a1-be52-323bbbd8e80c
 
 app/eslint-rules/tokens.js:64-66 recognises only plain decimal numbers and omits root-relative font units such as rcap. `padding: 1e1px`, `font-size: 1e1px` and `padding: 2rcap` all pass lint in .css and Svelte. Chromium accepts them; the first two compute to 10px. These are literal lengths, so the rule's stated coverage is broader than its implementation. This is rare syntax with no observed production use and can follow the ordinary-value fixes above. Extend the dimension handling and tests so all supported CSS numeric forms and fixed/font-relative units are checked.

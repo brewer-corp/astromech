@@ -56,5 +56,6 @@ Font-size checking now rejects arithmetic/comparison functions. Both calc(var(--
 
 ## Finding 5: [P3] Compare spacing factors numerically before rejecting decimals
 Recommendation: defer
+Dropped by 65a8ff7c-e901-48a1-be52-323bbbd8e80c: Taken into astromech-mwlt with the other lint parsing finding.
 
 app/eslint-rules/tokens.js:102 treats any decimal multiplier as fractional, including whole numbers written with a decimal point. padding: calc(var(--sp-2) * 2.0) and padding: calc(var(--sp-2) * 0.0) both fail tokens/spacing in .css and Svelte. Chromium computes these to 16px and 0px with the actual 8px --sp-2 token, the same values accepted when written with factors 2 and 0. This disagrees with the rule's documented allowance for whole factors and zero. Parse the multiplier and check whether its numeric value is an integer, with regression cases in both operand orders. Deferred because these spellings have no current use and the equivalent integer spelling works; it need not delay the enforcement fixes.
