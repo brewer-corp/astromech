@@ -302,7 +302,7 @@
     "hits": [
       {
         "best": 0,
-        "distance_ly": null,
+        "distance_ly": 119.57,
         "grades": [],
         "kind": "suit",
         "left": null,
@@ -320,7 +320,7 @@
       },
       {
         "best": 0,
-        "distance_ly": null,
+        "distance_ly": 21998.88,
         "grades": [],
         "kind": "suit",
         "left": "Invitation: Sell 10 total Culinary Recipes or Cocktail Recipes to Bartenders in Colonia.",
@@ -340,7 +340,7 @@
       },
       {
         "best": 0,
-        "distance_ly": null,
+        "distance_ly": 128.49,
         "grades": [],
         "kind": "suit",
         "left": "Unlock Hero Ferrari first.",

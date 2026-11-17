@@ -126,6 +126,34 @@ pub fn catalog() -> &'static Catalog {
     C.get_or_init(|| serde_json::from_str(include_str!("../../../data/catalog/odyssey.json")).expect("odyssey.json"))
 }
 
+#[derive(Deserialize)]
+struct OnFoot {
+    id: i64,
+    coords: [f64; 3],
+}
+
+#[derive(Deserialize)]
+struct EngineersFile {
+    onfoot: Vec<OnFoot>,
+}
+
+/// Where an on-foot engineer's system is, from `data/catalog/engineers.json`'s `onfoot` list
+/// (written by `scripts/gen-starmap.py` from the Spansh systems dump; `gen-odyssey.py` regenerates
+/// `odyssey.json` whole, so the coordinates live beside the ship engineers').
+pub fn coords(engineer_id: i64) -> Option<[f64; 3]> {
+    static C: std::sync::OnceLock<BTreeMap<i64, [f64; 3]>> = std::sync::OnceLock::new();
+    C.get_or_init(|| {
+        serde_json::from_str::<EngineersFile>(include_str!("../../../data/catalog/engineers.json"))
+            .expect("engineers.json")
+            .onfoot
+            .into_iter()
+            .map(|e| (e.id, e.coords))
+            .collect()
+    })
+    .get(&engineer_id)
+    .copied()
+}
+
 #[cfg(test)]
 #[allow(clippy::disallowed_methods)] // tests are exempt for now (astromech-c7lc)
 mod tests {
@@ -160,6 +188,7 @@ mod tests {
         for e in &c.engineers {
             assert!(e.mods.iter().all(|m| c.modification(m).is_some()), "{}", e.name);
             assert!(e.referred_by.iter().all(|r| c.engineers.iter().any(|x| &x.name == r)), "{}", e.name);
+            assert!(coords(e.id).is_some(), "{} has no coordinates in engineers.json", e.name);
         }
     }
 

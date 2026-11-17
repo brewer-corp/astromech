@@ -1,5 +1,5 @@
 {
- "source": "EDCD/FDevIDs engineers.csv + Spansh systems dump (scripts/gen-starmap.py)",
+ "source": "EDCD/FDevIDs engineers.csv + Spansh systems dump (scripts/gen-starmap.py): `engineers` are the ship engineers (ids 3000xx), `onfoot` the on-foot engineers (ids 4000xx)",
  "engineers": [
   {
    "id": 300000,
@@ -325,6 +325,151 @@
     -711.09375
    ],
    "colonia": false
+  }
+ ],
+ "onfoot": [
+  {
+   "id": 400001,
+   "name": "Jude Navarro",
+   "system": "Aurai",
+   "id64": 7268024067513,
+   "coords": [
+    0.9375,
+    -47.8125,
+    46.28125
+   ]
+  },
+  {
+   "id": 400002,
+   "name": "Domino Green",
+   "system": "Orishis",
+   "id64": 5068464399785,
+   "coords": [
+    -31.0,
+    93.96875,
+    -3.5625
+   ]
+  },
+  {
+   "id": 400003,
+   "name": "Hero Ferrari",
+   "system": "Siris",
+   "id64": 7269634614689,
+   "coords": [
+    131.0625,
+    -73.59375,
+    -11.25
+   ]
+  },
+  {
+   "id": 400004,
+   "name": "Kit Fowler",
+   "system": "Capoya",
+   "id64": 2827975936355,
+   "coords": [
+    -60.65625,
+    82.4375,
+    -45.0625
+   ]
+  },
+  {
+   "id": 400005,
+   "name": "Wellington Beck",
+   "system": "Jolapa",
+   "id64": 2832832893634,
+   "coords": [
+    100.1875,
+    -41.34375,
+    -78.0
+   ]
+  },
+  {
+   "id": 400006,
+   "name": "Terra Velasquez",
+   "system": "Shou Xing",
+   "id64": 3721329101171,
+   "coords": [
+    -16.28125,
+    -44.53125,
+    94.375
+   ]
+  },
+  {
+   "id": 400007,
+   "name": "Uma Laszlo",
+   "system": "Xuane",
+   "id64": 16065190962585,
+   "coords": [
+    93.875,
+    -9.25,
+    -32.53125
+   ]
+  },
+  {
+   "id": 400008,
+   "name": "Oden Geiger",
+   "system": "Candiaei",
+   "id64": 8879744226018,
+   "coords": [
+    -113.5,
+    -4.9375,
+    66.84375
+   ]
+  },
+  {
+   "id": 400009,
+   "name": "Yarden Bond",
+   "system": "Bayan",
+   "id64": 670686455169,
+   "coords": [
+    -19.96875,
+    117.625,
+    -90.46875
+   ]
+  },
+  {
+   "id": 400010,
+   "name": "Baltanos",
+   "system": "Deriso",
+   "id64": 71536135676490,
+   "coords": [
+    -9520.3125,
+    -909.5,
+    19808.75
+   ]
+  },
+  {
+   "id": 400011,
+   "name": "Eleanor Bresa",
+   "system": "Desy",
+   "id64": 38001031029322,
+   "coords": [
+    -9534.21875,
+    -912.21875,
+    19792.375
+   ]
+  },
+  {
+   "id": 400012,
+   "name": "Rosa Dayette",
+   "system": "Kojeara",
+   "id64": 59166629864010,
+   "coords": [
+    -9513.09375,
+    -908.84375,
+    19814.28125
+   ]
+  },
+  {
+   "id": 400013,
+   "name": "Yi Shen",
+   "system": "Einheriar",
+   "id64": 13736779007129,
+   "coords": [
+    -9557.8125,
+    -880.1875,
+    19801.5625
+   ]
   }
  ]
 }
