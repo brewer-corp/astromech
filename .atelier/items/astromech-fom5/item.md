@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-fom5
 title: 'Finders open on their results: range and origin fold into the summary line'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - feature
 - size-m
 priority: high
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3A7c12354d-ad37-47bf-b04d-8e99a1778517
 ready:
   by: the lead of astromech-xajc
   at: 2026-11-17T09:00:09.190860084Z
