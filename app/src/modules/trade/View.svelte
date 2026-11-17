@@ -18,7 +18,7 @@
 <!-- DESIGN.md Workbench: Route lays out the inputs, under this lead, and the answer. -->
 <Route>
   {#snippet lead()}
-    <p class="moved">
+    <p class="type-label moved">
       Where to sell or buy is in Places:
       {#each links as l, i (l.label)}{#if i}<span aria-hidden="true">{SEP}</span>{/if}<a href="#/{l.route}" {@attach tip(`${l.label} ${l.what}`)}>{l.label}</a>{/each}
     </p>
@@ -26,7 +26,7 @@
 </Route>
 
 <style>
-  .moved { margin: 0; font-size: var(--fs-s); color: var(--label-grey); }
+  .moved { margin: 0; }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .moved a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .moved a:hover { color: var(--orange-lit); }

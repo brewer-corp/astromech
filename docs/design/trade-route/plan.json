@@ -1,0 +1,159 @@
+{
+ "out": "docs/design/trade-route",
+ "query": "core=ready&route=exact&game=running",
+ "clock": "2026-11-17T12:00:00Z",
+ "sizes": [
+  {
+   "w": 1100,
+   "h": 700,
+   "step": 100
+  },
+  {
+   "w": 1920,
+   "h": 1080,
+   "step": 100
+  },
+  {
+   "w": 2560,
+   "h": 1440,
+   "step": 145
+  }
+ ],
+ "shots": [
+  {
+   "name": "before-search",
+   "hash": "trade",
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "waitText": "Press Find route"
+    }
+   ]
+  },
+  {
+   "name": "single",
+   "hash": "trade",
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitText": "Biowaste"
+    }
+   ]
+  },
+  {
+   "name": "loop",
+   "hash": "trade",
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "clickText": "Loop"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitText": "Reactive Armour"
+    }
+   ]
+  },
+  {
+   "name": "loop-stops",
+   "hash": "trade",
+   "sizes": [
+    "1100x700"
+   ],
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "clickText": "Loop"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitText": "Reactive Armour"
+    },
+    {
+     "scrollTop": ".out"
+    }
+   ]
+  },
+  {
+   "name": "asking",
+   "hash": "trade",
+   "query": "core=ready&route=exact&game=running&slow=never:trade_route",
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitText": "Asking Spansh"
+    }
+   ]
+  },
+  {
+   "name": "failed",
+   "hash": "trade",
+   "query": "core=ready&route=exact&game=running&fail=trade_route",
+   "steps": [
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitSel": ".failure"
+    }
+   ]
+  },
+  {
+   "name": "no-route",
+   "hash": "trade",
+   "query": "core=empty&route=exact&game=running",
+   "steps": [
+    {
+     "clickText": "Skip setup"
+    },
+    {
+     "clickText": "Trade"
+    },
+    {
+     "waitSel": "input[aria-label='Cargo capacity']"
+    },
+    {
+     "type": "input[aria-label='Start station']",
+     "text": "Abraham Lincoln"
+    },
+    {
+     "type": "input[aria-label='Cargo capacity']",
+     "text": "200"
+    },
+    {
+     "type": "input[aria-label='Credits']",
+     "text": "1000000"
+    },
+    {
+     "clickText": "Find route"
+    },
+    {
+     "waitText": "No profitable route"
+    }
+   ]
+  }
+ ]
+}
