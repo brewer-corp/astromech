@@ -48,12 +48,21 @@ DESIGN.md revision 5 (astromech-n41x) states the rule. The zoom was a shortcut t
 
 **For the starting thread to settle (carried on meanwhile):** the migration rule, applied
 literally, moves a 1080p install on `normal` to **115**, not 100. Its old zoom there was 1.08,
-and 108 is nearer 115 (7) than 100 (8). A fresh 1080p install gets 100, and a maximised
-1080p window drew at about 1.0 before, so 100 may be what Sumeet expects. I followed the
+and 108 is nearer 115 (7) than 100 (8). A fresh 1080p install gets 100. A maximised 1080p
+window's inner height is about 1010 to 1040 px, so it actually drew at about 1.0 before,
+which argues for 100. I followed the
 rule and pinned it in `scale.test.ts`; changing it is one line in `migratedStep` (round down,
 or measure from the old zoom's floor).
 
-What changed, in four commits:
+**Also for the starting thread:** three journeys fail on this branch, and they fail the same
+way on the base commit (e8890914, checked in a separate worktree with its own core build).
+The failing journeys are `plot a route from the page and follow it`, `a jump into the next stop
+copies and reads out the one after`, and `the kill switch shows on in the page and goes off
+after a re-arm`. Each one times out waiting for a `.next .sys` locator that the page no longer
+draws that way. They broke before this item, probably with the nav rework merge, and need an
+issue. I'm on an item branch, where `atelier new` can't file one.
+
+What changed:
 
 - **Core** (`config.rs`, `setup.rs`, `app.rs`): `[window] text_size` is `Option<TextSize>`,
   an untagged enum of a percentage or the old word (`LegacyTextSize`). Absent means not
@@ -76,8 +85,15 @@ What changed, in four commits:
   recomputed in rem. `--zoom`, `--win-h` and `--win-w` are gone, along with the zoom
   corrections in `tip.ts`, Dialog, Menu, Picker, PlotBar, Build and the controller sheet.
   The sheet now measures its column (`bind:clientWidth`, `minmax(0, 1fr)`) and caps at
-  1180 px at 100 percent. Glyph, ShipIcon and SearchKit's script-side column widths are in
-  rem. SearchKit's compact-row threshold scales with the step.
+  1180 px at 100 percent. The sheet's own labels stay px times its image scale, because
+  they follow the image and not the text. Glyph, ShipIcon and SearchKit's script-side column
+  widths are in rem. Split, Workbench and SearchKit's compact row compared px-at-100%
+  numbers with measured widths, and now compare through `layout.ts`'s `at100()`, with a test.
+- **Late core**: `startScale` asks again on each status poll until the core answers, then
+  stops. Before, a core that wasn't up yet left the window at 100 percent for the session.
+  There's a test for this.
+- **CONTRIBUTING**: the journeys' core binary is built by `cargo build -p astromech-app --bin
+  astromech-core`. The old `-p astromech-core` builds only the library.
 - **Docs**: the Settings guide page, DESIGN.md's "not landed yet" notes, and six captures in
   `docs/design/text-size/`.
 
@@ -85,16 +101,25 @@ Checks:
 
 - 145 percent at 2560 x 1440 matches the old 1.44 capture taken before the change, within a
   pixel or two.
-- I swept every page (24 modules and the 10 Places finders) headless at 1100 x 700 and
-  1920 x 1080 at 100, 2560 x 1440 at 145 and at 100, and 3840 x 2160 at 180. None scrolls
-  sideways, has an element past the right edge, or clips text in an overflow-hidden box.
+- I swept these headless at 1100 x 700 and 1920 x 1080 at 100, 2560 x 1440 at 145 and at
+  100, and 3840 x 2160 at 180: the 24 modules, the 10 Places finders, a ship's Engineering
+  plan, onboarding (`core=new`) and the Bind dialog. None scrolls sideways, has an element
+  past the right edge, or clips text in an overflow-hidden box.
+- At 1100 x 700 at 100 and 3840 x 2160 at 180, I opened the Find or plot panel, the route
+  Menu and the Plotter Picker. Each stays inside the window. The tip is covered by its
+  browser test at 180 percent.
   To confirm the sweep can fail, I ran it at 1100 x 700 at 180 percent and it flagged every
   page.
-- The `@container win` rules are in rem. The sweep at 1100 at 100 and at 1920 and 3840 at
-  180 found nothing broken.
+- The `@container win` rules are in rem. One switch checked directly: `nav.sub`'s gap is the
+  narrow rule's 1rem (28.8 px) at 1920 x 1080 at 180 percent and the wide 24 px at 100.
+- The controller sheet at 2560 x 1440 at 145 percent: labels fit their boxes.
+- Engineering's module cards truncate long blueprint names in their dropdowns, with an
+  ellipsis, at 100 percent as well as at 180. The cause is the `auto-fill` card width, not
+  this change.
 - `pnpm check`, `pnpm lint`, `pnpm test` (639 tests), `cargo test -p astromech-core` and
   `-p astromech-app`, clippy with `-D warnings`, `cargo fmt --check` and `check-guide.py`
-  all pass.
+  all pass. Of the journeys, the lookup and voice journeys pass; the three above fail as on
+  the base commit.
 
 Known limit, outside this item's check sizes: at 1100 px wide with 145 percent or more, the
 stacked header's tabs run past the right edge. The header doesn't wrap them. DESIGN.md's
