@@ -348,7 +348,7 @@ svelte's entries) into a cache of its own in the journey's temp world, and disco
 dependency (`noDiscovery`), so nothing re-optimises and reloads the page mid-journey, and the
 journeys `node --test` runs side by side share no cache and never write `app/node_modules/.vite`. Run them in `app/` with `node --test 'journeys/*.journey.ts'`, or one with
 `node --test journeys/lookup.journey.ts`, after building the core (`cargo build -p
-astromech-core`; `ASTROMECH_CORE` names another binary); the glob is quoted so Node expands it,
+astromech-app --bin astromech-core`; `ASTROMECH_CORE` names another binary); the glob is quoted so Node expands it,
 and `journeys/harness.journey.ts`, the harness's own test, fails when the glob finds no
 journey. A failed journey leaves its Playwright trace (`pnpm exec playwright show-trace`), a
 screenshot and the core's log in `app/journeys/results/<journey>/`, which CI uploads. The
