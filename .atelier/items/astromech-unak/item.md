@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-unak
 title: Powerplay cycle time reads '0 h 0 min left' once the recorded cycle end has passed
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - bug
@@ -48,11 +48,16 @@ Now and Powerplay no longer read "0 min left" once the cycle end they were given
 
 **Tests**
 - `app/src/lib/powerplay.test.ts` replaces the two rows that asserted the bug ("0 min" at and after the end). The table now covers 1 min ahead ("1 min"), exactly at the end ("7 d 0 h"), 1 min past ("6 d 23 h") and 3 weeks and 2 h past ("6 d 22 h"), plus `over` for the three cases.
-- There is one case in each view test, with the end one minute past. Powerplay shows "6 d 23 h" and "Ends ...", which is the moment a week on, and no 1,829. Now, using the preview fixture at 2026-10-22 07:01 UTC, shows "6 d 23 h left in the cycle" and no 1,829. All eight failed before the fix: "0 min" where the next end was expected, `cycleAt` missing, and 1,829 still shown.
+- There is one case in each view test for the path a real window takes: a good read at 06:59, then failed reads across 07:00. After two minutes, Powerplay shows "6 d 23 h", "Ends ..." for the next end, and "–" in place of 1,829. Now, on the preview fixture, shows "6 d 23 h left in the cycle" and no 1,829. Both failed before the round 1 fix. The round 0 versions, which handed the page an answer already past its end, failed before the first fix.
 - A Now test ("a failed ask fails that block only") depended on the day it ran: it asserted 1,829, which passed only because of the roll-forward. It now checks the block's power and rank line.
 - `pnpm lint`, `pnpm check` and the full `vitest run` pass (95 files, 857 tests).
 
 **Limits**
 - "Ends Thursday 07:00 UTC" names only a weekday and time, so it reads the same before and after the turnover. The view test checks it against the rolled end, but the string cannot show the difference.
-- The Powerplay page tells time from the moment of its last successful read (`now`). On failed reads its time left stays still, as it did before.
+- Both pages tell the cycle from the moment their last read settled, answered or failed (Powerplay's `now`, Now's `Poll.at`), so the clock moves every 2 s on Powerplay and every 5 s on Now, even while the core is silent.
+
+### Responses
+
+1-q0io.1: fixed in c0d3f518: Now reads `Poll.at`, set whenever a read settles, instead of a `Date.now()` cached for the block's life.
+1-q0io.2: fixed in c0d3f518: Powerplay moves `now` on a failed read too, and both view tests now cross 07:00 with failing reads.
 
