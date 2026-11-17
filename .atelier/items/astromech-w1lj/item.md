@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-w1lj
 title: 'Suit loadouts from the journal: each loadout''s suit and weapons, and which is worn'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-s
 - feature
 priority: high
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3A851b640e-dc8c-4e5e-8c48-319b23878357
 ready:
   by: Sumeet
   at: 2026-11-17T10:51:58.242665710Z
