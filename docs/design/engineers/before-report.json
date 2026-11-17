@@ -1,0 +1,1389 @@
+{
+ "commit": "ed1de5fc",
+ "captures": {
+  "engineers-before-1100x700": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "file": "docs/design/engineers/engineers-before-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Engineers",
+      "Wyrd",
+      "Wolf 397",
+      "Sirius",
+      "Etienne Dorn",
+      "Los",
+      "Colonel Bris Dekker",
+      "Sol",
+      "The Sarge",
+      "Beta-3 Tucani",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 23,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Known · no access yet",
+      "Power Distributor · Pulse Laser",
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Multi-Cannon · Fragment Cannon",
+      "Invitation: Earn 15 bounty vouchers.",
+      "Power Distributor · Power Plant",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Not introduced",
+      "Rail Gun · Power Distributor",
+      "Frame Shift Drive",
+      "Introduction from Juri Ishmaak: raise your rank with them pa",
+      "Rail Gun · Cannon"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Ship engineers"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Suit engineers",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "The Dweller",
+      "Tod \"The Blaster\" McQuinn",
+      "Marco Qwent"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 26,
+     "texts": [
+      "Ships",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Materials",
+      "4 of 25 unlocked · white marks are your rank · a dim mark me",
+      "· permit"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Find or plot",
+      "Engineers for a module: laser, FSD, shields…"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "engineers-before-1920x1080": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "file": "docs/design/engineers/engineers-before-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Bill Turner",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 23,
+     "texts": [
+      "Engineers",
+      "Wyrd",
+      "Wolf 397",
+      "Elvira Martuuk",
+      "Khun",
+      "Felicity Farseer",
+      "Deciat",
+      "Liz Ryder",
+      "Eurybia",
+      "Sirius",
+      "Etienne Dorn",
+      "Los",
+      "Hera Tani",
+      "Kuwemaki"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 36,
+     "texts": [
+      "Known · no access yet",
+      "Power Distributor · Pulse Laser",
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Multi-Cannon · Fragment Cannon",
+      "Invitation: Earn 15 bounty vouchers.",
+      "Frame Shift Drive · Thrusters",
+      "Missile Rack · Mine Launcher",
+      "Power Distributor · Power Plant",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Not introduced",
+      "Rail Gun · Power Distributor",
+      "Introduction from Liz Ryder: raise your rank with them past ",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Frame Shift Drive"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Ship engineers"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "engineers-before-2560x1440": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks",
+   "file": "docs/design/engineers/engineers-before-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Bill Turner",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 21,
+     "texts": [
+      "Engineers",
+      "Wyrd",
+      "Wolf 397",
+      "Elvira Martuuk",
+      "Khun",
+      "Felicity Farseer",
+      "Deciat",
+      "Liz Ryder",
+      "Eurybia",
+      "Sirius",
+      "Etienne Dorn",
+      "Los",
+      "Hera Tani",
+      "Kuwemaki"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 34,
+     "texts": [
+      "Known · no access yet",
+      "Power Distributor · Pulse Laser",
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Multi-Cannon · Fragment Cannon",
+      "Invitation: Earn 15 bounty vouchers.",
+      "Frame Shift Drive · Thrusters",
+      "Missile Rack · Mine Launcher",
+      "Power Distributor · Power Plant",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Not introduced",
+      "Rail Gun · Power Distributor",
+      "Introduction from Liz Ryder: raise your rank with them past ",
+      "Frame Shift Drive",
+      "Introduction from Juri Ishmaak: raise your rank with them pa"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Ship engineers"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "engineers-suit-before-1100x700": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks?kind=suit",
+   "file": "docs/design/engineers/engineers-suit-before-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Oden Geiger",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Uma Laszlo",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Engineers",
+      "Deriso",
+      "Capoya",
+      "Terra Velasquez",
+      "Candiaei",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 44,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Known · no access yet",
+      "Combat Movement Speed",
+      "· Faster Handling",
+      "· Improved Hip Fire Accuracy",
+      "· Improved Jump Assist",
+      "· Increased Air Reserves",
+      "· Increased Sprint Duration",
+      "· Noise Suppressor",
+      "Refers Yi Shen: Provide 10 Faction Associates",
+      "Invitation: Friendly reputation with Colonia Council.",
+      "Added Melee Damage",
+      "· Damage Resistance"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Suit engineers"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Ship engineers",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Baltanos",
+      "Eleanor Bresa",
+      "Kit Fowler"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 25,
+     "texts": [
+      "Ships",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Materials",
+      "2 of 13 unlocked · white marks are your rank · a dim mark me",
+      "· Colonia"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Find or plot",
+      "Engineers for a module: laser, FSD, shields…"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "article.eng.invited.next > div.top > span.access > span.mail"
+    }
+   ]
+  },
+  "engineers-suit-before-1920x1080": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks?kind=suit",
+   "file": "docs/design/engineers/engineers-suit-before-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Wellington Beck",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Yi Shen",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Oden Geiger",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Uma Laszlo",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Yarden Bond",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 12,
+     "texts": [
+      "Engineers",
+      "Deriso",
+      "Desy",
+      "Siris",
+      "Capoya",
+      "Terra Velasquez",
+      "Shou Xing",
+      "Jolapa",
+      "Candiaei",
+      "Xuane",
+      "Bayan",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 87,
+     "texts": [
+      "Known · no access yet",
+      "Combat Movement Speed",
+      "· Faster Handling",
+      "· Improved Hip Fire Accuracy",
+      "· Improved Jump Assist",
+      "· Increased Air Reserves",
+      "· Increased Sprint Duration",
+      "· Noise Suppressor",
+      "Refers Yi Shen: Provide 10 Faction Associates",
+      "Invitation: Friendly reputation with Colonia Council.",
+      "Added Melee Damage",
+      "· Damage Resistance",
+      "· Extra Ammo Capacity",
+      "· Faster Shield Regen"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Suit engineers"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "article.eng.invited.next > div.top > span.access > span.mail"
+    }
+   ]
+  },
+  "engineers-suit-before-2560x1440": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks?kind=suit",
+   "file": "docs/design/engineers/engineers-suit-before-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Wellington Beck",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Oden Geiger",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Uma Laszlo",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Yarden Bond",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 18,
+     "at": "div.col > article.eng.locked > div.top > span.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.tree > div.col > article.eng.locked > div.gate",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 12,
+     "texts": [
+      "Engineers",
+      "Deriso",
+      "Desy",
+      "Siris",
+      "Capoya",
+      "Terra Velasquez",
+      "Shou Xing",
+      "Jolapa",
+      "Candiaei",
+      "Xuane",
+      "Bayan",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 75,
+     "texts": [
+      "Known · no access yet",
+      "Combat Movement Speed",
+      "· Faster Handling",
+      "· Improved Hip Fire Accuracy",
+      "· Improved Jump Assist",
+      "· Increased Air Reserves",
+      "· Increased Sprint Duration",
+      "· Noise Suppressor",
+      "Refers Yi Shen: Provide 10 Faction Associates",
+      "Invitation: Friendly reputation with Colonia Council.",
+      "Added Melee Damage",
+      "· Damage Resistance",
+      "· Extra Ammo Capacity",
+      "· Faster Shield Regen"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Suit engineers"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "article.eng.invited.next > div.top > span.access > span.mail"
+    }
+   ]
+  }
+ }
+}

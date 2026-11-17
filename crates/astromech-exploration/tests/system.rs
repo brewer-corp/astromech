@@ -144,3 +144,29 @@ fn a_journal_that_starts_mid_system_still_shows_its_scans() {
     assert_eq!(v.system.as_deref(), Some("Synuefe AB-C d1-2"));
     assert_eq!(v.bodies.len(), 5);
 }
+
+/// Each body carries its scan's `Parents`, nearest first, so the window can draw the system tree:
+/// a body scanned before its parent has them too, and a barycentre is a `Null` parent.
+#[test]
+fn each_body_carries_its_parents() {
+    use astromech_exploration::system::BodyParent;
+    let (a, s) = (7_000_003, "Parents Test");
+    // (body, BodyID, its scan's Parents, what the view gives it), in scan order: the moon of a
+    // planet of a star is scanned before its planet.
+    let cases: [(&str, i64, &str, &[(&str, i64)]); 4] = [
+        ("A 1 a", 3, r#"[{"Planet":2},{"Star":1}]"#, &[("Planet", 2), ("Star", 1)]),
+        ("A 1", 2, r#"[{"Star":1}]"#, &[("Star", 1)]),
+        ("AB 1", 5, r#"[{"Null":4},{"Null":0}]"#, &[("Null", 4), ("Null", 0)]),
+        ("A 1 b", 6, r#"[{"Ring":7},{"Planet":2},{"Star":1}]"#, &[("Ring", 7), ("Planet", 2), ("Star", 1)]),
+    ];
+    let mut lines = vec![jump(s, a, 0)];
+    for (body, id, parents, _) in cases {
+        lines.push(scan(a, s, body, id, &format!(r#""PlanetClass":"Icy body","Landable":true,"Parents":{parents}"#)));
+    }
+    let v = replay(&lines);
+    for (body, id, _, want) in cases {
+        let got = &v.bodies.iter().find(|b| b.body_id == Some(id)).unwrap_or_else(|| panic!("{body} missing")).parents;
+        let want: Vec<BodyParent> = want.iter().map(|&(k, id)| BodyParent { kind: k.into(), body_id: id }).collect();
+        assert_eq!(got, &want, "{body}");
+    }
+}

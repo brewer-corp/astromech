@@ -545,6 +545,7 @@ fn the_exploration_answers_keep_to_the_copy_guide() {
         worth_mapping: true,
         first_footfall_likely: true,
         landings: 0,
+        parents: vec![],
     };
     let bodies = vec![
         body("ABC 12 a", "Gas giant with ammonia-based life", 99_999_999),

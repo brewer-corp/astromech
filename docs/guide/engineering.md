@@ -38,24 +38,34 @@ in `data/catalog/engineers.json`, from EDCD/FDevIDs and Spansh's systems dump.
 
 ### The tree
 
-- Choose **Ship engineers** or **Suit engineers** at the top. The line beside them counts how many you
-  have unlocked, and how the marks work: white hexagons for rank, a dim mark for no access yet, dimmer cards
-  for engineers who have not been introduced. A ship engineer introduces the next ones once
-  your rank with them passes grade 3; each suit engineer refers the next after a task.
-- Each card shows the engineer, what they specialise in (for a suit engineer, every suit and
-  weapon mod they fit, from the Odyssey data; a "(?)" means the wiki disagrees with itself on
-  whether they fit that mod), and your **access** as engineer marks:
-  one white hexagon per rank once you have unlocked them (so rank 5 is five lit of five), a dim mark
-  when they are **Known** but you have no access yet, the same dim mark on a dimmer card when
-  they have **Not been introduced**, an envelope when you are **Invited**, and a struck mark if you are
-  **Barred**. Unlocked engineers have bright names; known and invited ones, whom you can work
-  toward, have orange names with "Known · no access yet"; a barred engineer's name and reason are
-  red; cards that still need an introduction are dim, unless you can work on them now. What is left to do stays on the card. Engineers you can work on now sit at the top of
-  their column.
-  Hover a card to light who introduces them. A permit-locked system says "permit", and a suit
-  engineer in Colonia says "Colonia".
-  An arrow points back to who introduces each engineer.
-- The system name has a copy button for the galaxy map.
+- **Ship engineers** and **Suit engineers** are two trees side by side; in a narrow window, or
+  with an engineer selected when the two no longer fit beside the details, the suit engineers
+  go below the ship engineers. The line beside the search box counts how many of each you have
+  unlocked, and how many you can work on now.
+- Each column is a step further down the chain: the first holds the engineers everyone knows,
+  and a line joins each engineer to the one who introduces them. A ship engineer introduces the
+  next ones once your rank with them passes grade 3; a suit engineer refers the next after a
+  task of their own. Colonia's engineers sit where their introducers put them.
+- Each engineer shows their name and one line, by where you stand with them:
+  - **Unlocked**: a light grey name, your rank as white hexagons (five of five at rank 5; a
+    suit engineer, who has no ranks, shows one) and their system.
+  - **You can work on them now** (known, invited, or every introducer unlocked): an orange name
+    and the step to take.
+  - **Barred**: the name and reason in red.
+  - **Not introduced**: dim, saying "Not introduced".
+  Point at an engineer for what their state means.
+- **Select an engineer** to see their details beside the trees (below them in a narrow window).
+  The engineers who introduce them, and the lines to them, light up. The details show where
+  they are, with a copy button for the galaxy map, and how far from your current system; how
+  far is left out until the journal says where you are. Then where you stand, every step left to
+  unlock them in order (the first, what to do now, is the brightest), and **Works on**: each
+  module type a ship engineer offers with the best grade as hexagons (orange for the grade your
+  rank gets you today), or each mod a suit engineer fits, where a "(?)" means the wiki
+  disagrees with itself on whether they fit it. Last, who they introduce, a suit engineer's
+  referral task, and **Set destination** and **Add stop**. Select the engineer again to close
+  the details.
+- With no engineer progress in the journal yet, the engineers everyone knows show as known and
+  the rest as not introduced.
 
 The same unlocks decide which jobs the **engineer trip** in [Ships](ships.md) can use. Source:
 the Elite Dangerous wiki, in `data/catalog/engineer-unlocks.json`. The wiki can be wrong or out of date.

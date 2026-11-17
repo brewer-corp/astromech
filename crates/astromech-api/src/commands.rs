@@ -143,21 +143,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
     let s = state.clone();
     reg.add_typed("engineering_search", Window, move |x: EngineerSearchArgs, _| {
         let st = s.engineering()?;
-        let ody = astromech_odyssey::catalog();
-        let suits: Vec<astromech_engineering::search::SuitOffer> = ody
-            .engineers
-            .iter()
-            .map(|e| astromech_engineering::search::SuitOffer {
-                engineer: &e.name,
-                mods: e.mods.iter().filter_map(|m| ody.modification(m)).map(|m| m.name.as_str()).collect(),
-                unsure: e
-                    .unconfirmed_mods
-                    .iter()
-                    .filter_map(|m| ody.modification(m))
-                    .map(|m| m.name.as_str())
-                    .collect(),
-            })
-            .collect();
+        let suits = crate::state::suit_offers();
         let here = st.here.as_ref().map(|h| (h.system.as_str(), h.pos));
         Ok(astromech_engineering::search::search(&x.query, &st.unlocks, here, &suits))
     });

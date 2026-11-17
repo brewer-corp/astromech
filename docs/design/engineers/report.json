@@ -1,0 +1,4716 @@
+{
+ "commit": "cd3363d5",
+ "captures": {
+  "engineers-rest-after-1100x700": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "file": "docs/design/engineers/engineers-rest-after-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Selene Jean",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Didi Vatermann",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Bill Turner",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Petra Olmanova",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box.page-search > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Engineers",
+      "Felicity Farseer",
+      "Juri Ishmaak",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Ship engineers",
+      "Invitation: Earn 15 bounty vouchers.",
+      "Introduction from Juri Ishmaak: raise your rank with them pa",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Arietis Sector LD-H a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Tod \"The Blaster\" McQuinn",
+      "Colonel Bris Dekker",
+      "The Sarge"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 24,
+     "texts": [
+      "Ships",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Materials",
+      "4 of 25 ship and 2 of 13 suit engineers unlocked · 15 to wor",
+      "Deciat"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Find or plot",
+      "Engineers for a module: laser, FSD, shields…"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "engineers-rest-after-1920x1080": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "file": "docs/design/engineers/engineers-rest-after-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Selene Jean",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Didi Vatermann",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Professor Palin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Chloe Sedesi",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Bill Turner",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lori Jameson",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Petra Olmanova",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Oden Geiger",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Uma Laszlo",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Wellington Beck",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Yarden Bond",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Yi Shen",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box.page-search > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Engineers",
+      "Felicity Farseer",
+      "Elvira Martuuk",
+      "Juri Ishmaak",
+      "Domino Green",
+      "Jude Navarro",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 20,
+     "texts": [
+      "Ship engineers",
+      "Invitation: Earn 15 bounty vouchers.",
+      "Introduction from Liz Ryder: raise your rank with them past ",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Introduction from Juri Ishmaak: raise your rank with them pa",
+      "Suit engineers",
+      "Invitation: Complete 10 Conflict Zones.",
+      "Visit them at Capoya to unlock.",
+      "Referral from Jude Navarro: Provide 5 Genetic Repair Meds.",
+      "Invitation: Friendly reputation with Colonia Council.",
+      "Invitation: Visit 5 Settlements in Colonia.",
+      "Invitation: Sell 10 total Culinary Recipes or Cocktail Recip",
+      "18.0"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "engineers-rest-after-2560x1440": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks",
+   "file": "docs/design/engineers/engineers-rest-after-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Selene Jean",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Didi Vatermann",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Professor Palin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Chloe Sedesi",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Bill Turner",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lori Jameson",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Petra Olmanova",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Oden Geiger",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Uma Laszlo",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Wellington Beck",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Yarden Bond",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Yi Shen",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box.page-search > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Engineers",
+      "Felicity Farseer",
+      "Elvira Martuuk",
+      "Juri Ishmaak",
+      "Domino Green",
+      "Jude Navarro",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "Ship engineers",
+      "Invitation: Earn 15 bounty vouchers.",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Introduction from Juri Ishmaak: raise your rank with them pa",
+      "Suit engineers",
+      "Invitation: Complete 10 Conflict Zones.",
+      "Visit them at Capoya to unlock.",
+      "Referral from Jude Navarro: Provide 5 Genetic Repair Meds.",
+      "Invitation: Friendly reputation with Colonia Council.",
+      "Invitation: Visit 5 Settlements in Colonia.",
+      "Invitation: Sell 10 total Culinary Recipes or Cocktail Recip",
+      "18.0",
+      "24.6"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "engineers-selected-after-1100x700": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "file": "docs/design/engineers/engineers-selected-after-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "The Dweller"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Engineers",
+      "Wyrd",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Known: the invitation is next",
+      "To unlock",
+      "Unlock at Wyrd: Pay 500,000 CR.",
+      "Works on",
+      "Introduces",
+      "Lei Cheung and Marsha Hicks",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 22,
+     "texts": [
+      "Ships",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Materials",
+      "· 75.5 ly",
+      "Anaconda"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Engineering"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    }
+   ]
+  },
+  "engineers-selected-after-1920x1080": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "file": "docs/design/engineers/engineers-selected-after-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lei Cheung",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Professor Palin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Chloe Sedesi",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lori Jameson",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Ram Tah",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tiana Fortune",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Marsha Hicks",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "The Dweller"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Engineers",
+      "Felicity Farseer",
+      "Elvira Martuuk",
+      "Liz Ryder",
+      "Juri Ishmaak",
+      "Wyrd",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Introduction from Liz Ryder: raise your rank with them past ",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Introduction from Juri Ishmaak: raise your rank with them pa",
+      "Known: the invitation is next",
+      "To unlock",
+      "Unlock at Wyrd: Pay 500,000 CR.",
+      "Works on",
+      "Introduces",
+      "Lei Cheung and Marsha Hicks",
+      "18.0",
+      "24.6",
+      "32"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.acts > button.btn.primary"
+    }
+   ]
+  },
+  "engineers-selected-after-2560x1440": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks",
+   "file": "docs/design/engineers/engineers-selected-after-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lei Cheung",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Professor Palin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Chloe Sedesi",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lori Jameson",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Ram Tah",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tiana Fortune",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Marsha Hicks",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "The Dweller"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Engineers",
+      "Felicity Farseer",
+      "Elvira Martuuk",
+      "Liz Ryder",
+      "Juri Ishmaak",
+      "Wyrd",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Introduction from Liz Ryder: raise your rank with them past ",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Introduction from Juri Ishmaak: raise your rank with them pa",
+      "Known: the invitation is next",
+      "To unlock",
+      "Unlock at Wyrd: Pay 500,000 CR.",
+      "Works on",
+      "Introduces",
+      "Lei Cheung and Marsha Hicks",
+      "18.0",
+      "24.6",
+      "32"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.acts > button.btn.primary"
+    }
+   ]
+  },
+  "engineers-selected-unlocked-after-1100x700": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "file": "docs/design/engineers/engineers-selected-unlocked-after-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Felicity Farseer"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Engineers",
+      "Deciat",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 10,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Unlocked, rank 5 of 5",
+      "Works on",
+      "Introduces",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "102"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 22,
+     "texts": [
+      "Ships",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Materials",
+      "ly",
+      "Anaconda"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Engineering"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    }
+   ]
+  },
+  "engineers-selected-unlocked-after-1920x1080": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "file": "docs/design/engineers/engineers-selected-unlocked-after-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Selene Jean",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Didi Vatermann",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Professor Palin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Chloe Sedesi",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Bill Turner",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lori Jameson",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Petra Olmanova",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box.page-search > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Ship engineers",
+      "Felicity Farseer"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Engineers",
+      "Elvira Martuuk",
+      "Juri Ishmaak",
+      "Deciat",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 16,
+     "texts": [
+      "Invitation: Earn 15 bounty vouchers.",
+      "Introduction from Liz Ryder: raise your rank with them past ",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Introduction from Juri Ishmaak: raise your rank with them pa",
+      "Unlocked, rank 5 of 5",
+      "Works on",
+      "Introduces",
+      "Juri Ishmaak",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "102"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.acts > button.btn.primary"
+    }
+   ]
+  },
+  "engineers-selected-unlocked-after-2560x1440": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks",
+   "file": "docs/design/engineers/engineers-selected-unlocked-after-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Selene Jean",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Didi Vatermann",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Professor Palin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Chloe Sedesi",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Bill Turner",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lori Jameson",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Petra Olmanova",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    },
+    {
+     "text": "Engineers for a module: laser, FSD, shields…",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.search > span.field.box.page-search > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Ship engineers",
+      "Felicity Farseer"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Engineers",
+      "Elvira Martuuk",
+      "Juri Ishmaak",
+      "Deciat",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Invitation: Earn 15 bounty vouchers.",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Introduction from Juri Ishmaak: raise your rank with them pa",
+      "Unlocked, rank 5 of 5",
+      "Works on",
+      "Introduces",
+      "Juri Ishmaak",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "102"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "",
+     "sidebar": false,
+     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.acts > button.btn.primary"
+    }
+   ]
+  },
+  "engineers-selected-suit-after-1100x700": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks?kind=suit",
+   "file": "docs/design/engineers/engineers-selected-suit-after-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Hero Ferrari"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Engineers",
+      "Siris",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 12,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Known: the invitation is next",
+      "To unlock",
+      "Visit them at Siris to unlock.",
+      "Works on",
+      "Refers",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Invitation: Complete 10 Conflict Zones."
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 22,
+     "texts": [
+      "Ships",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Materials",
+      "· 124 ly",
+      "Anaconda"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Engineering"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "engineers-selected-suit-after-1920x1080": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks?kind=suit",
+   "file": "docs/design/engineers/engineers-selected-suit-after-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lei Cheung",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Professor Palin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Chloe Sedesi",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lori Jameson",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Ram Tah",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tiana Fortune",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Marsha Hicks",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Uma Laszlo",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Wellington Beck",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Yarden Bond",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Suit engineers",
+      "Hero Ferrari"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Engineers",
+      "Elvira Martuuk",
+      "Liz Ryder",
+      "Domino Green",
+      "Siris",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 20,
+     "texts": [
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Introduction from Liz Ryder: raise your rank with them past ",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Invitation: Complete 10 Conflict Zones.",
+      "Visit them at Capoya to unlock.",
+      "Known: the invitation is next",
+      "To unlock",
+      "Visit them at Siris to unlock.",
+      "Works on",
+      "Refers",
+      "Wellington Beck",
+      "Referral task: Provide 5 Settlement Defence Plans",
+      "18.0"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Invitation: Complete 10 Conflict Zones."
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.acts > button.btn.primary"
+    }
+   ]
+  },
+  "engineers-selected-suit-after-2560x1440": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks?kind=suit",
+   "file": "docs/design/engineers/engineers-selected-suit-after-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lei Cheung",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Chloe Sedesi",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Lori Jameson",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Ram Tah",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tiana Fortune",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Marsha Hicks",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Uma Laszlo",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Wellington Beck",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Yarden Bond",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "section.tree > div.grid > button.node.locked > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Not introduced",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "section.tree > div.grid > button.node.locked > span.type-label.line",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Suit engineers",
+      "Hero Ferrari"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Engineers",
+      "Elvira Martuuk",
+      "Liz Ryder",
+      "Domino Green",
+      "Siris",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 20,
+     "texts": [
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Introduction from Liz Ryder: raise your rank with them past ",
+      "Invitation: Ally reputation with Sirius Corporation.",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Invitation: Complete 10 Conflict Zones.",
+      "Visit them at Capoya to unlock.",
+      "Known: the invitation is next",
+      "To unlock",
+      "Visit them at Siris to unlock.",
+      "Works on",
+      "Refers",
+      "Wellington Beck",
+      "Referral task: Provide 5 Settlement Defence Plans",
+      "18.0"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Invitation: Complete 10 Conflict Zones."
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.acts > button.btn.primary"
+    }
+   ]
+  },
+  "engineers-search-after-1100x700": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks?q=laser",
+   "file": "docs/design/engineers/engineers-search-after-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "div.list > div.row > div.grp > span.type-name.ename.locked",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "The Dweller"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Engineers",
+      "Wyrd",
+      "Luchtaine",
+      "Muang",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Pulse 4 · burst 3 · beam 3",
+      "Grade 5 on all three",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Unlock Hera Tani first.",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "75.5"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Waiting for Elite",
+      "laser"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "The Dweller",
+      "Mel Brandon"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 30,
+     "texts": [
+      "Ships",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Materials",
+      "Pulse, burst and beam lasers · 3 engineers · distances from ",
+      "None unlocked yet: nearest to unlock"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.answer > div.best > div.bline > button.btn.primary"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    }
+   ]
+  },
+  "engineers-search-after-2560x1440": {
+   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks?q=laser",
+   "file": "docs/design/engineers/engineers-search-after-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "div.list > div.row > div.grp > span.type-name.ename.locked",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "The Dweller"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Engineers",
+      "Wyrd",
+      "Luchtaine",
+      "Muang",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Pulse 4 · burst 3 · beam 3",
+      "Grade 5 on all three",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Unlock Hera Tani first.",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "75.5"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.answer > div.best > div.bline > button.btn.primary"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    }
+   ]
+  }
+ }
+}

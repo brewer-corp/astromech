@@ -1,0 +1,116 @@
+{
+ "out": "docs/design/system-tree",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  {
+   "w": 1100,
+   "h": 700,
+   "step": 100
+  },
+  {
+   "w": 1659,
+   "h": 900,
+   "step": 100
+  },
+  {
+   "w": 1920,
+   "h": 1080,
+   "step": 100
+  },
+  {
+   "w": 2560,
+   "h": 1440,
+   "step": 145
+  },
+  {
+   "w": 3840,
+   "h": 2160,
+   "step": 180
+  }
+ ],
+ "shots": [
+  {
+   "name": "after",
+   "hash": "exploration",
+   "steps": [
+    {
+     "waitText": "Earth-like world"
+    }
+   ],
+   "sizes": [
+    "1100x700",
+    "2560x1440"
+   ]
+  },
+  {
+   "name": "selected",
+   "hash": "exploration",
+   "steps": [
+    {
+     "waitText": "Earth-like world"
+    },
+    {
+     "click": "[role=treegrid] [role=row]:nth-child(8)"
+    },
+    {
+     "waitText": "OPEN IN BIOLOGY"
+    }
+   ],
+   "sizes": [
+    "1100x700",
+    "1659x900",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+   ]
+  },
+  {
+   "name": "loading",
+   "hash": "exploration",
+   "query": "core=ready&route=exact&slow=never:exploration_system",
+   "sizes": [
+    "1100x700",
+    "1920x1080"
+   ],
+   "steps": [
+    {
+     "waitText": "Reading the journal"
+    }
+   ]
+  },
+  {
+   "name": "failed",
+   "hash": "exploration",
+   "query": "core=ready&route=exact&fail=exploration_system",
+   "sizes": [
+    "1100x700",
+    "1920x1080"
+   ],
+   "steps": [
+    {
+     "waitText": "Could not read the system"
+    }
+   ]
+  },
+  {
+   "name": "empty",
+   "hash": "exploration",
+   "query": "core=empty&route=exact",
+   "sizes": [
+    "1100x700",
+    "1920x1080"
+   ],
+   "steps": [
+    {
+     "clickText": "Skip setup"
+    },
+    {
+     "clickText": "Exploration"
+    },
+    {
+     "waitText": "No system in the journal yet"
+    }
+   ]
+  }
+ ]
+}

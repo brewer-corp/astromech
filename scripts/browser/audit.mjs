@@ -10,7 +10,10 @@
  * { "click": css } (the first match), { "waitSel": css }, { "waitText": text },
  * { "type": [css, text] } (type into the first match, as the keyboard does),
  * { "clickText": text } (the first button or link whose own text is that, ignoring case: a
- * control with no selector of its own, such as Skip setup or a top tab), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
+ * control with no selector of its own, such as Skip setup or a top tab), { "type": css, "text": text }
+ * (type that text into the first match, key by key, as the commander would), { "select": css, "option": text }
+ * (choose the option whose text starts with that in the first matching <select>, as the commander
+ * would: a dropdown has no option to click), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
  * { "rows": css } (count the whole rows of that selector in view; with scrollTop, once more after it),
  * { "gap": [from, to], "label"? } (once the page is quiet: the layout px from the right edge of the
  * first match of `from` to the left edge of the first match of `to`, for an action that is not at a
@@ -253,12 +256,13 @@ function measure() {
   const boxes = [];
   for (const run of runs) for (const r of run.lines) {
     const v = inView(run.el, r);
-    if (v && !cutEls.has(run.el) && !dimmed(run.el, v)) boxes.push({ el: run.el.closest(ctl) ?? run.el, own: run.el, v, text: short(run.text) });
+    if (v && !cutEls.has(run.el) && !dimmed(run.el, v)) boxes.push({ el: run.el.closest(ctl) ?? run.el, own: run.el, v, full: r.bottom - r.top, text: short(run.text) });
   }
   for (const el of document.querySelectorAll(ctl)) {
     if (!el.checkVisibility({ opacityProperty: true, visibilityProperty: true }) || srOnly(el)) continue;
-    const v = inView(el, el.getBoundingClientRect());
-    if (v && !dimmed(el, v)) boxes.push({ el, own: el, v, text: short(el.textContent || el.getAttribute("aria-label") || el.tagName), control: true });
+    const r = el.getBoundingClientRect();
+    const v = inView(el, r);
+    if (v && !dimmed(el, v)) boxes.push({ el, own: el, v, full: r.bottom - r.top, text: short(el.textContent || el.getAttribute("aria-label") || el.tagName), control: true });
   }
   boxes.sort((a, b) => a.v.t - b.v.t);
   const overlaps = [];
@@ -270,8 +274,10 @@ function measure() {
       const w = Math.min(a.v.r, b.v.r) - Math.max(a.v.l, b.v.l);
       const h = Math.min(a.v.b, b.v.b) - Math.max(a.v.t, b.v.t);
       // Line boxes or a control's hit area sharing a sliver is leading or padding, not overlap;
-      // a tight title's wrapped lines share up to a third of their glyph boxes.
-      const need = Math.min(a.v.b - a.v.t, b.v.b - b.v.t) * (a.control || b.control ? 0.25 : 0.5);
+      // a tight title's wrapped lines share up to a third of their glyph boxes. Measured on the
+      // whole boxes: a line cut by the edge of the view is a sliver, and the leading it shares
+      // with the line above would otherwise read as overlap.
+      const need = Math.min(a.full, b.full) * (a.control || b.control ? 0.25 : 0.5);
       if (w > 2 && h > need && overlaps.length < 40) overlaps.push({ a: a.text, b: b.text, w: L(w), h: L(h), at: [path(a.own), path(b.own)] });
     }
   }
@@ -382,6 +388,25 @@ async function capture(browser, base, plan, shot, size, outDir) {
       const find = (t) => [...document.querySelectorAll("button, a")].find((el) => el.textContent.trim().toLowerCase() === t.toLowerCase());
       await page.waitForFunction(find, {}, s.clickText);
       await page.evaluate((t) => [...document.querySelectorAll("button, a")].find((el) => el.textContent.trim().toLowerCase() === t.toLowerCase()).click(), s.clickText);
+    }
+    if (s.type) {
+      await page.waitForSelector(s.type);
+      await page.type(s.type, s.text);
+    }
+    if (s.select) {
+      await page.waitForSelector(s.select);
+      const picked = await page.$eval(
+        s.select,
+        (el, t) => {
+          const o = [...el.options].find((x) => x.textContent.trim().startsWith(t));
+          if (!o) return false;
+          el.value = o.value;
+          el.dispatchEvent(new Event("change", { bubbles: true }));
+          return true;
+        },
+        s.option,
+      );
+      if (!picked) throw new Error(`${s.select} has no option starting "${s.option}"`);
     }
     if (s.rows) extra[s.label ?? "rows"] = await rowsInView(page, s.rows);
     if (s.scrollTop)

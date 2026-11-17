@@ -545,7 +545,9 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
         ],
     );
     // The explorer world's commander, in game, scans a whole unexplored system, Synuefe AB-C
-    // d1-2 (the exploration crate's synthetic lines); the history counts the unsold data.
+    // d1-2 (the exploration crate's synthetic lines, grown into a tree: two stars around a
+    // barycentre, a planet around both, and moons under two planets); the history counts the
+    // unsold data.
     t.insert(
         "exploration.json",
         vec![

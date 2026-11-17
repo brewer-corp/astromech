@@ -18,6 +18,12 @@
         "mapped": false,
         "mapped_efficiently": false,
         "name": "Synuefe AB-C d1-2 A",
+        "parents": [
+          {
+            "body_id": 0,
+            "kind": "Null"
+          }
+        ],
         "rings": false,
         "short_name": "A",
         "star": true,
@@ -39,12 +45,18 @@
         "first_discovery": true,
         "first_footfall_likely": false,
         "geo_signals": 0,
-        "gravity_g": 0.9075474295503563,
+        "gravity_g": 0.9075474295503564,
         "landable": false,
         "landings": 0,
         "mapped": true,
         "mapped_efficiently": true,
         "name": "Synuefe AB-C d1-2 A 2",
+        "parents": [
+          {
+            "body_id": 1,
+            "kind": "Star"
+          }
+        ],
         "rings": false,
         "short_name": "A 2",
         "star": false,
@@ -72,6 +84,12 @@
         "mapped": false,
         "mapped_efficiently": false,
         "name": "Synuefe AB-C d1-2 A 3",
+        "parents": [
+          {
+            "body_id": 1,
+            "kind": "Star"
+          }
+        ],
         "rings": false,
         "short_name": "A 3",
         "star": false,
@@ -99,6 +117,12 @@
         "mapped": false,
         "mapped_efficiently": false,
         "name": "Synuefe AB-C d1-2 A 4",
+        "parents": [
+          {
+            "body_id": 1,
+            "kind": "Star"
+          }
+        ],
         "rings": true,
         "short_name": "A 4",
         "star": false,
@@ -116,7 +140,7 @@
         "body_id": 5,
         "class": "Icy body",
         "class_name": "Icy body",
-        "distance_ls": 500.0,
+        "distance_ls": 401.0,
         "first_discovery": true,
         "first_footfall_likely": true,
         "geo_signals": 1,
@@ -126,6 +150,16 @@
         "mapped": false,
         "mapped_efficiently": false,
         "name": "Synuefe AB-C d1-2 A 4 a",
+        "parents": [
+          {
+            "body_id": 4,
+            "kind": "Planet"
+          },
+          {
+            "body_id": 1,
+            "kind": "Star"
+          }
+        ],
         "rings": false,
         "short_name": "A 4 a",
         "star": false,
@@ -136,18 +170,224 @@
         "was_footfalled": null,
         "was_mapped": false,
         "worth_mapping": false
+      },
+      {
+        "belts": false,
+        "bio_signals": 0,
+        "body_id": 7,
+        "class": "M",
+        "class_name": "M5 star",
+        "distance_ls": 18320.0,
+        "first_discovery": false,
+        "first_footfall_likely": false,
+        "geo_signals": 0,
+        "gravity_g": null,
+        "landable": false,
+        "landings": 0,
+        "mapped": false,
+        "mapped_efficiently": false,
+        "name": "Synuefe AB-C d1-2 B",
+        "parents": [
+          {
+            "body_id": 0,
+            "kind": "Null"
+          }
+        ],
+        "rings": false,
+        "short_name": "B",
+        "star": true,
+        "terraformable": false,
+        "value": 1205,
+        "value_mapped": 1205,
+        "was_discovered": true,
+        "was_footfalled": null,
+        "was_mapped": false,
+        "worth_mapping": false
+      },
+      {
+        "belts": false,
+        "bio_signals": 0,
+        "body_id": 8,
+        "class": "Water world",
+        "class_name": "Water world",
+        "distance_ls": 18330.0,
+        "first_discovery": false,
+        "first_footfall_likely": false,
+        "geo_signals": 0,
+        "gravity_g": 0.8259701325121219,
+        "landable": false,
+        "landings": 0,
+        "mapped": false,
+        "mapped_efficiently": false,
+        "name": "Synuefe AB-C d1-2 B 1",
+        "parents": [
+          {
+            "body_id": 7,
+            "kind": "Star"
+          }
+        ],
+        "rings": false,
+        "short_name": "B 1",
+        "star": false,
+        "terraformable": false,
+        "value": 97957,
+        "value_mapped": 1288656,
+        "was_discovered": true,
+        "was_footfalled": null,
+        "was_mapped": false,
+        "worth_mapping": true
+      },
+      {
+        "belts": false,
+        "bio_signals": 0,
+        "body_id": 9,
+        "class": "Rocky ice body",
+        "class_name": "Rocky ice world",
+        "distance_ls": 18331.0,
+        "first_discovery": false,
+        "first_footfall_likely": false,
+        "geo_signals": 0,
+        "gravity_g": 0.1223659455573514,
+        "landable": true,
+        "landings": 0,
+        "mapped": false,
+        "mapped_efficiently": false,
+        "name": "Synuefe AB-C d1-2 B 1 a",
+        "parents": [
+          {
+            "body_id": 8,
+            "kind": "Planet"
+          },
+          {
+            "body_id": 7,
+            "kind": "Star"
+          }
+        ],
+        "rings": false,
+        "short_name": "B 1 a",
+        "star": false,
+        "terraformable": false,
+        "value": 500,
+        "value_mapped": 4968,
+        "was_discovered": true,
+        "was_footfalled": null,
+        "was_mapped": false,
+        "worth_mapping": false
+      },
+      {
+        "belts": false,
+        "bio_signals": 0,
+        "body_id": 10,
+        "class": "Ammonia world",
+        "class_name": "Ammonia world",
+        "distance_ls": 25040.0,
+        "first_discovery": true,
+        "first_footfall_likely": false,
+        "geo_signals": 0,
+        "gravity_g": 0.6628155384356534,
+        "landable": false,
+        "landings": 0,
+        "mapped": false,
+        "mapped_efficiently": false,
+        "name": "Synuefe AB-C d1-2 AB 1",
+        "parents": [
+          {
+            "body_id": 0,
+            "kind": "Null"
+          }
+        ],
+        "rings": false,
+        "short_name": "AB 1",
+        "star": false,
+        "terraformable": false,
+        "value": 370766,
+        "value_mapped": 2229001,
+        "was_discovered": false,
+        "was_footfalled": null,
+        "was_mapped": false,
+        "worth_mapping": true
+      },
+      {
+        "belts": false,
+        "bio_signals": 0,
+        "body_id": 11,
+        "class": "Metal rich body",
+        "class_name": "Metal-rich body",
+        "distance_ls": 8.0,
+        "first_discovery": true,
+        "first_footfall_likely": true,
+        "geo_signals": 0,
+        "gravity_g": 0.2957177017635992,
+        "landable": true,
+        "landings": 0,
+        "mapped": false,
+        "mapped_efficiently": false,
+        "name": "Synuefe AB-C d1-2 A 1",
+        "parents": [
+          {
+            "body_id": 1,
+            "kind": "Star"
+          }
+        ],
+        "rings": false,
+        "short_name": "A 1",
+        "star": false,
+        "terraformable": false,
+        "value": 74265,
+        "value_mapped": 446471,
+        "was_discovered": false,
+        "was_footfalled": null,
+        "was_mapped": false,
+        "worth_mapping": false
+      },
+      {
+        "belts": false,
+        "bio_signals": 0,
+        "body_id": 12,
+        "class": "Rocky body",
+        "class_name": "Rocky body",
+        "distance_ls": 301.0,
+        "first_discovery": true,
+        "first_footfall_likely": true,
+        "geo_signals": 0,
+        "gravity_g": 0.09177445916801356,
+        "landable": true,
+        "landings": 0,
+        "mapped": false,
+        "mapped_efficiently": false,
+        "name": "Synuefe AB-C d1-2 A 3 a",
+        "parents": [
+          {
+            "body_id": 3,
+            "kind": "Planet"
+          },
+          {
+            "body_id": 1,
+            "kind": "Star"
+          }
+        ],
+        "rings": false,
+        "short_name": "A 3 a",
+        "star": false,
+        "terraformable": false,
+        "value": 1300,
+        "value_mapped": 6224,
+        "was_discovered": false,
+        "was_footfalled": null,
+        "was_mapped": false,
+        "worth_mapping": false
       }
     ],
-    "body_count": 5,
+    "body_count": 11,
     "population": 0,
     "system": "Synuefe AB-C d1-2",
     "system_address": 7000001,
-    "value": 4800561,
-    "value_if_mapped": 6915662
+    "value": 5346554,
+    "value_if_mapped": 10510589
   },
   "unsold": {
-    "bodies": 5,
-    "cartographic": 4800561,
+    "bodies": 11,
+    "cartographic": 5346554,
     "commander": {
       "cmdr": "F0000001",
       "first_seen": "2026-10-17T09:59:05Z",
@@ -160,7 +400,7 @@
     "samples": 2,
     "since": "2026-10-17T11:00:05Z",
     "systems": 1,
-    "total": 38125061,
+    "total": 38671054,
     "unknown_samples": 0
   }
 }
