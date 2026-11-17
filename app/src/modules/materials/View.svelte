@@ -218,7 +218,8 @@
   .out { padding: var(--sp-6) 0 0; min-width: 0; }
   .farm { list-style: none; margin: var(--sp-6) 0 0; padding: 0; display: flex; flex-direction: column; }
   .farm li { display: grid; grid-template-columns: minmax(9.375rem, 13.125rem) 5.625rem minmax(0, var(--measure)); gap: var(--sp-2) var(--sp-4); align-items: baseline; padding: var(--sp-3) var(--sp-2); border-bottom: 1px solid var(--line); }
-  .farm button:hover, .farm .on { color: var(--orange-lit); }
+  .farm button:hover { color: var(--orange-lit); }
+  .farm .on { color: var(--text-hi); }
   .fq { text-align: right; }
   .gh, .rh, .corner { min-height: 2.5rem; display: flex; align-items: center; }
   .gh { padding: 0 var(--sp-3); }

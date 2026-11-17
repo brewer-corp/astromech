@@ -150,7 +150,7 @@
           </div>
           {#if s.details}
             <div class="facts type-label">
-              {#each facts(s) as f (f)}<span>{f}</span>{/each}
+              {#each facts(s) as f (f)}<span class:sec-low={f === "Low security"} class:sec-anarchy={f === "Anarchy security"}>{f}</span>{/each}
               {#if s.details.faction}<span>{s.details.faction}{#if s.details.faction_state}&nbsp;· <span class="state">{s.details.faction_state}</span>{/if}</span>{/if}
             </div>
           {/if}
@@ -236,6 +236,10 @@
   .stop > .main { min-height: var(--sp-12); }
   .stop.past .node { color: var(--mark-off); }
   .stop.past :is(.name, .todo, .facts, .state) { color: var(--grey-dim); }
+  /* DESIGN.md's security colours on an inhabited stop: low Orange Mid, anarchy Red Low; the word
+     is the second cue. A past stop stays dim. */
+  .stop:not(.past) .sec-low { color: var(--orange-mid); }
+  .stop:not(.past) .sec-anarchy { color: var(--red-low); }
   /* The next stop: where to go now, raised (Hull Raised: Hull is the frame's), its name Orange Lit
      and its note Orange. */
   .stop.next::after { background: var(--surface-hi); }

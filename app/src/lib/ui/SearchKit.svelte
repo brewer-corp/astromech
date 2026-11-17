@@ -433,8 +433,8 @@
   .heads { height: 1.75rem; border-bottom: 1px solid var(--line); color: var(--label-grey); font-size: var(--fs-s); }
   .result:hover { background: var(--row-hover); }
   /* Icon buttons on a hovered or selected row step up to Orange Mid; the one under the pointer is Orange Lit. */
-  .result:hover .acts :global(.ibtn) { color: var(--orange-mid); }
-  .result .acts :global(.ibtn:hover) { color: var(--orange-lit); }
+  .result:hover :global(.ibtn) { color: var(--orange-mid); }
+  .result :global(.ibtn:hover) { color: var(--orange-lit); }
   .r { text-align: right; }
   /* The value the list is ranked by is its one orange column (DESIGN.md The Orange Means Act Rule). */
   .main .v { color: var(--accent); font-size: var(--fs-l); font-weight: 600; }
@@ -464,8 +464,8 @@
   .result.sel :is(.name, .pick) { color: var(--text-hi); }
   .result.sel .fact:not(.age) { color: var(--options-grey); }
   .result.sel :is(.unit, .sys), .result.sel :global(.kind) { color: var(--prose); }
-  .result.sel .acts :global(.ibtn) { color: var(--orange-mid); }
-  .result.sel .acts :global(.ibtn:hover) { color: var(--orange-lit); }
+  .result.sel :global(.ibtn) { color: var(--orange-mid); }
+  .result.sel :global(.ibtn:hover) { color: var(--orange-lit); }
 
   /* The side panel. */
   .ptitle { margin: 0; color: var(--text-hi); font-size: var(--fs-xl); font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
