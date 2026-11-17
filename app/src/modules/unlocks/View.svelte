@@ -1,7 +1,7 @@
 <script lang="ts">
   // Engineer unlocks as access-level cards. Columns follow who introduces whom; hovering a
   // card lights the engineers who have to introduce them first. A suit engineer's card lists
-  // every mod they fit and whether they are in Colonia, from the Odyssey data (moved from the On foot page,
+  // every mod they fit, whether they are in Colonia and what they ask to refer the next, from the Odyssey data (moved from the On foot page,
   // astromech-5a01); without it the card shows their specialties, as a ship engineer's does.
   import { tip } from "../../lib/ui/tip";
   import { failure } from "../../lib/ui/errors";
@@ -129,6 +129,9 @@
                 {/if}
                 <div class="where"><SystemChip name={n.system} />{n.permit ? " · permit" : ""}{odd?.colonia ? " · Colonia" : ""}</div>
                 {#if n.introduced_by.length}<div class="from">← {n.introduced_by.join(", ")}</div>{/if}
+                <!-- What this engineer asks before referring the next, shown before they are unlocked so
+                     the items can be collected ahead (the tree says only "Unlock <name> first" there). -->
+                {#if odd?.refers.length && odd.referral_task}<div class="refers">Refers {odd.refers.join(", ")}: {odd.referral_task}</div>{/if}
                 {#if n.left}<p class="left">{n.left}</p>{/if}
               </article>
             {/each}
@@ -173,6 +176,7 @@
   .access > .barred { border: 1px solid currentColor; background: linear-gradient(to top right, transparent 46%, currentColor 46%, currentColor 54%, transparent 54%); }
   .spec { font-size: var(--fs-s); }
   .where, .from { font-size: var(--fs-s); color: var(--label-grey); }
+  .refers { font-size: var(--fs-s); color: var(--prose); }
   .left { margin: 0; font-size: var(--fs-s); line-height: 1.45; }
   @container win (max-width: 56.25rem) {
     .tree { grid-template-columns: 1fr; }

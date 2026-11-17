@@ -58,4 +58,8 @@ it("lists every mod a suit engineer fits, with the unsure ones marked, and Colon
   // From the Odyssey data (it was On foot's Engineers view until astromech-5a01).
   await waitFor(() => expect(hero.textContent).toContain("Increased Sprint Duration (?)"));
   expect(screen.getByLabelText("Baltanos").textContent).toContain(" · Colonia");
+  // What Hero asks to refer Wellington Beck shows before Hero is unlocked, while Wellington's card
+  // says only to unlock Hero first.
+  expect(hero.className.split(/\s+/)).not.toContain("unlocked");
+  expect(hero.textContent).toContain("Refers Wellington Beck: Provide 5 Settlement Defence Plans");
 });
