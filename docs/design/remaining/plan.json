@@ -1,0 +1,156 @@
+{
+ "out": "docs/design/remaining",
+ "query": "core=ready&route=exact",
+ "clock": "2026-10-20T11:23:00Z",
+ "sizes": [
+  {
+   "w": 1100,
+   "h": 700,
+   "step": 100
+  },
+  {
+   "w": 1920,
+   "h": 1080,
+   "step": 100
+  },
+  {
+   "w": 2560,
+   "h": 1440,
+   "step": 145
+  }
+ ],
+ "shots": [
+  {
+   "name": "stored",
+   "hash": "stored",
+   "steps": [
+    {
+     "waitText": "5A Frame Shift Drive"
+    }
+   ]
+  },
+  {
+   "name": "stored-selected",
+   "hash": "stored",
+   "steps": [
+    {
+     "waitText": "5A Frame Shift Drive"
+    },
+    {
+     "click": "section button.row"
+    },
+    {
+     "waitSel": "aside[aria-label=Details]"
+    }
+   ]
+  },
+  {
+   "name": "stored-empty",
+   "hash": "stored",
+   "query": "core=empty&route=exact",
+   "steps": [
+    {
+     "clickText": "Skip setup"
+    },
+    {
+     "clickText": "Ships"
+    },
+    {
+     "clickText": "Stored modules"
+    },
+    {
+     "waitText": "No modules in storage."
+    }
+   ]
+  },
+  {
+   "name": "places-home",
+   "hash": "places"
+  },
+  {
+   "name": "mining",
+   "hash": "mining",
+   "steps": [
+    {
+     "waitText": "Refined"
+    }
+   ]
+  },
+  {
+   "name": "mining-empty",
+   "hash": "mining",
+   "query": "core=ready&route=exact&game=running",
+   "steps": [
+    {
+     "waitText": "No mining"
+    }
+   ]
+  },
+  {
+   "name": "datasharing",
+   "hash": "datasharing",
+   "steps": [
+    {
+     "waitText": "Share with EDDN"
+    }
+   ]
+  },
+  {
+   "name": "diagnostics",
+   "hash": "diagnostics",
+   "steps": [
+    {
+     "waitText": "Gateway answers"
+    }
+   ]
+  },
+  {
+   "name": "voicetester",
+   "hash": "voicetester",
+   "steps": [
+    {
+     "type": "input[aria-label=Phrase]",
+     "text": "gear down"
+    },
+    {
+     "clickText": "Test"
+    },
+    {
+     "waitText": "Confidence"
+    },
+    {
+     "click": "dl"
+    }
+   ]
+  },
+  {
+   "name": "finder-sell",
+   "hash": "places/sell/painite",
+   "steps": [
+    {
+     "waitSel": "[role=table][aria-label=Results] .row.result"
+    }
+   ]
+  },
+  {
+   "name": "finder-sell-cargo",
+   "hash": "places/sell-cargo"
+  },
+  {
+   "name": "finder-outfitting",
+   "hash": "places/outfitting"
+  },
+  {
+   "name": "finder-raw-sites",
+   "hash": "places/raw-sites"
+  },
+  {
+   "name": "finder-faction-states",
+   "hash": "places/faction-states"
+  },
+  {
+   "name": "finder-hotspots",
+   "hash": "places/mining-hotspots"
+  }
+ ]
+}
