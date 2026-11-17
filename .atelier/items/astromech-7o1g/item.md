@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-7o1g
 title: The window can shrink to 800 x 500, below the 1100 x 700 the design is built for
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - bug
@@ -48,4 +48,10 @@ The window's minimum size. The frame's behaviour below it stops mattering and is
 
 **What I ran and what I only read.** `cargo fmt --all --check`, `cargo clippy -p astromech-app --all-targets -- -D warnings` and `cargo test -p astromech-app --bin astromech-core` (the two `window_size` tests) pass on Linux, without the `window` feature. `host.rs` is behind the `window` feature, which needs webkit2gtk, not installed here, so `fit_display` was not compiled locally; CI's Windows job builds and clippies it (`--features window`). Its Tauri calls (`current_monitor`, `work_area`, `outer_size`, `inner_size`, `set_min_size`, `set_size`, `set_position`) were checked against tauri 2.12.3's source. Nothing was run on Windows.
 
+**Round 2** (`f339c85b`): the minimum now follows the display the window is on. On `WindowEvent::Moved` and `ScaleFactorChanged` for the window, `Host::refit_minimum` works out the room again and sets the minimum only when `window_size::Minimum::refit` says it changed (setting a minimum makes tao re-check the window's size, so not on every move of a drag). Moving to a display with the room gives 1100 x 700 back; moving to a smaller one relaxes it. Only the minimum changes then: the window keeps its size and place, and the opening size and corner move happen once, at build. A test covers small to large and back. Same limits as before: not compiled with the `window` feature here, not run on Windows.
+
 **Limit.** On Windows 10 and 11, `outer_size` includes the invisible resize borders (about 7 px a side), so on a small display the window comes out a few px smaller than the room it could take. Harmless, and not worth a Win32 call.
+
+### Responses
+
+1-y6wi.1: fixed in f339c85b
