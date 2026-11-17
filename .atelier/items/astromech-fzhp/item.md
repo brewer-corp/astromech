@@ -92,7 +92,7 @@ There is no mockup. Replies: `session_summary` (`Session.ts`: `earnings: Earning
 - **`bright`, Session:** with the sidebar apart, it leads with White, which is the page Title and the wordmark. Then come the Options Grey figures and names, and among the colours the main value (14,643,677, Orange Lit) is first. There is no control on Session.
 - **`bright`, Logbook:** the search box is the only control. Its orange placeholder and ember cell are the only orange on the page besides the frame's. There is no main value beyond the totals, in Options Grey.
 - **Found, not fixed (frame):** at 145 percent Text size in a 1100 px window, the header's top-tab row runs 292 px past the window on every page I tried (Session, Logbook, Powerplay, Settings), so the document scrolls sideways. A first run never picks 145 for a 1080p display, and no Done when names that size. It needs an item for the header; I could not file one from this branch, since planning happens on `main`.
-- **Tool change (own commit, fff59fa3):** `scripts/browser/audit.mjs` gains a `{ "type": [css, text] }` action, because the plan could only click and wait and so could not capture a search.
+- **Typing in the audit:** this branch first added a `type` action to `scripts/browser/audit.mjs` (fff59fa3). Main added its own, `{ "type": css, "text": text }`, for astromech-7vxi, so after round 3 mine is gone and `plan.json` uses main's (b3f4ab62).
 
 ### Tests and gates
 
@@ -103,8 +103,10 @@ There is no mockup. Replies: `session_summary` (`Session.ts`: `earnings: Earning
 
 - **Merged main (6e502110):** `app/eslint.config.js` conflicted. Main had enrolled Station (astromech-7vxi), Engineers (astromech-m6gw) and System (astromech-dpaz) in `PAGE_SIZING` and dropped their `TOKENS_EXEMPT` entries, and this branch had done the same for Session and Logbook. The resolution keeps every enrolment and drops all four finished exemptions.
 - **Test fix that main needed (78186117):** `eslint-rules/pageSizing.test.js` named `station/View.svelte` as its example of a page not yet enrolled, so it failed on main once astromech-7vxi enrolled that page. Its example is now `stored/View.svelte`, which is still waiting on astromech-gvy0.
-- **Gates on the merged head:** fmt, clippy, the history, bindings and fixture drift tests, lint, check, `pnpm test` (97 files, 890 tests) and the 7 journeys all pass.
+- **Round 3 (b3f4ab62 and a second merge of main):** dropping the duplicate `type` handler fixed both this page's search captures and Station's. On the merged head, the full `plan.json` and Station's `search` shot run with nothing listed. Station's own captures are left as committed. The second merge conflicted in Now's test: main's Powerplay check is kept and the session figure stays 14.6.
+- **Gates on the merged head:** fmt, clippy, the history, bindings and fixture drift tests, lint, check, `pnpm test` (97 files, 897 tests) and the 7 journeys all pass.
 
 ### Responses
 
 - 1-ohh1.1: fixed in 7dbbb57c
+- 3-xszl.1: fixed in b3f4ab62
