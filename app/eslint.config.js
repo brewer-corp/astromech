@@ -24,6 +24,8 @@ export const PAGE_SIZING = [
   ["src/modules/places/Home.svelte", "font-size"],
   ["src/modules/settings/{Callouts,ProspectorThresholds}.svelte", "font-size"],
   ["src/modules/{session,mining}/View.svelte", "font-size"],
+  // astromech-nnn0: Ships > Suits as a loadout, on List with detail.
+  ["src/modules/suits/**", "width", "font-size"],
   // astromech-irrv: the Import a route dialog, a page part opened from the frame.
   ["src/modules/route/ImportDialog.svelte", "width", "font-size"],
 ];
@@ -69,7 +71,6 @@ export const TOKENS_EXEMPT = [
   { files: ["src/modules/colonisation/**"], off: ["spacing"], until: "astromech-m07p", why: "Rebuilds Colonisation." },
   { files: ["src/modules/engineering/**"], off: ["spacing"], until: "astromech-8wr4", why: "Rebuilds Ships as a loadout." },
   { files: ["src/modules/unlocks/**"], off: ["spacing"], until: "astromech-m6gw", why: "Rebuilds Engineers." },
-  { files: ["src/modules/suits/**"], off: ["spacing"], until: "astromech-nnn0", why: "Rebuilds Suits, which holds On foot's blueprints since astromech-5a01." },
   { files: ["src/modules/exobiology/**"], off: ["spacing"], until: "astromech-evj3", why: "Rebuilds Biology." },
   { files: ["src/modules/exploration/**"], off: ["spacing"], until: "astromech-dpaz", why: "Rebuilds System." },
   { files: ["src/modules/{session,logbook}/**"], off: ["spacing"], until: "astromech-fzhp", why: "Rebuilds Session and Logbook." },
