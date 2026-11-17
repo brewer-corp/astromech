@@ -8,6 +8,8 @@ command it matched, how sure it is and what it would do. Find it under **Setting
 
 - **Type** a phrase, such as "gear down", and press **Test**.
 - Or **use push-to-talk** with the page open and visible. The result appears as you speak.
+  While it is in test mode a line above the box says so; point at the box for a reminder of
+  how to test by voice.
 
 While the page is open and visible, push-to-talk is in **test mode**: whatever you say is
 tested, and astromech does not act on it. The game cannot show this, so astromech says so: the
@@ -38,8 +40,8 @@ searches from that system too.
 
 For a command that presses a key, **Run live** sends it to the game for real. Click it, then
 switch to Elite within five seconds: astromech presses keys only while Elite is the active
-window. It skips the "Did you mean" or "Confirm" question that a spoken command would ask.
-It needs Elite running.
+window. It skips the "Did you mean" or "Confirm" question that a spoken command would ask; point
+at the button to see which. It needs Elite running.
 
 ## Learned phrases
 
@@ -47,7 +49,7 @@ It needs Elite running.
 
 When you answer **yes** to "Did you mean ...?", astromech remembers what it heard and runs that
 command next time without asking. A command that presses a key needs two yes answers first, and
-everyday-word mishearings such as "I'll stop" are never remembered ([Voice](voice.md#how-it-decides)). The list at the bottom of the page shows each phrase and the
+everyday-word mishearings such as "I'll stop" are never remembered ([Voice](voice.md#how-it-decides)). The list at the bottom of the page (point at its heading for what it is) shows each phrase and the
 command it runs, the most used first. **Remove** forgets one at once, here and on disk, so a
 wrong yes does not stay: astromech asks again the next time you say it.
 

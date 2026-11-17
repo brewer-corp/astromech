@@ -37,8 +37,11 @@ drawings are CMDR Qohen Leth's cartoon vectors, credited in NOTICE.md.
 
 ## Stored modules
 
-**Ships, Stored modules** lists every module in storage with its blueprint and grade if
-engineered, where it is and its value.
+**Ships, Stored modules** lists every module in storage, grouped by the system it is stored in,
+each heading with how many are there; modules on their way to a station are under **In transit**.
+Each row is the module's name, its blueprint with its grade as engineer hexagons if engineered,
+and its value. Click a row to see it in the side panel: its full value, where it is (with a copy
+button for the system's name) and its blueprint and grade.
 
 ## Suits
 

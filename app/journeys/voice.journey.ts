@@ -46,7 +46,7 @@ journey("the voice tester runs gear down live and shows it confirmed", { world: 
   await page.getByRole("button", { name: "Test", exact: true }).click();
   // Run live is on once the page's first voice poll says push-to-talk is in test mode.
   const live = page.getByRole("button", { name: "Run live", exact: true });
-  await page.getByText("Sends it to Elite like a spoken command.").waitFor();
+  await page.getByText("Push-to-talk is in test mode while this page is open.", { exact: false }).waitFor();
 
   const since = (await core.observed()).next;
   await live.click();

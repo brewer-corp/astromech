@@ -1,0 +1,34 @@
+{
+ "out": "docs/design/final",
+ "query": "core=ready&route=exact",
+ "clock": "2026-10-20T11:23:00Z",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 1920, "h": 1080, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 },
+  { "w": 3840, "h": 2160, "step": 180 }
+ ],
+ "shots": [
+  { "name": "now", "hash": "now", "query": "core=ready&route=exact&game=running", "steps": [{ "waitText": "takes all" }] },
+  { "name": "station", "hash": "station", "query": "core=ready&route=exact&game=running", "steps": [{ "waitText": "Arc City" }] },
+  { "name": "session", "hash": "session", "steps": [{ "waitText": "per hour" }] },
+  { "name": "mining", "hash": "mining", "steps": [{ "waitText": "Refined" }] },
+  { "name": "ships-module", "hash": "engineering/7", "steps": [{ "click": "button.row[aria-label^='Frame shift drive']" }, { "waitSel": "aside[aria-label=Details] [role=table]" }] },
+  { "name": "stored-selected", "hash": "stored", "steps": [{ "waitText": "5A Frame Shift Drive" }, { "click": "section button.row" }, { "waitSel": "aside[aria-label=Details]" }] },
+  { "name": "suits-selected", "hash": "suits", "steps": [{ "waitSel": "[role=table][aria-label='Shopping list']" }, { "click": "button[aria-label='Suit: Maverick Suit']" }, { "waitSel": "aside[aria-label=Details] .type-value-xl" }] },
+  { "name": "materials", "hash": "materials" },
+  { "name": "engineers-selected", "hash": "unlocks", "steps": [{ "click": ".node[aria-label='The Dweller']" }, { "waitSel": "aside[aria-label=Details]" }] },
+  { "name": "places-home", "hash": "places" },
+  { "name": "sell-selected", "hash": "places/sell/painite", "steps": [{ "click": "[role=table][aria-label=Results] .row.result button[aria-pressed=false]" }, { "waitSel": "aside[aria-label=Details]" }] },
+  { "name": "trade-route", "hash": "trade", "query": "core=ready&route=exact&game=running", "steps": [{ "waitSel": "input[aria-label='Cargo capacity']" }, { "clickText": "Find route" }, { "waitText": "Biowaste" }] },
+  { "name": "colonisation-selected", "hash": "colonisation", "steps": [{ "waitText": "Efremov Plant" }, { "click": ".row.result" }, { "waitSel": "aside[aria-label=Details] .ptitle" }] },
+  { "name": "system-selected", "hash": "exploration", "steps": [{ "waitText": "Earth-like world" }, { "click": "[role=treegrid] [role=row]:nth-child(8)" }, { "waitText": "OPEN IN BIOLOGY" }] },
+  { "name": "biology", "hash": "exobiology", "steps": [{ "waitText": "Stratum Tectonicas" }] },
+  { "name": "powerplay", "hash": "powerplay", "steps": [{ "waitSel": "[role=table][aria-label=Results] .row.result" }] },
+  { "name": "logbook", "hash": "logbook", "steps": [{ "waitText": "arrivals" }] },
+  { "name": "settings", "hash": "settings", "steps": [{ "waitText": "Text size" }] },
+  { "name": "datasharing", "hash": "datasharing", "steps": [{ "waitText": "Share with EDDN" }] },
+  { "name": "diagnostics", "hash": "diagnostics", "steps": [{ "waitText": "Gateway answers" }] },
+  { "name": "voicetester", "hash": "voicetester", "steps": [{ "type": "input[aria-label=Phrase]", "text": "gear down" }, { "clickText": "Test" }, { "waitText": "Confidence" }] }
+ ]
+}

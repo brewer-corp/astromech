@@ -40,7 +40,7 @@ Unclaimed systems within 15 light years of a populated one, where a claim can be
 system's Colonisation Contact). Choose what you care about: **Any**, **Rings**, **Earth-like
 world** or **Landable** bodies. Each row has the jumps, the system, its bodies and the populated
 system in range, the distance and how old the report is. The search radius is 30 light years by default. Source: Spansh, so a
-claim made since may not show yet.
+claim made since may not show yet. Point at the section's heading for this in short.
 
 ## By voice and as a callout
 
