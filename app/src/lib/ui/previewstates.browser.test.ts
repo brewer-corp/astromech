@@ -64,7 +64,7 @@ const PAGES: Page[] = [
   { name: "Station", read: "docked_here", view: Station as unknown as Component, empty: /Not docked/, loading: /Reading the journal…/, failed: /Could not read the docked station: / },
   { name: "Colonisation", read: "colonisation_projects", view: Colonisation as unknown as Component, empty: /No construction sites in your journals yet/, loading: /Reading the journals…/, failed: /Could not read the construction sites: / },
   { name: "Exploration", read: "exploration_system", view: Exploration as unknown as Component, empty: /No system in the journal yet/, loading: /Reading the journal…/, failed: /Could not read the system: / },
-  { name: "Powerplay", read: "powerplay_overview", view: Powerplay as unknown as Component, empty: /Not pledged to a power/, loading: /Reading the journal…/, failed: /Could not read your Powerplay standing: / },
+  { name: "Powerplay", read: "powerplay_overview", view: Powerplay as unknown as Component, empty: /^Not pledged$/, loading: /Reading the journal…/, failed: /Could not read your Powerplay standing: / },
   { name: "Data sharing", read: "eddn_log", view: DataSharing as unknown as Component, empty: /Nothing yet/, loading: /Reading the sharing log…/, failed: /Could not read the sharing log: / },
   { name: "Diagnostics", read: "status", view: Diagnostics as unknown as Component, empty: /Nothing sent to EDDN yet/, loading: /^—$/, failed: /Could not read the EDDN log: / },
 ];

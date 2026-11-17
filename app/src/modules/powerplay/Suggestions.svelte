@@ -16,20 +16,18 @@
 <ul>
   {#each items as s, i (`${s.activity}-${i}`)}
     <li>
-      <span class="name" {@attach tip({ title: s.name, fact: s.how, note: s.uncertain ? `Not checked in game: ${s.uncertain}` : undefined })}>{s.name}</span>
+      <span class="type-name" {@attach tip({ title: s.name, fact: s.how, note: s.uncertain ? `Not checked in game: ${s.uncertain}` : undefined })}>{s.name}</span>
       {#if s.weak_spot}<Badge {@attach tip("The controlling power is weak to it")}>Weak spot</Badge>{/if}
       {#if s.favoured}<Badge {@attach tip("Your power favours it: bonus merits")}>Ethos</Badge>{/if}
       {#if s.odyssey}<Badge>On foot</Badge>{/if}
-      {#if s.uncertain}<span class="unverified" aria-hidden="true">?</span>{/if}
+      {#if s.uncertain}<span class="type-label unverified" aria-hidden="true">?</span>{/if}
     </li>
   {/each}
 </ul>
-<p class="foot" {@attach tip("Frontier rebalances Powerplay often: check a surprising line in game")}>Community guides, as of {asOf} (rules v{rules.version})</p>
+<p class="type-label foot" {@attach tip("Frontier rebalances Powerplay often: check a surprising line in game")}>Community guides, as of {asOf} (rules v{rules.version})</p>
 
 <style>
-  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.625rem; }
-  .name { color: var(--options-grey); font-weight: 500; }
-  li > :global(.badge) { margin-left: 0.375rem; }
-  .unverified { margin-left: 0.375rem; color: var(--label-grey); font-size: var(--fs-s); }
-  .foot { margin: 0.875rem 0 0; color: var(--label-grey); font-size: var(--fs-s); line-height: 1.45; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); }
+  li { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-2); }
+  .foot { margin: var(--sp-4) 0 0; }
 </style>

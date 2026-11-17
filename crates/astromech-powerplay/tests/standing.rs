@@ -30,7 +30,7 @@ fn replaying_the_journals_gives_the_standing() {
     assert_eq!(v.week_merits, 1_829);
     assert_eq!(v.week_ends, "2026-10-22T07:00:00+00:00");
     let next = v.next.unwrap();
-    assert_eq!((next.rank, next.merits, next.to_go), (10, 55_000, 7_871));
+    assert_eq!((next.rank, next.from, next.merits, next.to_go), (10, 47_000, 55_000, 7_871), "rank 9 needed 47,000");
     assert_eq!(next.reward, "Care package");
     assert!(next.note.is_none());
 
@@ -59,7 +59,7 @@ fn joining_defecting_and_leaving() {
         r#"{"timestamp":"2026-10-16T10:00:00Z","event":"Powerplay","Power":"Nakato Kaine","Rank":0,"Merits":900,"TimePledged":3600}"#,
     ]);
     let next = s.next_rank().unwrap();
-    assert_eq!((next.rank, next.to_go), (1, 0));
+    assert_eq!((next.rank, next.from, next.to_go), (1, 0, 0), "rank 0 starts from nothing");
     assert_eq!(next.note.as_deref(), Some("Complete the five initial assignments."));
     assert_eq!(s.spoken(), "Pledged to Nakato Kaine, rank 0, 900 merits. Complete the five initial assignments.");
 

@@ -41,19 +41,29 @@ export function num(n: number | null | undefined): string {
   return n == null ? "–" : n.toLocaleString("en-GB");
 }
 
-/** "212 days", "5 h". */
+/** How long the commander has been pledged: "37 weeks" from two weeks on, else "9 days" or "5 h". */
 export function pledged(secs: number | null): string {
   if (secs == null) return "–";
   const d = Math.floor(secs / 86400);
+  if (d >= 14) return `${Math.floor(d / 7)} weeks`;
   return d >= 1 ? `${d} day${d === 1 ? "" : "s"}` : `${Math.floor(secs / 3600)} h`;
 }
 
-/** "3 d 4 h" until `iso`. */
-export function until(iso: string, now = Date.now()): string {
-  const s = Math.max(0, (Date.parse(iso) - now) / 1000);
-  const d = Math.floor(s / 86400);
-  const h = Math.floor((s % 86400) / 3600);
-  return d ? `${d} d ${h} h` : `${h} h ${Math.floor((s % 3600) / 60)} min`;
+/** The time from `now` to `iso` in the cycle's words: "2 d 14 h", "5 h 12 min", "12 min"; "0 min" once past. */
+export function timeLeft(iso: string, now = Date.now()): string {
+  const m = Math.max(0, Math.floor((Date.parse(iso) - now) / 60000));
+  const d = Math.floor(m / 1440);
+  const h = Math.floor((m % 1440) / 60);
+  if (d) return `${d} d ${h} h`;
+  return h ? `${h} h ${m % 60} min` : `${m} min`;
+}
+
+/** When `iso` falls, in UTC as the game's cycle is told: "Thursday 07:00 UTC". */
+export function endsAt(iso: string): string {
+  const t = new Date(iso);
+  const day = t.toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" });
+  const hm = t.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC" });
+  return `${day} ${hm} UTC`;
 }
 
 /** Kinds of nearby target (astromech_galaxy::Target). */
@@ -70,16 +80,27 @@ export async function loadTargets(target: Target, origin: Origin, filters: Filte
   return await call("powerplay_targets", { target, origin, filters, within_ly: withinLy });
 }
 
-/** The row detail: state and progress, and which other powers are there besides `power`. */
+/**
+ * The row's second line: state and progress, and how many other powers are active there besides
+ * `power`, so the line has a bounded length whatever the system (their names are `targetOthers`,
+ * for its Tip). The controlling power is named unless it is `power`. This cycle's reinforcement
+ * and undermining are figures of their own (`TargetHit`).
+ */
 export function targetDetail(h: TargetHit, power: string): string {
   const parts: string[] = [];
   if (h.controlling_power) {
-    parts.push(`${h.controlling_power} ${h.state?.toLowerCase() ?? ""} ${pct(h.control_progress)}`.replace(/\s+/g, " ").trim());
-    if (h.reinforcement != null && h.undermining != null) parts.push(`reinforcement ${num(h.reinforcement)} / undermining ${num(h.undermining)}`);
+    const who = h.controlling_power === power ? "" : h.controlling_power;
+    const state = h.state ? (who ? h.state.toLowerCase() : h.state) : "";
+    parts.push(`${who} ${state} ${pct(h.control_progress)}`.replace(/\s+/g, " ").trim());
   } else {
     parts.push(`Unoccupied, acquisition ${pct(h.acquisition)}`);
   }
-  const others = h.others.filter((p) => p !== power);
-  if (others.length) parts.push(`also ${others.join(", ")}`);
+  const n = targetOthers(h, power).length;
+  if (n) parts.push(`${n} other power${n === 1 ? "" : "s"}`);
   return parts.join(" · ");
+}
+
+/** The other powers active in a target system besides `power`. */
+export function targetOthers(h: TargetHit, power: string): string[] {
+  return h.others.filter((p) => p !== power && p !== h.controlling_power);
 }

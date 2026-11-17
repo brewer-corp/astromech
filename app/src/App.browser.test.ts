@@ -19,7 +19,7 @@ describe("Find or plot in the window", () => {
   it("opens a material from the Powerplay page, with a link to its Faction states finder", async () => {
     location.hash = "#/powerplay";
     render(App);
-    await screen.findByText("My standing");
+    await screen.findByText("Next rank");
 
     await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
     const input = await screen.findByRole("combobox", { name: "Find or plot" });
@@ -50,7 +50,7 @@ describe("Find or plot in the window", () => {
   it("opens finders filled in from phrases typed in the header's one box", async () => {
     location.hash = "#/powerplay";
     render(App);
-    await screen.findByText("My standing");
+    await screen.findByText("Next rank");
     expect(screen.getAllByRole("combobox", { name: "Find or plot" }), "one box, no separate palette").toHaveLength(1);
     for (const [phrase, to] of [
       ["raw trader", "#/places/material-traders/raw"],
@@ -86,7 +86,7 @@ describe("Find or plot in the window", () => {
   it("opens a module's nearby outfitting search", async () => {
     location.hash = "#/powerplay";
     render(App);
-    await screen.findByText("My standing");
+    await screen.findByText("Next rank");
 
     await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
     const input = await screen.findByRole("combobox", { name: "Find or plot" });

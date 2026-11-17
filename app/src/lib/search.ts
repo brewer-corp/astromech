@@ -33,6 +33,8 @@ export interface Row {
   main?: string;
   /** The lookup's own columns (Results.columns), by key. Missing: "—". */
   facts?: Record<string, string>;
+  /** A prose fact's Tip, by key: what its short words stand for ("2 other powers": which). */
+  notes?: Record<string, string>;
   /** Spansh station type, shown as a HUD mark. */
   station_type?: string | null;
   /** A market's demand or stock in tonnes, for the bars of a `bars` column (Sell, Buy). */
