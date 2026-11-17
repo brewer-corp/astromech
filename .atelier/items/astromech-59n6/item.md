@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-59n6
 title: 'Grade hexagons: a planned grade cannot be told from a fitted one'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - bug
@@ -62,3 +62,7 @@ Offered and unreached differ by fill (ring against full mark) as well as by colo
 - Not fixed, and needs filing: the `ship-loadout` plan's `no-fleet` shot times out after 30 s on main too, so `audit.mjs` stops before writing `report.json`. I retook the other 18 shots from a temporary plan and kept the old `no-fleet` entry in the report. Its PNG has no hexagons and did not change.
 
 `pnpm check`, `pnpm lint` and `pnpm test` (885 tests) pass.
+
+### Responses
+
+1-5f6q.1: fixed in f9e327dd
