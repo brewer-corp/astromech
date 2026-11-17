@@ -552,7 +552,9 @@ are read; colour that means nothing is what made every page loud.
 |---|---|---|---|
 | Demand on Sell, against the tonnes of that commodity aboard that are the commander's to sell | Red Low, short: below that figure. Orange Mid, tight: below five times it. Prose Grey, plenty | will it take your cargo | the market's bars: one, two or three lit; a Tip on a short row |
 | Supply on Buy, against the free cargo space | as demand | will it fill your hold | as demand |
-| Demand or supply with nothing aboard, or the hold unknown | Prose Grey bars, no warning colour | the figure, with nothing to measure it against | the page says what it measures against ("200 t of Painite aboard"), or nothing |
+| Demand on Sell with none of the commodity aboard, or the sellable tonnes unknown (Elite not running) | Prose Grey bars, no warning colour | the figure, with nothing to measure it against | the page says what it measures against ("200 t of Painite aboard"), and tells a known zero ("none aboard") from an unknown |
+| Supply on Buy when free space is unknown (cargo or capacity not known) | Prose Grey bars, no warning colour | as above | as above; an empty hold with a known capacity is not this case: it is measured against its free space like any other ("256 t free") |
+| Supply on Buy with no free space (a full hold) | Prose Grey bars, no warning colour | nothing more fits, so no seller is short | the page says the hold is full |
 | A pad too small for the current ship | Red Low letter and outline | won't fit | struck through; its accessible name says why |
 | A stale report (older than the finder's age filter) | its age in Orange; the ranked value steps to Orange Mid | do not trust this | the age in words ("34 d old") |
 | A star in the route | scoopable Orange Mid; neutron star White; any other Label Grey; past stops Mark Off | what you do there: refuel, boost, nothing | the star type icon and its Tip |
