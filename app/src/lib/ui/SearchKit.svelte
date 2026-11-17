@@ -531,12 +531,13 @@
               </span>
               {#if folded && g}
                 <!-- Compact with no side panel: the groups that don't fit fold into a third line under the place. -->
+                <!-- Only the own group's prose gives way on a narrow line; the trip keeps its width. -->
                 <span class="folded" role="cell">
-                  {#each g.own as c, i (c.key)}{#if i}&nbsp;·&nbsp;{/if}{@render fact(c, r)}{/each}
-                  {#if g.trip}
+                  {#if g.own.length}<span class="fown">{#each g.own as c, i (c.key)}{#if i}&nbsp;·&nbsp;{/if}{@render fact(c, r)}{/each}</span>{/if}
+                  {#if g.trip}<span class="ftrip">
                     {#if g.own.length}&nbsp;·&nbsp;{/if}{jumpsFigure(r)}<span class="unit type-unit">{jumpsUnit(jumpsFigure(r))}</span>&nbsp;·&nbsp;<span class="ly">{figure(r.ly, 1)}<span class="unit type-unit">ly</span></span>
                     {#if !res.undated && r.updated_at}&nbsp;·&nbsp;<span class="age" class:old={stale(r)}>{ageCell(r.updated_at, now).value} {ageCell(r.updated_at, now).unit} old</span>{/if}
-                  {/if}
+                  </span>{/if}
                 </span>
               {/if}
             </div>
@@ -583,7 +584,10 @@
   .compact .row { height: var(--row); }
   .row.tall { height: auto; min-height: var(--row-result); padding-block: var(--sp-2); }
   .folded { grid-column: 2 / -1; display: flex; align-items: baseline; overflow: hidden; font-size: var(--fs-s); white-space: nowrap; }
-  .folded > :global(*) { min-width: 0; }
+  /* The own group's prose shrinks and ellipsizes; the trip's figures, units and age don't. */
+  .fown { display: flex; align-items: baseline; min-width: 0; overflow: hidden; }
+  .fown > :global(*) { min-width: 0; }
+  .ftrip { display: flex; align-items: baseline; flex: none; }
   .row > * { min-width: 0; }
   .heads { height: 1.75rem; border-bottom: 1px solid var(--line); margin-bottom: var(--sp-1); color: var(--label-grey); font-size: var(--fs-s); overflow: hidden; }
   .result:hover { background: var(--row-hover); }
