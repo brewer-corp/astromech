@@ -32,6 +32,7 @@ Confirmed in `SearchKit.svelte:525-533`: compact lists without a detail panel no
 
 ## Finding 2: Keep folded trip units and age suffixes from shrinking into their neighbours
 Recommendation: defer
+Dropped by 65a8ff7c-e901-48a1-be52-323bbbd8e80c: Taken into astromech-srab with the icon alignment finding: both are small fixes to the grouped result row.
 
 `app/src/lib/ui/SearchKit.svelte:579-580` makes the folded line a nonwrapping flex container and permits every child to shrink to zero. Its stock text correctly ellipsizes and has a full-text title, but the trip's unit, distance and age spans also shrink while their text overflows. On the recorded Hah Industrial Moulding row at 1100 x 700 / 145 percent, the folded line ends at x=1039.6 while the `42 d old` text extends to x=1045.2 and is clipped; at 180 percent it extends to x=1059.0 past the line's x=1035.4 edge, and the jump unit overlaps its following separator. This is visible after scrolling to that row. The new test checks only Efremov Plant's text content, so it cannot detect this geometry.
 

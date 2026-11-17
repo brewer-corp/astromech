@@ -15,6 +15,8 @@ blocked_by:
 - astromech-5a01
 - astromech-7did
 - astromech-3ca6
+- astromech-fom5
+- astromech-srab
 implementers: []
 ready:
   by: Sumeet
