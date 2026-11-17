@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-lf3a
 title: Powerplay cuts system names short beside the docked route at 1920 x 1080
-status: draft
+status: dropped
 mission: astromech-xajc
 labels:
 - bug
@@ -27,4 +27,8 @@ Powerplay shows whole system names and states beside the docked route sidebar. F
 
 ## Scope
 
-The Powerplay page's layout at widths beside the docked sidebar. astromech-rj6i rebuilds this page but waits on astromech-8e22, which waits on this fix; the lead decides whether to fix the current page or let 8e22 close with this case handed to rj6i.
+The Powerplay page's layout at widths beside the docked sidebar. astromech-rj6i rebuilds this page and carries this case as a Done when line: astromech-8e22 handed it there and closed (its second Done when line names the handoff).
+
+## Report
+
+Dropped: Another item covers it: astromech-rj6i rebuilds the page and carries this case as a Done when line.

@@ -4,7 +4,7 @@ schema_version: 3
 id: astromech-wo8s
 title: My controller at 1100 x 700 draws the bound actions on the sheet at 8 px
 status: ready
-mission: astromech-xajc
+mission: null
 labels:
 - bug
 priority: low
@@ -28,4 +28,4 @@ The bound actions on My controller's sheet are readable at the smallest window. 
 
 ## Scope
 
-My controller only. Controls get only the frame, the text size, the colours and Tip in mission astromech-xajc, so this may belong outside the mission; the lead decides.
+My controller only. It is not part of mission astromech-xajc, whose Out table keeps the Controls pages out beyond the frame, the text size, the colours and Tip (plan review round 4, finding 4-ayza.3); it stands on its own as a low-priority bug.
