@@ -100,9 +100,6 @@
   const loose = $derived(view ? untied(picks, owned) : picks.filter((p) => p.item == null));
   function chooseLoadout(id: number) {
     wantLoadout = String(id);
-    // The panel keeps an item the new loadout also has; any other closes with the old loadout.
-    const l = loadouts.find((x) => x.id === id);
-    if (selId !== null && l && !slotRows(l).some((r) => r.item?.id === selId)) selId = null;
     location.hash = pageHash("suits", { loadout: wantLoadout });
   }
 
@@ -110,6 +107,15 @@
   let selId = $state<number | null>(null);
   let other = $state(false);
   const sel = $derived(selId === null ? undefined : owned.find((o) => o.id === selId));
+  // Whenever the loadout shown changes (a click, Back, or the worn one changing in the journal),
+  // the panel keeps an item that loadout has, or one in no loadout ("Also owned"); any other
+  // closes with the loadout it belonged to.
+  $effect(() => {
+    const shown = new Set(rows.flatMap((r) => (r.item ? [r.item.id] : [])));
+    untrack(() => {
+      if (selId !== null && view && !shown.has(selId) && !spare.some((o) => o.id === selId)) selId = null;
+    });
+  });
   function select(item: OwnedGear) {
     selId = selId === item.id ? null : item.id;
     other = false;

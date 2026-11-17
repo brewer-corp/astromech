@@ -52,11 +52,28 @@ describe("adding never doubles a plan", () => {
       add: { kind: "upgrade", gear: "maverick", from: 1, to: 4, item: MAV_A },
       then: [{ kind: "upgrade", gear: "maverick", from: 1, to: 4, item: MAV_A }, nv(MAV_A)],
     },
+    {
+      name: "a matching pick with no item and the item's own upgrade make one upgrade",
+      picks: [{ kind: "upgrade", gear: "maverick", from: 1, to: 2, item: MAV_A }, mav13()],
+      add: mav13(MAV_A),
+      then: [mav13(MAV_A)],
+    },
+    {
+      name: "a lower grade keeps the item's higher target",
+      picks: [{ kind: "upgrade", gear: "maverick", from: 1, to: 5, item: MAV_A }],
+      add: mav13(MAV_A),
+      then: [{ kind: "upgrade", gear: "maverick", from: 1, to: 5, item: MAV_A }],
+    },
   ];
   for (const c of cases) it(c.name, () => expect(addPick(c.picks, c.add)).toEqual(c.then));
 
   it("ties a pick from the list of picks with no item", () => {
     expect(tie([mav13(), nv(MAV_A)], mav13(), MAV_B)).toEqual([nv(MAV_A), mav13(MAV_B)]);
+  });
+
+  it("tying a lower upgrade to an item planned higher keeps the higher plan, once", () => {
+    const g5: Pick = { kind: "upgrade", gear: "maverick", from: 1, to: 5, item: MAV_A };
+    expect(tie([g5, mav13()], mav13(), MAV_A)).toEqual([g5]);
   });
 });
 

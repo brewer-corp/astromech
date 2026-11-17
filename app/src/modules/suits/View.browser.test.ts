@@ -4,7 +4,7 @@
 // Backpack and journal, with four loadouts and two grade-1 Mavericks); the numbers below are what
 // the crate's tests check.
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import sample from "../../preview/fixtures/odyssey.json";
 import type { Pick, Shopping } from "../../lib/odyssey";
 import { answer, previewAnswer } from "../../test/transport";
@@ -194,4 +194,15 @@ it("ties a pick saved before picks had an item instead of adding a second", asyn
   expect(screen.queryByText("Not tied to an item")).toBeNull();
   await fireEvent.click(screen.getByRole("button", { name: "Loadout Spare" }));
   expect((await screen.findByRole("button", { name: "Suit: Maverick Suit" })).textContent).not.toContain("Grade 3");
+});
+
+it("closes the panel on Back to a loadout without the item it described", async () => {
+  render(View);
+  await fireEvent.click(await screen.findByRole("button", { name: "Loadout Spare" }));
+  await fireEvent.click(await screen.findByRole("button", { name: "Suit: Maverick Suit" }));
+  expect(screen.getByRole("complementary", { name: "Details" })).toBeTruthy();
+  // Back to the worn loadout, whose Maverick is the other one.
+  location.hash = "";
+  await waitFor(() => expect(row("Suit: Maverick Suit").textContent).toContain("Grade 3"));
+  expect(screen.queryByRole("complementary", { name: "Details" })).toBeNull();
 });

@@ -67,22 +67,21 @@ export function modPick(item: OwnedGear, m: ModRef): Pick {
 
 /**
  * `picks` with `p` added, never doubling a plan:
- * - a pick for an item ties a matching pick that has no item (the same recipe, saved before
- *   picks could be tied) and adds nothing;
- * - an upgrade for an item that already has one raises that one's target, so an item has one
- *   upgrade pick, from its own grade;
- * - a pick for no item that is already saved for no item adds nothing;
- * - a pick already there adds nothing.
+ * - a pick for an item uses up a matching pick that has no item (the same recipe, saved before
+ *   picks could be tied) instead of adding one;
+ * - an item has one upgrade pick: an upgrade for an item that has one combines with it, keeping
+ *   the higher target, so neither adding nor tying lowers a plan or counts grades twice;
+ * - a pick already there, for an item or for none, adds nothing.
  */
 export function addPick(picks: Pick[], p: Pick): Pick[] {
   if (picks.some((x) => pickKey(x) === pickKey(p))) return picks;
-  const loose = picks.findIndex((x) => x.item == null && recipeKey(x) === recipeKey(p));
   if (p.item == null) return [...picks, p];
-  if (loose >= 0) return picks.map((x, i) => (i === loose ? { ...x, item: p.item } : x));
-  if (p.kind === "upgrade") {
-    const up = picks.findIndex((x) => x.kind === "upgrade" && x.item === p.item);
-    if (up >= 0) return picks.map((x, i) => (i === up && x.kind === "upgrade" ? { ...x, to: p.to } : x));
+  const loose = picks.findIndex((x) => x.item == null && recipeKey(x) === recipeKey(p));
+  const up = p.kind === "upgrade" ? picks.findIndex((x) => x.kind === "upgrade" && x.item === p.item) : -1;
+  if (up >= 0 && p.kind === "upgrade") {
+    return picks.flatMap((x, i) => (i === loose ? [] : i === up && x.kind === "upgrade" ? [{ ...x, to: Math.max(x.to, p.to) }] : [x]));
   }
+  if (loose >= 0) return picks.map((x, i) => (i === loose ? { ...x, item: p.item } : x));
   return [...picks, p];
 }
 
