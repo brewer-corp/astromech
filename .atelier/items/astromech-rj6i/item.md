@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-rj6i
 title: Powerplay on one screen
-status: building
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
