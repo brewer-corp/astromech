@@ -107,7 +107,7 @@
       <div class="answer" class:dim={busy}>
         {#if best}
           <p class="value">
-            <span class="type-value-xl" class:main={main && !busy}>{credits(best.total)}</span><span class="type-unit">cr</span>
+            <span class={main ? "type-value-xl" : "type-value-l"} class:main={main && !busy}>{credits(best.total)}</span><span class="type-unit">cr</span>
             <span class="type-label takes">takes {takes(best.sold, answer.plan.load)} t</span>
           </p>
           <p class="place">
