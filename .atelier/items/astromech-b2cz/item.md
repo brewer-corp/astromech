@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-b2cz
 title: Text size you choose replaces the window zoom
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-l
