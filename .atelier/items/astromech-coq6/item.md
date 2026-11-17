@@ -24,6 +24,7 @@ The window opens on a page that follows the game: docked shows the station and i
 
 ## Done when
 
+- [ ] (provisional) The page's files leave `TOKENS_EXEMPT` in `app/eslint.config.js` (astromech-4wi1): the rebuilt page uses only tokens and role classes for colour, font size and spacing.
 - [ ] (provisional) NOW is the first top tab; the header's second-row width is measured again with ten tabs at each Text size step and DESIGN.md updated.
 - [ ] (provisional) A new module app/src/modules/now in a first nav group NOW; it shows the docked, in-system and not-running states from existing replies; old links to station, session and mining still open.
 - [ ] (provisional) Built on the layout components and type roles with no page-level width or font size; captures at 1100 x 700 and 2560 x 1440 in docs/design/; the page's guide in docs/guide updated.
