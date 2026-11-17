@@ -3,7 +3,15 @@
  * The route desk's own cases (legs, detours, parking, copy failures) are route.rs's tests.
  */
 import assert from "node:assert/strict";
+import type { Page } from "playwright";
 import { journey } from "./harness.ts";
+
+/** The Route page's next stop as the commander sees it: the stop in the timeline labelled "Next
+ * stop", found by its copy button's name ("Copy <system>"). */
+function nextStop(page: Page, system: string) {
+  const stop = page.getByRole("list", { name: "Stops and the jumps between them" }).getByRole("listitem").filter({ hasText: "Next stop" });
+  return stop.getByRole("button", { name: `Copy ${system}`, exact: true });
+}
 
 /**
  * Plot and follow (worlds/journeys/plot): on the Route page the commander types Colonia in the
@@ -27,14 +35,13 @@ journey("plot a route from the page and follow it", { world: "journeys/plot" }, 
   await box.press("Enter");
 
   await panel.getByText(/^Following Sol to Colonia: 284 jumps · 22,000 ly · 178 neutron boosts/).waitFor();
-  const next = page.locator(".next .sys");
-  await next.filter({ hasText: /^PSR J1752-2806$/ }).waitFor();
+  await nextStop(page, "PSR J1752-2806").waitFor();
 
   await core.step("jumped");
   await core.wait({ kind: "clipboard", text: "Nova Aquila No 3" });
-  assert.equal(await next.innerText(), "PSR J1752-2806", "the page moved on before its route poll");
+  assert.equal(await nextStop(page, "PSR J1752-2806").count(), 1, "the page moved on before its route poll");
   await runFor(2000);
-  await next.filter({ hasText: /^Nova Aquila No 3$/ }).waitFor();
+  await nextStop(page, "Nova Aquila No 3").waitFor();
 });
 
 /**
@@ -48,14 +55,13 @@ journey("a jump into the next stop copies and reads out the one after", { world:
   await core.callWindow("route_set", { name: "Trip", waypoints });
   await core.wait({ kind: "clipboard", text: "Alpha Centauri" });
   await open("route");
-  const next = page.locator(".next .sys");
-  await next.filter({ hasText: /^Alpha Centauri$/ }).waitFor();
+  await nextStop(page, "Alpha Centauri").waitFor();
 
   const since = (await core.observed()).next;
   await core.step("jumped");
   await core.wait({ kind: "clipboard", text: "Barnard's Star" }, since);
   await core.wait({ kind: "said", text: "Next waypoint. Barnard's Star." }, since);
-  assert.equal(await next.innerText(), "Alpha Centauri", "the page moved on before its route poll");
+  assert.equal(await nextStop(page, "Alpha Centauri").count(), 1, "the page moved on before its route poll");
   await runFor(2000);
-  await next.filter({ hasText: /^Barnard's Star$/ }).waitFor();
+  await nextStop(page, "Barnard's Star").waitFor();
 });
