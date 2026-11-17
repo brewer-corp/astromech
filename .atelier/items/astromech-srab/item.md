@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-srab
 title: 'Finder rows: station names line up with or without a type icon, and folded units keep their width'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - feature
@@ -68,3 +68,6 @@ Checks: `pnpm lint`, `pnpm check`, `pnpm build` with `scripts/check-dist.py`. `p
 752 pass. The one failure is the dock-width test in `App.browser.test.ts`, which fails the same
 way without this change (astromech-7obs).
 
+### Responses
+
+1-s950.1: fixed in 5936f628
