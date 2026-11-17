@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-m6gw
 title: Engineering > Engineers as the unlock tree
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-l
