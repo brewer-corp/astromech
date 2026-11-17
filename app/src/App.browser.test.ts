@@ -337,7 +337,7 @@ describe("route sidebar in the frame", () => {
     await waitFor(() => expect(scrim(), "the sidebar over the page").toBeTruthy());
     expect(sidebar()).toBeTruthy();
     expect(document.documentElement.style.fontSize).toBe("130%");
-    expect(location.hash).toBe("#/controller");
+    expect(location.hash).toBe("#/now");
   });
 
   it("shows the empty sidebar when it is asked for with no route at the dock width, and folds back to the rail", async () => {
@@ -349,7 +349,7 @@ describe("route sidebar in the frame", () => {
     expect(await side.findByText(/^No route\./)).toBeTruthy();
     expect(side.getByRole("combobox", { name: "Destination" }), "its plotter").toBeTruthy();
     expect(rail()).toBeNull();
-    expect(location.hash).toBe("#/controller");
+    expect(location.hash).toBe("#/now");
 
     await fireEvent.click(side.getByRole("button", { name: "Collapse the route to a strip" }));
     expect(await screen.findByRole("navigation", { name: "No route" })).toBeTruthy();
@@ -416,7 +416,7 @@ describe("route sidebar in the frame", () => {
     render(App);
     expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
     expect(scrim()).toBeTruthy();
-    expect(location.hash).toBe("#/controller");
+    expect(location.hash).toBe("#/now");
     cleanup();
 
     // Docked and folded: an old link followed inside the window unfolds it, and the page stays.

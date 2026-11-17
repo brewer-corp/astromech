@@ -8,6 +8,7 @@ import type { PaletteItem } from "./palette";
 
 /** Top-level tabs. Each module sits under one; the group's modules are its sub-tabs. */
 export const groups = [
+  { id: "now", title: "Now" },
   { id: "ships", title: "Ships" },
   { id: "engineering", title: "Engineering" },
   { id: "places", title: "Places" },
