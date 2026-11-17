@@ -1122,6 +1122,9 @@ is small and is ignored. One shared Tip (`app/src/lib/ui/tip.ts`, styled in `tok
   explanation is not on screen: a value's conditions ("Full tank and full cargo"), a warning's
   detail, a short demand ("96 t demand, less than the 120 t you carry"), a station or star type
   icon. Not on text that only repeats itself, such as a name cut short by an ellipsis.
+- **Not for consent:** text that states what the commander agrees to by turning something on
+  (what is sent, to whom, that the commander's name goes with it, as on Data sharing) stays
+  printed beside the switch, readable before it is used, without hovering (astromech-gvy0).
 - **Access:** screen readers get the same words through `aria-describedby` (not when they only
   repeat the target's label). A target the keyboard can't reach gets a tab stop, except a mark
   repeated down a column whose words are already its accessible name.
