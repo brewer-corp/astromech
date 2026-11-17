@@ -16,7 +16,8 @@ if that stays.
 - **Text size.** The size of all text in the window, from **100%** to **180%**, applied at
   once. Making the window bigger shows more; it never makes the text bigger. On first start
   astromech picks a size from your screen's height: 100% on a 1080p screen, 145% at 1440p and
-  180% on a 4K screen. After that it only changes when you change it. If you used an earlier
+  180% on a 4K screen. With Windows display scaling on, it uses the height after that
+  scaling, so a 4K screen at 150% scaling counts as 1440p and gets 145%. After that it only changes when you change it. If you used an earlier
   version, your old Smaller, Normal or Larger becomes the nearest size.
 
 ### Startup
