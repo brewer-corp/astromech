@@ -164,6 +164,12 @@ window.** This was fixed. The cold link now waits for the first read of the save
 match the size the window ends up at. A new test holds `window_settings`, answers 115 percent at
 1920 px and expects the overlay. That test fails without the fix.
 
+**Round 4 (review 4-m383), finding 1: kept, now fixed.** A failed first read of the Text size
+still counted as settled. The cold link now waits for a `startScale()` that returns true, and
+decides docked or not at that moment, not through a separate effect. The test now fails the
+first `window_settings`, holds the retry made on the next status poll, and answers 115
+percent. That test fails without the fix.
+
 ### Responses
 
-3-ll87.2: fixed in a21ce3c3
+4-m383.1: fixed in 4c1b44be
