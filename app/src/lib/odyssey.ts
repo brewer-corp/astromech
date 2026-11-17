@@ -60,7 +60,9 @@ export async function loadOdyssey(): Promise<OdysseyView> {
   return await call("odyssey_view");
 }
 
-export const pickKey = (p: Pick) => (p.kind === "upgrade" ? `u:${p.gear}:${p.from}:${p.to}` : `m:${p.id}:${p.maker ?? ""}`);
+/** A pick's identity: its recipe and the owned item it is for, so one recipe for two items is two picks. */
+export const pickKey = (p: Pick) =>
+  (p.kind === "upgrade" ? `u:${p.gear}:${p.from}:${p.to}` : `m:${p.id}:${p.maker ?? ""}`) + `:${p.item ?? ""}`;
 
 export function samePicks(a: Pick[], b: Pick[]): boolean {
   return a.length === b.length && a.every((p, i) => pickKey(p) === pickKey(b[i]!));

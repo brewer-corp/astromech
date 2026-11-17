@@ -12,6 +12,15 @@
 //! it is optional, language-dependent, and for suits a `$UtilitySuit_Class1_Name;` token. Only
 //! the suits and weapons in the catalogue are kept (not the Flight Suit). A weapon the commander
 //! has never been logged with (no purchase, no loadout) is unknown.
+//!
+//! The loadout events also give each loadout: `LoadoutID`, `LoadoutName`, the suit by `SuitID`
+//! and each weapon of `Modules` by `SlotName` and `SuitModuleID`. Each event states the whole
+//! loadout, so the latest one for a `LoadoutID` replaces what was known of it. The worn loadout
+//! is the one the latest `SuitLoadout` or `SwitchSuitLoadout` names (`CreateSuitLoadout` does
+//! not put it on). The Flight Suit's loadout is not kept, as the Flight Suit is not. The journal
+//! files hold no `RenameSuitLoadout`, `DeleteSuitLoadout`, `LoadoutEquipModule` or
+//! `LoadoutRemoveModule` line, so those changes show only at the next loadout event that names
+//! the loadout.
 
 use crate::catalog::catalog;
 use serde::Serialize;
@@ -26,6 +35,8 @@ pub type Log<'a> = &'a dyn Fn(&str);
 /// One owned suit or weapon.
 #[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct OwnedGear {
+    /// The game's id for this one item: `SuitID` for a suit, `SuitModuleID` for a weapon.
+    pub id: i64,
     /// Catalogue suit or weapon id (`maverick`, `karmaar50`).
     pub gear: String,
     pub name: String,
@@ -38,11 +49,48 @@ pub struct OwnedGear {
     pub mods: Vec<String>,
 }
 
-/// The owned gear by the game's id: `SuitID` for suits, `SuitModuleID` for weapons.
+/// A suit loadout: its suit and the weapon in each slot, each the owned item it is.
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+pub struct SuitLoadout {
+    /// The game's `LoadoutID`.
+    pub id: i64,
+    pub name: String,
+    /// The commander has it on (the latest `SuitLoadout` or `SwitchSuitLoadout` named it).
+    pub worn: bool,
+    pub suit: OwnedGear,
+    /// The weapons, in slot order (`PrimaryWeapon1`, `PrimaryWeapon2`, `SecondaryWeapon`).
+    pub slots: Vec<LoadoutSlot>,
+}
+
+/// One weapon slot of a suit loadout.
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+pub struct LoadoutSlot {
+    /// The journal's `SlotName`: `PrimaryWeapon1`, `PrimaryWeapon2` or `SecondaryWeapon`.
+    pub slot: String,
+    pub item: OwnedGear,
+}
+
+/// The weapon slots a loadout has, in order.
+const SLOTS: [&str; 3] = ["PrimaryWeapon1", "PrimaryWeapon2", "SecondaryWeapon"];
+
+/// A loadout as the journal last stated it: the ids of its suit and of the weapon in each slot.
+#[derive(Debug, Clone, PartialEq)]
+struct LoadoutRec {
+    name: String,
+    suit: i64,
+    /// (slot index in `SLOTS`, `SuitModuleID`).
+    weapons: BTreeMap<usize, i64>,
+}
+
+/// The owned gear by the game's id: `SuitID` for suits, `SuitModuleID` for weapons; and the
+/// loadouts by `LoadoutID`.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Owned {
     suits: BTreeMap<i64, OwnedGear>,
     weapons: BTreeMap<i64, OwnedGear>,
+    loadouts: BTreeMap<i64, LoadoutRec>,
+    /// The `LoadoutID` the latest `SuitLoadout` or `SwitchSuitLoadout` named.
+    worn: Option<i64>,
 }
 
 /// `utilitysuit_class3` → (`maverick`, 3).
@@ -102,9 +150,10 @@ fn mod_ids(v: Option<&Value>, kind: &str, log: Log) -> Vec<String> {
 }
 
 impl Owned {
-    fn new_gear(gear: &str, grade: u8, mods: Vec<String>) -> Option<OwnedGear> {
+    fn new_gear(id: i64, gear: &str, grade: u8, mods: Vec<String>) -> Option<OwnedGear> {
         let g = catalog().gear(gear)?;
         Some(OwnedGear {
+            id,
             gear: g.id.clone(),
             name: g.name.clone(),
             kind: if catalog().is_suit(gear) { "suit" } else { "weapon" },
@@ -115,9 +164,13 @@ impl Owned {
     }
 
     /// Record `gear` under `id`, replacing what was there.
-    fn set(map: &mut BTreeMap<i64, OwnedGear>, id: i64, gear: &str, grade: u8, mods: Vec<String>) {
-        if let Some(g) = Self::new_gear(gear, grade, mods) {
-            map.insert(id, g);
+    fn set(map: &mut BTreeMap<i64, OwnedGear>, id: i64, gear: &str, grade: u8, mods: Vec<String>) -> bool {
+        match Self::new_gear(id, gear, grade, mods) {
+            Some(g) => {
+                map.insert(id, g);
+                true
+            }
+            None => false,
         }
     }
 
@@ -126,7 +179,7 @@ impl Owned {
         match map.entry(id) {
             Entry::Occupied(mut o) => o.get_mut().grade = grade,
             Entry::Vacant(v) => {
-                if let Some(g) = Self::new_gear(gear, grade, vec![]) {
+                if let Some(g) = Self::new_gear(id, gear, grade, vec![]) {
                     v.insert(g);
                 }
             }
@@ -176,20 +229,31 @@ impl Owned {
                     self.weapons.remove(&id);
                 }
             }
-            "SuitLoadout" | "SwitchSuitLoadout" | "CreateSuitLoadout" => self.loadout(ev, log),
+            "SuitLoadout" | "SwitchSuitLoadout" | "CreateSuitLoadout" => {
+                self.loadout(ev, log);
+                if event != "CreateSuitLoadout" {
+                    self.worn = int_of(ev, "LoadoutID");
+                }
+            }
             _ => {}
         }
     }
 
-    /// A loadout event states the suit's grade and mods, and each weapon's.
+    /// A loadout event states the suit's grade and mods, and each weapon's, which are recorded
+    /// as owned gear whether or not a purchase was seen; and the loadout itself, kept when its
+    /// suit is one the catalogue has (not the Flight Suit).
     fn loadout(&mut self, ev: &Value, log: Log) {
+        let mut suit = None;
         if let (Some(id), Some((gear, Some(grade)))) =
             (int_of(ev, "SuitID"), suit_of(str_of(ev, "SuitName").unwrap_or("")))
         {
             if let Some(grade) = grade_of(Some(i64::from(grade))) {
-                Self::set(&mut self.suits, id, gear, grade, mod_ids(ev.get("SuitMods"), "suit", log));
+                if Self::set(&mut self.suits, id, gear, grade, mod_ids(ev.get("SuitMods"), "suit", log)) {
+                    suit = Some(id);
+                }
             }
         }
+        let mut weapons = BTreeMap::new();
         for m in ev.get("Modules").and_then(Value::as_array).into_iter().flatten() {
             let (Some(id), Some(gear), Some(grade)) = (
                 int_of(m, "SuitModuleID"),
@@ -198,8 +262,47 @@ impl Owned {
             ) else {
                 continue;
             };
-            Self::set(&mut self.weapons, id, gear, grade, mod_ids(m.get("WeaponMods"), "weapon", log));
+            if Self::set(&mut self.weapons, id, gear, grade, mod_ids(m.get("WeaponMods"), "weapon", log)) {
+                if let Some(slot) =
+                    str_of(m, "SlotName").and_then(|s| SLOTS.iter().position(|x| x.eq_ignore_ascii_case(s)))
+                {
+                    weapons.insert(slot, id);
+                }
+            }
         }
+        let Some(loadout) = int_of(ev, "LoadoutID") else { return };
+        match suit {
+            Some(suit) => {
+                let name = str_of(ev, "LoadoutName").unwrap_or_default().to_string();
+                self.loadouts.insert(loadout, LoadoutRec { name, suit, weapons });
+            }
+            None => {
+                self.loadouts.remove(&loadout);
+            }
+        }
+    }
+
+    /// The loadouts in `LoadoutID` order, each item as the owned gear it is. A loadout whose suit
+    /// has been sold since is left out, as is a weapon sold since.
+    pub fn loadouts(&self) -> Vec<SuitLoadout> {
+        self.loadouts
+            .iter()
+            .filter_map(|(&id, l)| {
+                Some(SuitLoadout {
+                    id,
+                    name: l.name.clone(),
+                    worn: self.worn == Some(id),
+                    suit: self.suits.get(&l.suit)?.clone(),
+                    slots: l
+                        .weapons
+                        .iter()
+                        .filter_map(|(&slot, w)| {
+                            Some(LoadoutSlot { slot: SLOTS[slot].to_string(), item: self.weapons.get(w)?.clone() })
+                        })
+                        .collect(),
+                })
+            })
+            .collect()
     }
 
     /// Every owned suit then weapon, by catalogue order, then grade.

@@ -4,6 +4,7 @@ import type { GearRef } from "./GearRef";
 import type { ItemLine } from "./ItemLine";
 import type { ModRef } from "./ModRef";
 import type { OwnedGear } from "./OwnedGear";
+import type { SuitLoadout } from "./SuitLoadout";
 
 /**
  * Everything the Odyssey page shows except a shopping list.
@@ -12,7 +13,11 @@ export type OdysseyView = { source: string, locker_ts: string | null, backpack_t
 /**
  * The suits and weapons the commander owns, with grade and fitted mods (from the journal).
  */
-owned: Array<OwnedGear>, mods: Array<ModRef>, 
+owned: Array<OwnedGear>, 
+/**
+ * The suit loadouts, in `LoadoutID` order, with the one worn (from the journal).
+ */
+loadouts: Array<SuitLoadout>, mods: Array<ModRef>, 
 /**
  * Where the game data is from, when it was fetched, and what it is unsure of.
  */

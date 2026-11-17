@@ -149,9 +149,9 @@ mod tests {
         // and data. The locker holds spare Graphene (2, 23 each), Weapon Component (1, 18),
         // Tungsten Carbide (7, 11) and Circuit Switch (1, 4) beyond what the picks need.
         let picks = [
-            Pick::Upgrade { gear: "maverick".into(), from: 1, to: 3 },
-            Pick::Mod { id: "nightvision".into(), maker: None },
-            Pick::Upgrade { gear: "karmap15".into(), from: 1, to: 2 },
+            Pick::Upgrade { gear: "maverick".into(), from: 1, to: 3, item: None },
+            Pick::Mod { id: "nightvision".into(), maker: None, item: None },
+            Pick::Upgrade { gear: "karmap15".into(), from: 1, to: 2, item: None },
         ];
         let s = shopping(&picks, &h, &p.progress);
         assert_eq!(s.barter_short, 77);
