@@ -138,3 +138,16 @@ beside the rows), `route-sidebar-collapsed-2560`, `route-sidebar-no-route-2560`,
 **Docs:** `docs/guide/routes.md` (the sidebar, the strip, the overlay, the rail, and each Route
 page reference), `using-the-app.md`, `places.md` (one PLACES page), and DESIGN.md's dock width.
 
+
+**Round 1 (review 1-l239): both findings fixed.**
+
+- **Finding 1, the ⋯ menu off-screen with a neutron route.** The cause was in `Menu.svelte`: it
+  always opened leftward from its button. Now it measures the space to the button's left once
+  drawn and opens from the button's left edge when there isn't enough (`dfe596b9`). A new browser
+  test opens the menu for a neutron route, docked at 1920 and over the page at 1200, and checks
+  it stays inside the window. Without the fix the test fails, with the menu at x = -119.
+- **Finding 2, `#/route` and Route doing nothing at the dock width with no route.** A new `asked`
+  flag on `RouteFollow`, set by `show()` when docked, makes the sidebar show with no route
+  (`59959ec1`). Folding it returns to the rail without saving a folded choice. A route arriving
+  clears the flag. A new browser test covers the cold link, the fold back to the rail and the
+  palette's Route.
