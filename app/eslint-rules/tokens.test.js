@@ -23,6 +23,7 @@ tester.run("tokens/colour", plugin.rules.colour, {
     part(".a { background: color-mix(in srgb, var(--accent) 40%, transparent); }"),
     part('.a { grid-template-areas: "red blue"; content: "white"; animation-name: orange; }'),
     part("", '<p style:color={tone}>x</p><p style="color: var(--prose)">x</p>'),
+    part(".a { filter: drop-shadow(0 0 2px var(--accent)); animation: red 1s; }"),
   ],
   invalid: [
     bad(".a { color: #fff; }"),
@@ -34,6 +35,9 @@ tester.run("tokens/colour", plugin.rules.colour, {
     bad(".a { color: var(--tone, #ff7100); }"),
     bad("", '<p style="color: red">x</p>'),
     bad("", '<p style:background="black">x</p>'),
+    bad(".a { filter: drop-shadow(0 0 2px red); }"),
+    bad(".a { -webkit-text-fill-color: red; }"),
+    bad(".a { -webkit-text-stroke: 1px red; }"),
   ],
 });
 
@@ -41,6 +45,7 @@ tester.run("tokens/font-size", plugin.rules["font-size"], {
   valid: [
     part(".a { font-size: var(--fs-s); font-weight: 600; } .b { font-size: inherit; }"),
     part(".a { font: 400 var(--fs)/1.3 var(--face); } .b { font: inherit; }"),
+    part(".a { font: 600 var(--fs-s)/1.25rem var(--face); }"),
   ],
   invalid: [
     bad(".a { font-size: 13px; }"),
@@ -48,6 +53,11 @@ tester.run("tokens/font-size", plugin.rules["font-size"], {
     bad(".a { font-size: 120%; }"),
     bad(".a { font-size: small; }"),
     bad(".a { font: 600 15px var(--face); }"),
+    bad(".a { font-size: var(--missing, 17px); }"),
+    bad(".a { font: 400 var(--missing, 17px)/1.3 sans-serif; }"),
+    bad(".a { font-size: calc(var(--fs) * 1.25); }"),
+    bad(".a { font-size: max(var(--fs), var(--fs-s)); }"),
+    bad(".a { font-size: 1e1px; }"),
     bad("", '<b style="font-size: 2em">x</b>'),
   ],
 });
@@ -69,18 +79,27 @@ tester.run("tokens/spacing", plugin.rules.spacing, {
     bad(".a { margin: calc(var(--sp-2) + 1px); }"),
     bad(".a { padding: calc(var(--sp-2) * 1.25); }"),
     bad(".a { padding: var(--pad, 10px); }"),
+    bad(".a { padding: 1e1px; }"),
+    bad(".a { padding: 2rcap; }"),
     bad("", '<p style="margin-top: 3px">x</p>'),
   ],
 });
 
 // A .css file is read through @eslint/css, by the same three rules.
 cssTester.run("tokens in a .css file", plugin.rules.colour, {
-  valid: [sheet(".a { color: var(--accent); }")],
+  valid: [sheet(".a { color: var(--accent); }"), sheet(".a { color: var(--accent) /* was red */; }")],
   invalid: [{ ...sheet(".a { color: #c4c4c4; }"), errors: [{ messageId: "raw" }] }],
 });
 cssTester.run("tokens in a .css file", plugin.rules.spacing, {
-  valid: [sheet(".a { padding: 0 var(--sp-3); }")],
+  valid: [sheet(".a { padding: 0 var(--sp-3); }"), sheet(".a { padding: var(--sp-2) /* used to be 10px */; }")],
   invalid: [{ ...sheet(".a { gap: 1.75rem; }"), errors: [{ messageId: "raw" }] }],
+});
+cssTester.run("tokens in a .css file", plugin.rules["font-size"], {
+  valid: [sheet(".a { font-size: var(--fs-s) /* was 13px */; }")],
+  invalid: [
+    { ...sheet(".a { font-size: var(--missing, 17px); }"), errors: [{ messageId: "raw" }] },
+    { ...sheet(".a { font-size: calc(var(--fs) * 1.25); }"), errors: [{ messageId: "raw" }] },
+  ],
 });
 
 describe("eslint.config.js tokens", () => {

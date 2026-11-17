@@ -7,7 +7,8 @@
 // `transparent`, `currentColor` and the global keywords are not colours of their own, and a
 // colour-mix() of tokens passes.
 // font-size: a `font-size`, or a `font` shorthand, that writes a length, a percentage or a size
-// keyword. Name a type role (`.type-label`) or a size token (`var(--fs-s)`).
+// keyword (in a var() fallback too), or works one out with calc() and the like. Name a type role
+// (`.type-label`) or a size token (`var(--fs-s)`).
 // spacing: a margin, padding or gap that writes a length other than 0, or scales a token by a
 // factor that is not a whole number. Use the spacing scale (`var(--sp-3)`) or another token; a
 // percentage, a viewport or container unit (shares of the window), `auto` and a whole factor
@@ -39,13 +40,15 @@ const NAMED = new Set(
   ).split(" "),
 );
 /** Properties whose value can name a colour by a word. A raw hex or function counts anywhere. */
-const TAKES_COLOUR = /^(--|color$|background|border|outline|fill$|stroke$|box-shadow$|text-shadow$|caret-color$|accent-color$|text-decoration|text-emphasis|column-rule|scrollbar-color$|flood-color$|lighting-color$|stop-color$)/;
+const TAKES_COLOUR = /^(--|color$|background|border|outline|fill$|stroke$|box-shadow$|text-shadow$|caret-color$|accent-color$|text-decoration|text-emphasis|column-rule|scrollbar-color$|flood-color$|lighting-color$|stop-color$|filter$|backdrop-filter$|-webkit-text-(fill-color|stroke)|-webkit-tap-highlight-color$)/;
 const COLOUR_FN = /(^|[^\w-])(rgba?|hsla?|hwb|(ok)?lab|(ok)?lch|color)\(/i;
 const HEX = /(^|[^\w-])#[0-9a-f]{3,8}\b/i;
 
-/** The value without its strings, urls and var() names, so `--red-low` or `"red"` names nothing. */
+/** The value without its comments, strings, urls and var() names, so `--red-low`, `"red"` or
+ * `/* was red *\/` names nothing. A var()'s fallback stays: it is a value the component writes. */
 function bare(value) {
   return value
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
     .replace(/"[^"]*"|'[^']*'/g, " ")
     .replace(/url\([^)]*\)/gi, " ")
     .replace(/--[\w-]+/g, " ")
@@ -61,9 +64,9 @@ export function rawColour(prop, value) {
 }
 
 /** Absolute and font-relative lengths; a viewport or container unit is a share of the window, like %. */
-const FIXED = "px|r?em|ch|ex|cap|ic|r?lh|cm|mm|q|in|pt|pc";
+const FIXED = "px|r?(?:em|ex|ch|cap|ic|lh)|cm|mm|q|in|pt|pc";
 const SHARE = "[ds]?v(?:w|h|i|b|min|max)|cq(?:w|h|i|b|min|max)";
-const lengths = (units) => new RegExp(`(^|[^\\w.-])-?(\\d*\\.?\\d+)(${units})\\b`, "gi");
+const lengths = (units) => new RegExp(`(^|[^\\w.-])[-+]?(\\d*\\.?\\d+(?:e[-+]?\\d+)?)(${units})\\b`, "gi");
 const FIXED_LENGTH = lengths(FIXED);
 const ANY_LENGTH = lengths(`${FIXED}|${SHARE}`);
 /** Whether `v` writes a length other than 0 in one of the units `re` matches. */
@@ -73,17 +76,18 @@ function hasLength(v, re = ANY_LENGTH) {
 
 const FONT_KEYWORD = /(^|[^\w-])(xx?x?-small|x?-?small|medium|x?x?-?large|xxx-large|smaller|larger|math)(?![\w-])/i;
 
+/** Arithmetic: any calc() or comparison makes a size the type scale lacks, whatever its factor. */
+const MATHS = /(^|[^\w-])(calc|min|max|clamp|round|mod|rem|abs|sign)\(/i;
+
 /** Whether `prop: value` sets a font size that is not a token. */
 export function rawFontSize(prop, value) {
   const p = prop.toLowerCase();
   if (p !== "font-size" && p !== "font") return false;
-  const v = bare(value).replace(/var\([^)]*\)/g, " ");
-  if (p === "font") {
-    // The size is the length before an optional "/line-height"; a line height in a length is not a size.
-    const size = v.split("/")[0];
-    return hasLength(size) || /\d%/.test(size) || FONT_KEYWORD.test(size);
-  }
-  return hasLength(v) || /\d%/.test(v) || FONT_KEYWORD.test(v);
+  let v = bare(value);
+  // In the shorthand, the size is what comes before an optional "/line-height"; a line height
+  // in a length is not a size.
+  if (p === "font") v = v.split("/")[0];
+  return hasLength(v) || /\d%/.test(v) || FONT_KEYWORD.test(v) || MATHS.test(v);
 }
 
 const SPACING = /^(margin|padding|gap$|row-gap$|column-gap$|grid-gap$|grid-row-gap$|grid-column-gap$)/;
