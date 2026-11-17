@@ -17,6 +17,7 @@
   import { arrivalLabel, DEFAULT_FILTERS, filterParts, loadFilters, saveFilters, type FilterKey, type Filters, type Origin, type Pad } from "../../lib/search";
   import { credits, DEFAULT_MAX_AGE_DAYS, ROUTE_ESTIMATE, tradeRoute, tradeRouteDefaults, type RouteKind, type RouteLeg, type RouteSearch, type TradeRoute } from "../../lib/trade";
   import { padTooSmall } from "../../lib/demand";
+  import { shipStatus } from "../../lib/core";
   import PadLetter from "../../lib/ui/PadLetter.svelte";
   import OriginInput from "../../lib/ui/OriginInput.svelte";
   import SearchFilters from "../../lib/ui/SearchFilters.svelte";
@@ -77,19 +78,22 @@
     filters = st.filters;
   }
 
-  /** The pad label follows the ship the search ran with, not the ship the filters loaded with.
-   * Resolves the current ship's pad, as the core resolves it for a search with no pad set, or
-   * undefined when it could not be read or the saved filters name a pad of the commander's. */
-  async function followShip(): Promise<Pad | null | undefined> {
+  /** The pad label follows the ship the search ran with, not the ship the filters loaded with. */
+  async function followShip() {
     try {
       const f = await store.load(LOOKUP);
-      if (f.pad_set) return undefined;
-      shipPad = f.pad;
-      return f.pad;
+      if (!f.pad_set) shipPad = f.pad;
     } catch {
       // the label keeps what it shows; the search does not depend on this
-      return undefined;
     }
+  }
+
+  /** The pad a search with `sent` was measured against, as the core resolves it: the one the
+   * commander set, else the ship flown now (from the ship, not the saved filters, whose save may
+   * still be on its way); null when unknown, which marks no pad. */
+  async function measuredPad(sent: Filters): Promise<Pad | null> {
+    if (sent.pad_set) return sent.pad;
+    return (await shipStatus())?.pad ?? null;
   }
 
   /** The station to start from: typed, else the docked one when starting from here. */
@@ -101,16 +105,15 @@
     const n = ++asked;
     busy = true;
     err = null;
-    const flown = followShip();
+    void followShip();
     try {
       const sent = filters;
       const ask = { kind, station: start, capacity: Math.floor(capacity), credits: Math.floor(cash), max_hop_ly: hop };
       const r = await tradeRoute(ask, origin, filters);
-      const ship = await flown;
+      const pad = await measuredPad(sent);
       if (n === asked) {
         res = r;
-        // A pad the commander set is the one sent; else the core used the ship flown now.
-        need = sent.pad_set || ship === undefined ? sent.pad : ship;
+        need = pad;
       }
     } catch (e) {
       if (n === asked) {

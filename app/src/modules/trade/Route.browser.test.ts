@@ -20,6 +20,9 @@ answer("trade_route_defaults", () => defaults());
 let shipPad: Filters["pad"] = "M";
 let stored: Filters = DEFAULT_FILTERS;
 answer("search_filters", () => (stored.pad_set ? stored : { ...stored, pad: shipPad }));
+// The ship flown now, as the status bar and the finders read it.
+answer("ship_status", () => ({ ...(sample as unknown as { ship: object }).ship, pad: shipPad }));
+
 /** A filter save answers once this settles (a test holds it to keep a save pending). */
 let saving: Promise<void> = Promise.resolve();
 answer("set_search_filters", async ({ filters }: { filters: Filters }) => {
@@ -142,6 +145,23 @@ describe("Trade route", () => {
     await fireEvent.click(screen.getByRole("button", { name: /^Pad M/ }));
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
     expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad: "M", pad_set: true }));
+    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
+    release();
+  });
+
+  it("measures a stop's pad against the ship when a set pad is cleared while its save is pending", async () => {
+    stored = { ...DEFAULT_FILTERS, pad: "S", pad_set: true };
+    let release = () => {};
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    route.mockResolvedValueOnce({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "S" } }] } });
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    await fireEvent.click(await screen.findByRole("button", { name: "Change filters" }));
+    saving = new Promise((r) => (release = r));
+    await fireEvent.click(screen.getByRole("button", { name: /^Pad S/ })); // back to the ship's pad
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad_set: false }));
     expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
     release();
   });
