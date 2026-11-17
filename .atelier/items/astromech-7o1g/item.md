@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-7o1g
 title: The window can shrink to 800 x 500, below the 1100 x 700 the design is built for
-status: in_review
+status: changes_requested
 mission: astromech-xajc
 labels:
 - bug
