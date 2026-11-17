@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-rhn3
 title: Finder rows that go compact stay compact after the window widens
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - bug
@@ -11,7 +11,8 @@ labels:
 priority: medium
 blocked_by:
 - astromech-srab
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3A17040ddb-fde9-4b03-9dbd-722b1d3ea977
 ready:
   by: the lead of astromech-xajc
   at: 2026-11-17T09:35:15.494625804Z
