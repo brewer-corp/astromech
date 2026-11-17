@@ -824,7 +824,8 @@ result row 60 px, two lines in groups ([Lookup result row](#lookup-result-row));
 76 px. Rows visible, measured on the built row (astromech-3ca6, Sell anywhere in the preview, no route
 sidebar): at 1100 x 700 at 100 percent, 2 whole rows show when the page opens under the
 finder's input, origin and summary, and 7 once the list is scrolled to the top of the page
-column; at 2560 x 1440 at 145 percent, 8 on opening and 13 scrolled
+column (worked out from the column's height, not counted); at 2560 x 1440 at 145 percent, 8 on
+opening and 13 scrolled
 ([sell-1100-after.png](docs/design/grouped-rows/sell-1100-after.png),
 [sell-2560-after.png](docs/design/grouped-rows/sell-2560-after.png)). Revision 4's one-line
 44 px rows showed 3 and 10 at 1100 x 700 and 11 and 17 at 2560 x 1440. The spike's 5 at
