@@ -180,6 +180,10 @@ two conflicts, both in CSS:
 
 After the merge, lint (with the token rule), typecheck and all 711 tests pass.
 
+**Round 6 (review 6-uisd), finding 1: two `--scrim` tokens.** This was fixed. `main` brought
+`--scrim` for dialog backdrops, and the overlay's later `--scrim` overrode it. The overlay now
+uses `--scrim-route`, which is in DESIGN.md's token map, and dialogs keep theirs.
+
 ### Responses
 
-4-m383.1: fixed in 4c1b44be
+6-uisd.1: fixed in c36b0074
