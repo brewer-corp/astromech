@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-3kf5
 title: 'Calmer pages: data in white and grey, orange for the ranked value and what you can act on'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-l
@@ -71,3 +71,8 @@ Decisions and notes for review:
 Left for other items: demand and pad colours (astromech-3ca6, with the two-line rows), the hexagon component (astromech-7did), the sidebar (astromech-uc7i) and the raw-colour lint (astromech-4wi1). The installed-app colour check on Windows is astromech-3340.
 
 `pnpm check`, `pnpm lint` and `pnpm test` (640 tests) pass; no test asserts a colour.
+
+### Responses
+
+- 1-k9n1.1: fixed in f5a5f6e1
+- 1-k9n1.2: fixed in f5a5f6e1
