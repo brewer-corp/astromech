@@ -133,3 +133,4 @@ Measured by bisecting the window width in the preview at each step. One row need
 ### Responses
 
 1-uo6z.1: fixed in c37c530a: the frame poll keeps why a status or ship read failed, and Now shows each failed read beside what it qualifies (Stale line in the head for place, status and data at risk; in Sell your cargo for the ship; in Mining for the status; the failure in words with no answer yet, so a status that never answered no longer reads as Elite not running), with three boundary-failure browser tests that fail on the reviewed code; an unchanged key still asks nothing.
+2-z8l9.1: fixed in d16125e8: while Elite runs and the hold isn't known (no ship answer yet, or a failed read after an empty hold), Sell your cargo shows the ship read's failure in words, and asks once the ship reads again; a boundary test covers the initial failure and the recovery, and fails on the reviewed code.
