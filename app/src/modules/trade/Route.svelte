@@ -209,43 +209,43 @@
 
 <style>
   /* The inputs: one column of label and cell, the kind first, Find route last. */
-  .query { display: flex; flex-direction: column; gap: 0.75rem; }
+  .query { display: flex; flex-direction: column; gap: var(--sp-3); }
   .query :global(.origin) { margin: 0; min-width: 0; }
-  .form-grid { display: flex; flex-direction: column; gap: 0.75rem; }
-  .pick { display: flex; align-items: center; gap: 0.5rem; font-size: var(--fs); min-width: 0; }
+  .form-grid { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .pick { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs); min-width: 0; }
   .lbl { color: var(--label-grey); min-width: 5.5em; font-size: var(--fs-s); }
   .pick :global(.box) { flex: 1; }
-  .fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.75rem; min-width: 0; }
-  label { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); align-items: center; gap: 0.5rem; font-size: var(--fs-s); min-width: 0; }
+  .fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); min-width: 0; }
+  label { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); align-items: center; gap: var(--sp-2); font-size: var(--fs-s); min-width: 0; }
   label > span { color: var(--label-grey); }
   .tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.625rem 1.125rem; }
   .tools :global(.search-filters) { flex: 1 1 auto; }
   .tools :global(.go) { margin-left: auto; }
   .out { min-width: 0; }
   /* The answer's title: white, mixed case (system names carry meaning in their case). */
-  h4 { margin: 0 0 1rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); }
+  h4 { margin: 0 0 var(--sp-4); color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); }
   ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  li { display: grid; grid-template-columns: minmax(13.125rem, 1.5fr) minmax(11.25rem, 1.3fr) minmax(9.375rem, 1fr) auto; gap: 0.625rem 1.125rem; align-items: start; padding: 1rem 0.5rem; border-bottom: 1px solid var(--line); font-size: var(--fs); line-height: 1.3; }
-  .place, .cargo, .facts { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
+  li { display: grid; grid-template-columns: minmax(13.125rem, 1.5fr) minmax(11.25rem, 1.3fr) minmax(9.375rem, 1fr) auto; gap: 0.625rem 1.125rem; align-items: start; padding: var(--sp-4) var(--sp-2); border-bottom: 1px solid var(--line); font-size: var(--fs); line-height: 1.3; }
+  .place, .cargo, .facts { display: flex; flex-direction: column; gap: var(--gap); min-width: 0; }
   .facts { align-items: flex-end; text-align: right; } /* a column of figures */
-  .leg, .via { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.375rem 0.5rem; min-width: 0; }
+  .leg, .via { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.375rem var(--sp-2); min-width: 0; }
   .st { font-size: var(--fs-l); font-weight: 500; color: var(--options-grey); }
   .to { color: var(--label-grey); }
   .q { color: var(--prose); }
   .dist { color: var(--label-grey); font-size: var(--fs-s); }
   .meta { color: var(--label-grey); font-size: var(--fs-s); white-space: nowrap; }
-  .total { display: flex; flex-wrap: wrap; gap: 0.625rem 1.75rem; margin: 1rem 0.5rem 0.5rem; padding: 0.875rem 1rem; outline: 1px solid var(--line); outline-offset: -1px; } /* read-only summary: a Seam outline (Hull is the frame's) */
-  .pair { display: inline-flex; align-items: baseline; gap: 0.5rem; }
+  .total { display: flex; flex-wrap: wrap; gap: 0.625rem 1.75rem; margin: var(--sp-4) var(--sp-2) var(--sp-2); padding: 0.875rem var(--sp-4); outline: 1px solid var(--line); outline-offset: -1px; } /* read-only summary: a Seam outline (Hull is the frame's) */
+  .pair { display: inline-flex; align-items: baseline; gap: var(--sp-2); }
   .k { color: var(--label-grey); font-size: var(--fs-s); }
   .total .q { font-size: var(--fs-l); color: var(--options-grey); }
   /* The route's profit is the page's one main value; each leg's profit is its ranked figure. */
   .total .pair:first-child .q { color: var(--orange-lit); }
   .facts > .q:first-child { color: var(--accent); font-weight: 500; }
   .lo { color: var(--label-grey); }
-  .warn { color: var(--accent); font-weight: 500; margin: 0 0 0.75rem; }
+  .warn { color: var(--accent); font-weight: 500; margin: 0 0 var(--sp-3); }
   .warn::before { content: "! "; font-weight: 600; }
-  .small { font-size: var(--fs-s); margin: 0 0.5rem; }
-  p { margin: 0 0 0.5rem; }
+  .small { font-size: var(--fs-s); margin: 0 var(--sp-2); }
+  p { margin: 0 0 var(--sp-2); }
   @container win (max-width: 56.25rem) {
     li { grid-template-columns: minmax(0, 1fr); }
     .facts { align-items: flex-start; text-align: left; }

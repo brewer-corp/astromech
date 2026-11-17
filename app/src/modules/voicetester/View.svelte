@@ -218,22 +218,22 @@
   p { margin: 0; }
   .intro { color: var(--prose); }
   .lo { color: var(--label-grey); }
-  .ask { display: flex; margin: 1.25rem 0 1.5rem; }
+  .ask { display: flex; margin: 1.25rem 0 var(--sp-6); }
   .ask > :global(.grow) { flex: 1; }
-  dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0 0 1rem; }
-  dt, dd { margin: 0; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; }
+  dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0 0 var(--sp-4); }
+  dt, dd { margin: 0; padding: 0 var(--sp-3); min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* What the tester worked out is read-only: facts outside a cell, the keys outlined like a badge. */
   dd { color: var(--prose); }
-  .key { outline: 1px solid var(--line); outline-offset: -1px; color: var(--options-grey); padding: 0.125rem 0.5rem; }
+  .key { outline: 1px solid var(--line); outline-offset: -1px; color: var(--options-grey); padding: var(--gap) var(--sp-2); }
   .cmd { font-size: var(--fs-s); }
-  .safe { color: var(--label-grey); margin-bottom: 1rem; }
+  .safe { color: var(--label-grey); margin-bottom: var(--sp-4); }
   .actions { display: flex; gap: 1.75rem; align-items: center; }
-  h2 { margin: 2rem 0 0.75rem; }
-  .learned { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; gap: var(--gap); }
-  .learned li { display: flex; gap: 1.5rem; align-items: center; outline: 1px solid var(--line); outline-offset: -1px; padding: 0 0.75rem; min-height: var(--row); }
+  h2 { margin: var(--sp-8) 0 var(--sp-3); }
+  .learned { list-style: none; margin: var(--sp-3) 0 0; padding: 0; display: grid; gap: var(--gap); }
+  .learned li { display: flex; gap: var(--sp-6); align-items: center; outline: 1px solid var(--line); outline-offset: -1px; padding: 0 var(--sp-3); min-height: var(--row); }
   .said { flex: 1; }
-  .note { color: var(--label-grey); font-size: var(--fs-s); margin-top: 0.75rem; }
+  .note { color: var(--label-grey); font-size: var(--fs-s); margin-top: var(--sp-3); }
   .note.err { color: var(--alarm); }
   .note.err::before { content: "! "; font-weight: 600; }
 </style>

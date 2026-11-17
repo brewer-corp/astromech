@@ -23,8 +23,8 @@
 </div>
 
 <style>
-  .colonies { margin-top: 2rem; }
+  .colonies { margin-top: var(--sp-8); }
   h3 { margin: 0 0 var(--sp-3); }
   .colonies > :global(.kinds) { margin-bottom: var(--sp-2); }
-  .lo { color: var(--prose); font-size: var(--fs-s); margin: 0 0 0.25rem; }
+  .lo { color: var(--prose); font-size: var(--fs-s); margin: 0 0 var(--sp-1); }
 </style>

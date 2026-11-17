@@ -129,7 +129,7 @@
 </section>
 
 <style>
-  section { padding: 1.375rem 0 1.75rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(20.625rem, 1fr)); gap: 2.5rem; align-items: start; container-type: inline-size; grid-template-rows: auto 1fr; }
+  section { padding: 1.375rem 0 1.75rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(20.625rem, 1fr)); gap: var(--gutter); align-items: start; container-type: inline-size; grid-template-rows: auto 1fr; }
   .panel { min-width: 0; }
   /* Exactly three columns (auto-fit 20.625rem tracks, 2.5rem apart: from 3 × 20.625 + 2 × 2.5 =
      66.875rem, and four from 4 × 20.625 + 3 × 2.5 = 90rem): the long merits list takes the
@@ -147,11 +147,11 @@
   dd { margin: 0; }
   .q { color: var(--options-grey); }
   .work { font-size: var(--fs-s); }
-  .bar { display: inline-block; width: 7.5rem; height: 0.375rem; background: var(--mark-off); vertical-align: middle; margin-right: 0.5rem; }
+  .bar { display: inline-block; width: 7.5rem; height: 0.375rem; background: var(--mark-off); vertical-align: middle; margin-right: var(--sp-2); }
   .bar span { display: block; height: 100%; background: var(--prose); }
   .lo { color: var(--label-grey); }
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
-  .small { font-size: var(--fs-s); margin-top: 0.75rem; }
-  p { margin: 0 0 0.5rem; line-height: 1.45; }
+  .small { font-size: var(--fs-s); margin-top: var(--sp-3); }
+  p { margin: 0 0 var(--sp-2); line-height: 1.45; }
 </style>

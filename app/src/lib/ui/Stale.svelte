@@ -11,7 +11,7 @@
 
 <style>
   .stale {
-    margin: 0 0 0.5rem;
+    margin: 0 0 var(--sp-2);
     font-size: var(--fs-s);
     color: var(--label-grey);
   }

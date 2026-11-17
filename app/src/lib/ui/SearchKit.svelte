@@ -412,7 +412,7 @@
   /* As wide as the query's controls or the list's columns, whichever is wider: spare width stays
      empty (DESIGN.md The Next To It Rule). */
   .kit { display: flex; flex-direction: column; gap: 0; min-width: 0; width: fit-content; max-width: 100%; }
-  .query { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.125rem 1.25rem 1.25rem; border-bottom: 1px solid var(--line); }
+  .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: 1.125rem 1.25rem 1.25rem; border-bottom: 1px solid var(--line); }
   .query :global(.origin) { margin: 0; }
   .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; }
   p { margin: 0; }

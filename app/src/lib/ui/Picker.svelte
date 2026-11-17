@@ -126,7 +126,7 @@
   .opt.on { color: var(--orange-lit); }
   .opt[aria-disabled="true"] { cursor: default; color: var(--orange-dim); }
   .opt[aria-disabled="true"] .hint { color: var(--orange-dim); }
-  .hint { margin-top: 0.125rem; }
+  .hint { margin-top: var(--gap); }
   .inline { display: flex; flex-direction: column; align-items: flex-start; }
   .inline .pop { position: static; width: auto; max-width: none; align-self: stretch; }
   .extra { padding: var(--sp-2) var(--sp-3) var(--sp-3); border-top: 1px solid var(--line); }

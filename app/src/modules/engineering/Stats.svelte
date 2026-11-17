@@ -149,16 +149,16 @@
 <style>
   .stats { font-size: var(--fs-s); }
   .lo { color: var(--label-grey); margin: 0; }
-  .warn { margin: 0 0 0.5rem; line-height: 1.4; }
+  .warn { margin: 0 0 var(--sp-2); line-height: 1.4; }
   .mark { color: var(--accent); font-weight: 600; }
   table { border-collapse: collapse; width: 100%; }
   th, td { padding: 0.3125rem 0; }
-  thead th { color: var(--label-grey); font-weight: 400; text-align: right; padding-left: 0.75rem; }
-  th[scope="row"] { text-align: left; font-weight: 400; white-space: nowrap; padding-right: 0.75rem; }
+  thead th { color: var(--label-grey); font-weight: 400; text-align: right; padding-left: var(--sp-3); }
+  th[scope="row"] { text-align: left; font-weight: 400; white-space: nowrap; padding-right: var(--sp-3); }
   /* A section heading inside the table: Prose Grey caps, as DESIGN.md's Section. */
-  .group th { text-align: left; color: var(--prose); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); padding: 1rem 0 0.375rem; }
-  tbody:first-of-type .group th { padding-top: 0.25rem; }
-  td { text-align: right; color: var(--prose); white-space: nowrap; padding-left: 0.75rem; }
+  .group th { text-align: left; color: var(--prose); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); padding: var(--sp-4) 0 0.375rem; }
+  tbody:first-of-type .group th { padding-top: var(--sp-1); }
+  td { text-align: right; color: var(--prose); white-space: nowrap; padding-left: var(--sp-3); }
   /* What the plan changes is what the commander acts on: the new value Options Grey, its change Orange. */
   td.changed { color: var(--options-grey); font-weight: 500; }
   td.d { color: var(--accent); }

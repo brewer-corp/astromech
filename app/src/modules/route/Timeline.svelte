@@ -225,9 +225,9 @@
   .node:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
 
   .main { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding-block: var(--sp-2); }
-  .nameline { display: flex; flex-wrap: wrap; align-items: center; gap: 0.125rem var(--sp-2); }
+  .nameline { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap) var(--sp-2); }
   .todo { color: var(--accent); font-weight: 600; }
-  .facts { display: flex; flex-wrap: wrap; gap: 0 var(--sp-4); margin-top: 0.125rem; }
+  .facts { display: flex; flex-wrap: wrap; gap: 0 var(--sp-4); margin-top: var(--gap); }
   .state { color: var(--text-hi); }
   .you { color: var(--text-hi); font-weight: 600; }
   .acts { display: flex; align-items: center; padding-left: var(--sp-4); opacity: 0; }
@@ -261,7 +261,7 @@
   /* The other legs: the stars passed, or the jump count. */
   .leg > .main { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: var(--sp-2) var(--sp-4); min-height: 2.5rem; padding-block: var(--sp-1); }
   .stars { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
-  .pass { display: grid; place-items: center; padding: 0.125rem; color: var(--label-grey); }
+  .pass { display: grid; place-items: center; padding: var(--gap); color: var(--label-grey); }
   .pass:hover { color: var(--orange-lit); }
   .past .pass { color: var(--mark-off); }
   .past .count { color: var(--grey-dim); }

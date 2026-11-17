@@ -87,14 +87,14 @@
 </div>
 
 <style>
-  .plot { display: flex; flex-direction: column; gap: 0.25rem; }
-  h4 { margin: 0 0 0.5rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); line-height: 1.2; overflow-wrap: anywhere; }
+  .plot { display: flex; flex-direction: column; gap: var(--sp-1); }
+  h4 { margin: 0 0 var(--sp-2); color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); line-height: 1.2; overflow-wrap: anywhere; }
   h4 .lo { display: block; font-size: var(--fs-s); color: var(--label-grey); }
   a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   a:hover { color: var(--orange-lit); }
   p { margin: 0; font-size: var(--fs-s); }
-  .kinds { margin: 0 0 0.5rem; }
-  .plot > :global(.go) { align-self: flex-start; margin: 0.375rem 0 0.25rem; }
+  .kinds { margin: 0 0 var(--sp-2); }
+  .plot > :global(.go) { align-self: flex-start; margin: 0.375rem 0 var(--sp-1); }
   .lo { color: var(--prose); }
   .busy { color: var(--label-grey); }
   .ok { color: var(--prose); }
