@@ -823,13 +823,15 @@ measure the page column, not the window, so the sidebar's width is already taken
 
 Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps; control row 34 px;
 result row 60 px, two lines in groups ([Lookup result row](#lookup-result-row)); material tile
-76 px. Rows visible, measured on the built row (astromech-fom5, Sell anywhere in the preview, no
-route sidebar): at 1100 x 700 at 100 percent, 5 whole rows show when the page opens under the
-finder's title, main input and summary line, and 7 once the list is scrolled to the top of the
-page column (worked out from the column's height, not counted); at 2560 x 1440 at 145 percent,
-11 on opening and 13 scrolled
-([sell-anywhere-1100-after.png](docs/design/finder-fold/sell-anywhere-1100-after.png),
-[sell-anywhere-2560-after.png](docs/design/finder-fold/sell-anywhere-2560-after.png)). With the
+76 px. Rows visible, measured on the built row (Sell anywhere in the preview, no route
+sidebar; astromech-fom5, measured again by astromech-8e22 on 17 Nov 2026): at 1100 x 700 at 100
+percent, 5 whole rows show when the page opens under the finder's title, main input and summary
+line, and 8 once the list is scrolled to the top of the 524 px page column; at 2560 x 1440 at
+145 percent, 11 on opening and 14 scrolled (worked out from the 897 px column, since the
+sample's 12 rows all fit)
+([sell-anywhere-no-route-1100x700.png](docs/design/increment2/sell-anywhere-no-route-1100x700.png),
+[sell-anywhere-no-route-2560x1440.png](docs/design/increment2/sell-anywhere-no-route-2560x1440.png),
+both scrolled). With the
 range choice and origin box above the summary (astromech-3ca6), it opened on 3 and 9. Revision
 4's one-line 44 px rows showed 3 and 10 at 1100 x 700 and 11 and 17 at 2560 x 1440. *Why:* fewer rows that each read as an answer beat more rows that read as a spreadsheet;
 the commander picks from the top few, and the list scrolls.
