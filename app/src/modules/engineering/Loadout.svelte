@@ -16,7 +16,7 @@
   // groups where two fit beside the panel; worked out as if the panel were there, so selecting a
   // module never moves the rows.
   import { besidePanel } from "../../lib/ui/layout/layout";
-  import { useDetail } from "../../lib/ui/layout/listDetail.svelte";
+  import { useDetail } from "../../lib/ui/layout/detail.svelte";
   import Hexes from "../../lib/ui/Hexes.svelte";
   import { loadoutGroups, type Fitted, type Fleet, type Ship } from "../../lib/engineering";
   import { maxGrade, type ShipPlan } from "./plan.svelte";
