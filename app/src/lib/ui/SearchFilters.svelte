@@ -3,7 +3,8 @@
   // which the parent builds) with CHANGE, and no controls. CHANGE opens the controls in place
   // below the line; they stay open across edits and close only on DONE, Escape or CHANGE again,
   // so nothing the parent does (a search starting, finishing or failing) opens or closes them.
-  // The controls show only the filters that apply (`offers`). Pad is S/M/L (S is any pad); the
+  // The controls show the finder's own filters (`extra`: a range, a ring type), then where the
+  // search runs from (`origin`), then the shared filters that apply (`offers`). Pad is S/M/L (S is any pad); the
   // ship you are flying is marked on its size. Carriers and Odyssey are a multiple choice of
   // what to include: filled is included.
   import { AGES, ARRIVALS, DISTANCES, VOLUMES, type FilterHints, type FilterKey, type Filters, type Pad } from "../search";
@@ -19,6 +20,7 @@
     shipPad,
     summary,
     extra,
+    origin,
     onchange,
   }: {
     filters: Filters;
@@ -30,6 +32,8 @@
     summary: string;
     /** The finder's own filters (a ring type, a reserve), first among the controls. */
     extra?: Snippet;
+    /** Where the search runs from (OriginInput), after the finder's own filters. */
+    origin?: Snippet;
     onchange: (f: Filters) => void;
   } = $props();
 
@@ -81,13 +85,14 @@
 <div class="search-filters" bind:this={root}>
   <p class="summary">
     <span class="text">{summary}</span>
-    {#if offers.length || extra}
+    {#if offers.length || extra || origin}
       <Button bind:ref={toggle} aria-expanded={open} aria-controls={`${id}-filters`} aria-label="Change filters" onclick={() => (open = !open)}>Change</Button>
     {/if}
   </p>
   {#if open}
     <div class="filters" id={`${id}-filters`} role="group" aria-label="Filters">
       {#if extra}{@render extra()}{/if}
+      {#if origin}{@render origin()}{/if}
       {#if offers.includes("distance")}
         <label>
           <span>Within</span>
@@ -166,5 +171,7 @@
   .text { min-width: 0; }
   .filters { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; font-size: var(--fs-s); }
   label, .field { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+  /* The origin box is as wide as the finder's main input (tokens.css .finder-main). */
+  .filters :global(.origin .box) { flex: none; width: 20rem; max-width: 100%; }
   label > span, .field > span { color: var(--label-grey); font-size: var(--fs-s); min-width: 5.5em; }
 </style>

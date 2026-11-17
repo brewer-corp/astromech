@@ -9,13 +9,21 @@
   import Input from "./Input.svelte";
   import Suggestions from "./Suggestions.svelte";
 
-  let { origin, onchange, around = false }: { origin: Origin; onchange: (o: Origin) => void; around?: boolean } = $props();
+  let {
+    origin,
+    onchange,
+    around = false,
+    viaNext = $bindable(null),
+  }: {
+    origin: Origin;
+    onchange: (o: Origin) => void;
+    around?: boolean;
+    /** The origin was picked as the route's next stop: the box says so. Bindable, so it outlives the box. */
+    viaNext?: string | null;
+  } = $props();
 
   /** A suggestion: a system to search from (null: here), as shown. */
   type Hit = { system: string | null; label: string };
-
-  /** The origin was picked as the route's next stop: the box says so. */
-  let viaNext = $state<string | null>(null);
   const shown = $derived(origin == null ? "" : viaNext === origin ? `Next stop: ${origin}` : origin);
   let text = $derived(shown);
   let hits = $state<Hit[]>([]);
@@ -97,7 +105,9 @@
       if (!open && text === shown) return; // nothing changed
       const said = open ? enterChoice(text, hits.map((h) => h.label), sel, moved) : text;
       pick(hits.find((h) => h.label === said) ?? { system: said, label: said });
-    } else if (e.key === "Escape") {
+    } else if (e.key === "Escape" && open) {
+      // Closes the suggestions only, not the filters the box sits in.
+      e.preventDefault();
       open = false;
     }
   }

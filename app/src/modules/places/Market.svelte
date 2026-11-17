@@ -2,7 +2,7 @@
   // The Sell and Buy finders: where one commodity fetches the most (stations buying it, highest
   // price first) or costs the least (stations selling it, lowest first), near the origin or
   // anywhere in the galaxy, from Ardent Insight. The main input is the commodity; the range is
-  // a choice. #/places/<sell|buy>/<symbol>[?range=anywhere] keeps both on back and reload.
+  // a choice among the filters CHANGE opens, which the summary names ("Best prices anywhere"). #/places/<sell|buy>/<symbol>[?range=anywhere] keeps both on back and reload.
   // Each side and range keeps the filters Trade remembered for it (`trade.sell`,
   // `trade.sell.anywhere`, ...), which voice questions use too. Demand (Sell) or stock (Buy) is
   // measured against the hold as `ship_status` reports it (read every 2 s, as the status bar reads it), and the page says
@@ -91,7 +91,7 @@
     measure={against && { side, against }}
     onship={(s) => (ship = s)}
   >
-    {#snippet lead()}
+    {#snippet more()}
       <div class="choices">
         <span class="label">Range</span>
         <Choice
@@ -109,7 +109,9 @@
 </FinderPage>
 
 <style>
-  .choices { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+  /* Laid out as a filter among the others SearchFilters shows: its label, then the choice. */
+  .choices { display: flex; align-items: center; gap: var(--sp-2); }
   .label, .against { font-size: var(--fs-s); color: var(--label-grey); }
+  .label { min-width: 5.5em; }
   .against { white-space: nowrap; }
 </style>

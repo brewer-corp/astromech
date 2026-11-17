@@ -249,6 +249,7 @@ describe("SearchKit", () => {
     kit(run, { busyText: "Asking Spansh…" });
     expect(await screen.findByText("Ross 154")).toBeTruthy();
     expect(screen.getByRole("table").getAttribute("aria-busy")).toBe("false");
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
     const box = screen.getByLabelText("Search from system");
     await fireEvent.input(box, { target: { value: "Deciat" } });
     await fireEvent.keyDown(box, { key: "Enter" });
