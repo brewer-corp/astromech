@@ -1,0 +1,934 @@
+{
+ "commit": "f37c8e23",
+ "captures": {
+  "before-opening-1100x700": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/",
+   "file": "docs/design/now/before-opening-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [
+    {
+     "text": "1",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Frame shift drive (supercruise / jump)",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "J",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "2",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "3",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Enter FSS +2",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "4",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Landing gear +1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "L",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "5",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Cargo scoop",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Home",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "10",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "6",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "UI up",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "W",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "8",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "UI down",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "S",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "9",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "UI left",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "A",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "7",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "UI right",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "D",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "15",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "11",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Next panel",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "E",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "13",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Prev panel",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Q",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "14",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "12",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "20",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "UI select",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Space",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "16",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Throttle 100% +1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "X",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "18",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Throttle 0% +1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Shift+X",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "19",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Throttle 50%",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "17",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Throttle 75%",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "P1",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Comms panel",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "2",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "P1",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Role panel",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "3",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "P1",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Left panel (navigation, contacts)",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "P1",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Right panel (ship)",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "4",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "21",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "22",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "23",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "24",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "25",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Ship lights +1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Insert",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "26",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Night vision",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "27",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Galaxy map",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "M",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "28",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "System map",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": ",",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "29",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "HUD mode (analysis / combat)",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Left Alt",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "Throttle +1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "FSS tuning",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Lateral thrust",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Vertical thrust",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    }
+   ],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "VKBsim Gladiator EVO OT L"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "My controller",
+      "Preset",
+      "Frame shift drive (supercruise / jump)",
+      "Enter FSS +2",
+      "Landing gear +1",
+      "UI up",
+      "UI down",
+      "UI left",
+      "UI right",
+      "Next panel",
+      "Prev panel",
+      "UI select",
+      "Throttle 100% +1",
+      "Throttle 0% +1"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "4 of 10",
+      "7",
+      "J",
+      "L",
+      "W",
+      "S",
+      "A",
+      "D",
+      "E",
+      "Q",
+      "Space",
+      "X",
+      "Shift+X",
+      "Press a control, or pick an activity to light its actions an"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Left · Gladiator EVO OT L · 231D3201",
+      "All"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 14,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Right · Gladiator EVO R · 231D0200",
+      "Flight basics",
+      "Supercruise & jumps",
+      "Exploration (FSS / DSS)",
+      "Trading",
+      "Mining",
+      "Combat",
+      "Docking & landing",
+      "SRV",
+      "On foot",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 43,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "All keybinds",
+      "Presets",
+      "Key tester"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Controls"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Controls",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "before-opening-2560x1440": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=145#/",
+   "file": "docs/design/now/before-opening-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [
+    {
+     "text": "1",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "2",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "3",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "4",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "5",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "10",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "6",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "8",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "9",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "7",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "15",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "11",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "13",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "14",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "12",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "20",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "16",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "18",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "19",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "17",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "P1",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "P1",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "P1",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "P1",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "21",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "22",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "23",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "24",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "25",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "26",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "27",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "28",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "29",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    }
+   ],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "VKBsim Gladiator EVO OT L"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 31,
+     "texts": [
+      "My controller",
+      "Preset",
+      "Frame shift drive (supercruise / jump)",
+      "Enter FSS +2",
+      "Landing gear +1",
+      "Cargo scoop",
+      "UI up",
+      "UI down",
+      "UI left",
+      "UI right",
+      "Next panel",
+      "Prev panel",
+      "UI select",
+      "Throttle 100% +1"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 26,
+     "texts": [
+      "J",
+      "L",
+      "Home",
+      "W",
+      "S",
+      "A",
+      "D",
+      "E",
+      "Q",
+      "Space",
+      "X",
+      "Shift+X",
+      "2",
+      "3"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Left · Gladiator EVO OT L · 231D3201",
+      "All"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Controls",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  }
+ }
+}
