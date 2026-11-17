@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-5lh2
 title: 'Three journeys fail on main: their selectors point at the Route page and header as they were before increment 1'
-status: in_review
+status: approved
 mission: null
 labels:
 - bug
