@@ -9,7 +9,8 @@
  * "shots": [{ "name", "hash", "query"?, "sizes"?, "steps"?: [action] }] }. An action is one of
  * { "click": css } (the first match), { "waitSel": css }, { "waitText": text },
  * { "clickText": text } (the first button or link whose own text is that, ignoring case: a
- * control with no selector of its own, such as Skip setup or a top tab), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
+ * control with no selector of its own, such as Skip setup or a top tab), { "type": css, "text": text }
+ * (type that text into the first match, key by key, as the commander would), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
  * { "rows": css } (count the whole rows of that selector in view; with scrollTop, once more after it).
  * Each capture loads fresh in its own browser context, so no state (a collapsed sidebar, a row
  * gone compact) carries over. Writes <out>/<name>-<w>x<h>.png and <out>/report.json.
@@ -362,6 +363,10 @@ async function capture(browser, base, plan, shot, size, outDir) {
       const find = (t) => [...document.querySelectorAll("button, a")].find((el) => el.textContent.trim().toLowerCase() === t.toLowerCase());
       await page.waitForFunction(find, {}, s.clickText);
       await page.evaluate((t) => [...document.querySelectorAll("button, a")].find((el) => el.textContent.trim().toLowerCase() === t.toLowerCase()).click(), s.clickText);
+    }
+    if (s.type) {
+      await page.waitForSelector(s.type);
+      await page.type(s.type, s.text);
     }
     if (s.rows) extra[s.label ?? "rows"] = await rowsInView(page, s.rows);
     if (s.scrollTop)
