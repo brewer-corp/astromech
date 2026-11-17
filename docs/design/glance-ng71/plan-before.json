@@ -1,0 +1,33 @@
+{
+ "out": "docs/design/glance-ng71/before",
+ "query": "core=ready&route=exact",
+ "clock": "2026-10-20T11:23:00Z",
+ "sizes": [
+  { "w": 2560, "h": 1440, "step": 145 },
+  { "w": 1100, "h": 700, "step": 100 }
+ ],
+ "shots": [
+  {
+   "name": "ships-module",
+   "hash": "engineering/7",
+   "steps": [
+    { "click": "button.row[aria-label^='Frame shift drive']" },
+    { "waitSel": "aside[aria-label=Details] [role=table]" }
+   ]
+  },
+  {
+   "name": "ships",
+   "hash": "engineering/7",
+   "steps": [
+    { "waitSel": "button.row[aria-label^='Frame shift drive']" }
+   ]
+  },
+  {
+   "name": "ships-plan",
+   "hash": "engineering/7/plan",
+   "steps": [
+    { "waitText": "Jump range" }
+   ]
+  }
+ ]
+}

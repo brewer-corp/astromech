@@ -642,7 +642,7 @@ Rule](#named-rules-1)).
 | Wordmark | 18 / 600 / 1, tracking 0.12em | caps | white | "ASTROMECH" only |
 | Title | 24 / 600 / 1.2 | mixed | white | page, finder and side-panel titles |
 | Value XL | 28 / 500 / 1, tabular | figures | orange lit for the one main value of the page or panel; otherwise options grey | the one value of a tile or panel; a page's main value that sits in a list row (Station's first cargo gain), so no ranked Value L further down is as large (astromech-vru4) |
-| Value L | 18 / 600 / 1.2, tabular | figures | orange for the value a list is ranked by (orange lit on the selected row); otherwise options grey | the one value of a row or strip |
+| Value L | 18 / 600 / 1.2, tabular | figures | orange for the value a list is ranked by (orange lit on the selected row); otherwise options grey | the one value of a row or strip; each of a row of equal stats |
 | Nav | 15 / 400, tracking 0.06em | caps | label grey; active 500 on the orange fill | top tabs, and the sidebar's ROUTE heading |
 | Section | 13 / 600, tracking 0.06em | caps | prose grey; current section white | section headings, with a Seam rule to the right |
 | Name | 15 / 500 / 1.3 | mixed | options grey; white under The Lifted Name Rule | station, material, ship, engineer names; page tabs |
@@ -656,6 +656,12 @@ Rule](#named-rules-1)).
 The Colour column gives each role's default. A component may override it where its own
 spec says so (anything on a fill is On Orange; a stale row's ranked value steps down to Orange
 Mid; a colour from [the list](#colours-that-carry-a-meaning)).
+
+A row of equal stats (a ship's jump range, shields, top speed and power used) is Value L,
+Options Grey: facts side by side, none of them the page's main value. Value XL is kept for the
+one value of a tile or panel, so the row never matches it in size. *Why:* the glance test
+(astromech-crxa, astromech-ng71) read Ships' Value XL jump range as the page's main value over
+the panel's planned grade.
 
 Units follow their number in Label size and Label Grey: **390,780** cr, **7** jumps.
 Thousands use commas. *Why:* the unit supports the number; it should not compete with it.
@@ -845,7 +851,7 @@ places content, it never adds any: a sparse page stays sparse.
 
 | Layout | What it holds | Use it when | For example |
 |---|---|---|---|
-| Board | blocks or tiles laid out across the width, each with its own main value; where a tile can be selected, the 320 px side panel after a 1 px Seam rule describes it | the page is answers or tiles read at a glance, laid out by their own shape (a grid of categories and grades, a row of answers) | Now, Powerplay, Places home; Materials, with its side panel |
+| Board | blocks or tiles laid out across the width, each with its own main value; a Board with one page-level main value (Now) draws only that block's value in Value XL, Orange Lit, and steps every other block's value down to Value L, Options Grey, so size and colour agree on which one leads, and sets its blocks in the order the main value is picked, so the block that holds it comes first; where a tile can be selected, the 320 px side panel after a 1 px Seam rule describes it | the page is answers or tiles read at a glance, laid out by their own shape (a grid of categories and grades, a row of answers) | Now, Powerplay, Places home; Materials, with its side panel |
 | List with detail | a list (rows or a tree) and the 320 px side panel after a 1 px Seam rule, which describes the selected item | the commander picks one item from many and then wants its details | Places finders, System, Ships, Engineers |
 | Workbench | the inputs on the left, the result on the right | the commander sets up a question and reads one answer that changes as the inputs do | Trade > Commodities |
 | Form | Settings rows in one column: a 200 px label and a cell up to 700 px, 900 px in all | the page is values to set | Settings |

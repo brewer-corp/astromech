@@ -256,10 +256,12 @@
 
     {#if ship.loadout_ts}
       <div class="heroes">
-        {#each heroes as h, i (h.label)}
+        <!-- A row of equal facts in Value L, never the page's main value (astromech-ng71): with a module
+             selected that is the panel's planned grade; with none, the ship's name. -->
+        {#each heroes as h (h.label)}
           <div class="hero" {@attach tip(h.why)}>
             <span class="type-label">{h.label}</span>
-            <span><span class="type-value-xl" class:main={i === 0 && !selected && h.value !== "–"}>{h.value}</span><span class="type-unit">{h.unit}</span></span>
+            <span><span class="type-value-l">{h.value}</span><span class="type-unit">{h.unit}</span></span>
           </div>
         {/each}
         <div class="notes">

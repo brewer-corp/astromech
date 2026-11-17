@@ -6,9 +6,11 @@
   // cycle and a mining run. The next route stop is the sidebar's, not this page's.
   //
   // It reads the frame's status and ship polls, and polls the rest as the page each block
-  // summarises does. The page's one main value (Orange Lit) is the first block that shows a
-  // figure of: the mining run's tons per hour, the hold's best total, the session's credits per
-  // hour.
+  // summarises does. The page's one main value is the first block that shows a figure of: the
+  // mining run's tons per hour, the hold's best total, the session's credits per hour. Only that
+  // block draws its value in Value XL, Orange Lit; every other block's value steps down to
+  // Value L, Options Grey (DESIGN.md Board), so size and colour agree on which one leads. The
+  // blocks stand in that same order, so the main value's block comes first in the row.
   import { useFrame } from "../../lib/frame.svelte";
   import { creditParts, loadUnsold, type Unsold } from "../../lib/exploration";
   import { failure } from "../../lib/ui/errors";
@@ -115,6 +117,15 @@
       </div>
 
       <Blocks>
+        <!-- In the order the main value is picked: the block that can hold it leads the row. -->
+        {#if mining && run}
+          <Block title="Mining" href="#/mining" link="Mining" stale={statusReason}>
+            <p class="value">
+              <span class={main === "mining" ? "type-value-xl main" : "type-value-l"}>{run.per_hour == null ? "–" : run.per_hour.toFixed(0)}</span><span class="type-unit">t per hour</span>
+            </p>
+            <p class="type-label">{run.total.toLocaleString("en")} t refined</p>
+          </Block>
+        {/if}
         <!-- Asked once where the commander is is known, so opening the page asks once. -->
         {#if hold && ship && here.loaded}
           <Sale {ship} system={at?.system ?? null} main={main === "sale"} stale={shipReason} onfigure={(f) => (saleFigure = f)} />
@@ -136,7 +147,7 @@
               {@const rate = s.per_hour == null ? null : parts(s.per_hour)}
               {@const [earned, earnedUnit] = parts(s.total)}
               <p class="value">
-                <span class="type-value-xl" class:main={main === "session"}>{rate ? rate[0] : "–"}</span><span class="type-unit">{rate ? `${rate[1]} per hour` : "per hour"}</span>
+                <span class={main === "session" ? "type-value-xl main" : "type-value-l"}>{rate ? rate[0] : "–"}</span><span class="type-unit">{rate ? `${rate[1]} per hour` : "per hour"}</span>
               </p>
               <p class="type-label"><span {@attach tip(EARNED)}>{earned} {earnedUnit} earned</span> in {duration(s.duration_secs)} · {s.jumps.toLocaleString("en")} {s.jumps === 1 ? "jump" : "jumps"}</p>
             {/if}
@@ -155,21 +166,13 @@
               {@const st = power.value.standing}
               {@const now = power.at}
               <p class="value">
-                <span class="type-value-xl" {@attach tip("What the journal logs since Thursday 07:00 UTC; weekly assignment rewards aren’t logged")}>{num(cycleMerits(st, now))}</span><span class="type-unit">merits this cycle</span>
+                <span class="type-value-l" {@attach tip("What the journal logs since Thursday 07:00 UTC; weekly assignment rewards aren’t logged")}>{num(cycleMerits(st, now))}</span><span class="type-unit">merits this cycle</span>
               </p>
               <p class="type-label">{timeLeft(st.week_ends, now)} left in the cycle</p>
               <p class="type-label">
                 {st.power}{#if st.rank != null}{` · rank ${st.rank}`}{/if}{#if st.next}{` · ${num(st.next.to_go)} merits to rank ${st.next.rank}`}{/if}
               </p>
             {/if}
-          </Block>
-        {/if}
-        {#if mining && run}
-          <Block title="Mining" href="#/mining" link="Mining" stale={statusReason}>
-            <p class="value">
-              <span class="type-value-xl" class:main={main === "mining"}>{run.per_hour == null ? "–" : run.per_hour.toFixed(0)}</span><span class="type-unit">t per hour</span>
-            </p>
-            <p class="type-label">{run.total.toLocaleString("en")} t refined</p>
           </Block>
         {/if}
       </Blocks>
