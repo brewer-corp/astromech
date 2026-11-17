@@ -86,22 +86,22 @@ something the page shows today:
   the panel says "mapped, over the efficiency target" when it was not.
 - The `source` label ("Sample system") at the end of the head's Label line.
 
-**Badge Tips.** Each badge's meaning is in a Tip with `stop: false`.
+**Badge Tips.** In the tree, each badge's Tip uses `stop: false`, so the treegrid keeps one tab
+stop (the sample has 25 badges) and screen readers get the meaning through `aria-describedby`.
+The keyboard reaches the meanings in the panel: it shows the selected body's tags again, each
+with a Tip that keeps its tab stop, so Tab from the selected row lands on the first tag. The
+column head's Tip and the head values' Tips keep their tab stops too.
 
-- Screen readers still get it through `aria-describedby` on the badge.
-- The keyboard does not get a tab stop per badge. The sample has 25 badges, and the treegrid
-  keeps one tab stop with the arrow keys moving between rows.
-- The old page's one tab stop on "Worth mapping" goes. What it said (at least 500 k cr mapped) is
-  in the guide, and the row's mapped value shows it.
-- The column head's Tip (the mapped-value rule) and the head values' Tips keep their tab stops.
-
-**Selection.** The selection is held by body name, so it survives the 3 s poll and drops on a
-jump. Nothing is selected at first. The tree is a `treegrid`: rows carry `aria-level`, and the
+**Selection.** The selection is held by body name, so it survives the 3 s poll. A change of
+system (address or name) clears it, so returning to a system starts with nothing selected.
+Nothing is selected at first. The tree is a `treegrid`: rows carry `aria-level`, and the
 arrow keys, Home and End move the selection.
 
 **Layout.** Unsold data and Where to sell are rendered after the ListDetail, not inside it. At
 1100 the stacked panel then sits right under the tree instead of after the unsold tiles.
-`TREE_MIN` is 800 px: the tree's rigid columns plus room for one line of tags. The body name keeps
+The panel's threshold is the tree's measured natural width: its value, distance
+and body tracks plus its widest row of tags on one line. The panel goes below the tree before
+any tag would wrap. The body name keeps
 a common start for classes within a level with `min-width: var(--sp-12)`.
 
 **Captures and audit.** The plan and the captures are in `docs/design/system-tree/`:
@@ -124,24 +124,25 @@ a common start for classes within a level with `min-width: var(--sp-12)`.
 - By luminance White and grey always outrank orange, so this ordering is not a fault. The selected
   row is the only Hull Raised row. The tree has no orange column because it is not ranked. This is
   the reading astromech-rj6i's Report gave for Powerplay.
-- `report.json` is from b5ef36d5, the page as submitted.
+- `report.json` is from 9258322e, the page with round 1's fixes.
 - The sample is under the risky mark, so nothing on the page needs the commander. The orange
   reminder line is checked by its browser test, not in a capture.
 
-**Known trade-off: tags wrap when room is short.** Measured in the sample, in px at 100 percent
-Text size, with A 4 a selected and the sidebar docked:
+**Tags never wrap beside the panel.** Measured in the sample, in px at 100 percent Text size,
+with A 4 a selected and the sidebar docked:
 
 | Window | Tree's natural width | Room beside the panel | Result |
 |---|---|---|---|
-| 1659 x 900 (the dock width) | 947 | 856 | A 4 a's six tags wrap onto a second line |
-| 1920 x 1080 | 947 | 1,117 | no wrap, 170 px to spare |
-| 2560 x 1440 at 145 percent | 943 | 966 | no wrap, 23 px to spare |
+| 1100 x 700 | 947 | 641 | panel below the tree |
+| 1659 x 900 (the dock width) | 947 | 856 | panel below the tree, no tag wraps |
+| 1920 x 1080 | 947 | 1,117 | panel beside the tree |
+| 2560 x 1440 at 145 percent | 943 | 966 | panel beside the tree, 23 px to spare |
 
-So at 2560 a system with a longer class name or one more tag on its busiest row also wraps. The
-Aligned Columns Rule calls a wrap a sign the group is wrong. Every tag is one the item asks for, so
-the tags wrap inside their own cell rather than being cut or pushing the panel below.
-
-At 1100 the panel goes below the tree, since the 641 px beside it is under `TREE_MIN`.
+A system with a longer class name or more tags on its busiest row moves the panel below the tree
+at a wider window, since the threshold is measured, not fixed. Tags wrap only on a stacked page
+narrower than the tree itself (a large Text size in a small window), rather than scrolling
+sideways. So this page keeps its panel beside the rows at 1920 and 2560 as the item asks. At the
+dock width, unlike the finders, its panel goes below.
 
 **Other changes.**
 
@@ -155,9 +156,14 @@ At 1100 the panel goes below the tree, since the 641 px beside it is under `TREE
 - `cargo test -p astromech-exploration`, the `preview_fixtures` drift test, the core's
   `bindings` test and `copy`;
 - `cargo test -p astromech-api`;
-- `pnpm check`, `pnpm lint` and `pnpm test` (801 tests, at b5ef36d5). An earlier full run at load
-  average 52 failed three timing-sensitive cases in `App.browser.test.ts` and
-  `tabrows.browser.test.ts`, which this change does not touch. Both files then passed alone and
-  in the full rerun;
+- `pnpm check`, `pnpm lint` and `pnpm test` (802 tests, at 9258322e). At load average 52, an
+  earlier full run failed three timing-sensitive cases in `App.browser.test.ts` and
+  `tabrows.browser.test.ts`. This change does not touch either file, and both passed alone and in
+  the later full runs;
 - `pnpm exec tsc -p journeys` and `node --test 'journeys/*.journey.ts'` (7 of 7).
 
+### Responses
+
+- 1-flbt.1: fixed in 9258322e. The panel repeats the selected body's tags with Tips that keep their tab stops, and Tab from the selected row reaches them (tested in the moon case).
+- 1-flbt.2: fixed in 9258322e. The panel's threshold is the tree's measured natural width, so at 1659 x 900 it stacks and no tag wraps (captures and audit in 8c3f8b47).
+- 1-flbt.3: fixed in 9258322e. A change of system clears the selection, with a browser test that failed before the fix.
