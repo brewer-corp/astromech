@@ -1,5 +1,5 @@
 {
- "commit": "b5ef36d5",
+ "commit": "9258322e",
  "captures": {
   "after-1100x700": {
    "url": "http://localhost:5947/?core=ready&route=exact&textsize=100#/exploration",
@@ -392,11 +392,9 @@
      "colour": "#e0e0e0",
      "lum": 0.745,
      "sidebar": false,
-     "weight": 4,
+     "weight": 2,
      "texts": [
       "System",
-      "2,229,001",
-      "AB 1",
       "Heavy Lifter"
      ]
     },
@@ -404,12 +402,10 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 17,
+     "weight": 15,
      "texts": [
       "4 of 10",
       "7",
-      "25,040",
-      "Ammonia world",
       "Synuefe AB-C d1-2",
       "Icy body",
       "401 ls",
@@ -419,7 +415,9 @@
       "First discovery, never mapped",
       "2 times",
       "18.0",
-      "24.6"
+      "24.6",
+      "32",
+      "120"
      ]
     },
     {
@@ -449,7 +447,7 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 34,
+     "weight": 36,
      "texts": [
       "Ships",
       "Engineering",
@@ -463,8 +461,8 @@
       "To",
       "jumps left",
       "Biology",
-      "cr",
-      "ls"
+      "cr mapped",
+      "1,300 cr now · not mapped yet"
      ]
     },
     {
@@ -567,10 +565,9 @@
      "colour": "#ffffff",
      "lum": 1,
      "sidebar": false,
-     "weight": 4,
+     "weight": 3,
      "texts": [
       "ASTROMECH",
-      "Synuefe AB-C d1-2",
       "A 4 a"
      ]
     },
@@ -603,13 +600,9 @@
      "colour": "#e0e0e0",
      "lum": 0.745,
      "sidebar": false,
-     "weight": 22,
+     "weight": 15,
      "texts": [
       "System",
-      "5,346,554",
-      "A",
-      "A 1",
-      "A 2",
       "2,537,118",
       "A 3",
       "A 3 a",
@@ -618,7 +611,11 @@
       "401",
       "Icy body",
       "B",
-      "1,288,656"
+      "1,288,656",
+      "B 1",
+      "B 1 a",
+      "2,229,001",
+      "AB 1"
      ]
     },
     {
@@ -634,22 +631,22 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 44,
+     "weight": 33,
      "texts": [
-      "3,153",
-      "0",
-      "K3 star",
-      "446,471",
-      "8",
-      "Metal-rich body",
-      "4,363,438",
-      "200",
-      "Earth-like world",
       "300",
       "High metal content world",
       "6,224",
       "301",
-      "Rocky body"
+      "Rocky body",
+      "64,047",
+      "400",
+      "Class I gas giant",
+      "cr",
+      "ls",
+      "1,205",
+      "18,320",
+      "M5 star",
+      "18,330"
      ]
     },
     {
@@ -668,9 +665,8 @@
      "colour": "#ffa04a",
      "lum": 0.469,
      "sidebar": false,
-     "weight": 2,
+     "weight": 1,
      "texts": [
-      "10,510,589",
       "6,344"
      ]
     }
