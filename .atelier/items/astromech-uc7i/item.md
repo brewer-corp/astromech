@@ -152,7 +152,12 @@ page reference), `using-the-app.md`, `places.md` (one PLACES page), and DESIGN.m
   clears the flag. A new browser test covers the cold link, the fold back to the rail and the
   palette's Route.
 
+**Round 2 (review 2-3tmk), finding 3: an empty sidebar left behind once a route was cleared.**
+This was fixed. `show()` now sets `asked` only when there is neither a route nor a paused one,
+so asking for the sidebar over a route doesn't keep it once the route is cleared. The route
+clearing test now opens `#/route` over a route, waits for it to be handled, and clears the
+route. That test fails without the fix.
+
 ### Responses
 
-1-l239.1: fixed in dfe596b9
-1-l239.2: fixed in 59959ec1
+2-3tmk.3: fixed in b6c8915c
