@@ -14,7 +14,7 @@
   import { failure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { duration, EARNED, loadSession, type Session } from "../../lib/logbook";
-  import { loadOverview, num, until, type Overview } from "../../lib/powerplay";
+  import { loadOverview, num, timeLeft, type Overview } from "../../lib/powerplay";
   import { loadHere, type DockedHere } from "../../lib/station";
   import Board from "../../lib/ui/layout/Board.svelte";
   import Blocks from "../../lib/ui/layout/Blocks.svelte";
@@ -156,7 +156,7 @@
               <p class="value">
                 <span class="type-value-xl" {@attach tip("What the journal logs since Thursday 07:00 UTC; weekly assignment rewards aren’t logged")}>{num(st.week_merits)}</span><span class="type-unit">merits this cycle</span>
               </p>
-              <p class="type-label">{until(st.week_ends)} left in the cycle</p>
+              <p class="type-label">{timeLeft(st.week_ends)} left in the cycle</p>
               <p class="type-label">
                 {st.power}{#if st.rank != null}{` · rank ${st.rank}`}{/if}{#if st.next}{` · ${num(st.next.to_go)} merits to rank ${st.next.rank}`}{/if}
               </p>
