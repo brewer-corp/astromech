@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-dpaz
 title: Exploration > System as a system tree
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-m
