@@ -3,12 +3,17 @@
   // Numbers use the precision Coriolis shows, so they can be checked against it.
   import { tip } from "../../lib/ui/tip";
   import type { ShipStats, StatsComparison } from "../../lib/engineering";
+  import { handling } from "../../lib/manoeuvre";
 
   let {
+    type,
     stats,
     note,
     unknownHull = null,
-  }: { stats: StatsComparison | null; note: string | null; unknownHull?: string | null } = $props();
+  }: { type: string; stats: StatsComparison | null; note: string | null; unknownHull?: string | null } = $props();
+
+  /** Pitch, roll and yaw by hull: the same now and planned until the calculations include handling. */
+  const turn = $derived(handling(type));
 
   interface Row {
     label: string;
@@ -26,7 +31,7 @@
 
   const pct = (x: number | undefined) => (x === undefined ? undefined : x * 100);
 
-  const groups: { title: string; rows: Row[] }[] = [
+  const groups: { title: string; title_tip?: string; rows: Row[] }[] = $derived([
     {
       title: "Jump range (ly)",
       rows: [
@@ -79,11 +84,25 @@
         { label: "Speed (m/s)", get: (s) => s.speed, digits: 0, nullText: "–" },
         { label: "Boost (m/s)", get: (s) => s.boost, digits: 0, nullText: "–" },
         { label: "Mass (t)", title: "Unladen, full tank", get: (s) => s.unladen_mass, digits: 0, lower: true },
+        { label: "Laden mass (t)", title: "Full tank and full cargo", get: (s) => s.laden_mass, digits: 0, lower: true },
+        { label: "Hull mass (t)", get: (s) => s.hull_mass, digits: 0, lower: true },
+        { label: "Cargo (t)", get: (s) => s.cargo_capacity, digits: 0 },
+        { label: "Fuel (t)", get: (s) => s.fuel_capacity, digits: 1 },
+        { label: "Power retracted (MW)", title: "Hardpoints retracted", get: (s) => s.power.retracted, digits: 2, lower: true },
         { label: "Power use (MW)", title: "Hardpoints deployed", get: (s) => s.power.deployed, digits: 2, lower: true },
         { label: "Power plant (MW)", get: (s) => s.power.generation, digits: 2 },
       ],
     },
-  ];
+    {
+      title: "Handling (°/s)",
+      title_tip: "A stand-in by hull at four pips to engines, until the ship calculations include handling",
+      rows: [
+        { label: "Pitch", get: () => turn?.pitch, digits: 0 },
+        { label: "Roll", get: () => turn?.roll, digits: 0 },
+        { label: "Yaw", get: () => turn?.yaw, digits: 0 },
+      ],
+    },
+  ]);
 
   /** Coriolis rounds times down to whole seconds. */
   function clock(sec: number): string {
@@ -108,7 +127,7 @@
   const unresolved = $derived([...new Set([...(stats?.current.unresolved ?? []), ...(stats?.planned.unresolved ?? [])])]);
 </script>
 
-<div class="stats">
+<div class="stats type-figures">
   {#if unknownHull}
     <p class="warn" {@attach tip(`Hull: ${unknownHull}`)}>
       <span class="mark">!</span> Incomplete: this hull is not in the ship data, so there are no stats for it.
@@ -123,12 +142,12 @@
       </p>
     {/if}
     <table>
-      <thead>
+      <thead class="type-label">
         <tr><th></th><th scope="col">Now</th><th scope="col">Plan</th><th scope="col">Change</th></tr>
       </thead>
       {#each groups as g (g.title)}
         <tbody aria-label={g.title}>
-          <tr class="group"><th colspan="4" scope="rowgroup">{g.title}</th></tr>
+          <tr class="group"><th colspan="4" scope="rowgroup"><span class="section" {@attach tip(g.title_tip)}>{g.title}</span></th></tr>
           {#each g.rows as r (r.label)}
             {@const now = r.get(stats.current)}
             {@const plan = r.get(stats.planned)}
@@ -147,20 +166,18 @@
 </div>
 
 <style>
-  .stats { font-size: var(--fs-s); }
+  .stats { color: var(--prose); }
   .lo { color: var(--label-grey); margin: 0; }
   .warn { margin: 0 0 var(--sp-2); line-height: 1.4; }
   .mark { color: var(--accent); font-weight: 600; }
-  table { border-collapse: collapse; width: 100%; }
-  th, td { padding: 0.3125rem 0; }
-  thead th { color: var(--label-grey); font-weight: 400; text-align: right; padding-left: var(--sp-3); }
-  th[scope="row"] { text-align: left; font-weight: 400; white-space: nowrap; padding-right: var(--sp-3); }
-  /* A section heading inside the table: Prose Grey caps, as DESIGN.md's Section. */
-  .group th { text-align: left; color: var(--prose); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); padding: var(--sp-4) 0 0.375rem; }
+  table { border-collapse: collapse; }
+  th, td { padding: var(--sp-1) 0; }
+  thead th { color: var(--label-grey); font-weight: 400; text-align: right; padding-left: var(--sp-6); }
+  th[scope="row"] { text-align: left; font-weight: 400; white-space: nowrap; padding-right: var(--sp-6); color: var(--label-grey); }
+  .group th { text-align: left; padding: var(--sp-4) 0 var(--sp-1); }
   tbody:first-of-type .group th { padding-top: var(--sp-1); }
-  td { text-align: right; color: var(--prose); white-space: nowrap; padding-left: var(--sp-3); }
+  td { text-align: right; white-space: nowrap; padding-left: var(--sp-6); }
   /* What the plan changes is what the commander acts on: the new value Options Grey, its change Orange. */
   td.changed { color: var(--options-grey); font-weight: 500; }
   td.d { color: var(--accent); }
-  td.better { color: var(--accent); }
 </style>
