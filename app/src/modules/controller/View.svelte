@@ -241,7 +241,7 @@
 
 <style>
   button { all: unset; cursor: pointer; }
-  .cols { display: grid; grid-template-columns: minmax(0, 1fr) 22.5rem; gap: 1.75rem; padding-top: 0.875rem; }
+  .cols { display: grid; grid-template-columns: minmax(0, 73.75rem) 22.5rem; gap: 1.75rem; padding-top: 0.875rem; }
   .top { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
   section > :global(.acts) { margin: 0.75rem 0 0.5rem; }
   .band { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 0.875rem; }
