@@ -38,8 +38,10 @@
   const isRoute = (r: string) => /^route(?:[/?]|$)/.test(r);
   const raw = location.hash.replace(/^#\//, "");
   /** Opened at #/route (a bookmark, an old link): the default page, with the sidebar shown once
-   * the frame knows whether it is docked. */
+   * the frame knows whether it is docked, which needs its width and the saved Text size. */
   let showOnStart = $state(isRoute(raw));
+  /** The first read of the saved Text size is done (or failed): docked or not is settled. */
+  let sized = $state(false);
   const start = isRoute(raw) ? DEFAULT : resolve(raw);
   let route = $state(start);
   // A moved link opened from outside (a bookmark) is rewritten in place, as one followed in the
@@ -69,7 +71,7 @@
   });
   const over = $derived(!follow.docked && follow.overlay);
   $effect(() => {
-    if (width > 0 && showOnStart) {
+    if (width > 0 && sized && showOnStart) {
       showOnStart = false;
       follow.show();
     }
@@ -176,7 +178,7 @@
   // status poll until the core has answered (it may start after the window).
   $effect(() => {
     void status;
-    void startScale();
+    void startScale().then(() => (sized = true));
   });
 
   $effect(() => {

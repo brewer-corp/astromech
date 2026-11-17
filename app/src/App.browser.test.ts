@@ -315,6 +315,23 @@ describe("route sidebar in the frame", () => {
     expect(await s.findByText("Shinrarta Dezhra")).toBeTruthy();
   });
 
+  it("opens a cold #/route over the page when the saved Text size, read after the window draws, puts it below the dock width", async () => {
+    // 1920 px docks at 100 percent, the size the window draws at before the core answers, and is
+    // below the dock width at a saved 115 percent (1,670 px at 100).
+    let reply: (r: { ok: true; text_size: number }) => void = () => {};
+    answer("window_settings", () => new Promise((r) => (reply = r)));
+    await page.viewport(WIDE, 1080);
+    startPreview("/?core=ready&route=exact");
+    location.hash = "#/route";
+    render(App);
+    // The route is drawn (the strip, or without the fix the docked sidebar) before the reply.
+    await waitFor(() => expect(document.querySelector('[aria-label="Route"]')).toBeTruthy());
+    reply({ ok: true, text_size: 115 });
+    expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
+    expect(scrim(), "over the page").toBeTruthy();
+    expect(location.hash).toBe("#/controller");
+  });
+
   it("shows the empty sidebar when it is asked for with no route at the dock width, and folds back to the rail", async () => {
     await page.viewport(WIDE, 1080);
     startPreview("/?core=ready");
