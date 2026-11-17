@@ -28,8 +28,8 @@
 
 <style>
   ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.625rem; }
-  .name { font-weight: 500; }
+  .name { color: var(--options-grey); font-weight: 500; }
   li > :global(.badge) { margin-left: 0.375rem; }
-  .unverified { margin-left: 0.375rem; color: var(--orange-mid); font-size: var(--fs-s); }
-  .foot { margin: 0.875rem 0 0; color: var(--orange-mid); font-size: var(--fs-s); line-height: 1.45; }
+  .unverified { margin-left: 0.375rem; color: var(--label-grey); font-size: var(--fs-s); }
+  .foot { margin: 0.875rem 0 0; color: var(--label-grey); font-size: var(--fs-s); line-height: 1.45; }
 </style>

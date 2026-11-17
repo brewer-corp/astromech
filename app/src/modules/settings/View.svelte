@@ -280,12 +280,13 @@
   dt { color: var(--options-grey); }
   /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
      cell (.value); a status with no such action is a fact, outside a cell. */
-  dd { color: var(--accent); gap: 1.5rem; justify-content: space-between; }
-  dd.value { background: var(--cell); }
+  dd { color: var(--prose); gap: 1.5rem; justify-content: space-between; }
+  dd.value { background: var(--cell); color: var(--accent); font-weight: 500; }
+  dd.warn { color: var(--accent); }
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
-  .path { color: var(--accent); overflow-wrap: anywhere; }
+  .path { overflow-wrap: anywhere; }
   .hint { color: var(--prose); margin: 0.5rem 0 0 calc(var(--form-label) + var(--gap)); }
   .warn-text { color: var(--accent); }
   .warn-text::before { content: "! "; font-weight: 600; }

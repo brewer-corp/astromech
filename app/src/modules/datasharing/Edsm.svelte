@@ -146,8 +146,9 @@
   dt { color: var(--options-grey); }
   /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
      cell (.value); a status with no such action is a fact, outside a cell. */
-  dd { color: var(--accent); gap: 1.5rem; justify-content: space-between; }
-  dd.value { background: var(--cell); }
+  dd { color: var(--prose); gap: 1.5rem; justify-content: space-between; }
+  dd.value { background: var(--cell); color: var(--accent); font-weight: 500; }
+  dd.warn { color: var(--accent); }
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
@@ -161,6 +162,6 @@
   .text { color: var(--prose); line-height: 1.6; max-width: 43.125rem; margin-top: 1rem; }
   .text p { margin: 0 0 0.625rem; }
   table { border-collapse: collapse; margin: 0.75rem 0 0 calc(13.125rem + var(--gap)); font-size: var(--fs-s); }
-  th { color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; text-align: left; padding: 0.25rem 1rem 0.25rem 0; }
+  th { color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; text-align: left; padding: 0.25rem 1rem 0.25rem 0; }
   td { padding: 0.25rem 1rem 0.25rem 0; }
 </style>

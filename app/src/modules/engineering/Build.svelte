@@ -219,11 +219,11 @@
     return fleet.groups[m.group ?? ""]?.blueprints.find((b) => b.id === bp)?.max_grade ?? 5;
   }
 
-  /** How much of the need is held, as a 2 px Seam track under the name that fills Orange Mid, Orange Lit when covered. */
+  /** How much of the need is held, as a 2 px Mark Off track under the name that fills Prose Grey, Orange Lit when covered. */
   function track(m: MatLine) {
     const p = m.need > 0 ? Math.min(1, m.have / m.need) : 1;
-    const ink = p >= 1 ? "var(--orange-lit)" : "var(--orange-mid)";
-    return `linear-gradient(90deg, ${ink} ${p * 100}%, var(--line) ${p * 100}%) bottom / 100% 2px no-repeat`;
+    const ink = p >= 1 ? "var(--orange-lit)" : "var(--prose)";
+    return `linear-gradient(90deg, ${ink} ${p * 100}%, var(--mark-off) ${p * 100}%) bottom / 100% 2px no-repeat`;
   }
 
   function when(ts: string | null): string {
@@ -481,10 +481,10 @@
   .query { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.75rem; padding: 1.125rem 1.25rem 1.25rem; border-bottom: 1px solid var(--line); }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .acts { display: flex; flex-wrap: wrap; gap: 1.625rem; }
-  .acts button { color: var(--orange-mid); font-weight: 500; }
-  .acts button:hover { color: var(--accent); }
-  .open { color: var(--orange-mid); }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
+  .acts button { color: var(--accent); font-weight: 500; }
+  .acts button:hover { color: var(--orange-lit); }
+  .open { color: var(--label-grey); }
+  .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0; }
   .note { grid-column: 1 / -1; padding: 1.5rem 0.5rem 0; }
   .main { min-width: 0; padding: 1.5rem 1rem 0.5rem 0.25rem; }
   .mods { display: flex; flex-direction: column; }
@@ -493,15 +493,16 @@
   .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(15.9375rem, 1fr)); gap: 0.5rem; margin: 0 0 1.375rem; }
   /* A read-only card on the hull holding the module's three dropdowns (DESIGN.md Surfaces and
      cells); a module with a target says so by brightness, its name in Orange Lit. */
-  .mod { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; padding: 0.75rem 0.875rem; background: var(--surface); }
-  .mod.on .mn { color: var(--orange-lit); }
+  .mod { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; padding: 0.75rem 0.875rem; outline: 1px solid var(--line); outline-offset: -1px; }
+  .mod .mn { color: var(--options-grey); }
+  .mod.on .mn { color: var(--text-hi); }
   .head { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
   .mod .mn { font-weight: 500; line-height: 1.3; }
   .now { font-size: var(--fs-s); }
   .picks { display: grid; grid-template-columns: minmax(0, 1.5fr) 3.9375rem minmax(0, 1fr); gap: 0.375rem; }
-  .h { color: var(--orange-mid); font-size: var(--fs-s); }
+  .h { color: var(--label-grey); font-size: var(--fs-s); }
   .r { text-align: right; }
-  .slot { color: var(--orange-mid); font-size: var(--fs-s); }
+  .slot { color: var(--label-grey); font-size: var(--fs-s); }
   .cost { color: var(--accent); font-size: var(--fs-s); }
   .picks > :global(.dropdown) { min-width: 0; }
   .triphead { display: flex; align-items: baseline; gap: 1.25rem; }
@@ -515,25 +516,25 @@
   .mrow .mn { padding: 0.5rem 0.625rem; font-size: var(--fs-s); }
   .q { font-size: var(--fs); }
   .bad { color: var(--accent); }
-  .ok { color: var(--accent); margin: 1.125rem 0.5rem 0; }
+  .ok { color: var(--prose); margin: 1.125rem 0.5rem 0; }
   .plain { list-style: none; margin: 0; padding: 0 0.5rem; display: flex; flex-direction: column; gap: 0.625rem; font-size: var(--fs-s); }
   .link { color: var(--accent); }
   .small { font-size: var(--fs-s); }
   .stops { margin: 0; padding: 0 0.5rem 0 1.6875rem; display: flex; flex-direction: column; gap: 0.75rem; font-size: var(--fs-s); }
   .stop { font-weight: 500; }
-  .sublabel { margin: 1.25rem 0.5rem 0.5rem; color: var(--orange-mid); font-size: var(--fs-s); }
-  .then { display: block; margin: 0.25rem 0 0.25rem 0; color: var(--orange-mid); }
+  .sublabel { margin: 1.25rem 0.5rem 0.5rem; color: var(--label-grey); font-size: var(--fs-s); }
+  .then { display: block; margin: 0.25rem 0 0.25rem 0; color: var(--label-grey); }
   .link:hover { color: var(--orange-lit); }
   .side { grid-column: 2; position: sticky; top: 0; align-self: start; max-height: calc(100vh - 9.375rem); overflow-y: auto; border-left: 1px solid var(--accent); padding: 1.25rem 0.5rem 1.75rem 1.5rem; }
-  .back { display: block; margin-bottom: 0.625rem; color: var(--orange-mid); font-size: var(--fs-s); }
+  .back { display: block; margin-bottom: 0.625rem; color: var(--label-grey); font-size: var(--fs-s); }
   .about h3 { margin: 0 0 0.5rem; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .about p { margin: 0 0 0.625rem; line-height: 1.45; }
   .qty { color: var(--accent); }
-  .lo { color: var(--orange-mid); }
+  .lo { color: var(--label-grey); }
   .err { margin: 0 0.5rem; color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
   .rolls { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin: 0.5rem 0 0.75rem; }
-  .rolls label { display: flex; flex-direction: column; gap: 0.25rem; color: var(--orange-mid); font-size: var(--fs-s); }
+  .rolls label { display: flex; flex-direction: column; gap: 0.25rem; color: var(--label-grey); font-size: var(--fs-s); }
   @container win (max-width: 68.75rem) {
     section { display: flex; flex-direction: column; }
     .main { padding: 1.25rem 0 0.5rem; }

@@ -128,18 +128,18 @@
 
 <style>
   section { padding: 0.5rem 0 1.75rem; min-height: 0; }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0.875rem 0 0.375rem; }
+  .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0.875rem 0 0.375rem; }
   .err { color: var(--accent); }
-  .search { display: flex; align-items: center; gap: 0.75rem; margin: 0.875rem 0 0.375rem; color: var(--orange-mid); font-size: var(--fs-s); }
+  .search { display: flex; align-items: center; gap: 0.75rem; margin: 0.875rem 0 0.375rem; color: var(--label-grey); font-size: var(--fs-s); }
   .search > :global(.q) { flex: 0 1 22.5rem; }
   h3 { margin: 1.375rem 0 0.5rem; }
   table { border-collapse: collapse; width: 100%; max-width: 56.25rem; }
-  th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 0.75rem 0.375rem 0; }
+  th { text-align: left; color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; padding: 0 0.75rem 0.375rem 0; }
   td { padding: 0.3125rem 0.75rem 0.3125rem 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   .num { text-align: right; }
   .when { font-size: var(--fs-s); }
   .station { font-weight: 500; }
-  .lo { color: var(--orange-mid); }
+  .lo { color: var(--label-grey); }
   .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.375rem; }
   .timeline li { display: flex; gap: 0.625rem; align-items: baseline; flex-wrap: wrap; }
 </style>

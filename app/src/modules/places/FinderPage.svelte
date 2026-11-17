@@ -32,5 +32,5 @@
   .head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-4) var(--sp-8); margin: var(--sp-1) 0 var(--sp-4); }
   h1 { margin: 0; font-size: var(--fs-xl); font-weight: 600; line-height: 1.2; color: var(--text-hi); }
   .main { display: flex; align-items: center; gap: var(--sp-3); }
-  .label { font-size: var(--fs-s); color: var(--orange-mid); }
+  .label { font-size: var(--fs-s); color: var(--label-grey); }
 </style>

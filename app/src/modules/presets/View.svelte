@@ -90,7 +90,7 @@
   h3 { margin: 0 0 0.625rem; }
   h3.gap { margin-top: 2.125rem; }
   .head, .row { display: grid; grid-template-columns: 1fr repeat(4, 7.5rem) 8.125rem; gap: var(--gap); align-items: center; }
-  .head { color: var(--orange-mid); font-size: var(--fs-s); padding: 0 0 0.375rem; }
+  .head { color: var(--label-grey); font-size: var(--fs-s); padding: 0 0 0.375rem; }
   .head span:not(:first-child) { padding-left: 0.75rem; }
   .row { min-height: var(--row); margin-bottom: var(--gap); }
   .row.b { grid-template-columns: 1fr 13.75rem 7.5rem; }
@@ -100,17 +100,17 @@
   .cell.on { background: var(--cell); }
   .cell:hover { background: var(--cell-hover); }
   .mark { color: var(--accent); font-size: var(--fs-s); font-weight: 600; padding-left: 0.625rem; }
-  .lo { color: var(--orange-mid); }
+  .lo { color: var(--label-grey); }
   p.lo { color: var(--prose); }
   .msg, .warn { color: var(--accent); }
   .msg.err { color: var(--alarm); }
   .msg.err::before { content: "! "; font-weight: 600; }
   p { line-height: 1.45; }
   aside { padding: 0.25rem 0 1.25rem 1.75rem; border-left: 1px solid var(--accent); }
-  .lbl { color: var(--orange-mid); font-size: var(--fs-s); }
+  .lbl { color: var(--label-grey); font-size: var(--fs-s); }
   h2 { margin: 0.375rem 0 0.75rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
   aside p { margin: 0 0 0.5rem; }
-  .k { color: var(--orange-mid); font-size: var(--fs-s); margin: 1.125rem 0 0.25rem; }
+  .k { color: var(--label-grey); font-size: var(--fs-s); margin: 1.125rem 0 0.25rem; }
   aside > :global(.act) { display: flex; width: fit-content; margin: var(--sp-1) 0 0 calc(-1 * var(--sp-2)); }
   .copy { display: flex; gap: 1rem; align-items: center; }
   .copy > :global(.grow) { flex: 1; }

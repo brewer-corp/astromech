@@ -303,16 +303,18 @@
   /* DESIGN.md's popover (the open dropdown list): Hull Raised, a Seam border, 34 px rows. */
   .pop { position: absolute; z-index: 20; top: 100%; right: 0; margin: var(--gap) 0 0; width: max(100%, 26.25rem); background: var(--surface-hi); border: 1px solid var(--line); }
   ul { margin: 0; padding: 0; list-style: none; }
-  li { display: flex; align-items: center; min-height: var(--row); color: var(--accent); }
-  li:hover { background: var(--row-hover); }
-  li.on { background: var(--accent); color: var(--on-accent); }
+  /* A result's name in Options Grey, its kind in Label Grey; the highlighted row is an ember cell,
+     where the kind steps up to Prose Grey (Label Grey is 4.4:1 on a cell). */
+  li { display: flex; align-items: center; min-height: var(--row); color: var(--options-grey); }
+  li:is(:hover, .on) { background: var(--cell); }
   .pick { all: unset; box-sizing: border-box; cursor: pointer; flex: 1; min-width: 0; display: flex; align-items: baseline; gap: var(--sp-2); padding: 0 var(--sp-3); line-height: var(--row); }
   .l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .sub { flex: none; font-size: var(--fs-s); color: var(--orange-mid); }
-  li.on .sub, li.on .acts :global(.btn), li.on .acts :global(.ibtn) { color: var(--on-accent); }
-  li.on .acts :global(.btn:hover) { background: none; }
+  .sub { flex: none; font-size: var(--fs-s); color: var(--label-grey); }
+  li:is(:hover, .on) .sub { color: var(--prose); }
+  li:is(:hover, .on) .acts :global(.ibtn) { color: var(--orange-mid); }
+  li .acts :global(.btn:hover) { background: none; }
   .acts { display: flex; align-items: center; flex: none; padding-right: var(--sp-1); }
-  .line { margin: 0; padding: 0 var(--sp-3); line-height: var(--row); font-size: var(--fs-s); color: var(--orange-mid); }
+  .line { margin: 0; padding: 0 var(--sp-3); line-height: var(--row); font-size: var(--fs-s); color: var(--label-grey); }
   .panel { position: absolute; z-index: 20; top: 100%; right: 0; margin: var(--gap) 0 0; border: 1px solid var(--line); width: min(26.25rem, calc(100vw - 2rem)); padding: 1rem; background: var(--surface-hi); max-height: calc(100vh - 7.5rem); overflow: auto; }
   .panel > :global(.note) { margin: 0; }
   .links { margin-top: 0.625rem; padding-top: 0.625rem; border-top: 1px solid var(--line); }

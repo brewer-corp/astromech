@@ -44,18 +44,19 @@
   p { margin: 0; }
   .grid { display: grid; grid-template-columns: minmax(0, 1fr) 23.75rem; gap: 2.5rem; margin-top: 1.25rem; }
   .head, .row { display: grid; grid-template-columns: 16.25rem 15rem 1fr; gap: var(--gap); }
-  .head { color: var(--orange-mid); font-size: var(--fs-s); padding-bottom: 0.375rem; }
+  .head { color: var(--label-grey); font-size: var(--fs-s); padding-bottom: 0.375rem; }
   .row { min-height: 1.875rem; margin-bottom: var(--gap); }
-  /* The press log and the device list are read-only: hull, and the newest press is Orange Lit. */
-  .row > span { background: var(--surface); padding: 0 0.75rem; display: flex; align-items: center; color: var(--options-grey); }
+  /* The press log and the device list are read-only: Seam outlines (Hull is the frame's), and the
+     newest press is Orange Lit. */
+  .row > span { outline: 1px solid var(--line); outline-offset: -1px; padding: 0 0.75rem; display: flex; align-items: center; color: var(--options-grey); }
   .row.new > span { color: var(--orange-lit); }
   .row.empty { grid-template-columns: 1fr; }
   /* Listening (DESIGN.md States): the cell filled orange, On Orange caps. */
-  .row.empty > span { background: var(--accent); color: var(--on-accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; }
+  .row.empty > span { outline: 0; background: var(--accent); color: var(--on-accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; }
   .row.empty .lo { color: var(--on-accent); }
-  .dev { display: grid; gap: 0.125rem; padding: 0.5rem 0.75rem; background: var(--surface); margin-bottom: var(--gap); }
+  .dev { display: grid; gap: 0.125rem; padding: 0.5rem 0.75rem; outline: 1px solid var(--line); outline-offset: -1px; margin-bottom: var(--gap); }
   .id { font-size: var(--fs-s); }
-  .lo { color: var(--orange-mid); }
+  .lo { color: var(--label-grey); }
   p.lo { color: var(--prose); }
   @container win (max-width: 75rem) {
     .grid { grid-template-columns: minmax(0, 1fr) 17.5rem; gap: 1.5rem; }

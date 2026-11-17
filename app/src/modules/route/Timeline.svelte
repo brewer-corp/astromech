@@ -131,7 +131,7 @@
           {#if row.here}
             <span class="node pin"><Glyph name="here" size={24} label="You are here" /></span>
           {:else}
-            <span class="node" {@attach tip(starTip(s, s.system))}><Glyph name={k.glyph} size={cur ? 24 : 16} label={k.name} /></span>
+            <span class="node" data-star={k.glyph} {@attach tip(starTip(s, s.system))}><Glyph name={k.glyph} size={cur ? 24 : 16} label={k.name} /></span>
           {/if}
         </span>
         <div class="main">
@@ -167,14 +167,14 @@
     {:else if row.kind === "jump"}
       {@const h = row.hop}
       {@const k = starKind(h)}
-      <li class="jump {row.at}" class:first={row === rows[0]} class:sc={h.scoopable === "yes"}>
+      <li class="jump {row.at}" class:first={row === rows[0]}>
         <span class="sp">
-          <span class="node" class:pin={row.at === "here"} {@attach tip(row.start ? null : starTip(h, h.system, `Jump ${row.n} of ${row.of}`))}>
+          <span class="node" class:pin={row.at === "here"} data-star={k.glyph} {@attach tip(row.start ? null : starTip(h, h.system, `Jump ${row.n} of ${row.of}`))}>
             {#if row.at === "here"}<Glyph name="here" size={24} label="You are here" />{:else}<Glyph name={k.glyph} label={k.name} />{/if}
           </span>
         </span>
         <div class="main">
-          {#if row.at === "here" && !row.start}<span class="inl"><Glyph name={k.glyph} label={k.name} /></span>{/if}
+          {#if row.at === "here" && !row.start}<span class="inl" data-star={k.glyph}><Glyph name={k.glyph} label={k.name} /></span>{/if}
           <span class="type-name jn">{h.system}</span>
           {#if !row.start}<span class="type-label">{k.name}</span>{/if}
           {#if row.at === "here"}<span class="type-label you">You are here</span>{/if}
@@ -192,7 +192,7 @@
             <span class="stars">
               {#each row.stars as h, j (j)}
                 {@const k = starKind(h)}
-                <span class="pass" class:sc={h.scoopable === "yes"} {@attach tip(starTip(h, h.system, `Jump ${j + 1} of ${n}`))}><Glyph name={k.glyph} label={k.name} /></span>
+                <span class="pass" data-star={k.glyph} {@attach tip(starTip(h, h.system, `Jump ${j + 1} of ${n}`))}><Glyph name={k.glyph} label={k.name} /></span>
               {/each}
             </span>
           {/if}
@@ -214,19 +214,23 @@
   .tl > li::after { content: ""; position: absolute; inset: 0 0 0 calc(2.5rem + var(--sp-2)); z-index: -1; }
   .stop:not(.past):hover::after { background: var(--row-hover); }
 
-  /* The spine: solid where flown, dim behind you, dashed ahead. */
+  /* The spine: Label Grey, dashed ahead, Mark Off behind you. */
   .sp { position: relative; display: grid; place-items: center; }
-  .sp::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(50% - 1px); border-left: 2px solid var(--accent); }
+  .sp::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(50% - 1px); border-left: 2px solid var(--label-grey); }
   .first .sp::before { top: 50%; }
   .last .sp::before { bottom: 50%; }
-  .past .sp::before { border-left-color: var(--orange-dim); }
+  .past .sp::before { border-left-color: var(--mark-off); }
   .ahead .sp::before { border-left-style: dashed; }
-  .node { position: relative; z-index: 1; display: grid; place-items: center; padding: 0.1875rem; background: var(--bg); color: var(--accent); }
+  .node { position: relative; z-index: 1; display: grid; place-items: center; padding: 0.1875rem; background: var(--bg); color: var(--label-grey); }
+  /* DESIGN.md's star colours: what you do there. Scoop in Orange Mid, boost (a neutron star) in
+     White, nothing in Label Grey; a past stop's star is Mark Off. */
+  [data-star="star-scoopable"] { color: var(--orange-mid); }
+  [data-star="star-neutron"] { color: var(--text-hi); }
   .node:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
 
   .main { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding-block: var(--sp-2); }
   .nameline { display: flex; flex-wrap: wrap; align-items: center; gap: 0.125rem var(--sp-2); }
-  .todo { color: var(--orange-lit); font-weight: 600; }
+  .todo { color: var(--accent); font-weight: 600; }
   .facts { display: flex; flex-wrap: wrap; gap: 0 var(--sp-4); margin-top: 0.125rem; }
   .state { color: var(--text-hi); }
   .you { color: var(--text-hi); font-weight: 600; }
@@ -234,34 +238,33 @@
   .stop:hover > .acts, .stop:focus-within > .acts { opacity: 1; }
 
   .stop > .main { min-height: var(--sp-12); }
-  .stop.past .node, .stop.past .name, .stop.past .todo { color: var(--orange-dim); }
-  .stop.past .facts, .stop.past .state { color: var(--orange-dim); }
-  /* The next stop: the one thing to act on, raised on Hull. */
-  .stop.next::after { background: var(--surface); }
+  .stop.past .node { color: var(--mark-off); }
+  .stop.past :is(.name, .todo, .facts, .state) { color: var(--grey-dim); }
+  /* The next stop: where to go now, raised (Hull Raised: Hull is the frame's), its name Orange Lit
+     and its note Orange. */
+  .stop.next::after { background: var(--surface-hi); }
   .stop.next > .main { min-height: calc(var(--sp-12) + var(--sp-8)); }
   .stop.next .node, .stop.next .name { color: var(--orange-lit); }
-  .stop.next .nameline :global(.ibtn) { color: var(--accent); }
+  .stop.next .nameline :global(.ibtn) { color: var(--orange-mid); }
   .stop.here .node.pin { color: var(--text-hi); }
 
   /* The leg being flown: one row a jump. */
   .jump > .main { flex-direction: row; justify-content: flex-start; align-items: center; gap: var(--sp-3); min-height: 2.25rem; padding-block: 0; }
-  .jump .node, .jump .jn { color: var(--orange-mid); }
-  .jump.sc .node { color: var(--accent); }
-  .jump .jn { font-weight: 400; color: var(--accent); }
-  .jump.past .node, .jump.past .jn, .jump.past .type-label { color: var(--orange-dim); }
-  .jump.here::after { background: var(--surface); }
+  .jump .jn { font-weight: 400; color: var(--options-grey); }
+  .jump.past .node { color: var(--mark-off); }
+  .jump.past :is(.jn, .type-label) { color: var(--grey-dim); }
+  .jump.here::after { background: var(--surface-hi); }
   .jump.here > .main { min-height: var(--sp-12); }
   .jump.here .node { color: var(--text-hi); }
   .jump.here .jn { color: var(--text-hi); font-weight: 600; }
-  .inl { color: var(--accent); }
 
   /* The other legs: the stars passed, or the jump count. */
   .leg > .main { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: var(--sp-2) var(--sp-4); min-height: 2.5rem; padding-block: var(--sp-1); }
   .stars { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
-  .pass { display: grid; place-items: center; padding: 0.125rem; color: var(--orange-mid); }
-  .pass.sc { color: var(--accent); }
+  .pass { display: grid; place-items: center; padding: 0.125rem; color: var(--label-grey); }
   .pass:hover { color: var(--orange-lit); }
-  .past .pass, .past .count { color: var(--orange-dim); }
+  .past .pass { color: var(--mark-off); }
+  .past .count { color: var(--grey-dim); }
   .warn { color: var(--accent); font-weight: 500; }
   .warn b { font-weight: 700; }
 </style>

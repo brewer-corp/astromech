@@ -65,12 +65,12 @@
 <style>
   section { padding: 0 0 1.75rem; }
   .query { display: flex; flex-direction: column; gap: 0.5rem; padding: 1.125rem 1.25rem 1.25rem; border-bottom: 1px solid var(--line); }
-  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
+  .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0; }
   .out { padding: 1.5rem 0.25rem 0.5rem; min-width: 0; }
   .stored { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
   .stored li { display: grid; grid-template-columns: minmax(11.25rem, 1.4fr) minmax(9.375rem, 1fr) minmax(7.5rem, 1fr) 5.625rem; gap: 0.625rem 1.125rem; align-items: baseline; padding: 1rem 0.5rem; border-bottom: 1px solid var(--line); font-size: var(--fs); }
   .mn { font-weight: 500; }
-  .lo { color: var(--orange-mid); }
+  .lo { color: var(--label-grey); }
   .r { text-align: right; }
   .none { display: block; color: var(--prose); border: 0; }
   @container win (max-width: 56.25rem) {

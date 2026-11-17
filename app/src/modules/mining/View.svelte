@@ -72,6 +72,6 @@
   table { border-collapse: collapse; }
   td { padding: 0.25rem 1.125rem 0.25rem 0; }
   .num { text-align: right; }
-  .lo { color: var(--orange-mid); }
+  .lo { color: var(--label-grey); }
   .note { margin-top: 0.875rem; }
 </style>

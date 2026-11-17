@@ -213,11 +213,11 @@
   .query :global(.origin) { margin: 0; min-width: 0; }
   .form-grid { display: flex; flex-direction: column; gap: 0.75rem; }
   .pick { display: flex; align-items: center; gap: 0.5rem; font-size: var(--fs); min-width: 0; }
-  .lbl { color: var(--orange-mid); min-width: 5.5em; font-size: var(--fs-s); }
+  .lbl { color: var(--label-grey); min-width: 5.5em; font-size: var(--fs-s); }
   .pick :global(.box) { flex: 1; }
   .fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.75rem; min-width: 0; }
   label { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); align-items: center; gap: 0.5rem; font-size: var(--fs-s); min-width: 0; }
-  label > span { color: var(--orange-mid); }
+  label > span { color: var(--label-grey); }
   .tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.625rem 1.125rem; }
   .tools :global(.search-filters) { flex: 1 1 auto; }
   .tools :global(.go) { margin-left: auto; }
@@ -229,16 +229,19 @@
   .place, .cargo, .facts { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
   .facts { align-items: flex-end; text-align: right; } /* a column of figures */
   .leg, .via { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.375rem 0.5rem; min-width: 0; }
-  .st { font-size: var(--fs-l); font-weight: 500; }
-  .to { color: var(--orange-mid); }
-  .q { color: var(--accent); }
-  .dist { color: var(--accent); font-size: var(--fs-s); }
-  .meta { color: var(--orange-mid); font-size: var(--fs-s); white-space: nowrap; }
-  .total { display: flex; flex-wrap: wrap; gap: 0.625rem 1.75rem; margin: 1rem 0.5rem 0.5rem; padding: 0.875rem 1rem; background: var(--surface); } /* read-only summary: hull */
+  .st { font-size: var(--fs-l); font-weight: 500; color: var(--options-grey); }
+  .to { color: var(--label-grey); }
+  .q { color: var(--prose); }
+  .dist { color: var(--label-grey); font-size: var(--fs-s); }
+  .meta { color: var(--label-grey); font-size: var(--fs-s); white-space: nowrap; }
+  .total { display: flex; flex-wrap: wrap; gap: 0.625rem 1.75rem; margin: 1rem 0.5rem 0.5rem; padding: 0.875rem 1rem; outline: 1px solid var(--line); outline-offset: -1px; } /* read-only summary: a Seam outline (Hull is the frame's) */
   .pair { display: inline-flex; align-items: baseline; gap: 0.5rem; }
-  .k { color: var(--orange-mid); font-size: var(--fs-s); }
-  .total .q { font-size: var(--fs-l); }
-  .lo { color: var(--orange-mid); }
+  .k { color: var(--label-grey); font-size: var(--fs-s); }
+  .total .q { font-size: var(--fs-l); color: var(--options-grey); }
+  /* The route's profit is the page's one main value; each leg's profit is its ranked figure. */
+  .total .pair:first-child .q { color: var(--orange-lit); }
+  .facts > .q:first-child { color: var(--accent); font-weight: 500; }
+  .lo { color: var(--label-grey); }
   .warn { color: var(--accent); margin: 0 0 0.75rem; }
   .warn::before { content: "! "; font-weight: 600; }
   .small { font-size: var(--fs-s); margin: 0 0.5rem; }

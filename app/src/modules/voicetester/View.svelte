@@ -217,23 +217,23 @@
   section { padding: 1.75rem 0; max-width: 56.25rem; }
   p { margin: 0; }
   .intro { color: var(--prose); }
-  .lo { color: var(--orange-mid); }
+  .lo { color: var(--label-grey); }
   .ask { display: flex; margin: 1.25rem 0 1.5rem; }
   .ask > :global(.grow) { flex: 1; }
   dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0 0 1rem; }
   dt, dd { margin: 0; padding: 0 0.75rem; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* What the tester worked out is read-only: facts outside a cell, the keys outlined like a badge. */
-  dd { color: var(--accent); }
-  .key { outline: 1px solid var(--line); outline-offset: -1px; color: var(--accent); padding: 0.125rem 0.5rem; }
+  dd { color: var(--prose); }
+  .key { outline: 1px solid var(--line); outline-offset: -1px; color: var(--options-grey); padding: 0.125rem 0.5rem; }
   .cmd { font-size: var(--fs-s); }
-  .safe { color: var(--orange-mid); margin-bottom: 1rem; }
+  .safe { color: var(--label-grey); margin-bottom: 1rem; }
   .actions { display: flex; gap: 1.75rem; align-items: center; }
   h2 { margin: 2rem 0 0.75rem; }
   .learned { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; gap: var(--gap); }
-  .learned li { display: flex; gap: 1.5rem; align-items: center; background: var(--surface); padding: 0 0.75rem; min-height: var(--row); }
+  .learned li { display: flex; gap: 1.5rem; align-items: center; outline: 1px solid var(--line); outline-offset: -1px; padding: 0 0.75rem; min-height: var(--row); }
   .said { flex: 1; }
-  .note { color: var(--orange-mid); font-size: var(--fs-s); margin-top: 0.75rem; }
+  .note { color: var(--label-grey); font-size: var(--fs-s); margin-top: 0.75rem; }
   .note.err { color: var(--alarm); }
   .note.err::before { content: "! "; font-weight: 600; }
 </style>

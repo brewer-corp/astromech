@@ -138,30 +138,31 @@
 </div>
 
 <style>
-  /* Read-only facts: the bands and blocks are hull, never cells (DESIGN.md Surfaces and cells). */
+  /* Read-only facts: the bands and blocks are Seam outlines, never Hull or cells (DESIGN.md Surfaces
+     and cells). */
   .specs { padding: 0.5rem 0.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.75rem; }
-  .lo { color: var(--orange-mid); margin: 0; }
+  .lo { color: var(--label-grey); margin: 0; }
   .warn { margin: 0; line-height: 1.4; }
   .mark { color: var(--accent); font-weight: 600; }
-  .band { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.25rem 1.75rem; padding: 0.5rem 0.75rem 0.25rem; background: var(--surface); }
+  .band { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.25rem 1.75rem; padding: 0.5rem 0.75rem 0.25rem; outline: 1px solid var(--line); outline-offset: -1px; }
   .stat { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
-  .k { color: var(--orange-mid); font-size: var(--fs-s); }
+  .k { color: var(--label-grey); font-size: var(--fs-s); }
   .v { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.375rem; }
-  .q { font-size: var(--fs-l); line-height: 1.2; color: var(--accent); }
-  .sep { color: var(--orange-mid); }
-  .u { color: var(--orange-mid); font-size: var(--fs-s); }
+  .q { font-size: var(--fs-l); line-height: 1.2; color: var(--options-grey); }
+  .sep { color: var(--label-grey); }
+  .u { color: var(--label-grey); font-size: var(--fs-s); }
   .power { grid-column: 1 / -1; }
   @container win (min-width: 68.75rem) {
     .power { grid-column: auto; }
   }
-  .prow { display: grid; grid-template-columns: 6.5625rem minmax(5.625rem, 1fr) auto; gap: 0.625rem; align-items: center; font-size: var(--fs-s); color: var(--orange-mid); }
+  .prow { display: grid; grid-template-columns: 6.5625rem minmax(5.625rem, 1fr) auto; gap: 0.625rem; align-items: center; font-size: var(--fs-s); color: var(--label-grey); }
   .prow.tot { margin-top: 0.25rem; }
   .prow .q { font-size: var(--fs); }
-  .pbar { height: 0.375rem; background: var(--line); }
-  .pbar i { display: block; height: 100%; background: var(--accent); }
+  .pbar { height: 0.375rem; background: var(--mark-off); }
+  .pbar i { display: block; height: 100%; background: var(--prose); }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.5rem 1.75rem; }
-  .block { padding: 0.875rem 1rem; background: var(--surface); display: flex; flex-direction: column; gap: 0.375rem; }
-  h4 { margin: 0 0 0.375rem; color: var(--orange-mid); font-weight: 500; font-size: var(--fs-s); }
+  .block { padding: 0.875rem 1rem; outline: 1px solid var(--line); outline-offset: -1px; display: flex; flex-direction: column; gap: 0.375rem; }
+  h4 { margin: 0 0 0.375rem; color: var(--label-grey); font-weight: 500; font-size: var(--fs-s); }
   .row { display: flex; justify-content: space-between; gap: 0.75rem; font-size: var(--fs-s); }
   .row .q { font-size: var(--fs); }
 </style>

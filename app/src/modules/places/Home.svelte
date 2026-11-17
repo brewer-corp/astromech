@@ -38,9 +38,13 @@
   .home { --w: calc(3 * 13.75rem + 2 * var(--sp-2)); display: flex; flex-direction: column; gap: var(--sp-6); padding: var(--sp-8) 0 4.5rem; max-width: var(--w); }
   .heading { margin: 0 0 var(--sp-3); }
   .tiles { display: grid; grid-template-columns: repeat(auto-fill, 13.75rem); gap: var(--sp-2); }
-  .tile { display: grid; grid-template-rows: auto auto 1fr; gap: var(--sp-1); min-height: 6.5rem; padding: var(--sp-3); background: var(--surface); color: var(--accent); text-decoration: none; }
+  .tile { display: grid; grid-template-rows: auto auto 1fr; gap: var(--sp-1); min-height: 6.5rem; padding: var(--sp-3); outline: 1px solid var(--line); outline-offset: -1px; text-decoration: none; }
+  /* DESIGN.md Places home: a link in a Seam outline; the finder's name in Orange, since it is what
+     you press, and a live answer's figure in Value L, Options Grey. */
+  .tile .type-name { color: var(--accent); }
   .tile:hover { background: var(--row-hover); }
   .tile:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+  .tile:hover .type-name { color: var(--orange-lit); }
   .answer { align-self: end; display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-2); min-width: 0; }
   .context { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fig { flex: none; white-space: nowrap; }
