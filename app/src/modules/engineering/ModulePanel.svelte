@@ -66,6 +66,36 @@
         {#if steps}<p class="type-label" {@attach tip("Rolls still to do at each grade, from the plan's rolls per grade")}>{steps}</p>{/if}
         {#if cost?.note}<p class="type-label">{cost.note}</p>{/if}
       </div>
+    {/if}
+
+    <!-- What can be changed comes before the materials, so a long list never pushes it off screen. -->
+    <div class="picks" bind:this={picks}>
+      <Dropdown aria-label="{m.slot_name} blueprint" value={t?.blueprint ?? ""} onchange={(e) => sp.set(fleet, m, e.currentTarget.value ? { blueprint: e.currentTarget.value } : null)}>
+        <option value="">No change</option>
+        {#each g.blueprints as b (b.id)}
+          <option value={b.id}>{b.name}</option>
+        {/each}
+      </Dropdown>
+      <Dropdown aria-label="{m.slot_name} grade" disabled={!t} value={t?.grade ?? ""} onchange={(e) => sp.set(fleet, m, { grade: Number(e.currentTarget.value) })}>
+        {#if !t}<option value="">–</option>{/if}
+        {#each Array.from({ length: maxGrade(fleet, m, t?.blueprint) }, (_, i) => i + 1) as n (n)}
+          <option value={n}>G{n}</option>
+        {/each}
+      </Dropdown>
+      <Dropdown aria-label="{m.slot_name} experimental" disabled={!t || !g.experimentals.length} value={t?.experimental ?? ""} onchange={(e) => sp.set(fleet, m, { experimental: e.currentTarget.value || null })}>
+        <option value="">{g.experimentals.length ? "No experimental" : "–"}</option>
+        {#each g.experimentals as x (x.id)}
+          <option value={x.id}>{x.name}</option>
+        {/each}
+      </Dropdown>
+    </div>
+
+    <div class="acts">
+      <Button kind="primary" disabled={up === "top"} onclick={add} {@attach tip(up === "top" ? "Already at its top grade" : up === "pick" ? "Choose a blueprint for it" : `Plan grade ${up.add.grade} of ${bpName(up.add.blueprint)}`)}>Add to plan</Button>
+      <a class="type-action" href="#/unlocks?q={encodeURIComponent(g.name)}" {@attach tip(`Engineers for the ${g.name}`)}>Engineers</a>
+    </div>
+
+    {#if t}
       {#if mats.length}
         <div class="mats" role="table" aria-label="Materials for {m.name}">
           <div class="mrow" role="row">
@@ -85,32 +115,6 @@
       {/if}
       {#if sp.failed}<p class="type-label">{sp.failed}</p>{/if}
     {/if}
-
-    <div class="picks" bind:this={picks}>
-      <Dropdown aria-label="{m.slot_name} blueprint" value={t?.blueprint ?? ""} onchange={(e) => sp.set(fleet, m, e.currentTarget.value ? { blueprint: e.currentTarget.value } : null)}>
-        <option value="">No change</option>
-        {#each g.blueprints as b (b.id)}
-          <option value={b.id}>{b.name}</option>
-        {/each}
-      </Dropdown>
-        <Dropdown aria-label="{m.slot_name} grade" disabled={!t} value={t?.grade ?? ""} onchange={(e) => sp.set(fleet, m, { grade: Number(e.currentTarget.value) })}>
-          {#if !t}<option value="">–</option>{/if}
-          {#each Array.from({ length: maxGrade(fleet, m, t?.blueprint) }, (_, i) => i + 1) as n (n)}
-            <option value={n}>G{n}</option>
-          {/each}
-        </Dropdown>
-        <Dropdown aria-label="{m.slot_name} experimental" disabled={!t || !g.experimentals.length} value={t?.experimental ?? ""} onchange={(e) => sp.set(fleet, m, { experimental: e.currentTarget.value || null })}>
-          <option value="">{g.experimentals.length ? "No experimental" : "–"}</option>
-          {#each g.experimentals as x (x.id)}
-            <option value={x.id}>{x.name}</option>
-          {/each}
-        </Dropdown>
-    </div>
-
-    <div class="acts">
-      <Button kind="primary" disabled={up === "top"} onclick={add} {@attach tip(up === "top" ? "Already at its top grade" : up === "pick" ? "Choose a blueprint for it" : `Plan grade ${up.add.grade} of ${bpName(up.add.blueprint)}`)}>Add to plan</Button>
-      <a class="type-action" href="#/unlocks?q={encodeURIComponent(g.name)}" {@attach tip(`Engineers for the ${g.name}`)}>Engineers</a>
-    </div>
   {/if}
 </div>
 

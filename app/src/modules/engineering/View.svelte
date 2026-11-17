@@ -230,7 +230,7 @@
           <span>{ship.type_name}</span>
           {#if ship.ident}<span>{ship.ident}</span>{/if}
           {#if ship.loadout_ts}
-            <span {@attach tip(`Modules as of ${when(ship.loadout_ts)}, from the ${fleet.source.toLowerCase()}. Engineered of those that can be.`)}>{p.done} of {p.total} modules engineered</span>
+            <span {@attach tip(`Modules as of ${when(ship.loadout_ts)}, of those that can be engineered. Read from: ${fleet.source}.`)}>{p.done} of {p.total} modules engineered</span>
           {:else}
             <span>modules unknown</span>
           {/if}
@@ -268,7 +268,7 @@
             <p class="type-label" {@attach tip(unresolved.join("\n"))}>
               <b class="mark">!</b> Incomplete: {unresolved.length} {unresolved.length === 1 ? "item is not" : "items are not"} in the ship data
             </p>
-          {:else if statsNote && !stats}
+          {:else if statsNote && !stats && view !== "plan"}
             <p class="type-label">{statsNote}</p>
           {/if}
           {#if headlinesErr}<p class="type-label"><b class="mark">!</b> {headlinesErr}</p>{/if}
