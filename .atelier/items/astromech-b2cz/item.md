@@ -128,3 +128,8 @@ Known limit, outside this item's check sizes: at 1100 px wide with 145 percent o
 stacked header's tabs run past the right edge. The header doesn't wrap them. DESIGN.md's
 Frame row already gives re-measuring the header in rem at each step to astromech-5a01.
 
+
+### Responses
+
+1-3y69.1: fixed in fc2deb62
+1-3y69.2: fixed in 3ff2108e
