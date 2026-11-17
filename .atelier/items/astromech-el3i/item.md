@@ -76,10 +76,13 @@ cargo and the figures onto one row of prose fragments.
   sits next to its cargo and not 1,000 px away at 2560.
 - **Pad too small.** This is the new shared `app/src/lib/ui/PadLetter.svelte` (its own commit).
   It is DESIGN.md's outlined letter. When it is too small, it is Red Low and struck through, and its
-  accessible name says why ("Small pad: too small for your ship"). "The ship" here is the
-  filters' pad at the time of the ask, which is the pad the core's `pad_warning` measures. It is the
-  current ship's pad unless the commander set one, and it is kept with the answer (`need`), so an
-  edit to the filters afterwards doesn't re-mark an old answer. SearchKit and Now's `Sale.svelte`
+  accessible name says why ("Small pad: too small for your ship"). "The ship" is the pad the core
+  measured its `warning` against. The core resolves the current ship's pad on every search unless
+  the commander set one (`filters::resolve`). So the page takes it from the reload of the filters
+  that each search already makes (`followShip`), falls back to the filters it asked with, and keeps
+  it with the answer (`need`). A later edit or ship swap then doesn't re-mark an old answer. My
+  first version used the pad the page loaded with, which was wrong after a ship swap. A ninth test,
+  written failing first, covers that ("measures a stop's pad against the ship flown at the search"). SearchKit and Now's `Sale.svelte`
   still have their own copies of the badge. Moving them would touch SearchKit's busy-state greying,
   so I left them for a follow-up item (to file from a backlog branch: "Pad letter: SearchKit and
   Now's Sale use PadLetter.svelte").
@@ -87,14 +90,16 @@ cargo and the figures onto one row of prose fragments.
   A failure is `Failure` with TRY AGAIN. No route is the one Body line saying what to relax.
 - **Lint.** `font-size` joins `width` for `trade/{View,Route}.svelte` in `PAGE_SIZING`, and the
   trade entry is off `TOKENS_EXEMPT`. For that, the inputs' labels and the Places line in
-  `View.svelte` name `.type-label` in place of their own font sizes. The label column is 4.5rem,
-  which is the old 5.5em at 13 px, so the inputs line up as before. The `.tools` gap is now on the
-  scale (`--sp-3 --sp-4`, from 10 and 18 px).
+  `View.svelte` name `.type-label` in place of their own font sizes. The label column is
+  `calc(5.5 * var(--fs-s))`, the same 5.5em at Label size as OriginInput's, so the cells line up
+  with From as before. Two things did move. The Places line takes Label's 1.3 line height, so the
+  inputs under it sit 2 px higher. The `.tools` gap is on the scale now (`--sp-3 --sp-4`, from 10
+  and 18 px).
 
-**Tests.** The eight cases in `Route.browser.test.ts` keep their behaviour. Only the strings they
+**Tests.** The eight cases in `Route.browser.test.ts` keep their behaviour, and there is the ninth above. Only the strings they
 read changed to the new markup, and the pad is asserted through its accessible name. The loop
 case also checks that the first station is drawn twice. The age is matched as `/^Spansh, .* ago$/`,
-so the test doesn't depend on the wall clock. `pnpm check`, `pnpm lint` and `pnpm test` (897 tests)
+so the test doesn't depend on the wall clock. `pnpm check`, `pnpm lint` and `pnpm test` (898 tests)
 pass, and so does `python3 scripts/check-guide.py`. The 7 journeys pass with
 `ASTROMECH_CORE=/home/supadava/projects/astromech/target/debug/astromech-core`, the main
 checkout's debug core, as Station did. This worktree has no core build, and there is no core change
@@ -102,13 +107,17 @@ checkout's debug core, as Station did. This worktree has no core build, and ther
 
 **Browser check.** `docs/design/trade-route/plan.json` runs at 1100 x 700 and 1920 x 1080 at 100
 percent and 2560 x 1440 at 145 percent, on a fixed clock. It covers before a search, the recorded
-single hop and loop, the loop scrolled to its stops (1100), asking (`slow=never:trade_route`),
+single hop and loop, each scrolled to its stops at 1100, asking (`slow=never:trade_route`),
 failed (`fail=trade_route`) and no route (`core=empty`, with the station, cargo and credits typed).
-All 19 captures list nothing under `sideways`, `clipped`, `overlaps`, `small`, `far` or
+`report.json` is measured on the committed head `1fb62535`, and all 20 captures list nothing under `sideways`, `clipped`, `overlaps`, `small`, `far` or
 `contrast`. With the route followed, the sidebar is docked at 1920 and 2560 and is the strip at
 1100, where the result goes below the inputs. No route runs on `core=empty`, which has no route,
 so its 1920 and 2560 captures show the rail. The before captures are in `before/`
-(`plan-before.json`), single hop and loop at 1100 and 2560.
+(`plan-before.json`): single hop and loop at 1100 and 2560, and each scrolled to the result at
+1100, where the old result was below the inputs. I took them with the Start commit's
+`Route.svelte` and `View.svelte` restored for the run, so `before/report.json`'s `commit` names a
+later commit than the code it measured. The per-hour Tip was checked in the preview by focusing
+the figure. It shows the title, the model with "at 31.5 ly a jump", and the single hop's note.
 
 **`bright`, the sidebar apart** (loop, 1100, scrolled to the stops). It is sorted by luminance, so
 it leads with White: the wordmark and the first stop's name, which the item makes White. Next come
