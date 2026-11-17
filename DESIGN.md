@@ -641,7 +641,7 @@ Rule](#named-rules-1)).
 |---|---|---|---|---|
 | Wordmark | 18 / 600 / 1, tracking 0.12em | caps | white | "ASTROMECH" only |
 | Title | 24 / 600 / 1.2 | mixed | white | page, finder and side-panel titles |
-| Value XL | 28 / 500 / 1, tabular | figures | orange lit for the one main value of the page or panel; otherwise options grey | the one value of a tile or panel |
+| Value XL | 28 / 500 / 1, tabular | figures | orange lit for the one main value of the page or panel; otherwise options grey | the one value of a tile or panel; a page's main value that sits in a list row (Station's first cargo gain), so no ranked Value L further down is as large (astromech-vru4) |
 | Value L | 18 / 600 / 1.2, tabular | figures | orange for the value a list is ranked by (orange lit on the selected row); otherwise options grey | the one value of a row or strip |
 | Nav | 15 / 400, tracking 0.06em | caps | label grey; active 500 on the orange fill | top tabs, and the sidebar's ROUTE heading |
 | Section | 13 / 600, tracking 0.06em | caps | prose grey; current section white | section headings, with a Seam rule to the right |

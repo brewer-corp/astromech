@@ -3,8 +3,9 @@
   // each commodity in the hold, what it fetches here over what the best station nearby pays, the
   // gain per tonne and where; then the goods for sale here the same way, ranked by profit. Asked
   // once per dock (Ardent Insight, a request per commodity, at most a dozen); CHECK AGAIN asks
-  // anew. The hold's first gain is the page's main value (Orange Lit); the hold is in load order,
-  // so its other gains are plain figures, while For sale here is ranked by its profit (Orange).
+  // anew. The hold's first gain is the page's main value, in Value XL, Orange Lit: the largest
+  // figure on the page (astromech-vru4). The hold is in load order, so its other gains are plain
+  // Value L, while For sale here is ranked by its profit, Orange at the row's Value L.
   import Button from "../../lib/ui/Button.svelte";
   import { ago } from "../../lib/galaxy";
   import { when } from "../../lib/logbook";
@@ -93,7 +94,7 @@
                 <span class="type-label">{l.best ? credits(l.best.price) : "–"}</span>
               </span>
               <span class="g r" role="cell">
-                {#if l.gain === null}<span class="type-figures none">–</span>{:else}<span class="gain"><span class="type-value-l" class:main={i === 0}>{gainText(l.gain)}</span><span class="type-unit">cr/t</span></span>{/if}
+                {#if l.gain === null}<span class="type-figures none">–</span>{:else}<span class="gain"><span class={i === 0 ? "type-value-xl main" : "type-value-l"}>{gainText(l.gain)}</span><span class="type-unit">cr/t</span></span>{/if}
               </span>
               {@render place(l, !l.checked ? "Not looked up" : "No station nearby takes all of it", !l.checked)}
             </div>
@@ -185,7 +186,8 @@
   /* The system under the station, indented to the name past its type icon. */
   .in { padding-left: var(--sp-6); gap: 0; }
   .gain { display: flex; align-items: baseline; }
-  /* For sale here is ranked by its profit: that column is Orange (DESIGN.md The Orange Means Act Rule). */
+  /* For sale here is ranked by its profit: that column is Orange (DESIGN.md The Orange Means Act
+     Rule), at the row's Value L, smaller than the hold's main value above it. */
   .ranked { color: var(--accent); }
   .none { color: var(--grey-dim); }
   /* A report older than 30 days as Ardent answered: its age in Orange, the ranked value a step down. */

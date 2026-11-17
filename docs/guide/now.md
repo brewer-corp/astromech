@@ -92,10 +92,11 @@ change them); hover **best nearby** for the rule.
 - **Your cargo**: one row per commodity in the hold, biggest load first: what this station pays
   over the best price nearby (in another system), the **gain** per ton, and the station that pays
   it, its system and the trip there (jumps, light years and how old its report is). The first
-  row's gain is the page's main figure. A row says so when no station nearby takes all of it,
+  row's gain is the page's main figure, the largest on the page. A row says so when no station nearby takes all of it,
   or when it was not looked up.
 - **For sale here**: one row per commodity sold here, with its stock, biggest **profit** per ton
-  first: its price here over the best price nearby, the profit, and where.
+  first: its price here over the best price nearby, the profit, and where. The profits are in
+  orange because they rank the list, smaller than your cargo's first gain.
 - At most a dozen commodities are looked up per dock: the biggest loads first, and those furthest
   below their average price. The rest are listed as not looked up. Mission cargo, stolen goods and
   limpets are left out, on one line.
