@@ -146,3 +146,7 @@ Not done, and why:
   is Variant A's surfaces. DESIGN.md says so where it cites them, and the rule (two actions,
   Variant B) wins.
 
+
+### Responses
+
+1-ssjk.1: fixed in ab3921cd
