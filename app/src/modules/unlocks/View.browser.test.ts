@@ -1,7 +1,7 @@
 import { afterEach, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import View from "./View.svelte";
-import { answer } from "../../test/transport";
+import { answer, idle, watch } from "../../test/transport";
 import searches from "../../preview/fixtures/engineer-search.json";
 
 afterEach(() => {
@@ -152,3 +152,23 @@ it("marks a suit mod the wiki is unsure of", async () => {
   expect(rosa.textContent).toContain("Greater Range (?)");
   expect(screen.getByRole("listitem", { name: "Domino Green" }).textContent).not.toContain("(?)");
 });
+
+it("keeps a route action with the engineer it was pressed for when the selection changes", async () => {
+  // Held at the transport: the first Set destination fails only when the test lets it.
+  let fail = () => {};
+  answer("route_set", () => new Promise((_, no) => (fail = () => no(new Error("the core is busy")))));
+  const set = watch("route_set");
+  render(View);
+  await fireEvent.click(await screen.findByRole("button", { name: "The Dweller" }));
+  await fireEvent.click(within(panel()).getByRole("button", { name: "Set destination" }));
+  await fireEvent.click(node("Felicity Farseer"));
+  fail();
+  await idle();
+  // The failure is The Dweller's: not under Felicity, and TRY AGAIN under The Dweller acts on Wyrd.
+  expect(within(panel()).queryByRole("button", { name: /try again/i })).toBeNull();
+  await fireEvent.click(node("The Dweller"));
+  await fireEvent.click(await within(panel()).findByRole("button", { name: /try again/i }));
+  await waitFor(() => expect(set).toHaveBeenCalledTimes(2));
+  expect(set.mock.calls[1]![0]).toMatchObject({ name: "Wyrd", waypoints: [{ system: "Wyrd", label: "The Dweller" }] });
+});
+

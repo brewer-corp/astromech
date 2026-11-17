@@ -44,26 +44,29 @@
   });
   const and = (xs: string[]) => (xs.length < 2 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}`);
 
+  // What Set destination or Add stop did, and for which engineer. An action keeps the engineer
+  // it was pressed for: its result shows only under them, and TRY AGAIN acts on them again,
+  // even when another engineer is selected while it is on its way.
   let note = $state<FollowNote | null>(null);
-  async function go() {
+  let noteFor = $state<string | null>(null);
+  function show(n: UnlockNode, v: FollowNote) {
+    note = v;
+    noteFor = n.name;
+  }
+  async function go(n: UnlockNode) {
     try {
-      note = followedNote(await followRoute(node.system, "engineers", [{ system: node.system, label: node.name }]));
+      show(n, followedNote(await followRoute(n.system, "engineers", [{ system: n.system, label: n.name }])));
     } catch (e) {
-      note = failedNote("Couldn't follow it", e, () => void go());
+      show(n, failedNote("Couldn't follow it", e, () => void go(n)));
     }
   }
-  async function add() {
+  async function add(n: UnlockNode) {
     try {
-      note = addedNote(await addStop({ system: node.system, label: node.name }, "engineers"));
+      show(n, addedNote(await addStop({ system: n.system, label: n.name }, "engineers")));
     } catch (e) {
-      note = failedNote("Couldn't add it", e, () => void add());
+      show(n, failedNote("Couldn't add it", e, () => void add(n)));
     }
   }
-  // A note is about the engineer it was written for.
-  $effect(() => {
-    void node.name;
-    note = null;
-  });
 </script>
 
 <h2 class="type-title">{node.name}</h2>
@@ -106,10 +109,10 @@
 {/if}
 
 <div class="acts">
-  <Button kind="primary" onclick={() => void go()}>Set destination</Button>
-  <Button onclick={() => void add()}>Add stop</Button>
+  <Button kind="primary" onclick={() => void go(node)}>Set destination</Button>
+  <Button onclick={() => void add(node)}>Add stop</Button>
 </div>
-{#if note}<FollowNoteLine bind:note />{/if}
+{#if note && noteFor === node.name}<FollowNoteLine bind:note />{/if}
 
 <style>
   h2 { margin: 0 0 var(--sp-2); }
