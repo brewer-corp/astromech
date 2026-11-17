@@ -23,6 +23,8 @@ blocked_by:
 - astromech-m07p
 - astromech-fzhp
 - astromech-zaqh
+- astromech-59n6
+- astromech-unak
 implementers: []
 ready:
   by: Sumeet
