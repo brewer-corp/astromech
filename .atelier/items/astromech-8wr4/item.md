@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-8wr4
 title: Ships > Ships as a loadout
-status: in_review
+status: changes_requested
 mission: astromech-xajc
 labels:
 - size-l
