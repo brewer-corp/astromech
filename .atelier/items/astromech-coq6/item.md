@@ -130,3 +130,6 @@ Measured by bisecting the window width in the preview at each step. One row need
 - **Audit tool:** `scripts/browser/audit.mjs` takes the repo root as three folders above the plan, so a plan has to sit at `docs/design/<name>/plan.json`.
 - **No Finish setup width:** Finish setup's width is not measured. The preview has no scenario with setup unfinished after onboarding, as astromech-5a01 found.
 
+### Responses
+
+1-uo6z.1: fixed in c37c530a: the frame poll keeps why a status or ship read failed, and Now shows each failed read beside what it qualifies (Stale line in the head for place, status and data at risk; in Sell your cargo for the ship; in Mining for the status; the failure in words with no answer yet, so a status that never answered no longer reads as Elite not running), with three boundary-failure browser tests that fail on the reviewed code; an unchanged key still asks nothing.
