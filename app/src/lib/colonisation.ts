@@ -55,7 +55,7 @@ export function progressOf(p: Project): Progress[] {
   const row = (r: Project["resources"][number]): Progress => {
     const l = lines.get(r.name);
     return {
-      name: r.name_localised ?? l?.name_localised ?? r.name,
+      name: r.name_localised ?? l?.name_localised ?? l?.symbol ?? commodityId(r.name),
       required: r.required,
       provided: r.provided,
       aboard: l?.in_cargo ?? 0,
@@ -71,8 +71,16 @@ export function progressOf(p: Project): Progress[] {
   return [...short, ...p.resources.filter((r) => !lines.has(r.name)).map(row)];
 }
 
-/** What is left to buy for `p`, as the lookup asks for it. */
+/** The market symbol of a journal name: `$steel_name;` is `steel` (the core's `commodity_id`). */
+function commodityId(name: string): string {
+  const n = name.trim().toLowerCase();
+  const bare = n.startsWith("$") ? n.slice(1) : n;
+  return bare.endsWith("_name;") ? bare.slice(0, -"_name;".length) : bare;
+}
+
+/** What is left to buy for `p`, as the lookup asks for it: nothing once it is complete or has failed. */
 export function needsOf(p: Project): Need[] {
+  if (p.complete || p.failed) return [];
   return p.shopping.lines.filter((l) => l.to_buy > 0).map((l) => ({ symbol: l.symbol, name: l.name_localised ?? l.symbol, tonnes: l.to_buy }));
 }
 
