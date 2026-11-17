@@ -5,23 +5,21 @@ import { page } from "vitest/browser";
 import projectsSample from "../../preview/fixtures/colonisation.json";
 import tradeSample from "../../preview/fixtures/trade.json";
 import type { BuySearch, ListPlan, Need, Project } from "../../lib/colonisation";
-import { idle, startPreview } from "../../test/transport";
+import { answer, idle, startPreview } from "../../test/transport";
 import { resetScale, setTextSize } from "../../lib/scale.svelte";
 import View from "./View.svelte";
 
 const load = vi.fn<() => Promise<Project[]>>();
 const buy = vi.fn<(needs: Need[], origin: string | null, filters: unknown) => Promise<BuySearch>>();
-vi.mock("../../lib/colonisation", async (orig) => ({
-  ...(await orig<typeof import("../../lib/colonisation")>()),
-  loadProjects: () => load(),
-  buyList: (n: Need[], o: string | null, f: unknown) => buy(n, o, f),
-}));
+// The backend's two commands, answered through the transport; each mock sees what reached it.
+answer("colonisation_projects", () => load());
+answer("colonisation_buy", (a: { needs: Need[]; origin: string | null; filters: unknown }) => buy(a.needs, a.origin, a.filters));
 
 const projects = projectsSample as unknown as Project[];
 // The recorded search around Sol for the sample site's list (the real core's, in worlds/preview/sol).
 const recorded = (tradeSample as unknown as { list: ListPlan }).list;
 const sol = (tradeSample as unknown as { buy: BuySearch }).buy.here;
-const answer = (origin: string | null, plan: ListPlan = recorded): BuySearch => ({
+const reply = (origin: string | null, plan: ListPlan = recorded): BuySearch => ({
   here: { ...sol, system: origin ?? "Sol" },
   range: 20,
   plan,
@@ -49,7 +47,7 @@ async function pickSite(name: RegExp) {
 describe("Colonisation", () => {
   it("lists what is left to buy and where, stations stocking most of the list first, from the site", async () => {
     load.mockResolvedValue(projects);
-    buy.mockImplementation(async (_n, o) => answer(o));
+    buy.mockImplementation(async (_n, o) => reply(o));
     render(View);
 
     expect(await screen.findByRole("heading", { name: "Planetary Construction Site: Test Hub" })).toBeTruthy();
@@ -92,7 +90,7 @@ describe("Colonisation", () => {
     expect(await setTextSize(145)).toBeNull();
     try {
       load.mockResolvedValue(projects);
-      buy.mockImplementation(async (_n, o) => answer(o));
+      buy.mockImplementation(async (_n, o) => reply(o));
       render(View);
       const row = (await screen.findByText("Efremov Plant")).closest('[role="row"]') as HTMLElement;
       const folded = await waitFor(() => {
@@ -118,7 +116,7 @@ describe("Colonisation", () => {
 
   it("searches near the commander once the site's system is cleared", async () => {
     load.mockResolvedValue(projects);
-    buy.mockImplementation(async (_n, o) => answer(o));
+    buy.mockImplementation(async (_n, o) => reply(o));
     render(View);
     await waitFor(() => expect(buy).toHaveBeenLastCalledWith(expect.anything(), "Wolf 359", expect.anything()));
     // The site's system is where Where to buy (the first lookup) searches from; its summary names
@@ -132,7 +130,7 @@ describe("Colonisation", () => {
   it("refreshes after a purchase, keeps the picked project, and re-searches only when the list changes", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     load.mockImplementation(async () => fresh());
-    buy.mockImplementation(async (_n, o) => answer(o));
+    buy.mockImplementation(async (_n, o) => reply(o));
     render(View);
     expect(await screen.findByText("Efremov Plant", { exact: false })).toBeTruthy();
     const searches = buy.mock.calls.length;
@@ -172,7 +170,7 @@ describe("Colonisation", () => {
 
   it("shows a poll slower than the interval, without asking again meanwhile", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    buy.mockImplementation(async (_n, o) => answer(o));
+    buy.mockImplementation(async (_n, o) => reply(o));
     // A cold replay: the first answer takes three poll intervals and is the only one.
     let slow: (p: Project[]) => void = () => {};
     load.mockImplementation(() => new Promise<Project[]>((r) => (slow = r)));
@@ -202,14 +200,14 @@ describe("Colonisation", () => {
 
   it("names commodities no market in range sells", async () => {
     load.mockResolvedValue(projects);
-    buy.mockImplementation(async (_n, o) => answer(o, { ...recorded, unavailable: ["Insulating Membrane"] }));
+    buy.mockImplementation(async (_n, o) => reply(o, { ...recorded, unavailable: ["Insulating Membrane"] }));
     render(View);
     expect(await screen.findByText("No market in range sells Insulating Membrane.")).toBeTruthy();
   });
 
   it("doesn't search for a finished project", async () => {
     load.mockResolvedValue(projects);
-    buy.mockImplementation(async (_n, o) => answer(o));
+    buy.mockImplementation(async (_n, o) => reply(o));
     render(View);
     await screen.findByRole("combobox", { name: "Construction site" });
     await pickSite(/Test Relay/);
