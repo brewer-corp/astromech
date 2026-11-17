@@ -1,6 +1,6 @@
 # Ships
 
-**Engineering, Ships** is your fleet at a glance, with a build planner for any ship. It reads
+**Ships, Ships** is your fleet at a glance, with a build planner for any ship. It reads
 your journal, so it knows every ship you own and the modules last saved for each.
 
 **What it needs:** the journal, with the ship flown at least once since your oldest journal
@@ -36,8 +36,33 @@ one to switch. Ship drawings are CMDR Qohen Leth's cartoon vectors, credited in 
 
 ## Stored modules
 
-**Engineering, Stored modules** lists every module in storage with its blueprint and grade if
+**Ships, Stored modules** lists every module in storage with its blueprint and grade if
 engineered, where it is and its value.
+
+## Suits
+
+**Ships, Suits** plans your suit and weapon upgrades: what each needs in micro-resources, what you
+are short of, and how a bartender can cover it. It was the Blueprints view of the On foot page;
+the inventory is now the [On foot](materials.md#on-foot) kind on Materials and the suit engineers
+are on [Engineers](engineering.md#engineers).
+
+**What it needs:** the journal and the game's `ShipLocker` file, which the game writes when you
+are on foot. Until then the page says "not written yet (log in on foot once)". No network.
+
+The line at the top says which suits and weapons you own, at which grade and with which mods,
+from the journal.
+
+1. Choose **Grade upgrade** (a suit or weapon from one grade to another) or **Modification** (a
+   suit or weapon mod, with the weapon maker for weapon mods).
+2. **Add** it. Add as many as you like.
+3. Each one shows what it still needs and how much you are short (have / need), its price in credits, and
+   which engineers fit it. Upgrades are bought at Pioneer Supplies. Gear and mods you already have
+   are marked and not offered again.
+
+Below the picks, one **shopping list** adds them all up, with the credits. A **Bartender trade**
+suggests swaps: which of your surplus assets to trade for the ones you are short of. It assumes a
+bartender swaps equal barter value and only assets are traded, because the wiki gives barter values
+for assets only.
 
 ## A ship's page
 
@@ -72,7 +97,7 @@ From the plan it works out:
 - **Engineer trip.** Which engineers to visit and in what order, with the work to do at each.
   It finds the fewest jumps (with a small cost for each stop) over every engineer who offers a job, exact for up to 16 candidate sets and a quicker greedy route for larger plans, from your current system, at your
   ship's range. Jobs that need an engineer you have not unlocked are listed apart, with what
-  unlocks them (see [Engineers and on foot](engineering.md)). A "~" means the jump count is a
+  unlocks them (see [Engineers](engineering.md)). A "~" means the jump count is a
   straight-line estimate. Experimentals are always in person. Grades can also be rolled remotely
   with a blueprint pinned at a rank 5 engineer, but the game does not log pins, so these only get
   a note.
@@ -115,6 +140,10 @@ as of 24 April 2026), except where listed below. Read this when you compare the 
 - **Guardian FSD boosters** are included in jump range, as in Coriolis.
 
 ## Limits
+
+- Suit and weapon game data (items, values, who fits what) is from the Elite Dangerous wiki and
+  EDCD/FDevIDs, as of the date at the bottom of Suits. Point at that line for how many values are
+  unsure or blank on the wiki. Your picks are remembered by the app window on this PC.
 
 - Needs a loadout in the journal for the ship to plan it.
 - Rolls per grade are an estimate; your luck and engineer rank change them.

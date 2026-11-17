@@ -3,7 +3,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/svelte";
 import type { Component } from "svelte";
 import Ships from "../../modules/engineering/View.svelte";
 import Materials from "../../modules/materials/View.svelte";
-import OnFoot from "../../modules/odyssey/View.svelte";
+import Suits from "../../modules/suits/View.svelte";
 import Logbook from "../../modules/logbook/View.svelte";
 import Session from "../../modules/session/View.svelte";
 import Mining from "../../modules/mining/View.svelte";
@@ -42,6 +42,8 @@ interface Page {
   call: string;
   /** The longest poll interval on the page, ms. */
   every: number;
+  /** The page's own address, for a part of it the link chooses (Materials' On foot kind). */
+  hash?: string;
   /** The scenario the page needs (the run is in the core's status, which a failed call makes null). */
   core?: string;
   /** What a failed read says, when not the preview's own "failed on purpose". */
@@ -51,7 +53,8 @@ interface Page {
 const PAGES: Page[] = [
   { name: "Ships", view: Ships as unknown as Component, data: /Heavy Lifter/, call: "engineering_fleet", every: 1000 },
   { name: "Materials", view: Materials as unknown as Component, data: /Carbon/, call: "materials_inventory", every: 1000 },
-  { name: "On foot", view: OnFoot as unknown as Component, data: /Sample ShipLocker/, call: "odyssey_view", every: 2000 },
+  { name: "Materials, On foot", view: Materials as unknown as Component, hash: "#/materials?kind=onfoot", data: /Sample ShipLocker/, call: "odyssey_view", every: 2000 },
+  { name: "Suits", view: Suits as unknown as Component, data: /Sample ShipLocker/, call: "odyssey_view", every: 2000 },
   { name: "Logbook", view: Logbook as unknown as Component, data: /CMDR Fixture/, call: "logbook", every: 5000 },
   { name: "Session", view: Session as unknown as Component, data: /CMDR Fixture/, call: "session_summary", every: 5000 },
   { name: "Mining", view: Mining as unknown as Component, data: /Platinum/, call: "status", every: 3000, core: "core=ready&", failed: /the core did not answer/ },
@@ -67,7 +70,7 @@ const PAGES: Page[] = [
 
 describe.each(PAGES)("$name", (p) => {
   it("keeps its data and says the refresh failed, then clears the line on the next good read", async () => {
-    at(`?${p.core ?? ""}`);
+    at(`?${p.core ?? ""}${p.hash ?? ""}`);
     render(p.view);
     await waitFor(() => expect(document.body.textContent).toMatch(p.data));
     expect(screen.queryByText(/Could not/)).toBeNull();
@@ -90,7 +93,7 @@ describe.each(PAGES)("$name", (p) => {
 // A first read that fails is the full error, not the stale line (the page has nothing to keep).
 describe.each(PAGES.filter((p) => p.name !== "Exploration (unsold)" && p.name !== "Diagnostics"))("$name, first read failing", (p) => {
   it("says it could not read, and never says it could not refresh", async () => {
-    at(`?${p.core ?? ""}fail=${p.call}`);
+    at(`?${p.core ?? ""}fail=${p.call}${p.hash ?? ""}`);
     render(p.view);
     expect((await screen.findAllByText(/Could not read|failed on purpose/)).length).toBeGreaterThan(0);
     expect(screen.queryByText(/Could not refresh/)).toBeNull();

@@ -8,7 +8,7 @@
   // years, or a stale report's age); the actions. Facts the commander doesn't pick a row by go
   // to the side panel inside a ListDetail, and stay on the row without one. A one-line summary of
   // the constraints sits above the heads, as the filters' resting state (SearchFilters: CHANGE
-  // opens the controls), and the list shows DESIGN.md's states: stale reports stepped down,
+  // opens the controls, the origin box among them, so the page opens on its results), and the list shows DESIGN.md's states: stale reports stepped down,
   // loading, empty with one way to widen, and a failure with TRY AGAIN.
   // Each result has two actions for the core's route follower
   // (docs/PLOTTING.md): Add stop makes it the next stop of the route followed, and Set
@@ -122,6 +122,8 @@
 
   // Follows `start`; the commander's pick (or ×) overrides it until `start` changes.
   let origin = $derived<Origin>(start);
+  /** The origin was picked as the route's next stop; kept here, since the box closes with the filters. */
+  let viaNext = $state<string | null>(null);
   /** Filters loaded for `lookup` (null until they arrive). */
   let saved = $state<{ lookup: string; filters: Filters } | null>(null);
   /** The current ship's pad as of the last search (the core resolves it on every search). */
@@ -435,17 +437,22 @@
   {/if}
 {/snippet}
 
+{#snippet from()}
+  <OriginInput {origin} {around} bind:viaNext onchange={(o) => (origin = o)} />
+{/snippet}
+
 <div class="kit">
-  <div class="query">
-    {#if header}{@render header()}{/if}
-    {#if lead}{@render lead()}{/if}
-    <OriginInput {origin} {around} onchange={(o) => (origin = o)} />
-  </div>
+  {#if header || lead}
+    <div class="query">
+      {#if header}{@render header()}{/if}
+      {#if lead}{@render lead()}{/if}
+    </div>
+  {/if}
 
   <div class="out" bind:this={out}>
     {#if saved}
       <div class="constraints">
-        <SearchFilters {filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} summary={line} extra={more} onchange={(f) => void change(f)} />
+        <SearchFilters {filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} summary={line} extra={more} origin={from} onchange={(f) => void change(f)} />
         {#if filterErr && unsaved}<Failure text={filterErr} onaction={retrySave} />{/if}
       </div>
     {/if}
@@ -558,7 +565,6 @@
      empty (DESIGN.md The Next To It Rule). */
   .kit { display: flex; flex-direction: column; gap: 0; min-width: 0; width: fit-content; max-width: 100%; }
   .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-4); border-bottom: 1px solid var(--line); }
-  .query :global(.origin) { margin: 0; }
   .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; }
   p { margin: 0; }
   .constraints { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0 0 var(--sp-3); }

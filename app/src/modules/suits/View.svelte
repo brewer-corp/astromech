@@ -1,11 +1,11 @@
 <script lang="ts">
-  // Odyssey micro-resources: the ShipLocker + Backpack inventory with bartender values, a
-  // blueprint picker (suit/weapon grade upgrades and modifications) with what each is missing and
-  // one shopping list for them all, and the on-foot engineers' unlocks and referral chain.
+  // Ships > Suits: the suits and weapons owned (from the journal), a blueprint picker (suit and
+  // weapon grade upgrades and modifications) with what each is missing, one shopping list for
+  // them all and the bartender trade that covers it. Moved whole from the On foot page
+  // (astromech-5a01); the inventory is Materials' On foot kind, the suit engineers are Engineers'.
   import { failure, pollFailure } from "../../lib/ui/errors";
   import Button from "../../lib/ui/Button.svelte";
-  import Choice from "../../lib/ui/Choice.svelte";
-  import Dropdown from "../../lib/ui/Dropdown.svelte";
+    import Dropdown from "../../lib/ui/Dropdown.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
   import { tip } from "../../lib/ui/tip";
   import {
@@ -20,44 +20,15 @@
     ownedGrades,
     savedPicks,
     savePicks,
-    type Category,
     type Need,
     type OdysseyView,
     type Pick,
     type PickResult,
     type Shopping,
   } from "../../lib/odyssey";
-  import SystemChip from "../../lib/ui/SystemChip.svelte";
-  import { hashParam, pageHash } from "../../lib/hashstate";
-
-  // The inventory, the blueprints and the engineers are a choice on the page, not a third tab
-  // row (DESIGN.md The Two Tab Rows Rule), kept in the link: #/odyssey?view=blueprints.
-  const VIEWS = [
-    { value: "inventory", label: "Inventory" },
-    { value: "blueprints", label: "Blueprints" },
-    { value: "engineers", label: "Engineers" },
-  ] as const;
-  type View = (typeof VIEWS)[number]["value"];
-  const CATS: { value: Category; label: string }[] = [
-    { value: "goods", label: "Goods" },
-    { value: "assets", label: "Assets" },
-    { value: "data", label: "Data" },
-    { value: "consumables", label: "Consumables" },
-  ];
 
   let view = $state<OdysseyView | null>(null);
   let error = $state<string | null>(null);
-  const readView = (): View => VIEWS.find((v) => v.value === hashParam("view"))?.value ?? "inventory";
-  let tab = $state<View>(readView());
-  $effect(() => {
-    const onHash = () => (tab = readView());
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  });
-  const chooseView = (v: View) => (location.hash = pageHash("odyssey", { view: v === "inventory" ? null : v }));
-  let cat = $state<Category>("goods");
-  let heldOnly = $state(true);
-
   let picks = $state<Pick[]>(savedPicks());
   let shop = $state<Shopping | null>(null);
   let shopError = $state<string | null>(null);
@@ -104,17 +75,6 @@
       });
   });
 
-  const items = $derived(
-    (view?.items ?? []).filter((i) => i.category === cat && (!heldOnly || i.locker + i.backpack + i.mission > 0)),
-  );
-  const held = $derived(
-    (view?.items ?? []).filter((i) => i.category === cat).reduce((n, i) => n + i.locker + i.backpack, 0),
-  );
-  const worth = $derived(
-    (view?.items ?? [])
-      .filter((i) => i.category === cat)
-      .reduce((n, i) => n + (i.value ?? 0) * (i.locker + i.backpack), 0),
-  );
   const mod = $derived(view?.mods.find((m) => m.id === modId));
   const makers = $derived((mod?.makers ?? []).filter((mk) => !mod?.fitted_makers?.includes(mk)));
   const owned = $derived(view?.owned ?? []);
@@ -172,7 +132,7 @@
 
   const shortOf = (lines: Need[]) => lines.filter((l) => l.short > 0);
 
-  /** What the barter columns mean, in their heads' Tips. */
+  /** What the barter column means, in its head's Tip. */
   const BARTER = "What one is worth traded at a bartender (assets only)";
   /** The Tip on a "(?)" after an engineer's mod. */
   const UNSURE = "The wiki disagrees with itself on whether this engineer fits this mod";
@@ -180,59 +140,19 @@
 
 <section>
   <div class="query">
-    <div class="acts">
-      <Choice label="On foot" options={[...VIEWS]} value={tab} onchange={chooseView} />
-      <p class="sub" class:err={!!error && !view}>
-        {#if error && !view}
-          {error}
-        {:else if view}
-          {view.source}{view.locker_ts ? ` · ${view.locker_ts.replace("T", " ").replace("Z", "")}` : " · not written yet (log in on foot once)"}
-        {:else}
-          Reading the ShipLocker…
-        {/if}
-      </p>
-    </div>
+    <p class="sub" class:err={!!error && !view}>
+      {#if error && !view}
+        {error}
+      {:else if view}
+        {view.source}{view.locker_ts ? ` · ${view.locker_ts.replace("T", " ").replace("Z", "")}` : " · not written yet (log in on foot once)"}
+      {:else}
+        Reading the ShipLocker…
+      {/if}
+    </p>
     <Stale error={view ? error : null} />
-    {#if view && tab === "inventory"}
-      <div class="acts">
-        <Choice label="Item kind" options={CATS} value={cat} onchange={(v) => (cat = v)} />
-        <Choice
-          class="tog"
-          label="Which items"
-          value={heldOnly ? "held" : "all"}
-          options={[{ value: "all", label: "All items" }, { value: "held", label: "Held only" }]}
-          onchange={(v) => (heldOnly = v === "held")}
-        />
-      </div>
-      <p class="sub">{held.toLocaleString()} held{cat === "consumables" ? "" : ` · a bartender pays ${worth.toLocaleString()} CR for them`}</p>
-    {/if}
   </div>
 
-  {#if view && tab === "inventory"}
-    <div class="out">
-      <table class="inv">
-        <thead>
-          <tr><th>Item</th><th>Ship locker</th><th>Backpack</th><th {@attach tip("Mission items go back when the mission ends and don't count towards blueprints")}>Mission</th><th {@attach tip(BARTER)}>Barter</th><th {@attach tip("What a bartender pays for one")}>Sells for</th></tr>
-        </thead>
-        <tbody>
-          {#each items as i (i.id)}
-            <tr>
-              <td>{i.name}</td>
-              <td class="q">{i.locker || ""}</td>
-              <td class="q">{i.backpack || ""}</td>
-              <td class="q lo">{i.mission || ""}</td>
-              <td class="q lo">{i.barter ?? ""}</td>
-              <td class="q lo">{i.value != null ? `${i.value.toLocaleString()} CR` : cat === "consumables" ? "" : "?"}</td>
-            </tr>
-          {:else}
-            <tr><td colspan="6" class="lo">Nothing held here.</td></tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-  {/if}
-
-  {#if view && tab === "blueprints"}
+  {#if view}
     <div class="out">
     {#if owned.length}
       <p class="sub owned">
@@ -357,24 +277,6 @@
     </div>
   {/if}
 
-  {#if view && tab === "engineers"}
-    <div class="out engs">
-      {#each view.engineers as e (e.id)}
-        <article class="eng" class:unlocked={e.progress === "Unlocked"}>
-          <header>
-            <h3>{e.name}</h3>
-            <span class="state">{e.progress === "Unknown" ? "Not yet known" : e.progress}</span>
-          </header>
-          <p><SystemChip name={e.system} />{e.colonia ? " · Colonia" : ""}</p>
-          {#if e.next}<p class="next">{e.next}</p>{/if}
-          <p class="lo">{#each e.mods as m, j (j)}{j ? " · " : ""}{m.name}{m.unconfirmed ? " " : ""}{#if m.unconfirmed}<span {@attach tip(UNSURE)}>(?)</span>{/if}{/each}</p>
-          {#if e.referred_by.length}<p class="lo">Referred by {e.referred_by.join(", ")}</p>{/if}
-          {#if e.refers.length}<p class="lo">Refers {e.refers.join(", ")}{e.referral_task ? `: ${e.referral_task}` : ""}</p>{/if}
-        </article>
-      {/each}
-    </div>
-  {/if}
-
   {#if view}
     <p class="lo note foot" {@attach tip(`${view.data_uncertain.length} values are unsure or blank on the wiki`)}>Game data: {view.data_source}, {view.data_date}</p>
   {/if}
@@ -383,8 +285,6 @@
 <style>
   section { padding: 0 0 1.75rem; min-height: 0; }
   .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 0; }
-  .acts { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; }
-  .acts > :global(.tog) { margin-left: auto; }
   .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0; }
   .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; }
   .lo { color: var(--label-grey); }
@@ -401,9 +301,9 @@
   .picker { display: flex; flex-wrap: wrap; gap: 0.625rem; align-items: center; margin: 0 0 1.25rem; }
   .picker label { color: var(--label-grey); display: inline-flex; gap: 0.375rem; align-items: center; }
   .picks { display: flex; flex-direction: column; }
-  .pick, .eng { padding: var(--sp-4) var(--sp-2); border-bottom: 1px solid var(--line); }
-  .pick header, .eng header { display: flex; gap: var(--sp-4); align-items: baseline; }
-  .pick h3, .eng h3 { margin: 0; font-size: var(--fs-l); font-weight: 500; flex: 1; color: var(--options-grey); }
+  .pick { padding: var(--sp-4) var(--sp-2); border-bottom: 1px solid var(--line); }
+  .pick header { display: flex; gap: var(--sp-4); align-items: baseline; }
+  .pick h3 { margin: 0; font-size: var(--fs-l); font-weight: 500; flex: 1; color: var(--options-grey); }
   .pick.ready h3 { color: var(--text-hi); }
   .missing { list-style: none; margin: 0.625rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.375rem; font-size: var(--fs-s); }
   .missing li { display: grid; grid-template-columns: 1fr 4.21875rem 3.28125rem; gap: var(--sp-3); }
@@ -411,12 +311,9 @@
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
   .pick.bad h3 { color: var(--label-grey); }
-  .pick p, .eng p { margin: var(--sp-2) 0 0; font-size: var(--fs-s); }
+  .pick p { margin: var(--sp-2) 0 0; font-size: var(--fs-s); }
   .fit-on { color: var(--options-grey); }
   .swaps { margin: var(--sp-2) 0 var(--sp-3); padding-left: 1.125rem; display: flex; flex-direction: column; gap: 0.625rem; font-size: var(--fs-s); }
   h3.list { margin: var(--sp-8) var(--sp-2) var(--sp-2); }
-  .engs { display: flex; flex-direction: column; }
-  .eng .state { color: var(--label-grey); font-size: var(--fs-s); }
-  .eng.unlocked .state { color: var(--prose); }
   .owned { margin-bottom: var(--sp-4); }
 </style>

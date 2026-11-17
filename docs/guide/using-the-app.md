@@ -15,13 +15,14 @@ left with Find or plot and Import a route.
 
 | Area | Pages |
 |---|---|
-| **Controls** | My controller, All keybinds, Presets, Key tester: [Controls](controls.md) |
-| **Engineering** | Ships, Stored modules, Materials, On foot, Engineers: [Ships](ships.md), [Materials](materials.md), [Engineers and on foot](engineering.md) |
+| **Ships** | Ships, Stored modules, Suits: [Ships](ships.md) |
+| **Engineering** | Materials, Engineers: [Materials](materials.md), [Engineers](engineering.md) |
 | **Places** | [Places](places.md) |
 | **Trade** | Colonisation, Commodities: [Colonisation](colonisation.md), [Trade](trade.md) |
 | **Exploration** | System, Biology: [Exploration](exploration.md) |
 | **Powerplay** | [Powerplay](powerplay.md) |
 | **Logbook** | Logbook, Session, Mining, Station: [Logbook](logbook.md), [Mining](mining.md) |
+| **Controls** | My controller, All keybinds, Presets, Key tester: [Controls](controls.md) |
 | **Settings** | General, Data sharing, Diagnostics, Voice tester: [Settings](settings.md), [Data sharing](data-sharing.md), [Voice tester](voice-tester.md) |
 
 The header holds the **Find or plot** box too (below). In a window too narrow for everything on
@@ -49,7 +50,7 @@ Pages keep their explanations there rather than in notes under the content: a co
 what its figures mean, a tag such as **Ethos** says what it marks. Where the data comes from and
 how old it is stays on the page, in one small line.
 
-Pages that follow the game (ships, materials, on foot, station, session, exploration, biology,
+Pages that follow the game (ships, materials, suits, station, session, exploration, biology,
 mining, colonisation, Powerplay, the logbook, the route, data sharing and diagnostics) read your journal again
 every few seconds, and so do Settings, setup and the engineer trip. If a later read fails, the page keeps what it last showed and adds a line,
 "Could not refresh:" and the reason. The line goes away on the next read that works. If the first
@@ -89,8 +90,8 @@ open that system or station in your browser. astromech does not type into the ga
 
 ## Searches near you
 
-The "nearest" pages share one kit: where to search from, filters, and a list with jumps and
-distance. It is described once in [Places](places.md#how-searches-work).
+The "nearest" pages share one kit: a line naming where it searched and the filters, with
+**Change** to set them, and a list with jumps and distance. It is described once in [Places](places.md#how-searches-work).
 
 ## What needs the network
 

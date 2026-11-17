@@ -4,10 +4,10 @@ const manifest: ModuleManifest = {
   id: "materials",
   group: "engineering",
   title: "Materials",
-  summary: "Engineering materials as the traders show them and where each comes from, with links to the Raw sites and Faction states finders",
+  summary: "Engineering materials as the traders show them and where each comes from, with links to the Raw sites and Faction states finders, and your on-foot inventory",
   help: "materials.md",
   order: 10,
-  api: ["materials"],
+  api: ["materials", "odyssey"],
   load: () => import("./View.svelte"),
   palette: async () => (await import("./palette")).default(),
 };

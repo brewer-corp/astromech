@@ -111,6 +111,10 @@ describe("Colonisation", () => {
     buy.mockImplementation(async (_n, o) => answer(o));
     render(View);
     await waitFor(() => expect(buy).toHaveBeenLastCalledWith(expect.anything(), "Wolf 359", expect.anything()));
+    // The site's system is where Where to buy (the first lookup) searches from; its summary names
+    // it, and its CHANGE opens the box.
+    await waitFor(() => expect(document.querySelector(".summary .text")?.textContent).toMatch(/ Wolf 359\b/));
+    await fireEvent.click(screen.getAllByRole("button", { name: "Change filters" })[0]!);
     await fireEvent.click(await screen.findByRole("button", { name: "Search from the current system" }));
     await waitFor(() => expect(buy).toHaveBeenLastCalledWith(expect.anything(), null, expect.anything()));
   });

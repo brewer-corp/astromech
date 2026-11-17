@@ -731,7 +731,7 @@ the calmer colours in [tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-256
 
 | Part | Size | Notes |
 |---|---|---|
-| Header | 64 px high, or 64 + 44 px | wordmark, top tabs, Find or plot, Help, on Void. Its 1 px orange rule runs the full width of the window, over the sidebar ([The Full-Width Header Rule](#named-rules-2)). Below the width where one row fits, the top tabs sit on a 44 px second row under the wordmark. Revision 4 measured that width as about 1456 px with eight tabs (1606 px with Finish setup), under the old zoom; ten tabs need more ([header-stacked-1590.png](docs/design/nav-spike/header-stacked-1590.png) shows them on the second row in a 1590 px window), and astromech-5a01 measures it again in rem at each Text size step |
+| Header | 64 px high, or 64 + 44 px | wordmark, top tabs, Find or plot, Help, on Void. Its 1 px orange rule runs the full width of the window, over the sidebar ([The Full-Width Header Rule](#named-rules-2)). Below the width where one row fits, the top tabs sit on a 44 px second row under the wordmark. With the nine tabs astromech-5a01 shipped, one row fits from 95.5 rem of window width, measured at every Text size step: 1529 px at 100 percent, 1757 at 115, 1987 at 130, 2216 at 145, 2446 at 160 and 2751 at 180. So 1920 x 1080 and 2560 x 1440 at their starting steps show one row, and 1100 x 700 shows two. Finish setup, while setup is unfinished, adds its own width. astromech-coq6 measures again when NOW joins ([header-stacked-1590.png](docs/design/nav-spike/header-stacked-1590.png) shows ten tabs on the second row in a 1590 px window) |
 | Route sidebar | 320 px wide, header rule to status bar | while a route is followed and the window is at or above the dock width; see [Route sidebar](#route-sidebar) |
 | Route strip | 36 px high | across the page column when the sidebar is collapsed, or below the dock width; see [Route strip](#route-strip) |
 | No-route rail | 48 px wide | with no route, at or above the dock width: two actions, Find or plot and Import a route |
@@ -823,15 +823,15 @@ measure the page column, not the window, so the sidebar's width is already taken
 
 Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps; control row 34 px;
 result row 60 px, two lines in groups ([Lookup result row](#lookup-result-row)); material tile
-76 px. Rows visible, measured on the built row (astromech-3ca6, Sell anywhere in the preview, no route
-sidebar): at 1100 x 700 at 100 percent, 2 whole rows show when the page opens under the
-finder's input, origin and summary, and 7 once the list is scrolled to the top of the page
-column (worked out from the column's height, not counted); at 2560 x 1440 at 145 percent, 8 on
-opening and 13 scrolled
-([sell-1100-after.png](docs/design/grouped-rows/sell-1100-after.png),
-[sell-2560-after.png](docs/design/grouped-rows/sell-2560-after.png)). Revision 4's one-line
-44 px rows showed 3 and 10 at 1100 x 700 and 11 and 17 at 2560 x 1440. The spike's 5 at
-1100 x 700 had no origin box above the list. *Why:* fewer rows that each read as an answer beat more rows that read as a spreadsheet;
+76 px. Rows visible, measured on the built row (astromech-fom5, Sell anywhere in the preview, no
+route sidebar): at 1100 x 700 at 100 percent, 5 whole rows show when the page opens under the
+finder's title, main input and summary line, and 7 once the list is scrolled to the top of the
+page column (worked out from the column's height, not counted); at 2560 x 1440 at 145 percent,
+11 on opening and 13 scrolled
+([sell-anywhere-1100-after.png](docs/design/finder-fold/sell-anywhere-1100-after.png),
+[sell-anywhere-2560-after.png](docs/design/finder-fold/sell-anywhere-2560-after.png)). With the
+range choice and origin box above the summary (astromech-3ca6), it opened on 3 and 9. Revision
+4's one-line 44 px rows showed 3 and 10 at 1100 x 700 and 11 and 17 at 2560 x 1440. *Why:* fewer rows that each read as an answer beat more rows that read as a spreadsheet;
 the commander picks from the top few, and the list scrolls.
 
 ### Named Rules
@@ -1162,15 +1162,20 @@ price with demand, a station with its distance from the star (Sumeet, 17 Nov 202
 
 **Collapsed filters.** Above the group heads a finder shows its filters as one summary line in
 Label, Label Grey ("Within 100 ly of Sol · large pad · reports up to 30 days old") with CHANGE
-after it, and no filter controls. The thing searched for (the commodity, module or service) is
-not a filter: it stays an input above the summary, with what the demand colours measure against
-beside it ("120 t of Painite aboard"). CHANGE opens the controls in place; each edit applies at
+after it, and no filter controls. Where the search runs from (From, or Around on Mining
+hotspots) and the range (Sell and Buy's Near or Anywhere) are filters too: the line names them
+("Best prices anywhere · distances from Sol"), and their controls come first when CHANGE opens.
+So at rest a finder is its title with its main input, the summary line, and the results. The
+thing searched for (the commodity, module or service) is not a filter: it stays an input on the
+title row, with what the demand colours measure against beside it ("120 t of Painite aboard"),
+and what qualifies it (Outfitting's class, rating and mount; Sell my cargo's hold) stays above
+the summary. CHANGE opens the controls in place; each edit applies at
 once and searches again, and the controls stay open across edits, so several filters change in
 one visit. They close on DONE, on Escape or on CHANGE again, never because a search started,
 finished or failed. A filter set away from its default is always named in the summary. *Why:*
 up to five rows of filter controls stood above the first result, though the commander changes
 them rarely and reads the results every time, and the summary line above the results already
-named them.
+named them. The range and origin rows alone took about 110 px, two result rows at 1100 x 700.
 
 Where a group's line has no room, it truncates with an ellipsis rather than wrap. Where even
 that leaves no room, as in a side panel, the row is **compact**: the first two groups' first

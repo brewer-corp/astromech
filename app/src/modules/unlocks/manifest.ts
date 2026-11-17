@@ -7,7 +7,7 @@ const manifest: ModuleManifest = {
   summary: "How to unlock every ship and suit engineer, as a tech tree with your progress and what to do next",
   help: "engineering.md#engineers",
   order: 20,
-  api: ["engineering"],
+  api: ["engineering", "odyssey"],
   load: () => import("./View.svelte"),
 };
 

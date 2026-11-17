@@ -2,7 +2,7 @@ import type { ModuleManifest } from "../../lib/modules";
 
 const manifest: ModuleManifest = {
   id: "stored",
-  group: "engineering",
+  group: "ships",
   title: "Stored modules",
   summary: "Modules in storage: engineering, where they are, and their value",
   help: "ships.md#stored-modules",
