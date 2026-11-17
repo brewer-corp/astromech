@@ -1,0 +1,16 @@
+{
+ "out": "docs/design/colonisation/before",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 }
+ ],
+ "shots": [
+  { "name": "site", "hash": "colonisation", "steps": [{ "waitText": "Efremov Plant" }] },
+  {
+   "name": "complete",
+   "hash": "colonisation",
+   "steps": [{ "waitText": "Efremov Plant" }, { "select": "select[aria-label='Construction site']", "option": "Orbital" }, { "waitText": "Nothing left to deliver" }]
+  }
+ ]
+}

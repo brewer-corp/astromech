@@ -10,7 +10,9 @@
  * { "click": css } (the first match), { "waitSel": css }, { "waitText": text },
  * { "clickText": text } (the first button or link whose own text is that, ignoring case: a
  * control with no selector of its own, such as Skip setup or a top tab), { "type": css, "text": text }
- * (type that text into the first match, key by key, as the commander would), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
+ * (type that text into the first match, key by key, as the commander would), { "select": css, "option": text }
+ * (choose the option whose text starts with that in the first matching <select>, as the commander
+ * would: a dropdown has no option to click), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
  * { "rows": css } (count the whole rows of that selector in view; with scrollTop, once more after it),
  * { "gap": [from, to], "label"? } (once the page is quiet: the layout px from the right edge of the
  * first match of `from` to the left edge of the first match of `to`, for an action that is not at a
@@ -385,6 +387,21 @@ async function capture(browser, base, plan, shot, size, outDir) {
     if (s.type) {
       await page.waitForSelector(s.type);
       await page.type(s.type, s.text);
+    }
+    if (s.select) {
+      await page.waitForSelector(s.select);
+      const picked = await page.$eval(
+        s.select,
+        (el, t) => {
+          const o = [...el.options].find((x) => x.textContent.trim().startsWith(t));
+          if (!o) return false;
+          el.value = o.value;
+          el.dispatchEvent(new Event("change", { bubbles: true }));
+          return true;
+        },
+        s.option,
+      );
+      if (!picked) throw new Error(`${s.select} has no option starting "${s.option}"`);
     }
     if (s.rows) extra[s.label ?? "rows"] = await rowsInView(page, s.rows);
     if (s.scrollTop)
