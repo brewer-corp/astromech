@@ -43,23 +43,28 @@ export type { ShipComparison as StatsComparison } from "./api/types/ShipComparis
 export type { Compared } from "./api/types/Compared";
 export type { Headline } from "./api/types/Headline";
 
-/** Outfitting groups, in the game's own order. Optional internals is the remainder. */
-export const MODULE_KINDS: { title: string; test: (slot: string) => boolean }[] = [
-  { title: "Hardpoints", test: (s) => /Hardpoint/.test(s) && !/Tiny/.test(s) },
-  { title: "Utility", test: (s) => /TinyHardpoint/.test(s) },
-  { title: "Core internals", test: (s) => /^(Armour|PowerPlant|MainEngines|FrameShiftDrive|LifeSupport|PowerDistributor|Radar|FuelTank)$/.test(s) },
-  { title: "Military", test: (s) => /Military/.test(s) },
-  { title: "Optional internals", test: () => true },
-];
+/** The game's outfitting groups, in its order. */
+export const LOADOUT_GROUPS = ["Hardpoints", "Utility", "Core", "Optional"] as const;
+export type LoadoutGroup = (typeof LOADOUT_GROUPS)[number];
 
-export function groupFitted(mods: Fitted[], engineerable = false): { title: string; mods: Fitted[] }[] {
-  const src = engineerable ? mods.filter((m) => m.group) : mods;
-  const taken = new Set<string>();
-  return MODULE_KINDS.map((k) => {
-    const mine = src.filter((m) => !taken.has(m.slot) && k.test(m.slot));
-    for (const m of mine) taken.add(m.slot);
-    return { title: k.title, mods: mine };
-  }).filter((k) => k.mods.length);
+const CORE = new Set(["Armour", "PowerPlant", "MainEngines", "FrameShiftDrive", "LifeSupport", "PowerDistributor", "Radar", "FuelTank"]);
+
+/**
+ * The outfitting group a slot is listed under, from its journal name; null for the cosmetic and
+ * fixed slots the loadout leaves out (the planetary approach suite, cockpit, cargo hatch, paint,
+ * decals and the rest). Military slots are Optional, as the game lists them.
+ */
+export function slotGroup(slot: string): LoadoutGroup | null {
+  if (/^TinyHardpoint/.test(slot)) return "Utility";
+  if (/Hardpoint/.test(slot)) return "Hardpoints";
+  if (CORE.has(slot)) return "Core";
+  if (/^(Slot\d|Military)/.test(slot)) return "Optional";
+  return null;
+}
+
+/** A loadout's listed modules in the game's groups, empty groups left out. */
+export function loadoutGroups(mods: Fitted[]): { title: LoadoutGroup; mods: Fitted[] }[] {
+  return LOADOUT_GROUPS.map((title) => ({ title, mods: mods.filter((m) => slotGroup(m.slot) === title) })).filter((g) => g.mods.length);
 }
 
 export function fittedLine(m: Fitted): string {

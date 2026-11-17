@@ -1,0 +1,13 @@
+{
+ "out": "docs/design/ship-loadout",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 }
+ ],
+ "shots": [
+  { "name": "before-krait-stats", "hash": "engineering/1" },
+  { "name": "before-krait-plan", "hash": "engineering/7/plan" },
+  { "name": "before-anaconda", "hash": "engineering/3" }
+ ]
+}
