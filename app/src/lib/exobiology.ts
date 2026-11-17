@@ -40,7 +40,7 @@ export function shortName(body: string, system: string | null): string {
   return body;
 }
 
-/** A species on a card: its name and, when a report or a sample gives it, its value. */
+/** A species on a card: its name, its value, and whether other players reported it there. */
 export type CardSpecies = { name: string; value: number | null; reported: boolean };
 
 /** A genus on a body card. */
@@ -79,17 +79,23 @@ type Known = import("./api/types/KnownView").KnownView;
 /** The same body: by id when both have one, else by full name. A null id never matches another. */
 const same = (b: Body, k: Known) => (b.body_id !== null && k.body_id !== null ? b.body_id === k.body_id : b.name === k.name);
 
-/** The genus of a reported species: its first word ("Stratum Tectonicas" is a Stratum). */
-const genusOf = (species: string) => species.split(" ")[0] ?? species;
+/**
+ * Whether a species is of a genus: "Stratum Tectonicas" is a Stratum, "Roseum Brain Tree" a Brain
+ * Tree, "Amphora Plant" an Amphora Plant (the catalogue names some species after their genus).
+ */
+export const ofGenus = (species: string, genus: string) => species === genus || species.startsWith(`${genus} `) || species.endsWith(` ${genus}`);
+
+/** A reported species' genus, from the names the body lists (the core lists every species' genus). */
+const genusOf = (species: string, genera: string[]) => genera.find((g) => ofGenus(species, g)) ?? species.split(" ")[0] ?? species;
 
 const span = (vs: number[]): [number, number] | null => (vs.length ? [Math.min(...vs), Math.max(...vs)] : null);
 
 /** A reported body's genera, each with the species reported for it. */
 function reportedGenera(k: Known): CardGenus[] {
   const names = [...k.genera];
-  for (const s of k.species) if (!names.includes(genusOf(s.name))) names.push(genusOf(s.name));
+  for (const s of k.species) if (!names.includes(genusOf(s.name, names))) names.push(genusOf(s.name, names));
   return names.map((genus) => {
-    const species = k.species.filter((s) => genusOf(s.name) === genus).map((s) => ({ name: s.name, value: s.value, reported: true }));
+    const species = k.species.filter((s) => genusOf(s.name, names) === genus).map((s) => ({ name: s.name, value: s.value, reported: true }));
     return { genus, known: true, reported: true, others: true, species, value: span(species.map((s) => s.value!)), analysed: false };
   });
 }
@@ -123,7 +129,13 @@ export function bodyCards(bodies: Body[], known: Known[] | null): BodyCard[] {
           continue;
         }
         g.others = true;
-        for (const s of r.species) if (!g.species.some((x) => x.name === s.name)) g.species.push(s);
+        for (const s of r.species) {
+          const mine = g.species.find((x) => x.name === s.name);
+          if (mine) {
+            mine.reported = true;
+            mine.value = s.value;
+          } else g.species.push(s);
+        }
       }
     }
     const differs = k && (k.value[0] !== b.value[0] || k.value[1] !== b.value[1]);

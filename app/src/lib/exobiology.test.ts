@@ -77,10 +77,24 @@ describe("bodyCards", () => {
       ],
     },
     {
-      case: "a report that says what the commander has: nothing added, the same range not repeated",
+      case: "a report that says what the commander has: the species marked reported, the same range not repeated",
       bodies: [A2],
       known: [report("S A 2", 5, ["Stratum"], [["Stratum Tectonicas", 19_010_800]], [19_010_800, 19_010_800])],
-      cards: [{ name: "S A 2", reported: false, value: [19_010_800, 19_010_800], reported_value: null, genera: ["Stratum (also reported): Stratum Tectonicas"] }],
+      cards: [{ name: "S A 2", reported: false, value: [19_010_800, 19_010_800], reported_value: null, genera: ["Stratum (also reported): Stratum Tectonicas*"] }],
+    },
+    {
+      case: "a reported species among the commander's predicted candidates keeps its reported value",
+      bodies: [body("S B 3", 7, [genus("Electricae", [["Electricae Pluma", 6_284_600], ["Electricae Radialem", 6_284_600]], false)], [6_284_600, 6_284_600])],
+      known: [report("S B 3", 7, ["Electricae"], [["Electricae Radialem", 6_284_600]], [6_284_600, 6_284_600])],
+      cards: [{ name: "S B 3", reported: false, value: [6_284_600, 6_284_600], reported_value: null, genera: ["Electricae (also reported): Electricae Pluma, Electricae Radialem*"] }],
+    },
+    {
+      case: "species named before their genus go under it (Roseum Brain Tree is a Brain Tree)",
+      bodies: [],
+      known: [report("S D 4", 11, ["Brain Tree", "Sinuous Tuber"], [["Roseum Brain Tree", 1_593_700], ["Roseum Sinuous Tuber", 1_514_500]], [3_108_200, 3_108_200])],
+      cards: [
+        { name: "S D 4", reported: true, value: [3_108_200, 3_108_200], reported_value: null, genera: ["Brain Tree (reported): Roseum Brain Tree*", "Sinuous Tuber (reported): Roseum Sinuous Tuber*"] },
+      ],
     },
     {
       case: "a body only others reported: its own card after the commander's",

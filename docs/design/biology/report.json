@@ -1,5 +1,5 @@
 {
- "commit": "5874ae3a",
+ "commit": "bc7ef12c",
  "captures": {
   "sampling-1100x700": {
    "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/exobiology",
@@ -51,11 +51,11 @@
      "texts": [
       "Biology",
       "Stratum Tectonicas",
-      "291 m",
+      "291",
       "A 2",
-      "20 M",
+      "20",
       "B 3",
-      "8.3 M",
+      "8.3",
       "Heavy Lifter"
      ]
     },
@@ -68,10 +68,10 @@
       "4 of 10",
       "7",
       "Stratum",
-      "19 M",
+      "19",
       "Bacterium",
-      "1 M",
-      "6.3 M",
+      "1",
+      "6.3",
       "18.0",
       "24.6",
       "32",
@@ -105,7 +105,7 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 42,
+     "weight": 49,
      "texts": [
       "Now",
       "Ships",
@@ -262,11 +262,11 @@
      "texts": [
       "Biology",
       "Stratum Tectonicas",
-      "291 m",
+      "291",
       "A 2",
-      "20 M",
+      "20",
       "B 3",
-      "8.3 M",
+      "8.3",
       "Heavy Lifter"
      ]
     },
@@ -286,10 +286,10 @@
      "weight": 12,
      "texts": [
       "Stratum",
-      "19 M",
+      "19",
       "Bacterium",
-      "1 M",
-      "6.3 M",
+      "1",
+      "6.3",
       "18.0",
       "24.6",
       "32",
@@ -439,11 +439,11 @@
      "texts": [
       "Biology",
       "Stratum Tectonicas",
-      "291 m",
+      "291",
       "A 2",
-      "20 M",
+      "20",
       "B 3",
-      "8.3 M",
+      "8.3",
       "Heavy Lifter"
      ]
     },
@@ -463,10 +463,10 @@
      "weight": 12,
      "texts": [
       "Stratum",
-      "19 M",
+      "19",
       "Bacterium",
-      "1 M",
-      "6.3 M",
+      "1",
+      "6.3",
       "18.0",
       "24.6",
       "32",

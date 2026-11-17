@@ -13,7 +13,7 @@
   import Board from "../../lib/ui/layout/Board.svelte";
   import Tiles from "../../lib/ui/layout/Tiles.svelte";
   import Samples from "../../lib/ui/Samples.svelte";
-  import { bodyCards, loadBiology, millions, shortName, valueRange, type BiologyView, type CardGenus } from "../../lib/exobiology";
+  import { bodyCards, loadBiology, millions, ofGenus, shortName, valueRange, type BiologyView, type CardGenus } from "../../lib/exobiology";
 
   let v = $state<BiologyView | null>(null);
   let failed = $state<string | null>(null);
@@ -48,8 +48,17 @@
     return g.analysed ? 3 : null;
   }
 
-  /** The species a genus could be, without the genus's name ("Tectonicas"). */
-  const speciesName = (genus: string, species: string) => (species.startsWith(`${genus} `) ? species.slice(genus.length + 1) : species);
+  /** The species a genus could be, without the genus's name: "Tectonicas", "Roseum" (Brain Tree). */
+  function speciesName(genus: string, species: string): string {
+    if (species === genus || !ofGenus(species, genus)) return species;
+    return species.startsWith(`${genus} `) ? species.slice(genus.length + 1) : species.slice(0, -genus.length - 1);
+  }
+
+  /** "1.4–19 M" as its figure and its unit, so the unit can be drawn as one. */
+  const parts = (r: [number, number]) => {
+    const t = valueRange(r);
+    return [t.replace(/ M$/, ""), "M"] as const;
+  };
 
   /** What a genus's name means, in its Tip; none for one the commander knows and nobody else reported. */
   function genusTip(g: CardGenus) {
@@ -101,7 +110,7 @@
               {#if c.far_enough}
                 <span class="type-name go">Far enough</span>
               {:else}
-                <span><span class="type-name">{Math.max(0, Math.ceil(c.colony_range_m - c.nearest_m))} m</span> <span class="type-label">to go</span></span>
+                <span><span class="type-name">{Math.max(0, Math.ceil(c.colony_range_m - c.nearest_m))}</span> <span class="type-unit">m to go</span></span>
               {/if}
             </p>
           {:else if sampling.colony_range_m !== null}
@@ -110,6 +119,9 @@
         </section>
       {/if}
 
+      {#if !v.bodies.length}
+        <p class="type-label">No biological signals found in this system yet. The FSS shows them.</p>
+      {/if}
       {#if cards.length}
         <Tiles wide list label="Bodies with biology">
           {#each cards as card, i (card.name)}
@@ -119,7 +131,7 @@
                   <span class="type-name">{short(card.name)}</span>
                   {#if card.reported}<Badge {@attach tip(REPORTED)}>Reported</Badge>{/if}
                 </span>
-                <span class="type-value-l" class:main={i === 0 && !distanceLeads} {@attach tip(VALUE)}>{valueRange(card.value)}</span>
+                <span {@attach tip(VALUE)}><span class="type-value-l" class:main={i === 0 && !distanceLeads}>{parts(card.value)[0]}</span> <span class="type-unit">{parts(card.value)[1]}</span></span>
               </div>
               <p class="type-label">
                 {card.signals === null ? "Signals not known" : plural(card.signals, "signal", "signals")}
@@ -130,7 +142,7 @@
                   {#each card.genera as g (g.genus)}
                     {@const n = taken(card.body_id, g)}
                     <li>
-                      <span class="type-figures genus" class:known={g.known && !g.reported} {@attach tip(genusTip(g))}>{g.genus}</span>
+                      <span class="genus {g.reported ? 'type-label' : 'type-figures'}" class:known={g.known && !g.reported} {@attach tip(genusTip(g))}>{g.genus}</span>
                       <span class="species type-label">
                         {#each g.species as s, j (s.name)}
                           {@const sep = j < g.species.length - 1 ? ", " : ""}
@@ -141,7 +153,7 @@
                           {/if}
                         {/each}
                       </span>
-                      <span class="type-figures worth">{g.value ? valueRange(g.value) : ""}</span>
+                      <span class="worth">{#if g.value}{@const [fig, unit] = parts(g.value)}<span class="type-figures">{fig}</span> <span class="type-unit">{unit}</span>{/if}</span>
                       <span class="marks">{#if n !== null}<Samples count={n} small />{/if}</span>
                     </li>
                   {/each}
@@ -152,8 +164,6 @@
             </article>
           {/each}
         </Tiles>
-      {:else}
-        <p class="type-label">No biological signals found in this system yet. The FSS shows them.</p>
       {/if}
     {/if}
   </div>
