@@ -125,6 +125,12 @@
      "click": ".frame > header > button:last-of-type"
     },
     {
+     "waitSel": "div.frame > header > nav > button"
+    },
+    {
+     "click": "div.frame > header > nav > button:first-child"
+    },
+    {
      "waitText": "No ships in the journal yet."
     }
    ]
