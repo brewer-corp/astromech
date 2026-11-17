@@ -5,7 +5,7 @@
   import Stale from "../../lib/ui/Stale.svelte";
   import { tip } from "../../lib/ui/tip";
   import Stat from "../../lib/ui/Stat.svelte";
-  import { duration, EARNING_NAMES, loadSession, when, type Session } from "../../lib/logbook";
+  import { duration, EARNED, EARNING_NAMES, loadSession, when, type Session } from "../../lib/logbook";
 
   let s = $state<Session | null>(null);
   let loaded = $state(false);
@@ -26,9 +26,6 @@
   });
 
   const cr = (n: number) => `${n.toLocaleString()} cr`;
-
-  /** What Earned counts, in its tile's Tip. */
-  const EARNED = "Credits paid for what you did: trade sales, data, vouchers handed in, mission rewards, rescue, community goals, Odyssey goods and Powerplay salary. Selling ships, modules or drones isn't counted.";
 </script>
 
 <section>

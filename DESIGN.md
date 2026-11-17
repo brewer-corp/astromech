@@ -731,7 +731,7 @@ the calmer colours in [tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-256
 
 | Part | Size | Notes |
 |---|---|---|
-| Header | 64 px high, or 64 + 44 px | wordmark, top tabs, Find or plot, Help, on Void. Its 1 px orange rule runs the full width of the window, over the sidebar ([The Full-Width Header Rule](#named-rules-2)). Below the width where one row fits, the top tabs sit on a 44 px second row under the wordmark. With the nine tabs astromech-5a01 shipped, one row fits from 95.5 rem of window width, measured at every Text size step: 1529 px at 100 percent, 1757 at 115, 1987 at 130, 2216 at 145, 2446 at 160 and 2751 at 180. So 1920 x 1080 and 2560 x 1440 at their starting steps show one row, and 1100 x 700 shows two. Finish setup, while setup is unfinished, adds its own width. astromech-coq6 measures again when NOW joins ([header-stacked-1590.png](docs/design/nav-spike/header-stacked-1590.png) shows ten tabs on the second row in a 1590 px window) |
+| Header | 64 px high, or 64 + 44 px | wordmark, top tabs, Find or plot, Help, on Void. Its 1 px orange rule runs the full width of the window, over the sidebar ([The Full-Width Header Rule](#named-rules-2)). Below the width where one row fits, the top tabs sit on a 44 px second row under the wordmark. With the ten tabs (NOW joined in astromech-coq6), one row fits from 99.75 rem of window width, measured at every Text size step: 1596 px at 100 percent, 1834 at 115, 2074 at 130, 2313 at 145, 2554 at 160 and 2872 at 180 (nine tabs fitted from 95.5 rem). So 1920 x 1080 and 2560 x 1440 at their starting steps show one row, and 1100 x 700 shows two ([header-stacked-1590.png](docs/design/nav-spike/header-stacked-1590.png) shows ten tabs on the second row in a 1590 px window). Finish setup, while setup is unfinished, adds its own width |
 | Route sidebar | 320 px wide, header rule to status bar | while a route is followed and the window is at or above the dock width; see [Route sidebar](#route-sidebar) |
 | Route strip | 36 px high | across the page column when the sidebar is collapsed, or below the dock width; see [Route strip](#route-strip) |
 | No-route rail | 48 px wide | with no route, at or above the dock width: two actions, Find or plot and Import a route |
@@ -752,7 +752,9 @@ bar onto the route strip's row at that size instead of shrinking the page. At a 
 size the page gets less, and scrolls.
 
 **Top tabs.** NOW, SHIPS, ENGINEERING, PLACES, TRADE, EXPLORATION, POWERPLAY, LOGBOOK, CONTROLS,
-SETTINGS, in that order. SHIPS holds Ships, Stored modules and Suits; ENGINEERING holds
+SETTINGS, in that order. NOW holds Now, Station, Session and Mining: the live views, what is
+happening while the commander plays; LOGBOOK keeps the Logbook alone, with no page tab row.
+SHIPS holds Ships, Stored modules and Suits; ENGINEERING holds
 Materials and Engineers; PLACES (once GALAXY) is one page with no page tab row. On foot is not
 a page: its loadouts, blueprints and shopping list go to Ships > Suits, its inventory to
 Materials as an On foot kind, its engineers to Engineers beside the ship engineers. There is
@@ -821,7 +823,9 @@ column is too narrow for a side panel (the 1100 x 700 minimum, or a larger Text 
 layout moves the panel below the content. It never shrinks text to make it fit. The layouts
 measure the page column, not the window, so the sidebar's width is already taken out.
 
-Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps; control row 34 px;
+Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps; a Board's answer
+blocks (`Blocks`, Now's) four across where four fit, else two, else one, never three over one,
+32 px apart; control row 34 px;
 result row 60 px, two lines in groups ([Lookup result row](#lookup-result-row)); material tile
 76 px. Rows visible, measured on the built row (Sell anywhere in the preview, no route
 sidebar; astromech-fom5, measured again by astromech-8e22 on 17 Nov 2026): at 1100 x 700 at 100

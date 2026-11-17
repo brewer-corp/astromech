@@ -57,7 +57,7 @@ describe("The Two Tab Rows Rule", () => {
     const { container } = render(App);
     await screen.findByRole("button", { name: "Raw", pressed: true });
     expect(tabRows(container).map(describeRow)).toEqual([
-      "Ships | Engineering | Places | Trade | Exploration | Powerplay | Logbook | Controls | Settings",
+      "Now | Ships | Engineering | Places | Trade | Exploration | Powerplay | Logbook | Controls | Settings",
       "Materials | Engineers",
     ]);
   });

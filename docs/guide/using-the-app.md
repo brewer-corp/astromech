@@ -15,21 +15,22 @@ left with Find or plot and Import a route.
 
 | Area | Pages |
 |---|---|
+| **Now** | Now, Station, Session, Mining: [Now](now.md), [Mining](mining.md) |
 | **Ships** | Ships, Stored modules, Suits: [Ships](ships.md) |
 | **Engineering** | Materials, Engineers: [Materials](materials.md), [Engineers](engineering.md) |
 | **Places** | [Places](places.md) |
 | **Trade** | Colonisation, Commodities: [Colonisation](colonisation.md), [Trade](trade.md) |
 | **Exploration** | System, Biology: [Exploration](exploration.md) |
 | **Powerplay** | [Powerplay](powerplay.md) |
-| **Logbook** | Logbook, Session, Mining, Station: [Logbook](logbook.md), [Mining](mining.md) |
+| **Logbook** | [Logbook](logbook.md) |
 | **Controls** | My controller, All keybinds, Presets, Key tester: [Controls](controls.md) |
 | **Settings** | General, Data sharing, Diagnostics, Voice tester: [Settings](settings.md), [Data sharing](data-sharing.md), [Voice tester](voice-tester.md) |
 
 The header holds the **Find or plot** box too (below). In a window too narrow for everything on
-one line (about 1460 pixels wide, about 1610 with Finish setup), the area tabs move to a row of
+one line (about 1600 pixels wide at 100 percent Text size, wider with Finish setup), the area tabs move to a row of
 their own under the name.
 
-It opens on **My controller**. **Finish setup** appears in the header while voice is missing
+It opens on [Now](now.md): what you are doing at the moment. **Finish setup** appears in the header while voice is missing
 something; it opens the health check.
 
 A status bar runs along the foot of every page. On the left is the ship you're flying: its name,

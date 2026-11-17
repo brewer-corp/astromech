@@ -141,7 +141,8 @@ core, reads its endpoint line and holds its stdin; its `callWindow`, `step` (`wo
   re-renders only the named mockups (the DESIGN.md ones are `ds-*`).
 - Outside Tauri (`pnpm dev` with no world, the tests, a preview build) the window's one transport,
   `app/src/lib/transport.ts`, is answered by the browser preview's fake in `app/src/preview/`
-  (`?core=ready`, `?route=exact`, `?fail=`, `?slow=`). App code reaches the backend only through
+  (`?core=ready`, `?route=exact`, `?game=running` for Elite running, `?docked=no` for in space,
+  `?fail=`, `?slow=`; the top of `app/src/preview/fakecore.ts` says what each does). App code reaches the backend only through
   `call`, `subscribe` and `previewOption` (lint enforces it); a new command or topic needs a fake
   handler (`app/src/preview/coverage.test.ts`), and a release build must carry none of the fake
   or the dev bridge (`scripts/check-dist.py app/dist` after `pnpm build`, run in CI).

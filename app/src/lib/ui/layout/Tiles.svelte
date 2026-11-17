@@ -5,10 +5,16 @@
   // narrow to 160 px rather than run off the page.
   import type { Snippet } from "svelte";
 
-  let { children, cols, heads = false, label }: { children: Snippet; cols?: number; heads?: boolean; label?: string } = $props();
+  let {
+    children,
+    cols,
+    heads = false,
+    label,
+    list = false,
+  }: { children: Snippet; cols?: number; heads?: boolean; label?: string; /** Its tiles are list items (role listitem). */ list?: boolean } = $props();
 </script>
 
-<div class="tiles" class:fixed={cols != null} class:heads style:--n={cols} role={label ? "group" : undefined} aria-label={label}>{@render children()}</div>
+<div class="tiles" class:fixed={cols != null} class:heads style:--n={cols} role={list ? "list" : label ? "group" : undefined} aria-label={label}>{@render children()}</div>
 
 <style>
   .tiles { display: grid; gap: var(--sp-2); grid-template-columns: repeat(auto-fill, minmax(12.5rem, 15rem)); align-content: start; }

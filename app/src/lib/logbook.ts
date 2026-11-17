@@ -27,6 +27,10 @@ export async function loadSession(): Promise<Session | null> {
   return await call("session_summary");
 }
 
+/** What a session's earnings count, in the Tip of the figure that shows them (Session, Now). */
+export const EARNED =
+  "Credits paid for what you did: trade sales, data, vouchers handed in, mission rewards, rescue, community goals, Odyssey goods and Powerplay salary. Selling ships, modules or drones isn't counted.";
+
 /** How the earnings kinds read. */
 export const EARNING_NAMES: Record<string, string> = {
   trade: "Trade",
