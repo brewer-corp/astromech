@@ -89,9 +89,23 @@ describe("Sell and Buy finders", () => {
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "trade.sell" });
     expect(screen.getByText(/^Within 100 ly of Sol/)).toBeTruthy();
 
+    // The range is a filter: CHANGE opens it, and the summary names the new range while Ardent
+    // is still asked, with the controls left open.
+    let release: () => void = () => {};
+    answer("trade_anywhere", async (args: { side: Side }) => {
+      await new Promise<void>((r) => (release = r));
+      return previewAnswer("trade_anywhere", args);
+    });
+    expect(screen.queryByRole("button", { name: "Anywhere" })).toBeNull();
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
     await fireEvent.click(screen.getByRole("button", { name: "Anywhere" }));
     expect(location.hash).toBe("#/places/sell/painite?range=anywhere");
+    expect(await screen.findByText("Asking Ardent Insight…")).toBeTruthy();
+    expect(screen.getByText(/^Best prices anywhere · distances from Sol/)).toBeTruthy();
+    await waitFor(() => expect(anywhere).toHaveBeenCalled());
+    release();
     expect(await screen.findByText(/FCX-800/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Anywhere" }).getAttribute("aria-pressed")).toBe("true"); // still open
     expect(anywhere).toHaveBeenLastCalledWith(expect.objectContaining({ side: "sell", commodity: "painite", origin: null }));
     // Each range keeps the filters Trade remembered for it, which voice questions use too.
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "trade.sell.anywhere" });
@@ -142,6 +156,31 @@ describe("Sell and Buy finders", () => {
     expect(stored).toMatchObject({ max_distance_ly: 20, min_volume: 5000 });
   });
 
+  it("changes where Sell searches from inside the filters, which stay open while the summary names it", async () => {
+    location.hash = "#/places/sell/painite";
+    render(Market, { finder: finder("sell") });
+    expect(await screen.findByText("Good Landing", { exact: false })).toBeTruthy();
+    expect(screen.queryByLabelText("Search from system")).toBeNull();
+    let release: () => void = () => {};
+    answer("trade_search", async (args: { side: Side }) => {
+      await new Promise<void>((r) => (release = r));
+      return previewAnswer("trade_search", args);
+    });
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
+    const box = screen.getByLabelText("Search from system");
+    await fireEvent.input(box, { target: { value: "Deciat" } });
+    await fireEvent.keyDown(box, { key: "Enter" });
+    await waitFor(() => expect(near).toHaveBeenLastCalledWith(expect.objectContaining({ side: "sell", commodities: ["painite"], origin: "Deciat" })));
+    expect(screen.getByText(/^Within 100 ly of Deciat/)).toBeTruthy();
+    release();
+    await waitFor(() => expect(screen.getByRole("table").getAttribute("aria-busy")).toBe("false"));
+    expect(screen.getByLabelText("Search from system")).toBeTruthy(); // still open
+
+    // Escape in the box closes the filters; the summary keeps the origin.
+    await fireEvent.keyDown(screen.getByLabelText("Search from system"), { key: "Escape" });
+    expect(screen.queryByLabelText("Search from system")).toBeNull();
+  });
+
   it("leaves the filters open when the search they started fails, and over TRY AGAIN", async () => {
     let stored: Filters = DEFAULT_FILTERS;
     answer("search_filters", () => stored);
@@ -175,6 +214,7 @@ describe("Sell and Buy finders", () => {
     expect(loaded).toHaveBeenLastCalledWith({ lookup: "trade.buy.anywhere" });
     expect((screen.getByRole("combobox", { name: "Commodity" }) as HTMLInputElement).value).toBe("Low Temperature Diamonds");
 
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
     await fireEvent.click(screen.getByRole("button", { name: "Near" }));
     expect(location.hash).toBe("#/places/buy/lowtemperaturediamond");
     expect(await screen.findByText(/^Within 100 ly of Sol/)).toBeTruthy();
@@ -231,6 +271,7 @@ describe("Sell and Buy finders", () => {
     render(Market, { finder: finder("sell") });
     expect(await screen.findByText("Good Landing", { exact: false })).toBeTruthy();
     expect(screen.getByText(hint)).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Change filters" }));
     await fireEvent.click(screen.getByRole("button", { name: "Anywhere" }));
     expect(await screen.findByText(/FCX-800/)).toBeTruthy();
     expect(screen.queryByText(/narrow the radius/)).toBeNull();

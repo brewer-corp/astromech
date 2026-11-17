@@ -21,8 +21,8 @@ needed is aboard, it says to deliver it. A project with nothing left says so.
 
 Under the list, a search finds stations to buy it from: the ones stocking the most of the list first,
 nearest first among equals. Each row starts with how much of the list the station sells ("3 of
-4"), then the station and what it has in stock. It searches from the construction site's system by default (clear the
-"From" to search near you), with filters for distance, stock, pad, data age, arrival distance, fleet
+4"), then the station and what it has in stock. It searches from the construction site's system by default (under **Change**, clear
+**From** to search near you), with filters for distance, stock, pad, data age, arrival distance, fleet
 carriers and Odyssey settlements. Default is 100 light years and 30 days. The filters are remembered
 as the colonisation lookup, and voice uses them. Source: Ardent Insight.
 

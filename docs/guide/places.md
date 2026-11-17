@@ -36,11 +36,13 @@ is fed by what players share with EDDN.
 
 1. Type a **commodity** in the **Commodity** box (part of its name, or a short name such as
    "LTDs") and pick it. It opens on Painite.
-2. Pick the **Range**:
+2. The page opens on the results. The line above them says how far it searched: "Within 100 ly
+   of Sol". To change that, click **Change** and pick the **Range**:
    - **Near** searches around you or a system you type, within a distance (100 light years by
      default) and data age (30 days by default).
    - **Anywhere** takes Ardent's best 100 prices in the whole galaxy that pass the filters, with
-     distances from you. Use it when nothing close pays well.
+     distances from you. Use it when nothing close pays well. The line then reads "Best prices
+     anywhere · distances from Sol".
 
 Each row is the price over the **demand** (Sell) or **stock** (Buy) in tonnes, the station over
 its system, and the trip ([How searches work](#how-searches-work)). The demand comes with the
@@ -155,11 +157,11 @@ Painite, Platinum, Musgravite, Grandidierite, Alexandrite, Benitoite, Monazite, 
 Serendibite, Osmium, Palladium, Bromellite or Tritium. The rings with a hotspot of it are listed,
 **most hotspots first**, then nearest.
 
-- **Around:** where to search from. Empty means here. Click the box to pick the route's **next
-  stop** (it then says "Next stop: Deciat"), or **Here** to go back; or type a system.
 - Filters, under **Change** ([How searches work](#how-searches-work)):
   - **Ring:** Metallic, Metal Rich, Rocky, Icy or **Any**.
   - **Reserve:** **Pristine**, **Major** (major or pristine) or **Any**.
+  - **Around:** where to search from. Empty means here. Click the box to pick the route's **next
+    stop** (it then says "Next stop: Deciat"), or **Here** to go back; or type a system.
   - **Within:** the search radius, 100 light years unless you pick another.
 
 Each row shows the ring's hotspots of the mineral, the ring and its distance from the star over
@@ -186,17 +188,18 @@ reported are not known. By voice: "nearest painite hotspot" ([Mining](mining.md#
 Every list that says "Nearest" works the same way. It appears on these finders and on
 Colonisation, Powerplay and a ship's build plan (Engineering).
 
-- **From.** Empty means your current system. Type to search from another system: names are
-  suggested as you type (Spansh), and Enter or a click picks one. The **x** goes back to your
-  current system. Mining hotspots calls it **Around** and also offers the route's next stop.
 - **Filters.** They rest as one line above the results that sums them up ("Within 100 ly of Sol
-  · large pad · reports up to 30 days old"), with **Change** after it. A filter you have changed
-  from its default is always named there. **Change** opens the controls under the line. Each
-  edit searches again at once and the controls stay open, so you can change several; **Done**,
-  **Esc** or **Change** again closes them. What you search for (commodity, module, service)
-  stays above the line. Only the filters that make sense for the list are shown, and they are
-  **remembered** for each kind of search. Voice lookups use the same remembered filters, so set
-  them here once.
+  · large pad · reports up to 30 days old"), with **Change** after it, so a finder opens on its
+  results. The line names where the search runs from and any filter you have changed from its
+  default. **Change** opens the controls under the line. Each edit searches again at once and
+  the controls stay open, so you can change several; **Done**, **Esc** or **Change** again
+  closes them. What you search for (commodity, module, service) stays above the line. Only the
+  filters that make sense for the list are shown, and they are **remembered** for each kind of
+  search. Voice lookups use the same remembered filters, so set them here once.
+  - **From:** where to search from. Empty means your current system. Type to search from another
+    system: names are suggested as you type (Spansh), and Enter or a click picks one. The **x**
+    goes back to your current system. Mining hotspots calls it **Around** and also offers the
+    route's next stop.
   - **Pad:** **S**, **M** or **L** (S is any pad). Your ship's size is marked with a ship glyph
     and is selected until you pick another.
   - **Include:** **Carriers** and **Odyssey** are bright, with an orange line under them, when those

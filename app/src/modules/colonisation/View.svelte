@@ -106,7 +106,7 @@
           </ul>
           <p class="total">{credits(project.shopping.to_buy_total)} t in all{loads}</p>
           <p class="sub">
-            Stations selling the most of the list first, nearest first among equals. Searches from the construction site's system; clear it to search near you.
+            Stations selling the most of the list first, nearest first among equals. Searches from the construction site's system; clear From under Change to search near you.
           </p>
           <SearchKit
             lookup={LOOKUP}
