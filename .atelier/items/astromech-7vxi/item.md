@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-7vxi
 title: 'Station: the docked station''s market and outfitting read as answers'
-status: approved
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -128,3 +128,8 @@ cell. Nothing needs the commander. No colour outside DESIGN.md's list.
   scrolled into full view (`docked-for-sale-1100x700`).
 - `c14ca954`: a plan can now `type` into an input, so the search shot is captured by the plan
   instead of checked by hand.
+
+**After round 1.** `atelier merge` refused because main had moved: `scripts/browser/audit.mjs`
+conflicted in its header comment only, where main added the `gap` step beside this branch's
+`type` step. The merge (`5c4028bc`) keeps both. After it, `pnpm check`, `pnpm lint` and
+`pnpm test` (845 tests) pass.
