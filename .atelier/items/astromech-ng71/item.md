@@ -3,14 +3,17 @@ schema: atelier.item
 schema_version: 3
 id: astromech-ng71
 title: 'Glance test: Ships with a module selected reads the head''s jump range as the main value, not the planned grade'
-status: draft
+status: ready
 mission: astromech-xajc
 labels:
 - bug
-priority: medium
+- size-s
+priority: high
 blocked_by: []
 implementers: []
-ready: null
+ready:
+  by: the lead of astromech-xajc
+  at: 2026-11-17T15:10:56.301215159Z
 trivial: null
 caused_by: astromech-8wr4
 created_at: 2026-11-17T15:07:41.760464010Z
@@ -22,7 +25,7 @@ On Ships with a module selected, the glance-test readers (astromech-crxa, 17 Nov
 
 ## Done when
 
-- [ ] The lead of astromech-xajc, or Sumeet, decides between changing the design and taking this page state out of the glance-test criterion, and the decision is recorded (DESIGN.md or the page's guide for a design change, the mission's `notes.md` for a scope change).
+- [ ] Decided by the lead of astromech-xajc on 19 Nov 2026: change the design. On Ships > Loadout the head's four stats are a row of equal facts, not the page's main value: they draw in Value L, Options Grey, with or without a module selected. With a module selected, the panel's planned grade is the one Value XL, Orange Lit on the page. With none selected the page has no Value XL and its main value is the ship's name in Title; the answer sheet's row for the unselected state is checked against that and asked again. DESIGN.md's Hierarchy or Board section says a row of equal stats is Value L. The change is built so, with before-and-after captures at 2560 x 1440 and 1100 x 700, and `pnpm check`, `pnpm lint` and `pnpm test` pass.
 - [ ] With a design change: the page is recaptured at 2560 x 1440 at 145 percent the way `docs/design/final/glance-plan.json` takes its captures, and a fresh agent given only that capture and the prompt in `docs/design/final/glance-test.md` answers "main value" as the sheet's row 7 expects; the answers and mark are added to `glance-test.md`.
 
 ## Scope
