@@ -70,7 +70,7 @@
   .section { margin-bottom: var(--sp-3); }
   .row { display: grid; grid-template-columns: 200px 1fr; align-items: center; min-height: var(--row); margin-bottom: var(--gap); }
   .lab { color: var(--options-grey); padding-left: var(--sp-3); }
-  .fact { padding: 0 var(--sp-3); color: var(--accent); }
+  .fact { padding: 0 var(--sp-3); color: var(--prose); }
   .value { justify-content: space-between; }
   .value.binding > span:first-child { color: var(--options-grey); }
   .end { display: flex; align-items: center; gap: var(--sp-2); margin-right: calc(-1 * var(--sp-2)); }

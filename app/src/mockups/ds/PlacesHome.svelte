@@ -56,9 +56,10 @@
   .home { max-width: var(--list-w); display: grid; grid-template-columns: 1fr; gap: var(--sp-6); }
   .section { margin-bottom: var(--sp-3); max-width: calc(3 * 220px + 2 * var(--sp-2)); }
   .tiles { display: grid; grid-template-columns: repeat(auto-fill, 220px); gap: var(--sp-2); max-width: calc(3 * 220px + 2 * var(--sp-2)); }
-  .tile { display: grid; grid-template-rows: auto auto 1fr; gap: var(--sp-1); min-height: 104px; padding: var(--sp-3); background: var(--surface); text-decoration: none; color: inherit; }
-  .tile.hover { background: var(--row-hover); outline: 1px solid var(--line); outline-offset: -1px; }
-  .name { font-weight: 500; }
+  .tile { display: grid; grid-template-rows: auto auto 1fr; gap: var(--sp-1); min-height: 104px; padding: var(--sp-3); outline: 1px solid var(--line); outline-offset: -1px; text-decoration: none; color: inherit; }
+  .tile.hover { background: var(--row-hover); }
+  /* The finder's name is what you press: Orange. */
+  .tile .name { color: var(--accent); }
   .answer { align-self: end; display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-2); }
-  .v { font-size: var(--fs-l); font-weight: 600; color: var(--orange-lit); }
+  .v { font-size: var(--fs-l); font-weight: 600; color: var(--options-grey); }
 </style>

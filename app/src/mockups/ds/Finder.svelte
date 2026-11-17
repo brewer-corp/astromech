@@ -115,7 +115,7 @@
       </div>
       {#each f.rows as r, i (r.place)}
         <div class="row" class:hover={i === hover} class:stale={r.stale}>
-          <span class="r lead"><span class="lit v">{r.lead}</span>{#if f.lead.unit}<span class="unit">{f.lead.unit}</span>{/if}</span>
+          <span class="r lead"><span class="v">{r.lead}</span>{#if f.lead.unit}<span class="unit">{f.lead.unit}</span>{/if}</span>
           <span class="place"><span class="pname">{r.place}</span><span class="sys label">{r.system}</span><Copy /></span>
           {#each f.cols as c (c.key)}
             {@const text = c.key === "also" || c.key === "ring" || c.key === "reserve"}
@@ -136,7 +136,7 @@
 
 <style>
   .finder { max-width: var(--list-w); }
-  .crumb { color: var(--label-grey); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+  .crumb { color: var(--accent); text-decoration: underline; text-decoration-color: var(--orange-mid); text-underline-offset: 3px; }
   .head { display: flex; align-items: flex-end; gap: var(--sp-8); margin: var(--sp-1) 0 var(--sp-4); }
   .main { display: flex; align-items: center; gap: var(--sp-3); }
   .input { width: 320px; }
@@ -148,13 +148,14 @@
   .row.heads { height: 28px; border-bottom: 1px solid var(--line); }
   .row.hover { background: var(--row-hover); }
   .row.hover .ibtn { color: var(--orange-lit); }
-  /* Stale: the name stays Orange, the value and facts step down to Mid, the age stays Orange. */
-  .row.stale > span, .row.stale .v { color: var(--label-grey); }
-  .row.stale .pname, .row.stale .age { color: var(--accent); }
+  /* Stale: the ranked value steps down to Orange Mid, and the age, the brightest fact, is Orange. */
+  .row.stale .v { color: var(--orange-mid); }
+  .row.stale .age { color: var(--accent); }
   .r { text-align: right; }
-  .lead .v { font-size: var(--fs-l); font-weight: 600; }
+  /* The value the list is ranked by: its one orange column. */
+  .lead .v { font-size: var(--fs-l); font-weight: 600; color: var(--accent); }
   .place { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; overflow: hidden; }
-  .pname { font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
+  .pname { color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
   .sys { overflow: hidden; text-overflow: ellipsis; }
   .place :global(.ibtn) { margin-left: -6px; }
   .acts { display: flex; justify-content: flex-end; gap: var(--sp-1); }
