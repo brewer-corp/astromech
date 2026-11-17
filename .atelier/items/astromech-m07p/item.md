@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-m07p
 title: Colonisation as progress per commodity
-status: approved
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
