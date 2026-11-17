@@ -16,7 +16,8 @@
 
   let ov = $state<Overview | null>(null);
   let err = $state<string | null>(null);
-  /** The clock the time left is told from: the moment of the last read. */
+  /** The clock the cycle is told from: the moment the last read settled, answered or failed, so
+   * the cycle turns over while the core is silent too. */
   let now = $state(Date.now());
 
   $effect(() => {
@@ -27,7 +28,10 @@
           err = null;
           now = Date.now();
         })
-        .catch((e: unknown) => (err = pollFailure("read your Powerplay standing", e, ov !== null)));
+        .catch((e: unknown) => {
+          err = pollFailure("read your Powerplay standing", e, ov !== null);
+          now = Date.now();
+        });
     void load();
     const t = setInterval(() => void load(), 2000);
     return () => clearInterval(t);

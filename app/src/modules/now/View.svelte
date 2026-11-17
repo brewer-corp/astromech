@@ -153,7 +153,7 @@
           >
             {#if power.value && pledged}
               {@const st = power.value.standing}
-              {@const now = Date.now()}
+              {@const now = power.at}
               <p class="value">
                 <span class="type-value-xl" {@attach tip("What the journal logs since Thursday 07:00 UTC; weekly assignment rewards aren’t logged")}>{num(cycleMerits(st, now))}</span><span class="type-unit">merits this cycle</span>
               </p>

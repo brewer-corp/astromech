@@ -183,13 +183,18 @@ describe("Now", () => {
     expect(screen.queryByRole("list", { name: "Services" })).toBeNull();
   });
 
-  it("after the recorded cycle end, the Powerplay block counts to the next one and leaves out the ended cycle's merits", async () => {
-    // The powerplay world's cycle ended 2026-10-22 07:00 UTC; the core hasn't answered since.
-    vi.useFakeTimers({ toFake: ["Date"] });
-    vi.setSystemTime(Date.parse("2026-10-22T07:01:00Z"));
+  it("the Powerplay block turns the cycle over while reads fail: counts to the next end and leaves out the ended cycle's merits", async () => {
+    // The powerplay world's cycle ends 2026-10-22 07:00 UTC; the core stops answering a minute before.
+    vi.useFakeTimers({ toFake: ["Date", "setInterval", "clearInterval"] });
+    vi.setSystemTime(Date.parse("2026-10-22T06:59:00Z"));
     startPreview("/?core=ready");
     render(View);
     const power = await block("Powerplay");
+    expect(await power.findByText("1 min left in the cycle")).toBeTruthy();
+    expect(power.getByText("1,829")).toBeTruthy();
+
+    answer("powerplay_overview", () => Promise.reject(new Error("core stopped")));
+    await vi.advanceTimersByTimeAsync(2 * 60000);
     expect(await power.findByText("6 d 23 h left in the cycle")).toBeTruthy();
     expect(power.queryByText("1,829")).toBeNull();
   });

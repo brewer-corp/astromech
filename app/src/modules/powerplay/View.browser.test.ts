@@ -71,12 +71,20 @@ describe("Powerplay page", () => {
     expect(screen.getByText(/Pledged 37 weeks/)).toBeTruthy();
   });
 
-  it("after the recorded cycle end, counts to the next one and leaves out the ended cycle's merits", async () => {
-    overview.mockResolvedValue({ standing: { ...standing, week_ends: new Date(NOW - 60000).toISOString() }, here: null, system: null });
+  it("turns the cycle over while reads fail: counts to the next end and leaves out the ended cycle's merits", async () => {
+    vi.useFakeTimers({ toFake: ["Date", "setInterval", "clearInterval"] });
+    const end = Date.parse("2026-10-22T07:00:00Z");
+    vi.setSystemTime(end - 60000);
+    overview.mockResolvedValueOnce({ standing: { ...standing, week_ends: new Date(end).toISOString() }, here: null, system: null });
+    overview.mockRejectedValue(new Error("core stopped"));
     render(View);
     const cycle = within(await screen.findByRole("region", { name: "This cycle" }));
+    expect(await cycle.findByText("1 min")).toBeTruthy();
+    expect(screen.getByText("1,829")).toBeTruthy();
+
+    await vi.advanceTimersByTimeAsync(2 * 60000);
     expect(await cycle.findByText("6 d 23 h")).toBeTruthy();
-    expect(cycle.getByText(`Ends ${endsAt(new Date(NOW + 7 * 86400000 - 60000).toISOString())}`)).toBeTruthy();
+    expect(cycle.getByText(`Ends ${endsAt(new Date(end).toISOString(), end + 60000)}`)).toBeTruthy();
     const merits = within(screen.getByRole("region", { name: "Your merits" }));
     expect(merits.queryByText("1,829")).toBeNull();
     expect(merits.getByText("–")).toBeTruthy();
