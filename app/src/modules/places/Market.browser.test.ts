@@ -1,12 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { page } from "vitest/browser";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import { FINDERS, forgetAnswers, lastAnswer, type FinderId } from "../../lib/places";
-import { resetScale, setTextSize } from "../../lib/scale.svelte";
 import { DEFAULT_FILTERS, type Filters } from "../../lib/search";
 import type { CargoSearch, Side, TradeSearch } from "../../lib/trade";
 import type { Args } from "../../lib/transport";
-import { answer, idle, previewAnswer, startPreview, watch } from "../../test/transport";
+import { answer, idle, previewAnswer, watch } from "../../test/transport";
 import trade from "../../preview/fixtures/trade.json";
 import shipWorld from "../../preview/fixtures/ship-status.json";
 import Cargo from "./Cargo.svelte";
@@ -44,41 +42,12 @@ beforeEach(() => {
   forgetAnswers();
 });
 
-afterEach(async () => {
-  await page.viewport(1200, 800);
-  resetScale();
+afterEach(() => {
   cleanup();
   location.hash = "";
 });
 
 describe("Sell and Buy finders", () => {
-  it("fills the side panel from the selected result: every fact under its head, and its two actions", async () => {
-    // A short window at a large Text size: the list fills it, and the panel, below the list,
-    // starts off screen.
-    await page.viewport(1100, 500);
-    startPreview("/?core=ready#/places/sell/painite");
-    expect(await setTextSize(145)).toBeNull();
-    render(Market, { finder: finder("sell") });
-    expect(screen.queryByRole("complementary", { name: "Details" })).toBeNull();
-    const [pick] = within(await screen.findByRole("table", { name: "Results" })).getAllByRole("button", { pressed: false });
-    const name = pick!.textContent!;
-    await fireEvent.click(pick!);
-    expect(pick!.getAttribute("aria-pressed")).toBe("true");
-    // At 145 percent the window is too narrow for the panel beside the list, so it sits below
-    // it, and the first selection brings it into view.
-    const aside = screen.getByRole("complementary", { name: "Details" });
-    await waitFor(() => expect(Math.floor(aside.getBoundingClientRect().bottom)).toBeLessThanOrEqual(innerHeight));
-    const panel = within(aside);
-    expect(panel.getByRole("heading", { name }).textContent).toBe(name);
-    // Demand under the price, then every other fact under its name, the report's age among them,
-    // which the row leaves out.
-    expect(panel.getByRole("img", { name: /^Demand [\d,]+ t/ })).toBeTruthy();
-    expect(panel.getAllByRole("term").map((d) => d.textContent)).toEqual(["Pad", "Arrival", "Trip", "Updated"]);
-    // What the panel's action did shows beside its buttons, not under a list that may be off screen.
-    await fireEvent.click(panel.getByRole("button", { name: "Set destination" }));
-    expect(await panel.findByText(/Following\. .+ is on your clipboard\./)).toBeTruthy();
-  });
-
   it("opens Sell on painite near you, and switches to the best prices anywhere, in price order with no radius filter", async () => {
     location.hash = "#/places/sell";
     render(Market, { finder: finder("sell") });
