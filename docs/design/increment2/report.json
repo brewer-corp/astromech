@@ -1,0 +1,8976 @@
+{
+ "commit": "c248958b",
+ "captures": {
+  "sell-selected-1100x700": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/places/sell/painite",
+   "file": "docs/design/increment2/sell-selected-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Good Landing"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Sabine Point",
+      "LHS 1827",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 17,
+     "texts": [
+      "4 of 10",
+      "7",
+      "1,670",
+      "L",
+      "2",
+      "~2",
+      "In",
+      "13,884",
+      "22,200",
+      "1 jump · 18.8",
+      "32",
+      "18.0",
+      "24.6",
+      "120"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "211,587"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "117,548",
+      "Add stop",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 38,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "cr",
+      "t",
+      "ls"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Places",
+      "Set destination"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "sell-selected-1920x1080": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/places/sell/painite",
+   "file": "docs/design/increment2/sell-selected-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Sell",
+      "Good Landing"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "Cousteau Vista",
+      "Radium Station",
+      "FCX-024",
+      "Tevis Terminal",
+      "Makhai High",
+      "Grandin Gateway",
+      "Sabine Point",
+      "LHS 1827",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 47,
+     "texts": [
+      "cr",
+      "13,884",
+      "t",
+      "L",
+      "22,200",
+      "ls",
+      "LHS 1827",
+      "1",
+      "jump",
+      "18.8",
+      "ly",
+      "1,960",
+      "2,404",
+      "~2"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "211,587"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "sell-selected-2560x1440": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=145#/places/sell/painite",
+   "file": "docs/design/increment2/sell-selected-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Sell",
+      "Good Landing"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "Cousteau Vista",
+      "Radium Station",
+      "FCX-024",
+      "Tevis Terminal",
+      "Makhai High",
+      "Grandin Gateway",
+      "Sabine Point",
+      "LHS 1827",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 47,
+     "texts": [
+      "cr",
+      "13,884",
+      "t",
+      "L",
+      "22,200",
+      "ls",
+      "LHS 1827",
+      "1",
+      "jump",
+      "18.8",
+      "ly",
+      "1,960",
+      "2,404",
+      "~2"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "211,587"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "sell-selected-3840x2160": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=180#/places/sell/painite",
+   "file": "docs/design/increment2/sell-selected-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "ASTROMECH",
+      "Sell",
+      "Good Landing"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "Cousteau Vista",
+      "Radium Station",
+      "FCX-024",
+      "Tevis Terminal",
+      "Makhai High",
+      "Grandin Gateway",
+      "Sabine Point",
+      "LHS 1827",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 47,
+     "texts": [
+      "cr",
+      "13,884",
+      "t",
+      "L",
+      "22,200",
+      "ls",
+      "LHS 1827",
+      "1",
+      "jump",
+      "18.8",
+      "ly",
+      "1,960",
+      "2,404",
+      "~2"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "211,587"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split.side > aside. > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "sell-selected-route-over-1100x700": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/places/sell/painite",
+   "file": "docs/design/increment2/sell-selected-route-over-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "over",
+    "sidebar": 319,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Good Landing"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Sabine Point",
+      "LHS 1827",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "1,670",
+      "L",
+      "In",
+      "13,884",
+      "22,200",
+      "1 jump · 18.8",
+      "32",
+      "18.0",
+      "24.6",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "211,587"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Close the route",
+     "sidebar": false,
+     "at": "div.body > div.col > div.strip > button.fold.open"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.split > aside.stacked > div.pacts > button.btn.primary"
+    }
+   ]
+  },
+  "materials-1100x700": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/materials",
+   "file": "docs/design/increment2/materials-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Niobium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Yttrium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Chromium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Molybdenum",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Technetium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Sulphur",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Cadmium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Ruthenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Zinc",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Tin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Selenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Materials",
+      "89",
+      "9",
+      "4",
+      "22",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 12,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Carbon",
+      "Vanadium",
+      "Phosphorus",
+      "Manganese",
+      "Iron",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Raw"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Manufactured",
+      "Encoded",
+      "On foot",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 36,
+     "texts": [
+      "Ships",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Engineers",
+      "Raw material trader",
+      "· 132 / 6,300"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#6a6a6a",
+     "lum": 0.144,
+     "sidebar": false,
+     "weight": 25,
+     "texts": [
+      "0",
+      "Niobium",
+      "Yttrium",
+      "Chromium",
+      "Molybdenum",
+      "Technetium",
+      "Sulphur",
+      "Cadmium",
+      "Ruthenium",
+      "Zinc",
+      "Tin",
+      "Selenium"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "materials-1920x1080": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/materials",
+   "file": "docs/design/increment2/materials-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Niobium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Yttrium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Chromium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Molybdenum",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Technetium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Sulphur",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Cadmium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Ruthenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Zinc",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Tin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Selenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Nickel",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Tungsten",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Tellurium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Rhenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Arsenic",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Mercury",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Polonium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Lead",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Zirconium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Boron",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Antimony",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Raw"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Materials",
+      "89",
+      "9",
+      "4",
+      "22",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Carbon",
+      "Vanadium",
+      "Phosphorus",
+      "Manganese",
+      "Iron",
+      "Germanium",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Raw",
+      "132"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "materials-2560x1440": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=145#/materials",
+   "file": "docs/design/increment2/materials-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Niobium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Yttrium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Chromium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Molybdenum",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Technetium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Sulphur",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Cadmium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Ruthenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Zinc",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Tin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Selenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Nickel",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Tungsten",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Tellurium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Rhenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Arsenic",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Mercury",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Polonium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Lead",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Zirconium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Boron",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Antimony",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Raw"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Materials",
+      "89",
+      "9",
+      "4",
+      "22",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Carbon",
+      "Vanadium",
+      "Phosphorus",
+      "Manganese",
+      "Iron",
+      "Germanium",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Raw",
+      "132"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "materials-3840x2160": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=180#/materials",
+   "file": "docs/design/increment2/materials-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1060
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Niobium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Yttrium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Chromium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Molybdenum",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Technetium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Sulphur",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Cadmium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Ruthenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Zinc",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Tin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Selenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Nickel",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Tungsten",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Tellurium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Rhenium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Arsenic",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Mercury",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Polonium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Lead",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Zirconium",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Boron",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "0",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 28,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-value-xl.q",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Antimony",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 13,
+     "at": "div.out > div.tiles.fixed.heads > button.cell.empty > span.type-label.n",
+     "token": "grey-dim",
+     "image": true
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Raw"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 8,
+     "texts": [
+      "Materials",
+      "89",
+      "9",
+      "4",
+      "22",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 11,
+     "texts": [
+      "Carbon",
+      "Vanadium",
+      "Phosphorus",
+      "Manganese",
+      "Iron",
+      "Germanium",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Raw",
+      "132"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "engineers-laser-1100x700": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/unlocks?q=laser",
+   "file": "docs/design/increment2/engineers-laser-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Introduction from Elvira Martuuk: raise your rank with them ",
+     "by": "ellipsis",
+     "at": "div.list > div.row > div.grp > span.type-label.step.locked"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "div.list > div.row > div.grp > span.type-name.ename.locked",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "The Dweller"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Engineers",
+      "Wyrd",
+      "Luchtaine",
+      "Muang",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Pulse 4 · burst 3 · beam 3",
+      "Grade 5 on all three",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Unlock Hera Tani first.",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "75.5"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Waiting for Elite",
+      "laser"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "The Dweller",
+      "Mel Brandon"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 30,
+     "texts": [
+      "Ships",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Materials",
+      "Pulse, burst and beam lasers · 3 engineers · distances from ",
+      "None unlocked yet: nearest to unlock"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.answer > div.best > div.bline > button.btn.primary"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    }
+   ]
+  },
+  "engineers-laser-1920x1080": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/unlocks?q=laser",
+   "file": "docs/design/increment2/engineers-laser-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Introduction from Elvira Martuuk: raise your rank with them ",
+     "by": "ellipsis",
+     "at": "div.list > div.row > div.grp > span.type-label.step.locked"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "div.list > div.row > div.grp > span.type-name.ename.locked",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "The Dweller"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Engineers",
+      "Wyrd",
+      "Luchtaine",
+      "Muang",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Pulse 4 · burst 3 · beam 3",
+      "Grade 5 on all three",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Unlock Hera Tani first.",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "75.5"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.answer > div.best > div.bline > button.btn.primary"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    }
+   ]
+  },
+  "engineers-laser-2560x1440": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=145#/unlocks?q=laser",
+   "file": "docs/design/increment2/engineers-laser-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Introduction from Elvira Martuuk: raise your rank with them ",
+     "by": "ellipsis",
+     "at": "div.list > div.row > div.grp > span.type-label.step.locked"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "div.list > div.row > div.grp > span.type-name.ename.locked",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "The Dweller"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Engineers",
+      "Wyrd",
+      "Luchtaine",
+      "Muang",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Pulse 4 · burst 3 · beam 3",
+      "Grade 5 on all three",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Unlock Hera Tani first.",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "75.5"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.answer > div.best > div.bline > button.btn.primary"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    }
+   ]
+  },
+  "engineers-laser-3840x2160": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=180#/unlocks?q=laser",
+   "file": "docs/design/increment2/engineers-laser-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1060
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Introduction from Elvira Martuuk: raise your rank with them ",
+     "by": "ellipsis",
+     "at": "div.list > div.row > div.grp > span.type-label.step.locked"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Broo Tarquin",
+     "ratio": 3.59,
+     "fg": "#6a6a6a",
+     "bg": "#0c0d0f",
+     "px": 15,
+     "at": "div.list > div.row > div.grp > span.type-name.ename.locked",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "The Dweller"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "Engineers",
+      "Wyrd",
+      "Luchtaine",
+      "Muang",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "Invitation: Deal in stolen or illicit goods at 5 Black Marke",
+      "Pulse 4 · burst 3 · beam 3",
+      "Grade 5 on all three",
+      "Introduction from Elvira Martuuk: raise your rank with them ",
+      "Unlock Hera Tani first.",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "75.5"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Engineering",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Set destination",
+     "sidebar": false,
+     "at": "div.answer > div.best > div.bline > button.btn.primary"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    },
+    {
+     "colour": "#d97a34",
+     "text": "",
+     "sidebar": false,
+     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
+    }
+   ]
+  },
+  "ships-1100x700": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/engineering",
+   "file": "docs/design/increment2/ships-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Ships",
+      "Long Way Round",
+      "Unnamed",
+      "Synthetic_Krait",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Anaconda",
+      "Flying now",
+      "165M",
+      "12M",
+      "0 / 3",
+      "Current ship",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Info"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Engineering",
+      "Coriolis",
+      "EDSY",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 35,
+     "texts": [
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Stored modules",
+      "Suits",
+      "Open in"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Ships"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "ships-1920x1080": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/engineering",
+   "file": "docs/design/increment2/ships-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 18,
+     "texts": [
+      "Ships",
+      "–",
+      "25",
+      "80",
+      "10",
+      "– MW",
+      "0.0",
+      "Long Way Round",
+      "Unnamed",
+      "Synthetic_Krait",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "Anaconda",
+      "Flying now",
+      "165M",
+      "12M",
+      "0 / 3",
+      "Strength",
+      "DPS",
+      "Current ship",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Info"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "ships-2560x1440": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=145#/engineering",
+   "file": "docs/design/increment2/ships-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 18,
+     "texts": [
+      "Ships",
+      "–",
+      "25",
+      "80",
+      "10",
+      "– MW",
+      "0.0",
+      "Long Way Round",
+      "Unnamed",
+      "Synthetic_Krait",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "Anaconda",
+      "Flying now",
+      "165M",
+      "12M",
+      "0 / 3",
+      "Strength",
+      "DPS",
+      "Current ship",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Info"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "ships-3840x2160": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=180#/engineering",
+   "file": "docs/design/increment2/ships-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1060
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "ASTROMECH",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 18,
+     "texts": [
+      "Ships",
+      "–",
+      "25",
+      "80",
+      "10",
+      "– MW",
+      "0.0",
+      "Long Way Round",
+      "Unnamed",
+      "Synthetic_Krait",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "Anaconda",
+      "Flying now",
+      "165M",
+      "12M",
+      "0 / 3",
+      "Strength",
+      "DPS",
+      "Current ship",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Info"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "suits-1100x700": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/suits",
+   "file": "docs/design/increment2/suits-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "Suits",
+      "Maverick Suit grade 1 → 3",
+      "Night Vision (suit)",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Carbon Fibre Plating",
+      "0 / 7",
+      "Health Monitor",
+      "1 / 3",
+      "NOC Data",
+      "0 / 3",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "2 / 5",
+      "Surveillance Logs",
+      "18.0",
+      "24.6"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Arietis Sector LD-H a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 12,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Remove",
+      "−7",
+      "−2",
+      "−3",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 34,
+     "texts": [
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Ships",
+      "Stored modules",
+      "Sample ShipLocker · 2026-10-14 12:05:00"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Ships",
+      "Add"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add",
+     "sidebar": false,
+     "at": "section. > div.out > div.picker > button.btn.primary"
+    }
+   ]
+  },
+  "suits-1920x1080": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/suits",
+   "file": "docs/design/increment2/suits-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Karma P-15 grade 1 → 2"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Suits",
+      "Maverick Suit grade 1 → 3",
+      "Night Vision (suit)",
+      "Oden Geiger",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 28,
+     "texts": [
+      "Carbon Fibre Plating",
+      "0 / 7",
+      "Health Monitor",
+      "1 / 3",
+      "NOC Data",
+      "0 / 3",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "2 / 5",
+      "Surveillance Logs",
+      "Everything's in the locker.",
+      "Shopping list",
+      "7",
+      "0"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Remove",
+      "−7",
+      "−2",
+      "−3",
+      "7",
+      "2",
+      "3",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add",
+     "sidebar": false,
+     "at": "section. > div.out > div.picker > button.btn.primary"
+    }
+   ]
+  },
+  "suits-2560x1440": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=145#/suits",
+   "file": "docs/design/increment2/suits-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Karma P-15 grade 1 → 2"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Suits",
+      "Maverick Suit grade 1 → 3",
+      "Night Vision (suit)",
+      "Oden Geiger",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 25,
+     "texts": [
+      "Carbon Fibre Plating",
+      "0 / 7",
+      "Health Monitor",
+      "1 / 3",
+      "NOC Data",
+      "0 / 3",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "2 / 5",
+      "Surveillance Logs",
+      "Everything's in the locker.",
+      "Shopping list",
+      "7",
+      "0"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 14,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Remove",
+      "−7",
+      "−2",
+      "−3",
+      "7",
+      "2",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add",
+     "sidebar": false,
+     "at": "section. > div.out > div.picker > button.btn.primary"
+    }
+   ]
+  },
+  "suits-3840x2160": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=180#/suits",
+   "file": "docs/design/increment2/suits-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1060
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Karma P-15 grade 1 → 2"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 5,
+     "texts": [
+      "Suits",
+      "Maverick Suit grade 1 → 3",
+      "Night Vision (suit)",
+      "Oden Geiger",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 37,
+     "texts": [
+      "Carbon Fibre Plating",
+      "0 / 7",
+      "Health Monitor",
+      "1 / 3",
+      "NOC Data",
+      "0 / 3",
+      "Radioactivity Data",
+      "Surveillance Equipment",
+      "2 / 5",
+      "Surveillance Logs",
+      "Everything's in the locker.",
+      "Shopping list",
+      "7",
+      "0"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 18,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Remove",
+      "−7",
+      "−2",
+      "−3",
+      "7",
+      "2",
+      "3",
+      "Waiting for Elite"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add",
+     "sidebar": false,
+     "at": "section. > div.out > div.picker > button.btn.primary"
+    }
+   ]
+  },
+  "powerplay-1100x700": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/powerplay",
+   "file": "docs/design/increment2/powerplay-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Li Yong-Rui"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 17,
+     "texts": [
+      "9",
+      "47,129",
+      "1,829",
+      "0",
+      "10",
+      "7,871",
+      "Piscium Sector EB-X b1-3",
+      "8%",
+      "Crimes",
+      "Flood markets",
+      "Holoscreen hacking",
+      "Power classified data",
+      "Power political data",
+      "Piscium Sector YJ-A b2"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 20,
+     "texts": [
+      "4 of 10",
+      "7",
+      "My standing",
+      "262 days",
+      "·",
+      "merits to go",
+      "This system",
+      "Undermining target",
+      "Pranav Antal",
+      "Exploited",
+      "reinforcement",
+      "· undermining",
+      "Li Yong-Rui",
+      "What earns merits here"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Acquire"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 10,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Spansh",
+      "Inara",
+      "Reinforce",
+      "Undermine",
+      "Change",
+      "~1",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 46,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "Rank",
+      "Merits",
+      "This week"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Powerplay"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Powerplay",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "powerplay-1920x1080": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/powerplay",
+   "file": "docs/design/increment2/powerplay-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 984
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Piscium Sector EB-X b1-3",
+     "by": "ellipsis",
+     "at": "div.panel > p.sys > span.chip > span.name"
+    },
+    {
+     "text": "Piscium Sector YJ-A b2",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l1 > span.name"
+    },
+    {
+     "text": "Unoccupied, acquisition 32%",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l2.in > span.text"
+    },
+    {
+     "text": "Unoccupied, acquisition 24%",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l2.in > span.text"
+    },
+    {
+     "text": "Piscium Sector GW-W b1-6",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l1 > span.name"
+    },
+    {
+     "text": "Unoccupied, acquisition 9% · also Pranav Antal",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l2.in > span.text"
+    },
+    {
+     "text": "Piscium Sector ZE-A c16",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l1 > span.name"
+    },
+    {
+     "text": "Unoccupied, acquisition 82%",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l2.in > span.text"
+    },
+    {
+     "text": "Piscium Sector AV-Y b0",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l1 > span.name"
+    },
+    {
+     "text": "Unoccupied, acquisition 13% · also Pranav Antal",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l2.in > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Li Yong-Rui"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 30,
+     "texts": [
+      "9",
+      "47,129",
+      "1,829",
+      "0",
+      "10",
+      "7,871",
+      "Piscium Sector EB-X b1-3",
+      "8%",
+      "Crimes",
+      "Flood markets",
+      "Holoscreen hacking",
+      "Power classified data",
+      "Power political data",
+      "Power research data"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 28,
+     "texts": [
+      "My standing",
+      "262 days",
+      "·",
+      "merits to go",
+      "This system",
+      "Undermining target",
+      "Pranav Antal",
+      "Exploited",
+      "reinforcement",
+      "· undermining",
+      "Li Yong-Rui",
+      "What earns merits here",
+      "Where to work",
+      "Unoccupied, acquisition 32%"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Acquire"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Powerplay",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "powerplay-2560x1440": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=145#/powerplay",
+   "file": "docs/design/increment2/powerplay-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Li Yong-Rui"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 30,
+     "texts": [
+      "9",
+      "47,129",
+      "1,829",
+      "0",
+      "10",
+      "7,871",
+      "Piscium Sector EB-X b1-3",
+      "8%",
+      "Crimes",
+      "Flood markets",
+      "Holoscreen hacking",
+      "Power classified data",
+      "Power political data",
+      "Power research data"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 28,
+     "texts": [
+      "My standing",
+      "262 days",
+      "·",
+      "merits to go",
+      "This system",
+      "Undermining target",
+      "Pranav Antal",
+      "Exploited",
+      "reinforcement",
+      "· undermining",
+      "Li Yong-Rui",
+      "What earns merits here",
+      "Where to work",
+      "Unoccupied, acquisition 32%"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Acquire"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Powerplay",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "powerplay-3840x2160": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=180#/powerplay",
+   "file": "docs/design/increment2/powerplay-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1103.9
+    }
+   },
+   "sideways": [],
+   "clipped": [
+    {
+     "text": "Piscium Sector GW-W b1-6",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l1 > span.name"
+    },
+    {
+     "text": "Unoccupied, acquisition 9% · also Pranav Antal",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l2.in > span.text"
+    },
+    {
+     "text": "Unoccupied, acquisition 13% · also Pranav Antal",
+     "by": "ellipsis",
+     "at": "div.row.result > span.g.place > span.l2.in > span.text"
+    }
+   ],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "Li Yong-Rui"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 30,
+     "texts": [
+      "9",
+      "47,129",
+      "1,829",
+      "0",
+      "10",
+      "7,871",
+      "Piscium Sector EB-X b1-3",
+      "8%",
+      "Crimes",
+      "Flood markets",
+      "Holoscreen hacking",
+      "Power classified data",
+      "Power political data",
+      "Power research data"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 28,
+     "texts": [
+      "My standing",
+      "262 days",
+      "·",
+      "merits to go",
+      "This system",
+      "Undermining target",
+      "Pranav Antal",
+      "Exploited",
+      "reinforcement",
+      "· undermining",
+      "Li Yong-Rui",
+      "What earns merits here",
+      "Where to work",
+      "Unoccupied, acquisition 32%"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Acquire"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Powerplay",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "settings-1100x700": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/settings",
+   "file": "docs/design/increment2/settings-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 9,
+     "texts": [
+      "General",
+      "Text size",
+      "Start with Windows",
+      "Setup",
+      "Push-to-talk",
+      "Kill switch",
+      "Speech models",
+      "Voice",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 14,
+     "texts": [
+      "4 of 10",
+      "7",
+      "Window",
+      "The size of all text in the window. A bigger window shows mo",
+      "Startup",
+      "Starts quietly in the tray and waits for Elite, so voice is ",
+      "Voice",
+      "Installed",
+      "Voice responses",
+      "18.0",
+      "24.6",
+      "32",
+      "120",
+      "256"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "100%",
+      "On"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 18,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "115%",
+      "130%",
+      "145%",
+      "160%",
+      "180%",
+      "Off",
+      "Done",
+      "Run again",
+      "L · Joy 4",
+      "Change",
+      "Scroll Lock"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 23,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Next",
+      "To",
+      "jumps left",
+      "Data sharing",
+      "Diagnostics",
+      "Voice tester"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Settings"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "settings-1920x1080": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/settings",
+   "file": "docs/design/increment2/settings-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 17,
+     "texts": [
+      "General",
+      "Text size",
+      "Start with Windows",
+      "Setup",
+      "Push-to-talk",
+      "Kill switch",
+      "Speech models",
+      "Voice",
+      "Speaker",
+      "Colour",
+      "Speed",
+      "Device",
+      "Calibration",
+      "Arrival briefing"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 16,
+     "texts": [
+      "Window",
+      "The size of all text in the window. A bigger window shows mo",
+      "Startup",
+      "Starts quietly in the tray and waits for Elite, so voice is ",
+      "Voice",
+      "Installed",
+      "Voice responses",
+      "Cockpit sounds like the ship's PA, close to Elite's own voic",
+      "Microphone",
+      "Calibration measures the room and your voice on this mic, so",
+      "Callouts",
+      "18.0",
+      "24.6",
+      "32"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "100%",
+      "On",
+      "Cockpit",
+      "Off"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "settings-2560x1440": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=145#/settings",
+   "file": "docs/design/increment2/settings-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "General",
+      "Text size",
+      "Start with Windows",
+      "Setup",
+      "Push-to-talk",
+      "Kill switch",
+      "Speech models",
+      "Voice",
+      "Speaker",
+      "Colour",
+      "Speed",
+      "Device",
+      "Calibration",
+      "Arrival briefing"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 16,
+     "texts": [
+      "Window",
+      "The size of all text in the window. A bigger window shows mo",
+      "Startup",
+      "Starts quietly in the tray and waits for Elite, so voice is ",
+      "Voice",
+      "Installed",
+      "Voice responses",
+      "Cockpit sounds like the ship's PA, close to Elite's own voic",
+      "Microphone",
+      "Calibration measures the room and your voice on this mic, so",
+      "Callouts",
+      "18.0",
+      "24.6",
+      "32"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "145%",
+      "On",
+      "Cockpit"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "settings-3840x2160": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=180#/settings",
+   "file": "docs/design/increment2/settings-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1060
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 18,
+     "texts": [
+      "General",
+      "Text size",
+      "Start with Windows",
+      "Setup",
+      "Push-to-talk",
+      "Kill switch",
+      "Speech models",
+      "Voice",
+      "Speaker",
+      "Colour",
+      "Speed",
+      "Device",
+      "Calibration",
+      "Arrival briefing"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 18,
+     "texts": [
+      "Window",
+      "The size of all text in the window. A bigger window shows mo",
+      "Startup",
+      "Starts quietly in the tray and waits for Elite, so voice is ",
+      "Voice",
+      "Installed",
+      "Voice responses",
+      "Cockpit sounds like the ship's PA, close to Elite's own voic",
+      "Microphone",
+      "Calibration measures the room and your voice on this mic, so",
+      "Callouts",
+      "Spoken lines astromech says on its own as you play. Off mean",
+      "Prospector callouts",
+      "18.0"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "180%",
+      "On",
+      "Cockpit",
+      "Off"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Settings",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "controller-1100x700": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/controller",
+   "file": "docs/design/increment2/controller-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 480
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [
+    {
+     "text": "1",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Frame shift drive (supercruise / jump)",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "J",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "2",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "3",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Enter FSS +2",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "4",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Landing gear +1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "L",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "5",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Cargo scoop",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Home",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "10",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "6",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "UI up",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "W",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "8",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "UI down",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "S",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "9",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "UI left",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "A",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "7",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "UI right",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "D",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "15",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "11",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Next panel",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "E",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "13",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Prev panel",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Q",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "14",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "12",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "20",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "UI select",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Space",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "16",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Throttle 100% +1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "X",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "18",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Throttle 0% +1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Shift+X",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "19",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Throttle 50%",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "17",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Throttle 75%",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "P1",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Comms panel",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "2",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "P1",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Role panel",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "3",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "P1",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Left panel (navigation, contacts)",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "P1",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Right panel (ship)",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "4",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "21",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "22",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "23",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "24",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "25",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Ship lights +1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Insert",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "26",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Night vision",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "27",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "Galaxy map",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "M",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "28",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "System map",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": ",",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "29",
+     "px": 7.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "HUD mode (analysis / combat)",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Left Alt",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > i."
+    },
+    {
+     "text": "Throttle +1",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "FSS tuning",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Lateral thrust",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    },
+    {
+     "text": "Vertical thrust",
+     "px": 8,
+     "at": "section. > div.sheet > button.txt > b."
+    }
+   ],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "VKBsim Gladiator EVO OT L"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 15,
+     "texts": [
+      "My controller",
+      "Preset",
+      "Frame shift drive (supercruise / jump)",
+      "Enter FSS +2",
+      "Landing gear +1",
+      "UI up",
+      "UI down",
+      "UI left",
+      "UI right",
+      "Next panel",
+      "Prev panel",
+      "UI select",
+      "Throttle 100% +1",
+      "Throttle 0% +1"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 19,
+     "texts": [
+      "4 of 10",
+      "7",
+      "J",
+      "L",
+      "W",
+      "S",
+      "A",
+      "D",
+      "E",
+      "Q",
+      "Space",
+      "X",
+      "Shift+X",
+      "Press a control, or pick an activity to light its actions an"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 3,
+     "texts": [
+      "Arietis Sector LD-H a11-1",
+      "Left · Gladiator EVO OT L · 231D3201",
+      "All"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 14,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Maia",
+      "Right · Gladiator EVO R · 231D0200",
+      "Flight basics",
+      "Supercruise & jumps",
+      "Exploration (FSS / DSS)",
+      "Trading",
+      "Mining",
+      "Combat",
+      "Docking & landing",
+      "SRV",
+      "On foot",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 43,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Settings",
+      "Next",
+      "To",
+      "jumps left",
+      "All keybinds",
+      "Presets",
+      "Key tester"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Controls"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Controls",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ]
+  },
+  "controller-1920x1080": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/controller",
+   "file": "docs/design/increment2/controller-1920x1080.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319,
+    "main": {
+     "w": 1590,
+     "h": 940
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "VKBsim Gladiator EVO OT L"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 31,
+     "texts": [
+      "My controller",
+      "Preset",
+      "Frame shift drive (supercruise / jump)",
+      "Enter FSS +2",
+      "Landing gear +1",
+      "Cargo scoop",
+      "UI up",
+      "UI down",
+      "UI left",
+      "UI right",
+      "Next panel",
+      "Prev panel",
+      "UI select",
+      "Throttle 100% +1"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 26,
+     "texts": [
+      "J",
+      "L",
+      "Home",
+      "W",
+      "S",
+      "A",
+      "D",
+      "E",
+      "Q",
+      "Space",
+      "X",
+      "Shift+X",
+      "2",
+      "3"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Left · Gladiator EVO OT L · 231D3201",
+      "All"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Controls",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "controller-2560x1440": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=145#/controller",
+   "file": "docs/design/increment2/controller-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.3,
+    "main": {
+     "w": 1438.6,
+     "h": 853.1
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [
+    {
+     "text": "1",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "2",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "3",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "4",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "5",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "10",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "6",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "8",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "9",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "7",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "15",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "11",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "13",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "14",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "12",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "20",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "16",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "18",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "19",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "17",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "P1",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "P1",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "P1",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "P1",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "21",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "22",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "23",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "24",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "25",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "26",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "27",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "28",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    },
+    {
+     "text": "29",
+     "px": 11.6,
+     "at": "div.cols > section. > div.sheet > span.num"
+    }
+   ],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "VKBsim Gladiator EVO OT L"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 31,
+     "texts": [
+      "My controller",
+      "Preset",
+      "Frame shift drive (supercruise / jump)",
+      "Enter FSS +2",
+      "Landing gear +1",
+      "Cargo scoop",
+      "UI up",
+      "UI down",
+      "UI left",
+      "UI right",
+      "Next panel",
+      "Prev panel",
+      "UI select",
+      "Throttle 100% +1"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 26,
+     "texts": [
+      "J",
+      "L",
+      "Home",
+      "W",
+      "S",
+      "A",
+      "D",
+      "E",
+      "Q",
+      "Space",
+      "X",
+      "Shift+X",
+      "2",
+      "3"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Left · Gladiator EVO OT L · 231D3201",
+      "All"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Controls",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "controller-3840x2160": {
+   "url": "http://localhost:5291/?core=ready&route=exact&textsize=180#/controller",
+   "file": "docs/design/increment2/controller-3840x2160.png",
+   "step": 180,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "docked",
+    "sidebar": 319.4,
+    "main": {
+     "w": 1807.8,
+     "h": 1060
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Sol",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.first > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector MN-T b3-6",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "fuel",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 13,
+     "at": "ol.tl > li.stop.past > div.main > span.type-label.todo",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Tascheter Sector LS-T a3-0",
+     "ratio": 3.39,
+     "fg": "#6a6a6a",
+     "bg": "#1a1310",
+     "px": 15,
+     "at": "li.stop.past.here > div.main > div.nameline > span.type-name.name",
+     "token": "grey-dim"
+    },
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "ASTROMECH",
+      "VKBsim Gladiator EVO OT L"
+     ]
+    },
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": true,
+     "weight": 3,
+     "texts": [
+      "Sol",
+      "You are here",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": true,
+     "weight": 6,
+     "texts": [
+      "Arietis Sector UE-O a7-1",
+      "Arietis Sector EG-V a3-1",
+      "Hyades Sector DB-W b2-6",
+      "Hyades Sector XJ-Z b3",
+      "98 k Tauri",
+      "Maia"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 31,
+     "texts": [
+      "My controller",
+      "Preset",
+      "Frame shift drive (supercruise / jump)",
+      "Enter FSS +2",
+      "Landing gear +1",
+      "Cargo scoop",
+      "UI up",
+      "UI down",
+      "UI left",
+      "UI right",
+      "Next panel",
+      "Prev panel",
+      "UI select",
+      "Throttle 100% +1"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": true,
+     "weight": 1,
+     "texts": [
+      "By Spansh"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 26,
+     "texts": [
+      "J",
+      "L",
+      "Home",
+      "W",
+      "S",
+      "A",
+      "D",
+      "E",
+      "Q",
+      "Space",
+      "X",
+      "Shift+X",
+      "2",
+      "3"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": true,
+     "weight": 4,
+     "texts": [
+      "Arietis",
+      "Sector",
+      "LD-H",
+      "a11-1"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Left · Gladiator EVO OT L · 231D3201",
+      "All"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Controls",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ]
+  },
+  "sell-anywhere-no-route-1100x700": {
+   "url": "http://localhost:5291/?core=ready&textsize=100#/places/sell/painite?range=anywhere",
+   "file": "docs/design/increment2/sell-anywhere-no-route-1100x700.png",
+   "step": 100,
+   "frame": {
+    "header": 108,
+    "stacked": true,
+    "route": "strip",
+    "sidebar": null,
+    "main": {
+     "w": 1090,
+     "h": 524
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 10,
+     "texts": [
+      "FCX-800",
+      "Parekh Chemical Holdings",
+      "FCX-802",
+      "SavorgnandeBrazza Legacy",
+      "FCX-804",
+      "Asgaard",
+      "Prior Depot",
+      "Borg Grob's Grog Dock",
+      "Good Landing",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 38,
+     "texts": [
+      "1,632",
+      "L",
+      "569",
+      "~19",
+      "775",
+      "~5",
+      "2,037",
+      "0",
+      "184",
+      "~22",
+      "1,070",
+      "1,816",
+      "~4",
+      "23,976"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 14,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Find or plot",
+      "Import a route",
+      "390,780",
+      "313,239",
+      "300,459",
+      "240,692",
+      "235,737",
+      "235,096",
+      "235,095",
+      "232,930",
+      "211,587",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "193"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 81,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "No route",
+      "cr",
+      "t",
+      "ls",
+      "Chamaeleon Sector HR-W d1-42",
+      "jumps"
+     ]
+    },
+    {
+     "colour": "#ca6657",
+     "lum": 0.227,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "15",
+      "M"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header.stacked > nav. > button.on"
+    }
+   ],
+   "rowsOnOpen": {
+    "whole": 5,
+    "total": 12,
+    "pitch": 60,
+    "column": 524
+   },
+   "rowsScrolled": {
+    "whole": 8,
+    "total": 12,
+    "pitch": 60,
+    "column": 524
+   }
+  },
+  "sell-anywhere-no-route-2560x1440": {
+   "url": "http://localhost:5291/?core=ready&textsize=145#/places/sell/painite?range=anywhere",
+   "file": "docs/design/increment2/sell-anywhere-no-route-2560x1440.png",
+   "step": 145,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "rail",
+    "sidebar": null,
+    "main": {
+     "w": 1710.3,
+     "h": 897.2
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "ASTROMECH"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 13,
+     "texts": [
+      "FCX-800",
+      "Parekh Chemical Holdings",
+      "FCX-802",
+      "SavorgnandeBrazza Legacy",
+      "FCX-804",
+      "Asgaard",
+      "Prior Depot",
+      "Borg Grob's Grog Dock",
+      "Good Landing",
+      "Berg Holdings",
+      "Radium Station",
+      "Levi-Strauss Installation",
+      "Heavy Lifter"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 47,
+     "texts": [
+      "1,632",
+      "L",
+      "569",
+      "~19",
+      "775",
+      "~5",
+      "2,037",
+      "0",
+      "184",
+      "~22",
+      "1,070",
+      "1,816",
+      "~4",
+      "23,976"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 16,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Change",
+      "390,780",
+      "313,239",
+      "300,459",
+      "240,692",
+      "235,737",
+      "235,096",
+      "235,095",
+      "232,930",
+      "211,587",
+      "200,592",
+      "190,141"
+     ]
+    },
+    {
+     "colour": "#d97a34",
+     "lum": 0.289,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "193",
+      "220"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 106,
+     "texts": [
+      "Ships",
+      "Engineering",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Best prices anywhere · distances from Sol · medium or large ",
+      "Price · demand",
+      "Station · pad · arrival",
+      "Trip",
+      "cr",
+      "t"
+     ]
+    },
+    {
+     "colour": "#ca6657",
+     "lum": 0.227,
+     "sidebar": false,
+     "weight": 4,
+     "texts": [
+      "15",
+      "M"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Places",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    }
+   ],
+   "rowsOnOpen": {
+    "whole": 11,
+    "total": 12,
+    "pitch": 87,
+    "column": 1300.8125
+   },
+   "rowsScrolled": {
+    "whole": 12,
+    "total": 12,
+    "pitch": 87,
+    "column": 1300.8125
+   }
+  }
+ }
+}

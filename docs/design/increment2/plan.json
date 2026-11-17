@@ -1,0 +1,22 @@
+{
+ "out": "docs/design/increment2",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 1920, "h": 1080, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 },
+  { "w": 3840, "h": 2160, "step": 180 }
+ ],
+ "shots": [
+  { "name": "sell-selected", "hash": "places/sell/painite", "steps": [{ "click": "[role=table][aria-label=Results] .row.result button[aria-pressed=false]" }, { "waitSel": "aside[aria-label=Details]" }] },
+  { "name": "sell-selected-route-over", "hash": "places/sell/painite", "sizes": ["1100x700"], "steps": [{ "click": "[role=table][aria-label=Results] .row.result button[aria-pressed=false]" }, { "waitSel": "aside[aria-label=Details]" }, { "click": "[role=region][aria-label=Route] button.fold" }, { "waitSel": ".over [role=complementary][aria-label=Route]" }] },
+  { "name": "materials", "hash": "materials" },
+  { "name": "engineers-laser", "hash": "unlocks?q=laser" },
+  { "name": "ships", "hash": "engineering" },
+  { "name": "suits", "hash": "suits" },
+  { "name": "powerplay", "hash": "powerplay" },
+  { "name": "settings", "hash": "settings" },
+  { "name": "controller", "hash": "controller" },
+  { "name": "sell-anywhere-no-route", "hash": "places/sell/painite?range=anywhere", "query": "core=ready", "sizes": ["1100x700", "2560x1440"], "steps": [{ "waitSel": "[role=table][aria-label=Results] .row.result" }, { "rows": "[role=table][aria-label=Results] .row.result", "label": "rowsOnOpen" }, { "scrollTop": "[role=table][aria-label=Results] .row.result" }, { "rows": "[role=table][aria-label=Results] .row.result", "label": "rowsScrolled" }] }
+ ]
+}
