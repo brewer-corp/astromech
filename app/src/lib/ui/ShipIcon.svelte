@@ -17,5 +17,5 @@
 
 <style>
   .art { display: block; object-fit: contain; flex: none; }
-  .fallback { display: grid; place-items: center; color: var(--orange-mid); flex: none; }
+  .fallback { display: grid; place-items: center; color: var(--label-grey); flex: none; }
 </style>

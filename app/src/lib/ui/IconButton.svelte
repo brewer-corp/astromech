@@ -20,7 +20,7 @@
 <button class="ibtn {cls}" {type} aria-label={label} {...rest} {@attach tipped(tip ?? label)}><Glyph name={icon} /></button>
 
 <style>
-  .ibtn { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex: none; width: 1.75rem; height: 1.75rem; color: var(--orange-mid); }
+  .ibtn { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex: none; width: 1.75rem; height: 1.75rem; color: var(--label-grey); }
   .ibtn:hover { color: var(--orange-lit); }
   .ibtn:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .ibtn:disabled { color: var(--orange-dim); cursor: default; }

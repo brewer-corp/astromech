@@ -419,7 +419,7 @@
   .constraints { display: flex; flex-direction: column; gap: var(--sp-2); margin: 0 0 var(--sp-3); }
 
   /* Label lines: the summary above the heads, loading, a warning and the source line below. */
-  .line { margin: 0 0 var(--sp-3); font-size: var(--fs-s); color: var(--orange-mid); }
+  .line { margin: 0 0 var(--sp-3); font-size: var(--fs-s); color: var(--label-grey); }
   .warn { color: var(--accent); }
   .warn b { font-weight: 600; }
   .foot { margin: var(--sp-3) 0 0; }
@@ -428,49 +428,54 @@
   /* DESIGN.md Lookup result row: one 44 px line per result, every row on the list's columns. */
   /* A row is as wide as its columns, not as the window (DESIGN.md The Next To It Rule). */
   .list { display: grid; grid-template-columns: var(--cols); column-gap: var(--sp-3); width: fit-content; max-width: 100%; }
-  .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; height: var(--row-result); white-space: nowrap; color: var(--accent); font-size: var(--fs); }
+  .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; height: var(--row-result); white-space: nowrap; color: var(--prose); font-size: var(--fs); }
   .row > * { min-width: 0; }
-  .heads { height: 1.75rem; border-bottom: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); }
+  .heads { height: 1.75rem; border-bottom: 1px solid var(--line); color: var(--label-grey); font-size: var(--fs-s); }
   .result:hover { background: var(--row-hover); }
   .result:hover .acts :global(.ibtn) { color: var(--orange-lit); }
   .r { text-align: right; }
-  .main .v { color: var(--orange-lit); font-size: var(--fs-l); font-weight: 600; }
-  .unit { margin-left: 0.1875rem; color: var(--orange-mid); font-size: var(--fs-s); }
+  /* The value the list is ranked by is its one orange column (DESIGN.md The Orange Means Act Rule). */
+  .main .v { color: var(--accent); font-size: var(--fs-l); font-weight: 600; }
+  .unit { margin-left: 0.1875rem; color: var(--label-grey); font-size: var(--fs-s); }
   .place { display: flex; align-items: center; gap: var(--sp-2); overflow: hidden; }
-  .place :global(.kind) { color: var(--orange-mid); flex: none; }
-  .name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; }
-  .pick { all: unset; cursor: pointer; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; }
+  .place :global(.kind) { color: var(--label-grey); flex: none; }
+  .name { color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; }
+  .pick { all: unset; cursor: pointer; color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; }
   .pick:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .result:has(.pick) { cursor: pointer; }
-  .sys { color: var(--orange-mid); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; flex: 0 1000 auto; }
+  .sys { color: var(--label-grey); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; flex: 0 1000 auto; }
   .place :global(.chip) { flex: none; margin-left: calc(-1 * var(--sp-1)); }
   .fact { overflow: hidden; text-overflow: ellipsis; }
   .text { font-size: var(--fs-s); }
-  .none { color: var(--orange-mid); }
+  .none { color: var(--grey-dim); }
   .acts { display: flex; justify-content: flex-end; gap: var(--sp-1); }
 
-  /* Stale: the name stays Orange, the value and facts step down to Mid, and the age, now the
-     brightest fact, stays Orange. */
-  .stale .main .v, .stale .fact { color: var(--orange-mid); }
+  /* Stale: the ranked value steps down to Orange Mid and the age, now the brightest fact on the
+     row, is Orange. */
+  .stale .main .v { color: var(--orange-mid); }
   .stale .fact.age { color: var(--accent); }
-  /* Selected: solid orange with On Orange text, while the side panel shows it (DESIGN.md States). */
-  .result.sel, .result.sel:hover { background: var(--accent); }
-  .result.sel, .result.sel :is(.v, .unit, .sys, .fact, .none) { color: var(--on-accent); }
-  .result.sel :global(:is(.ibtn, .kind)), .result.sel:hover .acts :global(.ibtn) { color: var(--on-accent); }
-  .result.sel :global(.ibtn:focus-visible) { outline-color: var(--on-accent); outline-offset: -2px; }
-  .result.sel .pick:focus-visible { outline-color: var(--on-accent); }
+  /* Selected, while the side panel shows it (DESIGN.md States): Hull Raised, the ranked value
+     Orange Lit, the name White, other text one step brighter, icon buttons Orange Mid. */
+  .result.sel, .result.sel:hover { background: var(--surface-hi); }
+  .result.sel .main .v { color: var(--orange-lit); }
+  .result.sel.stale .main .v { color: var(--orange-mid); }
+  .result.sel :is(.name, .pick) { color: var(--text-hi); }
+  .result.sel .fact:not(.age) { color: var(--options-grey); }
+  .result.sel :is(.unit, .sys), .result.sel :global(.kind) { color: var(--prose); }
+  .result.sel .acts :global(.ibtn) { color: var(--orange-mid); }
+  .result.sel .acts :global(.ibtn:hover) { color: var(--orange-lit); }
 
   /* The side panel. */
   .ptitle { margin: 0; color: var(--text-hi); font-size: var(--fs-xl); font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
-  .psub { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); margin: var(--sp-1) 0 0; font-size: var(--fs-s); color: var(--orange-mid); }
-  .psub :global(.chip) { color: var(--accent); }
+  .psub { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); margin: var(--sp-1) 0 0; font-size: var(--fs-s); color: var(--prose); }
   .pmain { margin: var(--sp-6) 0 0; }
-  .pmain .v { color: var(--text-hi); font-size: var(--fs-xxl); font-weight: 600; }
+  /* The panel's one main value: Value XL, Orange Lit. */
+  .pmain .v { color: var(--orange-lit); font-size: var(--fs-xxl); font-weight: 500; }
   .pfacts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--sp-2) var(--sp-6); margin: var(--sp-6) 0 0; }
-  .pfacts dt { color: var(--orange-mid); font-size: var(--fs-s); align-self: baseline; }
+  .pfacts dt { color: var(--label-grey); font-size: var(--fs-s); align-self: baseline; }
   .pfacts dd { margin: 0; overflow-wrap: anywhere; }
   .pacts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); margin: var(--sp-8) 0 0; }
 
-  /* Loading: the old rows stay, Dim, until the answer replaces them. */
-  .busy .result, .busy .result .main .v, .busy .result .fact, .busy .result .sys, .busy .result .unit { color: var(--orange-dim); }
+  /* Loading: the old rows stay, Grey Dim, until the answer replaces them. */
+  .busy .result, .busy .result :is(.main .v, .name, .pick, .fact, .sys, .unit) { color: var(--grey-dim); }
 </style>

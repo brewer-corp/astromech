@@ -58,13 +58,15 @@
   .num, .txt { position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; }
   /* The labels follow the image's scale (--k, from the width the page gives it), not Text size:
      the page already sizes the sheet in rem, so these stay px. */
-  .num { justify-content: center; font-size: calc(9.5px * var(--k)); font-weight: 600; color: var(--orange-mid); pointer-events: none; }
+  .num { justify-content: center; font-size: calc(9.5px * var(--k)); font-weight: 600; color: var(--label-grey); pointer-events: none; }
   .txt { all: unset; position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; box-sizing: border-box; padding: 0 calc(4px * var(--k)); gap: calc(6px * var(--k)); font-size: calc(10px * var(--k)); color: var(--options-grey); cursor: pointer; }
   .txt.dim { color: var(--orange-dim); }
   .txt b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
-  .txt i { font-style: normal; margin-left: auto; color: var(--orange-mid); }
-  .txt.hi { background: var(--accent); color: var(--on-accent); }
-  .txt.hi i { color: var(--on-accent); }
+  .txt i { font-style: normal; margin-left: auto; color: var(--prose); }
+  /* A lit action (its activity, or the control pressed) is raised, not filled (DESIGN.md The One
+     Fill Per Page Rule): Hull Raised with its text Orange Lit. */
+  .txt.hi { background: var(--surface-hi); color: var(--orange-lit); }
+  .txt.hi i { color: var(--accent); }
   .txt.hi b { font-weight: 600; }
   .txt.sel { outline: 2px solid var(--orange-lit); outline-offset: -2px; }
   .txt:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
