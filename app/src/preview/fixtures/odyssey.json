@@ -9,6 +9,7 @@
     },
     {
       "id": "nightvision",
+      "item": 1700000000001,
       "kind": "mod",
       "maker": null
     },
@@ -154,6 +155,7 @@
         ],
         "pick": {
           "id": "nightvision",
+          "item": 1700000000001,
           "kind": "mod",
           "maker": null
         },
@@ -3217,8 +3219,7 @@
           "kind": "suit",
           "maker": null,
           "mods": [
-            "increasedairreserves",
-            "nightvision"
+            "increasedairreserves"
           ],
           "name": "Maverick Suit"
         },
@@ -3252,8 +3253,7 @@
           "kind": "suit",
           "maker": null,
           "mods": [
-            "increasedairreserves",
-            "nightvision"
+            "increasedairreserves"
           ],
           "name": "Maverick Suit"
         },
@@ -3532,8 +3532,7 @@
         "kind": "suit",
         "maker": null,
         "mods": [
-          "increasedairreserves",
-          "nightvision"
+          "increasedairreserves"
         ],
         "name": "Maverick Suit"
       },

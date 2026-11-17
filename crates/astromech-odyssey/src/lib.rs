@@ -2,11 +2,11 @@
 //!
 //! Odyssey on-foot micro-resources (ARCHITECTURE.md §18.7, "Odyssey micro-resources"): the
 //! inventory from `ShipLocker.json` and `Backpack.json`, the suits and weapons owned with their
-//! grade and mods (from the journal), suit and weapon grade upgrades and modifications with what
-//! each is missing, a shopping list over several picks with a bartender trade plan from surplus
-//! assets, the on-foot
-//! engineers with their unlock status and referral chain, and bartender values. Game data is
-//! `data/catalog/odyssey.json` (`scripts/gen-odyssey.py`).
+//! grade and mods and the suit loadouts with the one worn (from the journal), suit and weapon
+//! grade upgrades and modifications with what each is missing, a shopping list over several
+//! picks with a bartender trade plan from surplus assets, the on-foot engineers with their unlock
+//! status and referral chain, and bartender values. Game data is `data/catalog/odyssey.json`
+//! (`scripts/gen-odyssey.py`).
 
 pub mod barter;
 pub mod catalog;
