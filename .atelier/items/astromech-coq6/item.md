@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-coq6
 title: 'Now page: the window opens on what you are doing'
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-l
