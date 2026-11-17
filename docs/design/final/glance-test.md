@@ -252,3 +252,23 @@ The captures are taken by `node scripts/browser/audit.mjs --plan docs/design/fin
 Each reader is a fresh general-purpose agent given one capture, copied as `01.png` into an
 otherwise empty folder, and the round 2 prompt with "33 screenshots, `01.png` to `33.png`"
 read as "1 screenshot, `01.png`" and the route panel question left out, as in round 2.
+
+### Round 3 answers and marks, 17 Nov 2026
+
+Two new general-purpose agents (Claude Opus 5.5), one per capture. Answers verbatim, marked
+under the round 1 marking notes. A main value answer that picks one value and notes that others
+compete passes, as rows 25 and 26 did in round 1; "unclear" fails.
+
+| # | Reader's answer (main value \| can change \| needs you) | M | C | N |
+|---|---|---|---|---|
+| 7 Ships, a module selected (`ng71/after/ships-module-2560x1440.png`) | "G5" (the planned grade for the selected 5A Frame Shift Drive), though "Long Way Round" and "32.9 ly" also compete for first glance \| the Increased range, G5 and Mass Manager dropdowns, the ADD TO PLAN button (it looks greyed, so it may be disabled), the Loadout/Plan toggle, and picking a module row such as "5A Frame Shift Drive" \| the materials marked "!" where you have fewer than you need: Arsenic !3 of 5, Chemical Distillery !2 of 4, Chemical Manipulators !1 of 5, Datamined Wake Exceptions !0 of 5, Galvanising Alloys !0 of 3 | pass | pass | pass |
+| 7a Ships, nothing selected (`ng71/after/ships-2560x1440.png`) | the ship "Long Way Round" (Krait MkII). No single figure stands out; its stats sit as equal peers: 32.9 ly, 420 MJ, – m/s, – MW \| the Loadout / Plan toggle; the four ship cards at the bottom pick which ship is shown (Heavy Lifter, Long Way Round, Unnamed, Synthetic_Krait) \| none (the "–" top speed and power used, with the note beside them, are missing data, not an alert) | pass | **fail** | pass |
+
+Row 7 passes: the reader picked the planned grade, G5, where rounds 1 and 2 saw the jump range.
+
+Row 7a passes on main value, the answer ng71's decision expects. It fails on can change as the
+sheet was written: the reader named the Loadout / Plan choice and the fleet strip, not picking
+a module row. With no panel open, nothing on the loadout rows says they can be picked. This is
+a separate question from ng71's (the head's stats against the main value) and is left for the
+lead of astromech-xajc: either the sheet's row 7a accepts the fleet strip (picking a ship, like
+picking a row, changes what the page shows) or the unselected loadout needs a cue.
