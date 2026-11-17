@@ -20,11 +20,17 @@ answer("trade_route_defaults", () => defaults());
 let shipPad: Filters["pad"] = "M";
 let stored: Filters = DEFAULT_FILTERS;
 answer("search_filters", () => (stored.pad_set ? stored : { ...stored, pad: shipPad }));
-answer("set_search_filters", ({ filters }: { filters: Filters }) => void (stored = filters));
+/** A filter save answers once this settles (a test holds it to keep a save pending). */
+let saving: Promise<void> = Promise.resolve();
+answer("set_search_filters", async ({ filters }: { filters: Filters }) => {
+  await saving;
+  stored = filters;
+});
 
 beforeEach(() => {
   shipPad = "M";
   stored = DEFAULT_FILTERS;
+  saving = Promise.resolve();
   localStorage.clear();
   route.mockReset();
   defaults.mockReset();
@@ -121,6 +127,23 @@ describe("Trade route", () => {
     shipPad = "L"; // swapped to an Anaconda after the page loaded
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
     expect(await screen.findByRole("img", { name: "Medium pad: too small for your ship" })).toBeTruthy();
+  });
+
+  it("measures a stop's pad against the pad the search was sent with while its save is pending", async () => {
+    stored = { ...DEFAULT_FILTERS, pad: "S", pad_set: true };
+    let release = () => {};
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    route.mockResolvedValueOnce({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "S" } }] } });
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    await fireEvent.click(await screen.findByRole("button", { name: "Change filters" }));
+    saving = new Promise((r) => (release = r));
+    await fireEvent.click(screen.getByRole("button", { name: /^Pad M/ }));
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad: "M", pad_set: true }));
+    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
+    release();
   });
 
   it("can't search without a hold or credits", async () => {

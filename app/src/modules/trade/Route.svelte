@@ -78,12 +78,13 @@
   }
 
   /** The pad label follows the ship the search ran with, not the ship the filters loaded with.
-   * Resolves the pad the search measured against, as the core resolves it (the current ship's
-   * unless the commander set one), or undefined when it could not be read. */
+   * Resolves the current ship's pad, as the core resolves it for a search with no pad set, or
+   * undefined when it could not be read or the saved filters name a pad of the commander's. */
   async function followShip(): Promise<Pad | null | undefined> {
     try {
       const f = await store.load(LOOKUP);
-      if (!f.pad_set) shipPad = f.pad;
+      if (f.pad_set) return undefined;
+      shipPad = f.pad;
       return f.pad;
     } catch {
       // the label keeps what it shows; the search does not depend on this
@@ -102,13 +103,14 @@
     err = null;
     const flown = followShip();
     try {
-      const asked_pad = filters.pad;
+      const sent = filters;
       const ask = { kind, station: start, capacity: Math.floor(capacity), credits: Math.floor(cash), max_hop_ly: hop };
       const r = await tradeRoute(ask, origin, filters);
-      const p = await flown;
+      const ship = await flown;
       if (n === asked) {
         res = r;
-        need = p === undefined ? asked_pad : p;
+        // A pad the commander set is the one sent; else the core used the ship flown now.
+        need = sent.pad_set || ship === undefined ? sent.pad : ship;
       }
     } catch (e) {
       if (n === asked) {
