@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-evj3
 title: Exploration > Biology as a card per body
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-m
