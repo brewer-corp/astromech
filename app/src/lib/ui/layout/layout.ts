@@ -35,7 +35,8 @@ export function stacks(width: number, min: number): boolean {
  * The dock width (DESIGN.md Route sidebar): the narrowest window, in px at 100 percent Text size,
  * at which the Sell finder with a result selected keeps its rows clear of its side panel beside
  * the docked sidebar. In rem, so it holds at every Text size step; measured by
- * App.browser.test.ts ("the dock width") at every step: 1,663 px at 100 percent, 1,656 at 180, on
- * 17 Nov 2026. The test fails when the Sell row grows past it, or shrinks well under it.
+ * App.browser.test.ts at every step: 1,755 px at 100 percent, 1,751 at 180, on 17 Nov 2026, so a
+ * 2560 x 1440 display at its 145 percent (1,765 px) docks. The test fails when the Sell row grows
+ * past it, or shrinks more than 6 px under it.
  */
-export const DOCK = 1664;
+export const DOCK = 1756;

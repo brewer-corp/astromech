@@ -60,6 +60,6 @@ describe("palette matching", () => {
     expect(rank(all, "material traders")[0]).toMatchObject({ detail: "Places", route: "places/material-traders" });
     expect(rank(all, "outfitting")[0]).toMatchObject({ detail: "Places", route: "places/outfitting" });
     expect(rank(all, "factors")[0]).toMatchObject({ label: "Interstellar Factors", detail: "Services", route: "places/services/interstellar_factors" });
-    expect(rank(all, "places")[0]).toMatchObject({ detail: "Page · galaxy", route: "places" });
+    expect(rank(all, "places")[0]).toMatchObject({ detail: "Page · places", route: "places" });
   });
 });

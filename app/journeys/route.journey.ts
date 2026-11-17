@@ -6,22 +6,23 @@ import assert from "node:assert/strict";
 import type { Page } from "playwright";
 import { journey } from "./harness.ts";
 
-/** The Route page's next stop as the commander sees it: the stop in the timeline labelled "Next
- * stop", found by its copy button's name ("Copy <system>"). */
+/** The route sidebar's next stop as the commander sees it: the stop in the timeline labelled
+ * "Next stop", found by its copy button's name ("Copy <system>"). */
 function nextStop(page: Page, system: string) {
   const stop = page.getByRole("list", { name: "Stops and the jumps between them" }).getByRole("listitem").filter({ hasText: "Next stop" });
   return stop.getByRole("button", { name: `Copy ${system}`, exact: true });
 }
 
 /**
- * Plot and follow (worlds/journeys/plot): on the Route page the commander types Colonia in the
- * header's plot bar and plots a neutron route from Sol. Spansh answers from its recorded
- * answers, and the page follows the route with PSR J1752-2806 next. A jump into that stop (a
- * journal line) moves the core on at once, and the page once its 2 s route poll runs.
+ * Plot and follow (worlds/journeys/plot): on the Materials page the commander types Colonia in
+ * the header's plot bar and plots a neutron route from Sol. Spansh answers from its recorded
+ * answers; Show the route opens the route sidebar over the page (the journey's 1200 px window is
+ * below the dock width), which follows the route with PSR J1752-2806 next. A jump into that stop
+ * (a journal line) moves the core on at once, and the sidebar once its 2 s route poll runs.
  */
-journey("plot a route from the page and follow it", { world: "journeys/plot" }, async ({ page, core, open, runFor }) => {
+journey("plot a route from any page and follow it in the sidebar", { world: "journeys/plot" }, async ({ page, core, open, runFor }) => {
   await core.step("running");
-  await open("route");
+  await open("materials");
 
   const box = page.getByRole("combobox", { name: "Find or plot" });
   await box.fill("Colonia");
@@ -35,11 +36,12 @@ journey("plot a route from the page and follow it", { world: "journeys/plot" }, 
   await box.press("Enter");
 
   await panel.getByText(/^Following Sol to Colonia: 284 jumps · 22,000 ly · 178 neutron boosts/).waitFor();
+  await panel.getByRole("button", { name: "Show the route" }).click();
   await nextStop(page, "PSR J1752-2806").waitFor();
 
   await core.step("jumped");
   await core.wait({ kind: "clipboard", text: "Nova Aquila No 3" });
-  assert.equal(await nextStop(page, "PSR J1752-2806").count(), 1, "the page moved on before its route poll");
+  assert.equal(await nextStop(page, "PSR J1752-2806").count(), 1, "the sidebar moved on before its route poll");
   await runFor(2000);
   await nextStop(page, "Nova Aquila No 3").waitFor();
 });
@@ -47,21 +49,23 @@ journey("plot a route from the page and follow it", { world: "journeys/plot" }, 
 /**
  * A jump into the next stop (worlds/journeys/next-stop, the steps of worlds/jump): astromech's
  * own route, Sol, Alpha Centauri, Barnard's Star, set from the window. Jumping into Alpha
- * Centauri copies Barnard's Star and reads it out, and the page shows it next.
+ * Centauri copies Barnard's Star and reads it out, and the route sidebar, opened from the strip
+ * on the Settings page, shows it next.
  */
 journey("a jump into the next stop copies and reads out the one after", { world: "journeys/next-stop" }, async ({ page, core, open, runFor }) => {
   await core.step("running");
   const waypoints = [{ system: "Sol" }, { system: "Alpha Centauri" }, { system: "Barnard's Star" }];
   await core.callWindow("route_set", { name: "Trip", waypoints });
   await core.wait({ kind: "clipboard", text: "Alpha Centauri" });
-  await open("route");
+  await open("settings");
+  await page.getByRole("region", { name: "Route" }).getByRole("button", { name: "Show the route" }).click();
   await nextStop(page, "Alpha Centauri").waitFor();
 
   const since = (await core.observed()).next;
   await core.step("jumped");
   await core.wait({ kind: "clipboard", text: "Barnard's Star" }, since);
   await core.wait({ kind: "said", text: "Next waypoint. Barnard's Star." }, since);
-  assert.equal(await nextStop(page, "Alpha Centauri").count(), 1, "the page moved on before its route poll");
+  assert.equal(await nextStop(page, "Alpha Centauri").count(), 1, "the sidebar moved on before its route poll");
   await runFor(2000);
   await nextStop(page, "Barnard's Star").waitFor();
 });
