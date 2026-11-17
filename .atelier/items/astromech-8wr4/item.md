@@ -92,3 +92,4 @@ Ships > Ships now reads as the ship's loadout. The Info and Engineering choice i
 1-mvep.1: fixed in 85676016: the row's hexagons stay the fitted blueprint's and a plan for another blueprint is named after it ("→ Charge enhanced G5", Orange Mid); a test covers it.
 1-mvep.2: fixed in 85676016: the Stale line shows after an empty fleet answer, with a test; the no-fleet audit shot now skips setup and captures the Ships empty state (f6c0784b).
 2-iq82.3: fixed in ff87a726: the test installs fake setInterval and advances the poll 1000 ms, as the Settings status-poll test does.
+4-t6g0.1: fixed in 50a4c238: the test installs fake setInterval and advances the engineer poll 1000 ms for the failure and again for the recovery; no engineering test waits on a real timer now.
