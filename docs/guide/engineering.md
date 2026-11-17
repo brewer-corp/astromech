@@ -19,8 +19,9 @@ Type a module in the box at the top, in your own words: "laser", "fsd", "shield"
 - The block at the top is the best grade you can get today: of the engineers you have unlocked,
   the one whose rank gives the highest grade, nearest first, with **Set destination** and Add stop.
   If none who work on it is unlocked yet, it names the one nearest to unlocking and the step left.
-- Below it, every engineer who works on that module. First what they reach: orange hexagons for
-  the grade you can get from them now, dimmer orange for grades that need more rank or an unlock,
+- Below it, every engineer who works on that module. First what they reach: white hexagons for
+  the grade you can get from them now, and grey outlines without a centre for grades that need more
+  rank or an unlock,
   and the grade per module type ("Pulse 4 · burst 3 · beam 3"). Then the engineer with your rank
   as white hexagons, the rank a higher grade needs, or the step to unlock them. Then where they
   are, with a copy button, and how far from your current system.
@@ -59,8 +60,8 @@ in `data/catalog/engineers.json`, from EDCD/FDevIDs and Spansh's systems dump.
   they are, with a copy button for the galaxy map, and how far from your current system; how
   far is left out until the journal says where you are. Then where you stand, every step left to
   unlock them in order (the first, what to do now, is the brightest), and **Works on**: each
-  module type a ship engineer offers with the best grade as hexagons (orange for the grade your
-  rank gets you today), or each mod a suit engineer fits, where a "(?)" means the wiki
+  module type a ship engineer offers with the best grade as hexagons (white for the grade your
+  rank gets you today, grey outlines for grades that need more rank), or each mod a suit engineer fits, where a "(?)" means the wiki
   disagrees with itself on whether they fit it. Last, who they introduce, a suit engineer's
   referral task, and **Set destination** and **Add stop**. Select the engineer again to close
   the details.
