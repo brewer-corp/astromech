@@ -26,7 +26,9 @@ describe("Where to work", () => {
 
     await fireEvent.click(screen.getByRole("button", { name: "Reinforce" }));
     expect(await screen.findByText("Lembava")).toBeTruthy();
-    expect(screen.getByText(/Li Yong-Rui stronghold 25% · reinforcement 0 \/ undermining 166/)).toBeTruthy();
+    const lembava = screen.getByText("Lembava").closest('[role="row"]') as HTMLElement;
+    expect(within(lembava).getByText("Li Yong-Rui stronghold 25%")).toBeTruthy();
+    expect(within(lembava).getByText("166")).toBeTruthy();
     expect(load).toHaveBeenLastCalledWith("reinforce", null, expect.anything(), 40);
 
     // The radius is a filter: named in the summary, its control behind CHANGE.
