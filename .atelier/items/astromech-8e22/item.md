@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-8e22
 title: 'Increment 2 checkpoint: the new frame, colours and tabs seen together'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-s
@@ -18,7 +18,8 @@ blocked_by:
 - astromech-fom5
 - astromech-srab
 - astromech-7obs
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3Af88202b7-1e1b-4c33-90e8-dc41206c38b6
 ready:
   by: Sumeet
   at: 2026-11-17T05:23:28.056709303Z
