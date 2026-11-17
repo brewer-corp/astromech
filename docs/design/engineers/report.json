@@ -1,8 +1,8 @@
 {
- "commit": "cd3363d5",
+ "commit": "58db0e65",
  "captures": {
   "engineers-rest-after-1100x700": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/unlocks",
    "file": "docs/design/engineers/engineers-rest-after-1100x700.png",
    "step": 100,
    "frame": {
@@ -189,8 +189,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 24,
+     "weight": 25,
      "texts": [
+      "Now",
       "Ships",
       "Places",
       "Trade",
@@ -203,8 +204,7 @@
       "To",
       "jumps left",
       "Materials",
-      "4 of 25 ship and 2 of 13 suit engineers unlocked · 15 to wor",
-      "Deciat"
+      "4 of 25 ship and 2 of 13 suit engineers unlocked · 15 to wor"
      ]
     },
     {
@@ -228,7 +228,7 @@
    ]
   },
   "engineers-rest-after-1920x1080": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/unlocks",
    "file": "docs/design/engineers/engineers-rest-after-1920x1080.png",
    "step": 100,
    "frame": {
@@ -652,7 +652,7 @@
    ]
   },
   "engineers-rest-after-2560x1440": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/unlocks",
    "file": "docs/design/engineers/engineers-rest-after-2560x1440.png",
    "step": 145,
    "frame": {
@@ -1058,7 +1058,7 @@
    ]
   },
   "engineers-selected-after-1100x700": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/unlocks",
    "file": "docs/design/engineers/engineers-selected-after-1100x700.png",
    "step": 100,
    "frame": {
@@ -1157,8 +1157,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 22,
+     "weight": 23,
      "texts": [
+      "Now",
       "Ships",
       "Places",
       "Trade",
@@ -1171,8 +1172,7 @@
       "To",
       "jumps left",
       "Materials",
-      "· 75.5 ly",
-      "Anaconda"
+      "· 75.5 ly"
      ]
     },
     {
@@ -1200,101 +1200,11 @@
      "text": "Engineering",
      "sidebar": false,
      "at": "div.frame > header.stacked > nav. > button.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
     }
    ]
   },
   "engineers-selected-after-1920x1080": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/unlocks",
    "file": "docs/design/engineers/engineers-selected-after-1920x1080.png",
    "step": 100,
    "frame": {
@@ -1625,96 +1535,6 @@
      "at": "div.frame > header. > nav. > button.on"
     },
     {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
      "colour": "#ff7100",
      "text": "Set destination",
      "sidebar": false,
@@ -1723,7 +1543,7 @@
    ]
   },
   "engineers-selected-after-2560x1440": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/unlocks",
    "file": "docs/design/engineers/engineers-selected-after-2560x1440.png",
    "step": 145,
    "frame": {
@@ -2045,96 +1865,6 @@
      "at": "div.frame > header. > nav. > button.on"
     },
     {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.to"
-    },
-    {
      "colour": "#ff7100",
      "text": "Set destination",
      "sidebar": false,
@@ -2143,7 +1873,7 @@
    ]
   },
   "engineers-selected-unlocked-after-1100x700": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/unlocks",
    "file": "docs/design/engineers/engineers-selected-unlocked-after-1100x700.png",
    "step": 100,
    "frame": {
@@ -2239,8 +1969,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 22,
+     "weight": 23,
      "texts": [
+      "Now",
       "Ships",
       "Places",
       "Trade",
@@ -2253,8 +1984,7 @@
       "To",
       "jumps left",
       "Materials",
-      "ly",
-      "Anaconda"
+      "ly"
      ]
     },
     {
@@ -2282,113 +2012,11 @@
      "text": "Engineering",
      "sidebar": false,
      "at": "div.frame > header.stacked > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
     }
    ]
   },
   "engineers-selected-unlocked-after-1920x1080": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/unlocks",
    "file": "docs/design/engineers/engineers-selected-unlocked-after-1920x1080.png",
    "step": 100,
    "frame": {
@@ -2719,108 +2347,6 @@
     },
     {
      "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
      "text": "Set destination",
      "sidebar": false,
      "at": "div.split.side > aside. > div.acts > button.btn.primary"
@@ -2828,7 +2354,7 @@
    ]
   },
   "engineers-selected-unlocked-after-2560x1440": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/unlocks",
    "file": "docs/design/engineers/engineers-selected-unlocked-after-2560x1440.png",
    "step": 145,
    "frame": {
@@ -3140,108 +2666,6 @@
     },
     {
      "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "ul.works.grades > li. > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
      "text": "Set destination",
      "sidebar": false,
      "at": "div.split.side > aside. > div.acts > button.btn.primary"
@@ -3249,7 +2673,7 @@
    ]
   },
   "engineers-selected-suit-after-1100x700": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks?kind=suit",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/unlocks?kind=suit",
    "file": "docs/design/engineers/engineers-selected-suit-after-1100x700.png",
    "step": 100,
    "frame": {
@@ -3347,8 +2771,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 22,
+     "weight": 23,
      "texts": [
+      "Now",
       "Ships",
       "Places",
       "Trade",
@@ -3361,8 +2786,7 @@
       "To",
       "jumps left",
       "Materials",
-      "· 124 ly",
-      "Anaconda"
+      "· 124 ly"
      ]
     },
     {
@@ -3394,7 +2818,7 @@
    ]
   },
   "engineers-selected-suit-after-1920x1080": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks?kind=suit",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/unlocks?kind=suit",
    "file": "docs/design/engineers/engineers-selected-suit-after-1920x1080.png",
    "step": 100,
    "frame": {
@@ -3778,7 +3202,7 @@
    ]
   },
   "engineers-selected-suit-after-2560x1440": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks?kind=suit",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/unlocks?kind=suit",
    "file": "docs/design/engineers/engineers-selected-suit-after-2560x1440.png",
    "step": 145,
    "frame": {
@@ -4144,7 +3568,7 @@
    ]
   },
   "engineers-search-after-1100x700": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=100#/unlocks?q=laser",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/unlocks?q=laser",
    "file": "docs/design/engineers/engineers-search-after-1100x700.png",
    "step": 100,
    "frame": {
@@ -4264,8 +3688,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 30,
+     "weight": 31,
      "texts": [
+      "Now",
       "Ships",
       "Places",
       "Trade",
@@ -4278,8 +3703,7 @@
       "To",
       "jumps left",
       "Materials",
-      "Pulse, burst and beam lasers · 3 engineers · distances from ",
-      "None unlocked yet: nearest to unlock"
+      "Pulse, burst and beam lasers · 3 engineers · distances from "
      ]
     },
     {
@@ -4300,123 +3724,15 @@
      "at": "div.frame > header.stacked > nav. > button.on"
     },
     {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
-    },
-    {
      "colour": "#ff7100",
      "text": "Set destination",
      "sidebar": false,
      "at": "div.answer > div.best > div.bline > button.btn.primary"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
     }
    ]
   },
   "engineers-search-after-2560x1440": {
-   "url": "http://localhost:5297/?core=ready&route=exact&textsize=145#/unlocks?q=laser",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/unlocks?q=laser",
    "file": "docs/design/engineers/engineers-search-after-2560x1440.png",
    "step": 145,
    "frame": {
@@ -4597,118 +3913,10 @@
      "at": "div.frame > header. > nav. > button.on"
     },
     {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.best > div.bline > span.hexes.grade > span.hex.to"
-    },
-    {
      "colour": "#ff7100",
      "text": "Set destination",
      "sidebar": false,
      "at": "div.answer > div.best > div.bline > button.btn.primary"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.row > div.grp > span.hexes.grade > span.hex.to"
     }
    ]
   }

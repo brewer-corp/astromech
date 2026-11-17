@@ -288,7 +288,7 @@
                 >
                   <span class="type-label">{r.slot}</span>
                   <span class="type-name name">{item.name}</span>
-                  <Hexes n={item.grade} to={g} tone="grade" label={g > item.grade ? `Grade ${item.grade} of 5, planned ${g}` : `Grade ${item.grade} of 5`} />
+                  <Hexes n={item.grade} plan={g} label={g > item.grade ? `Grade ${item.grade} of 5, planned ${g}` : `Grade ${item.grade} of 5`} />
                   {#if item.mods.length}<span class="type-figures mods">{item.mods.map(modName).join(" · ")}</span>{:else}<span class="type-label">None</span>{/if}
                   <span class="type-name plan">{planWords(item)}</span>
                 </button>
@@ -382,7 +382,7 @@
             {#each loadouts as l (l.id)}
               <button class="tile" class:on={l === loadout} aria-current={l === loadout ? "true" : undefined} aria-label="Loadout {l.name}" onclick={() => chooseLoadout(l.id)}>
                 <span class="type-name">{l.name}</span>
-                <span class="type-label tl">{l.suit.name.replace(/ Suit$/, "")} <Hexes n={l.suit.grade} tone="grade" label="Grade {l.suit.grade} of 5" /></span>
+                <span class="type-label tl">{l.suit.name.replace(/ Suit$/, "")} <Hexes n={l.suit.grade} label="Grade {l.suit.grade} of 5" /></span>
               </button>
             {/each}
           </nav>
@@ -409,7 +409,7 @@
     <div class="about">
       <h3 class="type-title">{item.name}</h3>
       <p class="type-label line">
-        <Hexes n={item.grade} to={g} tone="grade" label={g > item.grade ? `Grade ${item.grade} of 5, planned ${g}` : `Grade ${item.grade} of 5`} />
+        <Hexes n={item.grade} plan={g} label={g > item.grade ? `Grade ${item.grade} of 5, planned ${g}` : `Grade ${item.grade} of 5`} />
         {mine.length ? `Plan: ${planSaid(item)}` : "No plan"}
       </p>
       {#if mine.length && list}

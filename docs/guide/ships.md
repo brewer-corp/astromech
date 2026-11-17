@@ -56,7 +56,7 @@ says which loadout it is, its suit, and how many of its items are engineered or 
 that line for where the grades and mods come from.
 
 - **Loadout**: one row per slot (Suit, Primary, Primary, Secondary): the item, its grade as
-  engineer hexagons (a planned grade lit to it), its fitted modifications, and your plan for it in
+  engineer hexagons (white as fitted, then orange up to a planned grade), its fitted modifications, and your plan for it in
   orange ("Grade 3 · Night Vision"). A plan belongs to one item: of two grade-1 Maverick suits,
   only the one you planned for shows it. An item worn in several loadouts shows its plan in each.
 - **Shopping list**: everything your plans need, with what you have. A short line's have is
@@ -92,8 +92,8 @@ old build, so astromech says to re-dock or relog to refresh it.
 The **Loadout** lists every fitted module under **Hardpoints**, **Utility**, **Core** and
 **Optional**, as the game's outfitting does (military slots are with Optional). Fixed and cosmetic
 slots, such as the planetary approach suite, are left out. Each row gives the module's class and
-rating ("5A"), its name, its grade as engineer hexagons, and its blueprint and experimental. A grade
-your plan reaches is lit to it in a darker orange.
+rating ("5A"), its name, its grade as engineer hexagons, and its blueprint and experimental. Fitted
+grades are white; the grades your plan adds follow in orange.
 
 Click a module to see it in the side panel:
 

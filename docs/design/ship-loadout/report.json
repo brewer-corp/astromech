@@ -1,8 +1,8 @@
 {
- "commit": "85676016",
+ "commit": "58db0e65",
  "captures": {
   "krait-stats-1100x700": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=100#/engineering/1",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/engineering/1",
    "file": "docs/design/ship-loadout/krait-stats-1100x700.png",
    "step": 100,
    "frame": {
@@ -70,13 +70,13 @@
       "Hardpoints",
       "3C",
       "Overcharged",
-      "· Auto loader",
-      "· Corrosive shell",
+      "\u00b7 Auto loader",
+      "\u00b7 Corrosive shell",
       "Efficient",
-      "· Thermal vent",
+      "\u00b7 Thermal vent",
       "2F",
       "Focused",
-      "· Scramble spectrum",
+      "\u00b7 Scramble spectrum",
       "18.0",
       "24.6"
      ]
@@ -111,8 +111,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 37,
+     "weight": 38,
      "texts": [
+      "Now",
       "Engineering",
       "Places",
       "Trade",
@@ -125,8 +126,7 @@
       "To",
       "jumps left",
       "Stored modules",
-      "Suits",
-      "Open in"
+      "Suits"
      ]
     },
     {
@@ -154,120 +154,12 @@
      "text": "Ships",
      "sidebar": false,
      "at": "div.frame > header.stacked > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
     }
    ],
    "openGap": 24
   },
   "krait-stats-1920x1080": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=100#/engineering/1",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/engineering/1",
    "file": "docs/design/ship-loadout/krait-stats-1920x1080.png",
    "step": 100,
    "frame": {
@@ -409,17 +301,17 @@
       "Hardpoints",
       "3C",
       "Overcharged",
-      "· Auto loader",
-      "· Corrosive shell",
+      "\u00b7 Auto loader",
+      "\u00b7 Corrosive shell",
       "Efficient",
-      "· Thermal vent",
+      "\u00b7 Thermal vent",
       "2F",
       "Focused",
-      "· Scramble spectrum",
+      "\u00b7 Scramble spectrum",
       "Utility",
       "0A",
       "Heavy duty",
-      "· Thermo Block"
+      "\u00b7 Thermo Block"
      ]
     },
     {
@@ -451,126 +343,12 @@
      "text": "Ships",
      "sidebar": false,
      "at": "div.frame > header. > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
     }
    ],
    "openGap": 24
   },
   "krait-stats-2560x1440": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=145#/engineering/1",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/engineering/1",
    "file": "docs/design/ship-loadout/krait-stats-2560x1440.png",
    "step": 145,
    "frame": {
@@ -711,17 +489,17 @@
       "Hardpoints",
       "3C",
       "Overcharged",
-      "· Auto loader",
-      "· Corrosive shell",
+      "\u00b7 Auto loader",
+      "\u00b7 Corrosive shell",
       "Efficient",
-      "· Thermal vent",
+      "\u00b7 Thermal vent",
       "2F",
       "Focused",
-      "· Scramble spectrum",
+      "\u00b7 Scramble spectrum",
       "Utility",
       "0A",
       "Heavy duty",
-      "· Thermo Block"
+      "\u00b7 Thermo Block"
      ]
     },
     {
@@ -753,126 +531,12 @@
      "text": "Ships",
      "sidebar": false,
      "at": "div.frame > header. > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
     }
    ],
    "openGap": 24
   },
   "krait-stats-3840x2160": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=180#/engineering/1",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=180#/engineering/1",
    "file": "docs/design/ship-loadout/krait-stats-3840x2160.png",
    "step": 180,
    "frame": {
@@ -1014,17 +678,17 @@
       "Hardpoints",
       "3C",
       "Overcharged",
-      "· Auto loader",
-      "· Corrosive shell",
+      "\u00b7 Auto loader",
+      "\u00b7 Corrosive shell",
       "Efficient",
-      "· Thermal vent",
+      "\u00b7 Thermal vent",
       "2F",
       "Focused",
-      "· Scramble spectrum",
+      "\u00b7 Scramble spectrum",
       "Utility",
       "0A",
       "Heavy duty",
-      "· Thermo Block"
+      "\u00b7 Thermo Block"
      ]
     },
     {
@@ -1056,126 +720,12 @@
      "text": "Ships",
      "sidebar": false,
      "at": "div.frame > header. > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
     }
    ],
    "openGap": 24
   },
   "krait-module-1100x700": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=100#/engineering/7",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/engineering/7",
    "file": "docs/design/ship-loadout/krait-module-1100x700.png",
    "step": 100,
    "frame": {
@@ -1289,8 +839,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 28,
+     "weight": 29,
      "texts": [
+      "Now",
       "Engineering",
       "Places",
       "Trade",
@@ -1303,8 +854,7 @@
       "To",
       "jumps left",
       "Stored modules",
-      "Suits",
-      "Frame shift drive"
+      "Suits"
      ]
     },
     {
@@ -1332,30 +882,12 @@
      "text": "Ships",
      "sidebar": false,
      "at": "div.frame > header.stacked > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
     }
    ],
    "openGap": 24
   },
   "krait-module-1920x1080": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=100#/engineering/7",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/engineering/7",
    "file": "docs/design/ship-loadout/krait-module-1920x1080.png",
    "step": 100,
    "frame": {
@@ -1480,7 +1012,7 @@
       "Shinrarta Dezhra",
       "32.9",
       "420",
-      "–",
+      "\u2013",
       "Pulse Laser",
       "Shield Booster",
       "Lightweight Alloy",
@@ -1515,7 +1047,7 @@
       "Overcharged",
       "6A",
       "Dirty",
-      "· Drag Drives",
+      "\u00b7 Drag Drives",
       "Optional",
       "Increased range, grade 3 at 25%",
       "12",
@@ -1557,115 +1089,31 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
+     "at": "button.row.sel > span.hx > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
+     "at": "button.row.sel > span.hx > span.hexes > span.hex.plan"
     }
    ],
    "openGap": 24
   },
   "krait-module-2560x1440": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=145#/engineering/7",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/engineering/7",
    "file": "docs/design/ship-loadout/krait-module-2560x1440.png",
    "step": 145,
    "frame": {
@@ -1790,7 +1238,7 @@
       "Shinrarta Dezhra",
       "32.9",
       "420",
-      "–",
+      "\u2013",
       "Pulse Laser",
       "Shield Booster",
       "Lightweight Alloy",
@@ -1825,7 +1273,7 @@
       "Overcharged",
       "6A",
       "Dirty",
-      "· Drag Drives",
+      "\u00b7 Drag Drives",
       "Optional",
       "Increased range, grade 3 at 25%",
       "12",
@@ -1867,115 +1315,31 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
+     "at": "button.row.sel > span.hx > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
+     "at": "button.row.sel > span.hx > span.hexes > span.hex.plan"
     }
    ],
    "openGap": 24
   },
   "krait-module-3840x2160": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=180#/engineering/7",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=180#/engineering/7",
    "file": "docs/design/ship-loadout/krait-module-3840x2160.png",
    "step": 180,
    "frame": {
@@ -2100,7 +1464,7 @@
       "Shinrarta Dezhra",
       "32.9",
       "420",
-      "–",
+      "\u2013",
       "Pulse Laser",
       "Shield Booster",
       "Lightweight Alloy",
@@ -2135,7 +1499,7 @@
       "Overcharged",
       "6A",
       "Dirty",
-      "· Drag Drives",
+      "\u00b7 Drag Drives",
       "Optional",
       "Increased range, grade 3 at 25%",
       "12",
@@ -2177,115 +1541,31 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
+     "at": "button.row > span.hx > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
+     "at": "button.row.sel > span.hx > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.panel > p.now > span.hexes.grade > span.hex.on"
+     "at": "button.row.sel > span.hx > span.hexes > span.hex.plan"
     }
    ],
    "openGap": 24
   },
   "krait-plan-1100x700": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=100#/engineering/7/plan",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/engineering/7/plan",
    "file": "docs/design/ship-loadout/krait-plan-1100x700.png",
    "step": 100,
    "frame": {
@@ -2335,7 +1615,7 @@
       "Ships",
       "Shinrarta Dezhra",
       "420",
-      "–",
+      "\u2013",
       "Heavy Lifter"
      ]
     },
@@ -2394,8 +1674,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 44,
+     "weight": 45,
      "texts": [
+      "Now",
       "Engineering",
       "Places",
       "Trade",
@@ -2408,8 +1689,7 @@
       "To",
       "jumps left",
       "Stored modules",
-      "Suits",
-      "Open in"
+      "Suits"
      ]
     },
     {
@@ -2441,7 +1721,7 @@
    ]
   },
   "krait-plan-1920x1080": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=100#/engineering/7/plan",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/engineering/7/plan",
    "file": "docs/design/ship-loadout/krait-plan-1920x1080.png",
    "step": 100,
    "frame": {
@@ -2552,7 +1832,7 @@
       "Ships",
       "Shinrarta Dezhra",
       "420",
-      "–",
+      "\u2013",
       "G5 Datamined Wake Exceptions",
       "G5 Pharmaceutical Isolators",
       "G4 Chemical Manipulators",
@@ -2629,7 +1909,7 @@
    ]
   },
   "krait-plan-2560x1440": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=145#/engineering/7/plan",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/engineering/7/plan",
    "file": "docs/design/ship-loadout/krait-plan-2560x1440.png",
    "step": 145,
    "frame": {
@@ -2740,7 +2020,7 @@
       "Ships",
       "Shinrarta Dezhra",
       "420",
-      "–",
+      "\u2013",
       "G5 Datamined Wake Exceptions",
       "G5 Pharmaceutical Isolators",
       "G4 Chemical Manipulators",
@@ -2816,7 +2096,7 @@
    ]
   },
   "krait-plan-3840x2160": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=180#/engineering/7/plan",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=180#/engineering/7/plan",
    "file": "docs/design/ship-loadout/krait-plan-3840x2160.png",
    "step": 180,
    "frame": {
@@ -2927,7 +2207,7 @@
       "Ships",
       "Shinrarta Dezhra",
       "420",
-      "–",
+      "\u2013",
       "G5 Datamined Wake Exceptions",
       "G5 Pharmaceutical Isolators",
       "G4 Chemical Manipulators",
@@ -3004,7 +2284,7 @@
    ]
   },
   "anaconda-1100x700": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=100#/engineering/3",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/engineering/3",
    "file": "docs/design/ship-loadout/anaconda-1100x700.png",
    "step": 100,
    "frame": {
@@ -3052,7 +2332,7 @@
      "weight": 9,
      "texts": [
       "Ships",
-      "–",
+      "\u2013",
       "Lightweight Alloy",
       "Frame Shift Drive",
       "Cargo Rack",
@@ -3107,8 +2387,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 38,
+     "weight": 39,
      "texts": [
+      "Now",
       "Engineering",
       "Places",
       "Trade",
@@ -3121,8 +2402,7 @@
       "To",
       "jumps left",
       "Stored modules",
-      "Suits",
-      "Open in"
+      "Suits"
      ]
     },
     {
@@ -3154,7 +2434,7 @@
    ]
   },
   "anaconda-1920x1080": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=100#/engineering/3",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/engineering/3",
    "file": "docs/design/ship-loadout/anaconda-1920x1080.png",
    "step": 100,
    "frame": {
@@ -3263,7 +2543,7 @@
      "weight": 12,
      "texts": [
       "Ships",
-      "–",
+      "\u2013",
       "Lightweight Alloy",
       "Frame Shift Drive",
       "Cargo Rack",
@@ -3331,7 +2611,7 @@
    ]
   },
   "anaconda-2560x1440": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=145#/engineering/3",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/engineering/3",
    "file": "docs/design/ship-loadout/anaconda-2560x1440.png",
    "step": 145,
    "frame": {
@@ -3440,7 +2720,7 @@
      "weight": 12,
      "texts": [
       "Ships",
-      "–",
+      "\u2013",
       "Lightweight Alloy",
       "Frame Shift Drive",
       "Cargo Rack",
@@ -3508,7 +2788,7 @@
    ]
   },
   "anaconda-3840x2160": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=180#/engineering/3",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=180#/engineering/3",
    "file": "docs/design/ship-loadout/anaconda-3840x2160.png",
    "step": 180,
    "frame": {
@@ -3617,7 +2897,7 @@
      "weight": 12,
      "texts": [
       "Ships",
-      "–",
+      "\u2013",
       "Lightweight Alloy",
       "Frame Shift Drive",
       "Cargo Rack",
@@ -3685,7 +2965,7 @@
    ]
   },
   "unknown-loadout-1100x700": {
-   "url": "http://127.0.0.1:5391/?core=ready&route=exact&textsize=100#/engineering/12",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/engineering/12",
    "file": "docs/design/ship-loadout/unknown-loadout-1100x700.png",
    "step": 100,
    "frame": {
@@ -3784,8 +3064,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 36,
+     "weight": 37,
      "texts": [
+      "Now",
       "Engineering",
       "Places",
       "Trade",
@@ -3798,8 +3079,7 @@
       "To",
       "jumps left",
       "Stored modules",
-      "Suits",
-      "Asp Explorer"
+      "Suits"
      ]
     },
     {
@@ -3829,6 +3109,177 @@
      "at": "div.frame > header.stacked > nav. > button.on"
     }
    ]
+  },
+  "krait-module-wide-no-route-2400x1350": {
+   "url": "http://localhost:6431/?core=ready&textsize=100#/engineering/1",
+   "file": "docs/design/ship-loadout/krait-module-wide-no-route-2400x1350.png",
+   "step": 100,
+   "frame": {
+    "header": 64,
+    "stacked": false,
+    "route": "rail",
+    "sidebar": null,
+    "main": {
+     "w": 2342,
+     "h": 1210
+    }
+   },
+   "sideways": [],
+   "clipped": [],
+   "overlaps": [],
+   "small": [],
+   "contrast": [],
+   "exempt": [
+    {
+     "text": "Find or plot",
+     "ratio": 3.63,
+     "fg": "#ce5d04",
+     "bg": "#3d220f",
+     "px": 15,
+     "at": "div.find > span.field > span.cell > input.",
+     "token": "placeholder"
+    }
+   ],
+   "far": [],
+   "bright": [
+    {
+     "colour": "#ffffff",
+     "lum": 1,
+     "sidebar": false,
+     "weight": 6,
+     "texts": [
+      "ASTROMECH",
+      "Synthetic_Krait",
+      "Hardpoints",
+      "Regenerative Burst Laser",
+      "2F Regenerative Burst Laser"
+     ]
+    },
+    {
+     "colour": "#e0e0e0",
+     "lum": 0.745,
+     "sidebar": false,
+     "weight": 37,
+     "texts": [
+      "Ships",
+      "24.9",
+      "1428",
+      "376",
+      "28.2",
+      "Multi-Cannon",
+      "Beam Laser",
+      "2F",
+      "Focused",
+      "\u00b7 Scramble spectrum",
+      "Regenerative Burst Laser",
+      "Shield Booster",
+      "Military Grade Composite",
+      "Power Plant"
+     ]
+    },
+    {
+     "colour": "#c4c4c4",
+     "lum": 0.552,
+     "sidebar": false,
+     "weight": 62,
+     "texts": [
+      "3C",
+      "Overcharged",
+      "\u00b7 Auto loader",
+      "\u00b7 Corrosive shell",
+      "Efficient",
+      "\u00b7 Thermal vent",
+      "2F",
+      "Utility",
+      "0A",
+      "Heavy duty",
+      "\u00b7 Thermo Block",
+      "Thermal resistant",
+      "\u00b7 Super Capacitors",
+      "Core"
+     ]
+    },
+    {
+     "colour": "#ffa04a",
+     "lum": 0.469,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Loadout"
+     ]
+    },
+    {
+     "colour": "#ff7100",
+     "lum": 0.331,
+     "sidebar": false,
+     "weight": 7,
+     "texts": [
+      "Ctrl+K",
+      "Help",
+      "Plan",
+      "Coriolis",
+      "EDSY",
+      "Engineers",
+      "Waiting for Elite"
+     ]
+    },
+    {
+     "colour": "#8c8c8c",
+     "lum": 0.262,
+     "sidebar": false,
+     "weight": 44,
+     "texts": [
+      "Now",
+      "Engineering",
+      "Places",
+      "Trade",
+      "Exploration",
+      "Powerplay",
+      "Logbook",
+      "Controls",
+      "Settings",
+      "Stored modules",
+      "Suits",
+      "Open in",
+      "Krait MkII",
+      "AM-1"
+     ]
+    },
+    {
+     "colour": "#ce5d04",
+     "lum": 0.21,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Find or plot"
+     ]
+    },
+    {
+     "colour": "#0c0d0f",
+     "lum": 0.004,
+     "sidebar": false,
+     "weight": 2,
+     "texts": [
+      "Ships",
+      "Add to plan"
+     ]
+    }
+   ],
+   "fills": [
+    {
+     "colour": "#ff7100",
+     "text": "Ships",
+     "sidebar": false,
+     "at": "div.frame > header. > nav. > button.on"
+    },
+    {
+     "colour": "#ff7100",
+     "text": "Add to plan",
+     "sidebar": false,
+     "at": "aside. > div.panel > div.acts > button.btn.primary"
+    }
+   ],
+   "openGap": 24
   },
   "no-fleet-1100x700": {
    "url": "http://127.0.0.1:5391/?core=empty&textsize=100#/engineering",
@@ -3949,285 +3400,6 @@
      "at": "div.frame > header.stacked > nav. > button.on"
     }
    ]
-  },
-  "krait-module-wide-no-route-2400x1350": {
-   "url": "http://127.0.0.1:5391/?core=ready&textsize=100#/engineering/1",
-   "file": "docs/design/ship-loadout/krait-module-wide-no-route-2400x1350.png",
-   "step": 100,
-   "frame": {
-    "header": 64,
-    "stacked": false,
-    "route": "rail",
-    "sidebar": null,
-    "main": {
-     "w": 2342,
-     "h": 1210
-    }
-   },
-   "sideways": [],
-   "clipped": [],
-   "overlaps": [],
-   "small": [],
-   "contrast": [],
-   "exempt": [
-    {
-     "text": "Find or plot",
-     "ratio": 3.63,
-     "fg": "#ce5d04",
-     "bg": "#3d220f",
-     "px": 15,
-     "at": "div.find > span.field > span.cell > input.",
-     "token": "placeholder"
-    }
-   ],
-   "far": [],
-   "bright": [
-    {
-     "colour": "#ffffff",
-     "lum": 1,
-     "sidebar": false,
-     "weight": 6,
-     "texts": [
-      "ASTROMECH",
-      "Synthetic_Krait",
-      "Hardpoints",
-      "Regenerative Burst Laser",
-      "2F Regenerative Burst Laser"
-     ]
-    },
-    {
-     "colour": "#e0e0e0",
-     "lum": 0.745,
-     "sidebar": false,
-     "weight": 37,
-     "texts": [
-      "Ships",
-      "24.9",
-      "1428",
-      "376",
-      "28.2",
-      "Multi-Cannon",
-      "Beam Laser",
-      "2F",
-      "Focused",
-      "· Scramble spectrum",
-      "Regenerative Burst Laser",
-      "Shield Booster",
-      "Military Grade Composite",
-      "Power Plant"
-     ]
-    },
-    {
-     "colour": "#c4c4c4",
-     "lum": 0.552,
-     "sidebar": false,
-     "weight": 62,
-     "texts": [
-      "3C",
-      "Overcharged",
-      "· Auto loader",
-      "· Corrosive shell",
-      "Efficient",
-      "· Thermal vent",
-      "2F",
-      "Utility",
-      "0A",
-      "Heavy duty",
-      "· Thermo Block",
-      "Thermal resistant",
-      "· Super Capacitors",
-      "Core"
-     ]
-    },
-    {
-     "colour": "#ffa04a",
-     "lum": 0.469,
-     "sidebar": false,
-     "weight": 1,
-     "texts": [
-      "Loadout"
-     ]
-    },
-    {
-     "colour": "#ff7100",
-     "lum": 0.331,
-     "sidebar": false,
-     "weight": 7,
-     "texts": [
-      "Ctrl+K",
-      "Help",
-      "Plan",
-      "Coriolis",
-      "EDSY",
-      "Engineers",
-      "Waiting for Elite"
-     ]
-    },
-    {
-     "colour": "#8c8c8c",
-     "lum": 0.262,
-     "sidebar": false,
-     "weight": 43,
-     "texts": [
-      "Engineering",
-      "Places",
-      "Trade",
-      "Exploration",
-      "Powerplay",
-      "Logbook",
-      "Controls",
-      "Settings",
-      "Stored modules",
-      "Suits",
-      "Open in",
-      "Krait MkII",
-      "AM-1",
-      "16 of 23 modules engineered"
-     ]
-    },
-    {
-     "colour": "#ce5d04",
-     "lum": 0.21,
-     "sidebar": false,
-     "weight": 1,
-     "texts": [
-      "Find or plot"
-     ]
-    },
-    {
-     "colour": "#0c0d0f",
-     "lum": 0.004,
-     "sidebar": false,
-     "weight": 2,
-     "texts": [
-      "Ships",
-      "Add to plan"
-     ]
-    }
-   ],
-   "fills": [
-    {
-     "colour": "#ff7100",
-     "text": "Ships",
-     "sidebar": false,
-     "at": "div.frame > header. > nav. > button.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row.sel > span.hx > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.row > span.hx > span.hexes.grade > span.hex.on"
-    }
-   ],
-   "openGap": 24
   }
  }
 }

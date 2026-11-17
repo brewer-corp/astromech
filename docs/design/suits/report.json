@@ -1,8 +1,8 @@
 {
- "commit": "bf7d09ec",
+ "commit": "58db0e65",
  "captures": {
   "suits-1100x700": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/suits",
    "file": "docs/design/suits/suits-1100x700.png",
    "step": 100,
    "frame": {
@@ -112,8 +112,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 36,
+     "weight": 37,
      "texts": [
+      "Now",
       "Engineering",
       "Places",
       "Trade",
@@ -126,8 +127,7 @@
       "To",
       "jumps left",
       "Ships",
-      "Stored modules",
-      "Loadout 1 of 4 · Maverick Suit · 4 of 4 items engineered or "
+      "Stored modules"
      ]
     },
     {
@@ -160,66 +160,24 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     }
    ]
   },
   "suits-1920x1080": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/suits",
    "file": "docs/design/suits/suits-1920x1080.png",
    "step": 100,
    "frame": {
@@ -417,96 +375,24 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     }
    ]
   },
   "suits-2560x1440": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=145#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/suits",
    "file": "docs/design/suits/suits-2560x1440.png",
    "step": 145,
    "frame": {
@@ -703,96 +589,24 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     }
    ]
   },
   "suits-3840x2160": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=180#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=180#/suits",
    "file": "docs/design/suits/suits-3840x2160.png",
    "step": 180,
    "frame": {
@@ -990,96 +804,24 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     }
    ]
   },
   "suits-suit-selected-1100x700": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/suits",
    "file": "docs/design/suits/suits-suit-selected-1100x700.png",
    "step": 100,
    "frame": {
@@ -1184,8 +926,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 28,
+     "weight": 29,
      "texts": [
+      "Now",
       "Engineering",
       "Places",
       "Trade",
@@ -1198,8 +941,7 @@
       "To",
       "jumps left",
       "Ships",
-      "Stored modules",
-      "Plan: grade 3 and Night Vision"
+      "Stored modules"
      ]
     },
     {
@@ -1233,19 +975,13 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.on"
+     "at": "div.about > p.type-label.line > span.hexes > span.hex.plan"
     },
     {
-     "colour": "#d97a34",
+     "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+     "at": "div.about > p.type-label.line > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
@@ -1256,7 +992,7 @@
    ]
   },
   "suits-suit-selected-1920x1080": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/suits",
    "file": "docs/design/suits/suits-suit-selected-1920x1080.png",
    "step": 100,
    "frame": {
@@ -1446,109 +1182,31 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot.sel > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot.sel > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.about > p.type-label.line > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+     "at": "div.about > p.type-label.line > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
@@ -1559,7 +1217,7 @@
    ]
   },
   "suits-suit-selected-2560x1440": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=145#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/suits",
    "file": "docs/design/suits/suits-suit-selected-2560x1440.png",
    "step": 145,
    "frame": {
@@ -1749,109 +1407,31 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot.sel > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot.sel > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.about > p.type-label.line > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+     "at": "div.about > p.type-label.line > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
@@ -1862,7 +1442,7 @@
    ]
   },
   "suits-suit-selected-3840x2160": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=180#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=180#/suits",
    "file": "docs/design/suits/suits-suit-selected-3840x2160.png",
    "step": 180,
    "frame": {
@@ -2052,109 +1632,31 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot.sel > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot.sel > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot.sel > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.about > p.type-label.line > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.about > p.type-label.line > span.hexes.grade > span.hex.to"
+     "at": "div.about > p.type-label.line > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
@@ -2165,7 +1667,7 @@
    ]
   },
   "suits-plan-other-1100x700": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/suits",
    "file": "docs/design/suits/suits-plan-other-1100x700.png",
    "step": 100,
    "frame": {
@@ -2262,8 +1764,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 32,
+     "weight": 33,
      "texts": [
+      "Now",
       "Engineering",
       "Places",
       "Trade",
@@ -2276,8 +1779,7 @@
       "To",
       "jumps left",
       "Ships",
-      "Stored modules",
-      "Still short after the trade: 2 Health Monitor, 3 NOC Data, 2"
+      "Stored modules"
      ]
     },
     {
@@ -2309,36 +1811,6 @@
     },
     {
      "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
      "text": "Add to plan",
      "sidebar": false,
      "at": "aside.stacked > div.about > div.add.col > button.btn.primary"
@@ -2346,7 +1818,7 @@
    ]
   },
   "suits-plan-other-1920x1080": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=100#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=100#/suits",
    "file": "docs/design/suits/suits-plan-other-1920x1080.png",
    "step": 100,
    "frame": {
@@ -2545,91 +2017,19 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
@@ -2640,7 +2040,7 @@
    ]
   },
   "suits-plan-other-2560x1440": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=145#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=145#/suits",
    "file": "docs/design/suits/suits-plan-other-2560x1440.png",
    "step": 145,
    "frame": {
@@ -2838,91 +2238,19 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
@@ -2933,7 +2261,7 @@
    ]
   },
   "suits-plan-other-3840x2160": {
-   "url": "http://localhost:6417/?core=ready&route=exact&textsize=180#/suits",
+   "url": "http://localhost:6431/?core=ready&route=exact&textsize=180#/suits",
    "file": "docs/design/suits/suits-plan-other-3840x2160.png",
    "step": 180,
    "frame": {
@@ -3132,91 +2460,19 @@
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",
      "text": "",
      "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#d97a34",
-     "text": "",
-     "sidebar": false,
-     "at": "div.slots > button.slot > span.hexes.grade > span.hex.to"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile.on > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
-    },
-    {
-     "colour": "#ff7100",
-     "text": "",
-     "sidebar": false,
-     "at": "button.tile > span.type-label.tl > span.hexes.grade > span.hex.on"
+     "at": "div.slots > button.slot > span.hexes > span.hex.plan"
     },
     {
      "colour": "#ff7100",

@@ -52,7 +52,7 @@
   {#if g}
     <p class="now">
       {#if m.engineering}
-        <Hexes n={m.engineering.grade} of={maxGrade(fleet, m, m.engineering.blueprint)} tone="grade" label="Grade {m.engineering.grade}" />
+        <Hexes n={m.engineering.grade} of={maxGrade(fleet, m, m.engineering.blueprint)} label="Grade {m.engineering.grade}" />
         <span>{m.engineering.blueprint_name}, grade {m.engineering.grade}{m.engineering.quality < 1 ? ` at ${Math.round(m.engineering.quality * 100)}%` : ""}{m.engineering.experimental_name ? ` · ${m.engineering.experimental_name}` : ""}</span>
       {:else}
         <span class="type-label">Not engineered</span>
