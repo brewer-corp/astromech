@@ -23,4 +23,4 @@
   const detail = provideDetail();
 </script>
 
-<Split panel={panel ?? detail.panel} selected={selected ?? detail.selected} min={detail.min ?? min}>{@render children()}</Split>
+<Split panel={panel ?? detail.panel} selected={selected ?? detail.selected} min={detail.min ?? min} onroom={(w) => (detail.room = w)}>{@render children()}</Split>

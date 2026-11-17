@@ -26,9 +26,14 @@ export function at100(width: number, step: number): number {
   return (width * 100) / step;
 }
 
+/** The content's width beside a side panel in a layout `width` wide. */
+export function besidePanel(width: number): number {
+  return width - GUTTER - PANEL_TRACK;
+}
+
 /** Whether a side panel goes below the content: a `width` too narrow for `min` beside the panel. */
 export function stacks(width: number, min: number): boolean {
-  return width > 0 && width < min + GUTTER + PANEL_TRACK;
+  return width > 0 && besidePanel(width) < min;
 }
 
 /**
