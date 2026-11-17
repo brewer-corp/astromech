@@ -11,6 +11,8 @@
   // hour.
   import { useFrame } from "../../lib/frame.svelte";
   import { creditParts, loadUnsold, type Unsold } from "../../lib/exploration";
+  import { failure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { duration, EARNED, loadSession, type Session } from "../../lib/logbook";
   import { loadOverview, num, until, type Overview } from "../../lib/powerplay";
   import { loadHere, type DockedHere } from "../../lib/station";
@@ -45,6 +47,11 @@
     if (frame.ship) shipKept = frame.ship;
   });
   const running = $derived(status?.game === "running");
+  /** The last status or ship read failed, in words: beside what it may have left out of date. */
+  const statusReason = $derived(frame.statusError == null ? null : failure("read whether Elite is running", frame.statusError));
+  const shipReason = $derived(frame.shipError == null ? null : failure("read the ship", frame.shipError));
+  /** Whether Elite runs has never been read: the core hasn't answered yet. */
+  const unknownGame = $derived(frame.read && !status && !!statusReason);
   /** The frame has read the status once: until then, whether Elite runs isn't known. */
   const known = $derived(frame.read);
   const at = $derived(here.value);
@@ -80,17 +87,24 @@
       <div class="lead">
         {#if !known || (!here.loaded && !here.failed)}
           <p class="type-label">Reading the journal…</p>
+        {:else if unknownGame}
+          <p class="type-label err" role="alert"><b>!</b> {statusReason}</p>
         {:else if docked && at}
           <Head here={at} />
         {:else if inSpace && at?.system}
           <h2 class="type-title system"><span>{at.system}</span><SystemChip name={at.system} icon /></h2>
         {:else if running}
           <h2 class="type-title">Elite is running</h2>
-          {#if here.failed}<p class="type-label err" role="alert"><b>!</b> {here.failed}</p>{/if}
         {:else}
           <h2 class="type-title">Elite isn't running</h2>
           {#if lastPlace}<p class="type-label">{lastPlace}</p>{/if}
         {/if}
+        {#if known && !here.loaded && here.failed}<p class="type-label err" role="alert"><b>!</b> {here.failed}</p>{/if}
+        {#if !unsold.loaded && unsold.failed}<p class="type-label err" role="alert"><b>!</b> {unsold.failed}</p>{/if}
+        <!-- A later read failed: what is shown stays, and each line says what may be out of date. -->
+        {#if status && !unknownGame}<Stale error={statusReason} />{/if}
+        {#if here.loaded}<Stale error={here.reason} />{/if}
+        {#if unsold.loaded}<Stale error={unsold.reason} />{/if}
         {#if risky}
           {@const [amount, unit] = parts(risky.total)}
           <p class="risk" role="alert">
@@ -103,7 +117,7 @@
       <Blocks>
         <!-- Asked once where the commander is is known, so opening the page asks once. -->
         {#if hold && ship && here.loaded}
-          <Sale {ship} system={at?.system ?? null} main={main === "sale"} onfigure={(f) => (saleFigure = f)} />
+          <Sale {ship} system={at?.system ?? null} main={main === "sale"} stale={shipReason} onfigure={(f) => (saleFigure = f)} />
         {/if}
         {#if showSession}
           <Block
@@ -147,7 +161,7 @@
           </Block>
         {/if}
         {#if mining && run}
-          <Block title="Mining" href="#/mining" link="Mining">
+          <Block title="Mining" href="#/mining" link="Mining" stale={statusReason}>
             <p class="value">
               <span class="type-value-xl" class:main={main === "mining"}>{run.per_hour == null ? "–" : run.per_hour.toFixed(0)}</span><span class="type-unit">t per hour</span>
             </p>

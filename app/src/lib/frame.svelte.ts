@@ -3,18 +3,27 @@
 // Status.json writes on the same tick). The frame (App.svelte) makes one and hands it down by
 // context; a page drawn on its own (a test) makes its own and starts it.
 import { getContext, setContext } from "svelte";
-import { coreStatus, shipStatus, type CoreStatus, type ShipStatus } from "./core";
+import type { CoreStatus, ShipStatus } from "./core";
+import { call } from "./transport";
 
 export class FramePolls {
   /** Null before the first read, and when the core didn't answer. */
   status = $state<CoreStatus | null>(null);
   /** Null before the first read, and when the call failed. */
   ship = $state<ShipStatus | null>(null);
+  /** Why the last status read failed (the core didn't answer); null when it answered. */
+  statusError = $state<unknown>(null);
+  /** Why the last ship read failed; null when it answered. */
+  shipError = $state<unknown>(null);
   /** Both have been read at least once (answered or not), so a null above means what it says. */
   read = $state(false);
 
   tick = async (): Promise<void> => {
-    [this.status, this.ship] = await Promise.all([coreStatus(), shipStatus()]);
+    const [status, ship] = await Promise.allSettled([call("status"), call("ship_status")]);
+    this.status = status.status === "fulfilled" ? status.value : null;
+    this.statusError = status.status === "rejected" ? status.reason : null;
+    this.ship = ship.status === "fulfilled" ? ship.value : null;
+    this.shipError = ship.status === "rejected" ? ship.reason : null;
     this.read = true;
   };
 

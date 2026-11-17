@@ -22,6 +22,7 @@
     ship,
     system,
     main = false,
+    stale = null,
     onfigure,
   }: {
     ship: ShipStatus;
@@ -29,6 +30,8 @@
     system: string | null;
     /** Its total is the page's one main value. */
     main?: boolean;
+    /** The ship's last read failed: the hold shown may be out of date. */
+    stale?: string | null;
     /** Told whether a station's total is on screen. */
     onfigure?: (shown: boolean) => void;
   } = $props();
@@ -95,7 +98,7 @@
   const PADS = { S: "Small", M: "Medium", L: "Large" } as const;
 </script>
 
-<Block title="Sell your cargo" href="#/places/sell-cargo" link="Sell my cargo">
+<Block title="Sell your cargo" href="#/places/sell-cargo" link="Sell my cargo" {stale}>
   {#if err}
     <Failure text={err} onaction={() => void ask(key)} />
   {:else}

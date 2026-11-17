@@ -90,10 +90,37 @@ describe("Now", () => {
     await vi.advanceTimersByTimeAsync(2000);
     await idle();
     expect(screen.getByRole("region", { name: "Sell your cargo" })).toBeTruthy();
+    // Each line says what may be out of date, beside it.
+    expect(sale.getByText(/Could not read the ship: the core didn't answer/)).toBeTruthy();
+    expect(screen.getByText(/Could not read whether Elite is running: the core didn't answer/)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Test Orbital$/ }), "the place stays").toBeTruthy();
     fail = false;
     await vi.advanceTimersByTimeAsync(2000);
     await idle();
     expect(asks).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(/Could not read/), "gone once the reads answer").toBeNull();
+  });
+
+  it("a failed read of the place or of the data at risk keeps what is shown, and says so", async () => {
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
+    startPreview("/?core=ready&game=running");
+    render(View);
+    await screen.findByRole("heading", { name: /Test Orbital$/ });
+    await idle();
+    answer("docked_here", () => Promise.reject("the journal is locked"));
+    answer("exploration_unsold", () => Promise.reject("the history is busy"));
+    await vi.advanceTimersByTimeAsync(15000);
+    await idle();
+    expect(screen.getByRole("heading", { name: /Test Orbital$/ })).toBeTruthy();
+    expect(screen.getByText(/Could not read the docked station: the journal is locked/)).toBeTruthy();
+    expect(screen.getByText(/Could not read your unsold data: the history is busy/)).toBeTruthy();
+  });
+
+  it("says the status could not be read, not that Elite isn't running, when the core never answered", async () => {
+    startPreview("/?core=ready&game=running&fail=status");
+    render(View);
+    expect(await screen.findByText(/Could not read whether Elite is running/)).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Elite isn't running" })).toBeNull();
   });
 
   it("with no station in reach, says so and offers no destination", async () => {
