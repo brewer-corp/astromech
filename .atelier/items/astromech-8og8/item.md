@@ -26,4 +26,4 @@ On Ships > Suits, Remove sits next to the plan it removes at any window size (Th
 
 ## Scope
 
-Ships > Suits. astromech-nnn0 rebuilds this page as a loadout; if it lands first and its captures show the rule kept, close this as covered by it.
+Ships > Suits. astromech-nnn0 rebuilds this page as a loadout but waits on astromech-8e22, which waits on this fix; the lead decides whether to fix the current page or let 8e22 close with this case handed to nnn0.
