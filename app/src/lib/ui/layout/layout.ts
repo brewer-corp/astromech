@@ -1,5 +1,7 @@
 // The page layouts' shared numbers (DESIGN.md Page layouts). A page never uses them for a width of
-// its own; it hands its layout a count (tile columns) and the layout works out the width.
+// its own; it hands its layout a count (tile columns) and the layout works out the width. They are
+// px at 100 percent Text size, as the CSS's rem is; a layout compares them with a measured width
+// through `at100`.
 
 /** The side panel's content width (DESIGN.md Side panel), as --panel in tokens.css. */
 export const PANEL = 320;
@@ -17,6 +19,11 @@ export const TILE_GAP = 8;
 /** The narrowest a tile grid of `cols` columns keeps its tiles at TILE, so a panel fits beside it. */
 export function tilesMin(cols: number, heads = false): number {
   return cols * TILE + (cols - 1) * TILE_GAP + (heads ? HEAD + TILE_GAP : 0);
+}
+
+/** A measured width in CSS px, as px at 100 percent Text size (`step` in percent). */
+export function at100(width: number, step: number): number {
+  return (width * 100) / step;
 }
 
 /** Whether a side panel goes below the content: a `width` too narrow for `min` beside the panel. */

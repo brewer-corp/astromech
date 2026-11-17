@@ -3,14 +3,15 @@
   // inputs do. The inputs keep one column; the result keeps to a readable width and spare width
   // stays empty. Where the result can't keep `min` beside the inputs, it goes below them.
   import type { Snippet } from "svelte";
-  import { GUTTER } from "./layout";
+  import { at100, GUTTER } from "./layout";
+  import { scale } from "../../scale.svelte";
 
   let { inputs, children, min = 560 }: { inputs: Snippet; children: Snippet; /** The narrowest the result works at. */ min?: number } = $props();
 
   /** The inputs' column. */
   const INPUTS = 400;
   let width = $state(0);
-  const stacked = $derived(width > 0 && width < INPUTS + GUTTER + min);
+  const stacked = $derived(width > 0 && at100(width, scale.step) < INPUTS + GUTTER + min);
 </script>
 
 <div class="bench" class:stacked bind:clientWidth={width}>
