@@ -756,13 +756,14 @@ size the page gets less, and scrolls.
 percent, and as many lines as the ten tabs need. The name, Find or plot and Help keep their 64 px
 row above them; Find or plot gives way down to 180 px before that row breaks. Every size grows with
 the Text size, so the header is (64 + 44 x lines) x step. Measured on the Materials page in the
-test Chromium (astromech-z4vm, 17 Nov 2026):
+test Chromium, a fresh window at each step once its fonts had loaded (astromech-z4vm, 17 Nov
+2026); with or without a route, the strip is the same height:
 
 | Text size | 1100 px window: tab lines, header | 800 px window: tab lines, header |
 |---|---|---|
 | 100 | 1, 108 px | 2, 152 px |
 | 115 | 2, 175 px | 2, 175 px |
-| 130 | 2, 197 px | 3, 255 px |
+| 130 | 2, 197 px | 2, 197 px |
 | 145 | 2, 220 px | 3, 284 px |
 | 160 | 2, 243 px | 3, 313 px |
 | 180 | 2, 273 px | 3, 352 px |
@@ -772,8 +773,9 @@ as Places) and 226 px at 180 percent (305 px without page tabs), under the route
 scrolls ([header-wrap-1100x700-145-after.png](docs/design/header-wrap-1100x700-145-after.png),
 [header-wrap-1100x700-180-after.png](docs/design/header-wrap-1100x700-180-after.png)). The
 window itself lets the commander go down to 800 x 500 (`app/src-tauri/src/host.rs`), below this
-design's 1100 x 700 minimum. There, at 160 percent and up, the frame's fixed parts are taller
-than the window and the status bar covers the page tabs
+design's 1100 x 700 minimum. There the Materials page keeps 157 px at 130 percent, 54 at 145 and
+8 at 160; at 180 percent the frame's fixed parts are taller than the window and the status bar
+covers the page tabs
 ([header-wrap-800x500-180-after.png](docs/design/header-wrap-800x500-180-after.png)); with Finish
 setup showing at 180 percent, Finish setup and Help take a second line of the name row.
 *Why:* wrapping keeps every area one click away, where a More menu would hide some behind a
