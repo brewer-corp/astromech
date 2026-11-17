@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-unak
 title: Powerplay cycle time reads '0 h 0 min left' once the recorded cycle end has passed
-status: in_review
+status: changes_requested
 mission: astromech-xajc
 labels:
 - bug
