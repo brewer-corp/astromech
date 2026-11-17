@@ -114,5 +114,5 @@ CONTRIBUTING.md now says page-sizing covers every page outside the exempt list.
 
 ### Responses
 
-1-5gdo.1: fixed in the commit after b90b5a4a: the lead decided consent text stays printed and reworded the Done when line; the decision is in the mission's notes.md and DESIGN.md's Tip section.
+1-5gdo.1: fixed in 3fc6713d: the lead decided consent text stays printed and reworded the Done when line; the decision is in the mission's notes.md and DESIGN.md's Tip section.
 1-5gdo.2: fixed in b90b5a4a: the keyring row takes its one "!" from dd.warn; the failed-read prefix is scoped to p.failed.
