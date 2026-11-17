@@ -1,5 +1,5 @@
 {
- "commit": "201614ea",
+ "commit": "5389cb65",
  "captures": {
   "stored-1100x700": {
    "url": "http://localhost:5391/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/stored",
@@ -8371,7 +8371,7 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 21,
+     "weight": 20,
      "texts": [
       "Now",
       "Engineering",
@@ -8390,21 +8390,21 @@
      ]
     },
     {
+     "colour": "#f0412e",
+     "lum": 0.225,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Could not read the stored modules: preview: engineering_flee"
+     ]
+    },
+    {
      "colour": "#ce5d04",
      "lum": 0.21,
      "sidebar": false,
      "weight": 1,
      "texts": [
       "Find or plot"
-     ]
-    },
-    {
-     "colour": "#0c0d0f",
-     "lum": 0.004,
-     "sidebar": false,
-     "weight": 1,
-     "texts": [
-      "Ships"
      ]
     }
    ],
@@ -9276,11 +9276,10 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 8,
+     "weight": 7,
      "texts": [
       "4 of 10",
       "7",
-      "Could not read the sharing log: preview: eddn_log failed on ",
       "18.0",
       "24.6",
       "32",
@@ -9332,21 +9331,21 @@
      ]
     },
     {
+     "colour": "#f0412e",
+     "lum": 0.225,
+     "sidebar": false,
+     "weight": 1,
+     "texts": [
+      "Could not read the sharing log: preview: eddn_log failed on "
+     ]
+    },
+    {
      "colour": "#ce5d04",
      "lum": 0.21,
      "sidebar": false,
      "weight": 1,
      "texts": [
       "Find or plot"
-     ]
-    },
-    {
-     "colour": "#0c0d0f",
-     "lum": 0.004,
-     "sidebar": false,
-     "weight": 1,
-     "texts": [
-      "Settings"
      ]
     }
    ],
@@ -9484,9 +9483,8 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 6,
+     "weight": 5,
      "texts": [
-      "Could not read the sharing log: preview: eddn_log failed on ",
       "18.0",
       "24.6",
       "32",
@@ -9652,9 +9650,8 @@
      "colour": "#c4c4c4",
      "lum": 0.552,
      "sidebar": false,
-     "weight": 6,
+     "weight": 5,
      "texts": [
-      "Could not read the sharing log: preview: eddn_log failed on ",
       "18.0",
       "24.6",
       "32",
