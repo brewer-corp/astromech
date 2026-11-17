@@ -279,6 +279,12 @@
    * and the actions, by The Aligned Columns Rule (a fact that would wrap goes).
    */
   const compact = $derived(width > 0 && at100(width, scale.step) < fits);
+  /**
+   * Compact in a list with a side panel: one line, the panel holds the rest. Without a panel
+   * (Powerplay's column, Nearby) the first two groups keep their second lines, so the system's
+   * fact and the trip or what qualifies the value stay reachable.
+   */
+  const oneLine = $derived(compact && !!detail);
   const template = $derived(
     compact
       ? "max-content minmax(0, 1fr) 4rem"
@@ -375,7 +381,7 @@
 {#snippet tripLine(r: Row)}
   {@const age = ageCell(r.updated_at, now)}
   {#if ageOnRow && r.updated_at}
-    <span class="l2"><span class="ly">{figure(r.ly, 1)}<span class="unit">ly</span></span> · <span class="age" class:old={stale(r)}>{age.value} {age.unit} old</span></span>
+    <span class="l2"><span class="ly">{figure(r.ly, 1)}<span class="unit">ly</span></span>&nbsp;·&nbsp;<span class="age" class:old={stale(r)}>{age.value} {age.unit} old</span></span>
   {:else if stale(r)}
     <span class="l2 age old">{age.value} {age.unit} old</span>
   {:else}
@@ -431,10 +437,10 @@
     {#if res && !err}
       {#if res.warning}<p class="line warn"><b>!</b> {res.warning}</p>{/if}
       {#if rows.length}
-        <div class="list" class:busy class:compact role="table" aria-label="Results" aria-busy={busy} style:--cols={template}>
+        <div class="list" class:busy class:compact={oneLine} role="table" aria-label="Results" aria-busy={busy} style:--cols={template}>
           <div class="row heads" role="row">
             <span class="r" role="columnheader">{firstHead}</span>
-            <span role="columnheader">{placeHead(res.place, compact ? null : (g?.under ?? null))}</span>
+            <span role="columnheader">{placeHead(res.place, oneLine ? null : (g?.under ?? null))}</span>
             {#if !compact && g?.own.length}<span class:r={!ownText} role="columnheader">{groupHead(g.own.map((c) => c.head))}</span>{/if}
             {#if !compact && g?.trip}<span class="r" role="columnheader">Trip</span>{/if}
             <span role="columnheader" aria-label="Actions"></span>
@@ -447,7 +453,7 @@
             <div class="row result" class:stale={stale(r)} class:sel={chosen?.key === r.key} role="row" onclick={() => detail && (picked = r.key)}>
               <span class="g r first" role="cell">
                 <span class="l1 main"><span class="v">{top}</span><span class="unit">{res.main ? (res.main.unit ?? "") : jumpsUnit(top)}</span></span>
-                {#if !compact}
+                {#if !oneLine}
                   {#if g?.trip}
                     {#if g.qual}<span class="l2">{@render fact(g.qual, r)}</span>{/if}
                   {:else}
@@ -464,13 +470,13 @@
                       <span class="pad" class:unfit role="img" aria-label={unfit ? `${PADS[r.pad]} pad: too small for your ship` : `${PADS[r.pad]} pad`}>{r.pad}</span>
                     {/if}
                     {#if r.arrival_ls != null}<span class="ls">{figure(r.arrival_ls)}<span class="unit">ls</span></span>{/if}
-                    {#if compact}<span class="sys" title={r.system}>{r.system}</span>{/if}
+                    {#if oneLine}<span class="sys" title={r.system}>{r.system}</span>{/if}
                   {:else}
                     {@render name(r, r.system)}
                   {/if}
-                  {#if compact || !r.station}<SystemChip name={r.system} icon />{/if}
+                  {#if oneLine || !r.station}<SystemChip name={r.system} icon />{/if}
                 </span>
-                {#if !compact}
+                {#if !oneLine}
                   {#if r.station}
                     <span class="l2 in"><span class="sys" title={r.system}>{r.system}</span><SystemChip name={r.system} icon /></span>
                   {:else if g?.under}
@@ -481,7 +487,7 @@
               {#if !compact && g?.own.length}
                 <span class="g own" class:r={!ownText} role="cell">
                   {#each g.own.slice(0, 2) as c, i (c.key)}
-                    <span class={i ? "l2" : "l1"}>{@render fact(c, r)}{#if i === 1}{#each g.own.slice(2) as more (more.key)} · {@render fact(more, r)}{/each}{/if}</span>
+                    <span class={i ? "l2" : "l1"}>{@render fact(c, r)}{#if i === 1}{#each g.own.slice(2) as more (more.key)}&nbsp;·&nbsp;{@render fact(more, r)}{/each}{/if}</span>
                   {/each}
                 </span>
               {/if}

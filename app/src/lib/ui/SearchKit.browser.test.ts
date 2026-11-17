@@ -129,7 +129,7 @@ describe("SearchKit", () => {
     expect(screen.getByText("Within 100 ly of Sol · large pad · reports up to 30 days old")).toBeTruthy();
   });
 
-  it("keeps the ranked value, the place and the actions in a panel too narrow for the facts", async () => {
+  it("keeps the ranked value, the place and the actions in a column too narrow for the groups", async () => {
     loadFilters.mockResolvedValue(DEFAULT_FILTERS);
     // A 320 px side panel: the row needs 112 + 240 + 64 px plus its fact columns.
     const width = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(297);
@@ -146,8 +146,9 @@ describe("SearchKit", () => {
     try {
       kit(vi.fn().mockResolvedValue(results), { offers: ["age"] });
       expect(await screen.findByText("Ross 154")).toBeTruthy();
-      await waitFor(() => expect(heads()).toEqual(["Trip", "System", ""]));
-      expect(cells()).toEqual([["1jump", "Ross 154", ""]]);
+      // No side panel to hold the facts: the first two groups keep their second lines.
+      await waitFor(() => expect(heads()).toEqual(["Trip", "System · faction", ""]));
+      expect(cells()).toEqual([["1jump 9.7ly · 2 h old", "Ross 154 Ross 154 Boys", ""]]);
       expect(screen.getByRole("button", { name: "Set Ross 154 as the destination" })).toBeTruthy();
     } finally {
       width.mockRestore();
