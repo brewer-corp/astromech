@@ -72,15 +72,19 @@ What changed in DESIGN.md (167848a3):
   table, the Lifted Name Rule (names are white or grey, never orange), the side panel, tabs and
   Deviations are rewritten to match.
 - **Rows.** The Lookup result row is now 60 px, two lines in three groups. The Aligned Columns
-  Rule is restated for groups. Rows visible come from the spike's captures: about 11 at
-  2560 x 1440 at 145 percent and 5 at 1100 x 700, where the one-line rows fitted 18 and 8.
-  astromech-3ca6 measures the built row again.
+  Rule is restated for groups. Rows visible: 5 whole rows at 1100 x 700, counted on
+  `tone5-sell-1100.png`. At 2560 x 1440 the capture holds 8 rows plus free space; about 11 is
+  computed from that space, not counted, and DESIGN.md says so. Revision 4's one-line rows
+  fitted about 18 on a 1000 px window. astromech-3ca6 measures the built row. Only Sell's
+  groups are written down; each other finder's groups are left to astromech-3ca6.
 - **New named rules:** The Game's Symbols Rule (under Icons, squared with No Frontier assets),
   The Full-Width Header Rule and The Dimmed Page Rule (Layout). There is a new Route sidebar
   section, a rewritten Frame and route strip, the ten top tabs, and The Text Size Rule in place
   of The Height Scale Rule, with the six steps and first-run thresholds from astromech-b2cz.
 - **Settings values:** a new Cell role, 15/500, Orange. Input, dropdown and the Settings row
-  use it, and a Weight paragraph in Typography states the ruling.
+  use it, and a Weight paragraph in Typography states the ruling. Orange at 15 px and over is
+  never below 500; orange in Label size (a choice, "Ctrl+K", a stale age) keeps Label's 400.
+  The front matter's weights match the Hierarchy table (checked by script).
 - **Front matter:** sizes are in rem, the new colours are added, and component colours are
   updated. There are new `route-sidebar`, `route-rail` and `status-bar` components, and a new
   `cell` typography.
@@ -91,7 +95,9 @@ What changed in DESIGN.md (167848a3):
   `7-materials-on-foot-2560`, and `header-stacked-1590`, which the Frame row cites. The eight
   `glow-up-*.png` files from `mockups/glow-up` are in `docs/design/`; `glow-up-icons.png` was
   already on main. A Reference captures section links all of them and says which predate the
-  calmer colours. Every capture name cited in `.atelier/` now exists on this branch.
+  calmer colours. Every file on `spike/nav-rework` under `docs/design/nav-spike/` and every
+  `glow-up-*.png` on `mockups/glow-up` that `.atelier/` cites now exists on this branch,
+  checked by looping over the full file lists.
 
 Calls Sumeet hasn't seen, made where no approved capture settles the point, each the narrowest
 rule the principle gives:
@@ -109,14 +115,27 @@ rule the principle gives:
    is Options Grey.
 6. **The side panel's separator is a Seam rule**, as every tone5 capture draws it. The 1 px
    orange line now marks an overlay's open edge.
-7. **Figures and Nav are 400.** Grey data at 400, as the spike drew it; orange text is never
-   below 500.
+7. **Figures and Nav are 400.** Grey data at 400, as the spike drew it.
+8. **Mark Off `#4f4a45`** is one token for the spike's two unlit colours: `#4f4a45` for
+   hexagons and past stars, and `#3a3633` for the demand bars.
+9. **Meters:** a Mark Off track filled Prose Grey, Orange Lit at the material cap or a complete
+   shopping list. Revision 4 had a Seam track filled Orange Mid.
+10. **Find or plot's highlighted row:** the kind word steps up to Prose Grey, because Label Grey
+    is 4.4:1 on an ember cell.
+11. **A page's search box keeps its orange outline** while it holds the search the page is
+    answering, as `tone5-engineers-laser-2560.png` draws it.
+12. **The Dimmed Page Rule** sets the scrim and click-outside behaviour for the route overlay
+    only. Dialogs keep their own (`Dialog.svelte`, black at 70 %), which already dims, so no
+    item has to change them.
 
 Not done, and why:
 
-- I did not find the spike's final report (the item says to start from it). The spike's commit
-  messages, its `tone.css` and Svelte mockups, the mission's revision 5 list in `design.md` and
-  the captures were the sources.
+- I did not find the spike's final report (the item says to start from it). I searched git and
+  ran T3 thread searches for "nav-rework" and "DESIGN.md rules it changes"; they found only
+  the planner's thread, [UX overhaul mission readiness](t3-thread://v2/f69ed1d3-873d-498a-9515-8ab96392223c/65a8ff7c-e901-48a1-be52-323bbbd8e80c),
+  which I did not read in full. My sources were the spike's commit messages, its `tone.css`
+  and Svelte mockups, the mission's revision 5 list in `design.md`, and the captures. I opened
+  each capture that DESIGN.md cites for a claim.
 - `scripts/check-guide.py` passes, but it reads only README, CONTRIBUTING and `docs/guide`, so
   its pass says nothing about DESIGN.md. I ran its link and anchor functions over DESIGN.md
   separately: 0 problems.

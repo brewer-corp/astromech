@@ -54,7 +54,7 @@ typography:
   nav:
     fontFamily: "Saira Variable, Bahnschrift, Segoe UI, sans-serif"
     fontSize: "0.9375rem"
-    fontWeight: 500
+    fontWeight: 400
     lineHeight: 1.2
     letterSpacing: "0.06em"
   section:
@@ -78,7 +78,7 @@ typography:
   figures:
     fontFamily: "Saira Variable, Bahnschrift, Segoe UI, sans-serif"
     fontSize: "0.9375rem"
-    fontWeight: 500
+    fontWeight: 400
     lineHeight: 1.3
     letterSpacing: "normal"
     fontFeature: "\"tnum\" 1"
@@ -428,8 +428,10 @@ panel) and lifted slightly where anti-aliased samples read darker than the game 
 Revision 4 (astromech-k6pl, 12 Nov 2026) made Orange and Orange Mid stronger: the sampled
 `#fa6e00` and `#c26c32` looked washed out next to the game, which draws its orange as light.
 Revision 5 (17 Nov 2026) moved read-only data from orange to grey, from Sumeet's choice of the
-`tone5` mockups ([tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-2560.png),
-[tone5-compare-sell.png](docs/design/nav-spike/tone5-compare-sell.png)).
+`tone5` mockups ([hier-B-sell-2560.png](docs/design/nav-spike/hier-B-sell-2560.png) before,
+[tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-2560.png) after;
+[tone5-compare-sell.png](docs/design/nav-spike/tone5-compare-sell.png) sets the chosen version
+beside concept 4).
 
 Contrast is WCAG's, given on Void (the page), Hull (the frame) and Hull Raised (a selected
 row), in that order. Text the commander reads is 4.5:1 or better on every surface it sits on;
@@ -490,7 +492,7 @@ Data is grey in three readable steps, with White above them for titles.
   that is unavailable. It is state, not content, and knowingly below WCAG AA: it says "not
   this one", and it never carries text the commander needs in order to act. Absent read-only
   data is Grey Dim. *Why:* the trader's empty tiles: still legible, plainly absent.
-- **On Orange** (`on-orange`, 7.1:1 on Orange): text and icons on an orange fill (the primary
+- **On Orange** (`on-orange`, 7.0:1 on Orange): text and icons on an orange fill (the primary
   button, the active top tab, a binding cell while it listens), and the focus outline on one.
 - **Placeholder** (`placeholder`, Orange at 75 % opacity, 3.6:1 on an ember cell): the hint
   text in an empty input, and nothing else. It disappears as soon as there is a value, and the
@@ -521,7 +523,8 @@ Data is grey in three readable steps, with White above them for titles.
 - **Hull** (`hull`): the frame's surface, and only the frame's: the route sidebar, the route
   strip and the status bar. Page tiles and blocks are not Hull: they are a 1 px Seam outline
   on Void, or Hull Raised. *Why:* once the route became frame on Hull, a Hull tile on the page
-  read as part of the frame ([hier-B-sell-2560.png](docs/design/nav-spike/hier-B-sell-2560.png)).
+  would read as part of the frame; the approved engineer tree draws its nodes as outlines on
+  Void ([tone5-engineers-rest-2560.png](docs/design/nav-spike/tone5-engineers-rest-2560.png)).
 - **Hull Raised** (`hull-raised`): a selected row or tile, the page's one leading block (the
   engineer search's main answer), and popovers, menus and the Tip, with a 1 px Seam border.
 - **Row Hover** (`row-hover`): hover on a read-only row or tile.
@@ -581,8 +584,9 @@ is an ember cell with Orange Lit text and a 2 px orange underline, a highlighted
 an ember cell. A list or grid shows a selection only when something shows what is selected: a
 side panel about it, or keyboard focus in the list. There is no default selected row. *Why:*
 the game fills the selected row, but its rows are orange; with grey rows, an orange slab is
-the loudest thing on the page and outshouts the main value
-([tone5-compare-sell.png](docs/design/nav-spike/tone5-compare-sell.png)). A fill means "press
+the loudest thing on the page and outshouts the main value (compare the filled row in
+[hier-B-sell-2560.png](docs/design/nav-spike/hier-B-sell-2560.png) with the raised one in
+[tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-2560.png)). A fill means "press
 this", so it stays on the one thing to press.
 
 **The Lifted Name Rule.** Entity names (a station, body, module, system, engineer or ship) are
@@ -615,9 +619,11 @@ Semi Condensed files do not) and replaced three files (two Saira cuts and Share 
 `tokens.css` sets the face, its width and tabular figures once on the page, so every element
 has them; the `font` shorthand resets the width, so set `font-stretch` after it.
 
-**Weight.** Each role below states its weight. Orange text is never below 500: orange at 400
-looked thin and washed out at the game's distance (revision 4). Grey data reads well at 400,
-so Body, Figures, Label and Meta are 400, and the grey that leads (names) is 500. A value in a
+**Weight.** Each role below states its weight. Orange at 15 px and over is never below 500:
+orange at 400 looked thin and washed out at the game's distance (revision 4). Grey data reads
+well at 400, so Body, Figures, Label and Meta are 400, and the grey that leads (names) is 500.
+Orange in Label size (an unselected choice, "Ctrl+K", a stale report's age) keeps Label's 400,
+as revision 4 had it. A value in a
 cell is the Cell role, Orange at 500, because it is what the commander can change; this
 settles the conflict astromech-z5oh reported, where the component table gave inputs Body (400)
 and this section said orange at 400 looked thin.
@@ -678,14 +684,15 @@ it never changes the size of the text.
 - **Narrow-window rules** are container queries in rem: a page's rules on the page column
   (`@container win (max-width: …rem)`), the header's on the window. A breakpoint in rem moves
   with Text size, so at a larger step the layout switches to its narrow form at a wider window,
-  as it should: the content needs the same room in rem. A media query in px would not.
+  as it should: the content needs the same room in rem. A media query would not, in px or rem:
+its rem is the browser's default size, not the `html` font size.
 
-| Display | Starting step | Its window, in rem |
+| Window | Step a first run picks | The window in rem |
 |---|---|---|
-| 1100 × 700 (the smallest window) | 100 | 68.75 × 43.75 |
-| 1920 × 1080 | 100 | 120 × 67.5 |
-| 2560 × 1440 | 145 | 110 × 99 |
-| 3840 × 2160 | 180 | 133 × 75 |
+| 1100 × 700, the smallest, on a 1080p display | 100 | 68.75 × 43.75 |
+| 1920 × 1080, filling a 1080p display | 100 | 120 × 67.5 |
+| 2560 × 1440, filling a 1440p display | 145 | 110.3 × 62.1 |
+| 3840 × 2160, filling a 2160p display | 180 | 133.3 × 75 |
 
 *Why:* Sumeet, 16 Nov 2026, on revision 4's zoom from the window's height: "as a web dev,
 this sort of solution feels very wrong". A window grown to see more should show more, and the
@@ -722,7 +729,7 @@ the calmer colours in [tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-256
 
 | Part | Size | Notes |
 |---|---|---|
-| Header | 64 px high, or 64 + 44 px | wordmark, top tabs, Find or plot, Help, on Void. Its 1 px orange rule runs the full width of the window, over the sidebar ([The Full-Width Header Rule](#named-rules-2)). Below the width where one row fits, the top tabs sit on a 44 px second row under the wordmark. Revision 4 measured that width as about 1456 px with eight tabs (1606 px with Finish setup), under the old zoom; ten tabs need more (the spike stacked them below about 1590 px, [header-stacked-1590.png](docs/design/nav-spike/header-stacked-1590.png)), and astromech-5a01 measures it again in rem at each Text size step |
+| Header | 64 px high, or 64 + 44 px | wordmark, top tabs, Find or plot, Help, on Void. Its 1 px orange rule runs the full width of the window, over the sidebar ([The Full-Width Header Rule](#named-rules-2)). Below the width where one row fits, the top tabs sit on a 44 px second row under the wordmark. Revision 4 measured that width as about 1456 px with eight tabs (1606 px with Finish setup), under the old zoom; ten tabs need more ([header-stacked-1590.png](docs/design/nav-spike/header-stacked-1590.png) shows them on the second row in a 1590 px window), and astromech-5a01 measures it again in rem at each Text size step |
 | Route sidebar | 320 px wide, header rule to status bar | while a route is followed and the window is at or above the dock width; see [Route sidebar](#route-sidebar) |
 | Route strip | 36 px high | across the page column when the sidebar is collapsed, or below the dock width; see [Route strip](#route-strip) |
 | No-route rail | 48 px wide | with no route, at or above the dock width: two actions, Find or plot and Import a route |
@@ -761,8 +768,8 @@ live views (Station, Session, Mining) under Logbook, so it had no home page (aud
 ### Route sidebar
 
 The route is part of the frame, on every page, and no longer a page of its own. *Why:*
-Sumeet, 16 Nov 2026: the route "is not worth a full page", and the commander wants it beside
-whatever page they are on.
+Sumeet, 16 Nov 2026: the route does not deserve a full page; he chose a persistent sidebar,
+and of two mockups, Variant B.
 
 - **Docked** (a route is followed, the window at or above the dock width): a 320 px column of
   Hull, flush to the window's left edge, from the header's rule to the status bar. The status
@@ -812,11 +819,12 @@ measure the page column, not the window, so the sidebar's width is already taken
 
 Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps; control row 34 px;
 result row 60 px, two lines in groups ([Lookup result row](#lookup-result-row)); material tile
-76 px. Rows visible, measured on the spike's Sell captures: about 11 at 2560 x 1440 at 145
-percent ([tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-2560.png)) and 5 at 1100 x 700
-at 100 percent ([tone5-sell-1100.png](docs/design/nav-spike/tone5-sell-1100.png)), where
-revision 4's one-line 44 px rows fitted about 18 and 8. astromech-3ca6 measures the built row
-again. *Why:* fewer rows that each read as an answer beat more rows that read as a spreadsheet;
+76 px. Rows visible: at 1100 x 700 at 100 percent, 5 whole rows show
+([tone5-sell-1100.png](docs/design/nav-spike/tone5-sell-1100.png)); at 2560 x 1440 at 145
+percent the capture has 8 rows and room below them, which works out at about 11
+([tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-2560.png)), a figure computed from the
+free space, not counted. Revision 4's one-line 44 px rows fitted about 18 on a 1000 px window,
+and the 65 to 100 px rows before them 8. astromech-3ca6 measures the built row. *Why:* fewer rows that each read as an answer beat more rows that read as a spreadsheet;
 the commander picks from the top few, and the list scrolls.
 
 ### Named Rules
@@ -848,11 +856,11 @@ window, over the route sidebar; the sidebar starts under the rule. *Why:* the fi
 mockup ended the header at the sidebar and read as a column of the page; a rule across the
 whole window says the sidebar is frame, like the header itself.
 
-**The Dimmed Page Rule.** Anything opened over the page (the route sidebar below the dock
-width, a dialog) dims the page behind it under a Void scrim at 72 % opacity, so the page reads
-at about Dim brightness, and the thing opened over it has a 1 px orange line on the edge
-toward the page, or a Seam border all round for a dialog. The page behind does not respond
-until the overlay closes; Escape and a click on the dimmed page close it. *Why:* an overlay at
+**The Dimmed Page Rule.** Anything opened over the page dims the page behind it, so the page
+reads at about Dim brightness. The route sidebar opened below the dock width uses a Void
+scrim at 72 % opacity, a 1 px orange line on its edge toward the page, and closes on Escape
+and on a click on the dimmed page. A dialog keeps its own scrim and closing rules
+(`app/src/lib/ui/Dialog.svelte`, black at 70 %), which already dim the page. *Why:* an overlay at
 full brightness over a full-brightness page reads as part of it; dimming says what has focus,
 the way the game dims its cockpit behind a panel.
 
@@ -997,8 +1005,10 @@ how.
 ### Input
 
 Ember cell, 34 px, the value in the Cell role (Orange at 500), placeholder in Placeholder
-(Orange at 75 %), no border or underline at rest, 1 px orange outline on focus and while it
-holds a search the page is showing. An error puts a red "!" and plain words directly under
+(Orange at 75 %), no border or underline at rest, 1 px orange outline on focus. A page's own
+search box also keeps the outline while it holds the search the page is answering, as in
+[tone5-engineers-laser-2560.png](docs/design/nav-spike/tone5-engineers-laser-2560.png): it
+says what the answer is for, which is not at rest. An error puts a red "!" and plain words directly under
 it. *Why:* the game's text fields are brown boxes with orange text; the orange underline the
 old header box had at rest looked like focus all the time.
 
@@ -1101,8 +1111,8 @@ at the smallest window, [tone5-sell-1100.png](docs/design/nav-spike/tone5-sell-1
 1. **The value and what qualifies it** (first, about 136 px, right-aligned): the value the list
    is ranked by in Value L, Orange, its unit in Label, Label Grey; under it, in Label, the fact
    that says whether it holds for this commander. On Sell, price over demand with the demand
-   bars, coloured by [the list](#colours-that-carry-a-meaning); on Mining, hotspots over the
-   ring; on Services, jumps over light years; on Find along route, detour over the leg.
+   bars, coloured by [the list](#colours-that-carry-a-meaning). Each other finder's groups are
+   settled when it adopts the row (astromech-3ca6).
 2. **The place and what you need to dock** (flexible, about 280 to 400 px): the station's type
    icon, its name in Name, Options Grey, its pad as a badge (always shown for stations; struck
    through in Red Low when too small for the ship) and its arrival distance in Label, Prose
@@ -1175,7 +1185,8 @@ The header's one search box: an input, 320 px, placeholder "Find or plot", "Ctrl
 right end in Label size, Orange (it is text in a cell, so not a grey). A system plots or adds
 a stop; a phrase opens a finder. Results in a popover: one 34 px row each, the name in Options
 Grey and what it is in Label, Label Grey ("System", "Material traders", "Page · Trade"),
-systems and entries ranked together, the highlighted row an ember cell. A system row ends with
+systems and entries ranked together. The highlighted row is an ember cell, and on it the
+kind steps up to Prose Grey (Label Grey is 4.4:1 on a cell). A system row ends with
 PLOT (a word: it opens the plot panel) and the add stop and set destination icon buttons. With
 text in the box the clear icon replaces "Ctrl+K".
 
@@ -1200,7 +1211,7 @@ setting" panel.
 
 | State | Treatment | Why |
 |---|---|---|
-| Selected row or tile | Hull Raised; the ranked value Orange Lit, the name White, other text one step brighter; only while a side panel or keyboard focus shows the selection | a selection that does not outshout the page's one fill and its main value ([tone5-compare-sell.png](docs/design/nav-spike/tone5-compare-sell.png)) |
+| Selected row or tile | Hull Raised; the ranked value Orange Lit, the name White, other text one step brighter; only while a side panel or keyboard focus shows the selection | a selection that does not outshout the page's one fill and its main value ([tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-2560.png)) |
 | Chosen option | ember cell, Orange Lit at 600, a 2 px orange underline | marked, not filled: the fill is kept for the one thing to press |
 | Active top tab | solid orange, On Orange text | the game's panel tabs; the frame's one fill |
 | Active page tab | Options Grey + 2 px orange underline | one step below the top tab |
