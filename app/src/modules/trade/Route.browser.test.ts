@@ -20,11 +20,23 @@ answer("trade_route_defaults", () => defaults());
 let shipPad: Filters["pad"] = "M";
 let stored: Filters = DEFAULT_FILTERS;
 answer("search_filters", () => (stored.pad_set ? stored : { ...stored, pad: shipPad }));
-answer("set_search_filters", ({ filters }: { filters: Filters }) => void (stored = filters));
+// The ship flown now, as the status bar and the finders read it.
+// It is null with Elite closed, though the journal still knows the ship (search_filters).
+let statusPad: Filters["pad"] = "M";
+answer("ship_status", () => ({ ...(sample as unknown as { ship: object }).ship, pad: statusPad }));
+
+/** A filter save answers once this settles (a test holds it to keep a save pending). */
+let saving: Promise<void> = Promise.resolve();
+answer("set_search_filters", async ({ filters }: { filters: Filters }) => {
+  await saving;
+  stored = filters;
+});
 
 beforeEach(() => {
   shipPad = "M";
+  statusPad = "M";
   stored = DEFAULT_FILTERS;
+  saving = Promise.resolve();
   localStorage.clear();
   route.mockReset();
   defaults.mockReset();
@@ -44,19 +56,21 @@ describe("Trade route", () => {
     expect(route).not.toHaveBeenCalled(); // a Spansh job only on request
 
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
-    expect(await screen.findByText("200 t Biowaste: buy 110 cr, sell 754 cr")).toBeTruthy();
+    expect(await screen.findByText("200 t Biowaste")).toBeTruthy();
     expect(route).toHaveBeenCalledExactlyOnceWith(
       { kind: "single", station: "Abraham Lincoln", capacity: 200, credits: 10_000_000, max_hop_ly: 31.5 },
       null,
       expect.objectContaining({ pad: "M" }),
     );
-    expect(screen.getByText(/644 cr\/t · ~1 jump · 23\.8 ly/)).toBeTruthy();
+    expect(screen.getByText("buy 110 · sell 754")).toBeTruthy();
+    expect(screen.getByText("644 cr/t")).toBeTruthy();
+    expect(screen.getByText("~1 jump · 23.8 ly")).toBeTruthy();
     // Per hour counts the flight back empty, so it compares with a loop.
-    expect(screen.getAllByText("128,800 cr").length).toBeGreaterThan(0);
-    expect(screen.getByText("A trip")).toBeTruthy();
-    expect(screen.getByText("1,065,123 cr/h")).toBeTruthy();
-    expect(screen.getByText(/Estimated: 7 min a round trip \(flying back empty\)/)).toBeTruthy();
-    expect(screen.getByText("L pad · 6 ls · Spansh")).toBeTruthy();
+    expect(screen.getByText("1,065,123")).toBeTruthy();
+    expect(screen.getByText("128,800 cr a hop · 7 min there and back")).toBeTruthy();
+    expect(screen.getByText(/^Spansh, .* ago$/)).toBeTruthy(); // the source and the age of its answer
+    expect(screen.getByRole("img", { name: "Large pad" })).toBeTruthy();
+    expect(screen.getByText("6 ls")).toBeTruthy();
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
@@ -70,11 +84,12 @@ describe("Trade route", () => {
     await fireEvent.input(field("Start station"), { target: { value: "Daedalus" } });
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
 
-    expect(await screen.findByText("200 t Reactive Armour: buy 1,581 cr, sell 2,674 cr")).toBeTruthy();
+    expect(await screen.findByText("200 t Reactive Armour")).toBeTruthy();
     expect(route).toHaveBeenLastCalledWith({ kind: "loop", station: "Daedalus", capacity: 96, credits: 2_500_000, max_hop_ly: 18 }, null, expect.anything());
-    expect(screen.getAllByText("347,400 cr").length).toBeGreaterThan(0);
-    expect(screen.getByText("2,872,855 cr/h")).toBeTruthy();
+    expect(screen.getByText(/^347,400 cr a round/)).toBeTruthy();
+    expect(screen.getByText("2,872,855")).toBeTruthy();
     expect(screen.getAllByText(/Ardent Insight/)).toHaveLength(1); // the way back's source
+    expect(screen.getAllByText("Abraham Lincoln")).toHaveLength(2); // the loop ends where it started
   });
 
   it("says when nothing pays, when the way back is empty, and when Spansh fails", async () => {
@@ -90,7 +105,7 @@ describe("Trade route", () => {
 
     route.mockResolvedValueOnce({ here, route: { ...recorded.route.loop, legs: [single.legs[0]!, back] } });
     await fireEvent.click(find);
-    expect(await screen.findByText("Nothing worth carrying back: fly back empty.")).toBeTruthy();
+    expect(await screen.findByText("Fly back empty")).toBeTruthy();
 
     route.mockRejectedValueOnce("Spansh took too long to answer. Try again in a minute.");
     await fireEvent.click(find);
@@ -106,7 +121,78 @@ describe("Trade route", () => {
     await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
     expect((await screen.findByRole("alert")).textContent).toBe(warning);
-    expect(screen.getByText("S pad · 6 ls · Spansh")).toBeTruthy();
+    expect(screen.getByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
+  });
+
+  it("measures a stop's pad against the ship flown at the search, not the one the page loaded with", async () => {
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    route.mockResolvedValueOnce({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "M" } }] } });
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    shipPad = "L"; // swapped to an Anaconda after the page loaded
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    expect(await screen.findByRole("img", { name: "Medium pad: too small for your ship" })).toBeTruthy();
+  });
+
+  it("measures a stop's pad against the pad the search was sent with while its save is pending", async () => {
+    stored = { ...DEFAULT_FILTERS, pad: "S", pad_set: true };
+    let release = () => {};
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    route.mockResolvedValueOnce({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "S" } }] } });
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    await fireEvent.click(await screen.findByRole("button", { name: "Change filters" }));
+    saving = new Promise((r) => (release = r));
+    await fireEvent.click(screen.getByRole("button", { name: /^Pad M/ }));
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    release();
+    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
+    expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad: "M", pad_set: true }));
+  });
+
+  it("measures a stop's pad against the ship when a set pad is cleared while its save is pending", async () => {
+    stored = { ...DEFAULT_FILTERS, pad: "S", pad_set: true };
+    let release = () => {};
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    route.mockResolvedValueOnce({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "S" } }] } });
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    await fireEvent.click(await screen.findByRole("button", { name: "Change filters" }));
+    saving = new Promise((r) => (release = r));
+    await fireEvent.click(screen.getByRole("button", { name: /^Pad S/ })); // back to the ship's pad
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    release();
+    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
+    expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad_set: false }));
+  });
+
+  it("measures a stop's pad against the ship the journal knows with Elite closed", async () => {
+    statusPad = null;
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    route.mockResolvedValueOnce({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "S" } }] } });
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
+  });
+
+  it("keeps the pad the search started with when the ship changes while Spansh works", async () => {
+    let answerRoute: (r: RouteSearch) => void = () => {};
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    route.mockImplementationOnce(() => new Promise((r) => (answerRoute = r)));
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    await vi.waitFor(() => expect(route).toHaveBeenCalledOnce());
+    shipPad = "S"; // swapped to a small ship while the route is worked out
+    statusPad = "S";
+    answerRoute({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "S" } }] } });
+    expect(await screen.findByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
   });
 
   it("can't search without a hold or credits", async () => {
@@ -130,14 +216,14 @@ describe("Trade route", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Pad L" }));
     expect(screen.getByText("Large pad · reports up to 30 days old")).toBeTruthy();
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
-    expect(await screen.findByText("200 t Biowaste: buy 110 cr, sell 754 cr")).toBeTruthy();
+    expect(await screen.findByText("200 t Biowaste")).toBeTruthy();
     expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad: "L", pad_set: true }));
     expect(screen.getByRole("button", { name: /^Pad L/ })).toBeTruthy(); // still open
 
     await fireEvent.click(screen.getByRole("button", { name: "Done" }));
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
     await vi.waitFor(() => expect(route).toHaveBeenCalledTimes(2));
-    expect(await screen.findByText("200 t Biowaste: buy 110 cr, sell 754 cr")).toBeTruthy();
+    expect(await screen.findByText("200 t Biowaste")).toBeTruthy();
     expect(route).toHaveBeenLastCalledWith(expect.anything(), null, expect.objectContaining({ pad: "L" }));
     expect(screen.queryByRole("button", { name: /^Pad L/ })).toBeNull(); // still closed
   });

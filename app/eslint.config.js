@@ -18,7 +18,7 @@ export const PAGE_SIZING = [
   ["src/modules/materials/View.svelte", "width", "font-size"],
   ["src/modules/places/FinderPage.svelte", "width"],
   ["src/modules/places/{Market,Cargo,Services,Outfitting,Shipyard,Traders,RawSites,FactionStates,Hotspots}.svelte", "width"],
-  ["src/modules/trade/{View,Route}.svelte", "width"],
+  ["src/modules/trade/{View,Route}.svelte", "width", "font-size"],
   ["src/modules/settings/View.svelte", "width", "font-size"],
   // astromech-z5oh: the files that name type roles and set no font size of their own.
   ["src/modules/places/Home.svelte", "font-size"],
@@ -87,7 +87,6 @@ export const TOKENS_EXEMPT = [
     why: "The labels on a controller sheet follow the image's scale (--k), not Text size, so they are px.",
   },
   // Pending: the page is rebuilt on a layout by the item named, which takes it off this list.
-  { files: ["src/modules/trade/**"], off: ["spacing"], until: "astromech-el3i", why: "Rebuilds Trade route." },
   {
     files: ["src/modules/{stored,mining,datasharing,diagnostics,voicetester}/**", "src/modules/places/Home.svelte"],
     off: ["spacing"],

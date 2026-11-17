@@ -28,10 +28,18 @@ worked out by Spansh's trade router.
    opens them. An edit takes effect on the next **Find route**, open or closed.
 4. **Find route.** Spansh works on it as a job and can take up to a minute.
 
-The result lists each leg: from and to station, what to carry, buy and sell prices, profit per ton and
-in all, jumps and distance. At the end: the profit per round trip and an **estimated** profit per hour.
-Spansh does not give profit per hour. The line is labelled Estimated; hover it for the time model
-(50 seconds a jump, 2 minutes to dock and trade, supercruise by distance from the star).
+The result leads with the **estimated** profit per hour, in orange. Spansh does not give profit per
+hour: hover the figure for the time model (50 seconds a jump, 2 minutes to dock and trade,
+supercruise by distance from the star). Under it are the profit of one hop or one round, the
+minutes it takes, and where the market data came from and how old it is. A single hop's hour
+counts the flight back empty, so it compares with a loop.
+
+Below that the route reads top to bottom as the trip: each stop (station, system with a copy
+icon, largest pad and distance from the star), and between two stops the leg: what to buy at the
+stop above and its buy and sell prices, the leg's profit and profit per ton, and the jumps and
+light years. A loop's way back with nothing worth carrying says **Fly back empty**, and a loop ends
+at the station it started from. A pad too small for your ship is struck through in red, and a
+warning line above the stops names the station.
 
 "No profitable route within these limits" suggests a longer hop, more credits or older market data.
 

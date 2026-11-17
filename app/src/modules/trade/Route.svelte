@@ -14,8 +14,10 @@
   import Input from "../../lib/ui/Input.svelte";
   import { changeFilters, openFilters, type FilterStore } from "../../lib/filterstate";
   import { ago, jumps } from "../../lib/galaxy";
-  import { arrivalLabel, DEFAULT_FILTERS, filterParts, loadFilters, padLabel, saveFilters, type FilterKey, type Filters, type Origin, type Pad } from "../../lib/search";
-  import { credits, DEFAULT_MAX_AGE_DAYS, ROUTE_ESTIMATE, tradeRoute, tradeRouteDefaults, type RouteKind, type RouteSearch } from "../../lib/trade";
+  import { arrivalLabel, DEFAULT_FILTERS, filterParts, loadFilters, saveFilters, type FilterKey, type Filters, type Origin, type Pad } from "../../lib/search";
+  import { credits, DEFAULT_MAX_AGE_DAYS, ROUTE_ESTIMATE, tradeRoute, tradeRouteDefaults, type RouteKind, type RouteLeg, type RouteSearch, type TradeRoute } from "../../lib/trade";
+  import { padTooSmall } from "../../lib/demand";
+  import PadLetter from "../../lib/ui/PadLetter.svelte";
   import OriginInput from "../../lib/ui/OriginInput.svelte";
   import SearchFilters from "../../lib/ui/SearchFilters.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
@@ -43,6 +45,10 @@
   /** The ship's cargo, credits and range could not be read: the fields start empty and the hop at the default. */
   let defaultsErr = $state<string | null>(null);
   let res = $state<RouteSearch | null>(null);
+  /** The pad the answer was measured against (the ship flown at the search, unless the commander
+   * set a pad), as the core's `warning` measures it; kept with the answer, since the filters and
+   * the ship change after it. */
+  let need = $state<Pad | null>(null);
   let err = $state<string | null>(null);
   let busy = $state(false);
   let asked = 0;
@@ -63,22 +69,18 @@
     void openFilters(store, LOOKUP, DEFAULT_FILTERS).then((st) => (filters = st.filters));
   });
 
+  /** Filter changes still on their way to storage; a search waits for them, so the filters it
+   * sends are the saved ones. */
+  let saving: Promise<unknown> = Promise.resolve();
+
   async function changeFilter(next: Filters) {
     const prev = filters ?? DEFAULT_FILTERS;
     filters = next;
-    const st = await changeFilters(store, LOOKUP, prev, next);
+    const change = changeFilters(store, LOOKUP, prev, next);
+    saving = Promise.all([saving, change]);
+    const st = await change;
     filterErr = st.error;
     filters = st.filters;
-  }
-
-  /** The pad label follows the ship the search ran with, not the ship the filters loaded with. */
-  async function followShip() {
-    try {
-      const f = await store.load(LOOKUP);
-      if (!f.pad_set) shipPad = f.pad;
-    } catch {
-      // the label keeps what it shows; the search does not depend on this
-    }
   }
 
   /** The station to start from: typed, else the docked one when starting from here. */
@@ -90,11 +92,21 @@
     const n = ++asked;
     busy = true;
     err = null;
-    void followShip();
+    const ask = { kind, station: start, capacity: Math.floor(capacity), credits: Math.floor(cash), max_hop_ly: hop };
     try {
-      const ask = { kind, station: start, capacity: Math.floor(capacity), credits: Math.floor(cash), max_hop_ly: hop };
-      const r = await tradeRoute(ask, origin, filters);
-      if (n === asked) res = r;
+      await saving;
+      const sent = filters ?? DEFAULT_FILTERS;
+      // The saved filters, read as the search starts, resolve the pad as the core resolves the
+      // search's (the commander's, else the current ship's from the journal, Elite running or
+      // not). Read at the start: a ship swap during Spansh's minute doesn't change the answer.
+      const saved = store.load(LOOKUP).catch(() => null);
+      const r = await tradeRoute(ask, origin, sent);
+      const now = await saved;
+      if (now && !now.pad_set) shipPad = now.pad; // the pad label follows the ship the search ran with
+      if (n === asked) {
+        res = r;
+        need = sent.pad_set || !now || now.pad_set ? sent.pad : now.pad;
+      }
     } catch (e) {
       if (n === asked) {
         res = null;
@@ -115,6 +127,14 @@
 
   const num = (v: string): number | null => (v.trim() === "" ? null : Number(v));
   const minutes = (m: number) => (m < 1 ? "under a minute" : `${Math.round(m)} min`);
+  /** The per-hour figure's Tip: how it is estimated, which Spansh does not give. */
+  const estimate = (r: TradeRoute) => ({
+    title: "Estimated: Spansh gives no profit per hour",
+    fact: `${ROUTE_ESTIMATE}, at ${r.range.toFixed(1)} ly a jump`,
+    ...(r.kind === "single" ? { note: "A round counts the flight back empty, so it compares with a loop." } : {}),
+  });
+  /** Where the markets came from, once each: "Spansh and Ardent Insight". */
+  const sources = (legs: RouteLeg[]) => [...new Set(legs.map((l) => l.source))].join(" and ");
 </script>
 
 <Workbench min={720}>
@@ -134,13 +154,13 @@
         onchange={(v) => (kind = v)}
       />
       <div class="pick">
-        <span class="lbl">Station</span>
+        <span class="type-label lbl">Station</span>
         <Input class="box" aria-label="Start station" placeholder={origin == null && docked ? docked : "Nearest the star"} bind:value={station} />
       </div>
       <div class="fields">
-        <label><span>Cargo</span><Input aria-label="Cargo capacity" type="number" min="1" value={capacity ?? ""} oninput={(e) => (capacity = num(e.currentTarget.value))}>{#snippet end()}t{/snippet}</Input></label>
-        <label><span>Credits</span><Input aria-label="Credits" type="number" min="1" value={cash ?? ""} oninput={(e) => (cash = num(e.currentTarget.value))}>{#snippet end()}cr{/snippet}</Input></label>
-        <label><span>Max hop</span><Input aria-label="Max hop distance" type="number" min="1" step="0.1" value={hop ?? ""} oninput={(e) => (hop = num(e.currentTarget.value))}>{#snippet end()}ly{/snippet}</Input></label>
+        <label><span class="type-label">Cargo</span><Input aria-label="Cargo capacity" type="number" min="1" value={capacity ?? ""} oninput={(e) => (capacity = num(e.currentTarget.value))}>{#snippet end()}t{/snippet}</Input></label>
+        <label><span class="type-label">Credits</span><Input aria-label="Credits" type="number" min="1" value={cash ?? ""} oninput={(e) => (cash = num(e.currentTarget.value))}>{#snippet end()}cr{/snippet}</Input></label>
+        <label><span class="type-label">Max hop</span><Input aria-label="Max hop distance" type="number" min="1" step="0.1" value={hop ?? ""} oninput={(e) => (hop = num(e.currentTarget.value))}>{#snippet end()}ly{/snippet}</Input></label>
       </div>
     </div>
     <div class="tools">
@@ -154,55 +174,60 @@
 
   <div class="out">
     {#if busy}
-      <p class="lo">Asking Spansh… a route can take a minute.</p>
+      <p class="type-label">Asking Spansh… a route can take a minute.</p>
     {:else if err}
       <Failure text={err} onaction={() => void find()} />
     {:else if res}
-      <h4>{res.route.kind === "loop" ? "Loop" : "Single hop"} from&nbsp;<SystemChip name={res.here.system} /></h4>
-      {#if res.route.warning}<p class="warn" role="alert">{res.route.warning}</p>{/if}
-      {#if res.route.legs.length === 0}
-        <p class="lo">No profitable route within these limits. Try a longer hop, more credits or older market data.</p>
+      {@const r = res.route}
+      {#if r.legs.length === 0}
+        <p class="type-body">No profitable route within these limits. Try a longer hop, more credits or older market data.</p>
       {:else}
-        <ol>
-          {#each res.route.legs as l, i (i)}
-            <li>
-              <span class="place">
-                <span class="leg">
-                  <span class="st">{l.from.station}</span>
-                  <span class="to" aria-hidden="true">→</span>
-                  <span class="st">{l.to.station}</span>
+        {@const stops = [r.legs[0]!.from, ...r.legs.map((l) => l.to)]}
+        <div class="totals">
+          <p class="hour"><span class="type-value-xl main" {@attach tip(estimate(r))}>{credits(r.per_hour)}</span> <span class="type-label">cr an hour, estimated</span></p>
+          <p class="type-label">{credits(r.profit)} cr {r.kind === "loop" ? "a round" : "a hop"} · {minutes(r.minutes)} {r.kind === "loop" ? "a round" : "there and back"}</p>
+          <p class="type-label">{sources(r.legs)}, {ago(new Date(r.fetched_at * 1000).toISOString())}</p>
+        </div>
+        {#if r.warning}<p class="warn" role="alert">{r.warning}</p>{/if}
+        <ol class="trip" aria-label="Stops and the legs between them">
+          {#each stops as s, i (i)}
+            {@const unfit = padTooSmall(s.pad, need)}
+            <li class="stop" class:first={i === 0} class:last={i === stops.length - 1}>
+              <span class="sp"><span class="node"></span></span>
+              <div class="place">
+                <span class="type-name name">{s.station}</span>
+                <span class="where">
+                  <span class="type-label sys">{s.system}</span><SystemChip name={s.system} icon />
+                  {#if s.pad}<PadLetter pad={s.pad} {unfit} />{/if}
+                  {#if s.arrival_ls != null}<span class="type-label">{arrivalLabel(s.arrival_ls)}</span>{/if}
                 </span>
-                <span class="via">
-                  <SystemChip name={l.from.system} />
-                  <span class="to" aria-hidden="true">→</span>
-                  <SystemChip name={l.to.system} />
-                </span>
-              </span>
-              <span class="cargo">
-                {#each l.cargo as c (c.name)}
-                  <span class="who">{credits(c.tonnes)} t {c.name}: buy {credits(c.buy)} cr, sell {credits(c.sell)} cr</span>
-                {:else}
-                  <span class="lo">Nothing worth carrying back: fly back empty.</span>
-                {/each}
-              </span>
-              <span class="facts">
-                {#if l.cargo.length}<span class="q">{credits(l.profit)} cr</span>{/if}
-                <span class="dist">{l.cargo.length ? `${credits(l.profit_per_t)} cr/t · ` : ""}{jumps(l.jumps, false)} · {l.ly.toFixed(1)} ly</span>
-              </span>
-              <span class="meta">{[padLabel(l.to.pad), arrivalLabel(l.to.arrival_ls), l.source].filter(Boolean).join(" · ")}</span>
+              </div>
             </li>
+            {#if i < r.legs.length}
+              {@const l = r.legs[i]!}
+              <li class="leg">
+                <span class="sp"></span>
+                <div class="cargo">
+                  {#each l.cargo as c (c.name)}
+                    <p><span class="type-figures">{credits(c.tonnes)} t {c.name}</span> <span class="type-label">buy {credits(c.buy)} · sell {credits(c.sell)}</span></p>
+                  {:else}
+                    <p class="type-label">Fly back empty</p>
+                  {/each}
+                </div>
+                <div class="figs">
+                  {#if l.cargo.length}
+                    <span class="type-value-l">{credits(l.profit)}<span class="type-unit">cr</span></span>
+                    <span class="type-label">{credits(l.profit_per_t)} cr/t</span>
+                  {/if}
+                  <span class="type-label">{jumps(l.jumps, false)} · {l.ly.toFixed(1)} ly</span>
+                </div>
+              </li>
+            {/if}
           {/each}
         </ol>
-        <div class="total">
-          <span class="pair"><span class="k">{res.route.kind === "loop" ? "A round" : "A trip"}</span> <span class="q">{credits(res.route.profit)} cr</span></span>
-          <span class="pair"><span class="k">About</span> <span class="q">{credits(res.route.per_hour)} cr/h</span></span>
-        </div>
-        <p class="lo small" {@attach tip(`Spansh gives no profit per hour. Estimate: ${ROUTE_ESTIMATE}.`)}>
-          Estimated: {minutes(res.route.minutes)} a round trip{res.route.kind === "single" ? " (flying back empty)" : ""} at {res.route.range.toFixed(1)} ly per jump · Spansh, {ago(new Date(res.route.fetched_at * 1000).toISOString())}.
-        </p>
       {/if}
     {:else}
-      <p class="lo">Press Find route to see the {kind === "loop" ? "loop" : "hop"}. Spansh can take a minute.</p>
+      <p class="type-label">Press Find route to see the {kind === "loop" ? "loop" : "hop"}. Spansh can take a minute.</p>
     {/if}
   </div>
 </Workbench>
@@ -212,43 +237,36 @@
   .query { display: flex; flex-direction: column; gap: var(--sp-3); }
   .query :global(.origin) { margin: 0; min-width: 0; }
   .form-grid { display: flex; flex-direction: column; gap: var(--sp-3); }
-  .pick { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs); min-width: 0; }
-  .lbl { color: var(--label-grey); min-width: 5.5em; font-size: var(--fs-s); }
+  .pick { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+  .lbl { min-width: calc(5.5 * var(--fs-s)); } /* OriginInput's label column: 5.5em at Label size */
   .pick :global(.box) { flex: 1; }
   .fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); min-width: 0; }
-  label { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); align-items: center; gap: var(--sp-2); font-size: var(--fs-s); min-width: 0; }
-  label > span { color: var(--label-grey); }
-  .tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.625rem 1.125rem; }
+  label { display: grid; grid-template-columns: calc(5.5 * var(--fs-s)) minmax(0, 1fr); align-items: center; gap: var(--sp-2); min-width: 0; }
+  .tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--sp-3) var(--sp-4); }
   .tools :global(.search-filters) { flex: 1 1 auto; }
   .tools :global(.go) { margin-left: auto; }
-  .out { min-width: 0; }
-  /* The answer's title: white, mixed case (system names carry meaning in their case). */
-  h4 { margin: 0 0 var(--sp-4); color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); }
-  ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  li { display: grid; grid-template-columns: minmax(13.125rem, 1.5fr) minmax(11.25rem, 1.3fr) minmax(9.375rem, 1fr) auto; gap: 0.625rem 1.125rem; align-items: start; padding: var(--sp-4) var(--sp-2); border-bottom: 1px solid var(--line); font-size: var(--fs); line-height: 1.3; }
-  .place, .cargo, .facts { display: flex; flex-direction: column; gap: var(--gap); min-width: 0; }
-  .facts { align-items: flex-end; text-align: right; } /* a column of figures */
-  .leg, .via { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.375rem var(--sp-2); min-width: 0; }
-  .st { font-size: var(--fs-l); font-weight: 500; color: var(--options-grey); }
-  .to { color: var(--label-grey); }
-  .q { color: var(--prose); }
-  .dist { color: var(--label-grey); font-size: var(--fs-s); }
-  .meta { color: var(--label-grey); font-size: var(--fs-s); white-space: nowrap; }
-  .total { display: flex; flex-wrap: wrap; gap: 0.625rem 1.75rem; margin: var(--sp-4) var(--sp-2) var(--sp-2); padding: 0.875rem var(--sp-4); outline: 1px solid var(--line); outline-offset: -1px; } /* read-only summary: a Seam outline (Hull is the frame's) */
-  .pair { display: inline-flex; align-items: baseline; gap: var(--sp-2); }
-  .k { color: var(--label-grey); font-size: var(--fs-s); }
-  .total .q { font-size: var(--fs-l); color: var(--options-grey); }
-  /* The route's profit is the page's one main value; each leg's profit is its ranked figure. */
-  .total .pair:first-child .q { color: var(--orange-lit); }
-  .facts > .q:first-child { color: var(--accent); font-weight: 500; }
-  .lo { color: var(--label-grey); }
   .warn { color: var(--accent); font-weight: 500; margin: 0 0 var(--sp-3); }
   .warn::before { content: "! "; font-weight: 600; }
-  .small { font-size: var(--fs-s); margin: 0 var(--sp-2); }
-  p { margin: 0 0 var(--sp-2); }
-  @container win (max-width: 56.25rem) {
-    li { grid-template-columns: minmax(0, 1fr); }
-    .facts { align-items: flex-start; text-align: left; }
-    .meta { white-space: normal; }
-  }
+  p { margin: 0; }
+
+  /* The answer: the route's totals, then its stops joined by legs, top to bottom. */
+  .out { min-width: 0; }
+  .totals { display: flex; flex-direction: column; gap: var(--sp-1); margin-bottom: var(--sp-6); }
+  .hour { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-1); }
+  /* Two columns shared by every row (subgrid): the spine with a node at each stop, and the stop
+     or the leg; a leg's figures are its own right-aligned column (The Tabular Rule). */
+  .trip { display: grid; grid-template-columns: var(--sp-6) minmax(0, 24rem) auto; justify-content: start; column-gap: var(--sp-3); margin: 0; padding: 0; list-style: none; }
+  .trip > li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; }
+  .sp { position: relative; display: grid; place-items: center; }
+  .sp::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(50% - 1px); border-left: 2px solid var(--line); }
+  .first .sp::before { top: 50%; }
+  .last .sp::before { bottom: 50%; }
+  .node { position: relative; padding: var(--sp-1); border: 2px solid var(--label-grey); border-radius: 50%; background: var(--bg); }
+  .place { grid-column: 2 / -1; display: flex; flex-direction: column; gap: var(--gap); min-width: 0; padding: var(--sp-2) 0; }
+  .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .first .name { color: var(--text-hi); }
+  .where { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-2); min-width: 0; }
+  .where :global(.chip) { margin-left: calc(-1 * var(--sp-2)); }
+  .cargo { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; padding: var(--sp-3) 0 var(--sp-4); }
+  .figs { display: flex; flex-direction: column; align-items: flex-end; gap: var(--gap); text-align: right; padding: var(--sp-3) 0 var(--sp-4) var(--sp-6); }
 </style>
