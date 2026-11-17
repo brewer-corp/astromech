@@ -64,43 +64,52 @@ out, and by voice any time ("session summary").
 
 ## Station
 
-The station you are docked at, and a search of every outfitting you have opened.
+The station you are docked at, read as answers: is it worth selling here, and does it sell
+anything better for your ship? Its services are on the Now page's board; this page has the rest.
+It also searches every outfitting you have opened.
 
-### Docked here
+### The station
 
-When you are docked: the station and system with Spansh and Inara buttons, its type, its
+When you are docked: the station's name, its system and its distance from the star, then its
 **faction** and the faction's state, government and allegiance, **economy** shares, **landing
-pads** (large, medium, small), distance from the star and **services**. Not docked: "Dock
-somewhere and the station's facts show here."
+pads** (large, medium, small, and the largest), and Spansh and Inara buttons for the station and
+the system. Services the Now page's board doesn't show (an engineer, tuning, contacts, carrier
+services and the like) are listed on one line, "Also: …". Not docked: the system you are in with
+its Spansh and Inara buttons, and "Dock somewhere and the station's facts show here."
 
 ### Market
 
-The market you are docked at, compared with the best prices elsewhere. It uses Ardent Insight, asks once
-per dock and **Check again** asks anew. The comparison uses the filters of the
-[Sell](places.md#sell-and-buy) finder (100 light years and 30 days unless you change them).
+The market you are docked at, compared with the best prices elsewhere. It uses Ardent Insight,
+asks once per dock, and **Check again** asks anew. The line beside it says when you last opened
+the commodity market (open it again to refresh) and when Ardent was asked. The comparison uses
+the filters of the [Sell](places.md#sell-and-buy) finder (100 light years and 30 days unless you
+change them); hover **best nearby** for the rule.
 
-- **Your cargo**: for each commodity in the hold, what it sells for here, the best price nearby
-  (in another system), the difference per ton and where.
-- **For sale here**: for each commodity sold here, its price, the best price nearby and the profit
-  per ton.
+- **Your cargo**: one row per commodity in the hold, biggest load first: what this station pays
+  over the best price nearby (in another system), the **gain** per ton, and the station that pays
+  it, its system and the trip there (jumps, light years and how old its report is). The first
+  row's gain is the page's main figure. A row says so when no station nearby takes all of it,
+  or when it was not looked up.
+- **For sale here**: one row per commodity sold here, with its stock, biggest **profit** per ton
+  first: its price here over the best price nearby, the profit, and where.
 - At most a dozen commodities are looked up per dock: the biggest loads first, and those furthest
   below their average price. The rest are listed as not looked up. Mission cargo, stolen goods and
-  limpets are left out.
-
-The market is as of the last time you opened the commodity market ("Open it again to refresh").
+  limpets are left out, on one line.
+- A report older than 30 days shows its age in orange.
 
 ### Outfitting
 
 If you have opened this station's outfitting, the modules for sale that are **better than what you
-have fitted**, slot by slot, with price. The comparison uses the ship you fly. If you have not
-opened it: "Open the outfitting screen once and it is kept."
+have fitted**, one row per slot: the slot, what you have fitted, the better module and its price.
+The comparison uses the ship you fly. If none is better, it says so. If you have not opened it:
+"Open the outfitting screen once and it is kept."
 
 ### Where did I see ...
 
 Type a module by name, size and rating, or symbol ("5a frame shift", "fsd", "pulse laser",
-"hyperdrive_size5") and see which stations
-you have seen selling it, with price, when you saw it and the distance. It works offline: it searches only the outfitting
-screens you opened while astromech was running.
+"hyperdrive_size5") and see which stations you have seen selling it, newest first: the module,
+the station and its system, the price, when you saw it and the distance. It works offline: it
+searches only the outfitting screens you opened while astromech was running.
 
 ## Limits
 
