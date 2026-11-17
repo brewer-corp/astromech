@@ -123,6 +123,22 @@ describe("Now", () => {
     expect(screen.queryByRole("heading", { name: "Elite isn't running" })).toBeNull();
   });
 
+  it("says when the hold can't be read, and asks once it can", async () => {
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
+    let fail = true;
+    answer("ship_status", async () => (fail ? Promise.reject("the core didn't answer") : previewAnswer("ship_status")));
+    startPreview("/?core=ready&game=running");
+    const asks = watch("trade_cargo");
+    render(View);
+    const sale = await block("Sell your cargo");
+    expect(await sale.findByText(/Could not read the ship: the core didn't answer/)).toBeTruthy();
+    expect(asks).not.toHaveBeenCalled();
+    fail = false;
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(await (await block("Sell your cargo")).findByText("takes all 600 t")).toBeTruthy();
+    expect(asks).toHaveBeenCalledTimes(1);
+  });
+
   it("with no station in reach, says so and offers no destination", async () => {
     // An empty answer the recorded fixtures lack.
     answer("trade_cargo", async (args: unknown) => {

@@ -118,6 +118,9 @@
         <!-- Asked once where the commander is is known, so opening the page asks once. -->
         {#if hold && ship && here.loaded}
           <Sale {ship} system={at?.system ?? null} main={main === "sale"} stale={shipReason} onfigure={(f) => (saleFigure = f)} />
+        {:else if running && shipReason}
+          <!-- The hold isn't known (the ship read failed with none, or an empty hold, shown): say so. -->
+          <Block title="Sell your cargo" href="#/places/sell-cargo" link="Sell my cargo" failed={shipReason} />
         {/if}
         {#if showSession}
           <Block
