@@ -70,8 +70,10 @@ describe("Sell and Buy finders", () => {
     await waitFor(() => expect(Math.floor(aside.getBoundingClientRect().bottom)).toBeLessThanOrEqual(innerHeight));
     const panel = within(aside);
     expect(panel.getByRole("heading", { name }).textContent).toBe(name);
-    // Every fact under its name, the report's age among them, which the row leaves out.
-    expect(panel.getAllByRole("term").map((d) => d.textContent)).toEqual(["Demand", "Pad", "Arrival", "Trip", "Updated"]);
+    // Demand under the price, then every other fact under its name, the report's age among them,
+    // which the row leaves out.
+    expect(panel.getByRole("img", { name: /^Demand [\d,]+ t/ })).toBeTruthy();
+    expect(panel.getAllByRole("term").map((d) => d.textContent)).toEqual(["Pad", "Arrival", "Trip", "Updated"]);
     // What the panel's action did shows beside its buttons, not under a list that may be off screen.
     await fireEvent.click(panel.getByRole("button", { name: "Set destination" }));
     expect(await panel.findByText(/Following\. .+ is on your clipboard\./)).toBeTruthy();

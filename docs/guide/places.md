@@ -42,8 +42,21 @@ is fed by what players share with EDDN.
    - **Anywhere** takes Ardent's best 100 prices in the whole galaxy that pass the filters, with
      distances from you. Use it when nothing close pays well.
 
-Each row starts with the price, then the station (type mark) and its system, the **demand** (Sell)
-or **stock** (Buy) in tonnes, distance, jumps, pad, arrival distance and how old the report is.
+Each row is the price over the **demand** (Sell) or **stock** (Buy) in tonnes, the station over
+its system, and the trip ([How searches work](#how-searches-work)). The demand comes with the
+market's three bars, measured against your hold, which the page names beside the commodity:
+
+- **Sell** measures against the tonnes of that commodity aboard that are yours to sell ("200 t
+  of Painite aboard"); mission cargo and stolen goods don't count. **Buy** measures against your
+  free cargo space ("136 t free"), an empty hold included.
+- **Short**, one red bar: less than that. The rest won't sell there (or the hold won't fill),
+  and the price moves as you trade; point at it for a reminder.
+- **Tight**, two orange bars: less than five times that.
+- **Plenty**, three grey bars: more.
+- With none of the commodity aboard ("No Painite aboard"), a full hold, or Elite not running
+  ("Cargo not known"), the bars are grey with no warning.
+
+The report's age is in the side panel.
 Filters: minimum demand or stock, pad, data age, arrival distance, fleet carriers, Odyssey
 settlements, and (Near) the search distance. Sell and Buy, Near and Anywhere each remember their
 own filters, and voice questions use the same ones ([Voice lookups](lookups.md#trade)). When a
@@ -70,8 +83,9 @@ Vista Genomics, Pioneer Supplies, Bartender, Frontline Solutions, Apex Interstel
 Repair, Rearm, Black market, Search and rescue.
 
 Filters: pad size, carriers, Odyssey settlements, data age, arrival distance. The list is ranked
-by jumps. Each row shows the station (with its type mark) and its system, the allegiance,
-controlling faction and state, then distance, pad, arrival distance and how old the report is.
+by jumps. Each row shows the station (with its type mark), pad and arrival distance over its
+system; the allegiance, controlling faction and state and how old the report is are in the side
+panel.
 It opens on Interstellar Factors.
 
 ## Outfitting
@@ -79,7 +93,8 @@ It opens on Interstellar Factors.
 Type a **module** in the **Module** box and pick it from the suggestions, then pick its
 **class**, **rating** and, for weapons, **mount** (fixed, gimballed or turreted). Only the sizes
 and ratings the module comes in are offered. The nearest stations selling it are listed with
-the modules that matched and the price.
+the module that matched over its price. When every station matched the same module, the line
+above the list names it once instead.
 
 - It opens on a Frame Shift Drive class 5, rating A.
 - **Find or plot** finds a module by name ("outfitting fsd") and opens it here. So do the
@@ -110,8 +125,9 @@ Pick a kind of **site** and the nearest bodies with it are listed:
 | Geological sites | Grade 1 to 3 raw from the outcrops around geysers, fumaroles and vents. |
 | Known raw farms | The well-known grade 4 farms: one body for each element. |
 
-Each row is a body, nearest in jumps first, with what is there, the distance, how far it is from
-the arrival star and how old the data is. Filters: data age and arrival distance, remembered for
+Each row is a body, nearest in jumps first: the jumps over the distance, the body and how far
+it is from the arrival star over its system, and what is there. How old the data is is in the
+side panel. Filters: data age and arrival distance, remembered for
 each kind. It opens on crystalline shards. By voice: "nearest crystalline shards" and the like
 ([lookups](lookups.md#raw-material-sites)).
 
@@ -127,8 +143,8 @@ and Outbreak for Independent or Alliance factions). **Famine** finds distributio
 scanning. A line under the filters says what the pick is for.
 
 The High Grade Emissions searches are ranked by a **score** of population then distance (the first
-column), with the population; Famine is ranked by jumps. Each row shows the faction and its states
-and how old Spansh's report is. A system you visited recently uses the states from your own visit
+figure), over the population; Famine is ranked by jumps. Each row shows the system over the
+faction and its states; how old Spansh's report is is in the side panel. A system you visited recently uses the states from your own visit
 ("seen on your visit"). The only filter is data age, remembered for each pick. It opens on Boom. By
 voice: "nearest boom system" and the like ([lookups](lookups.md#faction-states-famine-boom-war-and-more)).
 
@@ -146,9 +162,11 @@ Serendibite, Osmium, Palladium, Bromellite or Tritium. The rings with a hotspot 
   - **Reserve:** **Pristine**, **Major** (major or pristine) or **Any**.
   - **Within:** the search radius, 100 light years unless you pick another.
 
-Each row shows the ring's hotspots of the mineral, the ring and its system, **Also** (its
-hotspots of other minerals, "Platinum 1"), the ring type, the reserve level, then distance, jumps
-and the body's distance from the star. Hotspots never change, so there is no report age. **Add
+Each row shows the ring's hotspots of the mineral, the ring and its distance from the star over
+its system, the ring type over the reserve level, and the trip. When every ring has the same
+type, the line above the list names it once instead ("metal rich rings"). The ring's hotspots of
+other minerals ("Platinum 1") are in the side panel. Hotspots never change, so there is no report
+age. **Add
 stop** and **Set destination** put the ring's system on the route. It opens on Painite, any ring,
 any reserve; **Find or plot** opens a mineral's hotspots by name ("painite hotspots").
 
@@ -187,24 +205,36 @@ Colonisation, Powerplay and a ship's build plan (Engineering).
   - **Arrival:** hide stations or bodies further than 1,000, 5,000 or 25,000 light seconds from the star.
   - **Within** and **volume:** the search radius (20 to 500 ly) and minimum demand or stock, on trade lists.
 - **Results.** Up to eight (sites, trade, faction states) or ten (stations, colonisation, Powerplay).
-  The filters' line above the list sums up the search. Each result is one row under column heads. It starts with what the list is ranked
-  by, in the largest figures: the price (trade), the High Grade Emissions score, or the jumps
-  (everything else, nearest first; "~" marks a straight-line estimate). Then the station or body
-  and its system with a copy mark, the facts that list has (demand, faction, bodies, ...), and the
-  distance, jumps, pad, arrival distance and how old the report is ("10 d"). Two buttons end the
-  row: **Add stop** makes that system the next stop of the route
+  The filters' line above the list sums up the search. Each result is a row of two lines in
+  groups, read left to right:
+  - **What the list is ranked by**, in the largest figures, over what says whether it holds for
+    you: the price over the demand (trade), the High Grade Emissions score over the population,
+    or the jumps over the distance in light years (everything else, nearest first; "~" marks a
+    straight-line estimate).
+  - **The place:** the station's type mark, its name, its **pad** and its distance from the
+    arrival star, over its system with a copy mark. A pad too small for your ship is red and
+    struck through. A system shows its own fact underneath instead (its factions, its bodies,
+    its Powerplay state).
+  - **The list's own facts**, where it has some: the module over its price, a ring's type over
+    its reserve.
+  - **The trip**, where the list is ranked by something else: jumps over light years.
+  - A fact that is the same on every row is left out and named once in the line above the list.
+
+  Two buttons end the row: **Add stop** makes that system the next stop of the route
   (the [route strip](routes.md#the-route-strip) under the header), and **Set destination** makes it the whole route, pausing the old one
   ([Routes](routes.md#from-a-search-result)). The line under the list
   says which jump range was used, who the source is and how old the answer is.
 - **Details.** Click a result, or its name, to select it. A panel beside the list shows it: the
-  station or system, what the list is ranked by, every fact under its head, and **Set
-  destination** and **Add stop**. In a small window the panel sits below the list.
-- **Narrow panels.** Where a list sits in a narrow side panel (a build plan's material sources,
-  Powerplay's "Where to work"), each row keeps only what it is ranked by, the place and
-  the two buttons.
-- **Old reports.** With a data age set, older reports are left out. With no data age set
-  ("Any"), reports older than 30 days are shown dimmer, with their age brighter than the rest of
-  the row.
+  station or system, what the list is ranked by, every fact under its name, among them the ones
+  the row leaves out (how old the report is, the faction), and **Set destination** and **Add
+  stop**. In a small window the panel sits below the list.
+- **Lists without a panel** (Powerplay, Colonisation, a build plan's material sources) keep
+  those facts on the row instead, with the report's age after the light years ("10.3 ly · 12 d
+  old"). Where such a list is narrow (Powerplay's "Where to work"), each row keeps its first two
+  groups and the two buttons.
+- **Old reports.** Reports older than the data age filter are left out. A report older than
+  30 days that the filter lets through is shown dimmer, with its age in words in place of the
+  light years ("34 d old"), brighter than the rest of the row.
 - **Nothing found.** The list says what is empty and offers one way to widen it, such as
   **Widen to 200 ly** or **Allow 90 days**. It never relaxes the pad, since a ship can't land on
   a smaller one.

@@ -402,7 +402,7 @@
     <p class="pmain"><span class="v">{top}</span><span class="unit">{res.main ? (res.main.unit ?? "") : jumpsUnit(top)}</span></p>
     {#if g?.qual}<p class="pqual">{@render fact(g.qual, r)}<span class="unit">{g.qual.head.toLowerCase()}</span></p>{/if}
     <dl class="pfacts">
-      {#each panelFacts(res, r, now) as f (f.head)}
+      {#each panelFacts(res, r, now).filter((f) => f.head !== g?.qual?.head) as f (f.head)}
         <dt>{f.head}</dt>
         <dd class:none={f.cell.value === "—"}>{f.cell.value}{#if f.cell.unit}<span class="unit">{f.cell.unit}</span>{/if}</dd>
       {/each}
