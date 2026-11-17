@@ -1,16 +1,21 @@
 <script lang="ts">
-  // Colonisation construction projects from the journals: what is left to buy for the picked
-  // project, in loads for the current ship, and where to buy it, stations stocking the most of
-  // the list first, searched from the construction site's system (or near you). Below, systems
-  // still open to claim near you.
+  // Trade > Colonisation as progress toward building the site (astromech-m07p), on the List with
+  // detail layout: the site's head (its name, system and how far it is built, the page's main
+  // value), each commodity it requires as delivered against required with what is aboard marked,
+  // the loads left for the ship flown, then Where to buy, whose station rows fill the side panel
+  // when selected, as a Places finder's do. Below, outside the layout (its own search kit would
+  // share the side panel), systems still open to claim near you.
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { untrack } from "svelte";
   import Colonies from "../../lib/ui/Colonies.svelte";
   import Dropdown from "../../lib/ui/Dropdown.svelte";
+  import Meter from "../../lib/ui/Meter.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
-  import { buyList, buyResults, loadProjects, LOOKUP, needsOf, projectName, type Need, type Project } from "../../lib/colonisation";
+  import ListDetail from "../../lib/ui/layout/ListDetail.svelte";
+  import { tip } from "../../lib/ui/tip";
+  import { buyList, buyResults, loadProjects, LOOKUP, needsOf, progressOf, projectName, type Need, type Project } from "../../lib/colonisation";
   import type { Filters, Origin, Results } from "../../lib/search";
   import { credits, DEFAULT_DISTANCE_LY, DEFAULT_MAX_AGE_DAYS } from "../../lib/trade";
 
@@ -43,6 +48,7 @@
   });
 
   const project = $derived(projects?.find((p) => p.market_id === picked) ?? null);
+  const rows = $derived(project ? progressOf(project) : []);
   /** What is left to buy; replaced only when it changes, so a poll doesn't re-run the search. */
   let lastNeeds: Need[] = [];
   const needs = $derived.by(() => {
@@ -56,58 +62,76 @@
     return async (origin: Origin, filters: Filters): Promise<Results> => buyResults(await buyList(list, origin, filters), list.length);
   });
 
+  const percent = (p: Project) => Math.floor(p.progress * 100);
   function status(p: Project): string {
     if (p.complete) return "complete";
     if (p.failed) return "failed";
-    return `${Math.floor(p.progress * 100)}%`;
+    return `${percent(p)} %`;
   }
 
+  /** "13 loads at 784 t", or why there are none. */
   const loads = $derived.by(() => {
     const s = project?.shopping;
-    if (!s || s.loads == null || s.capacity == null) return "";
-    return ` · ${s.loads} ${s.loads === 1 ? "load" : "loads"} at ${credits(s.capacity)} t`;
+    if (!s) return "";
+    if (s.loads == null || s.capacity == null) return "no cargo capacity known for the ship flown, so no loads";
+    return `${s.loads} ${s.loads === 1 ? "load" : "loads"} at ${credits(s.capacity)} t`;
   });
+
+  const ORDER =
+    "Stations selling the most of the list first, nearest first among equals. Searches from the construction site's system; clear From under Change to search near you.";
 </script>
 
-<section>
-  <Stale error={projects ? err : null} />
-  {#if err && !projects}
-    <p class="lo">{err}</p>
-  {:else if !projects}
-    <p class="lo">Reading the journals…</p>
-  {:else if !projects.length}
-    <p class="lo">No construction sites in your journals yet. Dock at one and it shows here with what it still needs.</p>
-  {:else}
-    {#if projects.length > 1}
-      <!-- The site is a dropdown on the page, not a third tab row (DESIGN.md The Two Tab Rows
-           Rule); a coloniser can have many. -->
-      <div class="pick">
-        <Dropdown bind:value={picked} aria-label="Construction site">
-          {#each projects as p (p.market_id)}<option value={p.market_id}>{projectName(p)} · {status(p)}</option>{/each}
-        </Dropdown>
-      </div>
-    {/if}
-    {#if project}
-      <div class="main">
-        <h3>{projectName(project)}</h3>
-        <p class="sub">
-          {#if project.system_name}<SystemChip name={project.system_name} />&nbsp;·&nbsp;{/if}{project.complete || project.failed ? status(project) : `${status(project)} built`}
-        </p>
-        {#if needs.length}
-          <h4 class="section">Still to buy</h4>
-          <ul class="list">
-            {#each project.shopping.lines as l (l.symbol)}
-              <li>
-                <span>{l.name_localised ?? l.symbol}</span>
-                <span class="q">{credits(l.to_buy)} t</span>
-                <span class="lo">{l.in_cargo ? `${credits(l.in_cargo)} t aboard` : ""}</span>
-              </li>
-            {/each}
-          </ul>
-          <p class="total">{credits(project.shopping.to_buy_total)} t in all{loads}</p>
-          <p class="sub">
-            Stations selling the most of the list first, nearest first among equals. Searches from the construction site's system; clear From under Change to search near you.
+<div class="page">
+  <ListDetail>
+    <Stale error={projects ? err : null} />
+    {#if err && !projects}
+      <p class="type-label">{err}</p>
+    {:else if !projects}
+      <p class="type-label">Reading the journals…</p>
+    {:else if !projects.length}
+      <p class="type-label">No construction sites in your journals yet. Dock at one and it shows here with what it still needs.</p>
+    {:else}
+      {#if projects.length > 1}
+        <!-- The site is a dropdown on the page, not a third tab row (DESIGN.md The Two Tab Rows
+             Rule); a coloniser can have many. -->
+        <div class="pick">
+          <Dropdown bind:value={picked} aria-label="Construction site">
+            {#each projects as p (p.market_id)}<option value={p.market_id}>{projectName(p)} · {status(p)}</option>{/each}
+          </Dropdown>
+        </div>
+      {/if}
+      {#if project}
+        <div class="site">
+        <header class="head">
+          <h1 class="type-title">{projectName(project)}</h1>
+          {#if project.system_name}<p class="type-name"><SystemChip name={project.system_name} /></p>{/if}
+          <p class="built">
+            {#if project.complete}<span class="type-value-xl">Complete</span>
+            {:else if project.failed}<span class="type-value-xl">Failed</span>
+            {:else}<span class="type-value-xl main">{percent(project)}</span><span class="type-unit">% built</span>{/if}
           </p>
+          <Meter value={project.complete ? 1 : project.progress} />
+        </header>
+
+        <ul class="rows" aria-label="Commodities">
+          {#each rows as r (r.name)}
+            <li class:done={r.complete}>
+              <span class="what">
+                <span class="type-name">{r.name}</span>
+                <span class="type-label">{credits(r.provided)} of {credits(r.required)} t{#if r.aboard} · <span>{credits(r.aboard)} t aboard</span>{/if}</span>
+              </span>
+              <Meter value={r.complete ? 1 : r.provided / r.required} coming={r.aboard / r.required} />
+              <span class="buy">
+                <span class="type-value-l" class:short={r.toBuy > 0}>{credits(r.toBuy)}</span><span class="type-unit">t to buy</span>
+              </span>
+            </li>
+          {/each}
+        </ul>
+        </div>
+
+        {#if needs.length}
+          <p class="type-label loads">{credits(project.shopping.to_buy_total)} t to buy · {loads}</p>
+          <h2 class="section where" {@attach tip(ORDER)}>Where to buy</h2>
           <SearchKit
             lookup={LOOKUP}
             offers={["distance", "volume", "pad", "age", "arrival", "carriers", "odyssey"]}
@@ -120,26 +144,36 @@
             busyText="Asking Ardent Insight…"
           />
         {:else}
-          <p class="lo">{project.complete || project.failed ? "Nothing left to deliver." : "Everything still needed is aboard: deliver it."}</p>
+          <p class="type-label loads">{project.complete || project.failed ? "Nothing left to deliver." : "Everything still needed is aboard: deliver it."}</p>
         {/if}
-      </div>
+      {/if}
     {/if}
-  {/if}
-  <div class="main"><Colonies /></div>
-</section>
+  </ListDetail>
+  <Colonies />
+</div>
 
 <style>
-  section { padding: var(--sp-2) 0 1.75rem; min-height: 0; }
-  .pick { padding: var(--sp-4) 0 var(--sp-1); }
-  /* DESIGN.md's result-list width, so the lookups' rows keep every column; prose stays at 68ch. */
-  .main { max-width: var(--list-w); }
-  .main > p, .main > .list { max-width: var(--measure); }
-  h3 { margin: 0.875rem 0 var(--gap); color: var(--text-hi); font-weight: 500; }
-  h4 { margin: 0.875rem 0 0.375rem; }
-  .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0 0 0.625rem; }
-  .list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: max-content max-content 1fr; column-gap: 1.125rem; row-gap: 0.1875rem; font-size: var(--fs-s); }
-  .list li { display: contents; }
-  .q { color: var(--accent); font-weight: 500; text-align: right; }
-  .total { font-size: var(--fs-s); margin: var(--sp-2) 0 0.875rem; }
-  .lo { color: var(--label-grey); }
+  p { margin: 0; }
+  .pick { padding: 0 0 var(--sp-4); }
+  /* The site's head and its rows as one block as wide as the rows, so the head's meter spans them. */
+  .site { display: grid; width: fit-content; max-width: 100%; }
+  .head { display: grid; gap: var(--sp-2); justify-items: start; margin: 0 0 var(--sp-6); }
+  .head h1 { margin: 0; }
+  .built { margin-top: var(--sp-2); }
+  .head > :global(.meter) { justify-self: stretch; }
+
+  /* Each commodity: its name over delivered of required, the meter, then what is still to buy.
+     The columns are shared (subgrid), so the meters and the figures line up down the list. */
+  .rows {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: minmax(10rem, max-content) minmax(8rem, 20rem) max-content;
+    gap: var(--sp-3) var(--sp-6); align-items: center;
+  }
+  .rows li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; }
+  .what { display: grid; gap: var(--gap); }
+  .buy { justify-self: end; white-space: nowrap; }
+  .short { color: var(--accent); }
+  .done .type-name, .done .type-label, .done .type-value-l, .done .type-unit { color: var(--grey-dim); }
+  .loads { margin: var(--sp-4) 0 var(--sp-8); }
+  .where { margin: 0 0 var(--sp-2); }
 </style>

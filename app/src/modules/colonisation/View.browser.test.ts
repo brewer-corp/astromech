@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "../../design/tokens.css";
-import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import { page } from "vitest/browser";
 import projectsSample from "../../preview/fixtures/colonisation.json";
 import tradeSample from "../../preview/fixtures/trade.json";
@@ -51,11 +51,17 @@ describe("Colonisation", () => {
     render(View);
 
     expect(await screen.findByRole("heading", { name: "Planetary Construction Site: Test Hub" })).toBeTruthy();
-    expect(screen.getByText("42% built", { exact: false })).toBeTruthy();
-    // The shopping list, in loads for the current ship; cargo aboard is already taken off.
-    expect(screen.getByText("4,912 t")).toBeTruthy();
-    expect(screen.getByText("90 t aboard")).toBeTruthy();
-    expect(screen.getByText("9,554 t in all · 13 loads at 784 t")).toBeTruthy();
+    expect(screen.getByText("42")).toBeTruthy();
+    // Every commodity the site requires, largest still to buy first and the complete ones after;
+    // cargo aboard is already taken off what is still to buy. Then the loads for the current ship.
+    const commodities = within(screen.getByRole("list", { name: "Commodities" }))
+      .getAllByRole("listitem")
+      .map((li) => li.textContent?.replace(/\s+/g, " ") ?? "");
+    expect(commodities.map((t) => t.split(/\d/)[0]?.trim())).toEqual(["Steel", "CMM Composite", "Ceramic Composites", "Insulating Membrane", "Aluminium"]);
+    expect(commodities[0]).toContain("4,912");
+    expect(commodities[3]).toContain("90 t aboard");
+    expect(commodities[3]).toContain("310");
+    expect(screen.getByText(/13 loads at 784 t/)).toBeTruthy();
 
     // Asked for what is left to buy, from the construction site's system.
     await waitFor(() => expect(buy).toHaveBeenCalled());
@@ -83,8 +89,8 @@ describe("Colonisation", () => {
     expect(rows.at(-1)).toContain("fleet carrier");
   });
 
-  it("keeps each station's stock, trip and report age when the row is too narrow for its groups", async () => {
-    // 1100 x 700 at 145 percent: too narrow for every group, and the list has no side panel.
+  it("keeps each station's stock, trip and report age, in the side panel, when the row is too narrow for its groups", async () => {
+    // 1100 x 700 at 145 percent: too narrow for every group, so the rows are one line.
     await page.viewport(1100, 700);
     startPreview("/?core=ready");
     expect(await setTextSize(145)).toBeNull();
@@ -93,21 +99,12 @@ describe("Colonisation", () => {
       buy.mockImplementation(async (_n, o) => reply(o));
       render(View);
       const row = (await screen.findByText("Efremov Plant")).closest('[role="row"]') as HTMLElement;
-      const folded = await waitFor(() => {
-        const f = row.querySelector(".folded");
-        if (!f) throw new Error("no folded line yet");
-        return f;
-      });
-      expect(folded.textContent?.replace(/\s+/g, " ")).toMatch(/^Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2,120 t · 1jump · 8.6ly · \d+ d old$/);
-      // Where a line is too narrow, the stock is what gives way: the trip's units and the report's
-      // age keep their width, inside the line (finding astromech-3ca6/2-ppw4.2).
-      const lines = [...document.querySelectorAll<HTMLElement>(".result .folded")];
-      expect(lines.some((f) => [...f.querySelectorAll<HTMLElement>(".text")].some((t) => t.scrollWidth > t.clientWidth))).toBe(true);
-      for (const f of lines) {
-        expect(f.scrollWidth).toBeLessThanOrEqual(f.clientWidth);
-        const age = f.querySelector(".age")!;
-        expect(age.getBoundingClientRect().right).toBeLessThanOrEqual(f.getBoundingClientRect().right);
-      }
+      await fireEvent.click(row);
+      const panel = await screen.findByRole("complementary", { name: "Details" });
+      const facts = panel.textContent?.replace(/\s+/g, " ") ?? "";
+      expect(facts).toContain("Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2,120 t");
+      expect(facts).toMatch(/1 ?jump · 8.6 ?ly/);
+      expect(facts).toMatch(/\d+ ?d ago/);
     } finally {
       resetScale();
       await page.viewport(1200, 800);
@@ -155,7 +152,7 @@ describe("Colonisation", () => {
     });
     await vi.advanceTimersByTimeAsync(2000);
     expect(await screen.findByText("912 t aboard")).toBeTruthy();
-    expect(screen.getByText("8,642 t in all · 12 loads at 784 t")).toBeTruthy();
+    expect(screen.getByText(/8,642 t to buy · 12 loads at 784 t/)).toBeTruthy();
     await waitFor(() => expect(buy.mock.calls.length).toBe(searches + 1));
     expect(buy.mock.lastCall?.[0][0]).toEqual({ symbol: "steel", name: "Steel", tonnes: 4000 });
 
