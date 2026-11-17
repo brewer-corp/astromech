@@ -66,6 +66,10 @@ const CASES: [(&str, &str); 6] = [
     ("/cases/5/plan", "/cases/5/stats"),
 ];
 
+/// engineer-search.json's searches, by key, and the words typed.
+const SEARCHES: [(&str, &str); 5] =
+    [("/fsd", "fsd"), ("/laser", "laser"), ("/lazer", "lazer"), ("/pistol", "pistol"), ("/range", "range")];
+
 /// voice.json's phrases, by key, and what is said.
 const VOICE: [(&str, &str); 6] = [
     ("/banana bread", "banana bread"),
@@ -113,6 +117,16 @@ fn fixtures() -> BTreeMap<&'static str, Vec<Part>> {
         }),
     );
     t.insert("unlocks.json", whole(core("unlocks", None, "engineering_unlocks", Value::Null)));
+    // The Engineers page's search, by the words typed: a match with a rank below the best grade
+    // (fsd), none unlocked (laser), suit modifications (range), a weapon word (pistol) and an
+    // unknown word (lazer).
+    t.insert(
+        "engineer-search.json",
+        SEARCHES
+            .iter()
+            .map(|(key, q)| Part { key, from: core("unlocks", None, "engineering_search", json!({ "query": q })) })
+            .collect(),
+    );
     t.insert(
         "engineering.json",
         vec![

@@ -11,14 +11,39 @@ A tech tree of every ship engineer and suit engineer, with your progress and wha
 
 **What it needs:** the journal (your engineer progress). No network.
 
+### Search by module
+
+Type a module in the box at the top, in your own words: "laser", "fsd", "shield", "beam",
+"thrusters", "multi-cannon". The page answers where to engineer it:
+
+- The block at the top is the best grade you can get today: of the engineers you have unlocked,
+  the one whose rank gives the highest grade, nearest first, with **Set destination** and Add stop.
+  If none who work on it is unlocked yet, it names the one nearest to unlocking and the step left.
+- Below it, every engineer who works on that module. First what they reach: orange hexagons for
+  the grade you can get from them now, dimmer orange for grades that need more rank or an unlock,
+  and the grade per module type ("Pulse 4 · burst 3 · beam 3"). Then the engineer with your rank
+  as white hexagons, the rank a higher grade needs, or the step to unlock them. Then where they
+  are, with a copy button, and how far from your current system.
+- Suit engineers have no grades, so search them by the modification you want: "range",
+  "magazine", "night vision". A suit or weapon name ("pistol", "Maverick") finds nothing, and the
+  page says so.
+- A word the page doesn't know says so and suggests close ones.
+- Clear the box (or press Escape) to get the tree back. The search stays in the page's link.
+
+Which engineer offers which grade is from EDCD's coriolis-data, in `data/catalog/engineering.json`;
+the words are in `data/catalog/engineer-search.json`. A suit engineer's distance isn't shown yet:
+the app doesn't have their systems' positions.
+
+### The tree
+
 - Choose **Ship engineers** or **Suit engineers** at the top. The line beside them counts how many you
-  have unlocked, and how the marks work: white for rank, a dim mark for no access yet, dimmer cards
+  have unlocked, and how the marks work: white hexagons for rank, a dim mark for no access yet, dimmer cards
   for engineers who have not been introduced. A ship engineer introduces the next ones once
   your rank with them passes grade 3; each suit engineer refers the next after a task.
 - Each card shows the engineer, what they specialise in (for a suit engineer, every suit and
   weapon mod they fit, from the Odyssey data; a "(?)" means the wiki disagrees with itself on
   whether they fit that mod), and your **access** as engineer marks:
-  one white mark per rank once you have unlocked them (so rank 5 is five marks), a dim mark
+  one white hexagon per rank once you have unlocked them (so rank 5 is five lit of five), a dim mark
   when they are **Known** but you have no access yet, the same dim mark on a dimmer card when
   they have **Not been introduced**, an envelope when you are **Invited**, and a struck mark if you are
   **Barred**. Unlocked engineers have bright names; known and invited ones, whom you can work

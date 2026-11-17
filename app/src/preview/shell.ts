@@ -25,7 +25,7 @@ import type { DockedHere, OutfittingSearch } from "../lib/station";
 import type { StationsNearby } from "../lib/stations";
 import { DEFAULT_DISTANCE_LY, DEFAULT_MAX_AGE_DAYS, type CargoPlan, type CargoSearch, type MarketCompare, type Offer, type RouteDefaults, type RouteKind, type RouteSearch, type Side, type TradeRoute, type TradeSearch } from "../lib/trade";
 import type { WindowCommand } from "../lib/transport";
-import type { UnlockTree } from "../lib/unlocks";
+import type { EngineerSearch, UnlockTree } from "../lib/unlocks";
 import { coreReply, fakeScenario, previewData, previewGate, previewLookup } from "./fakecore";
 import coloniesFixture from "./fixtures/colonies.json";
 import projectsFixture from "./fixtures/colonisation.json";
@@ -50,6 +50,7 @@ import shipFixture from "./fixtures/stations-ship.json";
 import stationsFixture from "./fixtures/stations.json";
 import tradeFixture from "./fixtures/trade.json";
 import unlocksFixture from "./fixtures/unlocks.json";
+import engineerSearchFixture from "./fixtures/engineer-search.json";
 import { labelled, recorded, type Handler, type Handlers } from "./recorded";
 
 // ---- The samples, each as the reply type it holds.
@@ -84,6 +85,14 @@ const tradeSample = recorded<
   }
 >(tradeFixture);
 const unlocksSample = recorded<UnlockTree>(unlocksFixture);
+const engineerSearchSample = recorded<Record<string, EngineerSearch>>(engineerSearchFixture);
+
+/** The recorded search for these words (fsd, laser, range, pistol, lazer), or one that matched nothing. */
+function searchEngineersSample(query: string): EngineerSearch {
+  const hit = engineerSearchSample[query.trim().toLowerCase().replace(/\s+/g, " ")];
+  if (hit) return { ...hit, query };
+  return { query, says: null, kind: null, types: [], mods: [], hits: [], main: null, near: [], suit_word: false, here: null };
+}
 
 /** The preview's answer to command `K` (recorded.ts). */
 type H<K extends WindowCommand> = Handler<K>;
@@ -401,6 +410,7 @@ export function shellCommands(publish: (topic: string, payload: unknown) => void
       previewData("engineering_unlocks", () => unlocksSample, () => ({
         nodes: unlocksSample.nodes.map((n) => ({ ...n, status: "locked" as const, rank: null, next: false })),
       })),
+    engineering_search: ({ query }) => previewData("engineering_search", () => searchEngineersSample(query), () => searchEngineersSample("")),
     powerplay_overview: () => {
       const o = powerplaySample;
       const unpledged: Overview = {

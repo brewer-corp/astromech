@@ -1,0 +1,357 @@
+{
+  "fsd": {
+    "here": "Shinrarta Dezhra",
+    "hits": [
+      {
+        "best": 5,
+        "distance_ly": 101.77,
+        "grades": [
+          {
+            "grade": 5,
+            "id": "fsd",
+            "label": "FSD"
+          }
+        ],
+        "kind": "ship",
+        "left": null,
+        "mods": [],
+        "name": "Felicity Farseer",
+        "next": false,
+        "permit": false,
+        "rank": 5,
+        "status": "unlocked",
+        "system": "Deciat",
+        "today": 5
+      },
+      {
+        "best": 5,
+        "distance_ly": 242.39,
+        "grades": [
+          {
+            "grade": 5,
+            "id": "fsd",
+            "label": "FSD"
+          }
+        ],
+        "kind": "ship",
+        "left": null,
+        "mods": [],
+        "name": "Elvira Martuuk",
+        "next": false,
+        "permit": false,
+        "rank": 2,
+        "status": "unlocked",
+        "system": "Khun",
+        "today": 2
+      },
+      {
+        "best": 5,
+        "distance_ly": 22014.02,
+        "grades": [
+          {
+            "grade": 5,
+            "id": "fsd",
+            "label": "FSD"
+          }
+        ],
+        "kind": "ship",
+        "left": "Introduction from Elvira Martuuk: raise your rank with them past grade 3.",
+        "mods": [],
+        "name": "Mel Brandon",
+        "next": true,
+        "permit": false,
+        "rank": null,
+        "status": "locked",
+        "system": "Luchtaine",
+        "today": 0
+      },
+      {
+        "best": 3,
+        "distance_ly": 64.43,
+        "grades": [
+          {
+            "grade": 3,
+            "id": "fsd",
+            "label": "FSD"
+          }
+        ],
+        "kind": "ship",
+        "left": "Introduction from Juri Ishmaak: raise your rank with them past grade 3.",
+        "mods": [],
+        "name": "Colonel Bris Dekker",
+        "next": true,
+        "permit": true,
+        "rank": null,
+        "status": "locked",
+        "system": "Sol",
+        "today": 0
+      },
+      {
+        "best": 3,
+        "distance_ly": 41.1,
+        "grades": [
+          {
+            "grade": 3,
+            "id": "fsd",
+            "label": "FSD"
+          }
+        ],
+        "kind": "ship",
+        "left": "Unlock Marco Qwent first.",
+        "mods": [],
+        "name": "Professor Palin",
+        "next": false,
+        "permit": false,
+        "rank": null,
+        "status": "locked",
+        "system": "Arque",
+        "today": 0
+      },
+      {
+        "best": 3,
+        "distance_ly": 886.4,
+        "grades": [
+          {
+            "grade": 3,
+            "id": "fsd",
+            "label": "FSD"
+          }
+        ],
+        "kind": "ship",
+        "left": "Unlock Marco Qwent first.",
+        "mods": [],
+        "name": "Chloe Sedesi",
+        "next": false,
+        "permit": false,
+        "rank": null,
+        "status": "locked",
+        "system": "Shenve",
+        "today": 0
+      }
+    ],
+    "kind": "ship",
+    "main": "today",
+    "mods": [],
+    "near": [],
+    "query": "fsd",
+    "says": "Frame shift drives",
+    "suit_word": false,
+    "types": [
+      {
+        "id": "fsd",
+        "label": "FSD"
+      }
+    ]
+  },
+  "laser": {
+    "here": "Shinrarta Dezhra",
+    "hits": [
+      {
+        "best": 4,
+        "distance_ly": 75.47,
+        "grades": [
+          {
+            "grade": 4,
+            "id": "pl",
+            "label": "Pulse"
+          },
+          {
+            "grade": 3,
+            "id": "ul",
+            "label": "Burst"
+          },
+          {
+            "grade": 3,
+            "id": "bl",
+            "label": "Beam"
+          }
+        ],
+        "kind": "ship",
+        "left": "Invitation: Deal in stolen or illicit goods at 5 Black Markets.",
+        "mods": [],
+        "name": "The Dweller",
+        "next": true,
+        "permit": false,
+        "rank": null,
+        "status": "known",
+        "system": "Wyrd",
+        "today": 0
+      },
+      {
+        "best": 5,
+        "distance_ly": 22014.02,
+        "grades": [
+          {
+            "grade": 5,
+            "id": "pl",
+            "label": "Pulse"
+          },
+          {
+            "grade": 5,
+            "id": "ul",
+            "label": "Burst"
+          },
+          {
+            "grade": 5,
+            "id": "bl",
+            "label": "Beam"
+          }
+        ],
+        "kind": "ship",
+        "left": "Introduction from Elvira Martuuk: raise your rank with them past grade 3.",
+        "mods": [],
+        "name": "Mel Brandon",
+        "next": true,
+        "permit": false,
+        "rank": null,
+        "status": "locked",
+        "system": "Luchtaine",
+        "today": 0
+      },
+      {
+        "best": 5,
+        "distance_ly": 196.67,
+        "grades": [
+          {
+            "grade": 5,
+            "id": "pl",
+            "label": "Pulse"
+          },
+          {
+            "grade": 5,
+            "id": "ul",
+            "label": "Burst"
+          },
+          {
+            "grade": 5,
+            "id": "bl",
+            "label": "Beam"
+          }
+        ],
+        "kind": "ship",
+        "left": "Unlock Hera Tani first.",
+        "mods": [],
+        "name": "Broo Tarquin",
+        "next": false,
+        "permit": false,
+        "rank": null,
+        "status": "locked",
+        "system": "Muang",
+        "today": 0
+      }
+    ],
+    "kind": "ship",
+    "main": "unlock",
+    "mods": [],
+    "near": [],
+    "query": "laser",
+    "says": "Pulse, burst and beam lasers",
+    "suit_word": false,
+    "types": [
+      {
+        "id": "pl",
+        "label": "Pulse"
+      },
+      {
+        "id": "ul",
+        "label": "Burst"
+      },
+      {
+        "id": "bl",
+        "label": "Beam"
+      }
+    ]
+  },
+  "lazer": {
+    "here": "Shinrarta Dezhra",
+    "hits": [],
+    "kind": null,
+    "main": null,
+    "mods": [],
+    "near": [
+      "laser"
+    ],
+    "query": "lazer",
+    "says": null,
+    "suit_word": false,
+    "types": []
+  },
+  "pistol": {
+    "here": "Shinrarta Dezhra",
+    "hits": [],
+    "kind": null,
+    "main": null,
+    "mods": [],
+    "near": [],
+    "query": "pistol",
+    "says": null,
+    "suit_word": true,
+    "types": []
+  },
+  "range": {
+    "here": "Shinrarta Dezhra",
+    "hits": [
+      {
+        "best": 0,
+        "distance_ly": null,
+        "grades": [],
+        "kind": "suit",
+        "left": null,
+        "mods": [
+          "Greater Range"
+        ],
+        "name": "Domino Green",
+        "next": false,
+        "permit": false,
+        "rank": 0,
+        "status": "unlocked",
+        "system": "Orishis",
+        "today": 1
+      },
+      {
+        "best": 0,
+        "distance_ly": null,
+        "grades": [],
+        "kind": "suit",
+        "left": "Invitation: Sell 10 total Culinary Recipes or Cocktail Recipes to Bartenders in Colonia.",
+        "mods": [
+          "Greater Range"
+        ],
+        "name": "Rosa Dayette",
+        "next": true,
+        "permit": false,
+        "rank": null,
+        "status": "known",
+        "system": "Kojeara",
+        "today": 0
+      },
+      {
+        "best": 0,
+        "distance_ly": null,
+        "grades": [],
+        "kind": "suit",
+        "left": "Unlock Hero Ferrari first.",
+        "mods": [
+          "Greater Range"
+        ],
+        "name": "Wellington Beck",
+        "next": false,
+        "permit": false,
+        "rank": null,
+        "status": "locked",
+        "system": "Jolapa",
+        "today": 0
+      }
+    ],
+    "kind": "suit",
+    "main": "today",
+    "mods": [
+      "Greater Range"
+    ],
+    "near": [],
+    "query": "range",
+    "says": "Greater Range",
+    "suit_word": false,
+    "types": []
+  }
+}

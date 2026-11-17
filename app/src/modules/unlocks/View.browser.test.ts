@@ -22,10 +22,10 @@ it("shows engineer cards with specialties and access, without column titles", as
   expect(screen.getByText(/4 of 25 unlocked/)).toBeTruthy();
   const felicity = screen.getByLabelText("Felicity Farseer");
   expect(felicity.className).toMatch(/unlocked/);
-  expect(felicity.querySelectorAll(".badge").length).toBe(5);
+  expect(felicity.querySelectorAll(".hex.on").length).toBe(5);
   expect(within(felicity).getByRole("img", { name: /Unlocked, rank 5/ })).toBeTruthy();
   const liz = screen.getByLabelText("Liz Ryder");
-  expect(liz.querySelectorAll(".badge").length).toBe(1);
+  expect(liz.querySelectorAll(".hex.on").length).toBe(1);
   const lei = screen.getByLabelText("Lei Cheung");
   expect(lei.className.split(/\s+/)).toContain("locked");
   expect(lei.textContent).toMatch(/Not introduced/);
@@ -62,4 +62,42 @@ it("lists every mod a suit engineer fits, with the unsure ones marked, and Colon
   // says only to unlock Hero first.
   expect(hero.className.split(/\s+/)).not.toContain("unlocked");
   expect(hero.textContent).toContain("Refers Wellington Beck: Provide 5 Settlement Defence Plans");
+});
+
+it("answers a module search with the best grade today, and clearing it brings the tree back", async () => {
+  render(View);
+  await screen.findByLabelText("Felicity Farseer");
+  const box = screen.getByRole("textbox", { name: "Engineers for a module" });
+  await fireEvent.input(box, { target: { value: "fsd" } });
+  // Farseer at rank 5 gives grade 5 today; Martuuk reaches 5 but rank 2 allows 2.
+  const main = await screen.findByLabelText("Main answer");
+  expect(within(main).getByText("Felicity Farseer")).toBeTruthy();
+  expect(within(main).getByRole("button", { name: "Set destination" })).toBeTruthy();
+  const martuuk = screen.getByRole("listitem", { name: "Elvira Martuuk" });
+  expect(within(martuuk).getByRole("img", { name: "Rank 2 of 5" })).toBeTruthy();
+  expect(within(martuuk).getByRole("img", { name: "Grade 2 today, reaches 5" })).toBeTruthy();
+  expect(martuuk.textContent).toContain("grade 5 at rank 5");
+  expect(location.hash).toBe("#/unlocks?q=fsd");
+
+  await fireEvent.click(screen.getByRole("button", { name: "Clear the search" }));
+  expect(screen.queryByLabelText("Main answer")).toBeNull();
+  expect(screen.getByLabelText("Felicity Farseer").tagName).toBe("ARTICLE");
+  expect(location.hash).toBe("#/unlocks");
+});
+
+it("says when a word matches nothing, with near matches and the suit engineers' way", async () => {
+  location.hash = "#/unlocks?q=lazer";
+  render(View);
+  expect(await screen.findByText(/No module type or modification called "lazer"/)).toBeTruthy();
+  await fireEvent.click(screen.getByRole("button", { name: "laser" }));
+  // None unlocked: the main answer is the nearest to unlock, and its step.
+  const main = await screen.findByLabelText("Main answer");
+  expect(within(main).getByText("The Dweller")).toBeTruthy();
+  expect(main.textContent).toContain("Invitation:");
+
+  const box = screen.getByRole("textbox", { name: "Engineers for a module" });
+  await fireEvent.input(box, { target: { value: "pistol" } });
+  expect(await screen.findByText(/Suit engineers are searched by the modification you want/)).toBeTruthy();
+  await fireEvent.click(screen.getByRole("button", { name: "range" }));
+  expect(await screen.findByRole("listitem", { name: "Domino Green" })).toBeTruthy();
 });
