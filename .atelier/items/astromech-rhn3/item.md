@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-rhn3
 title: Finder rows that go compact stay compact after the window widens
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - bug
@@ -51,8 +51,11 @@ The shared result row's compact switch.
 **Tests:**
 
 - `App.browser.test.ts`: "goes back to full rows when the window widens after they went compact, at 160 percent with the sidebar folded". It failed before the fix with `expected true to be false` on the "full rows again at 2,130 px" line.
-- `SearchKit.browser.test.ts`: "goes back to the groups when its column widens after the rows went compact" (600 px then 800 px, the Sell fixture). It failed before the fix, and the Trip head never came back.
-- Both tests were committed red in 86454016, before the fix in 59bcc844.
-- The narrow-column test no longer mocks `clientWidth` and `ResizeObserver`. It renders into a real 297 px element.
+- `SearchKit.browser.test.ts`: the narrow-column case now also widens. It renders Sell painite from the preview's recorded Ardent reply (through `tradeSearch` and `toResults`, as the Sell finder runs it) into a real 297 px element, checks the compact row with its trip folded onto a third line, then widens the element to 800 px and expects the Trip head back. It no longer mocks `clientWidth` and `ResizeObserver`. Run against the unfixed SearchKit and layout files, it fails at the widen step.
+- Both regressions were first committed red in 86454016, before the fix in 59bcc844. The SearchKit case was then moved onto the recorded reply in 6fbf9775.
 
-**Checks:** `pnpm test` passes (90 files, 755 tests), including both dock-width tests. `pnpm lint` and `pnpm check` are clean.
+**Checks:** `pnpm test` passes (90 files, 754 tests: the two SearchKit cases are now one), including both dock-width tests. `pnpm lint` and `pnpm check` are clean.
+
+### Responses
+
+1-iopq.1: fixed in 6fbf9775
