@@ -72,6 +72,7 @@ There is no mockup. Replies: `session_summary` (`Session.ts`: `earnings: Earning
 - **Where the band ends:** it runs from `start` to the reply's `end` (the session's last event), not the wall clock. For a live session the two are nearly the same, but the fixture is from September, and a wall-clock end would crush every mark against the left edge.
 - **Fixture (own commit, 1508251c):** the recorded world had one payment of each of eight kinds, so no row of the band held more than one mark. `worlds/preview/history` (the preview's copy of the history crate's journals; nothing ties the two) gains four payments between 10:26 and 10:29: two trade sales, an exploration sale and a combat bond. The fixture was dumped again. Trade, exploration and combat bonds now show two or three marks each. Now's session block reads 14.6 in place of 14.5, and the tests follow the new recorded figures.
 - **Mark Tip:** hovering the last mark in the preview shows "5,000 cr / Other vouchers / 10:17 UTC".
+- **Payments in one minute share a mark** (round 1, 7dbbb57c): `bandRows()` in `lib/logbook.ts` makes one mark per kind per minute, the precision the Tip shows, with a table test. A shared mark's Tip gives the total, the count and each amount ("2,500 cr / Trade, 2 payments: 1,500 + 1,000 cr / 10:18 UTC"), and its accessible name lists them. The preview world records a second sale at 10:18:00 (hydrogen fuel, 1,000 cr) to cover it from journal input, so trade is 11,500 cr from 4 payments and per hour 14,643,677.
 - **Errors:** a failed first read keeps today's words, now in Alarm Red with "!" as Now shows it. Before, it was orange, which this item no longer allows. A later failed read keeps the Stale line.
 
 ### Logbook
@@ -88,7 +89,7 @@ There is no mockup. Replies: `session_summary` (`Session.ts`: `earnings: Earning
 - **Route frame:** the route is the strip at 1100 and docked at 1920 and 2560.
 - **Audit:** every capture lists nothing under `sideways`, `clipped`, `overlaps`, `small`, `far` or `contrast`.
 - **Long names:** the day rows' place column is `minmax(0, max-content)`, so a long station and system name wraps (own commit, 8eeab708). I checked this with a 39-character settlement and a procedural system name set in `logbook.json` locally, then reverted: at 1100 x 700 the audit listed nothing.
-- **`bright`, Session:** with the sidebar apart, it leads with White, which is the page Title and the wordmark. Then come the Options Grey figures and names, and among the colours the main value (14,641,671, Orange Lit) is first. There is no control on Session.
+- **`bright`, Session:** with the sidebar apart, it leads with White, which is the page Title and the wordmark. Then come the Options Grey figures and names, and among the colours the main value (14,643,677, Orange Lit) is first. There is no control on Session.
 - **`bright`, Logbook:** the search box is the only control. Its orange placeholder and ember cell are the only orange on the page besides the frame's. There is no main value beyond the totals, in Options Grey.
 - **Found, not fixed (frame):** at 145 percent Text size in a 1100 px window, the header's top-tab row runs 292 px past the window on every page I tried (Session, Logbook, Powerplay, Settings), so the document scrolls sideways. A first run never picks 145 for a 1080p display, and no Done when names that size. It needs an item for the header; I could not file one from this branch, since planning happens on `main`.
 - **Tool change (own commit, fff59fa3):** `scripts/browser/audit.mjs` gains a `{ "type": [css, text] }` action, because the plan could only click and wait and so could not capture a search.
@@ -96,4 +97,8 @@ There is no mockup. Replies: `session_summary` (`Session.ts`: `earnings: Earning
 ### Tests and gates
 
 - **Browser tests:** `session/View.browser.test.ts` keeps its totals case on the new markup and adds one case that finds each recorded payment on the band, at its time and in totals order. `logbook/View.browser.test.ts` keeps both cases. Now's `#/session` test waits on "Latest session" in place of "Earned".
-- **Gates, all passing:** `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo test` for `-p astromech-history`, `-p astromech-core --lib bindings`, `-p astromech-api` and `-p astromech-app --test preview_fixtures`. Then `pnpm lint`, `pnpm check`, `pnpm test` (96 files, 848 tests) and the journeys (7 of 7), run again after the last commit. `report.json` is from the final pages.
+- **Gates, all passing:** `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo test` for `-p astromech-history`, `-p astromech-core --lib bindings`, `-p astromech-api` and `-p astromech-app --test preview_fixtures`. Then `pnpm lint`, `pnpm check`, `pnpm test` (96 files, 850 tests) and the journeys (7 of 7), run again after the last commit. `report.json` is from the final pages.
+
+### Responses
+
+- 1-ohh1.1: fixed in 7dbbb57c
