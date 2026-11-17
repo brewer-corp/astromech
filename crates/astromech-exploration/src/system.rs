@@ -61,6 +61,17 @@ pub struct BodyView {
     pub first_footfall_likely: bool,
     /// The commander's landings here before, from the history (the view's reader fills it in).
     pub landings: u32,
+    /// What it orbits, nearest first, from its scan's `Parents`: the window draws the system tree
+    /// from them.
+    pub parents: Vec<BodyParent>,
+}
+
+/// One of a body's parents (the journal's `Parents`).
+#[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
+pub struct BodyParent {
+    /// `Star`, `Planet`, `Ring`, or `Null` for a barycentre.
+    pub kind: String,
+    pub body_id: i64,
 }
 
 /// The current system and its bodies.
@@ -363,6 +374,7 @@ fn body_view(b: &Body, system: Option<&str>, population: i64) -> Option<BodyView
         worth_mapping: !star && b.mapped.is_none() && value_mapped >= value::WORTH_MAPPING,
         first_footfall_likely: s.landable && first_discovery && population == 0 && s.was_footfalled != Some(true),
         landings: 0,
+        parents: s.parents.iter().map(|(kind, id)| BodyParent { kind: kind.clone(), body_id: *id }).collect(),
     })
 }
 
