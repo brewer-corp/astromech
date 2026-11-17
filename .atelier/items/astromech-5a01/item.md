@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-5a01
 title: 'Top tabs: SHIPS splits from ENGINEERING, and On foot stops being a page'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
@@ -12,7 +12,8 @@ priority: high
 blocked_by:
 - astromech-3kf5
 - astromech-uc7i
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3Ac6e1e425-3280-4881-864e-a15cb9a8e2a2
 ready:
   by: Sumeet
   at: 2026-11-17T05:23:28.056709303Z
