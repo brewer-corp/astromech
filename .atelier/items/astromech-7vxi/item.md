@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-7vxi
 title: 'Station: the docked station''s market and outfitting read as answers'
-status: approved
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -133,3 +133,7 @@ cell. Nothing needs the commander. No colour outside DESIGN.md's list.
 conflicted in its header comment only, where main added the `gap` step beside this branch's
 `type` step. The merge (`5c4028bc`) keeps both. After it, `pnpm check`, `pnpm lint` and
 `pnpm test` (845 tests) pass.
+
+**After round 2.** Main moved again, adding a `select` step to `audit.mjs` (astromech-m07p). It
+conflicted with this branch's `type` step in the header comment and the action loop. The merge
+keeps both steps. After it, `pnpm check`, `pnpm lint` and `pnpm test` (847 tests) pass.
