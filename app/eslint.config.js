@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import svelte from "eslint-plugin-svelte";
 import globals from "globals";
 import ts from "typescript-eslint";
+import imports from "./eslint-rules/imports.js";
 import tests from "./eslint-rules/tests.js";
 import pageSizing from "./eslint-rules/pageSizing.js";
 import tokens from "./eslint-rules/tokens.js";
@@ -171,6 +172,13 @@ export default ts.config(
       ],
       "no-restricted-syntax": ["error", ...BACKDOORS],
     },
+  },
+  {
+    // Windows ignores case in file names, so an import that names a file only by another
+    // case opens a different file there (eslint-rules/imports.js).
+    files: SCRIPT,
+    plugins: { imports },
+    rules: { "imports/no-case-clash": "error" },
   },
   {
     // Tests wait on events, never on time (CONTRIBUTING.md, Tests).

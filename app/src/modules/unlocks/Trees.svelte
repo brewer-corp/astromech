@@ -3,7 +3,7 @@
   // the suit tree below the ship tree. Decided from ListDetail's measured width rather than by
   // wrapping, so the list is only as wide as what it shows and the panel sits right after it.
   import type { Snippet } from "svelte";
-  import { useDetail } from "../../lib/ui/layout/listDetail.svelte";
+  import { useDetail } from "../../lib/ui/layout/detail.svelte";
 
   let { children, both }: { children: Snippet; /** px at 100 percent the two trees need side by side. */ both: number } = $props();
   const detail = useDetail();

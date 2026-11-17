@@ -19,7 +19,12 @@ exceptions = [
 ]
 
 [advisories]
-ignore = []
+ignore = [
+  # chrono and chrono-tz are unmaintained (published 14 Sep 2026, no patched version). No known
+  # vulnerability; the move to jiff is astromech-y374, which removes these two lines.
+  { id = "RUSTSEC-2026-0543", reason = "chrono unmaintained; replacing it is astromech-y374" },
+  { id = "RUSTSEC-2026-0555", reason = "chrono-tz unmaintained; replacing it is astromech-y374" },
+]
 
 [bans]
 multiple-versions = "allow"
