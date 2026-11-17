@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import { followRoute } from "../route";
 import { DEFAULT_FILTERS, type Filters, type Origin, type Results } from "../search";
 import SearchKit from "./SearchKit.svelte";
+import { toResults, tradeSearch } from "../trade";
 import { answer, idle, previewAnswer, startPreview } from "../../test/transport";
 
 // Storage fails: the kit must still search (with the defaults) instead of showing nothing.
@@ -21,6 +22,9 @@ const results: Results = {
   columns: [{ key: "faction", head: "Faction", text: true }],
   rows: [{ key: 1, system: "Ross 154", ly: 9.7, jumps: 1, exact: true, updated_at: "2026-10-16T11:00:00Z", facts: { faction: "Ross 154 Boys" } }],
 };
+
+/** Sell painite, as the Sell finder runs it, from the recorded Ardent reply. */
+const sellPainite = async (o: Origin, f: Filters) => toResults(await tradeSearch("sell", ["painite"], o, f));
 
 const DAY = 86400000;
 const NOW = Date.parse("2026-10-16T12:30:00Z");
@@ -129,38 +133,18 @@ describe("SearchKit", () => {
     expect(screen.getByText("Within 100 ly of Sol · large pad · reports up to 30 days old")).toBeTruthy();
   });
 
-  it("keeps the ranked value, the place and the actions in a column too narrow for the groups", async () => {
+  it("keeps the ranked value, the place and the actions in a column too narrow for the groups, and the groups once it widens", async () => {
     loadFilters.mockResolvedValue(DEFAULT_FILTERS);
-    // A 320 px side panel's column: the row needs 168 + 280 + 160 + 64 px and its gaps (768 px).
+    startPreview("/?core=ready");
+    // A 320 px side panel's column; Sell's full row needs 136 + 280 + 168 + 64 px and its gaps (744 px).
     const host = document.body.appendChild(document.createElement("div"));
     host.style.width = "297px";
     try {
-      render(SearchKit, { target: host, props: { lookup: "test.lookup", offers: ["age"], run: vi.fn().mockResolvedValue(results) } });
-      expect(await screen.findByText("Ross 154")).toBeTruthy();
-      // No side panel to hold the facts: the first two groups keep their second lines.
-      await waitFor(() => expect(heads()).toEqual(["Trip", "System · faction", ""]));
-      expect(cells()).toEqual([["1jump 9.7ly · 2 h old", "Ross 154 Ross 154 Boys", ""]]);
-      expect(screen.getByRole("button", { name: "Set Ross 154 as the destination" })).toBeTruthy();
-    } finally {
-      host.remove();
-    }
-  });
-
-  it("goes back to the groups when its column widens after the rows went compact", async () => {
-    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
-    const sell: Results = {
-      ...results,
-      place: "station",
-      main: { head: "Price", unit: "cr" },
-      columns: [{ key: "volume", head: "Demand", unit: "t", at: "qual", bars: true }],
-      rows: [{ key: 2, system: "Diaguandri", station: "Parekh Chemical Holdings", ly: 127.3, jumps: 7, exact: true, pad: "L", updated_at: daysAgo(1), main: "313,239", facts: { volume: "15" }, volume: 15 }],
-    };
-    // The full row needs 136 + 280 + 168 + 64 px and its gaps (744 px); compact, it is narrower.
-    const host = document.body.appendChild(document.createElement("div"));
-    host.style.width = "600px";
-    try {
-      render(SearchKit, { target: host, props: { lookup: "test.lookup", offers: ["age"], run: vi.fn().mockResolvedValue(sell) } });
+      render(SearchKit, { target: host, props: { lookup: "trade.sell", offers: ["age"], run: sellPainite } });
+      // No side panel to hold the facts: the trip folds into a third line.
       await waitFor(() => expect(heads()).toEqual(["Price · demand", "Station · pad · arrival", ""]));
+      expect(cells()[0]).toEqual(["211,587cr 13,884t", "Good Landing L 22,200ls LHS 1827", "", "1jump · 18.8ly · 1 min old"]);
+      // The compact rows are narrower than the full ones: the column's width, not theirs, decides.
       host.style.width = "800px";
       await waitFor(() => expect(heads()).toEqual(["Price · demand", "Station · pad · arrival", "Trip", ""]));
     } finally {
