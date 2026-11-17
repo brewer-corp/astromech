@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-70ts
 title: 'Suit engineers get distances: their systems'' coordinates in the catalog'
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-s
