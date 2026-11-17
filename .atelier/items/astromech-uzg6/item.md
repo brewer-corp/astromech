@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-uzg6
 title: Seven finders ask their source twice when opened from a link
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - bug
