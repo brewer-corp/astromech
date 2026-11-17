@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-nnn0
 title: Ships > Suits as a loadout
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -131,3 +131,9 @@ passes (7) with `ASTROMECH_CORE` set to a debug core built at 06:04 today in ano
 whose `crates/` and `Cargo.lock` are identical to this branch's (this branch changes no Rust), to
 avoid a cold cargo build on this host. The previewstates table now expects the page's own empty,
 loading and failure words.
+
+### Responses
+
+1-l936.1: fixed in 4e078e97: addPick uses up the matching untied pick and combines it with the item's own upgrade into one pick, with a table case for that combination.
+1-l936.2: fixed in 4e078e97: combining upgrades keeps the higher target; a table case ties a 1 to 3 pick to an item planned to grade 5 and keeps one 1 to 5 pick.
+1-l936.3: fixed in 4e078e97: the panel is reconciled in an effect on the loadout shown (click, Back, or a new worn loadout), keeping only an item that loadout has or one in no loadout; a browser case goes Back from Spare's Maverick to Explore.
