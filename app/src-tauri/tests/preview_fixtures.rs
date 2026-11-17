@@ -736,9 +736,20 @@ fn child_mut<'a>(v: &'a mut Value, k: &str) -> Option<&'a mut Value> {
     }
 }
 
-/// Set `ptr` in `v` to `new` ("" replaces `v`).
+/// Set `ptr` in `v` to `new` ("" replaces `v`). A key new to an object is added, so a part added
+/// to [`fixtures`] is written on the first update.
 fn put(v: &mut Value, ptr: &str, new: Value) {
-    *v.pointer_mut(ptr).unwrap_or_else(|| panic!("no {ptr} to write")) = new;
+    if let Some(at) = v.pointer_mut(ptr) {
+        *at = new;
+        return;
+    }
+    let (parent, key) = ptr.rsplit_once('/').unwrap_or_else(|| panic!("no {ptr} to write"));
+    match v.pointer_mut(parent) {
+        Some(Value::Object(o)) => {
+            o.insert(key.replace("~1", "/").replace("~0", "~"), new);
+        }
+        _ => panic!("no {parent} to add {key} to"),
+    }
 }
 
 /// Where the parts at `keys` (JSON pointers, "" for the whole file) don't cover `file` exactly
