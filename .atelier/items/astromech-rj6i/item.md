@@ -71,6 +71,7 @@ Powerplay is now one Board. The merits to the next rank (Value XL, Orange Lit) l
 
 **The fixes.**
 - **Where to work's track.** It has a fixed 45.5rem track. That is SearchKit's `fits` for these rows (720 px at 100 percent) plus 8 px to spare. The track is in `View.svelte`'s `grid-template-columns`, which the page-sizing lint allows. A reviewer may read it as the page setting a width; the alternative was a block-grid component in `lib/ui/layout` for one page, which I didn't think worth it yet.
+- **Bounded state lines (round 1).** The line under a target's name names the controlling power only when it isn't yours ("Stronghold 25%" on Reinforce) and counts the other active powers ("· 2 other powers") instead of naming them. Their names are in the line's Tip, through a new `Row.notes` in SearchKit. A probe with all 13 powers active, "Arissa Lavigny-Duval stronghold 100%" and differing rows cut nothing at 1100, 1920, 2560 at 145 and 3840 at 180.
 - **Reinforce and Undermine rows.** Reinforcement and undermining are now the row's own figures group, one over the other, under "Reinforcement · undermining". The line under the name keeps the state and progress. `targetDetail` lost that part, and the `Targets.browser.test.ts` case now checks the two parts in the row.
 
 **Columns.** The breakpoints are container queries on the page's own box (`.room`), not on `win`, which includes the side margins.
@@ -81,7 +82,7 @@ Powerplay is now one Board. The merits to the next rank (Value XL, Orange Lit) l
 **Core.** `NextRank.from` comes from `rules().merits_for(rank)`, and is 0 below rank 1. Two rows in `tests/standing.rs` cover it: rank 9 starts from 47,000 and rank 0 from 0. The TS binding and `powerplay.json` were dumped again; the fixture's only change is `"from": 47000`.
 
 **New and changed pieces.**
-- `lib/ui/Meter.svelte`: DESIGN.md's meter, drawn as a gradient, so no page sets a fill width. `rest` draws the unfilled part Label Grey for the reinforcement-against-undermining bar. When both figures are 0, the bar sits at half and the line says "Level this cycle".
+- `lib/ui/Meter.svelte`: DESIGN.md's meter, drawn as a gradient, so no page sets a fill width. `rest` draws the unfilled part Label Grey for the reinforcement-against-undermining bar. When both figures are 0, the bar sits at half and the line says "Level this cycle". While either figure is missing, the bar and that line are left out (round 1).
 - `lib/powerplay.ts` gains `timeLeft` ("2 d 14 h", "5 h 12 min", "12 min", "0 min" once past) and `endsAt` ("Thursday 07:00 UTC", read from `week_ends`). `timeLeft` has a table test under fake timers' system time (`powerplay.test.ts`).
 - `pledged` now says weeks from two weeks on, for the head's "Pledged 37 weeks · rank 9".
 
@@ -107,7 +108,6 @@ The not-pledged captures use `core=empty`, which has no route, so they show the 
 - `previewstates`' empty text is "Not pledged".
 
 **Known limits.**
-- On Reinforce and Undermine the place track has about 8 px above its 17.5rem floor. A state line longer than any in the fixture, such as one naming two other active powers, will end in an ellipsis. The fix then is the row's grouping, not a wider track.
 - `until` in `lib/powerplay.ts` is now `timeLeft`, with "min" and no "h" under an hour. Nothing else imports it on `main`, but astromech-coq6, which reads the same reply for Now, may.
 
 **Checks run.** These pass: `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test -p astromech-powerplay`, `cargo test -p astromech-core --lib`, `pnpm check`, `pnpm lint`, `pnpm test` (766 tests), `cargo test -p astromech-app --test preview_fixtures` (the drift test, run plainly), `python3 scripts/check-guide.py` and the 7 journeys.

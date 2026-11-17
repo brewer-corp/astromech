@@ -3,7 +3,7 @@
   // (Spansh), on the search kit.
   import Choice from "../../lib/ui/Choice.svelte";
   import Dropdown from "../../lib/ui/Dropdown.svelte";
-  import { loadTargets, num, targetDetail, TARGETS, type Target } from "../../lib/powerplay";
+  import { loadTargets, num, targetDetail, targetOthers, TARGETS, type Target } from "../../lib/powerplay";
   import type { Filters, Origin, Results } from "../../lib/search";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
 
@@ -37,6 +37,7 @@
         exact: h.exact,
         updated_at: h.updated_at,
         facts: { power: targetDetail(h, r.power), ...(contested ? { reinforcement: num(h.reinforcement), undermining: num(h.undermining) } : {}) },
+        notes: targetOthers(h, r.power).length ? { power: `Also active: ${targetOthers(h, r.power).join(", ")}` } : undefined,
       })),
     };
   }

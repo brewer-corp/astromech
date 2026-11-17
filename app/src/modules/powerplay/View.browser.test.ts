@@ -87,6 +87,14 @@ describe("Powerplay page", () => {
     expect(within(screen.getByRole("region", { name: "This system" })).getByText(/Li Yong-Rui/)).toBeTruthy();
   });
 
+  it("says nothing about who is ahead while a figure is missing", async () => {
+    overview.mockResolvedValue({ standing, here: undermine.system, system: { ...undermine, reinforcement: null } });
+    render(View);
+    const here = within(await screen.findByRole("region", { name: "This system" }));
+    expect(await here.findByText("9")).toBeTruthy();
+    expect(here.queryByText(/ahead|Level/)).toBeNull();
+  });
+
   it("shows acquisition progress in an unoccupied system", async () => {
     const acquire = { ...undermine, controlling_power: null, state: "Unoccupied", contesting: ["Li Yong-Rui", "Pranav Antal"], work: "acquire" as const, acquisition: [{ power: "Li Yong-Rui", progress: 0.086375 }, { power: "Pranav Antal", progress: 0.003175 }] };
     overview.mockResolvedValue({ standing, here: acquire.system, system: acquire });

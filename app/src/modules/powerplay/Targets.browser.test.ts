@@ -20,14 +20,16 @@ describe("Where to work", () => {
     render(Targets);
     expect(await screen.findByText("Piscium Sector YJ-A b2")).toBeTruthy();
     // The pledged power isn't listed as "also" in its own targets.
-    expect(screen.getByText(/Unoccupied, acquisition 32%/).textContent).not.toContain("also");
-    expect(screen.getByText(/Unoccupied, acquisition 9% · also Pranav Antal/)).toBeTruthy();
+    expect(screen.getByText(/Unoccupied, acquisition 32%/).textContent).not.toContain("other");
+    // The other powers are counted on the row, so its line stays whole, and named in its Tip.
+    const contested = screen.getByText("Unoccupied, acquisition 9% · 1 other power");
+    expect(document.getElementById(contested.getAttribute("aria-describedby") ?? "")?.textContent).toBe("Also active: Pranav Antal");
     expect(load).toHaveBeenLastCalledWith("acquire", null, expect.anything(), 40);
 
     await fireEvent.click(screen.getByRole("button", { name: "Reinforce" }));
     expect(await screen.findByText("Lembava")).toBeTruthy();
     const lembava = screen.getByText("Lembava").closest('[role="row"]') as HTMLElement;
-    expect(within(lembava).getByText("Li Yong-Rui stronghold 25%")).toBeTruthy();
+    expect(within(lembava).getByText("Stronghold 25%")).toBeTruthy();
     expect(within(lembava).getByText("166")).toBeTruthy();
     expect(load).toHaveBeenLastCalledWith("reinforce", null, expect.anything(), 40);
 

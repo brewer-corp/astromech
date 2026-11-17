@@ -59,7 +59,7 @@ Nearby systems where your power wants work, on the usual search ([Places](places
 - **Undermine.** Other powers' systems.
 
 Choose how far to look: 20, 40 or 80 light years (40 by default). Each row has the jumps and the distance,
-the system and its Powerplay state, and for a controlled system this cycle's reinforcement over its undermining. The filters, under **Change**, are this radius and the age of the data. Source: Spansh.
+the system and its Powerplay state (with how many other powers are active there; point at it for which), and for a controlled system this cycle's reinforcement over its undermining. The filters, under **Change**, are this radius and the age of the data. Source: Spansh.
 
 ## By voice and as callouts
 

@@ -38,10 +38,14 @@
   const next = $derived(st?.next);
   /** Where the lifetime merits are between the current rank's start and the next rank's need. */
   const climb = $derived(next && next.merits > next.from ? ((st?.merits ?? 0) - next.from) / (next.merits - next.from) : 0);
-  /** This cycle's reinforcement against undermining, as reinforcement's share of both. */
+  /**
+   * This cycle's reinforcement against undermining, as reinforcement's share of both, and which
+   * is ahead. None while either figure is unknown: a missing figure is not a zero.
+   */
   const tug = $derived.by(() => {
-    const r = sys?.reinforcement ?? 0;
-    const u = sys?.undermining ?? 0;
+    const r = sys?.reinforcement;
+    const u = sys?.undermining;
+    if (r == null || u == null) return null;
     return { share: r + u ? r / (r + u) : 0.5, lead: Math.abs(r - u), ahead: r > u ? "Reinforcement" : r < u ? "Undermining" : null };
   });
   /** A block's line before the journal answers, or after it failed with nothing to show. */
@@ -125,14 +129,16 @@
           </p>
           {#if sys.controlling_power}
             <div class="tug">
-              <Meter value={tug.share} rest />
+              {#if tug}<Meter value={tug.share} rest />{/if}
               <p class="ends">
                 <span><span class="type-figures">{num(sys.reinforcement)}</span><span class="type-unit">reinforcement</span></span>
                 <span><span class="type-figures">{num(sys.undermining)}</span><span class="type-unit">undermining</span></span>
               </p>
-              <p class="type-label">
-                {#if tug.ahead}{tug.ahead} is ahead by {num(tug.lead)} this cycle{:else}Level this cycle{/if}
-              </p>
+              {#if tug}
+                <p class="type-label">
+                  {#if tug.ahead}{tug.ahead} is ahead by {num(tug.lead)} this cycle{:else}Level this cycle{/if}
+                </p>
+              {/if}
             </div>
             <div class="band">
               <Meter value={sys.control_progress ?? 0} thin />
@@ -202,6 +208,7 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "rank" "cycle" "merits" "sys" "work" "earn";
   }
+  .blocks:not(.standing) { grid-template-areas: "sys" "work" "earn"; }
   @container pp (min-width: 64rem) {
     .blocks {
       grid-template-columns: minmax(16rem, 25rem) 45.5rem;

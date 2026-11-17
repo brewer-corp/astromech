@@ -81,17 +81,26 @@ export async function loadTargets(target: Target, origin: Origin, filters: Filte
 }
 
 /**
- * The row's second line: state and progress, and which other powers are there besides `power`.
- * This cycle's reinforcement and undermining are figures of their own (`TargetHit`).
+ * The row's second line: state and progress, and how many other powers are active there besides
+ * `power`, so the line has a bounded length whatever the system (their names are `targetOthers`,
+ * for its Tip). The controlling power is named unless it is `power`. This cycle's reinforcement
+ * and undermining are figures of their own (`TargetHit`).
  */
 export function targetDetail(h: TargetHit, power: string): string {
   const parts: string[] = [];
   if (h.controlling_power) {
-    parts.push(`${h.controlling_power} ${h.state?.toLowerCase() ?? ""} ${pct(h.control_progress)}`.replace(/\s+/g, " ").trim());
+    const who = h.controlling_power === power ? "" : h.controlling_power;
+    const state = h.state ? (who ? h.state.toLowerCase() : h.state) : "";
+    parts.push(`${who} ${state} ${pct(h.control_progress)}`.replace(/\s+/g, " ").trim());
   } else {
     parts.push(`Unoccupied, acquisition ${pct(h.acquisition)}`);
   }
-  const others = h.others.filter((p) => p !== power);
-  if (others.length) parts.push(`also ${others.join(", ")}`);
+  const n = targetOthers(h, power).length;
+  if (n) parts.push(`${n} other power${n === 1 ? "" : "s"}`);
   return parts.join(" · ");
+}
+
+/** The other powers active in a target system besides `power`. */
+export function targetOthers(h: TargetHit, power: string): string[] {
+  return h.others.filter((p) => p !== power && p !== h.controlling_power);
 }
