@@ -1,5 +1,5 @@
 {
- "commit": "7ffd2f47",
+ "commit": "7e67d8c6",
  "captures": {
   "sell-selected-1100x700": {
    "url": "http://localhost:5291/?core=ready&route=exact&textsize=100#/places/sell/painite",
@@ -3185,13 +3185,7 @@
     }
    },
    "sideways": [],
-   "clipped": [
-    {
-     "text": "Introduction from Elvira Martuuk: raise your rank with them ",
-     "by": "ellipsis",
-     "at": "div.list > div.row > div.grp > span.type-label.step.locked"
-    }
-   ],
+   "clipped": [],
    "overlaps": [],
    "small": [],
    "contrast": [],
@@ -3463,13 +3457,7 @@
     }
    },
    "sideways": [],
-   "clipped": [
-    {
-     "text": "Introduction from Elvira Martuuk: raise your rank with them ",
-     "by": "ellipsis",
-     "at": "div.list > div.row > div.grp > span.type-label.step.locked"
-    }
-   ],
+   "clipped": [],
    "overlaps": [],
    "small": [],
    "contrast": [],
@@ -3766,13 +3754,7 @@
     }
    },
    "sideways": [],
-   "clipped": [
-    {
-     "text": "Introduction from Elvira Martuuk: raise your rank with them ",
-     "by": "ellipsis",
-     "at": "div.list > div.row > div.grp > span.type-label.step.locked"
-    }
-   ],
+   "clipped": [],
    "overlaps": [],
    "small": [],
    "contrast": [],
@@ -4069,13 +4051,7 @@
     }
    },
    "sideways": [],
-   "clipped": [
-    {
-     "text": "Introduction from Elvira Martuuk: raise your rank with them ",
-     "by": "ellipsis",
-     "at": "div.list > div.row > div.grp > span.type-label.step.locked"
-    }
-   ],
+   "clipped": [],
    "overlaps": [],
    "small": [],
    "contrast": [],

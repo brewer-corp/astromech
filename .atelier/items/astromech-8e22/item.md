@@ -35,7 +35,7 @@ The reworked foundation is seen whole before the screens are built on it: the ne
 ## Done when
 
 - [x] An agent that built none of increment 2 captures, in the browser preview, the Sell finder (a result selected, sidebar open), Materials, Engineers with "laser" searched, Ships, Suits, Powerplay, Settings and My controller at 1100 x 700 and 1920 x 1080 (100 percent), 2560 x 1440 (145 percent) and 3840 x 2160 (180 percent), into `docs/design/increment2/`.
-- [ ] Each capture is measured as astromech-irtr's were: no sideways scroll, no clipped or overlapping text, no readable text under 4.5:1, no action further than one column from what it acts on. A failure is filed as a bug in the mission. Before this item closes each bug is either fixed and its page captured again, or, where a planned screen item rebuilds the page, handed to that item by the lead (astromech-lf3a to rj6i, 8og8 to nnn0, 5g9w to 8wr4), or is older than increment 2 and filed on its own (astromech-wo8s).
+- [x] Each capture is measured as astromech-irtr's were: no sideways scroll, no clipped or overlapping text, no readable text under 4.5:1, no action further than one column from what it acts on. A failure is filed as a bug in the mission. Before this item closes each bug is either fixed and its page captured again, or, where a planned screen item rebuilds the page, handed to that item by the lead (astromech-lf3a to rj6i, 8og8 to nnn0, 5g9w to 8wr4), or is older than increment 2 and filed on its own (astromech-wo8s).
 - [x] On each page the brightest things are the main value, what can be changed and what needs the commander; a page where something else on the page out-shines them is filed. The sidebar is judged once, as frame: its next stop is its brightest thing and it has no fill.
 - [x] Preview links for the Sell finder and Engineers are published with `scripts/preview-publish` and recorded with the capture paths as a note on the mission.
 - [x] The measured dock width, header second-row width and rows-visible figures in DESIGN.md match what the captures show.
@@ -50,7 +50,21 @@ Mission astromech-xajc. This checkpoint does not stop the mission: the screens s
 
 ## Report
 
-**Increment 2 mostly holds together, but five pages fail a check, and this item now holds twelve screen items behind five fixes.** The frame, the colours and the new tabs hold at all four sizes. Five pages cut text, put an action far from its row, or draw text too small: Powerplay, Engineers, Suits, Ships and My controller. The bugs are astromech-lf3a, vbz3, 8og8, 5g9w and wo8s, all on main. This item says each failure is fixed before it closes, so the second Done when line stays open until they merge and the captures are taken again. The bugs are drafts that the lead has to make ready. astromech-rj6i, nnn0 and 8wr4 would rebuild Powerplay, Suits and Ships, but they wait on this item. So the lead either has those three fixed on the current pages, or amends this item to hand their cases to the rebuilds.
+**Increment 2 holds together. Of the five failures the checkpoint found, one is fixed and captured again, and the lead has decided the other four.** The frame, the colours and the new tabs hold at all four sizes. The five bugs, and what became of each:
+
+- **astromech-vbz3, Engineers:** fixed on main (ca33619d). After merging main, I captured Engineers with "laser" searched again at all four sizes. The audit lists nothing clipped, and Mel Brandon's step now reads in full over two lines ("…raise your rank with them past grade 3.").
+- **astromech-lf3a, Powerplay:** handed to astromech-rj6i.
+- **astromech-8og8, Suits:** handed to astromech-nnn0.
+- **astromech-5g9w, Ships:** handed to astromech-8wr4.
+- **astromech-wo8s, My controller:** older than increment 2 and filed on its own at low priority.
+
+I captured the three handed-over pages again on the merged branch, and they are unchanged:
+
+- Powerplay still cuts 10 texts at 1920 x 1080 and 3 at 3840 x 2160.
+- Suits' Remove is still about 1,100 layout px from its plan at 2560 x 1440.
+- Ships' Open in links are still about 1,000 layout px from the ship at 2560 x 1440.
+
+The second Done when line is the lead's rewording, which allows these hand-overs.
 
 **Captures.** There are 35 captures in `docs/design/increment2/`, taken in headless Chrome at device scale 1 from `pnpm dev` with `?core=ready&route=exact&textsize=<step>`:
 
@@ -76,7 +90,7 @@ DESIGN.md marks Grey Dim, Orange Dim and Placeholder as state rather than text t
 - a wrapped title's lines touching;
 - content inside an inner scroller, such as Ships' `.stage`.
 
-**Results.**
+**Results, as first captured.**
 
 - No capture scrolls sideways.
 - No readable text is under 4.5:1.
@@ -86,7 +100,7 @@ DESIGN.md marks Grey Dim, Orange Dim and Placeholder as state rather than text t
 By eye, five pages fail:
 
 - **Powerplay (astromech-lf3a, caused by uc7i).** At 1920 x 1080 beside the docked sidebar, This system's name and every Where to work system and state end in "...". At 3840 x 2160 one system and two states are still cut. At 2560 x 1440, Where to work sits under My standing and nothing is cut.
-- **Engineers (astromech-vbz3, caused by 7did).** Mel Brandon's step left to unlock ("Introduction from Elvira Martuuk: raise your rank with them past ...") is cut at every size. The full text is only in a Tip.
+- **Engineers (astromech-vbz3, caused by 7did).** Mel Brandon's step left to unlock ("Introduction from Elvira Martuuk: raise your rank with them past ...") was cut at every size, with the full text only in a Tip. It is fixed, and the four Engineers captures were taken again after merging main.
 - **Suits (astromech-8og8).** Plan blocks run the full column width, so Remove is about 1,100 layout px from its plan's name at 2560 and about 1,650 at 3840. The shopping list spreads its columns the same way. The 360 px check misses this because the blocks are not rows; the 3840 capture shows it.
 - **Ships (astromech-5g9w).** Open in Coriolis and EDSY sit about 1,000 layout px from the ship's name at 2560 and further at 3840. The stat bands stretch too.
 - **My controller (astromech-wo8s, low).** At 1100 x 700 the sheet's bound actions draw at 8 px. The sheet scales with its width, not with Text size, so it reads at 14 px at 1920 and 18 px at 2560. Those two sizes show up in `small` only because the check divides by the step. This predates increment 2.
