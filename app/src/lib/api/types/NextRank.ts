@@ -5,6 +5,11 @@
  */
 export type NextRank = { rank: number, 
 /**
+ * Lifetime merits the current rank needed: where the climb to `merits` starts (0 below
+ * rank 1).
+ */
+from: number, 
+/**
  * Lifetime merits the rank needs.
  */
 merits: number, 
