@@ -176,7 +176,7 @@
   section { padding: 0.5rem 0 1.75rem; min-height: 0; }
   h3 { margin: 1.375rem 0 0.5rem; }
   .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0.5rem 0; }
-  .err { color: var(--accent); }
+  .err { color: var(--accent); font-weight: 500; }
   .lo { color: var(--label-grey); }
   .when { font-size: var(--fs-s); }
   .station { font-weight: 500; }

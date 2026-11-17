@@ -180,6 +180,6 @@
   .risk b { font-weight: 600; }
   .sell { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
-  .sell a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
+  .sell a { color: var(--accent); font-weight: 500; text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .sell a:hover { color: var(--orange-lit); }
 </style>

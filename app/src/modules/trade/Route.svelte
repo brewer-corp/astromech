@@ -242,7 +242,7 @@
   .total .pair:first-child .q { color: var(--orange-lit); }
   .facts > .q:first-child { color: var(--accent); font-weight: 500; }
   .lo { color: var(--label-grey); }
-  .warn { color: var(--accent); margin: 0 0 0.75rem; }
+  .warn { color: var(--accent); font-weight: 500; margin: 0 0 0.75rem; }
   .warn::before { content: "! "; font-weight: 600; }
   .small { font-size: var(--fs-s); margin: 0 0.5rem; }
   p { margin: 0 0 0.5rem; }

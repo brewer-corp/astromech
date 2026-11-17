@@ -111,7 +111,7 @@
   h2 { margin: 0.375rem 0 0.25rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
   p { margin: 0.5rem 0; line-height: 1.45; }
   .lo { color: var(--prose); }
-  .warn { color: var(--accent); }
+  .warn { color: var(--accent); font-weight: 500; }
   .err { color: var(--alarm); }
   b { font-weight: 600; }
   .press { margin: 1rem 0; height: 3rem; display: flex; align-items: center; padding: 0 0.875rem; background: var(--accent); color: var(--on-accent); font-size: var(--fs-l); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); }

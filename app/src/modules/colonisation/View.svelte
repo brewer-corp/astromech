@@ -139,7 +139,7 @@
   .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0 0 0.625rem; }
   .list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: max-content max-content 1fr; column-gap: 1.125rem; row-gap: 0.1875rem; font-size: var(--fs-s); }
   .list li { display: contents; }
-  .q { color: var(--accent); text-align: right; }
+  .q { color: var(--accent); font-weight: 500; text-align: right; }
   .total { font-size: var(--fs-s); margin: 0.5rem 0 0.875rem; }
   .lo { color: var(--label-grey); }
 </style>

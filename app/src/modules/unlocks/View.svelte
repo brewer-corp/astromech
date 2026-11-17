@@ -134,12 +134,14 @@
   /* Read-only cards in a Seam outline (DESIGN.md Surfaces and cells: Hull is the frame's), with no
      side border. State is DESIGN.md's engineer colours: unlocked, the name Options Grey and the
      rank marks White; known or invited, the name Orange Mid (you can work toward them) and the step
-     to unlock Prose Grey; barred, the name and reason Red Low; not introduced, Grey Dim. */
+     to unlock Prose Grey; barred, the name and reason Red Low; not introduced, the name and its
+     state Grey Dim, unless you can work on them now. What is left to do stays readable: Grey Dim
+     never carries text needed to act. */
   .eng { padding: 1rem; display: flex; flex-direction: column; gap: 0.375rem; outline: 1px solid var(--line); outline-offset: -1px; }
   .eng .name { color: var(--options-grey); }
   .eng:is(.known, .invited) .name { color: var(--orange-mid); }
   .eng.barred :is(.name, .gate) { color: var(--red-low); }
-  .eng.locked, .eng.locked :is(.name, .gate, .where, .from), .eng.locked :global(.chip .name) { color: var(--grey-dim); }
+  .eng.locked:not(.next) :is(.name, .gate) { color: var(--grey-dim); }
   .eng.hot { background: var(--row-hover); }
   /* The engineers who introduce the hovered one. */
   .eng.pred { outline-color: var(--accent); }

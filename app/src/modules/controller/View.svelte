@@ -253,7 +253,7 @@
   .row.sel { background: var(--surface-hi); }
   .row.sel .n { color: var(--text-hi); }
   .row { color: var(--options-grey); }
-  .warn { color: var(--accent); }
+  .warn { color: var(--accent); font-weight: 500; }
   .more { margin-top: 0.625rem; font-size: var(--fs-s); line-height: 1.5; }
   .ask { color: var(--orange-lit); outline: 1px solid var(--line); outline-offset: -1px; padding: 0.5rem 0.75rem; margin: 0 0 0.5rem; }
   .credit { color: var(--label-grey); font-size: var(--fs-s); }

@@ -420,7 +420,7 @@
 
   /* Label lines: the summary above the heads, loading, a warning and the source line below. */
   .line { margin: 0 0 var(--sp-3); font-size: var(--fs-s); color: var(--label-grey); }
-  .warn { color: var(--accent); }
+  .warn { color: var(--accent); font-weight: 500; }
   .warn b { font-weight: 600; }
   .foot { margin: var(--sp-3) 0 0; }
   .empty { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--sp-2); min-height: var(--row); color: var(--prose); }
@@ -432,7 +432,9 @@
   .row > * { min-width: 0; }
   .heads { height: 1.75rem; border-bottom: 1px solid var(--line); color: var(--label-grey); font-size: var(--fs-s); }
   .result:hover { background: var(--row-hover); }
-  .result:hover .acts :global(.ibtn) { color: var(--orange-lit); }
+  /* Icon buttons on a hovered or selected row step up to Orange Mid; the one under the pointer is Orange Lit. */
+  .result:hover .acts :global(.ibtn) { color: var(--orange-mid); }
+  .result .acts :global(.ibtn:hover) { color: var(--orange-lit); }
   .r { text-align: right; }
   /* The value the list is ranked by is its one orange column (DESIGN.md The Orange Means Act Rule). */
   .main .v { color: var(--accent); font-size: var(--fs-l); font-weight: 600; }
@@ -453,7 +455,7 @@
   /* Stale: the ranked value steps down to Orange Mid and the age, now the brightest fact on the
      row, is Orange. */
   .stale .main .v { color: var(--orange-mid); }
-  .stale .fact.age { color: var(--accent); }
+  .stale .fact.age { color: var(--accent); font-weight: 500; }
   /* Selected, while the side panel shows it (DESIGN.md States): Hull Raised, the ranked value
      Orange Lit, the name White, other text one step brighter, icon buttons Orange Mid. */
   .result.sel, .result.sel:hover { background: var(--surface-hi); }

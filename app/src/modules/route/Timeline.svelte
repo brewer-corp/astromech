@@ -222,10 +222,6 @@
   .past .sp::before { border-left-color: var(--mark-off); }
   .ahead .sp::before { border-left-style: dashed; }
   .node { position: relative; z-index: 1; display: grid; place-items: center; padding: 0.1875rem; background: var(--bg); color: var(--label-grey); }
-  /* DESIGN.md's star colours: what you do there. Scoop in Orange Mid, boost (a neutron star) in
-     White, nothing in Label Grey; a past stop's star is Mark Off. */
-  [data-star="star-scoopable"] { color: var(--orange-mid); }
-  [data-star="star-neutron"] { color: var(--text-hi); }
   .node:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
 
   .main { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding-block: var(--sp-2); }
@@ -267,4 +263,9 @@
   .past .count { color: var(--grey-dim); }
   .warn { color: var(--accent); font-weight: 500; }
   .warn b { font-weight: 700; }
+  /* DESIGN.md's star colours: what you do there. Scoop in Orange Mid, boost (a neutron star) in
+     White, nothing in Label Grey. Last, so they win over .node and .pass at the same weight; a
+     past star (Mark Off), the next stop, where you are and a hovered star still win. */
+  [data-star="star-scoopable"] { color: var(--orange-mid); }
+  [data-star="star-neutron"] { color: var(--text-hi); }
 </style>

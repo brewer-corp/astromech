@@ -218,7 +218,7 @@
   .item.sel .name { background: var(--surface-hi); }
   .item.sel .cell { outline: 1px solid var(--accent); outline-offset: -1px; }
   .lo { color: var(--label-grey); }
-  .warn { color: var(--accent); }
+  .warn { color: var(--accent); font-weight: 500; }
   .pad { padding-left: 2.125rem; }
   .id { margin-top: 1.5rem; font-size: var(--fs-s); }
   @container win (max-width: 75rem) {

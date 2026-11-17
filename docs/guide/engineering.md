@@ -19,7 +19,7 @@ A tech tree of every ship engineer and suit engineer, with your progress and wha
   they have **Not been introduced**, an envelope when you are **Invited**, and a struck mark if you are
   **Barred**. Unlocked engineers have bright names; known and invited ones, whom you can work
   toward, have orange names with "Known · no access yet"; a barred engineer's name and reason are
-  red; cards that still need an introduction are dim. What is left to do stays on the card. Engineers you can work on now sit at the top of
+  red; cards that still need an introduction are dim, unless you can work on them now. What is left to do stays on the card. Engineers you can work on now sit at the top of
   their column.
   Hover a card to light who introduces them. A permit-locked system says "permit".
   An arrow points back to who introduces each engineer.

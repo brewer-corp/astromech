@@ -29,7 +29,7 @@
 </dialog>
 
 <style>
-  dialog { box-sizing: border-box; width: min(40rem, calc(100vw - 2rem)); margin: auto; padding: var(--sp-6) 1.75rem; border: 0; border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); background: var(--bg); color: var(--accent); }
+  dialog { box-sizing: border-box; width: min(40rem, calc(100vw - 2rem)); margin: auto; padding: var(--sp-6) 1.75rem; border: 0; border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); background: var(--bg); color: var(--prose); }
   dialog::backdrop { background: rgb(0 0 0 / 0.7); }
   h2 { margin: 0 0 var(--sp-4); }
 </style>

@@ -120,7 +120,7 @@
   .cell .type-label, .opt:hover .hint { color: var(--prose); }
   .val { font-weight: 500; }
   .pop { position: absolute; z-index: 20; left: 0; top: 100%; margin-top: var(--gap); min-width: 100%; width: max-content; max-width: min(26.25rem, calc(100vw - 2rem)); background: var(--surface-hi); border: 1px solid var(--line); }
-  .opt { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: var(--row); padding: var(--sp-2) var(--sp-3); color: var(--accent); }
+  .opt { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: var(--row); padding: var(--sp-2) var(--sp-3); color: var(--accent); font-weight: 500; }
   .opt:hover { background: var(--cell); }
   .opt:focus-visible { outline: 1px solid var(--accent); outline-offset: -2px; }
   .opt.on { color: var(--orange-lit); }

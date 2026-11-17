@@ -43,7 +43,7 @@
     <p class="type-label sub">No mining yet. The run starts at your first limpet, prospect or refined ton after docking.</p>
   {:else}
     <div class="tiles">
-      <Stat label="Refined" value={run.total} unit="t" />
+      <Stat main label="Refined" value={run.total} unit="t" />
       <Stat label="Per hour" value={run.per_hour === null ? "–" : run.per_hour.toFixed(0)} unit={run.per_hour === null ? "" : "t/h"} {@attach tip("Measured to the latest journal line; shows once a minute has passed")} />
     </div>
     <h3 class="section">By ore</h3>

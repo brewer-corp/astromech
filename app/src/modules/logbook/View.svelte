@@ -129,7 +129,7 @@
 <style>
   section { padding: 0.5rem 0 1.75rem; min-height: 0; }
   .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0.875rem 0 0.375rem; }
-  .err { color: var(--accent); }
+  .err { color: var(--accent); font-weight: 500; }
   .search { display: flex; align-items: center; gap: 0.75rem; margin: 0.875rem 0 0.375rem; color: var(--label-grey); font-size: var(--fs-s); }
   .search > :global(.q) { flex: 0 1 22.5rem; }
   h3 { margin: 1.375rem 0 0.5rem; }

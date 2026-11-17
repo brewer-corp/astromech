@@ -101,7 +101,7 @@
      cell (.value); a status with no such action is a fact, outside a cell. */
   dd { color: var(--prose); gap: 1.5rem; justify-content: space-between; }
   dd.value { background: var(--cell); color: var(--accent); font-weight: 500; }
-  dd.warn { color: var(--accent); }
+  dd.warn { color: var(--accent); font-weight: 500; }
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }

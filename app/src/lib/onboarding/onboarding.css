@@ -21,7 +21,7 @@
 .setup-step dd .lo { color: var(--label-grey); }
 .setup-step dd.value .lo { color: inherit; } /* text in a cell is at least Orange */
 /* A warning is an orange "!" and plain words; a hard error the same in red (DESIGN.md States). */
-.setup-step .warn-text { color: var(--accent); }
+.setup-step .warn-text { color: var(--accent); font-weight: 500; }
 .setup-step .err { color: var(--alarm); }
 .setup-step :is(.warn-text, .err)::before { content: "! "; font-weight: 600; }
 .setup-step .acts { display: flex; gap: 1.75rem; align-items: center; }

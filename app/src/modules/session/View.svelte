@@ -80,7 +80,7 @@
 <style>
   section { padding: 0.5rem 0 1.75rem; min-height: 0; }
   .sub { margin: 0.875rem 0 0.875rem; }
-  .err { color: var(--accent); }
+  .err { color: var(--accent); font-weight: 500; }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
   h3 { margin: 1.375rem 0 0.5rem; }
   table { border-collapse: collapse; max-width: 45rem; width: 100%; }

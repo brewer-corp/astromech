@@ -113,10 +113,10 @@
 <style>
   .head { display: flex; align-items: baseline; gap: 1.125rem; max-width: 56.25rem; }
   .sub { color: var(--label-grey); font-size: var(--fs-s); margin: 0.5rem 0; flex: 1; }
-  .err { color: var(--accent); }
+  .err { color: var(--accent); font-weight: 500; }
   .lo { color: var(--label-grey); }
   .name { white-space: nowrap; }
-  .up { color: var(--accent); }
+  .up { color: var(--accent); font-weight: 500; }
   table { border-collapse: collapse; width: 100%; max-width: 56.25rem; margin-top: 0.375rem; }
   th { text-align: left; color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; padding: 0 0.75rem 0.375rem 0; }
   td { padding: 0.3125rem 0.75rem 0.3125rem 0; border-top: 1px solid var(--line); vertical-align: baseline; }

@@ -515,21 +515,21 @@
   .mrow.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
   .mrow .mn { padding: 0.5rem 0.625rem; font-size: var(--fs-s); }
   .q { font-size: var(--fs); }
-  .bad { color: var(--accent); }
+  .bad { color: var(--accent); font-weight: 500; }
   .ok { color: var(--prose); margin: 1.125rem 0.5rem 0; }
   .plain { list-style: none; margin: 0; padding: 0 0.5rem; display: flex; flex-direction: column; gap: 0.625rem; font-size: var(--fs-s); }
-  .link { color: var(--accent); }
+  .link { color: var(--accent); font-weight: 500; }
   .small { font-size: var(--fs-s); }
   .stops { margin: 0; padding: 0 0.5rem 0 1.6875rem; display: flex; flex-direction: column; gap: 0.75rem; font-size: var(--fs-s); }
   .stop { font-weight: 500; }
   .sublabel { margin: 1.25rem 0.5rem 0.5rem; color: var(--label-grey); font-size: var(--fs-s); }
   .then { display: block; margin: 0.25rem 0 0.25rem 0; color: var(--label-grey); }
   .link:hover { color: var(--orange-lit); }
-  .side { grid-column: 2; position: sticky; top: 0; align-self: start; max-height: calc(100vh - 9.375rem); overflow-y: auto; border-left: 1px solid var(--accent); padding: 1.25rem 0.5rem 1.75rem 1.5rem; }
+  .side { grid-column: 2; position: sticky; top: 0; align-self: start; max-height: calc(100vh - 9.375rem); overflow-y: auto; border-left: 1px solid var(--line); padding: 1.25rem 0.5rem 1.75rem 1.5rem; }
   .back { display: block; margin-bottom: 0.625rem; color: var(--label-grey); font-size: var(--fs-s); }
   .about h3 { margin: 0 0 0.5rem; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .about p { margin: 0 0 0.625rem; line-height: 1.45; }
-  .qty { color: var(--accent); }
+  .qty { color: var(--accent); font-weight: 500; }
   .lo { color: var(--label-grey); }
   .err { margin: 0 0.5rem; color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
@@ -538,7 +538,7 @@
   @container win (max-width: 68.75rem) {
     section { display: flex; flex-direction: column; }
     .main { padding: 1.25rem 0 0.5rem; }
-    .side { border-left: 0; border-top: 1px solid var(--accent); padding: 1rem 0 1.25rem; max-height: none; position: static; }
+    .side { border-left: 0; border-top: 1px solid var(--line); padding: 1rem 0 1.25rem; max-height: none; position: static; }
     .cards { grid-template-columns: minmax(0, 1fr); }
   }
 </style>

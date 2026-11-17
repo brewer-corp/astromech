@@ -95,18 +95,19 @@
   .row { min-height: var(--row); margin-bottom: var(--gap); }
   .row.b { grid-template-columns: 1fr 13.75rem 7.5rem; }
   .name { height: var(--row); display: flex; align-items: center; color: var(--options-grey); }
-  .row.sel .name { color: var(--text-hi); }
+  /* Raised, without moving the name: the raise reaches past its left edge. */
+  .row.sel .name { color: var(--text-hi); background: var(--surface-hi); box-shadow: calc(-1 * var(--sp-2)) 0 0 var(--surface-hi); }
   .cell { height: var(--row); display: flex; align-items: center; padding: 0 0.75rem; background: var(--cell-empty); color: var(--accent); font-weight: 500; }
   .cell.on { background: var(--cell); }
   .cell:hover { background: var(--cell-hover); }
   .mark { color: var(--accent); font-size: var(--fs-s); font-weight: 600; padding-left: 0.625rem; }
   .lo { color: var(--label-grey); }
   p.lo { color: var(--prose); }
-  .msg, .warn { color: var(--accent); }
+  .msg, .warn { color: var(--accent); font-weight: 500; }
   .msg.err { color: var(--alarm); }
   .msg.err::before { content: "! "; font-weight: 600; }
   p { line-height: 1.45; }
-  aside { padding: 0.25rem 0 1.25rem 1.75rem; border-left: 1px solid var(--accent); }
+  aside { padding: 0.25rem 0 1.25rem 1.75rem; border-left: 1px solid var(--line); }
   .lbl { color: var(--label-grey); font-size: var(--fs-s); }
   h2 { margin: 0.375rem 0 0.75rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
   aside p { margin: 0 0 0.5rem; }
