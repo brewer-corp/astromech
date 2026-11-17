@@ -1,6 +1,7 @@
 {
  "out": "docs/design/powerplay",
  "query": "core=ready&route=exact",
+ "clock": "2026-10-20T11:23:00Z",
  "sizes": [
   {
    "w": 1100,

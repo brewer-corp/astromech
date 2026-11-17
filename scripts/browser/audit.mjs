@@ -6,7 +6,9 @@
  *   node scripts/browser/audit.mjs --base http://localhost:5291 --plan docs/design/increment2/plan.json
  *
  * The plan is JSON: { "out": dir, "query": "core=ready&route=exact", "sizes": [{ "w", "h", "step" }],
- * "shots": [{ "name", "hash", "query"?, "sizes"?, "steps"?: [action] }] }. An action is one of
+ * "clock"?: RFC 3339, "shots": [{ "name", "hash", "query"?, "sizes"?, "steps"?: [action] }] }. `clock`
+ * starts the preview's clock at that moment in every shot (`?clock=`, app/src/preview/clock.ts), so
+ * a page that tells time draws the same on any day. An action is one of
  * { "click": css } (the first match), { "waitSel": css }, { "waitText": text },
  * { "clickText": text } (the first button or link whose own text is that, ignoring case: a
  * control with no selector of its own, such as Skip setup or a top tab), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
@@ -359,7 +361,8 @@ async function capture(browser, base, plan, shot, size, outDir) {
   const ctx = await browser.createBrowserContext();
   const page = await ctx.newPage();
   await page.setViewport({ width: size.w, height: size.h, deviceScaleFactor: 1 });
-  const query = [shot.query ?? plan.query, `textsize=${size.step}`].filter(Boolean).join("&");
+  const clock = plan.clock && `clock=${encodeURIComponent(plan.clock)}`;
+  const query = [shot.query ?? plan.query, clock, `textsize=${size.step}`].filter(Boolean).join("&");
   const url = `${base}/?${query}#/${shot.hash}`;
   await page.goto(url, { waitUntil: "networkidle0" });
   const want = (16 * size.step) / 100;

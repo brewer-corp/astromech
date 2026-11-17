@@ -421,19 +421,14 @@ export function shellCommands(publish: (topic: string, payload: unknown) => void
       })),
     engineering_search: ({ query }) => previewData("engineering_search", () => searchEngineersSample(query), () => searchEngineersSample("")),
     powerplay_overview: () => {
-      // The core counts the cycle to the wall clock (the fixture keeps the end it was dumped
-      // with), so the sample's end moves on by whole weeks to the cycle the clock is in, as the
-      // core's would: same weekday and hour.
-      const WEEK = 7 * 86400000;
-      const ends = Date.parse(powerplaySample.standing.week_ends);
-      const week_ends = new Date(ends + Math.max(0, Math.ceil((Date.now() - ends + 1) / WEEK)) * WEEK).toISOString();
-      const o: Overview = { ...powerplaySample, standing: { ...powerplaySample.standing, week_ends } };
+      // The recorded answer as dumped: its cycle ended 2026-10-22 07:00 UTC, so after that the page
+      // reads it as an old answer (lib/powerplay.ts cycleAt). The captures run on `?clock=` in it.
       const unpledged: Overview = {
-        standing: { power: null, rank: null, merits: null, time_pledged_secs: null, session_merits: 0, week_merits: 0, week_ends, next: null },
+        standing: { ...powerplaySample.standing, power: null, rank: null, merits: null, time_pledged_secs: null, session_merits: 0, week_merits: 0, next: null },
         here: null,
         system: null,
       };
-      return previewData("powerplay_overview", () => o, () => unpledged);
+      return previewData("powerplay_overview", () => powerplaySample, () => unpledged);
     },
     powerplay_targets: ({ target, origin, within_ly: withinLy }) => {
       const s = targetsSample[target];

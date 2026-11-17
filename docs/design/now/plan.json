@@ -1,6 +1,7 @@
 {
  "out": "docs/design/now",
  "query": "core=ready&route=exact&game=running",
+ "clock": "2026-10-20T11:23:00Z",
  "sizes": [
   { "w": 1100, "h": 700, "step": 100 },
   { "w": 1920, "h": 1080, "step": 100 },

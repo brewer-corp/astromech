@@ -1,8 +1,8 @@
 {
- "commit": "9beff58d",
+ "commit": "d429c10e",
  "captures": {
   "pledged-1100x700": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/pledged-1100x700.png",
    "step": 100,
    "frame": {
@@ -113,8 +113,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 52,
+     "weight": 53,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -127,8 +128,7 @@
       "To",
       "jumps left",
       "Pledged 37 weeks · rank 9",
-      "merits to rank 10",
-      "Rank 10 needs"
+      "merits to rank 10"
      ]
     },
     {
@@ -160,7 +160,7 @@
    ]
   },
   "pledged-1400x900": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/pledged-1400x900.png",
    "step": 100,
    "frame": {
@@ -273,8 +273,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 65,
+     "weight": 66,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -287,8 +288,7 @@
       "To",
       "jumps left",
       "Pledged 37 weeks · rank 9",
-      "merits to rank 10",
-      "Rank 10 needs"
+      "merits to rank 10"
      ]
     },
     {
@@ -320,7 +320,7 @@
    ]
   },
   "pledged-1200x800": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=115#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=115#/powerplay",
    "file": "docs/design/powerplay/pledged-1200x800.png",
    "step": 115,
    "frame": {
@@ -420,8 +420,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 32,
+     "weight": 33,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -434,8 +435,7 @@
       "To",
       "jumps left",
       "Pledged 37 weeks · rank 9",
-      "merits to rank 10",
-      "Rank 10 needs"
+      "merits to rank 10"
      ]
     },
     {
@@ -467,7 +467,7 @@
    ]
   },
   "pledged-1920x1080": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/pledged-1920x1080.png",
    "step": 100,
    "frame": {
@@ -655,7 +655,7 @@
    ]
   },
   "pledged-2560x1440": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=145#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/powerplay",
    "file": "docs/design/powerplay/pledged-2560x1440.png",
    "step": 145,
    "frame": {
@@ -843,7 +843,7 @@
    ]
   },
   "pledged-3840x2160": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=180#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/powerplay",
    "file": "docs/design/powerplay/pledged-3840x2160.png",
    "step": 180,
    "frame": {
@@ -1031,7 +1031,7 @@
    ]
   },
   "pledged-reinforce-1100x700": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/pledged-reinforce-1100x700.png",
    "step": 100,
    "frame": {
@@ -1143,8 +1143,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 53,
+     "weight": 54,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -1157,8 +1158,7 @@
       "To",
       "jumps left",
       "Pledged 37 weeks · rank 9",
-      "merits to rank 10",
-      "Rank 10 needs"
+      "merits to rank 10"
      ]
     },
     {
@@ -1190,7 +1190,7 @@
    ]
   },
   "pledged-reinforce-1400x900": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/pledged-reinforce-1400x900.png",
    "step": 100,
    "frame": {
@@ -1304,8 +1304,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 66,
+     "weight": 67,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -1318,8 +1319,7 @@
       "To",
       "jumps left",
       "Pledged 37 weeks · rank 9",
-      "merits to rank 10",
-      "Rank 10 needs"
+      "merits to rank 10"
      ]
     },
     {
@@ -1351,7 +1351,7 @@
    ]
   },
   "pledged-reinforce-1200x800": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=115#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=115#/powerplay",
    "file": "docs/design/powerplay/pledged-reinforce-1200x800.png",
    "step": 115,
    "frame": {
@@ -1451,8 +1451,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 32,
+     "weight": 33,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -1465,8 +1466,7 @@
       "To",
       "jumps left",
       "Pledged 37 weeks · rank 9",
-      "merits to rank 10",
-      "Rank 10 needs"
+      "merits to rank 10"
      ]
     },
     {
@@ -1498,7 +1498,7 @@
    ]
   },
   "pledged-reinforce-1920x1080": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/pledged-reinforce-1920x1080.png",
    "step": 100,
    "frame": {
@@ -1686,7 +1686,7 @@
    ]
   },
   "pledged-reinforce-2560x1440": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=145#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/powerplay",
    "file": "docs/design/powerplay/pledged-reinforce-2560x1440.png",
    "step": 145,
    "frame": {
@@ -1874,7 +1874,7 @@
    ]
   },
   "pledged-reinforce-3840x2160": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=180#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/powerplay",
    "file": "docs/design/powerplay/pledged-reinforce-3840x2160.png",
    "step": 180,
    "frame": {
@@ -2062,7 +2062,7 @@
    ]
   },
   "pledged-undermine-1920x1080": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/pledged-undermine-1920x1080.png",
    "step": 100,
    "frame": {
@@ -2250,7 +2250,7 @@
    ]
   },
   "pledged-undermine-2560x1440": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=145#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/powerplay",
    "file": "docs/design/powerplay/pledged-undermine-2560x1440.png",
    "step": 145,
    "frame": {
@@ -2437,7 +2437,7 @@
    ]
   },
   "pledged-undermine-3840x2160": {
-   "url": "http://localhost:5847/?core=ready&route=exact&textsize=180#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=180#/powerplay",
    "file": "docs/design/powerplay/pledged-undermine-3840x2160.png",
    "step": 180,
    "frame": {
@@ -2625,7 +2625,7 @@
    ]
   },
   "not-pledged-1100x700": {
-   "url": "http://localhost:5847/?core=empty&route=exact&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=empty&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/not-pledged-1100x700.png",
    "step": 100,
    "frame": {
@@ -2695,8 +2695,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 13,
+     "weight": 14,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -2741,7 +2742,7 @@
    ]
   },
   "not-pledged-1920x1080": {
-   "url": "http://localhost:5847/?core=empty&route=exact&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=empty&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/not-pledged-1920x1080.png",
    "step": 100,
    "frame": {
@@ -2809,8 +2810,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 12,
+     "weight": 13,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -2854,7 +2856,7 @@
    ]
   },
   "not-pledged-2560x1440": {
-   "url": "http://localhost:5847/?core=empty&route=exact&textsize=145#/powerplay",
+   "url": "http://localhost:5397/?core=empty&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/powerplay",
    "file": "docs/design/powerplay/not-pledged-2560x1440.png",
    "step": 145,
    "frame": {
@@ -2922,8 +2924,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 12,
+     "weight": 13,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -2967,7 +2970,7 @@
    ]
   },
   "loading-1100x700": {
-   "url": "http://localhost:5847/?core=ready&route=exact&slow=never:powerplay_overview&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&slow=never:powerplay_overview&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/loading-1100x700.png",
    "step": 100,
    "frame": {
@@ -3073,8 +3076,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 46,
+     "weight": 47,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -3087,8 +3091,7 @@
       "To",
       "jumps left",
       "Reading the journal…",
-      "Within 40 ly of Lembava · reports of any age",
-      "Trip"
+      "Within 40 ly of Lembava · reports of any age"
      ]
     },
     {
@@ -3120,7 +3123,7 @@
    ]
   },
   "loading-1920x1080": {
-   "url": "http://localhost:5847/?core=ready&route=exact&slow=never:powerplay_overview&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&slow=never:powerplay_overview&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/loading-1920x1080.png",
    "step": 100,
    "frame": {
@@ -3298,7 +3301,7 @@
    ]
   },
   "failed-1100x700": {
-   "url": "http://localhost:5847/?core=ready&route=exact&fail=powerplay_overview&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&fail=powerplay_overview&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/failed-1100x700.png",
    "step": 100,
    "frame": {
@@ -3404,8 +3407,9 @@
      "colour": "#8c8c8c",
      "lum": 0.262,
      "sidebar": false,
-     "weight": 45,
+     "weight": 46,
      "texts": [
+      "Now",
       "Ships",
       "Engineering",
       "Places",
@@ -3418,8 +3422,7 @@
       "To",
       "jumps left",
       "Not shown until the journal can be read.",
-      "Within 40 ly of Lembava · reports of any age",
-      "Trip"
+      "Within 40 ly of Lembava · reports of any age"
      ]
     },
     {
@@ -3451,7 +3454,7 @@
    ]
   },
   "failed-1920x1080": {
-   "url": "http://localhost:5847/?core=ready&route=exact&fail=powerplay_overview&textsize=100#/powerplay",
+   "url": "http://localhost:5397/?core=ready&route=exact&fail=powerplay_overview&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/powerplay",
    "file": "docs/design/powerplay/failed-1920x1080.png",
    "step": 100,
    "frame": {

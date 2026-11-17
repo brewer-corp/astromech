@@ -160,7 +160,8 @@ describe("Now", () => {
     expect(await sale.findByText(/Could not ask Ardent Insight/)).toBeTruthy();
     expect(sale.getByRole("button", { name: "Try again" })).toBeTruthy();
     expect(await (await block("This session")).findByText("14.5")).toBeTruthy();
-    expect(await (await block("Powerplay")).findByText("1,829")).toBeTruthy();
+    // Whatever day the test runs: the block's figure depends on the cycle the clock is in.
+    expect(await (await block("Powerplay")).findByText(/^Li Yong-Rui · rank 9/)).toBeTruthy();
   });
 
   it("in space: the system leads, with no services", async () => {
@@ -180,6 +181,17 @@ describe("Now", () => {
     await idle();
     expect(screen.queryByRole("region", { name: "Sell your cargo" })).toBeNull();
     expect(screen.queryByRole("list", { name: "Services" })).toBeNull();
+  });
+
+  it("after the recorded cycle end, the Powerplay block counts to the next one and leaves out the ended cycle's merits", async () => {
+    // The powerplay world's cycle ended 2026-10-22 07:00 UTC; the core hasn't answered since.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(Date.parse("2026-10-22T07:01:00Z"));
+    startPreview("/?core=ready");
+    render(View);
+    const power = await block("Powerplay");
+    expect(await power.findByText("6 d 23 h left in the cycle")).toBeTruthy();
+    expect(power.queryByText("1,829")).toBeNull();
   });
 
   it("no game in the journal yet: one line and nothing else", async () => {
