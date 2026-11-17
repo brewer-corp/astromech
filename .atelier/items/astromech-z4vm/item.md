@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-z4vm
 title: Header tabs run off a narrow window at large Text sizes, and the page scrolls sideways
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - bug
@@ -48,13 +48,13 @@ The header at narrow widths. Each page's own narrow layout at large text is its 
   - Stacked, the header's height is `auto`, and the tab `nav` wraps onto 2.75rem lines. Each line keeps the tab's 2.125rem box centred.
   - Stacked, Find or plot's flex basis is its 11.25rem minimum, and it grows back to 20rem. Flex line-breaking uses the basis, so at 800 px and 160 percent the 20rem basis pushed Find or plot and Help onto lines of their own. The extra name-row check above caught this.
   - The width at which the header stacks is unchanged. With and without the fix it stacks below 1593, 1840, 2065, 2316, 2549 and 2878 px at 100 to 180 percent in the test Chromium, the same whichever way the window is resized. That is within 9 px of DESIGN.md's figures, which were measured elsewhere, so I left those as they were.
-- `3c74daea`: DESIGN.md's Frame row and a new Narrow window paragraph under the Height budget, with the measured header for each step at 1100 px and at 800 px, and what that leaves the page. Also the rule rewording above, and one sentence in `docs/guide/using-the-app.md`.
+- `3c74daea`: DESIGN.md's Frame row and a new Narrow window paragraph under the Height budget, with the measured header for each step at 1100 px and at 800 px, and what that leaves the page. Round 1 corrected the 800 px figures at 130 percent: my first loop resized one window through the steps and read 130 percent before it settled, so each step is now measured in a fresh window once its fonts have loaded. Also the rule rewording above, and one sentence in `docs/guide/using-the-app.md`.
 
 | Text size | 1100 px: tab lines, header | 800 px: tab lines, header |
 |---|---|---|
 | 100 | 1, 108 px | 2, 152 px |
 | 115 | 2, 175 px | 2, 175 px |
-| 130 | 2, 197 px | 3, 255 px |
+| 130 | 2, 197 px | 2, 197 px |
 | 145 | 2, 220 px | 3, 284 px |
 | 160 | 2, 243 px | 3, 313 px |
 | 180 | 2, 273 px | 3, 352 px |
@@ -65,7 +65,10 @@ The header at narrow widths. Each page's own narrow layout at large text is its 
 
 **Not fixed here, for the lead to file** (`atelier new` refuses on an item branch):
 
-1. The window allows 800 x 500 (`host.rs` `min_inner_size`), but DESIGN.md's minimum is 1100 x 700. At 800 x 500 and 160 percent and up, the frame's fixed parts are taller than the window: header 352, route strip 65, page tabs 79 and status bar 58 add up to 554 px. The status bar then covers the page tabs (`header-wrap-800x500-180-after.png`). Either raise `min_inner_size` to match the design, or design a frame for that size.
+1. The window allows 800 x 500 (`host.rs` `min_inner_size`), but DESIGN.md's minimum is 1100 x 700. At 800 x 500 the Materials page keeps 157 px at 130 percent, 54 at 145 and 8 at 160. At 180 percent the frame's fixed parts are taller than the window: header 352, route strip 65, page tabs 79 and status bar 58 add up to 554 px. The status bar then covers the page tabs (`header-wrap-800x500-180-after.png`). Either raise `min_inner_size` to match the design, or design a frame for that size.
 2. At 800 x 500 and 180 percent with Finish setup showing, the name row takes a second line, because the wordmark, Find or plot at its minimum, Finish setup and Help need 896 px. Nothing is clipped and nothing scrolls sideways, but the header grows by one more line. Item 1 decides whether this matters.
 3. In the same 800 px capture, the status bar cuts off its cargo figure ("Cargo 120 | 256" runs off the edge). That is the status bar's narrow layout, not the header's.
 
+### Responses
+
+1-8w81.1: fixed in 6903db57 (800 px at 130 percent is 2 lines and 197 px; the status bar covers the page tabs only at 180 percent; DESIGN.md and the Report now give the page height at 130, 145 and 160)
