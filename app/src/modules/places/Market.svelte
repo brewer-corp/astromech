@@ -9,11 +9,12 @@
   // what it measured against beside the commodity ("200 t of Painite aboard", "136 t free").
   import type { ShipStatus } from "../../lib/api/types/ShipStatus";
   import { buyAgainst, sellAgainst } from "../../lib/demand";
-  import { marketRoute, parseMarketRoute, rememberAnswer, showing, type Finder, type MarketWant } from "../../lib/places";
+  import { marketRoute, parseMarketRoute, rememberAnswer, type Finder, type MarketWant } from "../../lib/places";
   import type { Filters, Origin, Results } from "../../lib/search";
   import { commodities, DEFAULT_DISTANCE_LY, DEFAULT_MAX_AGE_DAYS, toResults, tradeAnywhere, tradeSearch, type Side } from "../../lib/trade";
   import Choice from "../../lib/ui/Choice.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
+  import { followAddress } from "../../lib/finderAddress.svelte";
   import FinderPage from "./FinderPage.svelte";
   import MainInput from "./MainInput.svelte";
 
@@ -34,25 +35,8 @@
   const against = $derived(ship === undefined ? null : side === "sell" ? sellAgainst(ship, want.symbol, name) : buyAgainst(ship));
   const items = commodities.map((c) => ({ label: c.name, detail: c.category, keywords: c.aliases?.join(" ") }));
 
-  /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => showing(side);
-
-  $effect(() => {
-    // Only a different search replaces `want`: a new object re-runs it, and the address
-    // already naming this one (opening the page from a link) must not ask Ardent twice.
-    const onHash = () => {
-      const next = read();
-      if (here() && marketRoute(next) !== marketRoute(want)) want = next;
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  });
-
   // The address always names the commodity and range, so back and the tile reopen them.
-  $effect(() => {
-    const to = `#/${marketRoute(want)}`;
-    if (here() && location.hash !== to) history.replaceState(null, "", to);
-  });
+  followAddress(side, { read, route: marketRoute, get: () => want, set: (q) => (want = q) });
 
   function go(w: MarketWant) {
     want = w;

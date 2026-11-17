@@ -4,10 +4,11 @@
   // input is the ship; #/places/shipyard/<ship> picks it (Find or plot links there), so
   // back and reload keep it.
   import { SHIPS, parseShipRoute, shipRoute } from "../../lib/outfitting";
-  import { rememberAnswer, showing, type Finder } from "../../lib/places";
+  import { rememberAnswer, type Finder } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import { stations, toResults } from "../../lib/stations";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
+  import { followAddress } from "../../lib/finderAddress.svelte";
   import FinderPage from "./FinderPage.svelte";
   import MainInput from "./MainInput.svelte";
 
@@ -17,22 +18,8 @@
   let ship = $state(parseShipRoute(location.hash) ?? DEFAULT);
   const items = SHIPS.map((s) => ({ label: s.name }));
 
-  /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => showing("shipyard");
-
-  $effect(() => {
-    const onHash = () => {
-      if (here()) ship = parseShipRoute(location.hash) ?? DEFAULT;
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  });
-
   // The address always names the ship, so back and the tile reopen it.
-  $effect(() => {
-    const want = `#/${shipRoute(ship)}`;
-    if (here() && location.hash !== want) history.replaceState(null, "", want);
-  });
+  followAddress("shipyard", { read: () => parseShipRoute(location.hash) ?? DEFAULT, route: shipRoute, get: () => ship, set: (q) => (ship = q) });
 
   // A new function per ship, so the kit searches again when it changes.
   const run = $derived.by(() => {

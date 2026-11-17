@@ -4,11 +4,12 @@
   // [?class=&rating=&mount=] picks the module (Find or plot links there), so back and
   // reload keep it.
   import { CATEGORIES, MODULES, choices, moduleRoute, parseModuleRoute, settle } from "../../lib/outfitting";
-  import { rememberAnswer, showing, type Finder } from "../../lib/places";
+  import { rememberAnswer, type Finder } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import { stations, toResults, type ModuleWant, type Mount } from "../../lib/stations";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
   import Choice, { type ChoiceOpt } from "../../lib/ui/Choice.svelte";
+  import { followAddress } from "../../lib/finderAddress.svelte";
   import FinderPage from "./FinderPage.svelte";
   import MainInput from "./MainInput.svelte";
 
@@ -19,22 +20,8 @@
   const opts = $derived(choices(want));
   const items = MODULES.map((m) => ({ label: m.name, detail: CATEGORIES.find((c) => c.id === m.category)?.title }));
 
-  /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => showing("outfitting");
-
-  $effect(() => {
-    const onHash = () => {
-      if (here()) want = parseModuleRoute(location.hash) ?? DEFAULT;
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  });
-
   // The address always names the module, so back and the tile reopen it.
-  $effect(() => {
-    const to = `#/${moduleRoute(want)}`;
-    if (here() && location.hash !== to) history.replaceState(null, "", to);
-  });
+  followAddress("outfitting", { read: () => parseModuleRoute(location.hash) ?? DEFAULT, route: moduleRoute, get: () => want, set: (q) => (want = q) });
 
   function pick(next: Partial<ModuleWant>) {
     want = settle({ ...want, ...next });

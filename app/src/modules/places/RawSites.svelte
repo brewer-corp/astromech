@@ -4,11 +4,12 @@
   // distance, arrival distance and data age. The main input is the kind;
   // #/places/raw-sites/<kind> keeps it on back and reload. Each kind keeps the filters it was
   // remembered under on Materials (`sites.<kind>`), which its voice query uses too.
-  import { parseSiteRoute, rememberAnswer, showing, siteRoute, type Finder } from "../../lib/places";
+  import { parseSiteRoute, rememberAnswer, siteRoute, type Finder } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import { SITE_KINDS, siteKind, siteResults, sites } from "../../lib/sites";
   import Dropdown from "../../lib/ui/Dropdown.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
+  import { followAddress } from "../../lib/finderAddress.svelte";
   import FinderPage from "./FinderPage.svelte";
 
   let { finder }: { finder: Finder } = $props();
@@ -17,22 +18,8 @@
   let kind = $state(parseSiteRoute(location.hash) ?? DEFAULT);
   const current = $derived(siteKind(kind));
 
-  /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => showing("raw-sites");
-
-  $effect(() => {
-    const onHash = () => {
-      if (here()) kind = parseSiteRoute(location.hash) ?? DEFAULT;
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  });
-
   // The address always names the kind, so back and the tile reopen it.
-  $effect(() => {
-    const want = `#/${siteRoute(kind)}`;
-    if (here() && location.hash !== want) history.replaceState(null, "", want);
-  });
+  followAddress("raw-sites", { read: () => parseSiteRoute(location.hash) ?? DEFAULT, route: siteRoute, get: () => kind, set: (q) => (kind = q) });
 
   // A new function per kind, so the kit searches again when it changes.
   const run = $derived.by(() => {
