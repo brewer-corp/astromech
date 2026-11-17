@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-m6gw
 title: Engineering > Engineers as the unlock tree
-status: approved
+status: in_review
 mission: astromech-xajc
 labels:
 - size-l
@@ -108,3 +108,4 @@ Besides those, orange appears only in the marks DESIGN.md allows: the grade hexa
 
 **Follow-up to file** (`atelier new` refuses on an item branch, so it needs filing from `main`): the browser preview's `?core=empty` (`app/src/preview/shell.ts`, `engineering_unlocks`) sets every engineer to locked. The core gives the common-knowledge engineers as known (new Rust test `with_no_progress_the_common_knowledge_engineers_are_known_and_the_rest_not_introduced`), so the preview's empty state shows the wrong picture. It should come from a dumped empty-world fixture.
 
+**After round 1's approval:** `main` had moved (Ships, Suits, Powerplay and Now landed), and `atelier merge` refused on two conflicts, so I merged `main` in (`3f40dcf0`). `app/eslint.config.js`: both sides added `PAGE_SIZING` entries, and I kept all of them. In `TOKENS_EXEMPT`, `main` had already removed the engineering and suits entries and this branch removed unlocks, so all three are gone. `previewstates.browser.test.ts`: `main`'s new Suits case, and this branch's Engineers pattern. On the merged code: the engineering and API crates' tests, the bindings check and the fixture drift test pass; `pnpm check` and `pnpm lint` are clean; `pnpm test` passes 847 tests in 95 files.
