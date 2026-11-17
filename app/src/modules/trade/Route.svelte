@@ -45,8 +45,9 @@
   /** The ship's cargo, credits and range could not be read: the fields start empty and the hop at the default. */
   let defaultsErr = $state<string | null>(null);
   let res = $state<RouteSearch | null>(null);
-  /** The pad the answer was asked for (the filters' pad: the ship's unless the commander set one),
-   * as the core's `warning` measures it; kept with the answer, since the filters change on edit. */
+  /** The pad the answer was measured against (the ship flown at the search, unless the commander
+   * set a pad), as the core's `warning` measures it; kept with the answer, since the filters and
+   * the ship change after it. */
   let need = $state<Pad | null>(null);
   let err = $state<string | null>(null);
   let busy = $state(false);
@@ -76,13 +77,17 @@
     filters = st.filters;
   }
 
-  /** The pad label follows the ship the search ran with, not the ship the filters loaded with. */
-  async function followShip() {
+  /** The pad label follows the ship the search ran with, not the ship the filters loaded with.
+   * Resolves the pad the search measured against, as the core resolves it (the current ship's
+   * unless the commander set one), or undefined when it could not be read. */
+  async function followShip(): Promise<Pad | null | undefined> {
     try {
       const f = await store.load(LOOKUP);
       if (!f.pad_set) shipPad = f.pad;
+      return f.pad;
     } catch {
       // the label keeps what it shows; the search does not depend on this
+      return undefined;
     }
   }
 
@@ -95,14 +100,15 @@
     const n = ++asked;
     busy = true;
     err = null;
-    void followShip();
+    const flown = followShip();
     try {
-      const ask_pad = filters.pad;
+      const asked_pad = filters.pad;
       const ask = { kind, station: start, capacity: Math.floor(capacity), credits: Math.floor(cash), max_hop_ly: hop };
       const r = await tradeRoute(ask, origin, filters);
+      const p = await flown;
       if (n === asked) {
         res = r;
-        need = ask_pad;
+        need = p === undefined ? asked_pad : p;
       }
     } catch (e) {
       if (n === asked) {
@@ -235,10 +241,10 @@
   .query :global(.origin) { margin: 0; min-width: 0; }
   .form-grid { display: flex; flex-direction: column; gap: var(--sp-3); }
   .pick { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
-  .lbl { min-width: 4.5rem; }
+  .lbl { min-width: calc(5.5 * var(--fs-s)); } /* OriginInput's label column: 5.5em at Label size */
   .pick :global(.box) { flex: 1; }
   .fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); min-width: 0; }
-  label { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); align-items: center; gap: var(--sp-2); min-width: 0; }
+  label { display: grid; grid-template-columns: calc(5.5 * var(--fs-s)) minmax(0, 1fr); align-items: center; gap: var(--sp-2); min-width: 0; }
   .tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--sp-3) var(--sp-4); }
   .tools :global(.search-filters) { flex: 1 1 auto; }
   .tools :global(.go) { margin-left: auto; }

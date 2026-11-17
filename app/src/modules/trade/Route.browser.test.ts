@@ -112,6 +112,17 @@ describe("Trade route", () => {
     expect(screen.getByRole("img", { name: "Small pad: too small for your ship" })).toBeTruthy();
   });
 
+  it("measures a stop's pad against the ship flown at the search, not the one the page loaded with", async () => {
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    route.mockResolvedValueOnce({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "M" } }] } });
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    shipPad = "L"; // swapped to an Anaconda after the page loaded
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    expect(await screen.findByRole("img", { name: "Medium pad: too small for your ship" })).toBeTruthy();
+  });
+
   it("can't search without a hold or credits", async () => {
     defaults.mockResolvedValue({ capacity: null, credits: null, range: null, station: null, system: null });
     render(Route);
