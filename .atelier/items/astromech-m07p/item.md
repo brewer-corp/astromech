@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-m07p
 title: Colonisation as progress per commodity
-status: changes_requested
+status: in_review
 mission: astromech-xajc
 labels:
 - size-m
@@ -134,3 +134,8 @@ journeys (7 of 7) pass. The journeys ran against a core built incrementally from
 The worktree had no `target/`, so I built `astromech-core` into the main checkout's target dir
 and pointed `ASTROMECH_CORE` at it.
 
+
+### Responses
+
+1-aj8y.1: fixed in cb35a7d9: `needsOf` asks for nothing once a project is complete or has failed, so the page shows "Nothing left to deliver." and mounts no search; covered at the lowest layer that failed, `colonisation.test.ts` ("asks for nothing once a project has failed").
+1-aj8y.2: fixed in cb35a7d9: a row's name falls back to the shopping line's symbol, else the resource's journal name normalised as the core's `commodity_id` does; covered in `colonisation.test.ts` ("names a commodity by its market symbol").
