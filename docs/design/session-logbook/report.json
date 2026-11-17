@@ -1,5 +1,5 @@
 {
- "commit": "a0f8ffe4",
+ "commit": "63ed7b70",
  "captures": {
   "session-1100x700": {
    "url": "http://localhost:5391/?core=ready&route=exact&textsize=100#/session",
@@ -50,7 +50,7 @@
      "weight": 13,
      "texts": [
       "Session",
-      "7,221,500",
+      "7,300,500",
       "0",
       "0.0",
       "Organic data",
@@ -59,8 +59,8 @@
       "Combat bonds",
       "Search and rescue",
       "Odyssey goods",
-      "Other vouchers",
       "Trade",
+      "Other vouchers",
       "Heavy Lifter"
      ]
     },
@@ -88,7 +88,7 @@
      "weight": 2,
      "texts": [
       "Arietis Sector LD-H a11-1",
-      "14,483,231"
+      "14,641,671"
      ]
     },
     {
@@ -102,12 +102,12 @@
       "Maia",
       "5,000,000",
       "2,000,000",
-      "100,000",
-      "60,000",
+      "150,000",
+      "80,000",
       "40,000",
       "15,000",
+      "10,500",
       "5,000",
-      "1,500",
       "Waiting for Elite"
      ]
     },
@@ -271,7 +271,7 @@
      "weight": 13,
      "texts": [
       "Session",
-      "7,221,500",
+      "7,300,500",
       "0",
       "0.0",
       "Organic data",
@@ -280,8 +280,8 @@
       "Combat bonds",
       "Search and rescue",
       "Odyssey goods",
-      "Other vouchers",
       "Trade",
+      "Other vouchers",
       "Heavy Lifter"
      ]
     },
@@ -327,7 +327,7 @@
      "sidebar": false,
      "weight": 1,
      "texts": [
-      "14,483,231"
+      "14,641,671"
      ]
     }
    ],
@@ -450,7 +450,7 @@
      "weight": 13,
      "texts": [
       "Session",
-      "7,221,500",
+      "7,300,500",
       "0",
       "0.0",
       "Organic data",
@@ -459,8 +459,8 @@
       "Combat bonds",
       "Search and rescue",
       "Odyssey goods",
-      "Other vouchers",
       "Trade",
+      "Other vouchers",
       "Heavy Lifter"
      ]
     },
@@ -506,7 +506,7 @@
      "sidebar": false,
      "weight": 1,
      "texts": [
-      "14,483,231"
+      "14,641,671"
      ]
     }
    ],

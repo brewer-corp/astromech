@@ -171,7 +171,7 @@
   .places { display: flex; flex-direction: column; gap: var(--sp-3); }
   .places li { display: flex; flex-direction: column; gap: var(--gap); }
   /* The Aligned Columns Rule: the time, the place, the jump's distance, down each day. */
-  .visits { display: grid; grid-template-columns: max-content max-content max-content; gap: var(--sp-2) var(--sp-4); }
+  .visits { display: grid; grid-template-columns: max-content minmax(0, max-content) max-content; gap: var(--sp-2) var(--sp-4); }
   .visits li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; }
   .visits li > :last-child { justify-self: end; }
 </style>
