@@ -1,15 +1,17 @@
 <script lang="ts">
-  // The Route page's title is the plotter (astromech-ok29's Design): "Khepri to [destination]",
-  // the destination editable in place (Spansh suggests systems as you type); the plot setup's
-  // Plotter and Worked out dropdowns (PlotSetup, shared with the header's plot panel); one
-  // primary action, Replot from here for the route followed or Plot route to a new destination;
-  // a line when the ship's range differs from the range the route was plotted at; then the
-  // galaxy-map help behind ? and Import, Open on Spansh and Clear route in the ⋯ menu.
-  // A failed plot is DESIGN.md's hard error, with TRY AGAIN.
+  // The route sidebar's title is the plotter (astromech-ok29's Design, at 320 px as the nav spike
+  // drew it): "Khepri to [destination]", the destination editable in place (Spansh suggests
+  // systems as you type); the plot setup's Plotter and Worked out dropdowns without their labels
+  // (PlotSetup, shared with the header's plot panel; Tips name them), the galaxy-map help behind
+  // ? and Import, Open on Spansh and Clear route in the ⋯ menu; then where the route is and its
+  // one action, as text since the page beside it has its own primary: Replot from here for the
+  // route followed or Plot route to a new destination; and a line when the ship's range differs
+  // from the range the route was plotted at. A failed plot is DESIGN.md's hard error, with TRY AGAIN.
   import { openUrl } from "../../lib/core";
   import { spanshSystem } from "../../lib/links";
   import { setup } from "../../lib/plot.svelte";
   import { clearRoute, replacedNote, type FollowNote, type Plotted, type RouteView } from "../../lib/route";
+  import type { Snippet } from "svelte";
   import { enterChoice, systemNames } from "../../lib/search";
   import Button from "../../lib/ui/Button.svelte";
   import Failure from "../../lib/ui/Failure.svelte";
@@ -25,12 +27,15 @@
     view,
     onview,
     run,
+    where,
   }: {
     view: RouteView | null;
     /** A route this title followed (a plot, an import). */
     onview: (v: RouteView) => void;
-    /** Run a route action the page reports (Clear route), as the page's own actions are. */
+    /** Run a route action the sidebar reports (Clear route), as its own actions are. */
     run: (f: () => Promise<RouteView>) => Promise<void>;
+    /** Where the route is ("3 of 6 · 11 jumps left"), on the line with the action. */
+    where?: Snippet;
   } = $props();
 
   const HELP =
@@ -62,7 +67,7 @@
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   $effect(() => setup.follow());
-  // The page shows what the route followed was plotted with, and the header's panel follows.
+  // The sidebar shows what the route followed was plotted with, and the header's panel follows.
   $effect(() => setup.adopt(plot));
   // A new route: the box shows where it goes, unless the commander is typing a new one.
   $effect(() => {
@@ -165,8 +170,8 @@
 </script>
 
 <div class="title">
-  {#if route && !plot}<p class="type-label">Following {route.name}</p>{/if}
-  <h1 class="type-title">
+  {#if route && !plot}<p class="type-label following">Following {route.name}</p>{/if}
+  <p class="type-name plan">
     <span class="from">{here ?? "Your system"}</span>
     <span class="to">to</span>
     <span class="dest">
@@ -191,19 +196,21 @@
         </Suggestions>
       {/if}
     </span>
-  </h1>
+  </p>
 
-  <div class="controls">
-    <PlotSetup />
-    <Button kind="primary" disabled={!ready} onclick={() => void go()}>{mine ? "Plotting…" : again ? "Replot from here" : "Plot route"}</Button>
-    {#if ranges && !mine}
-      <span class="range">Your range is <b class="type-figures">{ranges.now.toFixed(2)}</b> ly now; this route was plotted at {ranges.then.toFixed(2)}.</span>
-    {/if}
-    <span class="end">
-      <IconButton icon="help" label="How to use the route in the galaxy map" tip={HELP} />
-      <Menu label="More route actions" items={menu} />
-    </span>
+  <div class="tools">
+    <PlotSetup bare />
+    <IconButton icon="help" label="How to use the route in the galaxy map" tip={HELP} />
+    <Menu label="More route actions" items={menu} />
   </div>
+
+  <div class="sum">
+    <span class="type-label">{@render where?.()}</span>
+    <Button disabled={!ready} onclick={() => void go()}>{mine ? "Plotting…" : again ? "Replot from here" : "Plot route"}</Button>
+  </div>
+  {#if ranges && !mine}
+    <p class="type-label range">Your range is <b class="type-figures">{ranges.now.toFixed(2)}</b> ly now; this route was plotted at {ranges.then.toFixed(2)}.</p>
+  {/if}
 
   {#if mine}
     <p class="type-label">{setup.worker === "local" ? "Plotting on this PC." : "Asking Spansh. A route can take a minute."}</p>
@@ -231,20 +238,21 @@
 {/if}
 
 <style>
-  .title { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .title { display: flex; flex-direction: column; gap: var(--sp-2); }
   p { margin: 0; }
-  h1 { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-3); margin: 0; }
+  /* The plan wraps in the sidebar's 264 px of text: "Sol to" on one line, a long destination under it. */
+  .plan { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--sp-2); color: var(--text-hi); font-weight: 500; }
   .to { color: var(--label-grey); font-weight: 400; }
-  .dest { position: relative; display: inline-flex; min-width: 0; }
+  .dest { position: relative; display: inline-flex; min-width: 0; max-width: 100%; }
   /* The destination is the title's own text until it is pointed at: then it is a cell. */
-  input { all: unset; box-sizing: border-box; field-sizing: content; min-width: 10ch; height: calc(var(--row) + var(--sp-1)); padding: 0 var(--sp-2); margin-left: calc(-1 * var(--sp-2)); color: var(--text-hi); border-bottom: 1px dashed var(--orange-mid); }
+  input { all: unset; box-sizing: border-box; field-sizing: content; min-width: 10ch; max-width: 100%; height: var(--row); padding: 0 var(--sp-2); margin-left: calc(-1 * var(--sp-2)); color: var(--text-hi); border-bottom: 1px dashed var(--orange-mid); }
   input::placeholder { color: var(--placeholder); opacity: 1; }
   input:hover { background: var(--cell); border-bottom-color: transparent; }
   input:focus { background: var(--cell); border-bottom-color: var(--accent); }
   .dest :global(.hits) { font-weight: 500; }
-  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-1); }
-  .controls > :global(.primary) { margin-left: var(--sp-1); }
-  .range { margin-left: var(--sp-3); }
+  .tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1); }
+  .tools > :global(.ibtn:first-of-type) { margin-left: var(--sp-1); }
+  .sum { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 var(--sp-2); }
+  .sum > :global(.btn) { margin-right: calc(-1 * var(--sp-2)); }
   .range b { color: var(--options-grey); }
-  .end { display: inline-flex; align-items: center; margin-left: var(--sp-3); }
 </style>

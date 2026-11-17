@@ -1,5 +1,5 @@
 <script lang="ts">
-  // The plot setup as two dropdowns, on the Route page's title and in the header's plot panel,
+  // The plot setup as two dropdowns, on the route sidebar's title and in the header's plot panel,
   // over the one shared setup (lib/plot.svelte.ts), so both always agree. Plotter: Neutron or
   // Exact, with Exact's refuelling under it. Worked out: On this PC or By Spansh for a neutron
   // route, with the neutron star file's status, download and check under the options, and
@@ -7,12 +7,13 @@
   import { setup, type Engine } from "../../lib/plot.svelte";
   import type { Plotter } from "../../lib/route";
   import Input from "../../lib/ui/Input.svelte";
+  import { tip } from "../../lib/ui/tip";
   import Picker from "../../lib/ui/Picker.svelte";
   import NeutronFile from "./NeutronFile.svelte";
 
   /** In a container that scrolls (the header's plot panel): the dropdowns stack and open in the
    * flow, so nothing they hold is clipped. */
-  let { inline = false }: { inline?: boolean } = $props();
+  let { inline = false, bare = false }: { inline?: boolean; /** No labels on the cells (the route sidebar): Tips name them. */ bare?: boolean } = $props();
 
   const plotters = [
     { value: "neutron" as Plotter, label: "Neutron", hint: "Stops at neutron stars to boost from" },
@@ -25,7 +26,7 @@
 </script>
 
 <span class="setup" class:inline>
-  <Picker label="Plotter" value={setup.plotter} options={plotters} {inline} onchange={(v) => (setup.plotter = v)}>
+  <Picker label="Plotter" value={setup.plotter} options={plotters} {inline} {bare} onchange={(v) => (setup.plotter = v)}>
     {#snippet extra()}
       {#if setup.plotter === "exact"}
         <label class="check"><input type="checkbox" bind:checked={setup.refuel} /> Refuel at every scoopable star</label>
@@ -35,7 +36,7 @@
     {/snippet}
   </Picker>
   {#if setup.plotter === "neutron"}
-    <Picker label="Worked out" value={setup.worker} options={engines} {inline} onchange={(v) => (setup.engine = v)}>
+    <Picker label="Worked out" value={setup.worker} options={engines} {inline} {bare} onchange={(v) => (setup.engine = v)}>
       {#snippet extra()}
         <NeutronFile />
         {#if setup.worker === "spansh"}
@@ -44,7 +45,7 @@
       {/snippet}
     </Picker>
   {:else}
-    <span class="fact"><span class="type-label">Worked out</span> By Spansh</span>
+    <span class="fact" {@attach tip(bare ? "Worked out by Spansh: an exact route always is" : null)}>{#if !bare}<span class="type-label">Worked out</span> {/if}By Spansh</span>
   {/if}
 </span>
 

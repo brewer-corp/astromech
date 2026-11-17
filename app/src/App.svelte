@@ -1,7 +1,10 @@
 <script lang="ts">
   // The window frame (docs/V1-DESIGN.md §2.2, §4; DESIGN.md Frame): title, plain text tabs for
-  // the areas, one orange rule, the route strip, the area's pages as sub-tabs, the page, and the
-  // status bar (the ship and the core's one-line state). Opens on My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
+  // the areas and one orange rule across the window; under it the route sidebar on the left (or
+  // the no-route rail), and the page column: the route strip where the sidebar is collapsed or the
+  // window is below the dock width, the area's pages as sub-tabs, and the page; then the status
+  // bar (the ship and the core's one-line state). There is no Route page: whatever opened it
+  // (#/route, the palette, the tray) shows the sidebar where the commander is and keeps the page. Opens on My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
   // at #/setup or #/setup/<step>. The header's Find or plot box (PlotBar) finds a page, finder,
   // material, module or ship, or plots to a system, from any page; Ctrl+K puts the cursor in it.
   import { tip } from "./lib/ui/tip";
@@ -16,7 +19,11 @@
   import { openHelp } from "./lib/help";
   import PlotBar from "./modules/route/PlotBar.svelte";
   import Strip from "./modules/route/Strip.svelte";
-  import { startScale } from "./lib/scale.svelte";
+  import Sidebar from "./modules/route/Sidebar.svelte";
+  import Rail from "./modules/route/Rail.svelte";
+  import { provideFollow } from "./modules/route/follow.svelte";
+  import { scale, startScale } from "./lib/scale.svelte";
+  import { at100, DOCK } from "./lib/ui/layout/layout";
 
   const DEFAULT = "controller";
   // Pages that were merged into another keep working as links: the route's first part moves,
@@ -27,8 +34,13 @@
     return Object.hasOwn(MOVED, head) ? MOVED[head] + rest : null;
   };
   const resolve = (r: string) => moved(r) ?? (r || DEFAULT);
-  const fromHash = () => resolve(location.hash.replace(/^#\//, ""));
-  const start = fromHash();
+  /** The route sidebar's own address, kept from when it was a page: it opens the sidebar. */
+  const isRoute = (r: string) => /^route(?:[/?]|$)/.test(r);
+  const raw = location.hash.replace(/^#\//, "");
+  /** Opened at #/route (a bookmark, an old link): the default page, with the sidebar shown once
+   * the frame knows whether it is docked. */
+  let showOnStart = $state(isRoute(raw));
+  const start = isRoute(raw) ? DEFAULT : resolve(raw);
   let route = $state(start);
   // A moved link opened from outside (a bookmark) is rewritten in place, as one followed in the
   // window is, so Back doesn't land on the old address.
@@ -37,6 +49,52 @@
   // query ("materials?kind=encoded", lib/hashstate.ts): the module is the first part.
   const current = $derived(findModule(route.split(/[/?]/)[0] ?? "") ?? findModule(DEFAULT));
   const pages = $derived(current ? groupModules(current.group) : []);
+
+  // DESIGN.md Route sidebar: one poll of the route for the strip and the sidebar. Docked at or
+  // above the dock width while a route is followed (or one is paused to resume), unless folded;
+  // the no-route rail there with neither; below the dock width, the strip, whose chevron opens
+  // the sidebar over the page.
+  const follow = provideFollow();
+  $effect(() => follow.start());
+  let width = $state(0);
+  $effect(() => {
+    follow.docked = width > 0 && at100(width, scale.step) >= DOCK;
+  });
+  const any = $derived(!!follow.view?.route || !!follow.view?.parked);
+  const docked = $derived(follow.docked && any && !follow.collapsed);
+  const rail = $derived(follow.docked && !!follow.view && !any);
+  const over = $derived(!follow.docked && follow.overlay);
+  $effect(() => {
+    if (width > 0 && showOnStart) {
+      showOnStart = false;
+      follow.show();
+    }
+  });
+  $effect(() => {
+    if (follow.docked) follow.overlay = false;
+  });
+  let overlay = $state<HTMLElement>();
+  // Open over the page, the sidebar closes on Escape (unless something inside it, a dropdown or
+  // the destination's suggestions, took it first, or a dialog is open) and on a click outside it
+  // (the strip's chevron toggles it itself).
+  $effect(() => {
+    if (!over) return;
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || e.defaultPrevented || (e.target instanceof Element && e.target.closest("dialog"))) return;
+      follow.overlay = false;
+    };
+    const down = (e: PointerEvent) => {
+      const t = e.target instanceof Element ? e.target : null;
+      if (!t || overlay?.contains(t) || t.closest(".fold, dialog, .tip")) return;
+      follow.overlay = false;
+    };
+    window.addEventListener("keydown", key);
+    window.addEventListener("pointerdown", down);
+    return () => {
+      window.removeEventListener("keydown", key);
+      window.removeEventListener("pointerdown", down);
+    };
+  });
   let status = $state<CoreStatus | null>(null);
   let ship = $state<ShipStatus | null>(null);
   const setup = $derived(status?.setup_needed ?? []);
@@ -63,7 +121,11 @@
     const h = header;
     void showSetup; // the Finish setup button comes and goes: observe the parts there are now
     if (!h || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => (stacked = oneRow(h) > h.clientWidth));
+    const inner = () => {
+      const cs = getComputedStyle(h);
+      return h.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    };
+    const ro = new ResizeObserver(() => (stacked = oneRow(h) > inner()));
     ro.observe(h);
     for (const p of h.children) ro.observe(p);
     return () => ro.disconnect();
@@ -71,6 +133,7 @@
   const onboarding = $derived(route === "setup" || route.startsWith("setup/") || status?.onboarded === false);
 
   function go(id: string) {
+    if (isRoute(id)) return follow.show();
     route = resolve(id);
     location.hash = `#/${route}`;
   }
@@ -80,6 +143,11 @@
     // (this listener is added before any page's).
     const hash = () => {
       const raw = location.hash.replace(/^#\//, "");
+      if (isRoute(raw)) {
+        // The page stays: the address goes back to it.
+        history.replaceState(null, "", `#/${route}`);
+        return follow.show();
+      }
       const to = moved(raw);
       if (to) history.replaceState(null, "", `#/${to}`);
       route = to ?? resolve(raw);
@@ -89,7 +157,11 @@
   });
 
   const groupTitle = (id: string) => groups.find((g) => g.id === id)?.title ?? id;
-  const paletteItems = () => collect(modules, groupTitle);
+  /** Every page, and the route, which opens the sidebar. */
+  const paletteItems = async () => [
+    ...(await collect(modules, groupTitle)),
+    { label: "Route", detail: "The route sidebar", route: "route", keywords: "route followed waypoints next stop timeline import" },
+  ];
 
   async function finishSetup() {
     status = await coreStatus();
@@ -118,7 +190,7 @@
 {#if onboarding}
   <Onboarding start={route.split("/")[1]} onfinish={finishSetup} />
 {:else}
-<div class="frame">
+<div class="frame" bind:clientWidth={width}>
   <header bind:this={header} class:stacked>
     <span class="app">ASTROMECH</span>
     <nav>
@@ -137,36 +209,63 @@
       <button class="help" onclick={() => void openHelp(current.help)} {@attach tip("Open this page's guide in your browser")}>Help</button>
     {/if}
   </header>
-  <Strip />
-  {#if pages.length > 1}
-    <nav class="sub">
-      {#each pages as m (m.id)}
-        <button class:on={m.id === current?.id} onclick={() => go(m.id)} {@attach tip(m.summary)}>{m.title}</button>
-      {/each}
-    </nav>
-  {/if}
-  <main>
-    {#if current}
-      {#await current.load() then view}
-        <view.default />
-      {/await}
+  <div class="body">
+    {#if docked}
+      <div class="dock"><Sidebar onfold={() => (follow.collapsed = true)} /></div>
+    {:else if rail}
+      <Rail />
     {/if}
-  </main>
-  <StatusBar {status} {ship} />
+    <div class="col">
+      {#if !docked && !rail}<Strip />{/if}
+      {#if pages.length > 1}
+        <nav class="sub">
+          {#each pages as m (m.id)}
+            <button class:on={m.id === current?.id} onclick={() => go(m.id)} {@attach tip(m.summary)}>{m.title}</button>
+          {/each}
+        </nav>
+      {/if}
+      <main>
+        {#if current}
+          {#await current.load() then view}
+            <view.default />
+          {/await}
+        {/if}
+      </main>
+      {#if over}
+        <div class="scrim"></div>
+        <div class="over" bind:this={overlay}><Sidebar over onfold={() => (follow.overlay = false)} /></div>
+      {/if}
+    </div>
+  </div>
+  <StatusBar {status} {ship} seam={docked ? "var(--sidebar)" : rail ? "var(--rail)" : "0px"} />
   <Toasts {status} />
 </div>
 {/if}
 
 <style>
-  /* DESIGN.md Frame: the fixed parts, then the page, which takes the rest and scrolls. The frame is
-     the container a page's narrow-window rules ask (`@container win`, in rem): a container query's
-     rem is the root font size, so a breakpoint moves with Text size, where a media query's rem
-     is the browser's default. */
-  .frame { container: win / inline-size; height: 100vh; display: flex; flex-direction: column; }
+  /* DESIGN.md Frame: the fixed parts, then the body: the route sidebar or rail, and the page
+     column, which takes the rest. The page column is the container a page's narrow-window rules
+     ask (`@container win`, in rem), so they measure the page beside the sidebar: a container
+     query's rem is the root font size, so a breakpoint moves with Text size, where a media
+     query's rem is the browser's default. The header measures the window itself. */
+  .frame { height: 100vh; display: flex; flex-direction: column; }
   .frame > :global(*) { flex: none; }
-  .frame > main { flex: 1 1 0; }
+  .frame > .body { flex: 1 1 0; display: flex; min-height: 0; }
+  .body > :global(*) { flex: none; }
+  /* DESIGN.md Route sidebar: 320 px of Hull from the header's rule to the status bar, with a Seam
+     rule on its right, the page's edge. */
+  .dock { width: var(--sidebar); min-height: 0; border-right: 1px solid var(--line); }
+  .col { container: win / inline-size; position: relative; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+  .col > :global(*) { flex: none; }
+  .col > main { flex: 1 1 0; }
+  /* Below the dock width, the sidebar over the page, under the strip: a 1 px orange line on its
+     open edge and the page dimmed behind it (The Dimmed Page Rule). */
+  .scrim, .over { position: absolute; top: var(--strip); bottom: 0; z-index: 30; }
+  .scrim { left: 0; right: 0; background: var(--scrim); }
+  .over { left: 0; width: var(--sidebar); border-right: 1px solid var(--accent); }
   /* DESIGN.md Frame: a 64 px row with the 1 px orange rule under it; stacked, the tabs add 44 px. */
-  header { box-sizing: border-box; display: flex; align-items: center; gap: clamp(1rem, 2.5vw, 2.5rem); height: 4rem; margin: 0 var(--side); border-bottom: 1px solid var(--accent); }
+  /* The rule runs the full width of the window, over the route sidebar (The Full-Width Header Rule). */
+  header { box-sizing: border-box; display: flex; align-items: center; gap: clamp(1rem, 2.5vw, 2.5rem); height: 4rem; padding: 0 var(--side); border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
   nav { display: flex; gap: var(--sp-1); flex: 1; flex-wrap: wrap; }
   header nav { flex-wrap: nowrap; align-items: center; }

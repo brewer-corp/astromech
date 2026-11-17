@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import Plot from "./Plot.svelte";
-import View from "./View.svelte";
+import View from "./Sidebar.svelte";
 import { answer, idle, previewAnswer, sent, startPreview, watch } from "../../test/transport";
 
 // The Route page's title is the plotter: from where the commander is (the preview's commander is

@@ -2,7 +2,7 @@ import type { ModuleManifest } from "../../lib/modules";
 
 const manifest: ModuleManifest = {
   id: "places",
-  group: "galaxy",
+  group: "places",
   title: "Places",
   summary: "Finders for where to sell or buy a commodity or sell the hold, and the nearest service, module, ship, material trader, raw site, faction state or mining hotspot",
   help: "places.md",

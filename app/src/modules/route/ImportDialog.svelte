@@ -1,6 +1,7 @@
 <script lang="ts">
-  // Import a route, from the Route page's ⋯ menu: a pasted Spansh CSV export (neutron, road to
-  // riches, carrier…) or one system name per line, parsed by the core, and an optional name.
+  // Import a route, from the route sidebar's ⋯ menu, the no-route rail or the route strip: a
+  // pasted Spansh CSV export (neutron, road to riches, carrier…) or one system name per line,
+  // parsed by the core, and an optional name.
   // Follow this route follows it and closes the dialog; a failure stays in the dialog as
   // DESIGN.md's hard error, with the text kept.
   import { importRoute, type RouteView } from "../../lib/route";

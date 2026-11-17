@@ -2,7 +2,7 @@
   // Plot a route to `to` from the current system for the current ship and follow it, in the
   // header's Find or plot panel (PlotBar, docs/PLOTTING.md): neutron (boosts from neutron stars;
   // its stops are the neutron stars) or exact (every jump, with refuel stops). The setup is the
-  // one the Route page's title shows (lib/plot.svelte.ts, PlotSetup). The range and drive come
+  // one the route sidebar's title shows (lib/plot.svelte.ts, PlotSetup). The range and drive come
   // from the ship's latest Loadout. A neutron route is worked out on this PC in seconds when the
   // neutron star file is downloaded, else by Spansh; an exact route always by Spansh, as a job
   // that can take a minute.
@@ -13,6 +13,7 @@
   import FollowNoteLine from "../../lib/ui/FollowNote.svelte";
   import PlotSetup from "./PlotSetup.svelte";
   import { plotWhere, plotSummary } from "./plotText";
+  import { useFollow } from "./follow.svelte";
 
   let { to, onfollow }: { to: string; onfollow?: (v: RouteView) => void } = $props();
 
@@ -58,6 +59,8 @@
       mine = false;
     }
   }
+
+  const { follow } = useFollow();
 </script>
 
 <div class="plot">
@@ -76,11 +79,11 @@
   {#if mine}
     <p class="busy">{setup.worker === "local" ? "Plotting on this PC." : "Asking Spansh. A route can take a minute."}</p>
   {:else if setup.busy}
-    <p class="busy">A route is being plotted on the Route page.</p>
+    <p class="busy">A route is being plotted in the route sidebar.</p>
   {:else if err}
     <Failure text={err} onaction={() => void go()} />
   {:else if done}
-    <p class="ok">Following {done.name}: {plotSummary(done)}. {plotWhere(done)} <a href="#/route">Show the route</a></p>
+    <p class="ok">Following {done.name}: {plotSummary(done)}. {plotWhere(done)} <button class="link" onclick={() => follow.show()}>Show the route</button></p>
     {#if done.fallback}<p class="lo">The neutron star file can't be read, so Spansh plotted this route: {done.fallback}</p>{/if}
   {/if}
   <FollowNoteLine bind:note onresume={() => (done = null)} />
@@ -90,8 +93,9 @@
   .plot { display: flex; flex-direction: column; gap: 0.25rem; }
   h4 { margin: 0 0 0.5rem; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); line-height: 1.2; overflow-wrap: anywhere; }
   h4 .lo { display: block; font-size: var(--fs-s); color: var(--label-grey); }
-  a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
-  a:hover { color: var(--orange-lit); }
+  .link { all: unset; cursor: pointer; color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
+  .link:hover { color: var(--orange-lit); }
+  .link:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   p { margin: 0; font-size: var(--fs-s); }
   .kinds { margin: 0 0 0.5rem; }
   .plot > :global(.go) { align-self: flex-start; margin: 0.375rem 0 0.25rem; }

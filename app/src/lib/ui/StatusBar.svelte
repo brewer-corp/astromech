@@ -9,7 +9,9 @@
   import { headerState, type CoreStatus, type ShipStatus } from "../core";
   import { loadFleet } from "../engineering";
 
-  let { status, ship }: { status: CoreStatus | null; ship: ShipStatus | null } = $props();
+  /** `seam`: where the 1 px Seam rule along the top starts. The route sidebar (or the no-route
+   * rail) runs into the bar with no rule between them, so the rule starts at its edge. */
+  let { status, ship, seam = "0px" }: { status: CoreStatus | null; ship: ShipStatus | null; seam?: string } = $props();
 
   let fleet = $state<Fleet | null>(null);
   let reading = false;
@@ -47,7 +49,7 @@
   const cargo = $derived(ship?.cargo != null ? tonnes(ship.cargo) : null);
 </script>
 
-<footer class="bar">
+<footer class="bar" style:--seam={seam}>
   {#if current}
     <span class="ship">{current.name ?? current.type_name}</span>
     {#if current.name}<span class="type">{current.type_name}</span>{/if}
@@ -66,7 +68,7 @@
 
 <style>
   /* DESIGN.md Status bar: a 32 px band with a 1 px Seam rule over it, one line. */
-  .bar { box-sizing: border-box; display: flex; align-items: center; gap: var(--sp-6); height: var(--status-bar); padding: 0 var(--side); border-top: 1px solid var(--line); white-space: nowrap; overflow: hidden; font-size: var(--fs-s); }
+  .bar { box-sizing: border-box; display: flex; align-items: center; gap: var(--sp-6); height: var(--status-bar); padding: 0 var(--side); background: linear-gradient(var(--line), var(--line)) right top / calc(100% - var(--seam, 0px)) 1px no-repeat, var(--surface); white-space: nowrap; overflow: hidden; font-size: var(--fs-s); }
   .ship { color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; min-width: 3em; margin-right: calc(var(--sp-3) - var(--sp-6)); }
   .type, .label, .unit, .sep { color: var(--label-grey); }
   .stat { display: flex; align-items: baseline; gap: var(--sp-2); flex: none; color: var(--prose); }
