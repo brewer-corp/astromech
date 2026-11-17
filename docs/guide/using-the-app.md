@@ -28,7 +28,8 @@ left with Find or plot and Import a route.
 
 The header holds the **Find or plot** box too (below). In a window too narrow for everything on
 one line (about 1600 pixels wide at 100 percent Text size, wider with Finish setup), the area tabs move to a row of
-their own under the name.
+their own under the name. At a large Text size they need more than one such row in a narrow
+window, and wrap onto the next.
 
 It opens on [Now](now.md): what you are doing at the moment. **Finish setup** appears in the header while voice is missing
 something; it opens the health check.

@@ -561,7 +561,7 @@ are read; colour that means nothing is what made every page loud.
 | The next stop in the route | Orange Lit name; its note (Fuel) in Orange | where to go now, and what to do there | raised, and "Next stop" above it |
 | Security of an inhabited stop | low Orange Mid; anarchy Red Low; others Prose Grey | how risky the stop is | the word ("Low security", "Anarchy") |
 | An engineer's state | unlocked: name Options Grey, rank hexagons White. Known: name Orange Mid, the step to unlock in Prose Grey. Barred: name and reason Red Low. Not introduced: Grey Dim | can you use them, work toward them, or not | the hexagons, or the step or reason in words |
-| Engineer rank and blueprint grade | reached rank White; a grade the commander can get Orange; a planned grade not reached Orange Mid; unreached Mark Off | how far you are, and what you can get | the count of lit hexagons, and the accessible name ("Rank 3 of 5") |
+| Engineer rank and blueprint grade | reached (a rank held, a grade fitted, the grade a held rank gets today) the full mark White; what a plan adds the full mark Orange; a grade an engineer offers that is neither, the ring alone without its centre, Label Grey; unreached the full mark Mark Off. *Why:* Orange beside Orange Mid read as one lit row at 16 px, so a plan looked done (astromech-59n6); now reached and planned differ by White against Orange, and offered and unreached differ by shape as well as colour ([before](docs/design/hex-states/before-loadout-1100x700.png), [after](docs/design/hex-states/after-loadout-1100x700.png)) | how far you are, how far the plan takes you, and what an engineer could give you | the count of lit hexagons, and the accessible name ("Grade 3 of 5, grade 5 planned") |
 | A short amount (need more than have) | "!" and the have figure in Orange | collect this | the "!" |
 | A colonisation delivery: aboard and not yet delivered | Orange Mid, as a part of the commodity's meter after the delivered part | on its way to the site, not yet counted | the "aboard" figure in words ("90 t aboard") |
 | A material at its storage cap | the tile's track Orange Lit | trade or use some before you collect more | the full track |
@@ -732,7 +732,7 @@ the calmer colours in [tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-256
 
 | Part | Size | Notes |
 |---|---|---|
-| Header | 64 px high, or 64 + 44 px | wordmark, top tabs, Find or plot, Help, on Void. Its 1 px orange rule runs the full width of the window, over the sidebar ([The Full-Width Header Rule](#named-rules-2)). Below the width where one row fits, the top tabs sit on a 44 px second row under the wordmark. With the ten tabs (NOW joined in astromech-coq6), one row fits from 99.75 rem of window width, measured at every Text size step: 1596 px at 100 percent, 1834 at 115, 2074 at 130, 2313 at 145, 2554 at 160 and 2872 at 180 (nine tabs fitted from 95.5 rem). So 1920 x 1080 and 2560 x 1440 at their starting steps show one row, and 1100 x 700 shows two ([header-stacked-1590.png](docs/design/nav-spike/header-stacked-1590.png) shows ten tabs on the second row in a 1590 px window). Finish setup, while setup is unfinished, adds its own width |
+| Header | 64 px high, or 64 + 44 px a tab row | wordmark, top tabs, Find or plot, Help, on Void. Its 1 px orange rule runs the full width of the window, over the sidebar ([The Full-Width Header Rule](#named-rules-2)). Below the width where one row fits, the top tabs sit on a 44 px second row under the wordmark. With the ten tabs (NOW joined in astromech-coq6), one row fits from 99.75 rem of window width, measured at every Text size step: 1596 px at 100 percent, 1834 at 115, 2074 at 130, 2313 at 145, 2554 at 160 and 2872 at 180 (nine tabs fitted from 95.5 rem). So 1920 x 1080 and 2560 x 1440 at their starting steps show one row, and 1100 x 700 shows two ([header-stacked-1590.png](docs/design/nav-spike/header-stacked-1590.png) shows ten tabs on the second row in a 1590 px window). Where the tabs do not fit their row either, they wrap onto further 44 px rows, all ten always shown, and the page never scrolls sideways; see Narrow window below the table. Finish setup, while setup is unfinished, adds its own width |
 | Route sidebar | 320 px wide, header rule to status bar | while a route is followed and the window is at or above the dock width; see [Route sidebar](#route-sidebar) |
 | Route strip | 36 px high | across the page column when the sidebar is collapsed, or below the dock width; see [Route strip](#route-strip) |
 | No-route rail | 48 px wide | with no route, at or above the dock width: two actions, Find or plot and Import a route |
@@ -741,7 +741,9 @@ the calmer colours in [tone5-sell-2560.png](docs/design/nav-spike/tone5-sell-256
 | Status bar | 32 px | on every page, Hull: the ship, its fuel and cargo, and the core's state |
 
 Side margins 16 to 40 px (3 % of the window's width); minimum window 1100 × 700 at 100
-percent Text size. Every size here is CSS px at 100 percent and in rem in `tokens.css` ([The
+percent Text size. The window enforces it: it cannot be made smaller
+(`app/src-tauri/src/window_size.rs`). Only a display whose work area leaves less room than
+1100 x 700 gets a smaller window, at the room it has, and there the page scrolls. Every size here is CSS px at 100 percent and in rem in `tokens.css` ([The
 Text Size Rule](#named-rules-1)), so the widths at which the frame changes (the header's
 second row, the dock width) are widths in rem and come sooner at a larger step.
 
@@ -751,6 +753,35 @@ or its No route state, is always there), page tabs 44 and status bar 32 take 220
 leaves exactly 480 (measured 12 Nov 2026). A fixed part that would take more moves the status
 bar onto the route strip's row at that size instead of shrinking the page. At a larger Text
 size the page gets less, and scrolls.
+
+**Narrow window.** Stacked, the top tabs are one row that wraps: each line is 44 px at 100
+percent, and as many lines as the ten tabs need. The name, Find or plot and Help keep their 64 px
+row above them; Find or plot gives way down to 180 px before that row breaks. Every size grows with
+the Text size, so the header is (64 + 44 x lines) x step. Measured on the Materials page in the
+test Chromium, a fresh window at each step once its fonts had loaded (astromech-z4vm, 17 Nov
+2026); with or without a route, the strip is the same height:
+
+| Text size | 1100 px window: tab lines, header | 800 px window: tab lines, header |
+|---|---|---|
+| 100 | 1, 108 px | 2, 152 px |
+| 115 | 2, 175 px | 2, 175 px |
+| 130 | 2, 197 px | 2, 197 px |
+| 145 | 2, 220 px | 3, 284 px |
+| 160 | 2, 243 px | 3, 313 px |
+| 180 | 2, 273 px | 3, 352 px |
+
+At 1100 x 700 that leaves the page 318 px at 145 percent (382 px on a page with no page tabs, such
+as Places) and 226 px at 180 percent (305 px without page tabs), under the route strip; the page
+scrolls ([header-wrap-1100x700-145-after.png](docs/design/header-wrap-1100x700-145-after.png),
+[header-wrap-1100x700-180-after.png](docs/design/header-wrap-1100x700-180-after.png)). Below the
+minimum, which only a display too small for it gets, at 800 x 500 the Materials page keeps
+157 px at 130 percent, 54 at 145 and 8 at 160; at 180 percent the frame's fixed parts are taller than the window and the status bar
+covers the page tabs
+([header-wrap-800x500-180-after.png](docs/design/header-wrap-800x500-180-after.png)); with Finish
+setup showing at 180 percent, Finish setup and Help take a second line of the name row.
+*Why:* wrapping keeps every area one click away, where a More menu would hide some behind a
+second click; the extra lines are the same tab level, so this is still two tab rows (The Two Tab
+Rows Rule).
 
 **Top tabs.** NOW, SHIPS, ENGINEERING, PLACES, TRADE, EXPLORATION, POWERPLAY, LOGBOOK, CONTROLS,
 SETTINGS, in that order. NOW holds Now, Station, Session and Mining: the live views, what is
@@ -824,7 +855,7 @@ column is too narrow for a side panel (the 1100 x 700 minimum, or a larger Text 
 layout moves the panel below the content. It never shrinks text to make it fit. The layouts
 measure the page column, not the window, so the sidebar's width is already taken out.
 
-Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps; a Board's answer
+Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps, and a card that holds lines of its own (Biology's body cards) two columns and the gap wide, 408–488 px (`Tiles wide`); a Board's answer
 blocks (`Blocks`, Now's) four across where four fit, else two, else one, never three over one,
 32 px apart; control row 34 px;
 result row 60 px, two lines in groups ([Lookup result row](#lookup-result-row)); material tile
@@ -844,7 +875,8 @@ the commander picks from the top few, and the list scrolls.
 ### Named Rules
 
 **The Two Tab Rows Rule.** Top tabs plus one row of page tabs, never more. A third level
-becomes a choice, a section or a finder of its own. *Why:* the audit found up to four
+becomes a choice, a section or a finder of its own. The rule counts levels: top tabs that wrap
+onto a further line in a narrow window are still one row (Narrow window, under [Frame](#frame)). *Why:* the audit found up to four
 stacked tab rows; the game never stacks more than two either.
 
 **The Aligned Columns Rule.** Repeated facts line up down a list, in fixed-width groups under a
@@ -999,7 +1031,9 @@ never by a cell, a fill or a coloured side border.
   tile's bar, kept thin so the number stays the main value.
 - **Hexagons:** a rank or grade is a row of engineer hexagons, one per step, the reached ones
   lit, coloured by [the list](#colours-that-carry-a-meaning); 12 to 14 px in a row, its words
-  ("Rank 3 of 5") as its accessible name. One shared component draws them (astromech-7did).
+  ("Rank 3 of 5") as its accessible name. An offered grade is the mark's ring alone
+  (`app/public/engineers/access-ring.svg`). One shared component, `Hexes.svelte`, draws every
+  state (astromech-7did); a page passes the counts (`n`, `plan` or `offers`), never colours.
 - **Demand bars:** three bars rising left to right, 14 × 12 px, the lit ones in the demand's
   colour and the rest Mark Off, before the figure they qualify.
 
@@ -1068,7 +1102,7 @@ Fill Per Page Rule](#named-rules)).
 - **Page tabs:** Name type, mixed case, Label Grey; active Options Grey with a 2 px orange
   underline. *Why:* one step down from the top row, so the two levels never look alike, and
   only one tab fill per view.
-- Maximum two rows (The Two Tab Rows Rule).
+- Maximum two levels (The Two Tab Rows Rule); top tabs may wrap onto further lines in a narrow window.
 
 ### Tip
 
@@ -1407,7 +1441,7 @@ Each place we depart from Elite's UI, what we do instead, and why.
 - **Don't** put text the commander needs in order to act in Orange Dim or Grey Dim.
 - **Don't** select a row or tile by default; a selection shows only with its side panel or
   keyboard focus.
-- **Don't** stack more than two tab rows.
+- **Don't** stack more than two levels of tabs.
 - **Don't** give a result row a column per field.
 - **Don't** put repeated words like ADD STOP on every row, or hide row actions until hover.
 - **Don't** make the ranked value the smallest text in a row.

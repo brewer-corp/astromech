@@ -1,0 +1,20 @@
+{
+ "out": "docs/design/biology",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 1920, "h": 1080, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 }
+ ],
+ "shots": [
+  { "name": "sampling", "hash": "exobiology", "steps": [{ "waitText": "Stratum Tectonicas" }] },
+  {
+   "name": "loading", "hash": "exobiology", "query": "core=ready&route=exact&slow=never:exobiology",
+   "sizes": ["1100x700", "1920x1080"], "steps": [{ "waitText": "Reading the journal" }]
+  },
+  {
+   "name": "failed", "hash": "exobiology", "query": "core=ready&route=exact&fail=exobiology",
+   "sizes": ["1100x700", "1920x1080"], "steps": [{ "waitText": "Biology follows the game" }]
+  }
+ ]
+}

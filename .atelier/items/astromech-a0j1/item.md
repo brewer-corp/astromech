@@ -30,8 +30,9 @@ The capture and measure tool finishes every run. `scripts/browser/audit.mjs` (fr
 
 - [ ] A run with a plan in a scratch folder outside the repository finishes and stamps the commit of the script's own repository.
 - [ ] The "Navigating frame was detached" stop is reproduced and its cause named in the Report, then fixed at the cause. If it cannot be reproduced in ten full runs, the Report says so and what was tried, and the tool reports which capture it stopped on and why instead of a bare Puppeteer error.
+- [ ] Every committed capture plan runs to its report on main. `docs/design/ship-loadout/plan.json`'s `no-fleet` shot times out today (astromech-59n6's reviewer, 19 Nov 2026): an empty fleet now opens on onboarding and the plan's header clicks cannot get past it. The plan reaches the empty Ships page another way, and the Report lists each plan run.
 - [ ] No retry is added to hide a failed navigation.
 
 ## Scope
 
-`scripts/browser/audit.mjs` only.
+`scripts/browser/audit.mjs` and the capture plans under `docs/design/`.

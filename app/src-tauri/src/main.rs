@@ -17,6 +17,8 @@
 mod host;
 #[cfg(feature = "window")]
 mod tray;
+#[cfg(any(feature = "window", test))]
+mod window_size;
 
 #[cfg(feature = "window")]
 fn main() {

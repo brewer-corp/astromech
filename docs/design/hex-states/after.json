@@ -1,0 +1,14 @@
+{
+ "out": "docs/design/hex-states",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 }
+ ],
+ "shots": [
+  { "name": "after-loadout", "hash": "engineering/7", "steps": [{ "click": "button.row[aria-label^='Frame shift drive']" }, { "waitSel": "aside[aria-label=Details]" }, { "scrollTop": "section[aria-label=Core]" }] },
+  { "name": "after-suits", "hash": "suits", "steps": [{ "waitSel": "[role=table][aria-label='Shopping list']" }] },
+  { "name": "after-engineers", "hash": "unlocks", "steps": [{ "click": ".node[aria-label='Felicity Farseer']" }, { "waitSel": "aside[aria-label=Details]" }] },
+  { "name": "after-search", "hash": "unlocks?q=fsd", "steps": [{ "waitSel": "[aria-label='Main answer']" }] }
+ ]
+}

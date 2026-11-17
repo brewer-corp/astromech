@@ -96,7 +96,7 @@
     {#each node.works_on as w (w.label)}
       <li>
         <span class="type-name wname">{w.label}{#if w.unsure}&nbsp;<span {@attach tip(UNSURE)}>(?)</span>{/if}</span>
-        {#if ship}<Hexes n={unlocked ? Math.min(rank, w.grade) : 0} to={w.grade} tone="grade" label={unlocked ? `Grade ${Math.min(rank, w.grade)} today, reaches ${w.grade}` : `Reaches grade ${w.grade}`} />{/if}
+        {#if ship}<Hexes n={unlocked ? Math.min(rank, w.grade) : 0} offers={w.grade} label={unlocked ? `Grade ${Math.min(rank, w.grade)} today, reaches ${w.grade}` : `Reaches grade ${w.grade}`} />{/if}
       </li>
     {/each}
   </ul>

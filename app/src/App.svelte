@@ -273,7 +273,7 @@
   .scrim, .over { position: absolute; top: var(--strip); bottom: 0; z-index: 30; }
   .scrim { left: 0; right: 0; background: var(--scrim-route); }
   .over { left: 0; width: var(--sidebar); border-right: 1px solid var(--accent); }
-  /* DESIGN.md Frame: a 64 px row with the 1 px orange rule under it; stacked, the tabs add 44 px. */
+  /* DESIGN.md Frame: a 64 px row with the 1 px orange rule under it; stacked, the tabs add 44 px a row. */
   /* The rule runs the full width of the window, over the route sidebar (The Full-Width Header Rule). */
   header { box-sizing: border-box; display: flex; align-items: center; gap: clamp(var(--sp-4), 2.5vw, var(--gutter)); height: 4rem; padding: 0 var(--side); border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
@@ -295,9 +295,14 @@
   .help { color: var(--accent); font-size: var(--fs-s); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .help:hover { color: var(--orange-lit); }
   main { min-height: 0; overflow: auto; padding: 0 var(--side); scrollbar-gutter: stable; }
-  header.stacked { height: 6.75rem; flex-wrap: wrap; align-content: flex-start; row-gap: 0; }
+  /* Stacked, the tabs take 44 px rows of their own under the name, as many as they need: one row
+     of top tabs that wraps, not a second tab level (DESIGN.md Frame; The Two Tab Rows Rule). */
+  header.stacked { height: auto; flex-wrap: wrap; align-content: flex-start; row-gap: 0; }
   header.stacked .app { display: flex; align-items: center; height: 3.9375rem; margin-right: auto; }
-  header.stacked nav { order: 1; flex-basis: 100%; align-items: center; height: 2.75rem; }
+  /* The name's row breaks at Find or plot's narrowest, not its full 320 px, so Help stays beside it
+     in the narrowest window the app allows; it grows back to 320 px where there is room. */
+  header.stacked > :global(.find) { flex: 1 1 11.25rem; max-width: 20rem; }
+  header.stacked nav { --tab-row: 2.75rem; order: 1; flex-basis: 100%; flex-wrap: wrap; align-items: center; row-gap: calc(var(--tab-row) - var(--row)); padding: calc((var(--tab-row) - var(--row)) / 2) 0; }
   /* The header's gaps scale with the window only (no breakpoint), so the width one row needs grows
      steadily with it: the header stacks once as the window narrows and stays stacked below that. */
   @container win (max-width: 68.75rem) {
