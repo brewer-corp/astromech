@@ -92,10 +92,9 @@ describe("Tip", () => {
     if (offMark) offMark();
     host.remove();
   });
-  it("sits beside its target and inside the window under the window's zoom", async () => {
+  it("sits beside its target and inside the window at the largest Text size", async () => {
     const root = document.documentElement;
-    root.style.zoom = "1.44";
-    root.style.setProperty("--zoom", "1.44");
+    root.style.fontSize = "180%";
     const host = document.createElement("div");
     host.innerHTML = `<button style="position:fixed;top:4px;right:4px">Help</button><span style="position:fixed;top:300px;left:200px">12.4</span>`;
     document.body.append(host);
@@ -108,7 +107,7 @@ describe("Tip", () => {
         const b = shown()[0]!.getBoundingClientRect();
         expect(b.left).toBeGreaterThanOrEqual(0);
         expect(b.right).toBeLessThanOrEqual(window.innerWidth);
-        // The gap is 8 px at the window's scale: within a few px of its edge.
+        // The gap is 0.5rem, 14.4 px at 180 percent: within a few px of its edge.
         const gap = side === "below" ? b.top - t.bottom : t.top - b.bottom;
         expect(gap).toBeGreaterThan(0);
         expect(gap).toBeLessThan(20);
@@ -119,8 +118,7 @@ describe("Tip", () => {
     } finally {
       for (const off of offs) if (off) off();
       host.remove();
-      root.style.zoom = "";
-      root.style.removeProperty("--zoom");
+      root.style.fontSize = "";
     }
   });
 });

@@ -96,8 +96,8 @@
     go(DEFAULT);
   }
 
-  // DESIGN.md The Height Scale Rule: the window grows with its height, onboarding included.
-  $effect(() => startScale());
+  // DESIGN.md The Text Size Rule: the saved Text size, onboarding included.
+  $effect(() => void startScale());
 
   $effect(() => {
     onRoute((r) => go(r));

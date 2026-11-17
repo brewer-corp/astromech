@@ -31,7 +31,8 @@
   let picked = $state<MapControl | null>(null);
   let unknown = $state<Press | null>(null);
   let asking = $state<Press | null>(null);
-  let w = $state(1600);
+  // The sheet fills its column, up to 1180 px at 100 percent Text size (73.75rem).
+  let w = $state(1180);
   /** "all" or an activity id. */
   const ACTIVITY_KEY = "astromech.activity";
   let actId = $state(previewOption("activity") ?? localStorage.getItem(ACTIVITY_KEY) ?? "all");
@@ -143,10 +144,8 @@
   const yours = $derived(Object.keys(ov[m.device_id] ?? {}).length);
 </script>
 
-<svelte:window bind:innerWidth={w} />
-
 <div class="cols">
-  <section>
+  <section bind:clientWidth={w}>
     <div class="top">
       <!-- The stick is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). -->
       <Choice label="Stick" options={maps.map((x) => ({ value: x.device_id, label: `${x.title} · ${x.device_id}` }))} value={m.device_id} onchange={(v) => { dev = v; picked = null; selId = null; }} />
@@ -154,7 +153,7 @@
     </div>
     <Choice class="acts" label="Activity" value={act?.id ?? "all"} options={[{ value: "all", label: "All" }, ...acts.map((a) => ({ value: a.id, label: a.title }))]} onchange={choose} />
     {#if asking}<p class="ask">Which control did you just press ({keyName(asking.key)})? Click it on the sheet.</p>{/if}
-    <Sheet image={m.image} controls={controls} {cells} width={Math.min(1180, w / scale.zoom - 80 - 360 - 28)} dimOthers={!!act} onpick={(c) => void pick(c)} />
+    <Sheet image={m.image} controls={controls} {cells} width={Math.min(1180 * scale.step / 100, w)} dimOthers={!!act} onpick={(c) => void pick(c)} />
     <p class="credit">
       {connected ? "Connected" : "Not connected"} · button numbers from VKB's factory profile{yours ? `, ${yours} set by you` : ""} · sheet © VKB Gaming, design by UntoldForce
     </p>

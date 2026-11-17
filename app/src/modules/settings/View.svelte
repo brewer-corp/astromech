@@ -13,7 +13,7 @@
   import Callouts from "./Callouts.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
   import { pollFailure } from "../../lib/ui/errors";
-  import { scale, setTextSize, type TextSize } from "../../lib/scale.svelte";
+  import { scale, setTextSize, STEPS } from "../../lib/scale.svelte";
 
   let status = $state<CoreStatus | null>(null);
   let note = $state("");
@@ -23,13 +23,9 @@
   let voiceNote = $state("");
   let sizeNote = $state("");
 
-  const SIZES: { value: TextSize; label: string }[] = [
-    { value: "smaller", label: "Smaller" },
-    { value: "normal", label: "Normal" },
-    { value: "larger", label: "Larger" },
-  ];
-  async function chooseSize(size: TextSize) {
-    sizeNote = (await setTextSize(size)) ?? "";
+  const SIZES = STEPS.map((s) => ({ value: String(s), label: `${s}%` }));
+  async function chooseSize(size: string) {
+    sizeNote = (await setTextSize(Number(size))) ?? "";
   }
 
   async function loadVoice() {
@@ -128,10 +124,10 @@
     <dl>
       <dt class="type-name">Text size</dt>
       <dd class="bare">
-        <Choice label="Text size" value={scale.size} options={SIZES} onchange={(v) => void chooseSize(v)} />
+        <Choice label="Text size" value={String(scale.step)} options={SIZES} onchange={(v) => void chooseSize(v)} />
       </dd>
     </dl>
-    <p class="hint type-label" class:warn-text={!!sizeNote}>{sizeNote || "The window already grows with its height, as the game's text does; this makes all of it smaller or larger."}</p>
+    <p class="hint type-label" class:warn-text={!!sizeNote}>{sizeNote || "The size of all text in the window. A bigger window shows more; it doesn't make the text bigger."}</p>
 
     <h3 class="section">Startup</h3>
     <dl>

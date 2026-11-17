@@ -15,8 +15,8 @@ export type TipContent = string | { title: string; fact?: string; note?: string 
 /** What `tip` takes: the content, or nothing for no tip (a condition that is off). */
 export type TipArg = string | { title: string; fact?: string; note?: string; stop?: false } | null | undefined;
 
-const GAP = 8; // between the target and the pointer's tip
-const EDGE = 8; // the closest the tip comes to the window's edge
+const GAP = 0.5; // rem, between the target and the pointer's tip
+const EDGE = 0.5; // rem, the closest the tip comes to the window's edge
 
 let box: HTMLDivElement | null = null;
 let texts: HTMLDivElement | null = null;
@@ -67,26 +67,24 @@ function fill(el: HTMLElement, content: TipContent) {
 const said = (c: TipContent) => (typeof c === "string" ? c : [c.title, c.fact, c.note].filter(Boolean).join(". "));
 
 /** Above the target with the pointer at its middle; below when the top edge is too close; kept
- * inside the window. The window draws under a root CSS zoom (lib/scale.svelte.ts), which the tip
- * inherits: it is measured in the screen's px, like the target, and its position is written back
- * in its own px. */
+ * inside the window. The gaps are in rem, so they grow with Text size like the tip itself. */
 function place(el: HTMLElement, target: Element) {
-  const z = (el as HTMLElement & { currentCSSZoom?: number }).currentCSSZoom || 1;
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   el.style.left = "0px";
   el.style.top = "0px";
   const t = target.getBoundingClientRect();
   const { width: w, height: h } = el.getBoundingClientRect();
-  const gap = GAP * z;
-  const edge = EDGE * z;
+  const gap = GAP * rem;
+  const edge = EDGE * rem;
   const vw = window.innerWidth;
   const below = t.top - gap - h < edge;
   const left = Math.max(edge, Math.min(t.left + t.width / 2 - w / 2, vw - edge - w));
   const top = below ? t.bottom + gap : t.top - gap - h;
   const x = Math.max(gap, Math.min(t.left + t.width / 2 - left, w - gap));
   el.classList.toggle("below", below);
-  el.style.left = `${left / z}px`;
-  el.style.top = `${top / z}px`;
-  el.style.setProperty("--tip-x", `${x / z}px`);
+  el.style.left = `${left}px`;
+  el.style.top = `${top}px`;
+  el.style.setProperty("--tip-x", `${x}px`);
 }
 
 function show(target: Element, content: TipContent) {

@@ -90,8 +90,9 @@ interface State {
   gates: Record<string, number>;
   run: number | null;
   voice: { speaker: string; speed: number; colour: Colour };
-  /** `[window] text_size`. */
-  textSize: TextSize;
+  /** `[window] text_size`: null until chosen. `?textsize=` sets it at start (`145`, `none` or an
+   * old word such as `normal`); otherwise 100. */
+  textSize: TextSize | null;
   previews: string[];
   /** Prospector thresholds by ore (null: off), as the core's `prospector_thresholds` lists. */
   prospector: Record<string, number | null>;
@@ -197,6 +198,15 @@ export function fakeScenario(): Scenario | null {
   return s === "empty" || s === "new" || s === "ready" ? s : null;
 }
 
+/** The core's `TEXT_SIZE_STEPS`. */
+const STEPS = [100, 115, 130, 145, 160, 180];
+
+function startTextSize(q: string | null): TextSize | null {
+  if (q === "none") return null;
+  if (q === "smaller" || q === "normal" || q === "larger") return q;
+  return q ? Number(q) : 100;
+}
+
 function fresh(scenario: Scenario): State {
   const hw = scenario !== "empty";
   const done = scenario === "ready";
@@ -214,7 +224,7 @@ function fresh(scenario: Scenario): State {
     gates: done ? { [MICS[0] ?? ""]: -51 } : {},
     run: null,
     voice: { speaker: "bf_emma", speed: 1, colour: "cockpit" },
-    textSize: "normal",
+    textSize: startTextSize(previewQuery().get("textsize")),
     previews: [],
     prospector: { ...PROSPECTOR_DEFAULTS },
     callouts: {},
@@ -694,7 +704,7 @@ export const coreHandlers: CoreHandlers = {
   },
   window_settings: (st) => ({ ok: true, text_size: st.textSize }),
   set_window: (st, args) => {
-    if (!["smaller", "normal", "larger"].includes(args.text_size)) return { ok: false, error: "text_size is smaller, normal or larger" };
+    if (!STEPS.includes(args.text_size)) return { ok: false, error: `text_size is one of ${STEPS.join(", ")}` };
     st.textSize = args.text_size;
     return applies();
   },

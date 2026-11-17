@@ -13,6 +13,7 @@
   // system goes on the clipboard for the galaxy map. Inside a ListDetail (a Places finder) a
   // row can be selected, and the side panel shows all of its facts with the same two actions.
   import { ago } from "../galaxy";
+  import { scale } from "../scale.svelte";
   import { changeFilters, openFilters, type FilterStore } from "../filterstate";
   import { addedNote, addStop, failedNote, followedNote, followRoute, type FollowNote, type Waypoint } from "../route";
   import {
@@ -235,10 +236,11 @@
     return () => ro.disconnect();
   });
   /**
-   * The narrowest the full row fits in. Text columns share what the place leaves (the place
+   * The narrowest the full row fits in, in px: the columns' px at 100 percent Text size, scaled
+   * to the step. Text columns share what the place leaves (the place
    * first) and give way to nothing; below this, the facts go.
    */
-  const fits = $derived(112 + 240 + 64 + columns.reduce((n, c) => n + (c.width ?? 0), 0) + 12 * (columns.length + 2));
+  const fits = $derived(((112 + 240 + 64 + columns.reduce((n, c) => n + (c.width ?? 0), 0) + 12 * (columns.length + 2)) * scale.step) / 100);
   /**
    * Too narrow for the facts (a side panel): the ranked value, the place and the actions only,
    * by The Aligned Columns Rule (a fact that would wrap goes).
@@ -246,8 +248,8 @@
   const compact = $derived(width > 0 && width < fits);
   const template = $derived(
     compact
-      ? "max-content minmax(0, 1fr) 64px"
-      : ["112px", "minmax(240px, 400px)", ...columns.map((c) => (c.text && !c.width ? "minmax(0, 240px)" : `${c.width ?? 0}px`)), "64px"].join(" "),
+      ? "max-content minmax(0, 1fr) 4rem"
+      : ["7rem", "minmax(15rem, 25rem)", ...columns.map((c) => (c.text && !c.width ? "minmax(0, 15rem)" : `${(c.width ?? 0) / 16}rem`)), "4rem"].join(" "),
   );
   const shown = $derived(compact ? [] : columns);
   const PLACE_HEADS = { station: "Station", body: "Body", ring: "Ring", system: "System" } as const;

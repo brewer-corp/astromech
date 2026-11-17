@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/svelte";
 import View from "./View.svelte";
 import App from "../../App.svelte";
 import { fakePreviews, type Scenario } from "../../preview/fakecore";
-import { previewAnswer, startPreview } from "../../test/transport";
+import { idle, previewAnswer, startPreview, watch } from "../../test/transport";
 
 function on(scenario: Scenario, hash = "") {
   startPreview(`/?core=${scenario}${hash}`);
@@ -80,17 +80,51 @@ describe("Settings → Voice responses", () => {
 });
 
 describe("Settings → General → Window, Text size", () => {
-  it("scales the window at once and saves the size", async () => {
+  const root = document.documentElement;
+  // The display, a boundary: the step a first run picks comes from its height.
+  function display(width: number, height: number) {
+    vi.spyOn(window.screen, "width", "get").mockReturnValue(width);
+    vi.spyOn(window.screen, "height", "get").mockReturnValue(height);
+  }
+
+  it("sets the root size at once and saves the step", async () => {
     on("ready", "#/settings");
     render(App);
-    const root = document.documentElement;
-    // The tests' 1200 x 800 window is under the height scale's 1000 px: Normal is 1.
-    await waitFor(() => expect(root.style.zoom).toBe("1"));
-    await fireEvent.click(await screen.findByRole("button", { name: "Larger" }));
-    expect(root.style.zoom).toBe("1.15");
-    expect((await previewAnswer("window_settings")).text_size).toBe("larger");
-    expect(screen.getByRole("button", { name: "Larger" }).getAttribute("aria-pressed")).toBe("true");
-    root.style.zoom = "";
+    await waitFor(() => expect(root.style.fontSize).toBe("100%"));
+    await fireEvent.click(await screen.findByRole("button", { name: "160%" }));
+    expect(root.style.fontSize).toBe("160%");
+    expect((await previewAnswer("window_settings")).text_size).toBe(160);
+    expect(screen.getByRole("button", { name: "160%" }).getAttribute("aria-pressed")).toBe("true");
+    root.style.fontSize = "";
+  });
+
+  it.each([
+    [1920, 1080, 100],
+    [2560, 1440, 145],
+    [3840, 2160, 180],
+  ])("with none saved, picks a step from a %i x %i display, saves it once, and a resize changes nothing", async (w, h, step) => {
+    display(w, h);
+    startPreview("/?core=ready&textsize=none#/settings");
+    const saved = watch("set_window");
+    render(App);
+    await waitFor(() => expect(saved).toHaveBeenCalledWith({ text_size: step }));
+    expect(root.style.fontSize).toBe(`${step}%`);
+    window.dispatchEvent(new Event("resize"));
+    await idle();
+    expect(root.style.fontSize).toBe(`${step}%`);
+    expect(saved).toHaveBeenCalledTimes(1);
+    root.style.fontSize = "";
+    vi.restoreAllMocks();
+  });
+
+  it("turns an old normal on a 1440p display into 145 and saves it", async () => {
+    display(2560, 1440);
+    startPreview("/?core=ready&textsize=normal#/settings");
+    render(App);
+    await waitFor(() => expect(root.style.fontSize).toBe("145%"));
+    expect((await previewAnswer("window_settings")).text_size).toBe(145);
+    root.style.fontSize = "";
+    vi.restoreAllMocks();
   });
 });
 
