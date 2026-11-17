@@ -10,7 +10,7 @@ labels:
 - feature
 priority: medium
 blocked_by:
-- astromech-irtr
+- astromech-8e22
 implementers: []
 ready: null
 trivial: null
@@ -29,7 +29,7 @@ Powerplay shows standing as progress: rank with a meter to the next and merits t
 
 ## Context
 
-Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc). Mockup: docs/design/glow-up-powerplay.png. Preliminary: planned in detail after increment 1 (the foundation and the Route page astromech-ok29) has merged and Sumeet has seen its preview link.
+Colours, selection, result rows, text size and the tabs follow DESIGN.md revision 5 (astromech-n41x); captures are taken at 1100 x 700 at 100 percent and 2560 x 1440 at 145 percent. Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc). Mockup: docs/design/glow-up-powerplay.png. Preliminary: planned in detail after increment 1 (the foundation and the Route page astromech-ok29) has merged and Sumeet has seen its preview link.
 
 ## Unknowns
 

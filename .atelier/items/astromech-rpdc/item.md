@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-rpdc
 title: 'Route strip: clipboard failure as the shared Failure line'
-status: ready
+status: dropped
 mission: null
 labels:
 - size-s
@@ -35,3 +35,7 @@ Deferred finding from the 0k63 review (reviewer-fable-dfvp).
 Relationships of the old record that the new format has no field for.
 
 - discovered_from: astromech-0k63 (Route page: clipboard failure as a red ! line, off the old option cell)
+
+## Report
+
+Dropped: Another item covers it: astromech-uc7i gives the route strip and the sidebar the shared Failure line for a failed clipboard write.

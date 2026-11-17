@@ -10,7 +10,7 @@ labels:
 - feature
 priority: medium
 blocked_by:
-- astromech-irtr
+- astromech-8e22
 implementers: []
 ready: null
 trivial: null
@@ -29,7 +29,7 @@ A session reads as earnings over its length by activity, and the logbook as trav
 
 ## Context
 
-Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc).  Preliminary: planned in detail after increment 1 (the foundation and the Route page astromech-ok29) has merged and Sumeet has seen its preview link.
+Colours, selection, result rows, text size and the tabs follow DESIGN.md revision 5 (astromech-n41x); captures are taken at 1100 x 700 at 100 percent and 2560 x 1440 at 145 percent. Strategy: .atelier/missions/astromech-xajc/ (mission astromech-xajc).  Preliminary: planned in detail after increment 1 (the foundation and the Route page astromech-ok29) has merged and Sumeet has seen its preview link.
 
 ## Unknowns
 

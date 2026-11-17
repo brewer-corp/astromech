@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-rfn8
 title: 'Lookup rows: leave out a text column whose cell is the same on every row'
-status: ready
+status: dropped
 mission: null
 labels:
 - size-s
@@ -35,3 +35,7 @@ Deferred finding astromech-a400 from the jp36 review (reviewer-sonnet-jp36), whi
 Relationships of the old record that the new format has no field for.
 
 - discovered_from: astromech-jp36 (Lookup result row: main value first, aligned columns, DESIGN.md states)
+
+## Report
+
+Dropped: Another item covers it: astromech-3ca6's grouped result row leaves out a text cell that is the same on every row and states it in the summary line.

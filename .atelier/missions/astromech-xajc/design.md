@@ -1,6 +1,6 @@
 ---
 status: draft
-last_changed: "2026-11-10: first version, from the 10 Nov page audit (Sumeet's direction), revised after the first planning reviews"
+last_changed: "2026-11-17: amended from Sumeet's answer at the increment 1 stop: route sidebar, SHIPS tab, engineer search, calmer colours, text size in place of the zoom"
 ---
 
 # Sizing
@@ -55,7 +55,52 @@ first.
 9. Collapsed filters: a finder shows its one-line constraint summary with CHANGE; the controls
    open on demand.
 
+## DESIGN.md amendments (revision 5, 17 Nov 2026)
+
+From Sumeet's answer at the stop, each approved as a mockup on `spike/nav-rework` at
+`dea5f0bb` (captures in `docs/design/nav-spike/`, brought to main by astromech-n41x).
+They replace amendments 1 and 6 above and change 2 and 3.
+
+1. Text size is the commander's choice: sizes in rem, one root size, six steps. The zoom
+   from window height goes. A first run picks the step from the display's height; nothing
+   changes it after that but the commander.
+2. Read-only data is white or grey. Orange is for the value a list is ranked by, the main
+   value, and what the commander can act on. Colour beyond that needs a stated meaning and
+   an entry in DESIGN.md's list (demand against the hold, a pad too small, a stale report,
+   star icons, security, engineer state, hexagons).
+3. A selected row is raised with lit text, not filled orange.
+4. Result rows are two lines in groups, not a column per field.
+5. Where Elite has a symbol players know, use it (the engineer hexagon).
+6. The route is a left sidebar on the frame's surface, joined to the status bar; collapsed
+   or in a narrow window it is the route strip. The Route page goes and GALAXY becomes PLACES.
+7. Top tabs: NOW, SHIPS, ENGINEERING, PLACES, TRADE, EXPLORATION, POWERPLAY, LOGBOOK,
+   CONTROLS, SETTINGS. SHIPS holds Ships, Stored modules and Suits; ENGINEERING holds
+   Materials and Engineers. On foot is not a page.
+
 # Design
+
+**The reworked foundation (increment 2).** In order, because the first three touch every
+component: DESIGN.md revision 5 (astromech-n41x), text size (astromech-b2cz), colours
+(astromech-3kf5). Then in parallel: the lint for raw colours and sizes (astromech-4wi1), the
+route sidebar (astromech-uc7i), the tabs (astromech-5a01) and after them the engineer search
+(astromech-7did), and the grouped result rows (astromech-3ca6). astromech-8e22 closes the
+increment. The spike is reference only: items write fresh against the real components,
+except the hexagon component, which astromech-7did may bring over and rework.
+
+- *What the spike showed.* The sidebar fits at 320 px with the star type carried by its
+  icon. It can dock only where a List with detail page keeps about 1,300 px beside it. Ten
+  top tabs need more header width than eight. Every figure was measured under the old
+  zoom, so astromech-b2cz, astromech-uc7i and astromech-5a01 measure again.
+- *What it did not show.* The engineer search's main answer was wrong in the mockup (it
+  named an engineer the commander's rank cannot yet use at that grade); astromech-7did
+  states the rule. Distances were from Sol. No window command returns grades by module type.
+- *Narrow-window rules.* Ten page files measure the whole frame (`@container win`). The
+  container moves to the page column with the sidebar, and its breakpoints to rem with the
+  text size.
+
+**The screens (increments 3 and 4)** are below as first planned, now blocked on
+astromech-8e22 and built to revision 5. The Now page no longer carries the next route stop,
+which the sidebar shows. Suits (astromech-nnn0) joins them.
 
 **Foundation (increment 1).** Order: DESIGN.md revision 4 (astromech-b2k3) and the scale
 (astromech-k6pl) first; then layouts (astromech-mwh5), then type roles (astromech-z5oh);
@@ -129,11 +174,12 @@ on existing replies unless noted:
 | Page | Item |
 |---|---|
 | Ships | astromech-8wr4 |
-| Stored modules, On foot, Places home, Mining, Data sharing, Diagnostics, Voice tester | astromech-gvy0 |
+| Stored modules, Places home, Mining, Data sharing, Diagnostics, Voice tester | astromech-gvy0 |
+| Suits (new, from On foot) | astromech-5a01 (moved in), astromech-nnn0 (screen) |
 | Materials | astromech-mwh5 (layout), astromech-z5oh (tiles) |
 | Engineers | astromech-m6gw |
 | Places finders | astromech-mwh5, astromech-drnv |
-| Route | astromech-ok29 |
+| Route | astromech-ok29, then the frame's sidebar by astromech-uc7i |
 | Commodities | astromech-mwh5 (layout), astromech-el3i (result) |
 | Colonisation | astromech-m07p |
 | System, Biology | astromech-dpaz, astromech-evj3 |
@@ -162,6 +208,13 @@ Static mockups in `app/src/mockups/glow/`, rendered by `scripts/mockup-shots.sh`
 - Materials with the real type scale: [glow-up-materials.png](../design/glow-up-materials.png)
 - Sell finder with collapsed filters: [glow-up-sell.png](../design/glow-up-sell.png)
 - Route timeline: the 6 Nov mockup, https://claude.ai/artifact/JduR92Bxotyi7hd6Jg8nN7
+- The files above are on the branch `mockups/glow-up` only; astromech-n41x brings the
+  captures to main.
+- Increment 2, on `spike/nav-rework` at `dea5f0bb`, in `docs/design/nav-spike/`: the frame
+  `hier-B-sell-2560.png`, `hier-B-collapsed-2560.png`, `hier-A-over-page-1100.png`,
+  `4-no-route-2560.png`; colours and rows `tone5-sell-2560.png`, `tone5-sell-1100.png`;
+  Engineers `tone5-engineers-laser-2560.png`, `tone5-engineers-rest-2560.png`; Suits
+  `tone5-suits-2560.png`; tabs `5-ships-2560.png`, `7-materials-on-foot-2560.png`.
 
 # Derisking
 
@@ -188,6 +241,11 @@ nothing. If it goes wrong, the Text size setting and the cap are the levers, and
 one root rule to change.
 
 # Risks and Unknowns
+
+- The text size a display starts with is a guess from its height. If it is wrong on
+  Sumeet's monitor he changes it in Settings; astromech-3340 checks it on Windows.
+- The colour change touches every built page at once (astromech-3kf5). It is one revert,
+  and the checkpoint looks at eight pages before any screen builds on it.
 
 - A screen needs data the core doesn't give (body parents are the known case). It becomes a
   core task in that screen's increment; the screen ships after it.
