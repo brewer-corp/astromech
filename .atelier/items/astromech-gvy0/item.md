@@ -27,6 +27,7 @@ Every page outside Controls that gets no new screen still stops sizing itself: S
 - [ ] (provisional) Each page named is on a layout component and the type roles, and the page-sizing check is on for its module. Stored modules groups its rows by where the module is. `settings/Callouts.svelte`, `settings/ProspectorThresholds.svelte` and `route/Plot.svelte` are enrolled or listed exempt (left open by astromech-mwh5 and astromech-ok29).
 - [ ] (provisional) With this merged and the screen items done, both parts of the page-sizing check are on for every file under app/src/modules/ except the Controls modules and the frame's parts in the route module (the files astromech-uc7i lists exempt); this item enrols whatever file is still off the list.
 - [ ] (provisional) Captures at 1100 x 700 and 2560 x 1440 in docs/design/.
+- [ ] (provisional) As the last screen item, it owns the fills-the-window evidence: every page outside Controls captured as finally built at 1100 x 700, 1920 x 1080, 2560 x 1440 and 3840 x 2160 (at the Text size the mission's criterion gives each), measured as astromech-irtr's were, and recorded as the criterion's evidence on the mission. It is blocked on every other screen item when it is made ready.
 
 ## Context
 
