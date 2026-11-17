@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-srab
 title: 'Finder rows: station names line up with or without a type icon, and folded units keep their width'
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - feature
