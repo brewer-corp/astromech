@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-7obs
 title: 'The Sell dock-width test fails on main: the sidebar''s dock width was measured before the grouped rows'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - bug
 - size-s
 priority: high
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3A92a208ce-df1e-4251-9d03-3358e03af3cf
 ready:
   by: the lead of astromech-xajc
   at: 2026-11-17T09:13:15.774735374Z
