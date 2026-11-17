@@ -96,8 +96,12 @@
     go(DEFAULT);
   }
 
-  // DESIGN.md The Text Size Rule: the saved Text size, onboarding included.
-  $effect(() => void startScale());
+  // DESIGN.md The Text Size Rule: the saved Text size, onboarding included. Asked again on each
+  // status poll until the core has answered (it may start after the window).
+  $effect(() => {
+    void status;
+    void startScale();
+  });
 
   $effect(() => {
     onRoute((r) => go(r));

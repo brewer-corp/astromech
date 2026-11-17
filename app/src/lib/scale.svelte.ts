@@ -61,13 +61,29 @@ function settle(saved: TextSize | null): { step: number; save: boolean } {
   return { step: nearestStep(saved), save: false };
 }
 
-/** Draw the window at the saved text size, saving a picked or migrated step first. */
-export async function startScale(): Promise<void> {
-  const r = await coreCall("window_settings");
-  if (!r.ok) return;
-  const { step, save } = settle(r.text_size);
-  apply(step);
-  if (save) await coreCall("set_window", { text_size: step });
+let started: Promise<boolean> | null = null;
+
+/** Draw the window at the saved text size, saving a picked or migrated step first. Once it has
+ * the core's answer this does nothing; until then (the core not up yet) each call asks again. */
+export function startScale(): Promise<boolean> {
+  started ??= (async () => {
+    const r = await coreCall("window_settings");
+    if (!r.ok) {
+      started = null;
+      return false;
+    }
+    const { step, save } = settle(r.text_size);
+    apply(step);
+    if (save) await coreCall("set_window", { text_size: step });
+    return true;
+  })();
+  return started;
+}
+
+/** Forget the start, for a test that starts the window again from a fresh fake core. */
+export function resetScale(): void {
+  started = null;
+  apply(100);
 }
 
 /** Save a step and draw the window at it at once; the error is the core's. */

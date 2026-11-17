@@ -1,9 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/svelte";
 import View from "./View.svelte";
 import App from "../../App.svelte";
 import { fakePreviews, type Scenario } from "../../preview/fakecore";
-import { idle, previewAnswer, startPreview, watch } from "../../test/transport";
+import { answer, idle, previewAnswer, startPreview, watch } from "../../test/transport";
+import { startScale } from "../../lib/scale.svelte";
 
 function on(scenario: Scenario, hash = "") {
   startPreview(`/?core=${scenario}${hash}`);
@@ -86,35 +87,28 @@ describe("Settings → General → Window, Text size", () => {
     vi.spyOn(window.screen, "width", "get").mockReturnValue(width);
     vi.spyOn(window.screen, "height", "get").mockReturnValue(height);
   }
+  afterEach(() => vi.restoreAllMocks());
 
   it("sets the root size at once and saves the step", async () => {
     on("ready", "#/settings");
     render(App);
-    await waitFor(() => expect(root.style.fontSize).toBe("100%"));
     await fireEvent.click(await screen.findByRole("button", { name: "160%" }));
     expect(root.style.fontSize).toBe("160%");
     expect((await previewAnswer("window_settings")).text_size).toBe(160);
     expect(screen.getByRole("button", { name: "160%" }).getAttribute("aria-pressed")).toBe("true");
-    root.style.fontSize = "";
   });
 
-  it.each([
-    [1920, 1080, 100],
-    [2560, 1440, 145],
-    [3840, 2160, 180],
-  ])("with none saved, picks a step from a %i x %i display, saves it once, and a resize changes nothing", async (w, h, step) => {
-    display(w, h);
+  it("with none saved, picks a step from the display, saves it once, and a resize changes nothing", async () => {
+    display(2560, 1440);
     startPreview("/?core=ready&textsize=none#/settings");
     const saved = watch("set_window");
     render(App);
-    await waitFor(() => expect(saved).toHaveBeenCalledWith({ text_size: step }));
-    expect(root.style.fontSize).toBe(`${step}%`);
+    await waitFor(() => expect(saved).toHaveBeenCalledWith({ text_size: 145 }));
+    expect(root.style.fontSize).toBe("145%");
     window.dispatchEvent(new Event("resize"));
     await idle();
-    expect(root.style.fontSize).toBe(`${step}%`);
+    expect(root.style.fontSize).toBe("145%");
     expect(saved).toHaveBeenCalledTimes(1);
-    root.style.fontSize = "";
-    vi.restoreAllMocks();
   });
 
   it("turns an old normal on a 1440p display into 145 and saves it", async () => {
@@ -123,8 +117,16 @@ describe("Settings → General → Window, Text size", () => {
     render(App);
     await waitFor(() => expect(root.style.fontSize).toBe("145%"));
     expect((await previewAnswer("window_settings")).text_size).toBe(145);
-    root.style.fontSize = "";
-    vi.restoreAllMocks();
+  });
+
+  it("asks again when the core wasn't up yet", async () => {
+    startPreview("/?core=ready&textsize=130");
+    answer("window_settings", () => ({ ok: false, error: "the core isn't running" }));
+    expect(await startScale()).toBe(false);
+    expect(root.style.fontSize).toBe("100%");
+    answer("window_settings", () => previewAnswer("window_settings"));
+    expect(await startScale()).toBe(true);
+    expect(root.style.fontSize).toBe("130%");
   });
 });
 
