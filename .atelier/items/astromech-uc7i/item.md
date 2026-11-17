@@ -170,6 +170,16 @@ decides docked or not at that moment, not through a separate effect. The test no
 first `window_settings`, holds the retry made on the next status poll, and answers 115
 percent. That test fails without the fix.
 
+**After approval (round 5): merged `main` (`c86255de`) for astromech-4wi1's token lint.** There were
+two conflicts, both in CSS:
+
+- **`App.svelte`'s header:** it keeps this item's `padding` (the rule spans the window) and takes
+  4wi1's tokens in the gap.
+- **`Timeline.svelte`:** it keeps the sidebar layout and swaps the remaining off-scale sizes for
+  `--gap`. The node padding was 0.1875rem and is now `var(--gap)` (2 px less at 100 percent).
+
+After the merge, lint (with the token rule), typecheck and all 711 tests pass.
+
 ### Responses
 
 4-m383.1: fixed in 4c1b44be
