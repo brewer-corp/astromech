@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-fom5
 title: 'Finders open on their results: range and origin fold into the summary line'
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - feature
