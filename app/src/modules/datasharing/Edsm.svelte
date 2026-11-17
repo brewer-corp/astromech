@@ -75,18 +75,18 @@
   <h3 class="section">EDSM</h3>
   <Stale error={readErr} />
   <dl>
-    <dt>Upload to EDSM</dt>
+    <dt class="type-name">Upload to EDSM</dt>
     <dd class="value">
       <span>{label(st)}</span>
       <Button onclick={toggle} disabled={busy}>{st.enabled ? "Turn off" : "Turn on"}</Button>
     </dd>
-    <dt><label for="edsm-cmdr">Commander name</label></dt>
+    <dt class="type-name"><label for="edsm-cmdr">Commander name</label></dt>
     <dd class="bare">
       <Input class="grow" id="edsm-cmdr" bind:value={commander} placeholder="As registered on EDSM" autocomplete="off" spellcheck="false">
         {#snippet end()}<Button onclick={saveName} disabled={busy || commander.trim() === st?.commander} aria-label="Save commander name">Save</Button>{/snippet}
       </Input>
     </dd>
-    <dt><label for="edsm-key">API key</label></dt>
+    <dt class="type-name"><label for="edsm-key">API key</label></dt>
     <dd class="bare">
       <Input class="grow" id="edsm-key" type="password" bind:value={key} placeholder={st.has_key ? "Saved (enter a new one to replace it)" : "From EDSM: Settings > My API Key"} autocomplete="off">
         {#snippet end()}
@@ -99,27 +99,27 @@
       </Input>
     </dd>
     {#if st.key_error}
-      <dt>Keyring</dt>
+      <dt class="type-name">Keyring</dt>
       <dd class="warn failed" role="alert"><span class="err">{st.key_error}</span></dd>
     {/if}
-    <dt>Waiting to send</dt>
+    <dt class="type-name">Waiting to send</dt>
     <dd><span>{st.pending}</span></dd>
-    <dt>Last sent</dt>
+    <dt class="type-name">Last sent</dt>
     <dd><span>{st.last_sent ? `${when(st.last_sent.at)} · ${st.last_sent.detail}` : "Nothing yet"}</span></dd>
-    <dt>Last error</dt>
+    <dt class="type-name">Last error</dt>
     <dd class:warn={!!st.last_error}>
       <span class="err">{st.last_error ? `${when(st.last_error.at)} · ${st.last_error.detail}` : "None"}</span>
     </dd>
-    <dt>Flight log</dt>
+    <dt class="type-name">Flight log</dt>
     <dd>
       <span>{visits ? `${visits.length} systems in the last week` : logError || "On EDSM"}</span>
       <Button onclick={showLog} disabled={busy || !st.has_key || !st.commander} aria-label="Show flight log">Show</Button>
     </dd>
   </dl>
-  {#if note}<p class="hint" class:err={noteErr} role={noteErr ? "alert" : undefined}>{note}</p>{/if}
+  {#if note}<p class="hint type-label" class:err={noteErr} role={noteErr ? "alert" : undefined}>{note}</p>{/if}
   {#if visits && visits.length}
-    <table>
-      <thead><tr><th>Arrived (UTC)</th><th>System</th><th></th></tr></thead>
+    <table class="type-figures">
+      <thead><tr class="type-label"><th>Arrived (UTC)</th><th>System</th><th></th></tr></thead>
       <tbody>
         {#each visits as v (v.date + v.system)}
           <tr><td>{v.date}</td><td>{v.system}</td><td>{v.first_discover ? "First to report" : ""}</td></tr>
@@ -127,7 +127,7 @@
       </tbody>
     </table>
   {/if}
-  <div class="text">
+  <div class="text type-body">
     <p>
       With upload on, astromech sends your journal to your own EDSM account as you play, the way EDMC did, so your
       EDSM flight log, map and profile stay up to date. Events EDSM doesn't use (chat, music, the game's own status)
@@ -136,12 +136,12 @@
     </p>
   </div>
 {:else if readErr}
-  <p class="lo">{readErr}</p>
+  <p class="type-body failed" role="alert">{readErr}</p>
 {/if}
 
 <style>
-  h3 { margin: 1.75rem 0 0.625rem; }
-  dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0; }
+  h3 { margin: var(--sp-8) 0 var(--sp-2); }
+  dl { display: grid; grid-template-columns: var(--form-label) minmax(0, 1fr); gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 var(--sp-3); min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
@@ -153,15 +153,17 @@
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
   .err { overflow-wrap: anywhere; }
-  .hint.err { color: var(--alarm); }
+  .hint.err, .failed { color: var(--alarm); }
+  /* The failed read; the keyring row (dd.warn.failed) takes its "!" from dd.warn above. */
+  p.failed::before { content: "! "; font-weight: 600; }
   .hint.err::before { content: "! "; font-weight: 600; }
   /* A row whose value is a box of its own has no cell around it. */
   dd.bare { padding: 0; background: none; }
   dd.bare > :global(.grow) { flex: 1; }
-  .hint { color: var(--prose); margin: var(--sp-2) 0 0 calc(13.125rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
-  .text { color: var(--prose); line-height: 1.6; max-width: 43.125rem; margin-top: var(--sp-4); }
-  .text p { margin: 0 0 0.625rem; }
-  table { border-collapse: collapse; margin: var(--sp-3) 0 0 calc(13.125rem + var(--gap)); font-size: var(--fs-s); }
-  th { color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; text-align: left; padding: var(--sp-1) var(--sp-4) var(--sp-1) 0; }
+  .hint { color: var(--prose); margin: var(--sp-2) 0 0 calc(var(--form-label) + var(--gap)); }
+  .text { max-width: var(--measure); margin-top: var(--sp-4); }
+  .text p { margin: 0 0 var(--sp-3); }
+  table { border-collapse: collapse; margin: var(--sp-3) 0 0 calc(var(--form-label) + var(--gap)); }
+  th { color: var(--label-grey); font-weight: 400; text-align: left; padding: var(--sp-1) var(--sp-4) var(--sp-1) 0; }
   td { padding: var(--sp-1) var(--sp-4) var(--sp-1) 0; }
 </style>

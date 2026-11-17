@@ -64,9 +64,9 @@
   >
     {#snippet more()}
       <div class="choices">
-        <span class="label">Ring</span>
+        <span class="type-label label">Ring</span>
         <Choice label="Ring type" value={want.ring_type ?? ANY} options={rings} onchange={(v) => go({ ...want, ring_type: v === ANY ? null : (v as RingType) })} />
-        <span class="label">Reserve</span>
+        <span class="type-label label">Reserve</span>
         <Choice label="Reserve" value={want.reserve ?? ANY} options={reserves} onchange={(v) => go({ ...want, reserve: v === ANY ? null : (v as Reserve) })} />
       </div>
     {/snippet}
@@ -75,6 +75,5 @@
 
 <style>
   .choices { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
-  .label { font-size: var(--fs-s); color: var(--label-grey); }
   .label:not(:first-child) { margin-left: var(--sp-4); }
 </style>

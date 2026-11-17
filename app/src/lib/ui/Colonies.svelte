@@ -5,6 +5,7 @@
   import { candidateResults, candidates, DEFAULT_RADIUS_LY, INTERESTS, LOOKUP, type Interest } from "../colonies";
   import type { Filters, Origin, Results } from "../search";
   import Choice from "./Choice.svelte";
+  import { tip } from "./tip";
   import SearchKit from "./SearchKit.svelte";
 
   let { interest = $bindable("any") }: { interest?: Interest } = $props();
@@ -16,9 +17,17 @@
 </script>
 
 <div class="colonies">
-  <h3 class="section">Colonisation candidates</h3>
+  <h3
+    class="section"
+    {@attach tip({
+      title: "Colonisation candidates",
+      fact: "Unclaimed systems within 15 ly of a populated one: claim them at that system's Colonisation Contact",
+      note: "Spansh's data, so a claim made since may not show yet",
+    })}
+  >
+    Colonisation candidates
+  </h3>
   <Choice class="kinds" label="Bodies of interest" options={INTERESTS.map((k) => ({ value: k.id, label: k.label }))} value={interest} onchange={(v) => (interest = v)} />
-  <p class="lo">Unclaimed systems within 15 ly of a populated one: claim them at that system's Colonisation Contact. Spansh's data, so a claim made since may not show yet.</p>
   <SearchKit lookup={LOOKUP} offers={["distance", "age"]} hints={{ distance: DEFAULT_RADIUS_LY }} {run} title="Nearest" noun="candidates" busyText="Asking Spansh…" />
 </div>
 
@@ -26,5 +35,4 @@
   .colonies { margin-top: var(--sp-8); }
   h3 { margin: 0 0 var(--sp-3); }
   .colonies > :global(.kinds) { margin-bottom: var(--sp-2); }
-  .lo { color: var(--prose); font-size: var(--fs-s); margin: 0 0 var(--sp-1); }
 </style>

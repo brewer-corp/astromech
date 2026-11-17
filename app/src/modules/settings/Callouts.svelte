@@ -63,7 +63,7 @@
       />
       <label>
         <Input
-          class="num"
+          short
           type="text"
           inputmode="decimal"
           aria-label={`${c.title} cooldown, seconds`}
@@ -88,7 +88,6 @@
   /* The switch and the cooldown are controls of their own, so the row has no cell around them. */
   dd { padding: 0; gap: var(--sp-3); }
   label { display: flex; align-items: center; gap: var(--sp-2); }
-  label > :global(.num) { width: 4.21875rem; }
   .hint { color: var(--prose); margin: var(--sp-2) 0 0 calc(var(--form-label) + var(--gap)); }
   .hint:empty { margin: 0; }
   /* A failed save or a refused value: a red "!" and plain words under the field. */

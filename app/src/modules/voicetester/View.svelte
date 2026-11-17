@@ -4,6 +4,8 @@
   // would send. Tests are dry runs; nothing reaches the game unless you click Run live.
   import Button from "../../lib/ui/Button.svelte";
   import Input from "../../lib/ui/Input.svelte";
+  import Board from "../../lib/ui/layout/Board.svelte";
+  import { tip } from "../../lib/ui/tip";
   import { keyName } from "../../lib/format";
   import {
     SWITCH_SECONDS,
@@ -129,111 +131,113 @@
     ignored: "Ignore it as noise",
   };
   const DECISION: Record<string, string> = { execute: "acts on it", ask: "asks first", no_match: "too low to act" };
+  const LEARNED = {
+    title: "Learned phrases",
+    fact: "Phrases astromech runs without asking, because you once answered yes to \"Did you mean ...?\"",
+    note: "Remove one that was taught wrongly",
+  };
   const keys = (k: NonNullable<DryRun["keys"]>) => [...k.modifiers, k.key].map(keyName).join(" + ");
 </script>
 
-<section>
-  <p class="intro">
-    {#if listening}
-      Push-to-talk is in test mode while this page is open: speak a command and it shows here. Nothing is sent to the game.
-    {:else}
-      Type a phrase to see what it would do. Push-to-talk can be tested here while Elite is running.
-    {/if}
-  </p>
+<Board>
+  <!-- Whether push-to-talk is being tested: a state, so a line, not a Tip. -->
+  {#if listening}
+    <p class="type-body state">Push-to-talk is in test mode while this page is open. Nothing is sent to the game.</p>
+  {:else}
+    <p class="type-label state">Push-to-talk testing needs Elite running.</p>
+  {/if}
   <form class="ask" onsubmit={test}>
-    <Input class="grow" bind:value={text} placeholder="Type a phrase, e.g. gear down" aria-label="Phrase">
+    <Input class="page-search" bind:value={text} placeholder="Type a phrase, e.g. gear down" aria-label="Phrase">
       {#snippet end()}<Button type="submit" disabled={!text.trim()}>Test</Button>{/snippet}
     </Input>
   </form>
-  {#if error}<p class="note err" role="alert">{error}</p>{/if}
+  {#if error}<p class="type-label note err" role="alert">{error}</p>{/if}
 
   {#if result}
     <dl>
-      <dt>Heard</dt>
-      <dd>{result.transcript || "(nothing)"}<span class="lo">&nbsp;· {result.source === "voice" ? "push-to-talk" : "typed"}</span></dd>
-      <dt>Intent</dt>
+      <dt class="type-label">Heard</dt>
+      <dd>{result.transcript || "(nothing)"}<span class="type-label">&nbsp;· {result.source === "voice" ? "push-to-talk" : "typed"}</span></dd>
+      <dt class="type-label">Intent</dt>
       <dd>
         {#if result.intent && result.intent.decision !== "no_match"}
-          {result.intent.phrase}<span class="cmd lo">&nbsp;· {result.intent.command}</span>
+          {result.intent.phrase}<span class="type-label">&nbsp;· {result.intent.command}</span>
         {:else}
           No match
         {/if}
       </dd>
-      <dt>Confidence</dt>
-      <dd>{#if result.intent}{Math.round(result.intent.score * 100)}%<span class="lo">&nbsp;· {DECISION[result.intent.decision] ?? result.intent.decision}</span>{:else}—{/if}</dd>
-      <dt>Would</dt>
+      <dt class="type-label">Confidence</dt>
+      <dd>{#if result.intent}{Math.round(result.intent.score * 100)}%<span class="type-label">&nbsp;· {DECISION[result.intent.decision] ?? result.intent.decision}</span>{:else}—{/if}</dd>
+      <dt class="type-label">Would</dt>
       <dd>{WOULD[result.would]}{#if result.message}&nbsp;“{result.message}”{/if}</dd>
-      <dt>Keys</dt>
+      <dt class="type-label">Keys</dt>
       <dd>
         {#if result.keys}
           <span class="key">{keys(result.keys)}</span>
-          {#if result.would !== "press"}<span class="lo">&nbsp;· not pressed now</span>{/if}
+          {#if result.would !== "press"}<span class="type-label">&nbsp;· not pressed now</span>{/if}
         {:else if result.action}
-          <span class="lo">No keyboard key for {result.action}</span>
+          <span class="type-label">No keyboard key for {result.action}</span>
         {:else}
-          <span class="lo">None</span>
+          <span class="type-label">None</span>
         {/if}
       </dd>
     </dl>
-    <p class="safe">Nothing was sent to the game.</p>
+    <p class="type-label safe">Nothing was sent to the game.</p>
     {#if result.live}
       <div class="actions">
-        <Button onclick={runLive} disabled={!listening || running}>{skipsAsk(result) ? "Run live (no confirmation)" : "Run live"}</Button>
-        <span class="lo">
-          {#if running}
-            Switch to Elite now: pressing when it's in front ({countdown} s left).
-          {:else if !listening}
-            Live runs need Elite running.
-          {:else if skipsAsk(result)}
-            Runs {result.intent?.phrase ?? "it"} without the question a spoken command would ask. Switch to Elite within {SWITCH_SECONDS} s after clicking.
-          {:else}
-            Sends it to Elite like a spoken command. Switch to Elite within {SWITCH_SECONDS} s after clicking.
-          {/if}
-        </span>
+        <Button
+          onclick={runLive}
+          disabled={!listening || running}
+          {@attach tip(
+            skipsAsk(result)
+              ? `Runs ${result.intent?.phrase ?? "it"} without the question a spoken command would ask. Switch to Elite within ${SWITCH_SECONDS} s after clicking`
+              : `Sends it to Elite like a spoken command. Switch to Elite within ${SWITCH_SECONDS} s after clicking`,
+          )}>{skipsAsk(result) ? "Run live (no confirmation)" : "Run live"}</Button
+        >
+        {#if running}
+          <span class="type-label">Switch to Elite now: pressing when it's in front ({countdown} s left).</span>
+        {:else if !listening}
+          <span class="type-label">Live runs need Elite running.</span>
+        {/if}
       </div>
     {/if}
-    {#if liveNote}<p class="note" class:err={liveErr} role={liveErr ? "alert" : undefined}>{liveNote}</p>{/if}
+    {#if liveNote}<p class="type-label note" class:err={liveErr} role={liveErr ? "alert" : undefined}>{liveNote}</p>{/if}
   {/if}
 
-  <h2 class="section">Learned phrases</h2>
+  <h2 class="section" {@attach tip(LEARNED)}>Learned phrases</h2>
   {#if learned.length === 0}
-    <p class="intro">None yet. When you answer yes to "Did you mean ...?", astromech remembers what it heard and runs that command next time.</p>
+    <p class="type-body">None yet.</p>
   {:else}
-    <p class="intro">Phrases astromech runs without asking, because you once answered yes. Remove one that was taught wrongly.</p>
     <ul class="learned">
       {#each learned as p (p.heard)}
         <li>
-          <span class="said">{p.heard}</span>
-          <span class="lo">runs {p.does}</span>
+          <span class="type-name">{p.heard}</span>
+          <span class="type-label">runs {p.does}</span>
           <Button onclick={() => forget(p)} aria-label={`Remove ${p.heard}`}>Remove</Button>
         </li>
       {/each}
     </ul>
   {/if}
-  {#if learnedError}<p class="note err" role="alert">{learnedError}</p>{/if}
-</section>
+  {#if learnedError}<p class="type-label note err" role="alert">{learnedError}</p>{/if}
+</Board>
 
 <style>
-  section { padding: 1.75rem 0; max-width: 56.25rem; }
   p { margin: 0; }
-  .intro { color: var(--prose); }
-  .lo { color: var(--label-grey); }
-  .ask { display: flex; margin: 1.25rem 0 var(--sp-6); }
-  .ask > :global(.grow) { flex: 1; }
-  dl { display: grid; grid-template-columns: 13.125rem 1fr; gap: var(--gap); margin: 0 0 var(--sp-4); }
-  dt, dd { margin: 0; padding: 0 var(--sp-3); min-height: var(--row); display: flex; align-items: center; }
-  dt { color: var(--options-grey); }
-  /* What the tester worked out is read-only: facts outside a cell, the keys outlined like a badge. */
-  dd { color: var(--prose); }
+  .state { margin-bottom: var(--sp-4); }
+  .ask { display: flex; margin: 0 0 var(--sp-6); }
+  dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: var(--sp-12); row-gap: var(--gap); margin: 0 0 var(--sp-4); }
+  dt, dd { margin: 0; min-height: var(--row); display: flex; align-items: center; }
+  dt { padding-left: var(--sp-3); }
+  /* What the tester worked out is the page's answer: read-only facts outside a cell (DESIGN.md Fact
+     list), brighter than their labels; the keys outlined like a badge. */
+  dd { color: var(--options-grey); }
   .key { outline: 1px solid var(--line); outline-offset: -1px; color: var(--options-grey); padding: var(--gap) var(--sp-2); }
-  .cmd { font-size: var(--fs-s); }
-  .safe { color: var(--label-grey); margin-bottom: var(--sp-4); }
-  .actions { display: flex; gap: 1.75rem; align-items: center; }
+  .safe { margin-bottom: var(--sp-4); }
+  .actions { display: flex; gap: var(--sp-6); align-items: center; }
   h2 { margin: var(--sp-8) 0 var(--sp-3); }
-  .learned { list-style: none; margin: var(--sp-3) 0 0; padding: 0; display: grid; gap: var(--gap); }
-  .learned li { display: flex; gap: var(--sp-6); align-items: center; outline: 1px solid var(--line); outline-offset: -1px; padding: 0 var(--sp-3); min-height: var(--row); }
-  .said { flex: 1; }
-  .note { color: var(--label-grey); font-size: var(--fs-s); margin-top: var(--sp-3); }
+  /* A learned phrase, what it runs, then Remove right after it (DESIGN.md The Next To It Rule). */
+  .learned { list-style: none; margin: var(--sp-3) 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, max-content); column-gap: var(--sp-6); row-gap: var(--gap); }
+  .learned li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; outline: 1px solid var(--line); outline-offset: -1px; padding: 0 var(--sp-3); min-height: var(--row); }
+  .note { margin-top: var(--sp-3); }
   .note.err { color: var(--alarm); }
   .note.err::before { content: "! "; font-weight: 600; }
 </style>

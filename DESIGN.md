@@ -125,14 +125,14 @@ components:
     textColor: "{colors.on-orange}"
     typography: "{typography.action}"
     rounded: "{rounded.none}"
-    padding: "0 1.25rem"
+    padding: "0 1rem"
     height: "2.125rem"
   button-primary-disabled:
     backgroundColor: "{colors.ember-empty}"
     textColor: "{colors.orange-dim}"
     typography: "{typography.action}"
     rounded: "{rounded.none}"
-    padding: "0 1.25rem"
+    padding: "0 1rem"
     height: "2.125rem"
   button-secondary:
     textColor: "{colors.orange}"
@@ -1081,12 +1081,14 @@ Fill Per Page Rule](#named-rules)).
 
 ### Buttons
 
-- **Primary:** solid orange, On Orange text, Action type, 34 px, 20 px padding. At most one
+- **Primary:** solid orange, On Orange text, Action type, 34 px, 16 px padding (`lg`). At most one
   per page (the frame's Find or plot results and an open dialog count as their own page), for
   the step forward (Next, Save preset, Plot route, Set destination). It is the page's one
   fill. Disabled: Ember Empty with Orange Dim text. *Why:* the game fills the item under the
   cursor, and its cursor starts on the main action; a mouse-driven window has no such cursor,
-  so the primary is filled instead (see Deviations).
+  so the primary is filled instead (see Deviations). The padding was 20 px until astromech-gvy0;
+  the spacing scale has no 20 px step, and of its two neighbours 16 keeps the button no wider
+  than it was where it shares a line with a dropdown or an input (a side panel, a dialog).
 - **Secondary (text action):** an orange caps verb, no fill, 34 px hit area. Hover: a Row
   Hover background. Disabled: Orange Dim.
 - **Icon button:** a 28 px square holding one icon, Label Grey at rest, Orange Lit on hover,
@@ -1120,6 +1122,9 @@ is small and is ignored. One shared Tip (`app/src/lib/ui/tip.ts`, styled in `tok
   explanation is not on screen: a value's conditions ("Full tank and full cargo"), a warning's
   detail, a short demand ("96 t demand, less than the 120 t you carry"), a station or star type
   icon. Not on text that only repeats itself, such as a name cut short by an ellipsis.
+- **Not for consent:** text that states what the commander agrees to by turning something on
+  (what is sent, to whom, that the commander's name goes with it, as on Data sharing) stays
+  printed beside the switch, readable before it is used, without hovering (astromech-gvy0).
 - **Access:** screen readers get the same words through `aria-describedby` (not when they only
   repeat the target's label). A target the keyboard can't reach gets a tab stop, except a mark
   repeated down a column whose words are already its accessible name.
@@ -1267,8 +1272,9 @@ text in the box the clear icon replaces "Ctrl+K".
 
 ### Places home
 
-Finder tiles under section headings (Trade, Ship, Engineering, Mining, Route). Each tile is a
-link in a Seam outline, 220 px: finder name in Name, Orange (it is what you press); one line
+Finder tiles under section headings (Trade, Ship, Engineering, Mining, Route), on the Board in
+its tile grid (200–240 px columns; 240 wherever the page column has room, since astromech-gvy0
+moved the page off its own 220 px). Each tile is a link in a Seam outline: finder name in Name, Orange (it is what you press); one line
 in Label, Label Grey; where a live answer is known, its figure in Value L, Options Grey, with
 its context in Label, Label Grey. Hover: Row Hover. *Why:* a visible grid of what can be
 found, like the station services board, so search and voice are shortcuts, not the only way
@@ -1320,8 +1326,8 @@ Each name in this document and the `app/src/design/tokens.css` variable that hol
 the variable; never repeat the value. Some variables keep names from before this document
 (`--accent`, `--bg`, `--cell`) because the pages already use them. `--row-hover` was a grey
 (#16171a) before revision 3; it is now DESIGN.md's warm Row Hover for every page. `--list-w`
-(1200 px) is the result-list cap that revision 4 drops: it is not a DESIGN.md name, and it stays
-in tokens.css only until the last page using it moves onto a layout.
+(1200 px) is the result-list cap that revision 4 drops: it is not a DESIGN.md name, and since
+astromech-gvy0 no page uses it; it stays in tokens.css only for the old mockups in `src/mockups/ds/`.
 
 Sizes are listed in px at 100 percent Text size; `tokens.css` holds each in rem (px / 16),
 except 1 px rules and borders. Rows marked "(new)" are revision 5's, which `tokens.css` does
@@ -1360,7 +1366,7 @@ not have yet: the item named adds them, and the rows it replaces stay until then
 | Prose width | `--measure` | 68ch |
 | Form layout width | `--form-w` | 900 px |
 | Side panel (List with detail) | `--panel` | 320 px |
-| A page's own search box (Engineers), an engineer tree's node (astromech-m6gw) | `.field.page-search`, `--node` | 440, 200 px |
+| A page's own search box (Engineers; the Voice tester's phrase box), an engineer tree's node (astromech-m6gw) | `.field.page-search`, `--node` | 440, 200 px |
 | Control row, result row | `--row`, `--row-result` | 34, 60 px |
 | Route sidebar, no-route rail (new, astromech-uc7i) | `--sidebar`, `--rail` | 320, 48 px |
 | Route strip, status bar, material tile | `--strip`, `--status-bar`, `--tile` | 36, 32, 76 px |

@@ -16,6 +16,7 @@
   import FollowNoteLine from "../../lib/ui/FollowNote.svelte";
   import IconButton from "../../lib/ui/IconButton.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
+  import PadLetter from "../../lib/ui/PadLetter.svelte";
   import Block from "./Block.svelte";
 
   let {
@@ -95,7 +96,6 @@
     }
   }
 
-  const PADS = { S: "Small", M: "Medium", L: "Large" } as const;
 </script>
 
 <Block title="Sell your cargo" href="#/places/sell-cargo" link="Sell my cargo" {stale}>
@@ -114,7 +114,7 @@
             <span class="type-name station">{best.station}</span>
             <span class="type-label">{best.system}</span><SystemChip name={best.system} icon />
             <span class="type-label">{jumps(best.jumps, best.exact)}</span>
-            {#if best.pad}<span class="type-label pad" role="img" aria-label={`${PADS[best.pad]} pad`}>{best.pad}</span>{/if}
+            {#if best.pad}<PadLetter pad={best.pad} />{/if}
             <span class="acts">
               <IconButton icon="add-stop" label={`Add ${best.system} as a stop`} tip={`Add ${best.system} as the next stop`} disabled={busy} onclick={() => void add(best)} />
               <IconButton icon="destination" label={`Set ${best.system} as the destination`} tip="Set destination: replaces the route" disabled={busy} onclick={() => void destination(best)} />
@@ -138,7 +138,6 @@
   .station { color: var(--text-hi); }
   .place { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--sp-2); }
   .place :global(.chip) { margin-left: calc(-1 * var(--sp-2)); }
-  .pad { display: inline-flex; align-items: center; height: 1.125rem; padding: 0 var(--sp-1); border: 1px solid var(--line); color: var(--prose); }
   .acts { display: inline-flex; }
   /* A refresh keeps the old answer Grey Dim until it is replaced (DESIGN.md States, Loading). */
   .dim, .dim :global(*) { color: var(--grey-dim); }

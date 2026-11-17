@@ -61,6 +61,7 @@
   import SystemChip from "./SystemChip.svelte";
   import { useDetail } from "./layout/detail.svelte";
   import { tip } from "./tip";
+  import PadLetter from "./PadLetter.svelte";
   import type { Snippet } from "svelte";
 
   let {
@@ -362,7 +363,6 @@
     if (unsaved) void change(unsaved);
   }
 
-  const PADS = { S: "Small", M: "Medium", L: "Large" } as const;
 
   /** Notes without one already said (a ring type the filters name and every row shares). */
   function said(list: string[]): string[] {
@@ -502,7 +502,7 @@
                     {#if res.place === "station"}<span class="slot"><StationKind type={r.station_type} /></span>{:else}<StationKind type={r.station_type} />{/if}
                     {@render name(r, r.station)}
                     {#if res.place === "station" && r.pad}
-                      <span class="pad" class:unfit role="img" aria-label={unfit ? `${PADS[r.pad]} pad: too small for your ship` : `${PADS[r.pad]} pad`}>{r.pad}</span>
+                      <PadLetter pad={r.pad} {unfit} />
                     {/if}
                     {#if r.arrival_ls != null}<span class="ls">{figure(r.arrival_ls)}<span class="unit type-unit">ls</span></span>{/if}
                     {#if oneLine}<span class="sys" title={r.system}>{r.system}</span>{/if}
@@ -616,9 +616,6 @@
   .pick { all: unset; cursor: pointer; color: var(--options-grey); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; }
   .pick:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .result:has(.pick) { cursor: pointer; }
-  /* The pad as a badge; one too small for the ship is Red Low and struck through (its name says why). */
-  .pad { display: inline-flex; align-items: center; flex: none; height: 1.125rem; padding: 0 var(--sp-1); border: 1px solid var(--line); font-size: var(--fs-s); color: var(--prose); }
-  .pad.unfit { color: var(--red-low); border-color: var(--red-low); text-decoration: line-through; }
   .ls { flex: none; font-size: var(--fs-s); color: var(--prose); }
   /* The system under the place, indented to the name past the station's type icon. */
   .in { padding-left: var(--sp-6); gap: 0; }
@@ -668,5 +665,5 @@
   .pacts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); margin: var(--sp-8) 0 0; }
 
   /* Loading: the old rows stay, Grey Dim, until the answer replaces them. */
-  .busy .result, .busy .result :is(.main .v, .name, .pick, .text, .sys, .unit, .ly, .age, .tonnes, .ls, .pad) { color: var(--grey-dim); }
+  .busy .result, .busy .result :is(.main .v, .name, .pick, .text, .sys, .unit, .ly, .age, .tonnes, .ls, :global(.pad)) { color: var(--grey-dim); }
 </style>

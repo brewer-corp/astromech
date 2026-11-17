@@ -14,6 +14,7 @@
     error,
     end,
     children,
+    short = false,
     class: cls = "",
     input = $bindable(),
     ...rest
@@ -24,13 +25,15 @@
     error?: string | null;
     end?: Snippet;
     children?: Snippet;
+    /** A short box for a number of a few figures (a percentage, a cooldown in seconds), its unit after it. */
+    short?: boolean;
     class?: string;
     /** The <input> or <textarea>, for focus(). */
     input?: HTMLInputElement | HTMLTextAreaElement;
   } = $props();
 </script>
 
-<span class="field {cls}">
+<span class="field {cls}" class:short>
   <span class="cell" class:multi={rows}>
     {#if rows}
       <textarea bind:this={input} bind:value {rows} {...rest as Record<string, unknown>}></textarea>
@@ -45,6 +48,7 @@
 
 <style>
   .field { position: relative; display: flex; flex-direction: column; min-width: 0; }
+  .short { width: 4.21875rem; }
   .cell { display: flex; align-items: center; min-height: var(--row); background: var(--cell); color: var(--accent); }
   .cell:hover { background: var(--cell-hover); }
   .cell:focus-within { outline: 1px solid var(--accent); outline-offset: 2px; }

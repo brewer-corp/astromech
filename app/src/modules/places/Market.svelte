@@ -60,7 +60,7 @@
       placeholder="Type a commodity"
       onpick={(n) => go({ ...want, symbol: commodities.find((c) => c.name === n)?.symbol ?? want.symbol })}
     />
-    {#if against}<span class="against">{against.text}</span>{/if}
+    {#if against}<span class="type-label against">{against.text}</span>{/if}
   {/snippet}
   <SearchKit
     lookup={`trade.${side}${want.anywhere ? ".anywhere" : ""}`}
@@ -77,7 +77,7 @@
   >
     {#snippet more()}
       <div class="choices">
-        <span class="label">Range</span>
+        <span class="type-label label">Range</span>
         <Choice
           label="Search range"
           value={want.anywhere ? "anywhere" : "near"}
@@ -95,7 +95,6 @@
 <style>
   /* Laid out as a filter among the others SearchFilters shows: its label, then the choice. */
   .choices { display: flex; align-items: center; gap: var(--sp-2); }
-  .label, .against { font-size: var(--fs-s); color: var(--label-grey); }
   .label { min-width: 5.5em; }
   .against { white-space: nowrap; }
 </style>
