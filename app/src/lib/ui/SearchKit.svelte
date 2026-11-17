@@ -303,6 +303,8 @@
    * fact and the trip or what qualifies the value stay reachable.
    */
   const oneLine = $derived(compact && !!detail);
+  /** Compact with no side panel: the own group and the trip fold into a third line, since nothing else would show them. */
+  const folded = $derived(compact && !detail && !!(g?.own.length || g?.trip));
   const template = $derived(
     compact
       ? "max-content minmax(0, 1fr) 4rem"
@@ -468,7 +470,7 @@
             {@const unfit = padTooSmall(r.pad, flying?.pad)}
             <!-- The keyboard selects a row with its name, a button; a click anywhere on the row does too. -->
             <!-- svelte-ignore a11y_interactive_supports_focus, a11y_click_events_have_key_events -->
-            <div class="row result" class:stale={stale(r)} class:sel={chosen?.key === r.key} role="row" onclick={() => detail && (picked = r.key)}>
+            <div class="row result" class:stale={stale(r)} class:sel={chosen?.key === r.key} class:tall={folded} role="row" onclick={() => detail && (picked = r.key)}>
               <span class="g r first" role="cell">
                 <span class="l1 main"><span class="v">{top}</span><span class="unit type-unit">{res.main ? (res.main.unit ?? "") : jumpsUnit(top)}</span></span>
                 {#if !oneLine}
@@ -482,7 +484,8 @@
               <span class="g place" role="cell">
                 <span class="l1">
                   {#if r.station}
-                    <StationKind type={r.station_type} />
+                    <!-- A station list keeps the type icon's slot when the source names no type, so names line up. -->
+                    {#if res.place === "station"}<span class="slot"><StationKind type={r.station_type} /></span>{:else}<StationKind type={r.station_type} />{/if}
                     {@render name(r, r.station)}
                     {#if res.place === "station" && r.pad}
                       <span class="pad" class:unfit role="img" aria-label={unfit ? `${PADS[r.pad]} pad: too small for your ship` : `${PADS[r.pad]} pad`}>{r.pad}</span>
@@ -519,6 +522,16 @@
                 <IconButton icon="add-stop" label={`Add ${r.system} as a stop`} tip={`Add ${r.system} as the next stop`} onclick={() => void add(r)} />
                 <IconButton icon="destination" label={`Set ${r.system} as the destination`} tip={`Set ${r.system} as the destination (replaces the route, which Resume brings back)`} onclick={() => void destination(r)} />
               </span>
+              {#if folded && g}
+                <!-- Compact with no side panel: the groups that don't fit fold into a third line under the place. -->
+                <span class="folded" role="cell">
+                  {#each g.own as c, i (c.key)}{#if i}&nbsp;·&nbsp;{/if}{@render fact(c, r)}{/each}
+                  {#if g.trip}
+                    {#if g.own.length}&nbsp;·&nbsp;{/if}{jumpsFigure(r)}<span class="unit type-unit">{jumpsUnit(jumpsFigure(r))}</span>&nbsp;·&nbsp;<span class="ly">{figure(r.ly, 1)}<span class="unit type-unit">ly</span></span>
+                    {#if !res.undated && r.updated_at}&nbsp;·&nbsp;<span class="age" class:old={stale(r)}>{ageCell(r.updated_at, now).value} {ageCell(r.updated_at, now).unit} old</span>{/if}
+                  {/if}
+                </span>
+              {/if}
             </div>
           {/each}
         </div>
@@ -562,6 +575,9 @@
   .list { display: grid; grid-template-columns: var(--cols); column-gap: var(--sp-6); width: fit-content; max-width: 100%; }
   .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; height: var(--row-result); padding: 0 var(--sp-3); white-space: nowrap; color: var(--prose); font-size: var(--fs); }
   .compact .row { height: var(--row); }
+  .row.tall { height: auto; min-height: var(--row-result); padding-block: var(--sp-2); }
+  .folded { grid-column: 2 / -1; display: flex; align-items: baseline; overflow: hidden; font-size: var(--fs-s); white-space: nowrap; }
+  .folded > :global(*) { min-width: 0; }
   .row > * { min-width: 0; }
   .heads { height: 1.75rem; border-bottom: 1px solid var(--line); margin-bottom: var(--sp-1); color: var(--label-grey); font-size: var(--fs-s); overflow: hidden; }
   .result:hover { background: var(--row-hover); }
@@ -589,7 +605,8 @@
   .ls { flex: none; font-size: var(--fs-s); color: var(--prose); }
   /* The system under the place, indented to the name past the station's type icon. */
   .in { padding-left: var(--sp-6); gap: 0; }
-  .place .l1:not(:has(:global(.kind))) + .in { padding-left: 0; }
+  .place .l1:not(:has(.slot)) + .in { padding-left: 0; }
+  .slot { display: inline-flex; flex: none; width: var(--sp-4); }
   .sys { color: var(--label-grey); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; flex: 0 1000 auto; }
   .place :global(.chip) { flex: none; }
   /* The copy icon keeps the row's two lines even: as tall as a line, not a 28 px button. */

@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
+import { page } from "vitest/browser";
 import projectsSample from "../../preview/fixtures/colonisation.json";
 import tradeSample from "../../preview/fixtures/trade.json";
 import type { BuySearch, ListPlan, Need, Project } from "../../lib/colonisation";
-import { idle } from "../../test/transport";
+import { idle, startPreview } from "../../test/transport";
+import { resetScale, setTextSize } from "../../lib/scale.svelte";
 import View from "./View.svelte";
 
 const load = vi.fn<() => Promise<Project[]>>();
@@ -80,6 +82,28 @@ describe("Colonisation", () => {
     expect(rows[0]).toContain("Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2,120 t");
     expect(rows.at(-1)).toContain("1 of 4");
     expect(rows.at(-1)).toContain("fleet carrier");
+  });
+
+  it("keeps each station's stock, trip and report age when the row is too narrow for its groups", async () => {
+    // 1100 x 700 at 145 percent: too narrow for every group, and the list has no side panel.
+    await page.viewport(1100, 700);
+    startPreview("/?core=ready");
+    expect(await setTextSize(145)).toBeNull();
+    try {
+      load.mockResolvedValue(projects);
+      buy.mockImplementation(async (_n, o) => answer(o));
+      render(View);
+      const row = (await screen.findByText("Efremov Plant")).closest('[role="row"]') as HTMLElement;
+      const folded = await waitFor(() => {
+        const f = row.querySelector(".folded");
+        if (!f) throw new Error("no folded line yet");
+        return f;
+      });
+      expect(folded.textContent?.replace(/\s+/g, " ")).toMatch(/^Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2,120 t · 1jump · 8.6ly · \d+ d old$/);
+    } finally {
+      resetScale();
+      await page.viewport(1200, 800);
+    }
   });
 
   it("searches near the commander once the site's system is cleared", async () => {
