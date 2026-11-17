@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-9uj3
 title: CI on main has failed on every push since 8 Nov, and nothing stops a merge
-status: in_review
+status: approved
 mission: null
 labels:
 - bug
