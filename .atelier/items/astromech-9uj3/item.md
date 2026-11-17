@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-9uj3
 title: CI on main has failed on every push since 8 Nov, and nothing stops a merge
-status: ready
+status: building
 mission: null
 labels:
 - bug
 - size-m
 priority: critical
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A7af80d85-cde0-4a8e-9929-43c0997f41ce%3Adelegate-task%3Add68300b-007f-4c7a-b70c-754733a70bea
 ready:
   by: the lead of astromech-xajc
   at: 2026-11-17T13:18:23.923857946Z
