@@ -24,6 +24,7 @@ A found trade route reads as its legs: station, what to buy, where to sell, prof
 
 ## Done when
 
+- [ ] (provisional) The page's files leave `TOKENS_EXEMPT` in `app/eslint.config.js` (astromech-4wi1): the rebuilt page uses only tokens and role classes for colour, font size and spacing.
 - [ ] (provisional) Single hop and loop both render as legs from the existing reply.
 - [ ] (provisional) Built on the layout components and type roles with no page-level width or font size; captures at 1100 x 700 and 2560 x 1440 in docs/design/; the page's guide in docs/guide updated.
 

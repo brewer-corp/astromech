@@ -24,6 +24,7 @@ Every page outside Controls that gets no new screen still stops sizing itself: S
 
 ## Done when
 
+- [ ] (provisional) With this merged, `TOKENS_EXEMPT` (astromech-4wi1) holds only the Controls modules and the mockups. That includes `Button.svelte`, exempt today because DESIGN.md gives the primary button 20 px padding, which is not a step on its spacing scale: the button moves to a step, or DESIGN.md adds one, and says which.
 - [ ] (provisional) Each page named is on a layout component and the type roles, and the page-sizing check is on for its module. Stored modules groups its rows by where the module is. `settings/Callouts.svelte`, `settings/ProspectorThresholds.svelte` and `route/Plot.svelte` are enrolled or listed exempt (left open by astromech-mwh5 and astromech-ok29).
 - [ ] (provisional) With this merged and the screen items done, both parts of the page-sizing check are on for every file under app/src/modules/ except the Controls modules and the frame's parts in the route module (the files astromech-uc7i lists exempt); this item enrols whatever file is still off the list.
 - [ ] (provisional) Captures at 1100 x 700 and 2560 x 1440 in docs/design/.
