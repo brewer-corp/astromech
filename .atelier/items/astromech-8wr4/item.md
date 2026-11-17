@@ -87,3 +87,8 @@ Ships > Ships now reads as the ship's loadout. The Info and Engineering choice i
 
 **Checks.** `pnpm check`, `pnpm lint` and `pnpm test` (90 files, 780 tests) pass, and so does `scripts/check-guide.py`. The journeys pass 7 of 7. This worktree had no core build, and building one here would hold the machine, so the journeys ran with `ASTROMECH_CORE` set to a debug core copied from another worktree whose `crates/` matches main exactly. This item changes no core code.
 
+### Responses
+
+1-mvep.1: fixed in 85676016: the row's hexagons stay the fitted blueprint's and a plan for another blueprint is named after it ("→ Charge enhanced G5", Orange Mid); a test covers it.
+1-mvep.2: fixed in 85676016: the Stale line shows after an empty fleet answer, with a test; the no-fleet audit shot now skips setup and captures the Ships empty state (f6c0784b).
+
