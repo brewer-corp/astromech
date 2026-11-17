@@ -1,9 +1,9 @@
 {
- "commit": "5357f0ee",
+ "commit": "c16f17d7",
  "captures": {
   "ships-module-2560x1440": {
    "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/engineering/7",
-   "file": "docs/design/final/ng71/after/ships-module-2560x1440.png",
+   "file": "docs/design/glance-ng71/after/ships-module-2560x1440.png",
    "step": 145,
    "frame": {
     "header": 64,
@@ -228,7 +228,7 @@
   },
   "ships-module-1100x700": {
    "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/engineering/7",
-   "file": "docs/design/final/ng71/after/ships-module-1100x700.png",
+   "file": "docs/design/glance-ng71/after/ships-module-1100x700.png",
    "step": 100,
    "frame": {
     "header": 108,
@@ -389,7 +389,7 @@
   },
   "ships-2560x1440": {
    "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/engineering/7",
-   "file": "docs/design/final/ng71/after/ships-2560x1440.png",
+   "file": "docs/design/glance-ng71/after/ships-2560x1440.png",
    "step": 145,
    "frame": {
     "header": 64,
@@ -600,7 +600,7 @@
   },
   "ships-1100x700": {
    "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/engineering/7",
-   "file": "docs/design/final/ng71/after/ships-1100x700.png",
+   "file": "docs/design/glance-ng71/after/ships-1100x700.png",
    "step": 100,
    "frame": {
     "header": 108,
@@ -756,7 +756,7 @@
   },
   "ships-plan-2560x1440": {
    "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=145#/engineering/7/plan",
-   "file": "docs/design/final/ng71/after/ships-plan-2560x1440.png",
+   "file": "docs/design/glance-ng71/after/ships-plan-2560x1440.png",
    "step": 145,
    "frame": {
     "header": 64,
@@ -943,7 +943,7 @@
   },
   "ships-plan-1100x700": {
    "url": "http://localhost:5613/?core=ready&route=exact&clock=2026-10-20T11%3A23%3A00Z&textsize=100#/engineering/7/plan",
-   "file": "docs/design/final/ng71/after/ships-plan-1100x700.png",
+   "file": "docs/design/glance-ng71/after/ships-plan-1100x700.png",
    "step": 100,
    "frame": {
     "header": 108,
