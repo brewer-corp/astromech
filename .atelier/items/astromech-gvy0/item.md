@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-gvy0
 title: The remaining pages move onto the layouts
-status: in_review
+status: changes_requested
 mission: astromech-xajc
 labels:
 - size-l
