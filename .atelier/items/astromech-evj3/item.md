@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-evj3
 title: Exploration > Biology as a card per body
-status: draft
+status: ready
 mission: astromech-xajc
 labels:
 - size-m
@@ -12,7 +12,9 @@ priority: medium
 blocked_by:
 - astromech-8e22
 implementers: []
-ready: null
+ready:
+  by: Sumeet
+  at: 2026-11-17T10:51:58.242665710Z
 trivial: null
 caused_by: null
 created_at: 2026-11-10T05:55:40.418245755Z
