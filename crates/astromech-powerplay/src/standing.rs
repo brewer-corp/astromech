@@ -62,6 +62,9 @@ enum Login {
 #[derive(Debug, Clone, PartialEq, Serialize, ts_rs::TS)]
 pub struct NextRank {
     pub rank: i64,
+    /// Lifetime merits the current rank needed: where the climb to `merits` starts (0 below
+    /// rank 1).
+    pub from: i64,
     /// Lifetime merits the rank needs.
     pub merits: i64,
     /// Merits still to earn (0 when only the initial assignments are missing).
@@ -201,9 +204,10 @@ impl Standing {
         let r = rules();
         let next = rank.max(0) + 1;
         let merits = r.merits_for(next)?;
+        let from = r.merits_for(rank).unwrap_or(0);
         let to_go = (merits - self.merits.unwrap_or(0)).max(0);
         let note = (next == 1).then(|| "Complete the five initial assignments.".to_string());
-        Some(NextRank { rank: next, merits, to_go, reward: r.reward(next).to_string(), note })
+        Some(NextRank { rank: next, from, merits, to_go, reward: r.reward(next).to_string(), note })
     }
 
     pub fn view(&self, now: DateTime<Utc>) -> StandingView {

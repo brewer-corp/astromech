@@ -25,15 +25,16 @@ Type a module in the box at the top, in your own words: "laser", "fsd", "shield"
   as white hexagons, the rank a higher grade needs, or the step to unlock them. Then where they
   are, with a copy button, and how far from your current system.
 - Suit engineers have no grades, so search them by the modification you want: "range",
-  "magazine", "night vision". A "(?)" after a mod means the wiki disagrees with itself on whether
-  that engineer fits it. A suit or weapon name ("pistol", "Maverick") finds nothing, and the
-  page says so.
+  "magazine", "night vision". Those you have unlocked come first, then those closest to
+  unlocking; at equal standing the nearest comes first, with how far it is. A "(?)" after a mod
+  means the wiki disagrees with itself on whether that engineer fits it. A suit or weapon name
+  ("pistol", "Maverick") finds nothing, and the page says so.
 - A word the page doesn't know says so and suggests close ones.
 - Clear the box (or press Escape) to get the tree back. The search stays in the page's link.
 
 Which engineer offers which grade is from EDCD's coriolis-data, in `data/catalog/engineering.json`;
-the words are in `data/catalog/engineer-search.json`. A suit engineer's distance isn't shown yet:
-the app doesn't have their systems' positions.
+the words are in `data/catalog/engineer-search.json`. Where every engineer is, ship and suit, is
+in `data/catalog/engineers.json`, from EDCD/FDevIDs and Spansh's systems dump.
 
 ### The tree
 

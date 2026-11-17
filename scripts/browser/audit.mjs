@@ -8,7 +8,8 @@
  * The plan is JSON: { "out": dir, "query": "core=ready&route=exact", "sizes": [{ "w", "h", "step" }],
  * "shots": [{ "name", "hash", "query"?, "sizes"?, "steps"?: [action] }] }. An action is one of
  * { "click": css } (the first match), { "waitSel": css }, { "waitText": text },
- * { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
+ * { "clickText": text } (the first button or link whose own text is that, ignoring case: a
+ * control with no selector of its own, such as Skip setup or a top tab), { "scrollTop": css } (scroll `main` so that element's top is at the column's top),
  * { "rows": css } (count the whole rows of that selector in view; with scrollTop, once more after it),
  * { "gap": [from, to], "label"? } (once the page is quiet: the layout px from the right edge of the
  * first match of `from` to the left edge of the first match of `to`, for an action that is not at a
@@ -371,6 +372,11 @@ async function capture(browser, base, plan, shot, size, outDir) {
     if (s.click) {
       await page.waitForSelector(s.click);
       await page.$eval(s.click, (el) => el.click());
+    }
+    if (s.clickText) {
+      const find = (t) => [...document.querySelectorAll("button, a")].find((el) => el.textContent.trim().toLowerCase() === t.toLowerCase());
+      await page.waitForFunction(find, {}, s.clickText);
+      await page.evaluate((t) => [...document.querySelectorAll("button, a")].find((el) => el.textContent.trim().toLowerCase() === t.toLowerCase()).click(), s.clickText);
     }
     if (s.rows) extra[s.label ?? "rows"] = await rowsInView(page, s.rows);
     if (s.scrollTop)

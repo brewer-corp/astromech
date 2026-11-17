@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/svelte";
+import { fireEvent, render, screen, within } from "@testing-library/svelte";
 import type { Overview } from "../../lib/powerplay";
 import { answer } from "../../test/transport";
 import View from "./View.svelte";
@@ -24,7 +24,7 @@ const standing: Overview["standing"] = {
   session_merits: 1329,
   week_merits: 1829,
   week_ends: new Date(NOW + 3 * 86400000).toISOString(),
-  next: { rank: 10, merits: 55000, to_go: 7871, reward: "Care package", note: null },
+  next: { rank: 10, from: 47000, merits: 55000, to_go: 7871, reward: "Care package", note: null },
 };
 
 const undermine: Overview["system"] = {
@@ -68,13 +68,13 @@ describe("Powerplay page", () => {
     expect(screen.getByText("1,329")).toBeTruthy();
     expect(screen.getByText("7,871")).toBeTruthy();
     expect(screen.getByText(/Care package/)).toBeTruthy();
-    expect(screen.getByText("262 days")).toBeTruthy();
+    expect(screen.getByText(/Pledged 37 weeks/)).toBeTruthy();
   });
 
   it("says so when not pledged", async () => {
     overview.mockResolvedValue({ standing: { ...standing, power: null, rank: null, merits: null, next: null }, here: null, system: null });
     render(View);
-    expect(await screen.findByText(/Not pledged to a power/)).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Not pledged" })).toBeTruthy();
   });
 
   it("shows the current system's Powerplay state", async () => {
@@ -84,7 +84,15 @@ describe("Powerplay page", () => {
     expect(screen.getByText("Pranav Antal")).toBeTruthy();
     expect(screen.getByText("Exploited")).toBeTruthy();
     expect(screen.getByText("8%")).toBeTruthy();
-    expect(screen.getByText("Li Yong-Rui", { selector: "dd" })).toBeTruthy();
+    expect(within(screen.getByRole("region", { name: "This system" })).getByText(/Li Yong-Rui/)).toBeTruthy();
+  });
+
+  it("says nothing about who is ahead while a figure is missing", async () => {
+    overview.mockResolvedValue({ standing, here: undermine.system, system: { ...undermine, reinforcement: null } });
+    render(View);
+    const here = within(await screen.findByRole("region", { name: "This system" }));
+    expect(await here.findByText("9")).toBeTruthy();
+    expect(here.queryByText(/ahead|Level/)).toBeNull();
   });
 
   it("shows acquisition progress in an unoccupied system", async () => {

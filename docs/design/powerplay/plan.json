@@ -1,0 +1,147 @@
+{
+ "out": "docs/design/powerplay",
+ "query": "core=ready&route=exact",
+ "sizes": [
+  {
+   "w": 1100,
+   "h": 700,
+   "step": 100
+  },
+  {
+   "w": 1400,
+   "h": 900,
+   "step": 100
+  },
+  {
+   "w": 1200,
+   "h": 800,
+   "step": 115
+  },
+  {
+   "w": 1920,
+   "h": 1080,
+   "step": 100
+  },
+  {
+   "w": 2560,
+   "h": 1440,
+   "step": 145
+  },
+  {
+   "w": 3840,
+   "h": 2160,
+   "step": 180
+  }
+ ],
+ "shots": [
+  {
+   "name": "pledged",
+   "hash": "powerplay",
+   "steps": [
+    {
+     "waitSel": "[role=table][aria-label=Results] .row.result"
+    }
+   ],
+   "sizes": [
+    "1100x700",
+    "1400x900",
+    "1200x800",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+   ]
+  },
+  {
+   "name": "pledged-reinforce",
+   "hash": "powerplay",
+   "sizes": [
+    "1100x700",
+    "1400x900",
+    "1200x800",
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+   ],
+   "steps": [
+    {
+     "waitSel": "[role=table][aria-label=Results] .row.result"
+    },
+    {
+     "click": "[role=group][aria-label=Work] button:nth-child(2)"
+    },
+    {
+     "waitText": "Lembava"
+    }
+   ]
+  },
+  {
+   "name": "pledged-undermine",
+   "hash": "powerplay",
+   "sizes": [
+    "1920x1080",
+    "2560x1440",
+    "3840x2160"
+   ],
+   "steps": [
+    {
+     "waitSel": "[role=table][aria-label=Results] .row.result"
+    },
+    {
+     "click": "[role=group][aria-label=Work] button:nth-child(3)"
+    },
+    {
+     "waitText": "exploited"
+    }
+   ]
+  },
+  {
+   "name": "not-pledged",
+   "hash": "powerplay",
+   "query": "core=empty&route=exact",
+   "sizes": [
+    "1100x700",
+    "1920x1080",
+    "2560x1440"
+   ],
+   "steps": [
+    {
+     "clickText": "Skip setup"
+    },
+    {
+     "clickText": "Powerplay"
+    },
+    {
+     "waitText": "Not pledged"
+    }
+   ]
+  },
+  {
+   "name": "loading",
+   "hash": "powerplay",
+   "query": "core=ready&route=exact&slow=never:powerplay_overview",
+   "sizes": [
+    "1100x700",
+    "1920x1080"
+   ],
+   "steps": [
+    {
+     "waitText": "Reading the journal"
+    }
+   ]
+  },
+  {
+   "name": "failed",
+   "hash": "powerplay",
+   "query": "core=ready&route=exact&fail=powerplay_overview",
+   "sizes": [
+    "1100x700",
+    "1920x1080"
+   ],
+   "steps": [
+    {
+     "waitText": "Not shown until"
+    }
+   ]
+  }
+ ]
+}

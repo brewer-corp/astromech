@@ -3,6 +3,7 @@
   "standing": {
     "merits": 47129,
     "next": {
+      "from": 47000,
       "merits": 55000,
       "note": null,
       "rank": 10,

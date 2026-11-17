@@ -412,9 +412,15 @@ export function shellCommands(publish: (topic: string, payload: unknown) => void
       })),
     engineering_search: ({ query }) => previewData("engineering_search", () => searchEngineersSample(query), () => searchEngineersSample("")),
     powerplay_overview: () => {
-      const o = powerplaySample;
+      // The core counts the cycle to the wall clock (the fixture keeps the end it was dumped
+      // with), so the sample's end moves on by whole weeks to the cycle the clock is in, as the
+      // core's would: same weekday and hour.
+      const WEEK = 7 * 86400000;
+      const ends = Date.parse(powerplaySample.standing.week_ends);
+      const week_ends = new Date(ends + Math.max(0, Math.ceil((Date.now() - ends + 1) / WEEK)) * WEEK).toISOString();
+      const o: Overview = { ...powerplaySample, standing: { ...powerplaySample.standing, week_ends } };
       const unpledged: Overview = {
-        standing: { power: null, rank: null, merits: null, time_pledged_secs: null, session_merits: 0, week_merits: 0, week_ends: o.standing.week_ends, next: null },
+        standing: { power: null, rank: null, merits: null, time_pledged_secs: null, session_merits: 0, week_merits: 0, week_ends, next: null },
         here: null,
         system: null,
       };
@@ -427,7 +433,7 @@ export function shellCommands(publish: (topic: string, payload: unknown) => void
     },
     odyssey_view: () =>
       previewData("odyssey_view", () => odysseySample.view, () => ({
-        ...odysseySample.view, source: "No journal yet", locker_ts: null, backpack_ts: null, items: [], owned: [],
+        ...odysseySample.view, source: "No journal yet", locker_ts: null, backpack_ts: null, items: [], owned: [], loadouts: [],
       })),
     // Only the sample picks have a shopping list.
     odyssey_shopping: ({ picks }) => forPlan("odyssey_shopping", samePicks(picks, odysseySample.picks) ? odysseySample.shopping : undefined, NO_SHOPPING, NO_SHOPPING),
