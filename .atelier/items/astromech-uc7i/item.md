@@ -151,3 +151,8 @@ page reference), `using-the-app.md`, `places.md` (one PLACES page), and DESIGN.m
   (`59959ec1`). Folding it returns to the rail without saving a folded choice. A route arriving
   clears the flag. A new browser test covers the cold link, the fold back to the rail and the
   palette's Route.
+
+### Responses
+
+1-l239.1: fixed in dfe596b9
+1-l239.2: fixed in 59959ec1
