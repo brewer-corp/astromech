@@ -14,6 +14,9 @@ export class Poll<T> {
   /** The last read failed, saying what it read either way ("Could not read the session: …"),
    * for a line that sits apart from the answer it qualifies. */
   reason = $state<string | null>(null);
+  /** When the last read settled, answered or failed: the clock a block that tells time reads, so
+   * it moves on while the core is silent too (the Powerplay cycle turns over without an answer). */
+  at = $state(Date.now());
 
   constructor(
     private readonly read: () => Promise<T>,
@@ -30,10 +33,12 @@ export class Poll<T> {
           this.loaded = true;
           this.failed = null;
           this.reason = null;
+          this.at = Date.now();
         })
         .catch((e: unknown) => {
           this.failed = pollFailure(this.what, e, this.loaded);
           this.reason = failure(this.what, e);
+          this.at = Date.now();
         });
     void tick();
     const t = setInterval(() => void tick(), this.every);

@@ -7,6 +7,7 @@
  */
 import { usePreview, type Transport } from "../lib/transport";
 import { bindsCommands, onPreviewPress } from "./binds";
+import { installPreviewClock } from "./clock";
 import { coreCommands, fakeScenario } from "./fakecore";
 import engineeringSample from "./fixtures/engineering.json";
 import odysseySample from "./fixtures/odyssey.json";
@@ -69,4 +70,5 @@ export const previewTransport: Transport = {
   option: (name) => previewQuery().get(name) ?? storedDefault(name),
 };
 
+installPreviewClock(previewQuery().get("clock"));
 usePreview(previewTransport);
