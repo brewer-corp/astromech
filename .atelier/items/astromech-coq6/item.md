@@ -82,13 +82,16 @@ Its files start outside `TOKENS_EXEMPT`; the moved Station, Session and Mining p
 - **Same answer as the finder:** it asks `trade_cargo` with the Sell my cargo finder's saved `trade.cargo` filters, so its station is that finder's first row.
 - **When it asks:** the change key is `saleKey()` in `lib/now.ts`, with the table test the item lists in `now.test.ts`. The block asks when it first draws and when the key differs from the last key *asked*, not the last answered. So a failed ask isn't repeated on every poll; TRY AGAIN repeats it.
 - **No double ask on opening:** the block waits until `docked_here` has answered once, so opening the page asks once.
+- **A missed frame read:** the page keeps the last answered status and ship, as its own polls keep theirs. So one failed `status` or `ship_status` read neither hides the blocks nor asks again. This was found in review and fixed test first.
+- **While it asks:** the old total drops Orange Lit and is Grey Dim, and the jump test checks that colour.
+- **Filters:** a failed read of the saved filters fails the ask, with TRY AGAIN. It doesn't fall back to defaults that would disagree with the finder.
 - **"takes" words:** they come from `takes()` in `lib/trade.ts`, which the finder's row now uses too, with its table test.
 - **No network:** the block shows the core's own words: "Could not ask Ardent Insight: Cannot reach Ardent Insight. Check your internet connection…".
 
 ### Main value and warning
 
 - **Orange Lit:** whether a block "shows" its figure means the figure is on screen. With no station in reach the sale has no total, so the session takes Orange Lit.
-- **Exploration data at risk:** "! 38.1 M cr of exploration data aboard, unsold. Dying loses all of it." with a link to System.
+- **Exploration data at risk:** "! 38.1 M cr of exploration data aboard, unsold. Dying loses all of it." with a link to System. No test or capture covers it: the recorded `exploration_unsold` has `risky: false`, and the test rules allow written replies only for Elite running and failures. I looked at it once at 1100 x 700, with a local change to the sample that I did not keep. It reads on one line, and the audit listed nothing.
 
 ### Station type icons (own commit, d66ee9fd)
 
@@ -107,7 +110,9 @@ Measured by bisecting the window width in the preview at each step. One row need
 
 ### Checks
 
-- **Results:** `pnpm check`, `pnpm lint` and `pnpm test` pass (93 files, 787 tests). So do the journeys (7) and `python3 scripts/check-guide.py`, and the fixture drift test after the dump.
+- **Results:** `pnpm check`, `pnpm lint` and `pnpm test` pass (93 files, 788 tests). So do the journeys (7), `python3 scripts/check-guide.py`, `pnpm build` with `scripts/check-dist.py`, `pnpm bridge-check`, and the fixture drift test after the dump.
+- **Order:** the blocks are in the item's order: Sell your cargo, This session, Powerplay, Mining.
+- **V1-DESIGN.md:** its navigation and its decision on the default screen now say the window opens on Now. The old decision is kept, marked as changed.
 - **Lint lists:** both page-sizing parts and the token check are on for `now/**` and `station/{Head,Board}.svelte`, confirmed with `eslint --print-config`. Station's `TOKENS_EXEMPT` entry is narrowed to `station/{View,Market}.svelte`.
 - **Browser tests:** in `now/View.browser.test.ts`. Each written reply only sets the failure, the empty `stations`, or holds the second answer back, which is the recorded answer released later.
 
@@ -122,5 +127,6 @@ Measured by bisecting the window width in the preview at each step. One row need
 ### Seen, not changed
 
 - **"0 h 0 min left in the cycle":** shown in the preview, on Powerplay too. The recorded world's clock is October, and the core works `week_ends` out from the current time (`astromech-powerplay` `standing.rs:217`), so live it shows the real time left.
+- **Audit tool:** `scripts/browser/audit.mjs` takes the repo root as three folders above the plan, so a plan has to sit at `docs/design/<name>/plan.json`.
 - **No Finish setup width:** Finish setup's width is not measured. The preview has no scenario with setup unfinished after onboarding, as astromech-5a01 found.
 

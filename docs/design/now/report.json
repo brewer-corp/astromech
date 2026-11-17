@@ -1,5 +1,5 @@
 {
- "commit": "6efce2f8",
+ "commit": "d44ac565",
  "captures": {
   "docked-1100x700": {
    "url": "http://localhost:5291/?core=ready&route=exact&game=running&textsize=100#/now",
@@ -778,11 +778,11 @@
      "texts": [
       "4 of 10",
       "7",
-      "Mining",
       "Sell your cargo",
       "L",
       "This session",
       "Powerplay",
+      "Mining",
       "18.0",
       "24.6",
       "32",
@@ -809,10 +809,10 @@
       "Ctrl+K",
       "Help",
       "Maia",
-      "Mining",
       "Sell my cargo",
       "Session",
-      "Powerplay"
+      "Powerplay",
+      "Mining"
      ]
     },
     {
@@ -997,11 +997,11 @@
      "sidebar": false,
      "weight": 10,
      "texts": [
-      "Mining",
       "Sell your cargo",
       "L",
       "This session",
       "Powerplay",
+      "Mining",
       "18.0",
       "24.6",
       "32",
@@ -1172,11 +1172,11 @@
      "sidebar": false,
      "weight": 10,
      "texts": [
-      "Mining",
       "Sell your cargo",
       "L",
       "This session",
       "Powerplay",
+      "Mining",
       "18.0",
       "24.6",
       "32",
