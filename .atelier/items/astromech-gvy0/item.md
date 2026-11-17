@@ -51,6 +51,8 @@ Every page outside Controls that gets no screen of its own still stops sizing it
 - [ ] The existing tests of the converted pages (`stored`, `mining`, `datasharing`, `voicetester` and the Places home) keep their behaviour on the new markup; none is added for layout. The guide pages of the converted pages describe them as they are.
 - [ ] `pnpm check`, `pnpm lint` and `pnpm test` pass, then the journeys (`node --test 'journeys/*.journey.ts'`, as CONTRIBUTING.md says). One full test run at a time: each agent here has 4 GB.
 
+- [ ] Leftovers the screen items handed here are done: the Places finders and the Now page draw a pad through the shared `app/src/lib/ui/PadLetter.svelte` astromech-el3i built, with no copies of their own; the candidates section of Colonisation (`Colonies.svelte`) prints no explanation, its text moving to a Tip (left by astromech-m07p); and the states those items could not capture for want of data are either captured from a recorded fixture or listed in the Report as not captured, with the reason: Colonisation with everything aboard, a failed project and an unknown cargo capacity; Biology with nothing being sampled and an empty system; the Now page's exploration data at risk line.
+
 ## Scope
 
 The pages no other item rebuilds, the last lint lists, the button's padding and the mission's fills-the-window evidence. It is blocked on every other screen item and on astromech-zaqh; astromech-crxa follows it.
