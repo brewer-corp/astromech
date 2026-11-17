@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/svelte";
 import { userEvent } from "vitest/browser";
 import { answer, previewAnswer } from "../../test/transport";
@@ -53,9 +53,37 @@ describe("Exploration system view", () => {
     expect(panel.getByText("First discovery, never mapped")).toBeTruthy();
     expect(panel.getByText("2 times")).toBeTruthy();
     expect(panel.getByRole("link", { name: "Open in Biology" }).getAttribute("href")).toBe("#/exobiology");
+    // The row is the tree's one tab stop; the next stop is the panel's first tag, whose Tip says
+    // what it means.
+    await userEvent.tab();
+    expect(document.activeElement?.textContent).toBe("Landable");
+    expect(document.activeElement?.closest("[aria-label=Tags]")).toBeTruthy();
+    moon.focus();
     // The keyboard moves the selection up the tree.
     await userEvent.keyboard("{ArrowUp}");
     expect(panel.getByRole("heading", { name: "A 4" })).toBeTruthy();
+  });
+
+  it("drops the selection on a jump, so a return to the system starts with none", async () => {
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
+    try {
+      const here = await previewAnswer("exploration_system");
+      let reply = here;
+      answer("exploration_system", () => reply);
+      render(View);
+      await screen.findByText("Icy body");
+      await userEvent.click(screen.getByText("Icy body"));
+      expect(screen.getByRole("complementary", { name: "Details" })).toBeTruthy();
+      reply = { ...here, system: "Next", system_address: 7_000_002, bodies: [], body_count: null, all_found: false, value: 0, value_if_mapped: 0 };
+      await vi.advanceTimersByTimeAsync(3000);
+      await screen.findByText(/^Nothing scanned here yet/);
+      reply = here;
+      await vi.advanceTimersByTimeAsync(3000);
+      await screen.findByText("Icy body");
+      expect(screen.queryByRole("complementary", { name: "Details" })).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("says when nothing is scanned yet, with no tree", async () => {

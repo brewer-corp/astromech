@@ -14,6 +14,8 @@
   import { tip } from "../../lib/ui/tip";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import ListDetail from "../../lib/ui/layout/ListDetail.svelte";
+  import { at100 } from "../../lib/ui/layout/layout";
+  import { scale } from "../../lib/scale.svelte";
 
   let view = $state<SystemView | null>(null);
   let failed = $state<string | null>(null);
@@ -23,6 +25,8 @@
     const tick = () =>
       loadSystem()
         .then((v) => {
+          // A new system drops the selection; a poll of the same one keeps it.
+          if (view && (v.system_address !== view.system_address || v.system !== view.system)) picked = null;
           view = v;
           failed = null;
         })
@@ -128,12 +132,45 @@
   const ESTIMATE = "Estimated with the community's exploration value formulae, the same ones EDSM and OD Explorer use";
   const IF_MAPPED = "The system's value once you map every body worth mapping, within the efficiency target";
   const MAPPED = "Each body's value mapped with the Detailed Surface Scanner, within the efficiency target";
-  /** The narrowest the tree keeps its columns at beside the panel, its tags wrapping at most once
-   * (px at 100 percent Text size); narrower, the panel goes below it. */
-  const TREE_MIN = 800;
+  /**
+   * The tree's own width with every row's tags on one line, in px at 100 percent Text size: the
+   * narrowest it keeps beside the panel, so the panel goes below the tree before a tag wraps
+   * (DESIGN.md The Aligned Columns Rule). The value, distance and body columns are max-content, so
+   * their tracks are their natural widths whatever the room; the tags are measured badge by badge,
+   * since their cell wraps when it must (a stacked page narrower than the tree).
+   */
+  let tree = $state<HTMLElement>();
+  let natural = $state(0);
+  function measure() {
+    if (!tree) return;
+    const cs = getComputedStyle(tree);
+    const tracks = cs.gridTemplateColumns.split(" ").map(parseFloat);
+    const gap = parseFloat(cs.columnGap) || 0;
+    const row = tree.querySelector<HTMLElement>(".row.body");
+    const rs = row ? getComputedStyle(row) : null;
+    const pad = rs ? parseFloat(rs.paddingLeft) + parseFloat(rs.paddingRight) : 0;
+    let tags = 0;
+    for (const cell of tree.querySelectorAll<HTMLElement>(".tags")) {
+      const badges = Array.from(cell.children) as HTMLElement[];
+      const between = parseFloat(getComputedStyle(cell).columnGap) || 0;
+      const w = badges.reduce((sum, b) => sum + b.getBoundingClientRect().width, 0) + between * Math.max(0, badges.length - 1);
+      tags = Math.max(tags, w);
+    }
+    const px = (tracks[0] ?? 0) + (tracks[1] ?? 0) + (tracks[2] ?? 0) + tags + 3 * gap + pad;
+    natural = Math.ceil(at100(px, scale.step));
+  }
+  $effect(() => {
+    void rows;
+    void scale.step;
+    if (!tree) return;
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(tree);
+    return () => ro.disconnect();
+  });
 </script>
 
-<ListDetail panel={chosen ? about : null} selected={picked} min={TREE_MIN}>
+<ListDetail panel={chosen ? about : null} selected={picked} min={natural || undefined}>
   <div class="page">
     <Stale error={view ? failed : null} />
     {#if failed && !view}
@@ -159,7 +196,7 @@
     {/if}
     {#if view?.system}
       {#if rows.length}
-        <div class="tree" role="treegrid" aria-label="Bodies">
+        <div class="tree" role="treegrid" aria-label="Bodies" bind:this={tree}>
           <div class="row heads" role="row">
             <span class="r type-label" role="columnheader" {@attach tip(MAPPED)}>Mapped value</span>
             <span class="r type-label" role="columnheader">Distance</span>
@@ -224,6 +261,11 @@
       <dt class="type-label">Discovery</dt><dd class="type-figures">{discovery(b)}</dd>
       {#if b.landable}<dt class="type-label">Landings</dt><dd class="type-figures">{b.landings === 0 ? "None yet" : b.landings === 1 ? "Once" : `${b.landings} times`}</dd>{/if}
     </dl>
+    <!-- The row's tags again, each with its Tip and a tab stop: the keyboard's way to what a
+         badge means (in the tree the row is the one stop, so its badges take none). -->
+    {#if tags(b).length}
+      <div class="ptags" role="group" aria-label="Tags">{#each tags(b) as t (t.text)}<Badge {@attach tip({ title: t.text, fact: t.means })}>{t.text}</Badge>{/each}</div>
+    {/if}
     {#if b.bio_signals}<p class="pacts"><a class="type-action" href="#/exobiology">Open in Biology</a></p>{/if}
   {/if}
 {/snippet}
@@ -302,6 +344,8 @@
   /* Names keep a common start for their classes within a level (most are "A 1"-short). */
   .name { min-width: var(--sp-12); margin-left: var(--sp-2); }
   .cls { margin-left: var(--sp-4); }
+  /* One line beside the panel (the panel stacks first); wrapped only on a stacked page narrower
+     than the tree, rather than scrolling sideways. */
   .tags { display: flex; flex-wrap: wrap; gap: var(--sp-1); padding-block: var(--sp-1); }
   /* Selected, while the side panel shows it (DESIGN.md States): Hull Raised, the name White,
      other text one step brighter. The tree is not ranked, so no value turns orange. */
@@ -316,6 +360,7 @@
   .pmain { margin-top: var(--sp-6); margin-bottom: var(--sp-2); }
   .pfacts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--sp-2) var(--sp-6); margin-top: var(--sp-6); }
   .pfacts dt { align-self: baseline; }
+  .ptags { display: flex; flex-wrap: wrap; gap: var(--sp-1); margin-top: var(--sp-6); }
   .pacts { margin-top: var(--sp-8); }
   .pacts a { text-decoration: none; }
   .pacts a:hover { color: var(--orange-lit); }
