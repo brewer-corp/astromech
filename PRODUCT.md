@@ -52,7 +52,7 @@ Journal-backed pages refresh every few seconds. Voice and history stay on the PC
 - English only.
 - Unofficial Frontier fan project; not affiliated with or endorsed by Frontier Developments. No Frontier art, audio, fonts, copies of game files, or datamined data.
 - Unsigned per-user Windows install (`%LOCALAPPDATA%\astromech`). SmartScreen on first run is expected.
-- Stock orange, plus red for hard errors (the game uses red for danger and malfunction); staleness is shown by orange brightness, not red. No colour or theme customisation, and no following the in-game HUD colour.
+- Stock orange for what matters and neutral greys for data, plus red: alarm red for hard errors (the game uses red for danger and malfunction), and a duller red only for a fact that rules a result out (a pad too small, demand short of the hold). Staleness is shown by orange, not red. Any other use of colour carries a stated meaning on DESIGN.md's list (Sumeet, 17 Nov 2026). No other hue, no colour or theme customisation, and no following the in-game HUD colour.
 - Read-only by default: a copy of `.binds`, and SendInput only for voice actions the commander asked for.
 - Kill switch and policy are product ground.
 - No VR UI in v1. Voice still has to work while they fly in VR.
@@ -66,7 +66,7 @@ Name: **astromech**. Voice-first copilot, not a ship personality.
 
 Spoken replies sit in the same register as Elite's COVAS: impersonal present tense, no contractions, no jokes, no "I". Default colour Cockpit. Recreate the register; do not clone Frontier samples or actors.
 
-UI speaks Elite's own design language: the game's Controls and station screens as the visual register, in the game's orange, with the sparse, scannable thinking of its station screens (one main value per element, state shown by orange brightness and a solid fill for selection). Deviations from the game are deliberate and each is justified in [DESIGN.md](DESIGN.md), which defines the dialect and is binding; it is not a licence to invent a new colour world.
+UI speaks Elite's own design language: the game's Controls and station screens as the visual register, in the game's orange, with the sparse, scannable thinking of its station screens (one main value per element, orange for what ranks and what can be acted on, state shown by brightness, a selected row raised). Deviations from the game are deliberate and each is justified in [DESIGN.md](DESIGN.md), which defines the dialect and is binding; it is not a licence to invent a new colour world.
 
 Ship hulls in the window are CMDR Qohen Leth's cartoon vectors from EDAssets (CC BY-NC-SA 4.0), credited in NOTICE.md. They stand in for the hull because Frontier 3D and game screenshots are off limits. Engineer access uses CMDR Robert Phillips' engineer mark from EDAssets, one mark per rank as the game does.
 
@@ -92,7 +92,7 @@ Do not invent testimonials, commander quotes, benchmarks, pricing, or affiliatio
 2. Local and grammar-first. The copilot must work with no cloud model and no LLM.
 3. Honest about binds and about the game. Health marks, Status.json checks, and copy that does not pretend astromech typed into Elite.
 4. Small and solid. Two headline jobs done well beat a panel zoo or a personality.
-5. Stay unofficial and stay in Elite's own register. Stock orange, plus red for hard errors, Elite's design language (DESIGN.md), English, no Frontier assets.
+5. Stay unofficial and stay in Elite's own register. Stock orange and greys, plus red for hard errors, Elite's design language (DESIGN.md), English, no Frontier assets.
 
 ## Accessibility & Inclusion
 
