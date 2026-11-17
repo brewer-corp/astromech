@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-8jqg
 title: 'Glance test: Now in space has two main values, the orange mining rate and the larger cargo total'
-status: building
+status: in_review
 mission: astromech-xajc
 labels:
 - bug
