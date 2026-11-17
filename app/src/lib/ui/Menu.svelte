@@ -3,17 +3,20 @@
 </script>
 
 <script lang="ts">
-  // An icon button that opens a short menu of one-off actions (the Route page's ⋯: Import, Open
-  // on Spansh, Clear route). The menu is DESIGN.md's popover: Hull Raised, Seam border, 34 px
+  // An icon button that opens a short menu of one-off actions (the route sidebar's ⋯: Import,
+  // Open on Spansh, Clear route). The menu is DESIGN.md's popover: Hull Raised, Seam border, 34 px
   // rows in Orange, Row Hover under the pointer, a Label line under an item that needs one. It
-  // opens under the button at its right edge. Arrows move, Enter or a click runs an item and
-  // closes the menu, Escape or a click outside closes it.
+  // opens under the button at its right edge, or at its left edge where the window has no room
+  // to the left (the button near the window's left edge, as in the sidebar). Arrows move, Enter
+  // or a click runs an item and closes the menu, Escape or a click outside closes it.
   import type { GlyphName } from "./Glyph.svelte";
   import IconButton from "./IconButton.svelte";
 
   let { icon = "more", label, items }: { icon?: GlyphName; label: string; items: MenuItem[] } = $props();
 
   let open = $state(false);
+  /** Open from the button's left edge: there is no room for the menu to its left. */
+  let start = $state(false);
   let box = $state<HTMLElement>();
   let list = $state<HTMLElement>();
   const id = `menu-${Math.random().toString(36).slice(2, 8)}`;
@@ -48,6 +51,12 @@
     e.stopPropagation();
   }
 
+  // Where the menu opens: measured once it is drawn, before it is painted.
+  $effect(() => {
+    if (!open || !list || !box) return void (start = false);
+    start = box.getBoundingClientRect().right - list.offsetWidth < 0;
+  });
+
   $effect(() => {
     if (!open) return;
     const outside = (e: Event) => {
@@ -66,7 +75,7 @@
 <span class="menu" bind:this={box} onkeydown={key}>
   <IconButton {icon} {label} aria-haspopup="menu" aria-expanded={open} aria-controls={id} onclick={toggle} />
   {#if open}
-    <div class="pop" {id} role="menu" aria-label={label} bind:this={list}>
+    <div class="pop" class:start {id} role="menu" aria-label={label} bind:this={list}>
       {#each items as item (item.label)}
         <button type="button" role="menuitem" class="item" disabled={item.disabled} tabindex="-1" onclick={() => run(item)}>
           <span>{item.label}</span>
@@ -80,6 +89,7 @@
 <style>
   .menu { position: relative; display: inline-flex; }
   .pop { position: absolute; z-index: 20; right: 0; top: 100%; margin-top: var(--gap); width: max-content; max-width: min(22.5rem, calc(100vw - 2rem)); background: var(--surface-hi); border: 1px solid var(--line); }
+  .pop.start { right: auto; left: 0; }
   .item { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: var(--row); padding: var(--sp-2) var(--sp-3); color: var(--accent); font-weight: 500; }
   .item:hover:not(:disabled) { background: var(--cell); }
   /* Label Grey is 4.4:1 on a cell, so a hovered item's hint steps up to Prose Grey. */
