@@ -3,7 +3,7 @@ schema: atelier.item
 schema_version: 3
 id: astromech-7did
 title: 'Engineers: search by module type answers where to engineer it'
-status: in_review
+status: approved
 mission: astromech-xajc
 labels:
 - size-m
