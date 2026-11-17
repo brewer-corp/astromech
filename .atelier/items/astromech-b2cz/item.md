@@ -58,8 +58,8 @@ or measure from the old zoom's floor).
 way on the base commit (e8890914, checked in a separate worktree with its own core build).
 The failing journeys are `plot a route from the page and follow it`, `a jump into the next stop
 copies and reads out the one after`, and `the kill switch shows on in the page and goes off
-after a re-arm`. Each one times out waiting for a `.next .sys` locator that the page no longer
-draws that way. They broke before this item, probably with the nav rework merge, and need an
+after a re-arm`. The two route journeys time out waiting for `.next .sys`, and the kill-switch one for
+`header .state`; the page no longer draws either that way. They broke before this item, probably with the nav rework merge, and need an
 issue. I'm on an item branch, where `atelier new` can't file one.
 
 What changed:
@@ -89,8 +89,9 @@ What changed:
   they follow the image and not the text. Glyph, ShipIcon and SearchKit's script-side column
   widths are in rem. Split, Workbench and SearchKit's compact row compared px-at-100%
   numbers with measured widths, and now compare through `layout.ts`'s `at100()`, with a test.
-- **Late core**: `startScale` asks again on each status poll until the core answers, then
-  stops. Before, a core that wasn't up yet left the window at 100 percent for the session.
+- **Late core**: `startScale` asks again on each status poll until the core answers and, for
+  a picked or migrated step, the save succeeds; then it stops (review round 1 found a failed
+  save counted as done). Before, a core that wasn't up yet left the window at 100 percent for the session.
   There's a test for this.
 - **CONTRIBUTING**: the journeys' core binary is built by `cargo build -p astromech-app --bin
   astromech-core`. The old `-p astromech-core` builds only the library.
@@ -112,7 +113,9 @@ Checks:
   page.
 - The `@container win` rules are in rem. One switch checked directly: `nav.sub`'s gap is the
   narrow rule's 1rem (28.8 px) at 1920 x 1080 at 180 percent and the wide 24 px at 100.
-- The controller sheet at 2560 x 1440 at 145 percent: labels fit their boxes.
+- The controller sheet at 2560 x 1440 at 145 percent: labels fit their boxes. Its column now
+  caps at 73.75rem (review round 1): the side panel sits 28 px after the sheet at 2560 x 1440
+  at 100 and 50 px at 3840 x 2160 at 180, with the spare width empty after it.
 - Engineering's module cards truncate long blueprint names in their dropdowns, with an
   ellipsis, at 100 percent as well as at 180. The cause is the `auto-fill` card width, not
   this change.
