@@ -1,8 +1,8 @@
 <script lang="ts">
   // The Station page (DESIGN.md Board), under NOW: what is left of the station docked at once the
-  // Now page has shown its services, read as answers. The shared station head, one compact fact
-  // list, the market against nearby prices (Market), the upgrades its outfitting sells for the
-  // ship flown, and a search over every outfitting the core has seen: "where did I see a 5A
+  // Now page has shown its services, read as answers. The shared station head, then the market
+  // against nearby prices (Market), which holds the page's main value, then one compact fact list,
+  // the upgrades its outfitting sells for the ship flown, and a search over every outfitting the core has seen: "where did I see a 5A
   // drive?" works offline.
   import Input from "../../lib/ui/Input.svelte";
   import { tip } from "../../lib/ui/tip";
@@ -80,8 +80,21 @@
         <p class="type-label">Not docked. Dock somewhere and the station's facts show here.</p>
       </div>
     {:else}
-      <div class="lead">
-        <Head {here} />
+      <!-- The market leads, right under the station's name: the hold's first gain is the page's
+           main value (astromech-vru4), so nothing above it but the name. -->
+      <Head {here} />
+
+      <section aria-labelledby="market-head">
+        <h3 class="section" id="market-head">Market</h3>
+        {#if !here.services.includes("commodities")}
+          <p class="type-label">This station has no market.</p>
+        {:else}
+          <Market marketId={here.market_id} />
+        {/if}
+      </section>
+
+      <section aria-labelledby="facts-head">
+        <h3 class="section" id="facts-head">The station</h3>
         <dl class="facts">
           {#if here.faction}
             <dt class="type-label">Faction</dt>
@@ -110,15 +123,6 @@
         </dl>
         {#if also.length}<p class="type-label">Also: {also.map(serviceName).join(", ")}</p>{/if}
         {#if here.source}<p class="type-label">{here.source}</p>{/if}
-      </div>
-
-      <section aria-labelledby="market-head">
-        <h3 class="section" id="market-head">Market</h3>
-        {#if !here.services.includes("commodities")}
-          <p class="type-label">This station has no market.</p>
-        {:else}
-          <Market marketId={here.market_id} />
-        {/if}
       </section>
 
       <section aria-labelledby="outfitting-head">

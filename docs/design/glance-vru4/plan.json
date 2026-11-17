@@ -1,0 +1,13 @@
+{
+ "out": "docs/design/glance-vru4/after",
+ "query": "core=ready&route=exact&game=running",
+ "clock": "2026-10-20T11:23:00Z",
+ "sizes": [
+  { "w": 1100, "h": 700, "step": 100 },
+  { "w": 2560, "h": 1440, "step": 145 }
+ ],
+ "shots": [
+  { "name": "station", "hash": "station", "steps": [{ "waitText": "Arc City" }] },
+  { "name": "station-market", "hash": "station", "steps": [{ "waitText": "Arc City" }, { "scrollTop": "#market-head" }] }
+ ]
+}
