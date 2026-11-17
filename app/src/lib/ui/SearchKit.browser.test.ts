@@ -185,6 +185,33 @@ describe("SearchKit", () => {
     expect(stale[0]!.querySelector(".age.old")?.textContent).toBe("212 d old");
   });
 
+  it("fits a far, old report's distance and age on the trip line of a list with no side panel", async () => {
+    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
+    const far = { ...results.rows[0]!, ly: 1426.2, jumps: 46, exact: false, updated_at: daysAgo(2070) };
+    kit(vi.fn().mockResolvedValue({ ...results, rows: [far] }), { offers: ["age"] });
+    expect(await screen.findByText("2,070 d old")).toBeTruthy();
+    const line = document.querySelector(".first .l2") as HTMLElement;
+    expect(line.textContent?.replace(/\s+/g, " ")).toBe("1,426.2ly · 2,070 d old");
+    expect(line.scrollWidth).toBeLessThanOrEqual(line.clientWidth);
+  });
+
+  it("marks a report older than 30 days that a longer age filter lets through", async () => {
+    loadFilters.mockResolvedValue({ ...DEFAULT_FILTERS, max_age_days: 90 });
+    const r: Results = {
+      ...results,
+      fetched: new Date(NOW).toISOString(),
+      rows: [
+        { key: 1, system: "Recent", ly: 1, jumps: 1, exact: true, updated_at: daysAgo(10) },
+        { key: 2, system: "Older", ly: 2, jumps: 1, exact: true, updated_at: daysAgo(45) },
+      ],
+    };
+    kit(vi.fn().mockResolvedValue(r), { offers: ["age"] });
+    expect(await screen.findByText("Older")).toBeTruthy();
+    const stale = screen.getAllByRole("row").filter((row) => row.classList.contains("stale"));
+    expect(stale.map((row) => row.textContent)).toEqual([expect.stringContaining("Older")]);
+    expect(stale[0]!.querySelector(".age.old")?.textContent).toBe("45 d old");
+  });
+
   it("hides reports older than the age filter and counts the ones that came back", async () => {
     loadFilters.mockResolvedValue({ ...DEFAULT_FILTERS, max_age_days: 7 });
     const r: Results = {

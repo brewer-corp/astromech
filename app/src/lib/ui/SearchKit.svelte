@@ -116,7 +116,7 @@
     onanswer?: (top: { figure: string; unit: string } | null) => void;
     /** What a `bars` fact's tonnes are measured against (Sell: the commodity aboard; Buy: the free space). */
     measure?: { side: "sell" | "buy"; against: Against } | null;
-    /** The ship as of each search (`ship_status`), for what the finder measures against. */
+    /** The ship as read every 2 s (`ship_status`), for what the finder measures against. */
     onship?: (ship: ShipStatus | null) => void;
   } = $props();
 
@@ -126,7 +126,7 @@
   let saved = $state<{ lookup: string; filters: Filters } | null>(null);
   /** The current ship's pad as of the last search (the core resolves it on every search). */
   let ship = $state<{ lookup: string; pad: Pad | null } | null>(null);
-  /** The ship as of the last search: the pad it needs, for a pad too small on a row. */
+  /** The ship as last read: the pad it needs, for a pad too small on a row. */
   let flying = $state<ShipStatus | null>(null);
   let res = $state<Results | null>(null);
   /** The system the last answer was measured from, kept when a later search fails. */
@@ -176,11 +176,6 @@
     err = null;
     goNote = null;
     void followShip(lookup, n);
-    void shipStatus().then((st) => {
-      if (n !== asked) return;
-      flying = st;
-      onship?.(st);
-    });
     run(o, s.filters)
       .then((r) => {
         if (n !== asked) return;
@@ -195,6 +190,26 @@
       .finally(() => {
         if (n === asked) busy = false;
       });
+  });
+
+  // The ship, read as the status bar reads it, every 2 s: what the finder measures its markets
+  // against changes as the commander mines, sells or swaps ships, without a new search. A read
+  // still waiting skips the next tick, so answers never overlap.
+  let reading = false;
+  $effect(() => {
+    const read = () => {
+      if (reading) return;
+      reading = true;
+      void shipStatus()
+        .then((st) => {
+          flying = st;
+          onship?.(st);
+        })
+        .finally(() => (reading = false));
+    };
+    read();
+    const t = setInterval(read, 2000);
+    return () => clearInterval(t);
   });
 
   /** The pad label follows the ship the search ran with, not the ship the filters loaded with. */
@@ -271,7 +286,10 @@
   /** Without a side panel the trip's second line also holds the report's age ("18.8 ly · 12 d old"). */
   const ageOnRow = $derived(!detail && !res?.undated);
   /** The groups' widths in px at 100 percent Text size (DESIGN.md Lookup result row): ranked value, place, own, trip, actions. */
-  const widths = $derived([136, 280, g?.own.length ? (ownText ? 160 : 112) : 0, g?.trip ? (ageOnRow ? 152 : 96) : 0, 64].filter(Boolean));
+  /** Where the trip line holds the age too ("1,426.2 ly · 2,070 d old"), its track is 168 px, else 136 or 96. */
+  const widths = $derived(
+    [ageOnRow && !g?.trip ? 168 : 136, 280, g?.own.length ? (ownText ? 160 : 112) : 0, g?.trip ? (ageOnRow ? 168 : 96) : 0, 64].filter(Boolean),
+  );
   /** The narrowest the full row fits in, in px at 100 percent Text size (its groups, their gaps and its padding); below this, only the first lines stay. */
   const fits = $derived(widths.reduce((n, w) => n + w, 0) + 24 * (widths.length - 1) + 24);
   /**
@@ -289,10 +307,10 @@
     compact
       ? "max-content minmax(0, 1fr) 4rem"
       : [
-          "8.5rem",
+          ageOnRow && !g?.trip ? "10.5rem" : "8.5rem",
           "minmax(17.5rem, 25rem)",
           ...(g?.own.length ? [ownText ? "minmax(10rem, 15rem)" : "7rem"] : []),
-          ...(g?.trip ? [ageOnRow ? "9.5rem" : "6rem"] : []),
+          ...(g?.trip ? [ageOnRow ? "10.5rem" : "6rem"] : []),
           "4rem",
         ].join(" "),
   );

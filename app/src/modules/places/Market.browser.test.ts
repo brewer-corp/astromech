@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import { FINDERS, forgetAnswers, lastAnswer, type FinderId } from "../../lib/places";
@@ -6,7 +6,7 @@ import { resetScale, setTextSize } from "../../lib/scale.svelte";
 import { DEFAULT_FILTERS, type Filters } from "../../lib/search";
 import type { CargoSearch, Side, TradeSearch } from "../../lib/trade";
 import type { Args } from "../../lib/transport";
-import { answer, previewAnswer, startPreview, watch } from "../../test/transport";
+import { answer, idle, previewAnswer, startPreview, watch } from "../../test/transport";
 import trade from "../../preview/fixtures/trade.json";
 import shipWorld from "../../preview/fixtures/ship-status.json";
 import Cargo from "./Cargo.svelte";
@@ -285,6 +285,31 @@ describe("Demand against the hold", () => {
     expect(await screen.findByText("Cargo not known: Elite isn't running")).toBeTruthy();
     await waitFor(() => expect(tonnes().length).toBeGreaterThan(0));
     expect(tonnes().every(([state]) => state === "plain")).toBe(true);
+  });
+
+  it("follows the hold as it changes, without searching again", async () => {
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] });
+    try {
+      // The sol world's Asp after its hold is emptied, then with its mixed hold aboard.
+      let hold: typeof solHold = emptied;
+      answer("ship_status", () => hold);
+      location.hash = "#/places/sell/painite?range=anywhere";
+      render(Market, { finder: finder("sell") });
+      expect(await screen.findByText("No Painite aboard")).toBeTruthy();
+      await waitFor(() => expect(tonnes().length).toBeGreaterThan(0));
+      expect(tonnes().every(([state]) => state === "plain")).toBe(true);
+      await idle();
+      // One search: opening the page from its address doesn't ask twice.
+      expect(anywhere).toHaveBeenCalledTimes(1);
+
+      hold = solHold;
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(await screen.findByText("200 t of Painite aboard")).toBeTruthy();
+      await waitFor(() => expect(tonnes()).toContainEqual(["short", "15"]));
+      expect(anywhere).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("strikes through a pad too small for the ship, and says why", async () => {

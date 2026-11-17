@@ -5,7 +5,7 @@
   // a choice. #/places/<sell|buy>/<symbol>[?range=anywhere] keeps both on back and reload.
   // Each side and range keeps the filters Trade remembered for it (`trade.sell`,
   // `trade.sell.anywhere`, ...), which voice questions use too. Demand (Sell) or stock (Buy) is
-  // measured against the hold as `ship_status` reported it with each search, and the page says
+  // measured against the hold as `ship_status` reports it (read every 2 s, as the status bar reads it), and the page says
   // what it measured against beside the commodity ("200 t of Painite aboard", "136 t free").
   import type { ShipStatus } from "../../lib/api/types/ShipStatus";
   import { buyAgainst, sellAgainst } from "../../lib/demand";
@@ -29,7 +29,7 @@
   };
   let want = $state<MarketWant>(read());
   const name = $derived(commodities.find((c) => c.symbol === want.symbol)?.name ?? want.symbol);
-  /** The ship as of the last search; undefined until one has asked. */
+  /** The ship as last read; undefined until the first read answers. */
   let ship = $state<ShipStatus | null | undefined>(undefined);
   const against = $derived(ship === undefined ? null : side === "sell" ? sellAgainst(ship, want.symbol, name) : buyAgainst(ship));
   const items = commodities.map((c) => ({ label: c.name, detail: c.category, keywords: c.aliases?.join(" ") }));
@@ -38,8 +38,11 @@
   const here = () => showing(side);
 
   $effect(() => {
+    // Only a different search replaces `want`: a new object re-runs it, and the address
+    // already naming this one (opening the page from a link) must not ask Ardent twice.
     const onHash = () => {
-      if (here()) want = read();
+      const next = read();
+      if (here() && marketRoute(next) !== marketRoute(want)) want = next;
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
