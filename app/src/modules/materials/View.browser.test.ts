@@ -2,11 +2,16 @@
 // (astromech-5a01). The view comes from the fixture the real core dumps (preview/fixtures/
 // odyssey.json, from the world worlds/preview/odyssey); the numbers are what the crate's tests check.
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
-import "../../test/transport";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
+import { answer, previewAnswer } from "../../test/transport";
 import View from "./View.svelte";
 
+/** null: the preview's own answer. */
+let onFoot: (() => Promise<unknown>) | null = null;
+answer("odyssey_view", () => (onFoot ? onFoot() : previewAnswer("odyssey_view")));
+
 beforeEach(() => {
+  onFoot = null;
   location.hash = "#/materials?kind=onfoot";
 });
 afterEach(() => {
@@ -40,4 +45,22 @@ it("shows held items only until All items is chosen", async () => {
   expect(screen.queryByRole("button", { name: /^Aerogel, / })).toBeNull();
   await fireEvent.click(screen.getByRole("button", { name: "All items" }));
   expect(tile("Aerogel").getAttribute("aria-label")).toBe("Aerogel, 0 held");
+});
+
+it("shows no ship materials under On foot while the ShipLocker is unread or its read failed", async () => {
+  // Pending: the ship materials have answered, the ShipLocker has not.
+  onFoot = () => new Promise(() => {});
+  render(View);
+  await screen.findByText(/Reading the ShipLocker/);
+  await waitFor(() => expect(screen.getByRole("button", { name: "Raw" })).toBeTruthy());
+  expect(screen.queryAllByRole("button", { name: /, \d+ of \d+$/ })).toEqual([]);
+  cleanup();
+
+  onFoot = async () => {
+    throw new Error("ShipLocker.json is locked");
+  };
+  render(View);
+  await screen.findByText(/Could not read the inventory: ShipLocker.json is locked/);
+  expect(screen.getByRole("button", { name: "On foot", pressed: true })).toBeTruthy();
+  expect(screen.queryAllByRole("button", { name: /, \d+ of \d+$/ })).toEqual([]);
 });

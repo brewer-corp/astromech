@@ -189,7 +189,9 @@
     </div>
 
     <div class="out">
-      {#if onFoot && foot}
+      {#if onFoot}
+        <!-- Until the ShipLocker is read, nothing: the line above says it is reading or why it failed. -->
+        {#if foot}
         {#each sections as c (c.value)}
           <h3 class="section sec" class:current={footSel?.category === c.value}>{c.label}</h3>
           <Tiles label={c.label}>
@@ -205,6 +207,7 @@
           <p class="type-label">Nothing held here.</p>
         {/each}
         <p class="type-meta foot" {@attach tip(`${foot.data_uncertain.length} values are unsure or blank on the wiki`)}>Game data: {foot.data_source}, {foot.data_date}</p>
+        {/if}
       {:else if kindId === "other" && inv}
         <Tiles label="Other materials">
           {#each inv.other as c (c.id)}
