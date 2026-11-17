@@ -561,7 +561,7 @@ are read; colour that means nothing is what made every page loud.
 | The next stop in the route | Orange Lit name; its note (Fuel) in Orange | where to go now, and what to do there | raised, and "Next stop" above it |
 | Security of an inhabited stop | low Orange Mid; anarchy Red Low; others Prose Grey | how risky the stop is | the word ("Low security", "Anarchy") |
 | An engineer's state | unlocked: name Options Grey, rank hexagons White. Known: name Orange Mid, the step to unlock in Prose Grey. Barred: name and reason Red Low. Not introduced: Grey Dim | can you use them, work toward them, or not | the hexagons, or the step or reason in words |
-| Engineer rank and blueprint grade | reached rank White; a grade the commander can get Orange; a planned grade not reached Orange Mid; unreached Mark Off | how far you are, and what you can get | the count of lit hexagons, and the accessible name ("Rank 3 of 5") |
+| Engineer rank and blueprint grade | reached (a rank held, a grade fitted, the grade a held rank gets today) the full mark White; what a plan adds the full mark Orange; a grade an engineer offers that is neither, the ring alone without its centre, Label Grey; unreached the full mark Mark Off. *Why:* Orange beside Orange Mid read as one lit row at 16 px, so a plan looked done (astromech-59n6); now reached and planned differ by White against Orange, and offered and unreached differ by shape as well as colour ([before](docs/design/hex-states/before-loadout-1100x700.png), [after](docs/design/hex-states/after-loadout-1100x700.png)) | how far you are, how far the plan takes you, and what an engineer could give you | the count of lit hexagons, and the accessible name ("Grade 3 of 5, grade 5 planned") |
 | A short amount (need more than have) | "!" and the have figure in Orange | collect this | the "!" |
 | A colonisation delivery: aboard and not yet delivered | Orange Mid, as a part of the commodity's meter after the delivered part | on its way to the site, not yet counted | the "aboard" figure in words ("90 t aboard") |
 | A material at its storage cap | the tile's track Orange Lit | trade or use some before you collect more | the full track |
@@ -999,7 +999,9 @@ never by a cell, a fill or a coloured side border.
   tile's bar, kept thin so the number stays the main value.
 - **Hexagons:** a rank or grade is a row of engineer hexagons, one per step, the reached ones
   lit, coloured by [the list](#colours-that-carry-a-meaning); 12 to 14 px in a row, its words
-  ("Rank 3 of 5") as its accessible name. One shared component draws them (astromech-7did).
+  ("Rank 3 of 5") as its accessible name. An offered grade is the mark's ring alone
+  (`app/public/engineers/access-ring.svg`). One shared component, `Hexes.svelte`, draws every
+  state (astromech-7did); a page passes the counts (`n`, `plan` or `offers`), never colours.
 - **Demand bars:** three bars rising left to right, 14 × 12 px, the lit ones in the demand's
   colour and the rest Mark Off, before the figure they qualify.
 
