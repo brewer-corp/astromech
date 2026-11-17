@@ -101,7 +101,7 @@
                   <span class="lo">Scan the body to predict its genera.</span>
                 {/if}
               </td>
-              <td class="num">{valueRange(b.value)}</td>
+              <td class="num ranked">{valueRange(b.value)}</td>
             </tr>
           {/each}
         </tbody>
@@ -123,7 +123,7 @@
                 {k.genera.join(", ")}
                 {#if k.species.length}<br /><span class="lo">{k.species.map((s) => `${s.name} ${millions(s.value)}`).join(" · ")}</span>{/if}
               </td>
-              <td class="num">{valueRange(k.value)}</td>
+              <td class="num ranked">{valueRange(k.value)}</td>
             </tr>
           {/each}
         </tbody>
@@ -144,6 +144,8 @@
   th { text-align: left; color: var(--label-grey); font-size: var(--fs-s); font-weight: 400; padding: 0 0.75rem 0.375rem 0; }
   td { padding: 0.3125rem 0.75rem 0.3125rem 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   .num { text-align: right; white-space: nowrap; }
+  /* Bodies are ranked by value: it is the table's one orange column. */
+  .ranked { color: var(--accent); font-weight: 500; }
   .body { font-weight: 500; white-space: nowrap; }
   .genera { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.125rem; }
   .genera li { display: flex; gap: 0.625rem; align-items: baseline; flex-wrap: wrap; }

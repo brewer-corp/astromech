@@ -51,7 +51,7 @@
       <table aria-label="Tons refined by ore">
         <tbody>
           {#each ores as [ore, tons] (ore)}
-            <tr><td>{oreName(ore)}</td><td class="num">{tons} t</td></tr>
+            <tr><td>{oreName(ore)}</td><td class="num ranked">{tons} t</td></tr>
           {/each}
         </tbody>
       </table>
@@ -72,6 +72,8 @@
   table { border-collapse: collapse; }
   td { padding: 0.25rem 1.125rem 0.25rem 0; }
   .num { text-align: right; }
+  /* Ores are ranked by tonnes: it is the table's one orange column. */
+  .ranked { color: var(--accent); font-weight: 500; }
   .lo { color: var(--label-grey); }
   .note { margin-top: 0.875rem; }
 </style>
