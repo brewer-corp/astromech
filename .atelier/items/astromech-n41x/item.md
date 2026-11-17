@@ -3,14 +3,15 @@ schema: atelier.item
 schema_version: 3
 id: astromech-n41x
 title: 'DESIGN.md revision 5: orange means act, the route in the frame, grouped rows'
-status: ready
+status: building
 mission: astromech-xajc
 labels:
 - size-m
 - docs
 priority: high
 blocked_by: []
-implementers: []
+implementers:
+- thread:delegated-task:command%3Amcp%3A40e7bd6a-75d7-481f-bc07-e18b62a688e1%3Adelegate-task%3Af3dabc04-aa30-4940-8987-97c1443ca39c
 ready:
   by: Sumeet
   at: 2026-11-17T05:23:28.056709303Z
