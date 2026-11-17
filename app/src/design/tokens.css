@@ -93,14 +93,9 @@ input[type="checkbox"] { accent-color: var(--accent); }
    colour. Each class sets the role's size, weight, line height, case and default colour; a
    component overrides the colour only where its spec says so (anything on a fill is On Orange; a
    colour from DESIGN.md's list of colours that carry a meaning). The roles whose colour depends
-   on what the value is take a modifier, so a page still names no colour:
-     .type-value-xl.main   the one main value of the page or panel, Orange Lit
-     .type-value-l.ranked  the value a list is ranked by, Orange (.stale: Orange Mid)
-     .type-value-l.main    the ranked value on a selected row, Orange Lit
-     .type-name.lifted     a name lifted under The Lifted Name Rule, White
-     .dim                  on any role, an absent or over read-only thing, Grey Dim
-   A raised selection (.raised, below) lifts its row's roles itself. Figures are tabular on the
-   whole page already (body), and the Value and Meta roles say it again so a role keeps it
+   on what the value is take a modifier, so a page still names no colour: .main on Value XL or
+   Value L marks the one main value of the page or panel, in Orange Lit. Figures are tabular on
+   the whole page already (body), and the Value and Meta roles say it again so a role keeps it
    wherever it is used. The Section role is .section below, which also draws its Seam rule.
    Prefixed type- because pages already use .name, .label and .title for their own parts. */
 .type-wordmark { font-size: var(--fs-l); font-weight: 600; line-height: 1; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-hi); }
@@ -117,23 +112,7 @@ input[type="checkbox"] { accent-color: var(--accent); }
 .type-action { font-size: var(--fs-s); font-weight: 600; line-height: 1; letter-spacing: var(--caps); text-transform: uppercase; color: var(--accent); }
 /* A unit after its number: Label size and Label Grey ("390,780 cr"), with a small gap. */
 .type-unit { margin-left: 0.1875rem; font-size: var(--fs-s); font-weight: 400; color: var(--label-grey); }
-.type-value-l.ranked { color: var(--accent); }
-.type-value-l.ranked.stale { color: var(--orange-mid); }
 .type-value-xl.main, .type-value-l.main { color: var(--orange-lit); }
-.type-name.lifted { color: var(--text-hi); }
-:is([class*="type-"], .section).dim { color: var(--grey-dim); }
-
-/* DESIGN.md's selected row or tile: Hull Raised with lit text, never a fill. The name lifts to
-   White (a tile's count too), the ranked value to Orange Lit, other text one step brighter, and the row's icon
-   buttons to Orange Mid. A list shows it only while a side panel or keyboard focus shows what
-   is selected (The One Fill Per Page Rule). */
-.raised { background: var(--surface-hi); }
-.raised .type-name { color: var(--text-hi); }
-.raised .type-value-l.ranked { color: var(--orange-lit); }
-.raised .type-value-xl { color: var(--text-hi); }
-.raised :is(.type-figures, .type-body) { color: var(--options-grey); }
-.raised :is(.type-label, .type-unit, .type-meta) { color: var(--prose); }
-.raised .ibtn { color: var(--orange-mid); }
 
 /* DESIGN.md's section heading: Prose Grey caps with a Seam rule to the right. The current
    section (the one holding the item a side panel describes) is white with an orange rule. */

@@ -291,8 +291,8 @@ at dea5f0bb, with the captures in docs/design/nav-spike/: orange means act and d
 and grey, with the list of colours that carry a meaning; selection as a raised row; result
 rows in two-line groups; Elite's own symbols; the route sidebar in the frame; the new top
 tabs; text size in rem in place of the height zoom; input values Orange at 500. The app
-catches up item by item (text size landed with astromech-b2cz), and until each lands the
-app differs from this document there: colours, selection and tiles off Hull (astromech-3kf5), the lint
+catches up item by item (text size landed with astromech-b2cz; colours, selection and tiles
+off Hull with astromech-3kf5), and until each lands the app differs from this document there: the lint
 for raw colours and sizes (astromech-4wi1), the route sidebar and PLACES (astromech-uc7i),
 the tabs (astromech-5a01), the grouped result rows and demand colours (astromech-3ca6), the
 hexagon component (astromech-7did). -->
@@ -1272,10 +1272,10 @@ not have yet: the item named adds them, and the rows it replaces stay until then
 | white | `--text-hi` | #ffffff |
 | options-grey | `--options-grey` | #e0e0e0 |
 | prose-grey | `--prose` | #c4c4c4 |
-| label-grey (new, astromech-3kf5) | `--label-grey` | #8c8c8c |
-| grey-dim (new, astromech-3kf5) | `--grey-dim` | #6a6a6a |
-| mark-off (new, astromech-3kf5) | `--mark-off` | #4f4a45 |
-| red-low (new, astromech-3kf5) | `--red-low` | #ca6657 |
+| label-grey | `--label-grey` | #8c8c8c |
+| grey-dim | `--grey-dim` | #6a6a6a |
+| mark-off | `--mark-off` | #4f4a45 |
+| red-low | `--red-low` | #ca6657 |
 | alarm-red | `--alarm` | #f0412e |
 | hair | `--gap` | 2 px |
 | xs, sm, md, lg | `--sp-1`, `--sp-2`, `--sp-3`, `--sp-4` | 4, 8, 12, 16 px |
@@ -1290,7 +1290,7 @@ not have yet: the item named adds them, and the rows it replaces stay until then
 | Meta, Label/Section/Action, Body/Name/Nav/Figures/Cell | `--fs-xs`, `--fs-s`, `--fs` | 12, 13, 15 px |
 | Value L and wordmark, Title, Value XL | `--fs-l`, `--fs-xl`, `--fs-xxl` | 18, 24, 28 px |
 | Caps tracking | `--caps` | 0.06em |
-| Each Hierarchy role (Typography) | `.type-wordmark`, `.type-title`, `.type-value-xl`, `.type-value-l`, `.type-nav`, `.type-name`, `.type-body`, `.type-figures`, `.type-cell` (new, astromech-3kf5), `.type-label`, `.type-meta`, `.type-action`; Section is `.section` | a class setting the role's size, weight, line height, case and colour; a page names the role and sets no font size. A unit after its number is `.type-unit` |
+| Each Hierarchy role (Typography) | `.type-wordmark`, `.type-title`, `.type-value-xl`, `.type-value-l`, `.type-nav`, `.type-name`, `.type-body`, `.type-figures`, `.type-cell`, `.type-label`, `.type-meta`, `.type-action`; Section is `.section` | a class setting the role's size, weight, line height, case and colour; a page names the role and sets no font size or colour. A unit after its number is `.type-unit`. The one main value of a page or panel adds `.main` to Value XL or Value L (Orange Lit) |
 | Text size (The Text Size Rule) | the `html` font size | 100 to 180 % of 16 px, set by `lib/scale.svelte.ts` from the commander's choice. Revision 4's `--zoom`, `--win-h` and `--win-w` went with astromech-b2cz |
 | The frame's side margins | `--side` | 16 to 40 px: 3 % of the window's width |
 | The face | `--face`, `--face-stretch` | Saira Variable at 87.5 % |

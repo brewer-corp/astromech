@@ -13,12 +13,12 @@ the page says "Could not read the materials" and gives the reason. It never show
 ## The grids
 
 Choose a kind at the top: **Raw**, **Manufactured**, **Encoded** or **Other**. The chosen one is
-filled orange.
+bright, with an orange line under it.
 
 - Each tile is a material: how many you hold, large, with its name below. A grade's cap is the
   same for every material in it, so the column head says it once ("Grade 1 · max 300"). The line
   along a tile's bottom fills towards the cap; a material you have none of is dim, in an outline.
-  The one you click is filled orange. Caps are 300, 250, 200, 150 and 100 for grades 1 to 5. On
+  The one you click is raised, its count and name in white. Caps are 300, 250, 200, 150 and 100 for grades 1 to 5. On
   **Other**, where caps differ, each tile's top right corner gives its own.
 - The line beside the kinds says which trader trades this kind, and the total held out of the
   total capacity.

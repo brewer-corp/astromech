@@ -55,7 +55,7 @@ The next reply uses the change. Preview needs the speech models.
 
 ### Callouts
 
-One row for each [callout](callouts.md): **On** and **Off** (the one in use is filled)
+One row for each [callout](callouts.md): **On** and **Off** (the one in use is bright, with an orange line under it)
 and its cooldown in seconds, how long it stays quiet after it speaks. Choose **Off** to turn a
 callout off, or **On** for the Powerplay arrival one. Type a new number of seconds (0 to 86400) in the box and press Enter or
 click away; **Reset** returns to the callout's own cooldown. The change is saved to
