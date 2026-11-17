@@ -89,8 +89,8 @@ open that system or station in your browser. astromech does not type into the ga
 
 ## Searches near you
 
-The "nearest" pages share one kit: where to search from, filters, and a list with jumps and
-distance. It is described once in [Places](places.md#how-searches-work).
+The "nearest" pages share one kit: a line naming where it searched and the filters, with
+**Change** to set them, and a list with jumps and distance. It is described once in [Places](places.md#how-searches-work).
 
 ## What needs the network
 

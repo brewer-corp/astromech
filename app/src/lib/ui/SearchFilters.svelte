@@ -171,7 +171,9 @@
   .text { min-width: 0; }
   .filters { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; font-size: var(--fs-s); }
   label, .field { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
-  /* The origin box is as wide as the finder's main input (tokens.css .finder-main). */
-  .filters :global(.origin .box) { flex: none; width: 20rem; max-width: 100%; }
+  /* The origin box is as wide as the finder's main input (tokens.css .finder-main), and narrower
+     where its host is (Powerplay's Where to work column, a side panel). */
+  .filters :global(.origin) { min-width: 0; max-width: 100%; }
+  .filters :global(.origin .box) { flex: 0 1 auto; width: 20rem; min-width: 0; }
   label > span, .field > span { color: var(--label-grey); font-size: var(--fs-s); min-width: 5.5em; }
 </style>

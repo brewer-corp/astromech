@@ -102,6 +102,7 @@ describe("Sell and Buy finders", () => {
     expect(location.hash).toBe("#/places/sell/painite?range=anywhere");
     expect(await screen.findByText("Asking Ardent Insight…")).toBeTruthy();
     expect(screen.getByText(/^Best prices anywhere · distances from Sol/)).toBeTruthy();
+    await waitFor(() => expect(anywhere).toHaveBeenCalled());
     release();
     expect(await screen.findByText(/FCX-800/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Anywhere" }).getAttribute("aria-pressed")).toBe("true"); // still open
