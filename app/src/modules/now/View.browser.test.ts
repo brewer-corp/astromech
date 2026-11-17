@@ -159,7 +159,7 @@ describe("Now", () => {
     const sale = await block("Sell your cargo");
     expect(await sale.findByText(/Could not ask Ardent Insight/)).toBeTruthy();
     expect(sale.getByRole("button", { name: "Try again" })).toBeTruthy();
-    expect(await (await block("This session")).findByText("14.5")).toBeTruthy();
+    expect(await (await block("This session")).findByText("14.6")).toBeTruthy();
     expect(await (await block("Powerplay")).findByText("1,829")).toBeTruthy();
   });
 
@@ -176,7 +176,7 @@ describe("Now", () => {
     render(View);
     expect(await screen.findByRole("heading", { name: "Elite isn't running" })).toBeTruthy();
     expect(await screen.findByText("Last docked at Test Orbital, Test System")).toBeTruthy();
-    expect(await (await block("Last session")).findByText("14.5")).toBeTruthy();
+    expect(await (await block("Last session")).findByText("14.6")).toBeTruthy();
     await idle();
     expect(screen.queryByRole("region", { name: "Sell your cargo" })).toBeNull();
     expect(screen.queryByRole("list", { name: "Services" })).toBeNull();
