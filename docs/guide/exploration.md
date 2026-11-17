@@ -10,20 +10,36 @@ Spansh too.
 
 ## System
 
-The system you are in, with:
+The system you are in, drawn as it is built. At the top:
 
-- **Bodies scanned** out of the body count, and "all found" when the FSS says so.
-- **Value now** (everything scanned, as it would sell) and **Mapping the best** (if you also mapped the
-  worthwhile ones with the Detailed Surface Scanner).
-- A table of bodies: name, class, distance from the star, gravity, facts (terraformable, landable,
-  rings, signals), what it is worth now and what it is worth **mapped**. **Worth mapping** marks a
-  planet you have not mapped yet that is worth at least 500,000 credits mapped efficiently. **Mapped** (and "efficiently") marks ones you did.
-  **First footfall likely** marks a landable body nobody had discovered in an unpopulated system;
-  the journal cannot say who walked there first. **Landed** counts your landings.
+- The system's name, with its copy button, and how many bodies are scanned out of the body count
+  ("11 bodies, all scanned" once the FSS has found them all), and how many are worth mapping.
+- **cr now**, everything scanned as it would sell, and, in orange, **cr if mapped**: the system's
+  value once you also map every body worth mapping with the Detailed Surface Scanner.
+
+Under it, the bodies as a tree: each star at the left, its planets under it and each planet's moons
+under the planet, joined by lines, closest to the arrival star first. A body that orbits a
+barycentre (two stars, or two planets, circling each other) goes under the nearest star or planet it
+orbits, or at the left with the stars when it circles them both. A moon scanned before its planet
+hangs from the star until the planet is scanned. Each row shows:
+
+- what the body is worth **mapped**, larger for a body worth mapping;
+- its distance from the arrival star, its type icon, its name and class;
+- its tags: **Landable**, **Terraformable**, **Rings**, **Belt**, **Bio** and **Geo** with the
+  count of signals, **First discovery**, **Worth mapping** (a planet you have not mapped yet that is
+  worth at least 500,000 credits mapped efficiently), **Mapped**, **First footfall likely** (a
+  landable body nobody had discovered in an unpopulated system; the journal cannot say who walked
+  there first) and **Landed** with the count of your landings.
+
+Click a body, or move through the tree with the arrow keys, to see it in the panel beside the tree
+(below it in a narrow window): its value mapped, its value now and whether it is mapped, its class,
+distance, gravity, signals, surface, whether anyone discovered or mapped it before you, and your
+landings there. A body with biological signals has **Open in Biology**, which opens
+[Biology](#biology).
 
 If nothing is scanned: "Honk and use the FSS: bodies show here as you scan them."
 
-Point at a value's heading, or a tag, for what it means. Values are estimates from the
+Point at a value, the Mapped value heading or a tag for what it means. Values are estimates from the
 community's exploration value formulae, the same ones EDSM and OD Explorer use, tested against EDSM's published estimates. "Mapped" assumes the Detailed Surface Scanner
 within the efficiency target. They include the first-discovery bonus when the scan says nobody had
 discovered the body. They do not estimate selling through a fleet carrier, which pays 25% less.
@@ -36,8 +52,8 @@ What you would be paid if you sold now, since your last death:
   with the count of bodies and systems.
 - **Organic**: every completed biology sample (all three taken), with the count of samples,
   and how many are of unknown value.
-- **Total.** At 50 million credits or more, a warning says dying loses all of it and to sell it
-  at the nearest station.
+- **Total.** At 50 million credits or more, a warning at the top of the page, under the system's
+  name, says dying loses all of it and to sell it at the nearest station.
 
 Selling data removes it from the totals. The first-logged bonus on organic samples is not estimated.
 

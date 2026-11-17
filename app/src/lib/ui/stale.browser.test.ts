@@ -60,7 +60,7 @@ const PAGES: Page[] = [
   { name: "Mining", view: Mining as unknown as Component, data: /Platinum/, call: "status", every: 3000, core: "core=ready&", failed: /the core did not answer/ },
   { name: "Station", view: Station as unknown as Component, data: /Test Orbital/, call: "docked_here", every: 5000 },
   { name: "Colonisation", view: Colonisation as unknown as Component, data: /Test Hub/, call: "colonisation_projects", every: 2000 },
-  { name: "Exploration", view: Exploration as unknown as Component, data: /bodies scanned/, call: "exploration_system", every: 15000 },
+  { name: "Exploration", view: Exploration as unknown as Component, data: /bodies, all scanned/, call: "exploration_system", every: 15000 },
   { name: "Exploration (unsold)", view: Exploration as unknown as Component, data: /unsold since|Cartographic/, call: "exploration_unsold", every: 15000 },
   { name: "Exobiology", view: Exobiology as unknown as Component, data: /Stratum Tectonicas/, call: "exobiology", every: 2000 },
   { name: "Powerplay", view: Powerplay as unknown as Component, data: /Li Yong-Rui/, call: "powerplay_overview", every: 2000 },
