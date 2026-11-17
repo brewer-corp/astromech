@@ -45,6 +45,8 @@ export const PAGE_SIZING = [
   ["src/modules/unlocks/{View,Search,Tree,Trees,Panel}.svelte", "width", "font-size"],
   // astromech-fzhp: Session and Logbook on the Board.
   ["src/modules/{session,logbook}/View.svelte", "width", "font-size"],
+  // astromech-evj3: Exploration > Biology as a card per body, on the Board.
+  ["src/modules/exobiology/View.svelte", "width", "font-size"],
 ];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts
@@ -85,7 +87,6 @@ export const TOKENS_EXEMPT = [
     why: "The labels on a controller sheet follow the image's scale (--k), not Text size, so they are px.",
   },
   // Pending: the page is rebuilt on a layout by the item named, which takes it off this list.
-  { files: ["src/modules/exobiology/**"], off: ["spacing"], until: "astromech-evj3", why: "Rebuilds Biology." },
   { files: ["src/modules/trade/**"], off: ["spacing"], until: "astromech-el3i", why: "Rebuilds Trade route." },
   {
     files: ["src/modules/{stored,mining,datasharing,diagnostics,voicetester}/**", "src/modules/places/Home.svelte"],

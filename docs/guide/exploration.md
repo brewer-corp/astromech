@@ -64,20 +64,28 @@ data) open the [Services](places.md#services) finder on that service.
 
 ## Biology
 
-The system's biology, ranked by value, live while Elite runs.
+The system's biology as a card per body, the most valuable first, live while Elite runs. The head
+names the system, how many bodies have biology and what it is all worth.
 
-- **Bodies with biology**: for each body with biological signals, the **genera** present with the
-  species they could be and what they are worth (a range, or exact once known). From the DSS the genera
-  are known; before the DSS they are **predicted from the scan** (marked as guesses), so the best
-  bodies show up before you land. "Scan the body to predict its genera." until you have.
-- **Sampling.** After the first sample: the species, **Samples** (of 3), and how far you are from the
-  nearest sample against the genus's **colony range**. It turns to "Far enough" when you can take the
-  next one, or says how many metres to go. After three: "Analysed."
-- **Reported by other players**: bodies Spansh knows have biology, with genera, species and
-  values, for when you arrive before scanning. It is from Spansh, sent to EDDN by other players.
+- **Sampling.** While you sample a species, it leads the page: the species and the body it is on,
+  your samples as three marks ("1 of 3"), and how far you are from the nearest earlier sample
+  against the genus's **colony range** ("209 m of 500 m"), with the metres still to go. It says
+  "Far enough" when you can take the next sample. After the third it says "Analysed." Point at
+  the distance for the colony range rule.
+- **A body card**: the body's name, what its biology is worth (a range, or exact once known) and
+  its signals. Then a line per **genus**: the species it could be and what it is worth. Genera
+  from the DSS or a sample are in grey; before the DSS they are **predicted from the scan** and
+  dimmer, so the best bodies show up before you land. Point at a predicted genus to see that it
+  is predicted. A genus you have analysed shows three lit marks; the one you are sampling shows
+  its marks lit to the count. A body you have not scanned yet says "Scan it to predict its
+  genera".
+- **Reported by other players.** What Spansh knows from other players' EDDN reports is merged
+  into the same cards: their value range for the body ("reported 20–28 M"), and any genus or
+  species only they reported, dimmer. A body only they reported gets a card of its own after
+  yours, marked **Reported**. It helps when you arrive before scanning.
 
 Values are Vista Genomics base values, before the first-logged bonus: a species nobody had logged
-before pays five times. Point at a Value heading for the same.
+before pays five times. Point at a card's value for the same.
 
 Spoken help: on a sample, **"Far enough for sample 2."** (the `sampling` callout), a summary after the
 FSS and the DSS (the `biology` callout), and an Earth-like or terraformable find from the `discovery`

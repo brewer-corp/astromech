@@ -824,7 +824,7 @@ column is too narrow for a side panel (the 1100 x 700 minimum, or a larger Text 
 layout moves the panel below the content. It never shrinks text to make it fit. The layouts
 measure the page column, not the window, so the sidebar's width is already taken out.
 
-Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps; a Board's answer
+Inside a layout: prose 68ch; tile grids 200–240 px columns with 8 px gaps, and a card that holds lines of its own (Biology's body cards) two columns and the gap wide, 408–488 px (`Tiles wide`); a Board's answer
 blocks (`Blocks`, Now's) four across where four fit, else two, else one, never three over one,
 32 px apart; control row 34 px;
 result row 60 px, two lines in groups ([Lookup result row](#lookup-result-row)); material tile
