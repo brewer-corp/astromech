@@ -2,18 +2,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/svelte";
 import { fakeClipboard, fakePlotInGame } from "../../preview/fakecore";
 import { followRoute } from "../../lib/route";
-import View from "./View.svelte";
+import Sidebar from "./Sidebar.svelte";
 import { previewAnswer, startPreview } from "../../test/transport";
 
 /** The timeline row of a stop or jump, by its system. */
-const row = (system: string) => screen.getByText(system, { selector: ".name, .jn" }).closest("li")!;
+const row = (system: string) => screen.getByText((_, el) => !!el?.matches(".name, .jn") && el.textContent === system).closest("li")!;
 
-describe("Galaxy → Route", () => {
+describe("Route sidebar", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("imports a route from the ⋯ menu's dialog, makes a stop ahead or behind the next, and clears it through the core", async () => {
     startPreview("/?core=ready");
-    render(View);
+    render(Sidebar);
     expect(await screen.findByText(/No route\./)).toBeTruthy();
     await fireEvent.click(screen.getByRole("button", { name: "More route actions" }));
     await fireEvent.click(screen.getByRole("menuitem", { name: /Import a route/ }));
@@ -30,10 +30,10 @@ describe("Galaxy → Route", () => {
     expect(row("Shinrarta Dezhra").classList.contains("next")).toBe(true);
     expect(within(row("Shinrarta Dezhra")).queryByRole("button", { name: "Make next" }), "it is next already").toBeNull();
     await fireEvent.click(within(row("Colonia")).getByRole("button", { name: "Make next" }));
-    await screen.findByText("1 of 3 waypoints left", { exact: false });
+    await screen.findByText("3 of 3 · 1 stop left");
     expect(row("Colonia").classList.contains("next")).toBe(true);
     await fireEvent.click(within(row("Sol")).getByRole("button", { name: "Make next" }));
-    await screen.findByText("3 of 3 waypoints left", { exact: false });
+    await screen.findByText("1 of 3 · 3 stops left");
     await fireEvent.click(screen.getByRole("button", { name: "More route actions" }));
     await fireEvent.click(screen.getByRole("menuitem", { name: "Clear route" }));
     expect(await screen.findByText(/No route\./)).toBeTruthy();
@@ -42,7 +42,7 @@ describe("Galaxy → Route", () => {
 
   it("keeps a failed import in its dialog with the text, and Cancel closes it", async () => {
     startPreview("/?core=ready&fail=route_set");
-    render(View);
+    render(Sidebar);
     await screen.findByText(/No route\./);
     await fireEvent.click(screen.getByRole("button", { name: "More route actions" }));
     await fireEvent.click(screen.getByRole("menuitem", { name: /Import a route/ }));
@@ -59,7 +59,7 @@ describe("Galaxy → Route", () => {
   it("shows a failed action as a hard error, never a filled block, and TRY AGAIN repeats it", async () => {
     startPreview("/?core=ready&fail=route_go");
     await followRoute("Trip", "test", [{ system: "Deciat" }, { system: "Kuk" }, { system: "Colonia" }]);
-    render(View);
+    render(Sidebar);
     expect(await screen.findByText("Following Trip")).toBeTruthy();
     await fireEvent.click(within(row("Kuk")).getByRole("button", { name: "Make next" }));
     const alert = await screen.findByRole("alert");
@@ -67,9 +67,9 @@ describe("Galaxy → Route", () => {
     expect(alert.classList.contains("failure")).toBe(true);
 
     history.replaceState(null, "", "/?core=ready"); // the core takes it this time
-    expect(screen.getByText("3 of 3 waypoints left", { exact: false })).toBeTruthy();
+    expect(screen.getByText("1 of 3 · 3 stops left")).toBeTruthy();
     await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-    await screen.findByText("2 of 3 waypoints left", { exact: false });
+    await screen.findByText("2 of 3 · 2 stops left");
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
@@ -77,7 +77,7 @@ describe("Galaxy → Route", () => {
     startPreview("/?core=ready");
     fakeClipboard("the clipboard is locked by another app");
     await followRoute("Trip", "test", [{ system: "Deciat" }, { system: "Kuk" }]);
-    render(View);
+    render(Sidebar);
     const alert = await screen.findByRole("alert");
     // DESIGN.md's hard error: a red "!" and plain words, then the recovery; no copy glyph stands in for the "!".
     expect(alert.textContent).toMatch(/^! Not on the clipboard: the clipboard is locked by another app\s*Try again$/);
@@ -96,7 +96,7 @@ describe("Galaxy → Route", () => {
     await followRoute("Trip", "test", [{ system: "Deciat" }, { system: "Kuk" }]);
     const writeText = vi.fn().mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error("denied"));
     vi.stubGlobal("navigator", { clipboard: { writeText } });
-    render(View);
+    render(Sidebar);
     await fireEvent.click(await screen.findByRole("button", { name: "Copy Kuk" }));
     expect(writeText).toHaveBeenCalledExactlyOnceWith("Kuk");
     expect(await screen.findByRole("button", { name: "Copied Kuk" })).toBeTruthy();
@@ -109,7 +109,7 @@ describe("Galaxy → Route", () => {
 
   it("opens the flown leg one row a jump from NavRoute, with the commander's row marked", async () => {
     startPreview("/?core=ready&route=timeline");
-    render(View);
+    render(Sidebar);
     // fixtures/route.json: Sol to Colonia by neutron plotter, its leg to PSR J1752-2806 plotted in
     // the galaxy map, the commander two jumps along it in Alrai Sector LH-V b2-4.
     expect(await screen.findByText("Next stop · 9 jumps away")).toBeTruthy();
@@ -127,7 +127,7 @@ describe("Galaxy → Route", () => {
 
   it("marks the commander where the leg was plotted again partway along, not at the stop before", async () => {
     startPreview("/?core=ready&route=replotted");
-    render(View);
+    render(Sidebar);
     // fixtures/route.json's /replotted: two jumps along, the leg plotted again from Alrai Sector
     // LH-V b2-4, so the core's position 0 is Alrai, and Sol is only the stop before.
     expect(await screen.findByText("Next stop · 9 jumps away")).toBeTruthy();
@@ -140,7 +140,7 @@ describe("Galaxy → Route", () => {
 
   it("opens the flown leg before the route's first waypoint", async () => {
     startPreview("/?core=ready&route=first");
-    render(View);
+    render(Sidebar);
     // fixtures/route.json's /first: a route set to PSR J1752-2806 and Colonia while the galaxy map
     // has the leg to PSR J1752-2806 plotted from Alrai Sector LH-V b2-4.
     expect(await screen.findByText("Next stop · 9 jumps away")).toBeTruthy();
@@ -158,7 +158,7 @@ describe("Galaxy → Route", () => {
       { system: "N1", jumps: 3, neutron: true },
       { system: "N2", jumps: 4, neutron: true },
     ]);
-    render(View);
+    render(Sidebar);
     const legs = async () => (await screen.findAllByRole("listitem")).filter((li) => li.classList.contains("leg"));
     const [flown, ahead] = await legs();
     expect(flown!.textContent!.trim()).toMatch(/^3 jumps\s*The stars appear once the leg is plotted in the galaxy map\.$/);
@@ -180,7 +180,7 @@ describe("Galaxy → Route", () => {
       { system: "D", jumps: 3, hops: [dry("D1"), dry("D")] },
       { system: "E", jumps: 2, hops: [{ system: "E1", scoopable: true }, dry("E")] },
     ]);
-    render(View);
+    render(Sidebar);
     await screen.findByText("Following Exact-ish");
     const [flown, ...legs] = screen.getAllByRole("listitem").filter((li) => li.classList.contains("leg"));
     expect(flown!.textContent!.trim()).toBe("! No scoopable star for 2 jumps");
@@ -199,11 +199,11 @@ describe("Galaxy → Route", () => {
       { system: "deciat", label: "Professor Palin" },
       { system: "Kuk", label: "Ram Tah" },
     ]);
-    render(View);
+    render(Sidebar);
     expect(await screen.findByText("Following Engineer trip")).toBeTruthy();
     // Two engineers in one system are one stop.
     expect(screen.getAllByText("Felicity Farseer, Professor Palin").length).toBeGreaterThan(0);
-    expect(screen.getByText("engineer trip · 2 of 2 waypoints left")).toBeTruthy();
+    expect(screen.getByText("1 of 2 · 2 stops left")).toBeTruthy();
   });
 
   it("follows a galaxy-map route quietly, parks the route it replaced and resumes it", async () => {
@@ -212,7 +212,7 @@ describe("Galaxy → Route", () => {
     // A leg to the next neutron star is part of the route.
     fakePlotInGame(["Sol", "A", "N1"]);
     vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] }); // the route poll; the test moves its clock
-    render(View);
+    render(Sidebar);
     expect(await screen.findByText("Following Sol to Colonia")).toBeTruthy();
     expect(screen.queryByText("Paused")).toBeNull();
 

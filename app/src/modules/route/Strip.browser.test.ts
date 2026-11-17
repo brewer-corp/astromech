@@ -36,7 +36,6 @@ describe("Route strip", () => {
     expect(line()).toBe("Next A 2 of 4 neutron boost fuel To Maia 3 jumps left");
     expect(strip().getByText("neutron boost").classList.contains("badge")).toBe(true);
     expect(strip().getByText("fuel").classList.contains("badge")).toBe(true);
-    expect(strip().getByRole("link").getAttribute("href"), "the destination opens the Route page").toBe("#/route");
     // Copy writes the next stop to the clipboard again.
     await fireEvent.click(strip().getByRole("button", { name: "Copy A" }));
 
@@ -72,7 +71,7 @@ describe("Route strip", () => {
     render(PlotBar);
     render(Strip);
     await strip().findByText("No route");
-    expect(line()).toBe("No route Find or plot");
+    expect(line()).toBe("No route Find or plot Import a route");
     await fireEvent.click(strip().getByRole("button", { name: "Find or plot" }));
     expect(document.activeElement).toBe(screen.getByRole("combobox", { name: "Find or plot" }));
   });
@@ -100,15 +99,15 @@ describe("Route strip", () => {
     expect(line()).toBe("Next B 3 of 4 ! Refuel before the next jump To Maia 2 jumps left");
   });
 
-  it("says when the next stop could not be copied, and Copy tries again", async () => {
+  it("says when the next stop could not be copied, as the shared hard error, and TRY AGAIN copies again", async () => {
     start();
     fakeClipboard("another program has the clipboard open");
     await followRoute("Sol to Maia", "exact plotter", exact(["Sol", "A", "Maia"]));
     render(Strip);
     await strip().findByText("A");
-    expect(line()).toBe("Next A 2 of 3 ! Not on the clipboard: another program has the clipboard open To Maia 2 jumps left");
+    expect(strip().getByRole("alert").textContent).toMatch(/^! Not on the clipboard: another program has the clipboard open\s*Try again$/);
     fakeClipboard(null);
-    await fireEvent.click(strip().getByRole("button", { name: "Copy A" }));
+    await fireEvent.click(strip().getByRole("button", { name: "Try again" }));
     await waitFor(() => expect(line()).toBe("Next A 2 of 3 To Maia 2 jumps left"));
   });
 
@@ -118,7 +117,7 @@ describe("Route strip", () => {
     fakePlotInGame(["Sol", "Wolf 359", "Ross 128"]);
     render(Strip);
     await strip().findByText("Wolf 359");
-    expect(line(), "the paused route waits on the Route page").toBe("Next Wolf 359 1 of 2 To Ross 128 2 jumps left");
+    expect(line(), "the paused route waits in the route sidebar").toBe("Next Wolf 359 1 of 2 To Ross 128 2 jumps left");
     fakeJump("Wolf 359");
     fakeJump("Ross 128");
     await strip().findByText("Route finished", {}, { timeout: 3000 });

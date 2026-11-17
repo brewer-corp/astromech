@@ -1,19 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import Plot from "./Plot.svelte";
-import View from "./View.svelte";
+import Sidebar from "./Sidebar.svelte";
 import { answer, idle, previewAnswer, sent, startPreview, watch } from "../../test/transport";
 
-// The Route page's title is the plotter: from where the commander is (the preview's commander is
+// The route sidebar's title is the plotter: from where the commander is (the preview's commander is
 // in Sol, in an Asp Explorer at 36.48 ly) to a destination edited in place, with the plot setup
 // the header's plot panel shares. The preview plots from fixtures/plot.json.
 const dest = () => screen.getByRole("combobox", { name: "Destination" }) as HTMLInputElement;
-const title = () => screen.getByRole("heading", { level: 1 });
+/** The title's plan: "Sol to [destination]". */
+const title = () => document.querySelector(".plan") as HTMLElement;
 
 async function openPage(url = "/?core=ready") {
   startPreview(url);
-  render(View);
-  await screen.findByText(/No route\.|Following|waypoints left/);
+  render(Sidebar);
+  await screen.findByText(/No route\.|Following|left$/);
   await waitFor(() => expect(title().textContent).toMatch(/^\s*Sol\s+to/));
 }
 
@@ -22,7 +23,7 @@ async function choose(picker: RegExp, option: RegExp) {
   await fireEvent.click(screen.getByRole("option", { name: option }));
 }
 
-describe("Route page title: plotting", () => {
+describe("Route sidebar title: plotting", () => {
   it("plots to a destination typed in place, then offers Replot from here", async () => {
     const plots = watch("route_plot");
     await openPage();
@@ -55,7 +56,7 @@ describe("Route page title: plotting", () => {
     const busy = screen.getByRole("button", { name: "Plotting…" }) as HTMLButtonElement;
     expect(busy.disabled).toBe(true);
     expect(screen.getByText("Asking Spansh. A route can take a minute.")).toBeTruthy();
-    expect(screen.getByText("A route is being plotted on the Route page.")).toBeTruthy();
+    expect(screen.getByText("A route is being plotted in the route sidebar.")).toBeTruthy();
     expect((screen.getByRole("button", { name: "Plot and follow" }) as HTMLButtonElement).disabled).toBe(true);
   });
 
@@ -73,7 +74,7 @@ describe("Route page title: plotting", () => {
   });
 });
 
-describe("Route page title: destination suggestions", () => {
+describe("Route sidebar title: destination suggestions", () => {
   it("drops a reply that arrives after Escape or a cleared box", async () => {
     let reply: (names: string[]) => void = () => {};
     answer("galaxy_systems", () => new Promise<string[]>((r) => (reply = r)));
@@ -99,7 +100,7 @@ describe("Route page title: destination suggestions", () => {
   });
 });
 
-describe("Route page title: the plot setup", () => {
+describe("Route sidebar title: the plot setup", () => {
   it("downloads the neutron star file under Worked out, plots on this PC, and changes the engine back to Spansh", async () => {
     const plots = watch("route_plot");
     await openPage();
@@ -110,7 +111,7 @@ describe("Route page title: the plot setup", () => {
     expect(document.activeElement).toBe(eff);
     await fireEvent.click(screen.getByRole("button", { name: "Download" }));
     expect(await screen.findByText(/Neutron star file: 5,045,154 neutron stars/)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^Worked out\s*On this PC/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Worked out:?\s*On this PC/ })).toBeTruthy();
     expect(screen.queryByLabelText("Efficiency"), "the local plotter has no setting").toBeNull();
     await fireEvent.keyDown(screen.getByRole("listbox", { name: "Worked out" }), { key: "Escape" });
     expect(screen.queryByRole("listbox"), "Escape closes it").toBeNull();
@@ -132,21 +133,21 @@ describe("Route page title: the plot setup", () => {
   it("is the one setup the header's plot panel shows, taken from the route followed", async () => {
     await openPage("/?core=ready&route=exact");
     // The route followed was plotted exact, so the page and the panel say so.
-    expect(screen.getByRole("button", { name: /^Plotter\s*Exact/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /^Plotter:?\s*Exact/ })).toBeTruthy();
     expect(dest().value).toBe("Maia");
     render(Plot, { to: "Colonia" });
     const panel = () => screen.getAllByRole("button", { name: /^Plotter/ });
-    await waitFor(() => expect(panel().map((b) => b.textContent?.replace(/\s+/g, " ").trim())).toEqual(["Plotter Exact", "Plotter Exact"]));
+    await waitFor(() => expect(panel().map((b) => b.textContent?.replace(/\s+/g, " ").trim())).toEqual(["Exact", "Plotter Exact"]));
 
     // Changed in the panel, the page follows.
     await fireEvent.click(panel()[1]!);
     await fireEvent.click(screen.getByRole("option", { name: /^Neutron/ }));
-    expect(panel().map((b) => b.textContent?.replace(/\s+/g, " ").trim())).toEqual(["Plotter Neutron", "Plotter Neutron"]);
+    expect(panel().map((b) => b.textContent?.replace(/\s+/g, " ").trim())).toEqual(["Neutron", "Plotter Neutron"]);
     expect(screen.getAllByRole("button", { name: /^Worked out/ })).toHaveLength(2);
   });
 });
 
-describe("Route page title: the ⋯ menu", () => {
+describe("Route sidebar title: the ⋯ menu", () => {
   it("opens the destination on Spansh, and has nothing to clear or open without a route", async () => {
     const opened = watch("open_external");
     await openPage();

@@ -1,4 +1,4 @@
-// What a finished plot says, in the header's plot panel and under the Route page's title.
+// What a finished plot says, in the header's plot panel and under the route sidebar's title.
 import type { Plotted } from "../../lib/route";
 
 const ly = (n: number) => Math.round(n).toLocaleString("en-GB");

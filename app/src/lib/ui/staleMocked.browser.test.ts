@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import type { Component } from "svelte";
-import Route from "../../modules/route/View.svelte";
+import Route from "../../modules/route/Sidebar.svelte";
 import Edsm from "../../modules/datasharing/Edsm.svelte";
 import { pollFailure } from "./errors";
 

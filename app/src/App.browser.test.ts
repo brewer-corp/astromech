@@ -1,6 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+// The design tokens, for the frame's real widths (the route sidebar, the dock width).
+import "./design/tokens.css";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { page } from "vitest/browser";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import App from "./App.svelte";
+import { clearRoute, followRoute } from "./lib/route";
+import { resetScale, setTextSize, STEPS } from "./lib/scale.svelte";
+import { DOCK } from "./lib/ui/layout/layout";
 import { answer, idle, previewAnswer, startPreview, watch } from "./test/transport";
 
 const stationsSpy = watch("stations_nearby");
@@ -177,20 +183,296 @@ describe("route strip in the window", () => {
     history.replaceState(null, "", "/");
   });
 
-  it("is under the header on every page, Galaxy's included, and gone in onboarding", async () => {
+  it("is under the header on every page below the dock width, and gone in onboarding", async () => {
     startPreview("/?core=ready&route=exact");
-    for (const page of ["settings", "materials", "places", "places/services", "route"]) {
+    for (const page of ["settings", "materials", "places", "places/services"]) {
       location.hash = `#/${page}`;
       render(App);
       const strip = await screen.findByRole("region", { name: "Route" });
       expect(await within(strip).findByText("Arietis Sector LD-H a11-1"), page).toBeTruthy();
-      expect(screen.queryByRole("complementary", { name: "Route" }), "no Galaxy rail").toBeNull();
+      expect(screen.queryByRole("complementary", { name: "Route" }), "no sidebar until the strip opens it").toBeNull();
       cleanup();
     }
     location.hash = "#/setup";
     render(App);
     await screen.findByRole("heading", { level: 1 });
     expect(screen.queryByRole("region", { name: "Route" })).toBeNull();
+  });
+});
+
+describe("route sidebar in the frame", () => {
+  // DESIGN.md Route sidebar. The test window is 1200 x 800, below the dock width; the docked
+  // cases widen it. The preview commander is in Sol.
+  const WIDE = 1920;
+  beforeEach(() => localStorage.removeItem("astromech.routeCollapsed"));
+  /** The preview under `query`, on the Materials page. */
+  const preview = (query: string) => {
+    startPreview(query);
+    location.hash = "#/materials";
+  };
+  afterEach(async () => {
+    cleanup();
+    resetScale();
+    await page.viewport(1200, 800);
+    location.hash = "";
+    history.replaceState(null, "", "/");
+  });
+
+  const sidebar = () => screen.queryByRole("complementary", { name: "Route" });
+  const strip = () => screen.queryByRole("region", { name: "Route" });
+  const rail = () => screen.queryByRole("navigation", { name: "No route" });
+  const scrim = () => document.querySelector(".scrim");
+
+  it("docks beside every page at the dock width, folds to the strip, and stays folded", async () => {
+    await page.viewport(WIDE, 1080);
+    preview("/?core=ready&route=exact");
+    render(App);
+    const side = within(await screen.findByRole("complementary", { name: "Route" }));
+    expect(side.getByText("Route", { selector: ".heading" })).toBeTruthy();
+    expect(await side.findByText("Next stop · 1 jump away")).toBeTruthy();
+    expect(strip(), "the sidebar holds the route: no strip").toBeNull();
+    expect(await screen.findByText(/^Raw sites near you/), "the page beside it").toBeTruthy();
+
+    await fireEvent.click(side.getByRole("button", { name: "Collapse the route to a strip" }));
+    expect(sidebar()).toBeNull();
+    expect(await within(strip()!).findByText("Arietis Sector LD-H a11-1")).toBeTruthy();
+
+    // Folded is kept: the next window opens folded, and the strip's chevron unfolds it.
+    cleanup();
+    render(App);
+    const s = await screen.findByRole("region", { name: "Route" });
+    await within(s).findByText("Arietis Sector LD-H a11-1");
+    expect(sidebar()).toBeNull();
+    await fireEvent.click(within(s).getByRole("button", { name: "Show the route" }));
+    expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
+    expect(strip()).toBeNull();
+  });
+
+  it("opens over the dimmed page below the dock width, and closes on Escape, the chevron and a click outside", async () => {
+    preview("/?core=ready&route=exact");
+    render(App);
+    const s = await screen.findByRole("region", { name: "Route" });
+    await within(s).findByText("Arietis Sector LD-H a11-1");
+    const chevron = () => within(s).getByRole("button", { name: /^(Show|Close) the route$/ });
+    const open = async () => {
+      await fireEvent.click(chevron());
+      expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
+      expect(scrim()).toBeTruthy();
+      expect(chevron().getAttribute("aria-expanded")).toBe("true");
+    };
+
+    await open();
+    // Escape in the destination's own box is the box's: it has nothing to undo, so the sidebar closes.
+    const dest = screen.getByRole("combobox", { name: "Destination" });
+    // A dropdown open inside it takes Escape first.
+    await fireEvent.click(screen.getByRole("button", { name: /^Plotter/ }));
+    await fireEvent.keyDown(screen.getByRole("listbox", { name: "Plotter" }), { key: "Escape" });
+    expect(sidebar(), "Escape closed the dropdown only").toBeTruthy();
+    await fireEvent.keyDown(dest, { key: "Escape" });
+    expect(sidebar()).toBeNull();
+    expect(scrim()).toBeNull();
+
+    await open();
+    await fireEvent.click(chevron());
+    expect(sidebar()).toBeNull();
+
+    await open();
+    await fireEvent.pointerDown(scrim()!);
+    expect(sidebar()).toBeNull();
+    expect(location.hash, "the page stayed").toBe("#/materials");
+  });
+
+  it("shows the no-route rail docked, and the strip's No route below the dock width, and imports a first route from each", async () => {
+    const csv = '"System Name","Jumps"\n"Sol","0"\n"Shinrarta Dezhra","3"\n"Colonia","40"\n';
+    const importFrom = async (button: HTMLElement) => {
+      await fireEvent.click(button);
+      const dialog = screen.getByRole("dialog", { name: "Import a route" });
+      await fireEvent.input(within(dialog).getByPlaceholderText(/Paste a Spansh CSV/), { target: { value: csv } });
+      await fireEvent.click(within(dialog).getByRole("button", { name: "Follow this route" }));
+    };
+
+    await page.viewport(WIDE, 1080);
+    preview("/?core=ready");
+    render(App);
+    const r = await screen.findByRole("navigation", { name: "No route" });
+    expect(strip(), "the rail is all there is").toBeNull();
+    expect(r.getBoundingClientRect().width).toBe(48);
+    await fireEvent.click(within(r).getByRole("button", { name: "Find or plot" }));
+    expect(document.activeElement).toBe(screen.getByRole("combobox", { name: "Find or plot" }));
+    await importFrom(within(r).getByRole("button", { name: "Import a route" }));
+    const side = within(await screen.findByRole("complementary", { name: "Route" }));
+    expect(await side.findByText((_, el) => !!el?.matches(".name") && el.textContent === "Shinrarta Dezhra")).toBeTruthy();
+    expect(rail()).toBeNull();
+
+    cleanup();
+    await page.viewport(1200, 800);
+    preview("/?core=ready");
+    render(App);
+    const s = within(await screen.findByRole("region", { name: "Route" }));
+    await s.findByText("No route");
+    expect(rail()).toBeNull();
+    await importFrom(s.getByRole("button", { name: "Import a route" }));
+    expect(await s.findByText("Shinrarta Dezhra")).toBeTruthy();
+  });
+
+  it("opens a cold #/route over the page when the saved Text size, read after the window draws, puts it below the dock width", async () => {
+    // 1920 px docks at 100 percent, the size the window draws at before the core answers, and is
+    // below the dock width at a saved 115 percent (1,670 px at 100).
+    // The first read fails (the core not ready), and the window tries again on the next status
+    // poll, whose reply the test holds.
+    let reply: (r: { ok: true; text_size: number }) => void = () => {};
+    let reads = 0;
+    answer("window_settings", () => (++reads === 1 ? { ok: false, error: "core not ready" } : new Promise((r) => (reply = r))));
+    answer("status", async () => (await previewAnswer("status")));
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] }); // the 2 s status poll
+    await page.viewport(WIDE, 1080);
+    startPreview("/?core=ready&route=exact");
+    location.hash = "#/route";
+    render(App);
+    // The route is drawn (the strip, or without the fix the docked sidebar) before the reply.
+    await waitFor(() => expect(document.querySelector('[aria-label="Route"]')).toBeTruthy());
+    await vi.advanceTimersByTimeAsync(2000);
+    await waitFor(() => expect(reads).toBe(2));
+    reply({ ok: true, text_size: 115 });
+    await waitFor(() => expect(scrim(), "the sidebar over the page").toBeTruthy());
+    expect(sidebar()).toBeTruthy();
+    expect(document.documentElement.style.fontSize).toBe("115%");
+    expect(location.hash).toBe("#/controller");
+  });
+
+  it("shows the empty sidebar when it is asked for with no route at the dock width, and folds back to the rail", async () => {
+    await page.viewport(WIDE, 1080);
+    startPreview("/?core=ready");
+    location.hash = "#/route";
+    render(App);
+    const side = within(await screen.findByRole("complementary", { name: "Route" }));
+    expect(await side.findByText(/^No route\./)).toBeTruthy();
+    expect(side.getByRole("combobox", { name: "Destination" }), "its plotter").toBeTruthy();
+    expect(rail()).toBeNull();
+    expect(location.hash).toBe("#/controller");
+
+    await fireEvent.click(side.getByRole("button", { name: "Collapse the route to a strip" }));
+    expect(await screen.findByRole("navigation", { name: "No route" })).toBeTruthy();
+    expect(sidebar()).toBeNull();
+    expect(localStorage.getItem("astromech.routeCollapsed"), "folding an empty sidebar keeps no choice").not.toBe("1");
+
+    // The palette's Route asks for it again (on a page that has finished loading, which would
+    // otherwise take the focus).
+    location.hash = "#/materials";
+    await screen.findByText(/^Raw sites near you/);
+    await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    const box = screen.getByRole("combobox", { name: "Find or plot" });
+    await fireEvent.input(box, { target: { value: "route" } });
+    await screen.findByText("The route sidebar");
+    await fireEvent.keyDown(box, { key: "Enter" });
+    expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
+    expect(rail()).toBeNull();
+  });
+
+  it("opens the sidebar's ⋯ menu inside the window, docked and over the page, for a neutron route", async () => {
+    // A neutron route's two plot cells push ? and ⋯ to a second line at the sidebar's left edge.
+    for (const [w, h] of [[WIDE, 1080], [1200, 800]] as const) {
+      await page.viewport(w, h);
+      preview("/?core=ready&route=timeline");
+      render(App);
+      if (w < WIDE) await fireEvent.click(await within(await screen.findByRole("region", { name: "Route" })).findByRole("button", { name: "Show the route" }));
+      const side = within(await screen.findByRole("complementary", { name: "Route" }));
+      await side.findByText(/^Next stop/);
+      await fireEvent.click(side.getByRole("button", { name: "More route actions" }));
+      const menu = screen.getByRole("menu", { name: "More route actions" }).getBoundingClientRect();
+      expect(menu.left, `${w} px`).toBeGreaterThanOrEqual(0);
+      expect(menu.right, `${w} px`).toBeLessThanOrEqual(innerWidth);
+      cleanup();
+    }
+  });
+
+  it("docks when a route appears and gives way to the rail when it is cleared", async () => {
+    await page.viewport(WIDE, 1080);
+    preview("/?core=ready");
+    render(App);
+    await screen.findByRole("navigation", { name: "No route" });
+    // A route followed from elsewhere (a finder's Set destination): the next poll docks it.
+    await followRoute("Trip", "test", [{ system: "Deciat" }, { system: "Kuk" }]);
+    expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
+    expect(rail()).toBeNull();
+    await clearRoute();
+    expect(await screen.findByRole("navigation", { name: "No route" })).toBeTruthy();
+    expect(sidebar()).toBeNull();
+
+    // Asked for over a route (#/route in the window), it still gives way to the rail once cleared.
+    await followRoute("Trip", "test", [{ system: "Deciat" }, { system: "Kuk" }]);
+    await screen.findByRole("complementary", { name: "Route" });
+    location.hash = "#/route";
+    await waitFor(() => expect(location.hash, "handled: the page's address is back").toBe("#/materials"));
+    await clearRoute();
+    expect(await screen.findByRole("navigation", { name: "No route" })).toBeTruthy();
+    expect(sidebar()).toBeNull();
+  });
+
+  it("opens the sidebar for #/route, cold or in the window, and keeps the page", async () => {
+    // Cold, from a bookmark: the default page, the sidebar over it below the dock width.
+    startPreview("/?core=ready&route=exact");
+    location.hash = "#/route";
+    render(App);
+    expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
+    expect(scrim()).toBeTruthy();
+    expect(location.hash).toBe("#/controller");
+    cleanup();
+
+    // Docked and folded: an old link followed inside the window unfolds it, and the page stays.
+    localStorage.setItem("astromech.routeCollapsed", "1");
+    await page.viewport(WIDE, 1080);
+    location.hash = "#/trade";
+    render(App);
+    await within(await screen.findByRole("region", { name: "Route" })).findByText("Arietis Sector LD-H a11-1");
+    location.hash = "#/route";
+    expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
+    expect(location.hash).toBe("#/trade");
+
+  });
+
+  it("opens the sidebar for the palette's Route entry, and keeps the page", async () => {
+    localStorage.setItem("astromech.routeCollapsed", "1");
+    await page.viewport(WIDE, 1080);
+    preview("/?core=ready&route=exact");
+    render(App);
+    await within(await screen.findByRole("region", { name: "Route" })).findByText("Arietis Sector LD-H a11-1");
+    await screen.findByText(/^Raw sites near you/);
+    await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    const box = screen.getByRole("combobox", { name: "Find or plot" });
+    await fireEvent.input(box, { target: { value: "route" } });
+    await screen.findByText("The route sidebar");
+    await fireEvent.keyDown(box, { key: "Enter" });
+    expect(await screen.findByRole("complementary", { name: "Route" })).toBeTruthy();
+    expect(location.hash).toBe("#/materials");
+  });
+
+  it("docks from the dock width, where the Sell finder keeps its panel beside its rows, at every Text size", async () => {
+    // The dock width (lib/ui/layout/layout.ts) is the narrowest window at which Sell, with a result
+    // selected, keeps its side panel beside the rows next to the sidebar. Both ways: at the dock
+    // width the panel is beside the rows; with the page column a few px narrower it goes below them.
+    for (const step of STEPS) {
+      startPreview("/?core=ready&route=exact");
+      await setTextSize(step);
+      const at = Math.ceil((DOCK * step) / 100);
+      await page.viewport(at, 1000);
+      location.hash = "#/places/sell/painite";
+      render(App);
+      const table = await screen.findByRole("table", { name: "Results" });
+      await fireEvent.click(within(table).getAllByRole("button", { pressed: false })[0]!);
+      const panel = await screen.findByRole("complementary", { name: "Details" });
+      const side = await screen.findByRole("complementary", { name: "Route" });
+      await waitFor(() => expect(panel.classList.contains("stacked"), `${step} %: beside the rows at ${at} px`).toBe(false));
+      // Folded, the page column is the window; a window the sidebar's width narrower, less 6 px at
+      // 100 percent (the text's rounding moves the true edge by up to 5 px across the steps),
+      // gives it the docked column less that.
+      const narrower = at - Math.round(side.parentElement!.getBoundingClientRect().width) - Math.ceil((6 * step) / 100);
+      await fireEvent.click(screen.getByRole("button", { name: "Collapse the route to a strip" }));
+      await page.viewport(narrower, 1000);
+      await waitFor(() => expect(panel.classList.contains("stacked"), `${step} %: below the rows at ${narrower} px`).toBe(true));
+      localStorage.removeItem("astromech.routeCollapsed");
+      cleanup();
+    }
   });
 });
 
@@ -205,15 +487,13 @@ describe("Places in the window", () => {
     location.hash = "";
   });
 
-  const pageTabs = () => within(document.querySelector("nav.sub") as HTMLElement).getAllByRole("button").map((b) => b.textContent);
-
-  it("opens Galaxy on the Places home: tabs Places and Route, finder tiles by section, no request", async () => {
-    location.hash = "#/route";
+  it("opens PLACES on the Places home: no page tabs, finder tiles by section, no request", async () => {
+    location.hash = "#/settings";
     render(App);
-    await fireEvent.click(await screen.findByRole("button", { name: "Galaxy" }));
+    await fireEvent.click(await screen.findByRole("button", { name: "Places" }));
     expect(location.hash).toBe("#/places");
     expect(await screen.findByRole("heading", { name: "Ship" })).toBeTruthy();
-    expect(pageTabs()).toEqual(["Places", "Route"]);
+    expect(document.querySelector("nav.sub"), "one page, no page tab row").toBeNull();
     expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Trade", "Ship", "Engineering", "Mining"]);
     const hrefs = (section: string) => within(screen.getByRole("region", { name: section })).getAllByRole("link").map((a) => a.getAttribute("href"));
     expect(hrefs("Trade")).toEqual(["#/places/sell", "#/places/buy", "#/places/sell-cargo"]);
@@ -233,8 +513,7 @@ describe("Places in the window", () => {
     expect(screen.getByRole("link", { name: "Places" }).getAttribute("href")).toBe("#/places");
     expect(screen.getByRole("button", { name: "Raw trader" }).getAttribute("aria-pressed")).toBe("true");
     await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ want: { kind: "service", service: "raw_trader" }, origin: null })));
-    expect(document.querySelectorAll("nav.sub")).toHaveLength(1);
-    expect(pageTabs()).toEqual(["Places", "Route"]);
+    expect(document.querySelector("nav.sub"), "no page tab row, and no third").toBeNull();
 
     await fireEvent.click(screen.getByRole("button", { name: "Encoded trader" }));
     expect(location.hash).toBe("#/places/material-traders/encoded");
@@ -318,7 +597,7 @@ describe("Places in the window", () => {
   });
 
   it("rewrites an old link opened from outside in place, so Back doesn't return to it", async () => {
-    location.hash = "#/route";
+    location.hash = "#/settings";
     location.hash = "#/shipyard/Anaconda";
     const entries = history.length;
     render(App);
@@ -456,9 +735,9 @@ describe("Places in the window", () => {
     location.hash = "#/places/shipyard/Anaconda";
     render(App);
     await screen.findByRole("heading", { level: 1, name: "Shipyard" });
-    await fireEvent.click(screen.getByRole("button", { name: "Route" }));
-    await waitFor(() => expect(location.hash).toBe("#/route"));
+    await fireEvent.click(screen.getByRole("button", { name: "Trade" }));
+    await waitFor(() => expect(location.hash).toBe("#/trade"));
     await idle();
-    expect(location.hash).toBe("#/route");
+    expect(location.hash).toBe("#/trade");
   });
 });

@@ -1,7 +1,7 @@
 # Places
 
-**Places** is one place to ask *where is X?* Open the **Galaxy** tab: its pages are **Places**
-and **Route**. The Places page shows a tile for each finder, grouped under headings:
+**Places** is one place to ask *where is X?* Open the **Places** tab: it shows a tile for each
+finder, grouped under headings:
 
 - **Trade:** [Sell and Buy](#sell-and-buy) and [Sell my cargo](#sell-my-cargo).
 - **Ship:** [Services](#services), [Outfitting](#outfitting) and [Shipyard](#shipyard).

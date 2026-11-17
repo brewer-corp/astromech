@@ -24,21 +24,20 @@ export const PAGE_SIZING = [
   ["src/modules/places/Home.svelte", "font-size"],
   ["src/modules/settings/{Callouts,ProspectorThresholds}.svelte", "font-size"],
   ["src/modules/{session,mining}/View.svelte", "font-size"],
-  // astromech-irrv: the Route page's title, the plotter.
-  ["src/modules/route/{Title,PlotSetup,ImportDialog}.svelte", "width", "font-size"],
-  // astromech-qwvs: the Route page's timeline.
-  ["src/modules/route/{View,Timeline}.svelte", "width", "font-size"],
-  // astromech-ok29: the neutron star file's status, in the title's Worked out dropdown.
-  ["src/modules/route/NeutronFile.svelte", "width", "font-size"],
+  // astromech-irrv: the Import a route dialog, a page part opened from the frame.
+  ["src/modules/route/ImportDialog.svelte", "width", "font-size"],
 ];
 /**
  * Never checked: the Controls pages, which keep their own sizes (DESIGN.md), and the frame's parts
- * that live in the route module, which are not pages.
+ * that live in the route module, which are not pages. Since astromech-uc7i the route is frame (the
+ * route sidebar, sized by App.svelte's --sidebar): its title, plot setup, timeline and neutron
+ * file status lay out for the sidebar, and still use the type roles.
  */
 export const PAGE_SIZING_EXEMPT = [
   "src/modules/{controller,keybinds,presets,keytester}/**",
   "src/modules/route/Strip.svelte",
   "src/modules/route/PlotBar.svelte",
+  "src/modules/route/{Sidebar,Rail,Title,PlotSetup,Timeline,NeutronFile}.svelte",
 ];
 
 /**

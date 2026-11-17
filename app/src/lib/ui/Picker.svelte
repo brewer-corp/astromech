@@ -10,9 +10,11 @@
   // border, the current option filled. Arrows move between options, Enter or a click picks,
   // Escape or a click outside closes it. `inline` opens the list in the flow under the cell
   // instead of over the page, for a container that scrolls and would clip it (the header's plot
-  // panel).
+  // panel). `bare` leaves the label off the cell, for a narrow column (the route sidebar): the
+  // cell's Tip and accessible name still give it.
   import type { Snippet } from "svelte";
   import Glyph from "./Glyph.svelte";
+  import { tip } from "./tip";
 
   let {
     label,
@@ -22,6 +24,7 @@
     extra,
     shown,
     inline = false,
+    bare = false,
   }: {
     label: string;
     value: T;
@@ -31,6 +34,7 @@
     /** What the cell says, when it isn't the current option's label. */
     shown?: string;
     inline?: boolean;
+    bare?: boolean;
   } = $props();
 
   let open = $state(false);
@@ -90,8 +94,8 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <span class="picker" class:inline bind:this={box} onkeydown={key}>
-  <button bind:this={cell} type="button" class="cell" aria-haspopup="listbox" aria-expanded={open} aria-controls={id} onclick={toggle}>
-    <span class="type-label">{label}</span>
+  <button bind:this={cell} type="button" class="cell" aria-haspopup="listbox" aria-expanded={open} aria-controls={id} aria-label={bare ? `${label}: ${shown ?? current?.label ?? ""}` : undefined} onclick={toggle} {@attach tip(bare ? label : null)}>
+    {#if !bare}<span class="type-label">{label}</span>{/if}
     <span class="val">{shown ?? current?.label ?? ""}</span>
     <Glyph name="chevron" />
   </button>

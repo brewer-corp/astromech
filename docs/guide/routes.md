@@ -5,9 +5,32 @@ map in VR. astromech fills the gap with a **route follower**: it keeps one route
 waypoint on your clipboard, and pastes it into the galaxy map's search box when you ask. You still
 plot each leg in the galaxy map yourself. A route you plot in the galaxy map is followed too.
 
-## The route strip
+## The route sidebar
 
-A strip under the header, on every page but setup, shows the route you are following on one line:
+The route you are following is part of the window, beside every page but setup. In a wide
+window it is a **sidebar** on the left, headed **ROUTE**. In a narrower one, or when you fold the
+sidebar with the **<** at its top, it is the **route strip**, one line across the top of the page.
+The window keeps the sidebar folded until you open it again.
+
+The window is wide enough for the sidebar from about 1,760 px at 100 percent Text size (about
+2,550 px at 145 percent). That is the narrowest window where a finder such as Sell keeps its
+details panel beside its results with the sidebar open. A larger Text size needs a wider window.
+Below that, the **>** at the left end of the strip opens the same sidebar over the page, with the
+page dimmed behind it. Escape, the **<** or a click on the page closes it.
+
+With no route, a wide window shows a narrow rail on the left with two buttons: one puts the
+cursor in the header's **Find or plot**, the other opens **Import a route**
+([Import a route](#import-a-route)). A narrower window shows **No route** in the strip, with the
+same two buttons.
+
+Anything that used to open the Route page now opens the sidebar and keeps the page you are on:
+the destination in the strip, **Route** in [Find or plot](using-the-app.md#find-or-plot),
+**Show the route** after a plot, and an old `#/route` link or bookmark, which opens the first
+page with the sidebar open.
+
+### The route strip
+
+The strip shows the route on one line:
 
 - **Next** and the next waypoint's system, with a **copy** button that puts it on your clipboard
   again;
@@ -16,12 +39,12 @@ A strip under the header, on every page but setup, shows the route you are follo
 - on the right, **To** and the route's last system, and how far is left. A route plotted in
   astromech or in the galaxy map says **jumps left**. A route that does not know its jumps (an
   import, an engineer trip, a search result's stop) says **stops left** instead, and so does a
-  plotted route once you add a stop to it.
+  plotted route once you add a stop to it. Click it to open the sidebar.
 
-An orange **!** and a few words say when to act, one at a time:
+When astromech could not write the next waypoint to the clipboard, a red **!** says why, with
+**Try again**, which copies it again. An orange **!** and a few words say when to act, one at a
+time:
 
-- **Not on the clipboard** and why, when astromech could not write the next waypoint to the
-  clipboard. Press copy to try again.
 - **Off route** when you are in neither the waypoint you last reached nor the next one, on a route
   where they are one jump apart (an exact route, or one plotted in the galaxy map). Between the
   stops of a neutron route or an engineer trip you are usually somewhere else, so it does not say
@@ -29,30 +52,34 @@ An orange **!** and a few words say when to act, one at a time:
 - **Refuel before the next jump** while you are in a waypoint marked fuel. astromech does not read
   your tank, so it says this until you jump on, even after you have scooped.
 
-With no route it says **No route**, and **Find or plot** puts the cursor in the header's search
-box. A finished route says **Route finished**. When the route you were following has ended and
+A finished route says **Route finished**. When the route you were following has ended and
 another one is paused, the strip shows it with **Resume**.
 
-Click the destination for the **Route** page, also in [Find or plot](using-the-app.md#find-or-plot).
-Its title is where you plot: **Sol to Maia**, from your current system to the route's
-destination ([Plot a route](#plot-a-route)). Under it are where the route came from and how many
-waypoints are left (a route that wasn't plotted in astromech also says **Following** and its name
-above the title), then the route as a timeline from top to bottom:
+### In the sidebar
+
+The sidebar's title is where you plot: **Sol to Maia**, from your current system to the route's
+destination ([Plot a route](#plot-a-route)). Under it are the plotter and how it is worked out
+(hover over each for its name), **?** and **⋯**, then where you are in the route and how far is
+left, with **Replot from here**. A route that wasn't plotted in astromech also says **Following**
+and its name above the title. Then the route as a timeline from top to bottom, which scrolls on
+its own:
 
 - Each stop is drawn as its star's type: a plain disc for a star you can scoop, and its own
   icons for a neutron star, a white dwarf, a brown dwarf, any other star you can't scoop, and a
   dashed circle for a star astromech knows nothing about. Hover over an icon for what it is and
-  whether you can refuel there. Stops behind you are dimmed.
-- The **next stop** is raised: a larger name, **Next stop** and how many jumps away it is, where
+  whether you can refuel there. A long name is cut short; hover over it for the whole name.
+  Stops behind you are dimmed.
+- The **next stop** is raised: a larger name, in full, **Next stop** and how many jumps away it is, where
   that is known. Its copy button puts it on your clipboard again, and turns to a check for a
   moment when it worked. If the clipboard could not be written, a red **!** says why, with
   **Try again**.
 - Every other stop has a copy button too, and **Make next** when you hover over it or tab to it:
   it makes that stop, ahead or behind, the next one and puts it on your clipboard. A route
   plotted in the galaxy map has no Make next, since the game has the route plotted.
-- Stops in inhabited systems have a second line: allegiance and government, security,
-  population, and the controlling faction with its state. astromech looks these up on Spansh
-  once per stop when the page opens, so it needs internet; without it the line is left out.
+- A stop's notes ("fuel", "neutron boost", an engineer) sit on a second line. Stops in inhabited
+  systems have a line with the allegiance, security and the controlling faction's state; hover
+  over it for the government, population and the faction. astromech looks these up on Spansh
+  once per stop while the sidebar is shown, so it needs internet; without it the line is left out.
 - **The leg you are flying** (the jumps to the next stop) opens out one row a jump, each with
   its star's icon and type, once the game lists the jumps: when you plot the leg in the galaxy
   map, or on an exact route, which lists every jump. Your row is marked with a map pin and
@@ -64,8 +91,8 @@ above the title), then the route as a timeline from top to bottom:
   or a jump it doesn't list, never says this, since there may be somewhere to scoop.
 - **Paused** with **Resume** above it when another route took over from one you had not finished ([One route at a time](#one-route-at-a-time)).
 
-Skipping a stop and going back one are voice commands ([Voice commands](#voice-commands)); on
-the page, Make next does both.
+Skipping a stop and going back one are voice commands ([Voice commands](#voice-commands)); in
+the sidebar, Make next does both.
 
 The **⋯** button at the end of the title has **Import a route…** ([Import a route](#import-a-route)),
 **Open on Spansh** (the destination's page on Spansh's site) and **Clear route**. The **?** next
@@ -79,7 +106,8 @@ A route comes from:
 - the two buttons at the end of every search result (Services, Outfitting, Shipyard, Trade,
   Exploration, Colonisation, Powerplay targets and the material sites): see
   [From a search result](#from-a-search-result);
-- the Route page's title, which plots, and its **⋯** menu's **Import a route…**.
+- the sidebar's title, which plots, its **⋯** menu's **Import a route…**, and the no-route
+  rail's import button.
 
 ### From a search result
 
@@ -102,10 +130,10 @@ and a new one-stop route is finished straight away with nothing copied.
 ### One route at a time
 
 astromech follows one route at a time. Setting a new one (**Set destination**, **Follow** on
-the engineer trip, **Plot and follow**, **Plot route** and **Replot from here** on the Route page, **Follow this
+the engineer trip, **Plot and follow**, **Plot route** and **Replot from here** in the route sidebar, **Follow this
 route** for an import) **pauses** the
 route it replaces, if that route is not finished. The line under the button says *Replaced*
-and the route's name, with **Resume**, and the Route page shows it as **Paused** with
+and the route's name, with **Resume**, and the sidebar shows it as **Paused** with
 **Resume**. Resume follows it again and puts its next waypoint on your clipboard; the route
 you set instead is dropped. Only one route is paused at a time: pausing another replaces it.
 A route plotted in the galaxy map is never paused (the game still has it), so setting a route
@@ -193,7 +221,7 @@ When you plot a route in the galaxy map, astromech reads it from the game (`NavR
   nothing: the game already has the route plotted and shows the next jump. The copy button and
   the voice commands still copy when you use them.
 - **A detour.** If you were following a route of your own (a neutron route, say) and it isn't
-  finished, it is **paused**, not lost. The Route page shows it with **Resume**, which follows it
+  finished, it is **paused**, not lost. The sidebar shows it with **Resume**, which follows it
   again and puts its next waypoint on your clipboard. Plotting in the galaxy map to one of its
   waypoints ahead resumes it too, with nothing copied (you have just plotted it).
 - **Clearing the route in the galaxy map** stops following a route that came from the galaxy
@@ -211,18 +239,18 @@ pick one with the arrow keys and Enter, a click or its **Plot** button. A panel 
 box: check the **Plotter** and **Worked out** dropdowns and press **Plot and follow**, or press
 Enter again. astromech plots a
 route from your current system for the ship you are flying and follows it straight away: the
-first jump is next and on your clipboard. **Show the route** opens the Route page. The panel
+first jump is next and on your clipboard. **Show the route** opens the route sidebar. The panel
 also has the system's **Spansh** and **Inara** pages. Escape or a click elsewhere closes it.
 
-On the **Route page**, the title does the same: click the destination after "to", type a system
+In the **route sidebar**, the title does the same: click the destination after "to", type a system
 (Spansh suggests names) and press Enter or **Plot route**. When the box names the route's own
 destination, the button is **Replot from here**: it plots the route again from where you are now,
 with the dropdowns as they are, for example after a detour or a ship change. Escape puts the
 route's destination back in the box. While a route is being plotted the button says
 **Plotting…**; a failed plot shows why, with **Try again**.
 
-The panel and the Route page share one setup: change the plotter in one and the other shows it.
-Opening the Route page shows what the route you follow was plotted with.
+The panel and the sidebar share one setup: change the plotter in one and the other shows it.
+The sidebar shows what the route you follow was plotted with.
 
 - **Plotter: Neutron** boosts from neutron stars on the way. The waypoints are the neutron stars and the
   destination: plot each leg in the galaxy map. With the [neutron star file](#the-neutron-star-file)
@@ -239,7 +267,7 @@ Routes always start from your current system, as the journal last reported it. A
 button is the jump range used: your ship's range with a full tank and the cargo aboard now,
 worked out from its last loadout in the journal, engineering and a Guardian FSD booster
 included. It updates within a few seconds when you swap ships or your cargo changes. If some
-modules are not known, it says the range may be off. On the Route page, when your range now
+modules are not known, it says the range may be off. In the sidebar, when your range now
 differs from the range the route was plotted at, a line says both: *Your range is 48.21 ly now;
 this route was plotted at 41.90.* Replot from here plots at the range you have now. Both plotters use your drive's own neutron
 boost: six times the range with the size 8 Mk II supercharge-optimised drive, four times with any
@@ -282,7 +310,7 @@ Limits:
 
 ### The neutron star file
 
-Under **Worked out**, on the Route page and in the plot panel, is the **neutron star file**: a list of every known neutron
+Under **Worked out**, in the route sidebar and in the plot panel, is the **neutron star file**: a list of every known neutron
 star (about 5 million), built from Spansh's neutron star data, for plotting neutron routes on
 this PC instead of on Spansh. Until it is downloaded, Spansh plots neutron routes and **On this PC** can't be picked.
 
@@ -302,7 +330,7 @@ this PC instead of on Spansh. Until it is downloaded, Spansh plots neutron route
 
 ## Import a route
 
-**Import a route…** in the Route page's **⋯** menu opens a dialog for a pasted list. Paste a Spansh CSV export (neutron, road to riches, fleet
+**Import a route…** in the route sidebar's **⋯** menu, or the import button on the no-route rail or in the strip's **No route**, opens a dialog for a pasted list. Paste a Spansh CSV export (neutron, road to riches, fleet
 carrier or any other: astromech reads its "System Name" column) or one system name per line,
 give it a name if you like, and press **Follow this route**. If the list can't be read, the dialog says why and keeps what
 you pasted; **Cancel** or Escape closes it. Where the export has a "Jumps"

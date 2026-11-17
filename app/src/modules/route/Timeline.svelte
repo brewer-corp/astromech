@@ -1,14 +1,17 @@
 <script lang="ts">
-  // The route as a timeline (astromech-ok29's Design): each stop a node drawn as its star's type
-  // icon, and between stops the leg to the next. The next stop is the one raised row: a larger name,
+  // The route as a timeline (astromech-ok29's Design), in the route sidebar's 320 px as the nav
+  // spike drew it: each stop a node drawn as its star's type icon, which carries the star type
+  // with a Tip, and between stops the leg to the next. Names truncate with a Tip, except the next
+  // stop's, which wraps: it is typed in the galaxy map. The next stop is the one raised row: a larger name,
   // its copy icon and "N jumps away". The leg being flown opens out one row a jump, your row marked
   // with the map pin, when the route data lists its jumps (NavRoute once it is plotted in the
   // galaxy map, or an exact route's own list); otherwise it says its jump count and that the stars
   // appear once it is plotted. Other legs show the stars they pass where they are listed, else
   // their jump count, and warn of nowhere to scoop only when every jump is listed and known not
-  // scoopable (noScoop). Inhabited stops carry a second line of details. Every stop has its copy
-  // icon (the next one's goes through the core, which follows the clipboard); the others take Make
-  // next on hover or focus.
+  // scoopable (noScoop). A stop's fuel and neutron notes and an inhabited stop's allegiance,
+  // security and faction state sit on a second line. Every stop has its copy icon (the next one's
+  // goes through the core, which follows the clipboard); the others take Make next on hover or
+  // focus, over the end of their row.
   import { GAME_SOURCE, copyNext, makeNext, noScoop, starKind, type RouteJump, type RouteStop, type RouteView, type StarFacts } from "../../lib/route";
   import { population } from "../../lib/galaxy";
   import { tip } from "../../lib/ui/tip";
@@ -112,11 +115,18 @@
     return { title, fact: fact ? `${k.name} · ${fact}` : k.name, note: k.note };
   }
 
-  function facts(stop: RouteStop): string[] {
+  /** An inhabited stop's second line: allegiance, security and the faction state; the rest
+   * (government, population, the faction) is in its Tip. */
+  function details(stop: RouteStop): string[] {
     const d = stop.details;
     if (!d) return [];
-    const rule = [d.allegiance, d.government].filter(Boolean).join(" · ");
-    return [rule, d.security ? `${d.security} security` : "", `${population(d.population)} people`].filter(Boolean);
+    return [d.allegiance ?? "", d.security ? `${d.security} security` : "", d.faction_state ?? ""].filter(Boolean);
+  }
+
+  function detailTip(stop: RouteStop): string {
+    const d = stop.details;
+    if (!d) return "";
+    return [d.government, `${population(d.population)} people`, d.faction].filter(Boolean).join(" · ");
   }
 </script>
 
@@ -137,22 +147,23 @@
         <div class="main">
           {#if cur}<span class="type-label">Next stop{away != null ? ` · ${away} ${plural(away, "jump")} away` : ""}</span>{/if}
           <div class="nameline">
-            <span class={cur ? "type-title name" : "type-name name"}>{s.system}</span>
+            {#if cur}
+              <!-- The next stop's name wraps between its words, never inside one ("LD-H"). -->
+              <span class="type-title name">{#each s.system.split(" ") as w, k (k)}{k ? " " : ""}<span class="word">{w}</span>{/each}</span>
+            {:else}
+              <span class="type-name name" {@attach tip(s.system)}>{s.system}</span>
+            {/if}
             <IconButton
               icon={copied === row.i ? "copied" : "copy"}
               label={copied === row.i ? `Copied ${s.system}` : `Copy ${s.system}`}
               tip={copied === row.i ? "Copied" : "Copy to the clipboard"}
               onclick={() => void copy(row.i, s.system)}
             />
-            <span class="type-label">{k.name}</span>
-            {#if s.label}<span class="type-label todo">{s.label}</span>{/if}
-            {#if row.here}<span class="type-label you">You are here</span>{/if}
           </div>
+          {#if row.here}<span class="type-label you">You are here</span>{/if}
+          {#if s.label}<span class="type-label todo">{s.label}</span>{/if}
           {#if s.details}
-            <div class="facts type-label">
-              {#each facts(s) as f (f)}<span class:sec-low={f === "Low security"} class:sec-anarchy={f === "Anarchy security"}>{f}</span>{/each}
-              {#if s.details.faction}<span>{s.details.faction}{#if s.details.faction_state}&nbsp;· <span class="state">{s.details.faction_state}</span>{/if}</span>{/if}
-            </div>
+            <span class="facts type-label" {@attach tip({ title: details(s).join(" · "), fact: detailTip(s) })}>{#each details(s) as f, k (f)}{k ? " · " : ""}<span class:sec-low={f === "Low security"} class:sec-anarchy={f === "Anarchy security"} class:state={f === s.details.faction_state}>{f}</span>{/each}</span>
           {/if}
           {#if cur && view.clipboard_error}
             <Failure text={`Not on the clipboard: ${view.clipboard_error}`} onaction={() => void copy(row.i, s.system)} />
@@ -175,11 +186,9 @@
         </span>
         <div class="main">
           {#if row.at === "here" && !row.start}<span class="inl" data-star={k.glyph}><Glyph name={k.glyph} label={k.name} /></span>{/if}
-          <span class="type-name jn">{h.system}</span>
-          {#if !row.start}<span class="type-label">{k.name}</span>{/if}
+          <span class="type-name jn" {@attach tip(h.system)}>{h.system}</span>
           {#if row.at === "here"}<span class="type-label you">You are here</span>{/if}
         </div>
-        <div></div>
       </li>
     {:else}
       {@const s = row.stop}
@@ -199,19 +208,19 @@
           {#if row.unlisted}<span class="type-label">The stars appear once the leg is plotted in the galaxy map.</span>{/if}
           {#if row.dry}<span class="type-label warn"><b>!</b> No scoopable star for {n} jumps</span>{/if}
         </div>
-        <div></div>
       </li>
     {/if}
   {/each}
 </ol>
 
 <style>
-  /* Three columns shared by every row (subgrid): the spine with its nodes, the stop or jump, and its
-     action right after it (The Next To It Rule). */
-  .tl { display: grid; grid-template-columns: 2.5rem minmax(0, max-content) max-content; justify-content: start; column-gap: var(--sp-4); margin: 0; padding: 0; list-style: none; }
+  /* Two columns shared by every row (subgrid): the spine with its nodes, 24 px so a name gets
+     200 px of the sidebar, and the stop or jump. A stop's Make next sits over the end of its row,
+     on hover or focus, right after what it acts on. */
+  .tl { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr); column-gap: var(--sp-2); margin: 0; padding: 0; list-style: none; }
   .tl > li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; position: relative; isolation: isolate; }
   /* A row's fill, from the stop column on, so the spine stays clear. */
-  .tl > li::after { content: ""; position: absolute; inset: 0 0 0 calc(2.5rem + var(--sp-2)); z-index: -1; }
+  .tl > li::after { content: ""; position: absolute; inset: 0 0 0 calc(1.5rem + var(--sp-1)); z-index: -1; }
   .stop:not(.past):hover::after { background: var(--row-hover); }
 
   /* The spine: Label Grey, dashed ahead, Mark Off behind you. */
@@ -221,17 +230,20 @@
   .last .sp::before { bottom: 50%; }
   .past .sp::before { border-left-color: var(--mark-off); }
   .ahead .sp::before { border-left-style: dashed; }
-  .node { position: relative; z-index: 1; display: grid; place-items: center; padding: var(--gap); background: var(--bg); color: var(--label-grey); }
+  /* The node masks the spine with the sidebar's Hull. */
+  .node { position: relative; z-index: 1; display: grid; place-items: center; padding: var(--gap) 0; background: var(--surface); color: var(--label-grey); }
   .node:focus-visible { outline: 1px solid var(--accent); outline-offset: 0; }
 
-  .main { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding-block: var(--sp-2); }
-  .nameline { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap) var(--sp-2); }
+  .main { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: var(--sp-2) 0 var(--sp-2) var(--sp-2); }
+  .nameline { display: flex; align-items: center; gap: var(--gap); min-width: 0; }
+  .name, .jn, .facts { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .todo { color: var(--accent); font-weight: 600; }
-  .facts { display: flex; flex-wrap: wrap; gap: 0 var(--sp-4); margin-top: var(--gap); }
+  .facts { display: block; margin-top: var(--gap); }
   .state { color: var(--text-hi); }
   .you { color: var(--text-hi); font-weight: 600; }
-  .acts { display: flex; align-items: center; padding-left: var(--sp-4); opacity: 0; }
-  .stop:hover > .acts, .stop:focus-within > .acts { opacity: 1; }
+  .acts { position: absolute; top: 0; bottom: 0; right: 0; display: flex; align-items: center; padding-left: var(--sp-2); background: var(--surface-hi); opacity: 0; pointer-events: none; }
+  .acts:empty { display: none; }
+  .stop:hover > .acts, .stop:focus-within > .acts { opacity: 1; pointer-events: auto; }
 
   .stop > .main { min-height: var(--sp-12); }
   .stop.past .node { color: var(--mark-off); }
@@ -243,6 +255,9 @@
   /* The next stop: where to go now, raised (Hull Raised: Hull is the frame's), its name Orange Lit
      and its note Orange. */
   .stop.next::after { background: var(--surface-hi); }
+  .stop.next .name { white-space: normal; overflow-wrap: break-word; }
+  .word { white-space: nowrap; }
+  .stop.next .nameline { align-items: flex-start; }
   .stop.next > .main { min-height: calc(var(--sp-12) + var(--sp-8)); }
   .stop.next .node, .stop.next .name { color: var(--orange-lit); }
   .stop.next .nameline :global(.ibtn) { color: var(--orange-mid); }

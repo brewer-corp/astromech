@@ -798,8 +798,10 @@ and of two mockups, Variant B.
 - **The dock width** is the narrowest window at which a List with detail page (the Sell finder
   with a row selected) keeps its rows clear of its side panel beside the sidebar. The spike
   measured about 1,700 px under the old zoom: the Sell row at its narrowest (about 930 px), the
-  320 px panel, the sidebar's 320 px and two gutters. astromech-uc7i measures it in rem at every
-  Text size step.
+  320 px panel, the sidebar's 320 px and two gutters. astromech-uc7i measured it at every Text
+  size step: 1,756 px at 100 percent (109.75rem), so a 1920 x 1080 display at 100 percent and a
+  2560 x 1440 one at its 145 percent both dock. It is `DOCK` in
+  `app/src/lib/ui/layout/layout.ts`, and a browser test fails when the Sell row outgrows it.
 
 ### Page layouts
 
@@ -1270,6 +1272,7 @@ not have yet: the item named adds them, and the rows it replaces stay until then
 | placeholder | `--placeholder` | #ff7100bf (Orange at 75 %) |
 | on-orange | `--on-accent` | #0c0d0f |
 | scrim | `--scrim` | #000000b3 (black at 70 %), behind a dialog only |
+| scrim, route | `--scrim-route` | Void at 72 %, the page behind the route sidebar open over it ([The Dimmed Page Rule](#named-rules-2)) |
 | white | `--text-hi` | #ffffff |
 | options-grey | `--options-grey` | #e0e0e0 |
 | prose-grey | `--prose` | #c4c4c4 |
